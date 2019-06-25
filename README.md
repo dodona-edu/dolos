@@ -6,7 +6,7 @@ http://theory.stanford.edu/~aiken/publications/papers/sigmod03.pdf
 ## Work plan
 - Set up typescript and VS code
 - Hash function
-  - Inplement Rabin fingerprinting (with fix)
+  - Inplement [hashing](https://en.wikipedia.org/wiki/Rabin%E2%80%93Karp_algorithm#Hash_function_used) from Rabin-Karp
   - Test to see if hashes are uniform (and implementation is correct)
   - Write performance tests
   - Upgrade the functionn to inncrementally calculate the hashes
@@ -20,7 +20,7 @@ http://theory.stanford.edu/~aiken/publications/papers/sigmod03.pdf
 - Write code to query the index
 - Input normalization
   - We need a tokenizer
-  - Check if the Semantic project by Github is useable for this
+  - Check if the [Semantic](https://github.com/github/semantic) project by Github is useable for this
 - Test with actual code and tweak paramters
 - Link back the match position to the code
 - Pretty reporting
