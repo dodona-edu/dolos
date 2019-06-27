@@ -1,0 +1,18 @@
+{
+  "name": "dolos",
+  "version": "0.0.1",
+  "description": "Plagiarism detection for Dodona based on the Winnowing algorithm",
+  "main": "dist/app.js",
+  "scripts": {
+    "start": "tsc && node dist/app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": "git@github.com:dodona-edu/dolos.git",
+  "author": "Bart Mesuere <Bart.Mesuere@UGent.be>",
+  "license": "MIT",
+  "private": false,
+  "devDependencies": {
+    "tslint": "^5.18.0",
+    "typescript": "^3.5.2"
+  }
+}
