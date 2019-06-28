@@ -5,6 +5,7 @@
   "main": "dist/app.js",
   "scripts": {
     "start": "tsc && node dist/app.js",
+    "test-performance": "tsc && time head -c 1000000 /dev/random | node dist/app.js > /dev/null",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": "git@github.com:dodona-edu/dolos.git",
