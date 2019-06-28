@@ -1,3 +1,4 @@
+/* tslint:disable:no-bitwise no-shadowed-variable */
 import nPrime from "nprime";
 
 const k = 20;
@@ -7,16 +8,19 @@ console.error(base, mod);
 
 /**
  * Modular exponentiation without overflowing.
- * Code based on the pseudocode at 
+ * Code based on the pseudocode at
  * https://en.wikipedia.org/wiki/Modular_exponentiation#Pseudocode
+ *
  * @param base the base
  * @param exp the exponent
  * @param mod the modulus
  */
-function modPow (base: number, exp: number, mod: number) : number {
+function modPow(base: number, exp: number, mod: number): number {
     let y = 1;
     while (exp > 1) {
-        if (exp & 1) y = (base * y) % mod;
+        if (exp & 1) {
+            y = (base * y) % mod;
+        }
         base = (base * base) % mod;
         exp >>= 1;
     }
