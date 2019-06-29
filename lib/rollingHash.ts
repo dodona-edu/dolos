@@ -2,15 +2,15 @@
 import nPrime from "nprime";
 
 export default class RollingHash {
-    private mod = nPrime.next(1 << 25);
-    private base = nPrime.next(Math.ceil(Math.sqrt(this.mod)));
-    private k: number;
+    private readonly mod: number = nPrime.next(1 << 25);
+    private readonly base: number = nPrime.next(Math.ceil(Math.sqrt(this.mod)));
+    private readonly k: number;
 
-    private i = 0;
-    private hash = 0;
+    private readonly memory: number[];
+    private readonly maxBase: number;
 
-    private memory: number[];
-    private maxBase: number;
+    private i: number = 0;
+    private hash: number = 0;
 
     /**
      * Generates a rolling hash object that can be used to create hashes of a
@@ -55,7 +55,7 @@ export default class RollingHash {
      * @param mod the modulus
      */
     private modPow(base: number, exp: number, mod: number): number {
-        let y = 1;
+        let y: number = 1;
         while (exp > 1) {
             if (exp & 1) {
                 y = (base * y) % mod;
