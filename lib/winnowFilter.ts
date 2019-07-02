@@ -1,4 +1,4 @@
-import { ReadStream } from "fs";
+import { Readable } from "stream";
 import HashFilter from "./hashFilter";
 import RollingHash from "./rollingHash";
 
@@ -28,7 +28,7 @@ export default class WinnowFilter implements HashFilter {
      * @param stream The readable stream of a file (or stdin) to process. Such stream can be created
      * using fs.createReadStream("path").
      */
-    public async *hashes(stream: ReadStream): AsyncIterableIterator<[number, number]> {
+    public async *hashes(stream: Readable): AsyncIterableIterator<[number, number]> {
         const hash = new RollingHash(this.k);
         const buffer: number[] = new Array(this.windowSize).fill(Number.MAX_SAFE_INTEGER);
         let filePos: number = -1 * this.k;
@@ -38,32 +38,45 @@ export default class WinnowFilter implements HashFilter {
         // At the end of each iteration, minPos holds the position of the rightmost minimal
         // hash in the current window.
         // yield([x,pos]) is called only the first time an instance of x is selected
-        for await (const data of stream) {
-            for (const byte of data as Buffer) {
-                filePos++;
-                if (filePos < 0) {
-                    hash.nextHash(byte);
-                    continue;
+
+        for await (const byte of HashFilter.readBytes(stream)) {
+            filePos++;
+            if (filePos < 0) {
+                hash.nextHash(byte);
+                continue;
+            }
+            bufferPos = (bufferPos + 1) % this.windowSize;
+            buffer[bufferPos] = hash.nextHash(byte);
+            if (minPos === bufferPos) {
+                // The previous minimum is no longer in this window.
+                // Scan buffer starting from bufferPos for the rightmost minimal hash.
+                // Note minPos starts with the index of the rightmost hash.
+                for (
+                    let i = (bufferPos + 1) % this.windowSize;
+                    i !== bufferPos;
+                    i = (i + 1) % this.windowSize
+                ) {
+                    if (buffer[i] <= buffer[minPos]) {
+                        minPos = i;
+                    }
                 }
-                bufferPos = (bufferPos + 1) % this.windowSize;
-                buffer[bufferPos] = hash.nextHash(byte);
-                if (minPos === bufferPos) {
-                    // The previous minimum is no longer in this window.
-                    // Scan buffer starting from bufferPos for the rightmost minimal hash.
-                    // Note minPos starts with the index of the rightmost hash.
-                    for (let i = (bufferPos + 1) % this.windowSize; i !== bufferPos; i = (i + 1) % this.windowSize) {
-                        if (buffer[i] <= buffer[minPos]) {
-                            minPos = i;
-                        }
-                    }
-                    yield [buffer[minPos], filePos + (minPos - bufferPos - this.windowSize) % this.windowSize];
-                } else {
-                    // Otherwise, the previous minimum is still in this window. Compare
-                    // against the new value and update minPos if necessary.
-                    if (buffer[bufferPos] <= buffer[minPos]) {
-                        minPos = bufferPos;
-                        yield [buffer[minPos], filePos + (minPos - bufferPos - this.windowSize) % this.windowSize];
-                    }
+                yield [
+                    buffer[minPos],
+                    filePos +
+                        ((minPos - bufferPos - this.windowSize) %
+                            this.windowSize)
+                ];
+            } else {
+                // Otherwise, the previous minimum is still in this window. Compare
+                // against the new value and update minPos if necessary.
+                if (buffer[bufferPos] <= buffer[minPos]) {
+                    minPos = bufferPos;
+                    yield [
+                        buffer[minPos],
+                        filePos +
+                            ((minPos - bufferPos - this.windowSize) %
+                                this.windowSize)
+                    ];
                 }
             }
         }
