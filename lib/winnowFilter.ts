@@ -1,21 +1,22 @@
 import { ReadStream } from "fs";
+import HashFilter from "./hashFilter";
 import RollingHash from "./rollingHash";
 
-export default class Winnow {
-    private readonly windowSize: number;
+export default class WinnowFilter implements HashFilter {
     private readonly k: number;
+    private readonly windowSize: number;
 
     /**
      * Generates a Winnow object with given window size and k-mer size. The winnowing algorithm
      * will reduce the number of hash values returned by the hash function. It will at least
      * return 1 hash for every window (i.e. for every windowSize characters).
      *
-     * @param windowSize The window size
      * @param k The k-mer size of which hashes are calculated
+     * @param windowSize The window size
      */
-    constructor(windowSize: number, k: number) {
-        this.windowSize = windowSize;
+    constructor(k: number, windowSize: number) {
         this.k = k;
+        this.windowSize = windowSize;
     }
 
     /**
@@ -27,7 +28,7 @@ export default class Winnow {
      * @param stream The readable stream of a file (or stdin) to process. Such stream can be created
      * using fs.createReadStream("path").
      */
-    public async *winnow(stream: ReadStream): AsyncIterableIterator<[number, number]> {
+    public async *hashes(stream: ReadStream): AsyncIterableIterator<[number, number]> {
         const hash = new RollingHash(this.k);
         const buffer: number[] = new Array(this.windowSize).fill(Number.MAX_SAFE_INTEGER);
         let filePos: number = -1 * this.k;

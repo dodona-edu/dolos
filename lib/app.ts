@@ -1,11 +1,11 @@
 import fs from "fs";
-import Winnow from "./winnow";
+import WinnowFilter from "./winnowFilter";
 
-const winnow = new Winnow(20, 40);
+const winnow = new WinnowFilter(20, 40);
 
 (async () => {
     const output: Array<[number, number]> = [];
-    for await (const v of winnow.winnow(fs.createReadStream("/dev/stdin"))) {
+    for await (const v of winnow.hashes(fs.createReadStream("/dev/stdin"))) {
         output.push(v);
     }
 })();
