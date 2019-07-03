@@ -1,6 +1,6 @@
 import { Readable } from "stream";
 
-export default abstract class HashFilter {
+export abstract class HashFilter {
 
     public static async *readBytes(stream: Readable): AsyncIterableIterator<number> {
         for await (const buffer of stream) {

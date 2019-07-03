@@ -1,8 +1,8 @@
 import { Readable } from "stream";
-import HashFilter from "./hashFilter";
-import RollingHash from "./rollingHash";
+import { HashFilter } from "./hashFilter";
+import { RollingHash } from "./rollingHash";
 
-export default class WinnowFilter implements HashFilter {
+export class WinnowFilter implements HashFilter {
     private readonly k: number;
     private readonly windowSize: number;
 
@@ -64,7 +64,7 @@ export default class WinnowFilter implements HashFilter {
                     buffer[minPos],
                     filePos +
                         ((minPos - bufferPos - this.windowSize) %
-                            this.windowSize)
+                            this.windowSize),
                 ];
             } else {
                 // Otherwise, the previous minimum is still in this window. Compare
@@ -75,7 +75,7 @@ export default class WinnowFilter implements HashFilter {
                         buffer[minPos],
                         filePos +
                             ((minPos - bufferPos - this.windowSize) %
-                                this.windowSize)
+                                this.windowSize),
                     ];
                 }
             }

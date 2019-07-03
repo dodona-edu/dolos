@@ -1,8 +1,8 @@
 import { Readable } from "stream";
-import HashFilter from "./hashFilter";
-import RollingHash from "./rollingHash";
+import { HashFilter } from "./hashFilter";
+import { RollingHash } from "./rollingHash";
 
-export default class NoFilter implements HashFilter {
+export class NoFilter implements HashFilter {
     private readonly k: number;
 
     /**
