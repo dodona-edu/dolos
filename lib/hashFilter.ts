@@ -1,11 +1,8 @@
 import { Readable } from "stream";
 
 export default abstract class HashFilter {
-    abstract hashes(stream: Readable): AsyncIterableIterator<[number, number]>;
 
-    public static async *readBytes(
-        stream: Readable
-    ): AsyncIterableIterator<number> {
+    public static async *readBytes(stream: Readable): AsyncIterableIterator<number> {
         for await (const buffer of stream) {
             if (buffer instanceof Buffer) {
                 yield* buffer as Buffer;
@@ -17,4 +14,5 @@ export default abstract class HashFilter {
             }
         }
     }
+    public abstract hashes(stream: Readable): AsyncIterableIterator<[number, number]>;
 }
