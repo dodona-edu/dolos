@@ -7,7 +7,7 @@ let solnArr: number[];
 
 process.stdin.on("data", data => {
     solnArr = new Array(data.length);
-    const winnowing = new Winnowing(data, solnArr, hash);
+    const winnowing = new Winnowing(data, solnArr, hash, 200);
     winnowing.winnow();
     console.error(solnArr);
 });

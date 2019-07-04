@@ -1,19 +1,18 @@
 import RollingHash from "./rollingHash";
-// import { strict } from "assert";
 
 export default class Winnowing {
-    private readonly k: number = 20;
-    private hash: RollingHash = new RollingHash(this.k); 
+    private readonly w: number = 20;
+    private hash: RollingHash = new RollingHash(this.w); 
     private data: any;
     private arr: number[];
     private solnArr: number[];
 
     
-    constructor(data: any, solnArr: number[], hash?: RollingHash, k?: number) {
-        this.k = k ? k: this.k;
+    constructor(data: any, solnArr: number[], hash?: RollingHash, w?: number) {
+        this.w = w ? w: this.w;
         this.hash = hash ? hash: this.hash;
         this.data = data;
-        this.arr = new Array(k);
+        this.arr = new Array(w);
         this.solnArr = solnArr;
     }
 
@@ -26,7 +25,7 @@ export default class Winnowing {
     public winnow(): void {
         let maxVal = Math.pow(2, 31) - 1;  // NOT THE LARGEST VALUE AVAILABLE
                                            // Largest prime under MAX_SAFE_INTEGER: 9007199254740881
-        for(let j: number = 0; j < this.k; ++j) {
+        for(let j: number = 0; j < this.w; ++j) {
             this.arr[j] =  maxVal;
         }
 
@@ -35,21 +34,21 @@ export default class Winnowing {
         let currentIteration: number = 0;
 
         for (currentIteration = 0; currentIteration < this.data.length; ++currentIteration) {
-            r = (r + 1 % this.k);
+            r = (r + 1 % this.w);
             this.arr[r] =  this.hash.nextHash(this.data[currentIteration]);
             if (min === r) {
-                for (let i = (r - 1) % this.k; i !== r; i = (i - 1 + this.k) % this.k) {
+                for (let i = (r - 1) % this.w; i !== r; i = (i - 1 + this.w) % this.w) {
                     if (this.arr[i] < this.arr[min]) {
                        min = i;
                     }
                 }
-                return this.record(this.arr[min], this.globalPos(min, r, this.k, currentIteration));
+                return this.record(this.arr[min], this.globalPos(min, r, this.w, currentIteration));
             }
 
             else {
                 if (this.arr[r] < this.arr[min]) {
                     min = r;
-                    return this.record(this.arr[min], this.globalPos(min, r, this.k, currentIteration));
+                    return this.record(this.arr[min], this.globalPos(min, r, this.w, currentIteration));
                 }
             }
             currentIteration++;
@@ -74,11 +73,11 @@ export default class Winnowing {
      * 
      * @param min the minimum hash value on here
      * @param r the rightmost element in circular array
-     * @param k the size of the word
+     * @param w the size of the word
      * @param currentIternation is total size of array
      */
 
-    public globalPos(min: number, r: number, k: number, currentIteration: number) {
-        return (currentIteration + (min - r + k - 1) % k);
+    public globalPos(min: number, r: number, w: number, currentIteration: number) {
+        return (currentIteration + (min - r + w - 1) % w);
     }
 }
