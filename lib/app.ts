@@ -7,11 +7,9 @@ let solnArr: number[];
 
 process.stdin.on("data", data => {
     solnArr = new Array(data.length);
-    let s = "";
-    data.forEach((b: number) => {
-        s += hash.nextHash(b) + "\n";
-    });
-    console.log(s);
+    const winnowing = new Winnowing(data, solnArr, hash);
+    winnowing.winnow();
+    console.error(solnArr);
 });
 
 /*
