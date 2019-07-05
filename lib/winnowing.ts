@@ -1,14 +1,28 @@
 import RollingHash from "./rollingHash";
 
 export default class Winnowing {
-    private readonly w: number = 20;
+    private readonly w: number = 50;
     private hash: RollingHash = new RollingHash(this.w); 
     private data: any;
     private arr: number[];
     private solnArr: number[];
 
-    
-    constructor(data: any, solnArr: number[], hash?: RollingHash, w?: number) {
+    /**
+     * Generates fingerprints of hash values computed from k-grams of rolling
+     * hash function, as defined by the algorithm in Schleimer et al's paper
+     * "Winnowing: Local Algorithms for Document Fingerprinting".
+     *
+     * @param data The text input made into the program, to be processed for
+     * fingerprinting.
+     * @param solnArr The output sparse array that will hold the lowest hash 
+     * values of our windows.
+     * @param w The window siae of our winnowing function, which determines 
+     * how many hashes we choose our fingerprint from. By default this value 
+     * is set to 20.
+     * @param hash The rolling hash object used to access our next hash values.
+     * By default, we initialize a hash value for use.
+     */
+    constructor(data: any, solnArr: number[], w?: number, hash?: RollingHash) {
         this.w = w ? w: this.w;
         this.hash = hash ? hash: this.hash;
         this.data = data;
@@ -16,7 +30,7 @@ export default class Winnowing {
         this.solnArr = solnArr;
     }
 
-    /*
+    /** 
      * Finds our smallest hash value in our window
      * 
      * @param void There are no parameters for our function, all are in class
@@ -31,9 +45,8 @@ export default class Winnowing {
 
         let r: number = 0;
         let min: number = 0;
-        let currentIteration: number = 0;
 
-        for (currentIteration = 0; currentIteration < this.data.length; ++currentIteration) {
+        for (let currentIteration: number = 0; currentIteration < this.data.length; ++currentIteration) {
             r = (r + 1 % this.w);
             this.arr[r] =  this.hash.nextHash(this.data[currentIteration]);
             if (min === r) {
@@ -42,20 +55,19 @@ export default class Winnowing {
                        min = i;
                     }
                 }
-                return this.record(this.arr[min], this.globalPos(min, r, this.w, currentIteration));
+                this.record(this.arr[min], this.globalPos(min, r, this.w, currentIteration));
             }
 
             else {
                 if (this.arr[r] < this.arr[min]) {
                     min = r;
-                    return this.record(this.arr[min], this.globalPos(min, r, this.w, currentIteration));
+                    this.record(this.arr[min], this.globalPos(min, r, this.w, currentIteration));
                 }
             }
-            currentIteration++;
         }
     }
 
-    /*
+    /**
      * Compute the global position using the relative position, min.
      * Saving this position, together with the selected hash, creates a fingerprint
      * 
@@ -68,7 +80,7 @@ export default class Winnowing {
         return;
     }
 
-    /*
+    /**
      * Create a global position for our hash
      * 
      * @param min the minimum hash value on here
