@@ -90,6 +90,6 @@ export default class Winnowing {
      */
 
     public globalPos(min: number, r: number, w: number, currentIteration: number) {
-        return (currentIteration + (min - r + w - 1) % w);
+        return (currentIteration + (min - r + w - 1) % w - (w - 1));
     }
 }

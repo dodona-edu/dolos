@@ -21,7 +21,7 @@ fs.readFile('./sample.txt', (err: any, data: any) => {
     
     // console.error(data);
     solnArr = new Array(data.length);
-    const winnowing = new Winnowing(data, solnArr, 2, hash);
+    const winnowing = new Winnowing(data, solnArr, 3, hash);
     winnowing.winnow();
     console.error(solnArr);
     // console.error("\n checking array");
