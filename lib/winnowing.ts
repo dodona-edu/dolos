@@ -16,7 +16,7 @@ export default class Winnowing {
      * fingerprinting.
      * @param solnArr The output sparse array that will hold the lowest hash 
      * values of our windows.
-     * @param w The window siae of our winnowing function, which determines 
+     * @param w The window size of our winnowing function, which determines 
      * how many hashes we choose our fingerprint from. By default this value 
      * is set to 20.
      * @param hash The rolling hash object used to access our next hash values.
@@ -47,7 +47,7 @@ export default class Winnowing {
         let min: number = 0;
 
         for (let currentIteration: number = 0; currentIteration < this.data.length; ++currentIteration) {
-            r = (r + 1 % this.w);
+            r = ((r + 1) % this.w);
             this.arr[r] =  this.hash.nextHash(this.data[currentIteration]);
             if (min === r) {
                 for (let i = (r - 1) % this.w; i !== r; i = (i - 1 + this.w) % this.w) {
