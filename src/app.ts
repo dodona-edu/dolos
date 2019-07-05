@@ -1,5 +1,5 @@
 import fs from "fs";
-import { WinnowFilter } from "./winnowFilter";
+import { WinnowFilter } from "./lib/winnowFilter";
 
 const winnow = new WinnowFilter(20, 40);
 
