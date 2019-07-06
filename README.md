@@ -20,7 +20,7 @@ http://theory.stanford.edu/~aiken/publications/papers/sigmod03.pdf
   - [x] Validate if the incremental hash values are identical to the initial values
   - [x] Check the performance difference
 - Winnowing algorithm
-  - [x] Implement Winnowing as described in figure 5
+  - Implement Winnowing as described in figure 5
   - Manually validate if the result is correct (also check the positions)
   - Test with a few text files to see if it works
 - Write code to handle multiple files and create an index of hashes
