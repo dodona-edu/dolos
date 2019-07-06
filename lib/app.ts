@@ -1,12 +1,11 @@
-import RollingHash from "./rollingHash";
+import fs from "fs";
+import { WinnowFilter } from "./winnowFilter";
 
-const k = 20;
-const hash = new RollingHash(k);
+const winnow = new WinnowFilter(20, 40);
 
-process.stdin.on("data", data => {
-    let s = "";
-    data.forEach((b: number) => {
-        s += hash.nextHash(b) + "\n";
-    });
-    console.log(s);
-});
+(async () => {
+    const output: Array<[number, number]> = [];
+    for await (const v of winnow.hashes(fs.createReadStream("/dev/stdin"))) {
+        output.push(v);
+    }
+})();

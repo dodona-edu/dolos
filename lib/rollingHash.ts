@@ -1,7 +1,7 @@
 /* tslint:disable:no-bitwise */
 import nPrime from "nprime";
 
-export default class RollingHash {
+export class RollingHash {
     private readonly mod: number = nPrime.next(1 << 25);
     private readonly base: number = nPrime.next(Math.ceil(Math.sqrt(this.mod)));
     private readonly k: number;

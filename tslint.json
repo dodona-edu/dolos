@@ -6,7 +6,8 @@
     "jsRules": {},
     "rules": {
         "no-console": false,
-        "arrow-parens": false
+        "arrow-parens": false,
+        "interface-name": false
     },
     "rulesDirectory": []
 }
