@@ -67,6 +67,9 @@ jobs:
       # run tests!
       - run: yarn test
 
+      - store_artifacts:
+          path: coverage
+
 workflows:
   version: 2
   lint:
