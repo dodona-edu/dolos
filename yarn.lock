@@ -2383,7 +2383,7 @@ ms@^2.1.1:
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.1.2.tgz#d09d1f357b443f493382a8eb3ccd183872ae6009"
   integrity sha512-sGkPx+VjMtmA6MX27oA4FBFELFCZZ4S4XqeGOXCv68tT+jb3vk/RyaKWP0PTKyWtmLSM0b+adUTEvbs1PEaH2w==
 
-nan@^2.12.1, nan@^2.14.0:
+nan@^2.10.0, nan@^2.12.1, nan@^2.14.0, nan@^2.4.0, nan@^2.8.0:
   version "2.14.0"
   resolved "https://registry.yarnpkg.com/nan/-/nan-2.14.0.tgz#7818f722027b2459a86f0295d434d1fc2336c52c"
   integrity sha512-INOFj37C7k3AfaNTtX8RhsTw7qRy7eLET14cROi9+5HAVbbHuIWUHEauBv5qT4Av2tWasiTY1Jw6puUNqRJXQg==
@@ -3501,12 +3501,40 @@ tr46@^1.0.1:
   dependencies:
     punycode "^2.1.0"
 
+tree-sitter-c-sharp@^0.13.0:
+  version "0.13.0"
+  resolved "https://registry.yarnpkg.com/tree-sitter-c-sharp/-/tree-sitter-c-sharp-0.13.0.tgz#16cc401c24805c03727929bbd021f607a6138a82"
+  integrity sha512-6+lLBe6S2R0Rn12jY5CFlekjiXv1wz/4C2bhsbtNse+Wj3o4UT2tKDLDf6xyZI4McLkvB13U8Mgj/bBW+3WtrQ==
+  dependencies:
+    nan "^2.10.0"
+
+tree-sitter-haskell@^0.13.0:
+  version "0.13.0"
+  resolved "https://registry.yarnpkg.com/tree-sitter-haskell/-/tree-sitter-haskell-0.13.0.tgz#22dbc61a92e674a7df9700decbb941e4cdfe6419"
+  integrity sha512-aJFmPSjsrcpunGy38hswwBgNHVNf+d8iK0NwiEM9fmhajI3cHxd15Q9FmSrHwhpdcZI5rb8WqTNo9FstmCA15w==
+  dependencies:
+    nan "^2.4.0"
+
+tree-sitter-java@^0.13.0:
+  version "0.13.0"
+  resolved "https://registry.yarnpkg.com/tree-sitter-java/-/tree-sitter-java-0.13.0.tgz#9f438ed8e8c04af6dca36cd67ab047f600f8fd5b"
+  integrity sha512-WNIjmG27KagMGN8HFt9v4do2jCBBDZAA5W5EEkXbzbeHmJ/21IHh8Xu/xV70dUFuzZ9R1krF2CtzwPBF1qcDhA==
+  dependencies:
+    nan "^2.8.0"
+
 tree-sitter-javascript@^0.15.0:
   version "0.15.0"
   resolved "https://registry.yarnpkg.com/tree-sitter-javascript/-/tree-sitter-javascript-0.15.0.tgz#80945ddf52aae7fc181694e161b8d5e9c9dadacb"
   integrity sha512-1MJ1gO2Bp///UNexxUfGfh5A75Gb5qFxklAhQPgrbWSK6OgjgaHRiYMmW5tRMqoexSp3U2+9bp4j4Nc3Q2lEpg==
   dependencies:
     nan "^2.12.1"
+
+tree-sitter-python@^0.15.0:
+  version "0.15.0"
+  resolved "https://registry.yarnpkg.com/tree-sitter-python/-/tree-sitter-python-0.15.0.tgz#48af1fbe75a06e82fae62dcc650ee1b0126fb43e"
+  integrity sha512-lOV84DUTsyab8xRfU0o8pBQOKAZPjIJsGL7q0buuORHQvvwnvy3iwF/83OGSyiNYRJzPz6gW+E1N/VgNNavMHA==
+  dependencies:
+    nan "^2.4.0"
 
 tree-sitter@^0.15.7:
   version "0.15.7"

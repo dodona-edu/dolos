@@ -3,10 +3,10 @@ const fs = fsWithCallbacks.promises;
 import Parser from "tree-sitter";
 
 export class Tokenizer {
-  public static supportedLanguages = ["javascript"];
+  public static supportedLanguages = ["c-sharp", "haskell", "java", "javascript", "python"];
 
   public static isSupportedLanguage(language: string): boolean {
-      return this.supportedLanguages.includes(language);
+    return this.supportedLanguages.includes(language);
   }
 
   public readonly language: string;
@@ -14,7 +14,7 @@ export class Tokenizer {
 
   constructor(language: string) {
     if (!Tokenizer.isSupportedLanguage(language)) {
-        throw new Error(`Language '${language}' is not supported`);
+      throw new Error(`Language '${language}' is not supported`);
     }
 
     this.language = language;
