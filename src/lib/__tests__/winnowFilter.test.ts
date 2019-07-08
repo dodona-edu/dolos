@@ -27,7 +27,7 @@ test("Winnow on comparable files", async () => {
   expect(overlap).toBeGreaterThanOrEqual(3);
 });
 
-test ("no hashes for text shorter than k", async () => {
+test("no hashes for text shorter than k", async () => {
   const text = "abcd";
   const filter = new WinnowFilter(5, 1);
   const hashes = [];
@@ -75,4 +75,28 @@ test("winnow 1 and noFilter create same result", async () => {
     winnowHashes.push(hash);
   }
   expect(winnowHashes).toEqual(noHashes);
+});
+
+test("strings or buffers doesn't matter", async () => {
+  const text = "This is a slightly longer text to compare strings with buffers and test multiple hash values.";
+
+  const winnowFilter = new WinnowFilter(5, 4);
+
+  const stringHashes = [];
+  for await (const hash of winnowFilter.hashes((Readable as any).from(text))) {
+    stringHashes.push(hash);
+  }
+
+  const bufferHashes = [];
+  const buffer = Buffer.from(text);
+  for await (const hash of winnowFilter.hashes(new class extends Readable {
+    public _read() {
+      this.push(buffer);
+      this.push(null);
+    }
+  }({ objectMode: false }))) {
+    bufferHashes.push(hash);
+  }
+
+  expect(stringHashes).toEqual(bufferHashes);
 });
