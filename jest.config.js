@@ -1,1 +1,10 @@
-module.exports = require("@spotify/web-scripts/config/jest.config.js");
+module.exports = {
+  preset: "ts-jest/presets/js-with-ts",
+  globals: {
+    "ts-jest": {
+      tsConfig: {
+        allowJs: true,
+      },
+    },
+  },
+};
