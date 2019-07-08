@@ -1,4 +1,4 @@
-import { Readable } from "stream";
+import { HashFilter } from "../hashFilter";
 import { NoFilter } from "../noFilter";
 
 test("no hashes for text shorter than k", async () => {
@@ -6,7 +6,7 @@ test("no hashes for text shorter than k", async () => {
   const filter = new NoFilter(5);
   const hashes = [];
 
-  for await (const hash of filter.hashes((Readable as any).from(text))) {
+  for await (const hash of filter.hashes(HashFilter.streamFromString(text))) {
     hashes.push(hash);
   }
   expect(hashes.length).toBe(0);
@@ -17,7 +17,7 @@ test("1 hash for text length of k", async () => {
   const filter = new NoFilter(5);
   const hashes = [];
 
-  for await (const hash of filter.hashes((Readable as any).from(text))) {
+  for await (const hash of filter.hashes(HashFilter.streamFromString(text))) {
     hashes.push(hash);
   }
   expect(hashes.length).toBe(1);
@@ -29,7 +29,7 @@ test("number of hashes equals text size minus k plus 1", async () => {
   const filter = new NoFilter(k);
   const hashes = [];
 
-  for await (const hash of filter.hashes((Readable as any).from(text))) {
+  for await (const hash of filter.hashes(HashFilter.streamFromString(text))) {
     hashes.push(hash);
   }
   expect(hashes.length).toBe(text.length - k + 1);
