@@ -6,9 +6,10 @@ http://theory.stanford.edu/~aiken/publications/papers/sigmod03.pdf
 ## How to get started
 - Clone the repository
 - Run `yarn install` to install all dependencies
-- If you want to generate plain JS files, run `tsc` and the `dist` folder should be created
-- Running `yarn run start` will compile everything and run the `app.js` file
-- Running `yarn run test-performance` will run a performance test on 1M random bytes and print the execution time
+- If you want to generate plain JS files, run `yarn build` and the `dist` folder should be created
+- Running `yarn test` will run all tests
+- Running `yarn lint` will run the linter
+- Running `yarn start` will compile everything and run the `app.js` file
 
 ## Work plan
 - Set up typescript and VS code
@@ -19,10 +20,10 @@ http://theory.stanford.edu/~aiken/publications/papers/sigmod03.pdf
   - [x] Upgrade the function to incrementally calculate the hashes
   - [x] Validate if the incremental hash values are identical to the initial values
   - [x] Check the performance difference
-- Winnowing algorithm
-  - Implement Winnowing as described in figure 5
-  - Manually validate if the result is correct (also check the positions)
-  - Test with a few text files to see if it works
+- [x] Winnowing algorithm
+  - [x] Implement Winnowing as described in figure 5
+  - [x] Manually validate if the result is correct (also check the positions)
+  - [x] Test with a few text files to see if it works
 - Write code to handle multiple files and create an index of hashes
 - Write code to query the index
 - Input normalization

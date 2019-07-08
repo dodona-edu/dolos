@@ -5,8 +5,9 @@
   "main": "dist/app.js",
   "scripts": {
     "start": "tsc && node dist/app.js",
-    "test-performance": "tsc && time head -c 1000000 /dev/random | node dist/app.js > /dev/null",
-    "test": "web-scripts test",
+    "test-hash-performance": "tsc && time head -c 1000000 /dev/random | node dist/bin/hash.js > /dev/null",
+    "test-winnow-performance": "tsc && time head -c 1000000 /dev/random | node dist/bin/hash.js > /dev/null",
+    "test": "web-scripts test --coverage",
     "build": "tsc",
     "lint": "tslint 'src/**/*.ts'"
   },
