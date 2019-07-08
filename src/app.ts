@@ -1,11 +1,11 @@
 import fs from "fs";
-import { WinnowFilter } from "./lib/winnowFilter";
+import Parser from "tree-sitter";
 
-const winnow = new WinnowFilter(20, 40);
+const parser = new Parser();
+// tslint:disable-next-line: no-var-requires
+const language = require("tree-sitter-javascript");
+parser.setLanguage(language);
 
-(async () => {
-  const output: Array<[number, number]> = [];
-  for await (const v of winnow.hashes(fs.createReadStream("/dev/stdin"))) {
-    output.push(v);
-  }
-})();
+const fileContent = fs.readFileSync("samples/js/sample.js", "utf8");
+const tree = parser.parse(fileContent);
+console.log(tree.rootNode.toString());
