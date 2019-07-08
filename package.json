@@ -21,11 +21,13 @@
     "jest": "^24.8.0",
     "jest-junit": "^6.4.0",
     "prettier": "^1.18.2",
+    "tree-sitter-typescript": "^0.15.1",
     "ts-jest": "^24.0.2",
     "tslint": "^5.18.0",
     "typescript": "^3.5.2"
   },
   "dependencies": {
-    "nprime": "^0.2.1"
+    "nprime": "^0.2.1",
+    "tree-sitter": "^0.15.7"
   }
 }
