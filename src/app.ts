@@ -1,12 +1,10 @@
+import { Comparison } from "./lib/comparison";
 import { Tokenizer } from "./lib/tokenizer";
 
 (async () => {
   const tokenizer = new Tokenizer("javascript");
-  let resultString = "";
-  const positionMapping: number[] = [];
-  for await (const [token, range] of tokenizer.generateTokensFromFile("samples/js/sample.js")) {
-    resultString += token;
-    positionMapping.push(...new Array(token.length).fill(range.start.row));
-  }
-  console.log(resultString, positionMapping.join(","));
+  const comparison = new Comparison(tokenizer);
+  await comparison.addFile("samples/js/sample.js");
+  const result = await comparison.compare("samples/js/copied_function.js");
+  console.log(result);
 })();

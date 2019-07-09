@@ -5,7 +5,7 @@ import { WinnowFilter } from "./winnowFilter";
 type Matches = Map<string, Array<[number, number]>>;
 
 export class Comparison {
-  private readonly defaultK: number = 20;
+  private readonly defaultK: number = 50;
   private readonly defaultW: number = 40;
   private readonly index: Map<number, Array<[string, number]>> = new Map();
   private readonly tokenizer: Tokenizer;
