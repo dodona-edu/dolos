@@ -77,14 +77,45 @@ export class Tokenizer {
   }
 
   /**
+   * Runs the parser on a file with the given name. Returns a tuple containing the
+   * stringified version of the abstract syntax tree and an array containing a mapping
+   * from the position in the stringified AST (e.g. the position in the array) to the
+   * line number in the original code file.
+   *
+   * @param fileName The name of the file to parse
+   */
+  public async tokenizeFileWithMapping(fileName: string): Promise<[string, number[]]> {
+    const fileContent = await fs.readFile(fileName, "utf8");
+    return this.tokenizeWithMapping(fileContent);
+  }
+
+  /**
+   * Runs the parser on a given string. Returns a tuple containing the stringified version
+   * of the abstract syntax tree and an array containing a mapping from the position in the
+   * stringified AST (e.g. the position in the array) to the line number in the original code
+   * file.
+   *
+   * @param text The text string to parse
+   */
+  public async tokenizeWithMapping(text: string): Promise<[string, number[]]> {
+    let resultString = "";
+    const positionMapping: number[] = [];
+    for await (const [token, range] of this.generateTokens(text)) {
+      resultString += token;
+      positionMapping.push(...new Array(token.length).fill(range.start.row));
+    }
+    return [resultString, positionMapping];
+  }
+
+  /**
    * Runs the parser on a file with the given name. Returns an async iterator returning
    * tuples containing the stringified version of the token and the corresponding position.
    *
    * @param fileName The name of the file to parse
    */
-  public async *mappedTokenizeFile(fileName: string): AsyncIterableIterator<[string, Range]> {
+  public async *generateTokensFromFile(fileName: string): AsyncIterableIterator<[string, Range]> {
     const fileContent = await fs.readFile(fileName, "utf8");
-    yield* this.mappedTokenize(fileContent);
+    yield* this.generateTokens(fileContent);
   }
 
   /**
@@ -93,7 +124,7 @@ export class Tokenizer {
    *
    * @param text The text string to parse
    */
-  public async *mappedTokenize(text: string): AsyncIterableIterator<[string, Range]> {
+  public async *generateTokens(text: string): AsyncIterableIterator<[string, Range]> {
     const tree = this.parser.parse(text);
     yield* this.tokenizeNode(tree.rootNode);
   }

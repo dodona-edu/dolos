@@ -23,7 +23,7 @@ test("tokenizer with or without location is equal", async () => {
   const file = __filename;
 
   let tokenized = "";
-  for await (const [character] of tokenizer.mappedTokenizeFile(file)) {
+  for await (const [character] of tokenizer.generateTokensFromFile(file)) {
     tokenized += character;
   }
 
