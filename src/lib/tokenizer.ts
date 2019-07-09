@@ -58,7 +58,7 @@ export class Tokenizer {
    * Runs the parser on a file with the given name. Returns a stringified version
    * of the abstract syntax tree.
    *
-   * @param fileName The name of the file to parse.
+   * @param fileName The name of the file to parse
    */
   public async tokenizeFile(fileName: string): Promise<string> {
     const fileContent = await fs.readFile(fileName, "utf8");
@@ -76,29 +76,44 @@ export class Tokenizer {
     return tree.rootNode.toString();
   }
 
-  public async *mappedTokenize(fileName: string): AsyncIterableIterator<[string, Range]> {
+  /**
+   * Runs the parser on a file with the given name. Returns an async iterator returning
+   * tuples containing the stringified version of the token and the corresponding position.
+   *
+   * @param fileName The name of the file to parse
+   */
+  public async *mappedTokenizeFile(fileName: string): AsyncIterableIterator<[string, Range]> {
     const fileContent = await fs.readFile(fileName, "utf8");
-    const tree = this.parser.parse(fileContent);
+    yield* this.mappedTokenize(fileContent);
+  }
 
-    function* tokenizeNode(node: SyntaxNode): IterableIterator<[string, Range]> {
-      const range: Range = {
-        end: node.endPosition,
-        start: node.startPosition,
-      };
+  /**
+   * Runs the parser on a given string. Returns an async iterator returning tuples
+   * containing the stringified version of the token and the corresponding position.
+   *
+   * @param text The text string to parse
+   */
+  public async *mappedTokenize(text: string): AsyncIterableIterator<[string, Range]> {
+    const tree = this.parser.parse(text);
+    yield* this.tokenizeNode(tree.rootNode);
+  }
 
-      yield ["(", range];
-      // "(node.type child1 child2 ...)"
-      for (const c of node.type) {
-        yield [c, range];
-      }
+  private async *tokenizeNode(node: SyntaxNode): AsyncIterableIterator<[string, Range]> {
+    const range: Range = {
+      end: node.endPosition,
+      start: node.startPosition,
+    };
 
-      for (const child of node.namedChildren) {
-        yield [" ", range];
-        yield* tokenizeNode(child);
-      }
-      yield [")", range];
+    yield ["(", range];
+    // "(node.type child1 child2 ...)"
+    for (const c of node.type) {
+      yield [c, range];
     }
 
-    yield* tokenizeNode(tree.rootNode);
+    for (const child of node.namedChildren) {
+      yield [" ", range];
+      yield* this.tokenizeNode(child);
+    }
+    yield [")", range];
   }
 }
