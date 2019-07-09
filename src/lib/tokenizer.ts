@@ -1,6 +1,6 @@
 import { default as fsWithCallbacks } from "fs";
 const fs = fsWithCallbacks.promises;
-import Parser from "tree-sitter";
+import { default as Parser, Range, SyntaxNode } from "tree-sitter";
 
 export class Tokenizer {
   public static supportedLanguages = ["c-sharp", "haskell", "java", "javascript", "python"];
@@ -28,5 +28,29 @@ export class Tokenizer {
     const fileContent = await fs.readFile(fileName, "utf8");
     const tree = this.parser.parse(fileContent);
     return tree.rootNode.toString();
+  }
+
+  public async *mappedTokenize(fileName: string): AsyncIterableIterator<[string, Range]> {
+    const fileContent = await fs.readFile(fileName, "utf8");
+    const tree = this.parser.parse(fileContent);
+
+    function* tokenizeNode(node: SyntaxNode): IterableIterator<[string, Range]> {
+      const range: Range = {
+        start: node.startPosition,
+        end: node.endPosition,
+      };
+
+      yield ["(", range];
+      // "(node.type child1 child2 ...)"
+      for (const c of node.type) yield [c, range];
+
+      for (const child of node.namedChildren) {
+        yield [" ", range];
+        yield* tokenizeNode(child);
+      }
+      yield [")", range];
+    }
+
+    yield* tokenizeNode(tree.rootNode);
   }
 }
