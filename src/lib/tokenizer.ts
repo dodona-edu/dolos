@@ -36,13 +36,15 @@ export class Tokenizer {
 
     function* tokenizeNode(node: SyntaxNode): IterableIterator<[string, Range]> {
       const range: Range = {
-        start: node.startPosition,
         end: node.endPosition,
+        start: node.startPosition,
       };
 
       yield ["(", range];
       // "(node.type child1 child2 ...)"
-      for (const c of node.type) yield [c, range];
+      for (const c of node.type) {
+        yield [c, range];
+      }
 
       for (const child of node.namedChildren) {
         yield [" ", range];
