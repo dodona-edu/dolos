@@ -1,4 +1,3 @@
-import { HashFilter } from "../hashFilter";
 import { ModFilter } from "../modFilter";
 import { NoFilter } from "../noFilter";
 
@@ -7,7 +6,7 @@ test("no hashes for text shorter than k", async () => {
   const filter = new ModFilter(5, 1);
   const hashes = [];
 
-  for await (const hash of filter.hashes(HashFilter.streamFromString(text))) {
+  for await (const hash of filter.hashesFromString(text)) {
     hashes.push(hash);
   }
   expect(hashes.length).toBe(0);
@@ -18,7 +17,7 @@ test("1 hash for text length of k", async () => {
   const filter = new ModFilter(5, 1);
   const hashes = [];
 
-  for await (const hash of filter.hashes(HashFilter.streamFromString(text))) {
+  for await (const hash of filter.hashesFromString(text)) {
     hashes.push(hash);
   }
   expect(hashes.length).toBe(1);
@@ -29,7 +28,7 @@ test("all hashes are mod m", async () => {
   const mod = 2;
   const filter = new ModFilter(5, mod);
 
-  for await (const [hash] of filter.hashes(HashFilter.streamFromString(text))) {
+  for await (const [hash] of filter.hashesFromString(text)) {
     expect(hash % mod).toBe(0);
   }
 });
@@ -41,10 +40,10 @@ test("mod 1 and noFilter create same result", async () => {
   const noHashes = [];
   const modHashes = [];
 
-  for await (const hash of noFilter.hashes(HashFilter.streamFromString(text))) {
+  for await (const hash of noFilter.hashesFromString(text)) {
     noHashes.push(hash);
   }
-  for await (const hash of modFilter.hashes(HashFilter.streamFromString(text))) {
+  for await (const hash of modFilter.hashesFromString(text)) {
     modHashes.push(hash);
   }
   expect(modHashes).toEqual(noHashes);

@@ -2,7 +2,7 @@ import { Readable } from "stream";
 import { HashFilter } from "./hashFilter";
 import { RollingHash } from "./rollingHash";
 
-export class WinnowFilter implements HashFilter {
+export class WinnowFilter extends HashFilter {
   private readonly k: number;
   private readonly windowSize: number;
 
@@ -15,6 +15,7 @@ export class WinnowFilter implements HashFilter {
    * @param windowSize The window size
    */
   constructor(k: number, windowSize: number) {
+    super();
     this.k = k;
     this.windowSize = windowSize;
   }

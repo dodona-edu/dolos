@@ -2,7 +2,7 @@ import { Readable } from "stream";
 import { HashFilter } from "./hashFilter";
 import { RollingHash } from "./rollingHash";
 
-export class NoFilter implements HashFilter {
+export class NoFilter extends HashFilter {
   private readonly k: number;
 
   /**
@@ -12,6 +12,7 @@ export class NoFilter implements HashFilter {
    * @param k The k-mer size of which hashes are calculated
    */
   constructor(k: number) {
+    super();
     this.k = k;
   }
 
