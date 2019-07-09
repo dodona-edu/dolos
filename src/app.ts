@@ -1,11 +1,12 @@
-import fs from "fs";
-import { WinnowFilter } from "./lib/winnowFilter";
-
-const winnow = new WinnowFilter(20, 40);
+import { Tokenizer } from "./lib/tokenizer";
 
 (async () => {
-  const output: Array<[number, number]> = [];
-  for await (const v of winnow.hashes(fs.createReadStream("/dev/stdin"))) {
-    output.push(v);
+  const tokenizer = new Tokenizer("javascript");
+  let resultString = "";
+  const positionMapping: number[] = [];
+  for await (const [token, range] of tokenizer.generateTokensFromFile("samples/js/sample.js")) {
+    resultString += token;
+    positionMapping.push(...new Array(token.length).fill(range.start.row));
   }
+  console.log(resultString, positionMapping.join(","));
 })();

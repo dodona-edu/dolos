@@ -10,12 +10,12 @@ test("Winnow on comparable files", async () => {
   const filter = new WinnowFilter(k, 2);
   const hashes: Map<number, number> = new Map();
   // Build a Map from hash to position
-  for await (const [hash, posA] of filter.hashes((Readable as any).from(textA))) {
+  for await (const [hash, posA] of filter.hashesFromString(textA)) {
     hashes.set(hash, posA);
   }
 
   let overlap = 0;
-  for await (const [hash, posB] of filter.hashes((Readable as any).from(textB))) {
+  for await (const [hash, posB] of filter.hashesFromString(textB)) {
     if (hashes.has(hash)) {
       ++overlap;
       const posA = hashes.get(hash) as number;
@@ -32,7 +32,7 @@ test("no hashes for text shorter than k", async () => {
   const filter = new WinnowFilter(5, 1);
   const hashes = [];
 
-  for await (const hash of filter.hashes((Readable as any).from(text))) {
+  for await (const hash of filter.hashesFromString(text)) {
     hashes.push(hash);
   }
   expect(hashes.length).toBe(0);
@@ -43,7 +43,7 @@ test("1 hash for text length of k", async () => {
   const filter = new WinnowFilter(5, 1);
   const hashes = [];
 
-  for await (const hash of filter.hashes((Readable as any).from(text))) {
+  for await (const hash of filter.hashesFromString(text)) {
     hashes.push(hash);
   }
   expect(hashes.length).toBe(1);
@@ -55,7 +55,7 @@ test("maximum gap between hash positions is window size", async () => {
   const winnowFilter = new WinnowFilter(5, windowSize);
   let previousPos = 0;
 
-  for await (const [, position] of winnowFilter.hashes((Readable as any).from(text))) {
+  for await (const [, position] of winnowFilter.hashesFromString(text)) {
     expect(position - previousPos).toBeLessThanOrEqual(windowSize);
     previousPos = position;
   }
@@ -68,33 +68,36 @@ test("winnow 1 and noFilter create same result", async () => {
   const noHashes = [];
   const winnowHashes = [];
 
-  for await (const hash of noFilter.hashes((Readable as any).from(text))) {
+  for await (const hash of noFilter.hashesFromString(text)) {
     noHashes.push(hash);
   }
-  for await (const hash of winnowFilter.hashes((Readable as any).from(text))) {
+  for await (const hash of winnowFilter.hashesFromString(text)) {
     winnowHashes.push(hash);
   }
   expect(winnowHashes).toEqual(noHashes);
 });
 
 test("strings or buffers doesn't matter", async () => {
-  const text = "This is a slightly longer text to compare strings with buffers and test multiple hash values.";
+  const text =
+    "This is a slightly longer text to compare strings with buffers and test multiple hash values.";
 
   const winnowFilter = new WinnowFilter(5, 4);
 
   const stringHashes = [];
-  for await (const hash of winnowFilter.hashes((Readable as any).from(text))) {
+  for await (const hash of winnowFilter.hashesFromString(text)) {
     stringHashes.push(hash);
   }
 
   const bufferHashes = [];
   const buffer = Buffer.from(text);
-  for await (const hash of winnowFilter.hashes(new class extends Readable {
-    public _read() {
-      this.push(buffer);
-      this.push(null);
-    }
-  }({ objectMode: false }))) {
+  for await (const hash of winnowFilter.hashes(
+    new (class extends Readable {
+      public _read() {
+        this.push(buffer);
+        this.push(null);
+      }
+    })({ objectMode: false }),
+  )) {
     bufferHashes.push(hash);
   }
 

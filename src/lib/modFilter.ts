@@ -2,7 +2,7 @@ import { Readable } from "stream";
 import { HashFilter } from "./hashFilter";
 import { RollingHash } from "./rollingHash";
 
-export class ModFilter implements HashFilter {
+export class ModFilter extends HashFilter {
   private readonly k: number;
   private readonly mod: number;
 
@@ -14,6 +14,7 @@ export class ModFilter implements HashFilter {
    * @param mod The mod value for which hashes to keep
    */
   constructor(k: number, mod: number) {
+    super();
     this.k = k;
     this.mod = mod;
   }

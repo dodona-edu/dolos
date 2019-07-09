@@ -13,5 +13,13 @@ export abstract class HashFilter {
       }
     }
   }
+
   public abstract hashes(stream: Readable): AsyncIterableIterator<[number, number]>;
+
+  public async *hashesFromString(text: string): AsyncIterableIterator<[number, number]> {
+    const stream = new Readable();
+    stream.push(text);
+    stream.push(null);
+    yield* this.hashes(stream);
+  }
 }
