@@ -33,7 +33,12 @@ export class Comparison {
    * @param files A list of filenames
    */
   public addFiles(files: string[]): Promise<void[]> {
-    return Promise.all(files.map(this.addFile));
+    // This promise will reject if one of the underlying promises reject
+    // which is not what we want. If one file is missing, the others should
+    // still be added. In the future, Promise.all can be replaced by
+    // Promise.allSettled, but for now the error handling makes sure they
+    // are all resolved correctly.
+    return Promise.all(files.map(file => this.addFile(file)));
   }
 
   /**
@@ -42,16 +47,21 @@ export class Comparison {
    * @param file The file name of the file to add
    */
   public async addFile(file: string): Promise<void> {
-    const [ast, mapping] = await this.tokenizer.tokenizeFileWithMapping(file);
-    for await (const [hash, position] of this.hashFilter.hashesFromString(ast)) {
-      // hash and the corresponding line number
-      const match: [string, number] = [file, mapping[position]];
-      const matches = this.index.get(hash);
-      if (matches) {
-        matches.push(match);
-      } else {
-        this.index.set(hash, [match]);
+    try {
+      const [ast, mapping] = await this.tokenizer.tokenizeFileWithMapping(file);
+      for await (const [hash, position] of this.hashFilter.hashesFromString(ast)) {
+        // hash and the corresponding line number
+        const match: [string, number] = [file, mapping[position]];
+        const matches = this.index.get(hash);
+        if (matches) {
+          matches.push(match);
+        } else {
+          this.index.set(hash, [match]);
+        }
       }
+    } catch (error) {
+      console.error(`There was a problem parsing ${file}.`);
+      return; // this makes sure the promise resolves instead of rejects
     }
   }
 

@@ -4,7 +4,7 @@ import { Tokenizer } from "./lib/tokenizer";
 (async () => {
   const tokenizer = new Tokenizer("javascript");
   const comparison = new Comparison(tokenizer);
-  await comparison.addFile("samples/js/sample.js");
+  await comparison.addFiles(["samples/js/samples.js", "samples/js/sample.js"]);
   const result = await comparison.compareFile("samples/js/copied_function.js");
   console.log(result);
 })();
