@@ -7,10 +7,6 @@ export interface Token<Location> {
 }
 
 export abstract class Tokenizer<Location> {
-  protected newToken(token: string, location: Location): Token<Location> {
-    return { token, location };
-  }
-
   /**
    * Returns a stringified version the given file.
    *
@@ -75,4 +71,14 @@ export abstract class Tokenizer<Location> {
    * @param text The text string to parse
    */
   public abstract generateTokens(text: Buffer): IterableIterator<Token<Location>>;
+
+  /**
+   * Returns a new token-object. Just a shorthand for {token: ..., location: ...}.
+   *
+   * @param token the text of the token
+   * @param location the location of the token
+   */
+  protected newToken(token: string, location: Location): Token<Location> {
+    return { token, location };
+  }
 }
