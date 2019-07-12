@@ -1,7 +1,16 @@
 import { default as fsWithCallbacks } from "fs";
 const fs = fsWithCallbacks.promises;
 
+export interface Token<Location> {
+  token: string;
+  location: Location;
+}
+
 export abstract class Tokenizer<Location> {
+  protected newToken(token: string, location: Location): Token<Location> {
+    return { token, location };
+  }
+
   /**
    * Returns a stringified version the given file.
    *
@@ -41,7 +50,7 @@ export abstract class Tokenizer<Location> {
   public async tokenizeWithMapping(text: Buffer): Promise<[string, Location[]]> {
     let resultString = "";
     const positionMapping: Location[] = [];
-    for (const [token, location] of this.generateTokens(text)) {
+    for (const { token, location } of this.generateTokens(text)) {
       resultString += token;
       positionMapping.push(...new Array(token.length).fill(location));
     }
@@ -54,9 +63,7 @@ export abstract class Tokenizer<Location> {
    *
    * @param fileName The name of the file to stringify
    */
-  public async *generateTokensFromFile(
-    fileName: string,
-  ): AsyncIterableIterator<[string, Location]> {
+  public async *generateTokensFromFile(fileName: string): AsyncIterableIterator<Token<Location>> {
     const fileContent = await fs.readFile(fileName);
     yield* this.generateTokens(fileContent);
   }
@@ -67,5 +74,5 @@ export abstract class Tokenizer<Location> {
    *
    * @param text The text string to parse
    */
-  public abstract generateTokens(text: Buffer): IterableIterator<[string, Location]>;
+  public abstract generateTokens(text: Buffer): IterableIterator<Token<Location>>;
 }
