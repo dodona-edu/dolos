@@ -1,5 +1,5 @@
 import { Readable } from "stream";
-import { HashFilter } from "./hashFilter";
+import { Hash, HashFilter } from "./hashFilter";
 import { RollingHash } from "./rollingHash";
 
 export class NoFilter extends HashFilter {
@@ -23,7 +23,7 @@ export class NoFilter extends HashFilter {
    * @param stream The readable stream of a file (or stdin) to process. Such stream can be created
    * using fs.createReadStream("path").
    */
-  public async *hashes(stream: Readable): AsyncIterableIterator<[number, number]> {
+  public async *hashes(stream: Readable): AsyncIterableIterator<Hash> {
     const hash = new RollingHash(this.k);
     let filePos: number = -1 * this.k;
 
@@ -33,7 +33,7 @@ export class NoFilter extends HashFilter {
         hash.nextHash(byte);
         continue;
       }
-      yield [hash.nextHash(byte), filePos];
+      yield { hash: hash.nextHash(byte), location: filePos };
     }
   }
 }

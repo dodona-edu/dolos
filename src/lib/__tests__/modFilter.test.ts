@@ -28,7 +28,7 @@ test("all hashes are mod m", async () => {
   const mod = 2;
   const filter = new ModFilter(5, mod);
 
-  for await (const [hash] of filter.hashesFromString(text)) {
+  for await (const { hash } of filter.hashesFromString(text)) {
     expect(hash % mod).toBe(0);
   }
 });

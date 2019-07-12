@@ -1,5 +1,5 @@
 import { Readable } from "stream";
-import { HashFilter } from "./hashFilter";
+import { Hash, HashFilter } from "./hashFilter";
 import { RollingHash } from "./rollingHash";
 
 export class WinnowFilter extends HashFilter {
@@ -29,7 +29,7 @@ export class WinnowFilter extends HashFilter {
    * @param stream The readable stream of a file (or stdin) to process. Such stream can be created
    * using fs.createReadStream("path").
    */
-  public async *hashes(stream: Readable): AsyncIterableIterator<[number, number]> {
+  public async *hashes(stream: Readable): AsyncIterableIterator<Hash> {
     const hash = new RollingHash(this.k);
     const buffer: number[] = new Array(this.windowSize).fill(Number.MAX_SAFE_INTEGER);
     let filePos: number = -1 * this.k;
@@ -60,19 +60,19 @@ export class WinnowFilter extends HashFilter {
             minPos = i;
           }
         }
-        yield [
-          buffer[minPos],
-          filePos + ((minPos - bufferPos - this.windowSize) % this.windowSize),
-        ];
+        yield {
+          hash: buffer[minPos],
+          location: filePos + ((minPos - bufferPos - this.windowSize) % this.windowSize),
+        };
       } else {
         // Otherwise, the previous minimum is still in this window. Compare
         // against the new value and update minPos if necessary.
         if (buffer[bufferPos] <= buffer[minPos]) {
           minPos = bufferPos;
-          yield [
-            buffer[minPos],
-            filePos + ((minPos - bufferPos - this.windowSize) % this.windowSize),
-          ];
+          yield {
+            hash: buffer[minPos],
+            location: filePos + ((minPos - bufferPos - this.windowSize) % this.windowSize),
+          };
         }
       }
     }
