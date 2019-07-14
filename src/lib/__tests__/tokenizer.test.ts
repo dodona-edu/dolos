@@ -1,31 +1,28 @@
-import { Tokenizer } from "../tokenizer";
+import { CodeTokenizer } from "../codeTokenizer";
 
 test("tokenizer creation works for all listed languages", () => {
-  for (const language of Tokenizer.supportedLanguages) {
-    expect(() => new Tokenizer(language)).not.toThrow();
+  for (const language of CodeTokenizer.supportedLanguages) {
+    expect(() => new CodeTokenizer(language)).not.toThrow();
   }
 });
 
 test("tokenizer creation throws error for unsupported language", () => {
-  expect(() => new Tokenizer("some string")).toThrow();
+  expect(() => new CodeTokenizer("some string")).toThrow();
 });
 
 test("registering a new installed language works", () => {
-  expect(() => Tokenizer.registerLanguage("python")).not.toThrow();
+  expect(() => CodeTokenizer.registerLanguage("python")).not.toThrow();
 });
 
 test("registering a new invalid language throws error", () => {
-  expect(() => Tokenizer.registerLanguage("some string")).toThrow();
+  expect(() => CodeTokenizer.registerLanguage("some string")).toThrow();
 });
 
 test("tokenizer with or without location is equal", async () => {
-  const tokenizer = new Tokenizer("javascript");
+  const tokenizer = new CodeTokenizer("javascript");
   const file = __filename;
 
-  let tokenized = "";
-  for await (const [character] of tokenizer.generateTokensFromFile(file)) {
-    tokenized += character;
-  }
+  const [tokenized] = await tokenizer.tokenizeFileWithMapping(file);
 
   expect(tokenized).toEqual(await tokenizer.tokenizeFile(file));
 });
