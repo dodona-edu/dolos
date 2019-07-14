@@ -49,9 +49,9 @@ export class Comparison {
   public async addFile(file: string): Promise<void> {
     try {
       const [ast, mapping] = await this.tokenizer.tokenizeFileWithMapping(file);
-      for await (const [hash, position] of this.hashFilter.hashesFromString(ast)) {
+      for await (const { hash, location } of this.hashFilter.hashesFromString(ast)) {
         // hash and the corresponding line number
-        const match: [string, number] = [file, mapping[position]];
+        const match: [string, number] = [file, mapping[location]];
         const matches = this.index.get(hash);
         if (matches) {
           matches.push(match);
@@ -97,11 +97,11 @@ export class Comparison {
     // mapping file names to line number pairs (other file, this file)
     const matchingFiles: Matches = new Map();
     const [ast, mapping] = await this.tokenizer.tokenizeFileWithMapping(file);
-    for await (const [hash, position] of hashFilter.hashesFromString(ast)) {
+    for await (const { hash, location } of hashFilter.hashesFromString(ast)) {
       const matches = this.index.get(hash);
       if (matches) {
         for (const [fileName, lineNumber] of matches) {
-          const match: [number, number] = [lineNumber, mapping[position]];
+          const match: [number, number] = [lineNumber, mapping[location]];
           const lines = matchingFiles.get(fileName);
           if (lines) {
             lines.push(match);
