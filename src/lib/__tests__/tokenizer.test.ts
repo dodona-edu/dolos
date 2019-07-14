@@ -18,7 +18,7 @@ test("registering a new invalid language throws error", () => {
   expect(() => CodeTokenizer.registerLanguage("some string")).toThrow();
 });
 
-test("tokenizer with or without location is equal", async () => {
+test.skip("tokenizer with or without location is equal", async () => {
   const tokenizer = new CodeTokenizer("javascript");
   const file = __filename;
 
