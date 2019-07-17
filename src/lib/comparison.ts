@@ -8,7 +8,7 @@ export class Comparison {
   private readonly defaultK: number = 50;
   private readonly defaultW: number = 40;
   private readonly index: Map<number, Array<[string, number]>> = new Map();
-  private readonly tokenizer: Tokenizer;
+  private readonly tokenizer: Tokenizer<number>;
   private readonly hashFilter: HashFilter;
 
   /**
@@ -22,7 +22,7 @@ export class Comparison {
    * @param hashFilter An optional HashFilter to filter the hashes returned by
    * the rolling hash function.
    */
-  constructor(tokenizer: Tokenizer, hashFilter?: HashFilter) {
+  constructor(tokenizer: Tokenizer<number>, hashFilter?: HashFilter) {
     this.tokenizer = tokenizer;
     this.hashFilter = hashFilter ? hashFilter : new WinnowFilter(this.defaultK, this.defaultW);
   }
