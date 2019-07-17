@@ -32,7 +32,7 @@ jobs:
           paths:
             - node_modules
           key: v1-dependencies-{{ checksum "package.json" }}
-
+      - run: yarn build
       - run: yarn lint
 
   test:
@@ -65,6 +65,7 @@ jobs:
           key: v1-dependencies-{{ checksum "package.json" }}
 
       # run tests!
+      - run: yarn build
       - run: yarn test
 
       - store_artifacts:
@@ -74,7 +75,7 @@ workflows:
   version: 2
   lint:
     jobs:
-    - lint
+      - lint
   test:
     jobs:
-    - test
+      - test
