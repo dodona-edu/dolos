@@ -1,9 +1,9 @@
-import { Tokenizer } from "../lib/tokenizer";
+import { CodeTokenizer } from "../lib/codeTokenizer";
 
 (async () => {
-  const tokenizer = new Tokenizer("javascript");
+  const tokenizer = new CodeTokenizer("javascript");
   let resultString = "";
-  for await (const [token] of tokenizer.generateTokensFromFile("samples/js/sample.js")) {
+  for await (const { token } of tokenizer.generateTokensFromFile("samples/js/sample.js")) {
     resultString += token;
   }
   console.log(resultString);
