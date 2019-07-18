@@ -2,13 +2,13 @@ import { HashFilter } from "./hashFilter";
 import { Tokenizer } from "./tokenizer";
 import { WinnowFilter } from "./winnowFilter";
 
-type Matches = Map<string, Array<[number, number]>>;
+type Matches<Location> = Map<string, Array<[Location, Location]>>;
 
-export class Comparison {
+export class Comparison<Location> {
   private readonly defaultK: number = 50;
   private readonly defaultW: number = 40;
-  private readonly index: Map<number, Array<[string, number]>> = new Map();
-  private readonly tokenizer: Tokenizer<number>;
+  private readonly index: Map<number, Array<[string, Location]>> = new Map();
+  private readonly tokenizer: Tokenizer<Location>;
   private readonly hashFilter: HashFilter;
 
   /**
@@ -22,7 +22,7 @@ export class Comparison {
    * @param hashFilter An optional HashFilter to filter the hashes returned by
    * the rolling hash function.
    */
-  constructor(tokenizer: Tokenizer<number>, hashFilter?: HashFilter) {
+  constructor(tokenizer: Tokenizer<Location>, hashFilter?: HashFilter) {
     this.tokenizer = tokenizer;
     this.hashFilter = hashFilter ? hashFilter : new WinnowFilter(this.defaultK, this.defaultW);
   }
@@ -51,7 +51,7 @@ export class Comparison {
       const [ast, mapping] = await this.tokenizer.tokenizeFileWithMapping(file);
       for await (const { hash, location } of this.hashFilter.hashesFromString(ast)) {
         // hash and the corresponding line number
-        const match: [string, number] = [file, mapping[location]];
+        const match: [string, Location] = [file, mapping[location]];
         const matches = this.index.get(hash);
         if (matches) {
           matches.push(match);
@@ -77,8 +77,8 @@ export class Comparison {
   public async compareFiles(
     files: string[],
     hashFilter = this.hashFilter,
-  ): Promise<Map<string, Matches>> {
-    const matchingFiles: Map<string, Matches> = new Map();
+  ): Promise<Map<string, Matches<Location>>> {
+    const matchingFiles: Map<string, Matches<Location>> = new Map();
     for (const file of files) {
       matchingFiles.set(file, await this.compareFile(file, hashFilter));
     }
@@ -93,15 +93,15 @@ export class Comparison {
    * @param hashFilter An optional HashFilter. By default the HashFilter of the Comparison
    * object will be used.
    */
-  public async compareFile(file: string, hashFilter = this.hashFilter): Promise<Matches> {
+  public async compareFile(file: string, hashFilter = this.hashFilter): Promise<Matches<Location>> {
     // mapping file names to line number pairs (other file, this file)
-    const matchingFiles: Matches = new Map();
+    const matchingFiles: Matches<Location> = new Map();
     const [ast, mapping] = await this.tokenizer.tokenizeFileWithMapping(file);
     for await (const { hash, location } of hashFilter.hashesFromString(ast)) {
       const matches = this.index.get(hash);
       if (matches) {
         for (const [fileName, lineNumber] of matches) {
-          const match: [number, number] = [lineNumber, mapping[location]];
+          const match: [Location, Location] = [lineNumber, mapping[location]];
           const lines = matchingFiles.get(fileName);
           if (lines) {
             lines.push(match);
