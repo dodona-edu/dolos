@@ -1,4 +1,5 @@
 const commander = require('commander');
+const fs = require('fs');
 
 import { Comparison } from "./lib/comparison";
 import { CodeTokenizer } from "./lib/codeTokenizer";
@@ -27,7 +28,6 @@ program
     .action(async (options:any, language?:string, path1?:string, path2?:string):Promise<void> => { // , language?:string, path1?:string, path2?:string
         // from app.ts
         let sourceFile:string;
-        let directoryFiles: string[] = [];
         console.log("Entering compare");
         console.log(`Variables language, path1, and path2 are: ${language}, ${path1}, ${path2}`);
         sourceFile = options.source; // filler to make compiler work for now
@@ -43,23 +43,37 @@ program
             // TODO: functionality for base code that wouldn't be recognized by program
             console.log(`We are in base! base is ${options.base}`);
         }
+        if (options.maximum) {
+            // TODO: add in maximum number of times a message is allowed to appear
+        }
+        if (options.comment) {
+            // add in comment string that is attached to report
+            // for now, we just comment this on our results
+            console.log(`COMMENT: ${options.comment}`);
+        }
         if (options.directory) {
             // find all files in directory, and compare them against source file
+            console.log(`directory name: ${options.directory}`);
             const tokenizer = new CodeTokenizer(language ? language: "javascript");
             const comparison = new Comparison(tokenizer);
-            for (let i=0; i<999; ++i) {
-                // find all program paths
-                directoryFiles = []; // NOT DONE YET
+            let files = fs.readdirSync(options.directory);
+            for (let i = 0; i< files.length; ++i) {
+                // add the folder name to our files, so that it is findable
+                let file = files[i];
+                let addFolderName = options.directory + "/" + file;
+                files[i] = addFolderName;
             }
-            await comparison.addFiles([path1 ? path1: "samples/js/samples.js", path2 ? path2: "samples/js/sample.js"]);
+            console.log("\n list of files to be added: \n");
+            console.log(files);
+            await comparison.addFiles(files);
             const result = await comparison.compareFile(sourceFile? sourceFile: "samples/js/copied_function.js");
             console.log(result);
         }
         else if (!options.directory) {
-            // non-for-loop standard method
+            // comparing one file against only one other file
             const tokenizer = new CodeTokenizer(language ? language: "javascript");
             const comparison = new Comparison(tokenizer);
-            await comparison.addFiles([path1 ? path1: "samples/js/samples.js", path2 ? path2: "samples/js/sample.js"]);
+            await comparison.addFile(path1 ? path1: "samples/js/sample.js");
             const result = await comparison.compareFile(sourceFile? options.source: "samples/js/copied_function.js");
             console.log(result);
         }
