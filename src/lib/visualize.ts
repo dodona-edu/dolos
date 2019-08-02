@@ -11,8 +11,8 @@
  * Extension idea: plaintext winnowing. Stretch goal for now.
  */
 
-import { default as fsWithCallbacks } from "fs";
-const fs = fsWithCallbacks.promises;
+// import { default as fsWithCallbacks } from "fs";
+const fs = require('fs');
 
  export class Visualize {
      private similarLines: number[];
@@ -30,8 +30,13 @@ const fs = fsWithCallbacks.promises;
     public getSourceFile() {
         // Below partially referenced from StackOverFlow: 
         // https://stackoverflow.com/questions/3582671/how-to-open-a-local-disk-file-with-javascript
-        const fileContent:string = fs.readFile(this.sourceFile).toString();
-        console.log(fileContent);
+        // let fileContent;
+        fs.readFile(this.sourceFile, "utf8", function(err: any, data: any) {
+            if (err) throw err;
+             console.log(data.toString());
+            // fileContent = data.toString();
+          });
+        // console.log(fileContent);
     }
 
     
