@@ -3,6 +3,7 @@ const fs = require('fs');
 
 import { Comparison } from "./lib/comparison";
 import { CodeTokenizer } from "./lib/codeTokenizer";
+import { Visualize } from "./lib/visualize";
 // import { stringLiteral } from "@babel/types";
 
 let packageJson = require('../package.json');
@@ -57,14 +58,21 @@ program
             const tokenizer = new CodeTokenizer(language ? language: "javascript");
             const comparison = new Comparison(tokenizer);
             let files = fs.readdirSync(options.directory);
+            let dirHasSlash: boolean = options.directory.substr(options.directory.length - 1) === "/";
+            console.log(`dirHasSlash: ${dirHasSlash}`);
             for (let i = 0; i< files.length; ++i) {
                 // add the folder name to our files, so that it is findable
                 let file = files[i];
-                let addFolderName = options.directory + "/" + file;
+                let addFolderName;
+                if (dirHasSlash) {
+                    addFolderName = options.directory + file;
+                }
+                else {
+                    addFolderName = options.directory + "/" + file;
+                }
                 files[i] = addFolderName;
             }
-            console.log("\n list of files to be added: \n");
-            console.log(files);
+
             await comparison.addFiles(files);
             const result = await comparison.compareFile(sourceFile? sourceFile: "samples/js/copied_function.js");
             console.log(result);
@@ -78,7 +86,8 @@ program
             console.log(result);
         }
 
-        
+        const visualizer = new Visualize(sourceFile? options.source: "samples/js/copied_function.js");
+        visualizer.getSourceFile()
 
     });
 
