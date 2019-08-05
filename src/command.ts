@@ -26,11 +26,12 @@ program
     .option('-c, --comment <string>', 'comment string that is attached to the generated report')
     // .option('')
     .description('Compare source codes')
-    .action(async (options:any, language?:string, path1?:string, path2?:string):Promise<void> => { // , language?:string, path1?:string, path2?:string
+    .action(async (options:any, language?:string, path1?:string):Promise<void> => { // , language?:string, path1?:string, path2?:string
         // from app.ts
         let sourceFile:string;
+        let result: any;
         console.log("Entering compare");
-        console.log(`Variables language, path1, and path2 are: ${language}, ${path1}, ${path2}`);
+        // console.log(`Variables language, path1, and path2 are: ${language}, ${path1}, ${path2}`);
         sourceFile = options.source; // filler to make compiler work for now
         if (options.language) {
             console.log(`The language is ${options.language}`);
@@ -74,7 +75,7 @@ program
             }
 
             await comparison.addFiles(files);
-            const result = await comparison.compareFile(sourceFile? sourceFile: "samples/js/copied_function.js");
+            result = await comparison.compareFile(sourceFile? sourceFile: "samples/js/copied_function.js");
             console.log(result);
         }
         else if (!options.directory) {
@@ -82,11 +83,11 @@ program
             const tokenizer = new CodeTokenizer(language ? language: "javascript");
             const comparison = new Comparison(tokenizer);
             await comparison.addFile(path1 ? path1: "samples/js/sample.js");
-            const result = await comparison.compareFile(sourceFile? options.source: "samples/js/copied_function.js");
+            result = await comparison.compareFile(sourceFile? sourceFile: "samples/js/copied_function.js");
             console.log(result);
         }
 
-        const visualizer = new Visualize(sourceFile? options.source: "samples/js/copied_function.js");
+        const visualizer = new Visualize(sourceFile? sourceFile: "samples/js/copied_function.js"); // , sourceFile? sourceFile: "samples/js/copied_function.js", result
         visualizer.getSourceFile()
 
     });
