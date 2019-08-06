@@ -4,7 +4,7 @@ type Range = [number, number];
 export class Summary {
 
     private results: Map<string, Matches<Range>>;
-    private minimumLines = 2;
+    private minimumLines = 1;
 
     constructor(matches: Map<string, Matches<number>>){
         this.results = new Map();
@@ -23,17 +23,27 @@ export class Summary {
             });
         });
 
-
-        // matches.forEach((value, key) => {
-        //     value.forEach((value2, key2) => {
-        //         value2.sort((val1, val2) => Summary.getScore(val1) - Summary.getScore(val2));
-        //     });
-
-        // })
-
-
-
+        // sort the arrays based on the score function
+        this.results.forEach((value, key) => {
+            value.forEach((value2, _) => {
+                value2.sort((val1, val2) => Summary.getScore(val2[0]) - Summary.getScore(val1[0]))
+            });
+            this.results.set(key, new Map([...value.entries()].sort((item) => this.getScoreForArray(item[1]))));
+        })
     }
+
+    private getScoreForArray(arr: Array<[Range, Range]>): number {
+        return arr.map((rangeTuple) => Summary.getScore(rangeTuple[0]))
+            .reduce((acc, prev) => acc + prev);
+    } 
+
+
+    // private getScoreForSubMap(subMap: Matches<Range>): number {
+    //     return [...subMap.values()]
+    //         .flatMap((ranges) => ranges.map((rangeTuple) => rangeTuple[0]))
+    //         .map((range) => Summary.getScore(range))
+    //         .reduce((acc, prev) => acc + prev);
+    // }
 
 
 
@@ -108,7 +118,7 @@ export class Summary {
      * @param range the range you want to get the score of
      * @returns the score. 
      */
-    // private static getScore(range: Range): number {
-    //     return range[1] - range[0] + 1;
-    // }
+    private static getScore(range: Range): number {
+        return range[1] - range[0] + 1;
+    }
 }
