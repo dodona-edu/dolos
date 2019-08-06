@@ -23,12 +23,15 @@ export class Summary {
             });
         });
 
-        // sort the arrays based on the score function
+        // sort the arrays based on the score function, then sort it according to the score of the array and lastly sorts the submaps based on the sum of the scores of their arrays
         this.results.forEach((value, key) => {
             value.forEach((value2, _) => {
+                // sorts the arrays based on the score of the ranges
                 value2.sort((val1, val2) => Summary.getScore(val2[0]) - Summary.getScore(val1[0]))
             });
-            this.results.set(key, new Map([...value.entries()].sort((item) => this.getScoreForArray(item[1]))));
+            //sorts the submaps based on the score
+            let tempMap = new Map([...value.entries()].sort((val1, val2) => this.getScoreForArray(val2[1]) - this.getScoreForArray(val1[1])));
+            this.results.set(key, tempMap);
         })
     }
 
