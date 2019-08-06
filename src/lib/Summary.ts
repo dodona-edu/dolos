@@ -2,9 +2,18 @@ import { Matches } from './comparison';
 
 type Range = [number, number];
 export class Summary {
-    results: Map<string, Matches<number>>;
-    constructor(results: Map<string, Matches<number>>){
-        this.results = new Map(results);
+
+    results: Map<string, Matches<Range>>;
+
+    constructor(matches: Map<string, Matches<number>>){
+        this.results = new Map();
+        matches.forEach((value, key) => {
+            let newMap = new Map();
+            value.forEach((value2, key2) => {
+                newMap.set(key2, Summary.toRange(value2));
+            })
+            this.results.set(key, newMap);
+        });
     }
 
 
@@ -16,7 +25,7 @@ export class Summary {
             value.forEach((value2, key2) => {
                 console.log(`key2: ${key2}`);
                 process.stdout.write('range: ');
-                console.log(this.toRange(value2));
+                console.log(value2);
             })
         });
     }
@@ -26,7 +35,7 @@ export class Summary {
      * @param matches the list of matching lines
      * @returns a list of tuples that contains two ranges, where the frist and second range correspond to the line numbers of each file.
      */
-    toRange(matches: Array<[number, number]>): Array<[Range, Range]> {
+    private static toRange(matches: Array<[number, number]>): Array<[Range, Range]> {
         let ranges: Array<[[number, number], [number, number]]> = new Array();
 
 
@@ -64,5 +73,15 @@ export class Summary {
         
         // remove all ranges that only contain one line
         return ranges.filter((item) => item[0][0] !== item[0][1]);
+    }
+
+
+    /**
+     * calculates the score, currently just returns the amount of lines in the range. A possible alternative is counting the amount of k-mers.
+     * @param range the range you want to get the score of
+     * @returns the score. 
+     */
+    private static getScore(range: Range): number {
+        return range[1] - range[0] + 1;
     }
 }
