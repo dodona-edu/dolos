@@ -8,11 +8,14 @@ export class Summary {
     constructor(matches: Map<string, Matches<number>>){
         this.results = new Map();
         matches.forEach((value, key) => {
-            let newMap = new Map();
             value.forEach((value2, key2) => {
-                newMap.set(key2, Summary.toRange(value2));
+                let map = this.results.get(key2);
+                if (map === undefined) {
+                    map = new Map();
+                    this.results.set(key2, map);
+                }
+                map.set(key, Summary.toRange(value2));
             })
-            this.results.set(key, newMap);
         });
     }
 
@@ -21,11 +24,13 @@ export class Summary {
     printSummary(): void {
 
         this.results.forEach((value, key) => {
-            console.log(`key: ${key}`);
+            console.log(`source: ${key}`);
+            console.log();
             value.forEach((value2, key2) => {
-                console.log(`key2: ${key2}`);
-                process.stdout.write('range: ');
+                console.log(`\tmatched file: ${key2}`);
+                process.stdout.write('\trange: ');
                 console.log(value2);
+                console.log();
             })
         });
     }
@@ -40,7 +45,10 @@ export class Summary {
 
 
         // sort on first element of tuple and remove duplicates
-        matches = matches.sort((val1, val2) => val1[0] - val2[0]).filter((item, pos, arr) => {
+        matches = matches.sort((val1, val2) => {
+            let temp = val1[0] - val2[0];
+            return temp === 0 ? val1[1] - val2[1] : temp;
+        }).filter((item, pos, arr) => {
             return pos === 0 || !(item[0] === arr[pos-1][0] && item[1] === arr[pos-1][1]);
         });
         
@@ -81,7 +89,7 @@ export class Summary {
      * @param range the range you want to get the score of
      * @returns the score. 
      */
-    private static getScore(range: Range): number {
-        return range[1] - range[0] + 1;
-    }
+    // private static getScore(range: Range): number {
+    //     return range[1] - range[0] + 1;
+    // }
 }
