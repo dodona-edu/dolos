@@ -23,6 +23,7 @@ export class Summary {
             });
         });
 
+        //TODO index the score of the ranges, arrays and submaps to make this more efficient.
         this.results.forEach((value, key) => {
             value.forEach((value2, _) => {
                 // sorts the arrays based on the score of the ranges.
