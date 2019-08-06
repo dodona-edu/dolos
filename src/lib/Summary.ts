@@ -3,24 +3,36 @@ import { Matches } from './comparison';
 type Range = [number, number];
 export class Summary {
 
-    results: Map<string, Matches<Range>>;
+    private results: Map<string, Matches<Range>>;
+    private minimumLines = 1;
 
     constructor(matches: Map<string, Matches<number>>){
         this.results = new Map();
         matches.forEach((value, key) => {
             value.forEach((value2, key2) => {
                 let map = this.results.get(key2);
-                if (map === undefined) {
-                    map = new Map();
-                    this.results.set(key2, map);
-                }
-                const range = Summary.toRange(value2);
+                const range = this.toRange(value2);
                 if (range.length !== 0) {
-                    map.set(key, Summary.toRange(value2));
+                    if (map === undefined) {
+                        map = new Map();
+                        this.results.set(key2, map);
+                    }
+                    map.set(key, this.toRange(value2));
                 }
                 
-            })
+            });
         });
+
+
+        // matches.forEach((value, key) => {
+        //     value.forEach((value2, key2) => {
+        //         value2.sort((val1, val2) => Summary.getScore(val1) - Summary.getScore(val2));
+        //     });
+
+        // })
+
+
+
     }
 
 
@@ -32,11 +44,14 @@ export class Summary {
             console.log();
             value.forEach((value2, key2) => {
                 console.log(`\tmatched file: ${key2}`);
-                process.stdout.write('\trange: ');
+                console.log('\tranges: ');
                 console.log(value2);
                 console.log();
             })
         });
+        if(this.results.size === 0) {
+            console.log('There were no matches');
+        }
     }
 
     /**
@@ -44,7 +59,7 @@ export class Summary {
      * @param matches the list of matching lines
      * @returns a list of tuples that contains two ranges, where the frist and second range correspond to the line numbers of each file.
      */
-    private static toRange(matches: Array<[number, number]>): Array<[Range, Range]> {
+    private toRange(matches: Array<[number, number]>): Array<[Range, Range]> {
         let ranges: Array<[[number, number], [number, number]]> = new Array();
 
 
@@ -84,7 +99,7 @@ export class Summary {
         }
         
         // remove all ranges that only contain one line
-        return ranges.filter((item) => item[0][0] !== item[0][1]);
+        return ranges.filter((item) => item[0][0] - item[0][1] + 1 < this.minimumLines );
     }
 
 

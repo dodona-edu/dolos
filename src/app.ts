@@ -12,7 +12,7 @@ import fs from 'fs';
   await comparison.addFiles([path + files[0], path + files[1]]);
 
   let arr = [];
-  for (const key of Array(5).keys()) {
+  for (const key of Array(files.length -3 ).keys()) {
     arr.push(path + files[key + 2]);
   }
   const result = await comparison.compareFiles(arr);
