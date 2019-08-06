@@ -99,7 +99,7 @@ export class Summary {
         }
         
         // remove all ranges that only contain one line
-        return ranges.filter((item) => item[0][1] - item[0][0] + 1 > this.minimumLines );
+        return ranges.filter((item) => item[0][1] - item[0][0] + 1  >= this.minimumLines );
     }
 
 
