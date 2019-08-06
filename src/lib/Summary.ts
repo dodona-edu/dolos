@@ -23,16 +23,25 @@ export class Summary {
             });
         });
 
-        // sort the arrays based on the score function, then sort it according to the score of the array and lastly sorts the submaps based on the sum of the scores of their arrays
         this.results.forEach((value, key) => {
             value.forEach((value2, _) => {
-                // sorts the arrays based on the score of the ranges
+                // sorts the arrays based on the score of the ranges.
                 value2.sort((val1, val2) => Summary.getScore(val2[0]) - Summary.getScore(val1[0]))
             });
-            //sorts the submaps based on the score
-            let tempMap = new Map([...value.entries()].sort((val1, val2) => this.getScoreForArray(val2[1]) - this.getScoreForArray(val1[1])));
+            //sorts the submaps based on the score of the arrays, this is the sum of all the scores within the array.
+            const tempMap = new Map(
+                [...value.entries()].sort((val1, val2) => this.getScoreForArray(val2[1]) - this.getScoreForArray(val1[1]))
+            );
             this.results.set(key, tempMap);
-        })
+        });
+        
+        // sorts the maps based on the score of the submaps, which is the sum of the scores contained within the submaps.
+        this.results = new Map (
+            [...this.results.entries()].sort((val1, val2) => this.getScoreForSubMap(val2[1]) - this.getScoreForSubMap(val1[1]) )
+        );
+
+
+
     }
 
     private getScoreForArray(arr: Array<[Range, Range]>): number {
@@ -41,12 +50,12 @@ export class Summary {
     } 
 
 
-    // private getScoreForSubMap(subMap: Matches<Range>): number {
-    //     return [...subMap.values()]
-    //         .flatMap((ranges) => ranges.map((rangeTuple) => rangeTuple[0]))
-    //         .map((range) => Summary.getScore(range))
-    //         .reduce((acc, prev) => acc + prev);
-    // }
+    private getScoreForSubMap(subMap: Matches<Range>): number {
+        return [...subMap.values()]
+            .flatMap((ranges) => ranges.map((rangeTuple) => rangeTuple[0]))
+            .map((range) => Summary.getScore(range))
+            .reduce((acc, prev) => acc + prev);
+    }
 
 
 
