@@ -14,7 +14,11 @@ export class Summary {
                     map = new Map();
                     this.results.set(key2, map);
                 }
-                map.set(key, Summary.toRange(value2));
+                const range = Summary.toRange(value2);
+                if (range.length !== 0) {
+                    map.set(key, Summary.toRange(value2));
+                }
+                
             })
         });
     }

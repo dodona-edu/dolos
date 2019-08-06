@@ -15,7 +15,6 @@ import fs from 'fs';
   for (const key of Array(5).keys()) {
     arr.push(path + files[key + 2]);
   }
-  console.log(arr);
   const result = await comparison.compareFiles(arr);
 
   // await comparison.addFiles(["samples/js/samples.js", "samples/js/sample.js"]);
