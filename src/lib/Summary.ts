@@ -61,7 +61,6 @@ export class Summary {
 
 
     printSummary(): void {
-        // TODO sort based on the score function
         this.results.forEach((value, key) => {
             console.log(`source: ${key}`);
             console.log();
