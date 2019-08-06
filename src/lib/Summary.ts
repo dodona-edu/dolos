@@ -4,7 +4,7 @@ type Range = [number, number];
 export class Summary {
 
     private results: Map<string, Matches<Range>>;
-    private minimumLines = 1;
+    private minimumLines = 2;
 
     constructor(matches: Map<string, Matches<number>>){
         this.results = new Map();
@@ -99,7 +99,7 @@ export class Summary {
         }
         
         // remove all ranges that only contain one line
-        return ranges.filter((item) => item[0][0] - item[0][1] + 1 < this.minimumLines );
+        return ranges.filter((item) => item[0][1] - item[0][0] + 1 > this.minimumLines );
     }
 
 
