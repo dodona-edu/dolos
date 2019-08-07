@@ -107,13 +107,13 @@ export class Summary {
   // }
 
   private getScoreForArray(arr: Array<[Range, Range]>): number {
-    return arr.map(rangeTuple => this.getScore(rangeTuple[0])).reduce((acc, prev) => acc + prev);
+    return arr.map(rangeTuple => this.getScore(rangeTuple[0])).reduce((acc, nextNumber) => acc + nextNumber);
   }
 
   private getScoreForSubMap(subMap: Matches<Range>): number {
     return [...subMap.values()]
       .flatMap(rangesArray => this.getScoreForArray(rangesArray))
-      .reduce((acc, prev) => acc + prev);
+      .reduce((acc, nextNumber) => acc + nextNumber);
   }
 
   /**
