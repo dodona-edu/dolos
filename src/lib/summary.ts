@@ -22,9 +22,12 @@ export class Summary {
       console.log(`source: ${sourceFileName}`);
       console.log();
       subMap.forEach((rangeTupleArray, matchedFileName) => {
-        const score = rangeTupleArray
+        let score = rangeTupleArray
           .map(rangesTuple => this.getLinesInRange(rangesTuple[0]))
           .reduce((accumulator, nextValue) => accumulator + nextValue);
+        
+        console.log(score);
+        score = score / this.countLinesInFile(matchedFileName);
 
         console.log(`\tmatched file: ${matchedFileName}, score: ${Math.round(score)}%`);
         console.log("\tranges: ");
