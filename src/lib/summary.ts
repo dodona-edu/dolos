@@ -88,6 +88,7 @@ export class Summary {
   private countLinesInFile(fileName: string): number {
     return fs.readFileSync(fileName, "utf8").split("\n").length;
   }
+
   /**
    * Calculates the score, currently just returns the number of lines in the range. A possible alternative is counting
    * the number of k-mers.
@@ -147,7 +148,7 @@ export class Summary {
     return results;
   }
 
-  private getScoreForArray(arr: Array<[Range, Range]>): number {
+  private getScoreForArray(arr: Array<RangeTuple>): number {
     return arr
       .map(rangeTuple => this.getScoreForRangeTuple(rangeTuple))
       .reduce((acc, nextNumber) => acc + nextNumber);
@@ -169,15 +170,9 @@ export class Summary {
    * @returns a list of tuples that contains two ranges, where the frist and second range correspond to the line
    * numbers of each file.
    */
-  private toRange(matches: Array<[number, number]>): Array<[Range, Range]> {
-    const ranges: Array<[Range, Range]> = new Array();
+  private toRange(matches: Array<[number, number]>): Array<RangeTuple> {
+    const ranges: Array<RangeTuple> = new Array();
     // TODO TEST THIS Code
-
-    // sort on first element of tuple and remove duplicates
-    // TODO replace all of this with the following algorithm
-    // look for every place in the code where it is assumed that the both ranges in a rangesTuple are equal in
-    // length and change appropriately
-
     matches.forEach(next => {
       const rangeTupleIndex: number = ranges.findIndex(rangeTuple => {
         return (
