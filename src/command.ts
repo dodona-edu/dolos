@@ -3,7 +3,7 @@ const fs = require('fs');
 
 import { Comparison } from "./lib/comparison";
 import { CodeTokenizer } from "./lib/codeTokenizer";
-import { Visualize } from "./lib/visualize";
+// import { Visualize } from "./lib/visualize";
 // import { stringLiteral } from "@babel/types";
 
 let packageJson = require('../package.json');
@@ -76,7 +76,7 @@ program
 
             await comparison.addFiles(files);
             result = await comparison.compareFile(sourceFile? sourceFile: "samples/js/copied_function.js");
-            console.log(result);
+            //console.log(result);
         }
         else if (!options.directory) {
             // comparing one file against only one other file
@@ -84,11 +84,11 @@ program
             const comparison = new Comparison(tokenizer);
             await comparison.addFile(path1 ? path1: "samples/js/sample.js");
             result = await comparison.compareFile(sourceFile? sourceFile: "samples/js/copied_function.js");
-            console.log(result);
+            if (result) console.log('got a result'); //TODO remove this
         }
 
-        const visualizer = new Visualize(sourceFile? sourceFile: "samples/js/copied_function.js"); // , sourceFile? sourceFile: "samples/js/copied_function.js", result
-        visualizer.getSourceFile()
+        // const visualizer = new Visualize(sourceFile? sourceFile: "samples/js/copied_function.js"); // , sourceFile? sourceFile: "samples/js/copied_function.js", result
+        // visualizer.getSourceFile()
 
     });
 
