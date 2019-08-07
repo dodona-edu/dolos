@@ -25,11 +25,10 @@ export class Summary {
         let score = rangeTupleArray
           .map(rangesTuple => this.getLinesInRange(rangesTuple[0]))
           .reduce((accumulator, nextValue) => accumulator + nextValue);
-        
-        console.log(score);
+
         score = score / this.countLinesInFile(matchedFileName);
 
-        console.log(`\tmatched file: ${matchedFileName}, score: ${Math.round(score)}%`);
+        console.log(`\tmatched file: ${matchedFileName}, score: ${Math.round(score * 100)}%`);
         console.log("\tranges: ");
         console.log(rangeTupleArray);
         console.log();
