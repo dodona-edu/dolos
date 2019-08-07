@@ -16,7 +16,6 @@ export class Summary {
     this.sortResults();
   }
 
-  // TODO compute score based on the fraction of matched lines over the total number of lines
   public printSummary(): void {
     this.results.forEach((subMap, sourceFileName) => {
       console.log(`source: ${sourceFileName}`);
