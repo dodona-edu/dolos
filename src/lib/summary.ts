@@ -164,13 +164,10 @@ export class Summary {
    */
   private toRange(matches: Array<[number, number]>): Array<[Range, Range]> {
     const ranges: Array<[Range, Range]> = new Array();
+    // TODO TEST THIS Code
 
     // sort on first element of tuple and remove duplicates
     // TODO replace all of this with the following algorithm
-    // keep a list of ranges, then for each location in in matches do:
-    //  if one or both values fall in between a range, in account with the gapsize then extend those ranges
-    //  else make a new range based on the value
-    // when all values are done go over all the ranges and check if two or more can be joined
     // look for every place in the code where it is assumed that the both ranges in a rangesTuple are equal in
     // length and change appropriately
 
@@ -191,11 +188,17 @@ export class Summary {
           this.extendRangeWithNumber(next[1], rangeTuple[1]),
         ];
       }
+
+      // if two rangesTuples overlap with each other then extend the second with the first and remove the 
+      // first from the array
       for(let i = ranges.length - 1; i >= 0; i--) {
         for(let j = i; j >= 0; j--){
-          if( i !== j && this.doRangeTuplesOverlap(ranges[i], ranges[j]))
+          if( i !== j && this.doRangeTuplesOverlap(ranges[i], ranges[j])) {
+            ranges[j] = this.extendRangeTupleWithRangeTuple(ranges[i], ranges[j]);
+            ranges.splice(i, 1);
+            break;
+          }
         }
-
       }
     });
 
