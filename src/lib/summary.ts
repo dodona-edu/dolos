@@ -54,28 +54,31 @@ export class Summary {
   }
 
   public doRangesOverlap(range1: Range, range2: Range): boolean {
-    console.log(range1, range2); //TODO
+    console.log(range1, range2); // TODO
     return false;
   }
 
   public doRangeTuplesOverlap(rangeTuple1: RangeTuple, rangeTuple2: RangeTuple): boolean {
     console.log(rangeTuple1, rangeTuple2);
-    return false; //TODO
+    return false; // TODO
   }
 
   public extendRangeWithNumber(value: number, range: Range): Range {
     console.log(value);
     return range; // TODO
   }
-  
+
   public extendRangeWithRange(range1: Range, range2: Range): Range {
     console.log(range2);
-    return range1; //TODO
+    return range1; // TODO
   }
 
-  public extendRangeTupleWithRangeTuple(rangeTuple1: RangeTuple, rangeTuple2: RangeTuple): RangeTuple {
+  public extendRangeTupleWithRangeTuple(
+    rangeTuple1: RangeTuple,
+    rangeTuple2: RangeTuple,
+  ): RangeTuple {
     console.log(rangeTuple2);
-    return rangeTuple1; //TODO
+    return rangeTuple1; // TODO
   }
 
   private getLinesInRange(range: Range): number {
@@ -102,7 +105,7 @@ export class Summary {
         // sorts the arrays based on the score of the ranges.
         rangeArray.sort(
           (rangeTuple1, rangeTuple2) =>
-            this.getScoreForRange(rangeTuple2[0]) - this.getScoreForRange(rangeTuple1[0]),
+            this.getScoreForRange(rangeTuple2[0]) - this.getScoreForRangeTuple(rangeTuple1),
         );
       });
       // sorts the submaps based on the score of the arrays, this is the sum of all the scores within the array.
@@ -146,7 +149,7 @@ export class Summary {
 
   private getScoreForArray(arr: Array<[Range, Range]>): number {
     return arr
-      .map(rangeTuple => this.getScoreForRange(rangeTuple[0]))
+      .map(rangeTuple => this.getScoreForRangeTuple(rangeTuple))
       .reduce((acc, nextNumber) => acc + nextNumber);
   }
 
@@ -154,6 +157,10 @@ export class Summary {
     return [...subMap.values()]
       .flatMap(rangesArray => this.getScoreForArray(rangesArray))
       .reduce((acc, nextNumber) => acc + nextNumber);
+  }
+
+  private getScoreForRangeTuple(rangeTuple: RangeTuple): number {
+    return this.getScoreForRange(rangeTuple[0]) + this.getScoreForRange(rangeTuple[1]);
   }
 
   /**
@@ -189,11 +196,11 @@ export class Summary {
         ];
       }
 
-      // if two rangesTuples overlap with each other then extend the second with the first and remove the 
+      // if two rangesTuples overlap with each other then extend the second with the first and remove the
       // first from the array
-      for(let i = ranges.length - 1; i >= 0; i--) {
-        for(let j = i; j >= 0; j--){
-          if( i !== j && this.doRangeTuplesOverlap(ranges[i], ranges[j])) {
+      for (let i = ranges.length - 1; i >= 0; i--) {
+        for (let j = i; j >= 0; j--) {
+          if (i !== j && this.doRangeTuplesOverlap(ranges[i], ranges[j])) {
             ranges[j] = this.extendRangeTupleWithRangeTuple(ranges[i], ranges[j]);
             ranges.splice(i, 1);
             break;
@@ -202,13 +209,11 @@ export class Summary {
       }
     });
 
-
-
     // remove all ranges that only contain one line
     return ranges.filter(
-      rangesTuple => rangesTuple[0][1] - rangesTuple[0][0] + 1 >= this.minimumLines,
-    ); //TODO this assumes that both ranges in the rangeTuple are the same length, this is not necessarily true
+      rangesTuple =>
+        Math.max(this.getLinesInRange(rangesTuple[0]), this.getLinesInRange(rangesTuple[1])) >=
+        this.minimumLines,
+    );
   }
-
-
 }
