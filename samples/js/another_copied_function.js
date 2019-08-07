@@ -1,3 +1,5 @@
+this.combineer = combineer || ((h, v) => (h + v) % 256);
+
 function is_geldig() {
     return (
         (!this.parent || this.parent.is_geldig()) &&
