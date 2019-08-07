@@ -1,4 +1,6 @@
 import { Matches } from "./comparison";
+import readline from 'readline';
+import fs from 'fs';
 
 type Range = [number, number];
 export class Summary {
@@ -21,6 +23,7 @@ export class Summary {
       console.log(`source: ${sourceFileName}`);
       console.log();
       subMap.forEach((rangeTupleArray, matchedFileName) => {
+        
         console.log(`\tmatched file: ${matchedFileName}`);
         console.log("\tranges: ");
         console.log(rangeTupleArray);
@@ -30,6 +33,17 @@ export class Summary {
     if (this.results.size === 0) {
       console.log("There were no matches");
     }
+  }
+
+  private async countLinesInFile(fileName: string): Promise<number> {
+        const lineReader = readline.createInterface({ 
+          input:fs.createReadStream(fileName)
+        });
+        let amountOfLines = 0;
+        lineReader.on('line', (_) => amountOfLines+= 1);
+        return await new Promise((resolve, _) => {
+          lineReader.on('close', () => resolve(amountOfLines));
+        });
   }
   /**
    * Calculates the score, currently just returns the number of lines in the range. A possible alternative is counting
