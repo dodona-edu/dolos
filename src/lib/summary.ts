@@ -209,7 +209,7 @@ export class Summary {
       }
     });
 
-    // remove all ranges that only contain one line
+    // remove all ranges that only contain less the minimum required lines
     return ranges.filter(
       rangesTuple =>
         Math.max(this.getLinesInRange(rangesTuple[0]), this.getLinesInRange(rangesTuple[1])) >=
