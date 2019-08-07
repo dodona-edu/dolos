@@ -47,12 +47,24 @@ export class Summary {
     }
   }
 
+  /**
+   * tests if the number is withing the given range. This function allows for gaps 
+   * as long as the gap is smaller than [[this.gapSize]] 
+   * @param value the number you want to test
+   * @param range the range you want to test the number with
+   */
   public isNumberWithingRange(value: number, range: Range): boolean {
     console.log(value);
     console.log(range);
     return true; // TODO
   }
 
+  /**
+   * Tests if the bounds of the ranges overlap. This function allows for gaps as long as 
+   * the gap is smaller or equal than [[this.gapSize]] 
+   * @param range1 the first range you want to test 
+   * @param range2 the second range you want to test
+   */
   public doRangesOverlap(range1: Range, range2: Range): boolean {
     console.log(range1, range2); // TODO
     return false;
