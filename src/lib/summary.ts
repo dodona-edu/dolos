@@ -5,16 +5,18 @@ type Range = [number, number];
 export class Summary {
          private readonly results: Map<string, Matches<Range>>;
          private readonly minimumLines: number;
+         private readonly gapSize: number;
 
          /**
           * @param matches A many-to-many comparison of a set of files. This map contains an entry for each of the 
           * input files with the key being its file name and the value a list of matches. These matches are grouped 
           * per matching file. The compareFiles function of the Comparison class can generate such mapping.
           */
-         constructor(matchesPerFile: Map<string, Matches<number>>, minimumLines: number=1) {
+         constructor(matchesPerFile: Map<string, Matches<number>>, minimumLines: number=1, gapSize: number=1) {
            this.results = this.transformMatches(matchesPerFile);
            this.results = this.sortResults();
            this.minimumLines = minimumLines;
+           this.gapSize = gapSize;
          }
 
          //TODO return a string and rename this function to 'toString';
@@ -55,7 +57,7 @@ export class Summary {
           * @param range The range you want to get the score of
           * @returns The score
           */
-         private getScore(range: Range): number {
+         private getScoreForRange(range: Range): number {
            return range[1] - range[0] + 1;
          }
 
@@ -66,7 +68,7 @@ export class Summary {
                // sorts the arrays based on the score of the ranges.
                rangeArray.sort(
                  (rangeTuple1, rangeTuple2) =>
-                   this.getScore(rangeTuple2[0]) - this.getScore(rangeTuple1[0]),
+                   this.getScoreForRange(rangeTuple2[0]) - this.getScoreForRange(rangeTuple1[0]),
                );
              });
              // sorts the submaps based on the score of the arrays, this is the sum of all the scores within the array.
@@ -108,13 +110,10 @@ export class Summary {
            return results;
          }
 
-         // private getScoreForFile(file: string,values: Array<[Range, Range]>): number {
-
-         // }
 
          private getScoreForArray(arr: Array<[Range, Range]>): number {
            return arr
-             .map(rangeTuple => this.getScore(rangeTuple[0]))
+             .map(rangeTuple => this.getScoreForRange(rangeTuple[0]))
              .reduce((acc, nextNumber) => acc + nextNumber);
          }
 
@@ -139,6 +138,8 @@ export class Summary {
            //  if one or both values fall in between a range, in account with the gapsize then extend those ranges
            //  else make a new range based on the value
            // when all values are done go over all the ranges and check if two or more can be joined
+           // look for every place in the code where it is assumed that the both ranges in a rangesTuple are equal in
+            // length and change appropriately
            matches = matches
              .sort((matchingLineNumbers1, matchingLineNumbers2) => {
                const tempResult = matchingLineNumbers1[0] - matchingLineNumbers2[0];
