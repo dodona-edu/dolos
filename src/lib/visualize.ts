@@ -13,7 +13,6 @@
 
 // import { default as fsWithCallbacks } from "fs";
 const fs = require('fs');
-var colors = require('colors/safe');
 
  export class Visualize {
      //private similarLines: number[];
@@ -42,7 +41,7 @@ var colors = require('colors/safe');
         fs.readFile(this.sourceFile, "utf8", function(err: any, data: any) {
             if (err) throw err;
             // see https://www.npmjs.com/package/colors for documentation
-            console.log(colors.red(data.toString()));
+            console.log(data.toString());
             // fileContent = data.toString();
           });
         // console.log(fileContent);
@@ -57,7 +56,7 @@ var colors = require('colors/safe');
         // takes in a path, and returns contents of path as plaintext
         fs.readFile(comparedFile, "utf8", function(err: any, data: any) {
             if (err) throw err;
-            console.log(colors.red(data.toString()));
+            console.log(data.toString());
             // fileContent = data.toString();
           });
     }
