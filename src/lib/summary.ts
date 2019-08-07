@@ -111,11 +111,9 @@ export class Summary {
     return arr.map(rangeTuple => this.getScore(rangeTuple[0])).reduce((acc, prev) => acc + prev);
   }
 
-  // TODO this is plain wrong
   private getScoreForSubMap(subMap: Matches<Range>): number {
     return [...subMap.values()]
-      .flatMap(ranges => ranges.map(rangeTuple => rangeTuple[0]))
-      .map(range => this.getScore(range))
+      .flatMap(rangesArray => this.getScoreForArray(rangesArray))
       .reduce((acc, prev) => acc + prev);
   }
 
