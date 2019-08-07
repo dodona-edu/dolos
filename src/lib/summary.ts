@@ -21,21 +21,12 @@ export class Summary {
    * in each file. This can be generated with the compareFiles method of the Comparison class.
    */
   constructor(matches: Map<string, Matches<number>>) {
-    this.results = new Map();
-    matches.forEach((subMap, matchedFileName) => {
-      subMap.forEach((tupleArray, sourceFileName) => {
-        let map = this.results.get(sourceFileName);
-        const range = this.toRange(tupleArray);
-        if (range.length !== 0) {
-          if (map === undefined) {
-            map = new Map();
-            this.results.set(sourceFileName, map);
-          }
-          map.set(matchedFileName, this.toRange(tupleArray));
-        }
-      });
-    });
+    this.results = this.transformMatches(matches);
+    this.sortResults();
+  }
 
+
+  private sortResults() {
     // TODO index the score of the ranges, arrays and submaps to make this more efficient.
     this.results.forEach((subMap, matchedFileName) => {
       subMap.forEach((rangeArray, _) => {
@@ -57,6 +48,25 @@ export class Summary {
         (subMap1, subMap2) => this.getScoreForSubMap(subMap2[1]) - this.getScoreForSubMap(subMap1[1]),
       ),
     );
+  }
+
+
+  private transformMatches(matches: Map<string, Matches<number>>): Map<string, Matches<Range>> {
+    const results = new Map();
+    matches.forEach((subMap, matchedFileName) => {
+      subMap.forEach((tupleArray, sourceFileName) => {
+        let map = results.get(sourceFileName);
+        const range = this.toRange(tupleArray);
+        if (range.length !== 0) {
+          if (map === undefined) {
+            map = new Map();
+            results.set(sourceFileName, map);
+          }
+          map.set(matchedFileName, this.toRange(tupleArray));
+        }
+      });
+    });
+    return results;
   }
 
   //TODO compute score based on the fraction of matched lines over the total number of lines
