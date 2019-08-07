@@ -18,12 +18,12 @@ program
 //TODO better descriptions and remove odd flags
 program
     .option('-l, --language <language>', 'language used in the compared programs', 'javascript')
-    .option('-s, --source <source> [compared]', 'source file used to compare against other files')
-    .option('-d, --directory <directory>', 'source file will be compared to all files from directory')
-    .option('-b, --base <base>', 'base file that is not counted in matches')
-    .option('-m, --maximum <number>', 'maximum number of times a given passage may appear before it is ignored')
+    .option('-d, --directory <directory>', 'specifies that submission are per directory, not by file')
+    .option('-b, --base <base>', 'this option specifies a base file, any code that also appears in the base file is not shown. A typical base file is the supplied code for an exercise')
+    .option('-n, --minimum-lines', 'the minimum amount of lines in a range before it is shown', 2)
+    .option('-m, --maximum <number>', 'maximum number of times a given passage may appear before it is ignored', 10)
     .option('-c, --comment <string>', 'comment string that is attached to the generated report')
-
+//TODO examples
 
 program.parse(process.argv);
 
