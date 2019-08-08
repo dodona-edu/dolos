@@ -48,8 +48,8 @@ export class Summary {
   }
 
   /**
-   * tests if the number is withing the given range. This function allows for gaps 
-   * as long as the gap is smaller than [[this.gapSize]] 
+   * tests if the number is withing the given range. This function allows for gaps
+   * as long as the gap is smaller than [[this.gapSize]]
    * @param value the number you want to test
    * @param range the range you want to test the number with
    */
@@ -60,9 +60,9 @@ export class Summary {
   }
 
   /**
-   * Tests if the bounds of the ranges overlap. This function allows for gaps as long as 
-   * the gap is smaller or equal than [[this.gapSize]] 
-   * @param range1 the first range you want to test 
+   * Tests if the bounds of the ranges overlap. This function allows for gaps as long as
+   * the gap is smaller or equal than [[this.gapSize]]
+   * @param range1 the first range you want to test
    * @param range2 the second range you want to test
    */
   public doRangesOverlap(range1: Range, range2: Range): boolean {
@@ -70,29 +70,56 @@ export class Summary {
     return false;
   }
 
+  /**
+   * compares the frist range from each tuple with each other and does the same with the second range in the tuples. Allows for a gap as long as it is
+   * smaller than or equal to [[this.gapSize]]
+   * @param rangeTuple1 the frist rangesTuple you want to compare
+   * @param rangeTuple2 the second rangesTuple you want to compare
+   */
   public doRangeTuplesOverlap(rangeTuple1: RangeTuple, rangeTuple2: RangeTuple): boolean {
     console.log(rangeTuple1, rangeTuple2);
     return false; // TODO
   }
 
+  /**
+   * extends the range with the given number. Allows for a gap as long as that gap is smaller or equal to [[this.gapSize]].
+   * If the number is smaller or bigger than the lower, and upper bounds respectively then the corresponding bound is replaced. If the number is smaller than the upper
+   * bound and bigger than the lower then the range does not change.
+   * @param value
+   * @param range
+   */
   public extendRangeWithNumber(value: number, range: Range): Range {
     console.log(value);
     return range; // TODO
   }
 
+  /**
+   * attempts to extend one range with the other. If it fails then it returns undefined.
+   * @param range1 the first range you want to extend
+   * @param range2 the second range you want to extend
+   */
   public extendRangeWithRange(range1: Range, range2: Range): Range {
     console.log(range2);
     return range1; // TODO
   }
 
+  /**
+   * Attempts the extend the first element of each tuple with each other and tries the same for the second element. If this is not possible then undefined is returned.
+   * @param rangeTuple1 the first rangeTuple you want to extend
+   * @param rangeTuple2 the second rangeTuple you wan to extend
+   */
   public extendRangeTupleWithRangeTuple(
     rangeTuple1: RangeTuple,
     rangeTuple2: RangeTuple,
-  ): RangeTuple {
+  ): RangeTuple | undefined {
     console.log(rangeTuple2);
     return rangeTuple1; // TODO
   }
 
+  /**
+   * @param range the range you want the length of
+   * @returns the amount of lines in the given range
+   */
   private getLinesInRange(range: Range): number {
     return range[1] - range[0] + 1;
   }
@@ -111,6 +138,9 @@ export class Summary {
     return range[1] - range[0] + 1;
   }
 
+  /**
+   * First sorts the array of rangeTuples, then the subMaps and finally the main maps according to their corresponding score functions.
+   */
   private sortResults(): Map<string, Matches<Range>> {
     // TODO index the score of the ranges, arrays and submaps to make this more efficient.
     this.results.forEach((subMap, matchedFileName) => {
@@ -140,6 +170,12 @@ export class Summary {
     );
   }
 
+  /**
+   * Transforms all the tuples to rangesTuples.
+   * @param matchesPerFile A many-to-many comparison of a set of files. This map contains an entry for each of the
+   * input files with the key being its file name and the value a list of matches. These matches are grouped
+   * per matching file. The compareFiles function of the Comparison class can generate such mapping.
+   */
   private transformMatches(
     matchesPerFile: Map<string, Matches<number>>,
   ): Map<string, Matches<Range>> {
@@ -160,7 +196,7 @@ export class Summary {
     return results;
   }
 
-  private getScoreForArray(arr: Array<RangeTuple>): number {
+  private getScoreForArray(arr: RangeTuple[]): number {
     return arr
       .map(rangeTuple => this.getScoreForRangeTuple(rangeTuple))
       .reduce((acc, nextNumber) => acc + nextNumber);
@@ -182,8 +218,8 @@ export class Summary {
    * @returns a list of tuples that contains two ranges, where the frist and second range correspond to the line
    * numbers of each file.
    */
-  private toRange(matches: Array<[number, number]>): Array<RangeTuple> {
-    const ranges: Array<RangeTuple> = new Array();
+  private toRange(matches: Array<[number, number]>): RangeTuple[] {
+    const ranges: RangeTuple[] = new Array();
     // TODO TEST THIS Code
     matches.forEach(next => {
       const rangeTupleIndex: number = ranges.findIndex(rangeTuple => {
