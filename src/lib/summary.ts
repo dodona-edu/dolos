@@ -260,7 +260,7 @@ export class Summary {
 
   private getScoreForSubMap(subMap: Matches<Range>): number {
     return [...subMap.values()]
-      .flatMap(rangesArray => this.getScoreForArray(rangesArray))
+      .map(rangesArray => this.getScoreForArray(rangesArray))
       .reduce((acc, nextNumber) => acc + nextNumber);
   }
 
