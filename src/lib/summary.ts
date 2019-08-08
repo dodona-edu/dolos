@@ -19,13 +19,13 @@ export class Summary {
    */
   constructor(
     matchesPerFile: Map<string, Matches<number>>,
-    minimumLines: number = 1,
+    minimumLines: number = 2,
     gapSize: number = 1,
   ) {
-    this.results = this.transformMatches(matchesPerFile);
-    this.results = this.sortResults();
     this.minimumLines = minimumLines;
     this.gapSize = gapSize;
+    this.results = this.transformMatches(matchesPerFile);
+    this.results = this.sortResults();
   }
 
   // TODO return a string and rename this function to 'toString';
@@ -58,15 +58,24 @@ export class Summary {
    * @param range the range you want to test the number with
    */
   public canNumberExtendRange(value: number, range: Range): RangeNumberEnum | undefined {
+    let returnValue;
     if (range[0] <= value && value <= range[1]) {
-      return RangeNumberEnum.Middle;
-    } else if (value < range[0] && range[0] - value - 1 <= this.gapSize) {
-      return RangeNumberEnum.Lower;
-    } else if (range[1] < value && value - range[1] - 1 <= this.gapSize) {
-      return RangeNumberEnum.Upper;
+      returnValue = RangeNumberEnum.Middle;
+    } else if ((value < range[0]) && ((range[0] - value - 1) <= this.gapSize)) {
+      returnValue = RangeNumberEnum.Lower;
+    } else if ((range[1] < value) && ((value - range[1] - 1) <= this.gapSize)) {
+      returnValue = RangeNumberEnum.Upper;
     } else {
-      return undefined;
+      returnValue = undefined;
     }
+    // TODO remove this
+    // process.stdout.write('comparing: ')
+    // console.log(value, range);
+    // console.log(value - range[1] -1);
+    // console.log(this.gapSize)
+    // process.stdout.write('returns: ')
+    // console.log(returnValue);
+    return returnValue;
   }
 
 
@@ -268,29 +277,26 @@ export class Summary {
   private toRange(matches: Array<[number, number]>): RangesTuple[] {
     const ranges: RangesTuple[] = new Array();
 
-    console.log(matches);
     // TODO TEST THIS Code
     matches.forEach(next => {
       let rangesTuple: [Range | undefined, Range | undefined] = [undefined, undefined];
-      let i = 0;
-      while (i < ranges.length && (rangesTuple[0] !== undefined && rangesTuple[1] !== undefined)) {
+      let i = -1;
+      while (i < ranges.length -1 && (rangesTuple[0] === undefined || rangesTuple[1] === undefined)) {
+        i += 1;
         rangesTuple = [
           this.extendRangeWithNumber(next[0], ranges[i][0]),
           this.extendRangeWithNumber(next[1], ranges[i][1]),
         ];
 
-        i += 1;
       }
 
-      if (rangesTuple[0] === undefined || rangesTuple[1] === undefined) {
+      if (rangesTuple[0] === undefined || rangesTuple[1] === undefined || i === ranges.length) {
         ranges.push([[next[0], next[0]], [next[1], next[1]]]);
       } else {
-        
         ranges[i] = rangesTuple as RangesTuple;
       }
 
     });
-    console.log(ranges);
 
     // if two rangesTuples overlap with each other then extend the second with the first and remove the
     // first from the array
@@ -298,14 +304,16 @@ export class Summary {
       for (let j = i; j >= 0; j--) {
         if (i !== j) {
           const newRangesTuple = this.extendRangesTupleWithRangesTuple(ranges[i], ranges[j]);
+          // console.log(ranges[i], ranges[j], newRangesTuple);
           if (newRangesTuple) {
             ranges[j] = newRangesTuple;
+            ranges.splice(i, 1);
           }
-          ranges.splice(i, 1);
           break;
         }
       }
     }
+    console.log(ranges);
 
     // remove all ranges that only contain less the minimum required lines
     return ranges.filter(
