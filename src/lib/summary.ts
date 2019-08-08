@@ -79,9 +79,10 @@ export class Summary {
   }
 
   /**
-   * extends the range with the given number. Allows for a gap as long as that gap is smaller or equal to [[this.gapSize]].
-   * If the number is smaller or bigger than the lower, and upper bounds respectively then the corresponding bound is replaced. If the number is smaller than the upper
-   * bound and bigger than the lower then the range does not change. The number cannot extend the range then undefined is returned.
+   * extends the range with the given number. Allows for a gap as long as that gap is smaller or equal to
+   * [[this.gapSize]]. If the number is smaller or bigger than the lower, and upper bounds respectively then the
+   * corresponding bound is replaced. If the number is smaller than the upper bound and bigger than the lower then the
+   * range does not change. The number cannot extend the range then undefined is returned.
    * @param value
    * @param range
    */
@@ -151,7 +152,8 @@ export class Summary {
   }
 
   /**
-   * Attempts the extend the first element of each tuple with each other and tries the same for the second element. If this is not possible then undefined is returned.
+   * Attempts the extend the first element of each tuple with each other and tries the same for the second element. If
+   * this is not possible then undefined is returned.
    * @param rangesTuple1 the first rangesTuple you want to extend
    * @param rangesTuple2 the second rangesTuple you wan to extend
    */
@@ -198,7 +200,8 @@ export class Summary {
   }
 
   /**
-   * First sorts the array of rangesTuples, then the subMaps and finally the main maps according to their corresponding score functions.
+   * First sorts the array of rangesTuples, then the subMaps and finally the main maps according to their corresponding
+   * score functions.
    */
   private sortResults(): Map<string, Matches<Range>> {
     // TODO index the score of the ranges, arrays and submaps to make this more efficient.
