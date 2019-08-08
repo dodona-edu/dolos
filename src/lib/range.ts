@@ -8,27 +8,25 @@ enum RangeNumberEnum {
 export class Range {
     private lowerBound: number;
     private upperBound: number;
-    private static gapSize :number;
+    private readonly gapSize :number;
 
-    public static setGapSize(gapSize: number): void {
-        Range.gapSize = gapSize;
-    }
-    constructor(lowerBound: number, upperBound: number ) {
+    constructor(lowerBound: number, upperBound: number , gapSize: number) {
         this.lowerBound = lowerBound;
         this.upperBound = upperBound;
+        this.gapSize = gapSize; 
     }
 
   /**
    * tests if the number is withing the given range. This function allows for gaps
-   * as long as the gap is smaller than [[Range.gapSize]] //TODO
+   * as long as the gap is smaller than [[this.gapSize]] //TODO
    * @param value the number you want to test
    */
   public whereCanNumberExtend(value: number): RangeNumberEnum {
     if (this.lowerBound <= value && value <= this.upperBound) {
       return RangeNumberEnum.Middle;
-    } else if (value < this.lowerBound && this.upperBound - value - 1 <= Range.gapSize) {
+    } else if (value < this.lowerBound && this.upperBound - value - 1 <= this.gapSize) {
       return RangeNumberEnum.Lower;
-    } else if (this.upperBound < value && value - this.upperBound - 1 <= Range.gapSize) {
+    } else if (this.upperBound < value && value - this.upperBound - 1 <= this.gapSize) {
       return RangeNumberEnum.Upper;
     } else {
       return RangeNumberEnum.NotInRange;
@@ -42,7 +40,7 @@ export class Range {
 
   /**
    * extends the range with the given number. Allows for a gap as long as that gap is smaller or equal to
-   * [[Range.gapSize]]. If the number is smaller or bigger than the lower, and upper bounds respectively then the
+   * [[this.gapSize]]. If the number is smaller or bigger than the lower, and upper bounds respectively then the
    * corresponding bound is replaced. If the number is smaller than the upper bound and bigger than the lower then the
    * range does not change. The number cannot extend the range then undefined is returned.
    * @param value

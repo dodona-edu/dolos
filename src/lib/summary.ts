@@ -185,10 +185,10 @@ export class Summary {
       });
 
       if (rangeTupleIndex === -1) {
-        ranges.push([new Range(next[0], next[0]), new Range(next[1], next[1])]);
+        ranges.push([new Range(next[0], next[0], this.gapSize), new Range(next[1], next[1], this.gapSize)]);
       } else {
         ranges[rangeTupleIndex][0].extendWithNumber(next[0]);
-        ranges[rangeTupleIndex][1].extendWithNumber(next[0]);
+        ranges[rangeTupleIndex][1].extendWithNumber(next[1]);
       }
     });
 
