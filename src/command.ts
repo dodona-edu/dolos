@@ -17,27 +17,32 @@ program
 
 //TODO better descriptions and remove odd flags
 program
+    .arguments('[...files]')
     .option('-l, --language <language>', 'language used in the compared programs', 'javascript')
     .option('-d, --directory <directory>', 'specifies that submission are per directory, not by file')
     .option('-b, --base <base>', 'this option specifies a base file, any code that also appears in the base file is not shown. A typical base file is the supplied code for an exercise')
-    .option('-n, --minimum-lines', 'the minimum amount of lines in a range before it is shown', 2)
     .option('-m, --maximum <number>', 'maximum number of times a given passage may appear before it is ignored', 10)
     .option('-c, --comment <string>', 'comment string that is attached to the generated report')
+    .option('-n, --minimum-lines', 'the minimum amount of lines in a range before it is shown', 2)
+    .option('-g, --maximum-gap-size', 'the maximum allowed amount of lines between two ranges that are not part of the ranges them selves', 0)
+
 //TODO examples
+program.on('--help', () => {
+    console.log('');
+    console.log('Examples:');
+    console.log('  $ dolos -l javascript *.js', 'gives dolos all the files in the current directory and tells that tells dolos that they are in javascript');
+    console.log('  $ dolos *.js -g 0');
+    console.log('  [[[0, 2], [9, 11]], [[4, 5], [13, 14]]]')
+    console.log('  $ dolos *.js -g 1');
+    console.log('  [[[0, 5], [9, 14]]]');
+});
 
 program.parse(process.argv);
 
 
 (async () => {
+    let result: Map<string, Matches<number>>;
 
-    // from app.ts
-    let sourceFile:string;
-    let result: any;
-    // console.log(`Variables language, path1, and path2 are: ${language}, ${path1}, ${path2}`);
-    sourceFile = program.source; // filler to make compiler work for now
-    if (program.language) {
-        console.log(`The language is ${program.language}`);
-    }
     if (program.source) {
         // required, will figure out how to get there
         console.log(program.source);
@@ -76,19 +81,18 @@ program.parse(process.argv);
         }
 
         await comparison.addFiles(files);
-        result = await comparison.compareFile(sourceFile? sourceFile: "samples/js/copied_function.js");
-        //console.log(result);
+        result = await comparison.compareFile(program.sourceFile);
     }
     else if (!program.directory) {
         // comparing one file against only one other file
         const tokenizer = new CodeTokenizer(program.language);
         const comparison = new Comparison(tokenizer);
         await comparison.addFile(""); //TODO change this
-        result = await comparison.compareFile(sourceFile? sourceFile: "samples/js/copied_function.js");
+        result = await comparison.compareFile(program.sourceFile);
         if (result) console.log('got a result'); //TODO remove this
     }
 
 })();
-        // const visualizer = new Visualize(sourceFile? sourceFile: "samples/js/copied_function.js"); // , sourceFile? sourceFile: "samples/js/copied_function.js", result
-        // visualizer.getSourceFile()
+        // const visualizer = new Visualize(sourceFile? sourceFile: "samples/js/copied_function.js"); // , sourceFile?
+        // sourceFile: "samples/js/copied_function.js", result visualizer.getSourceFile()
 
