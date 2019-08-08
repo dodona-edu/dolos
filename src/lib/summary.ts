@@ -202,22 +202,22 @@ export class Summary {
    */
   private sortResults(): Map<string, Matches<Range>> {
     // TODO index the score of the ranges, arrays and submaps to make this more efficient.
-    this.results.forEach((subMap, matchedFileName) => {
-      subMap.forEach((rangeArray, _) => {
+    this.results.forEach((matches, matchedFileName) => {
+      matches.forEach((rangesTupleArray, _) => {
         // sorts the arrays based on the score of the ranges.
-        rangeArray.sort(
+        rangesTupleArray.sort(
           (rangesTuple1, rangesTuple2) =>
             this.getScoreForRange(rangesTuple2[0]) - this.getScoreForRangesTuple(rangesTuple1),
         );
       });
       // sorts the submaps based on the score of the arrays, this is the sum of all the scores within the array.
-      const tempSubMap = new Map(
-        [...subMap.entries()].sort(
+      const tempMatches = new Map(
+        [...matches.entries()].sort(
           (subMapEntry1, subMapEntry2) =>
             this.getScoreForArray(subMapEntry2[1]) - this.getScoreForArray(subMapEntry1[1]),
         ),
       );
-      this.results.set(matchedFileName, tempSubMap);
+      this.results.set(matchedFileName, tempMatches);
     });
 
     // sorts the maps based on the score of the submaps, which is the sum of the scores contained within the submaps.
