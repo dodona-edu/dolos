@@ -235,17 +235,17 @@ export class Summary {
   private transformMatches(
     matchesPerFile: Map<string, Matches<number>>,
   ): Map<string, Matches<Range>> {
-    const results = new Map();
-    matchesPerFile.forEach((subMap, matchedFileName) => {
-      subMap.forEach((tupleArray, sourceFileName) => {
-        let map = results.get(sourceFileName);
-        const range = this.toRange(tupleArray);
-        if (range.length !== 0) {
+    const results: Map<string, Matches<Range>> = new Map();
+    matchesPerFile.forEach((matches, matchedFileName) => {
+      matches.forEach((matchLocations, matchingFile) => {
+        let map: Matches<Range> | undefined = results.get(matchingFile);
+        const rangesTupleArray: Array<RangesTuple> = this.matchesToRange(matchLocations);
+        if (rangesTupleArray.length !== 0) {
           if (map === undefined) {
             map = new Map();
             results.set(matchedFileName, map);
           }
-          map.set(sourceFileName, range);
+          map.set(matchingFile, rangesTupleArray);
         }
       });
     });
@@ -274,8 +274,8 @@ export class Summary {
    * @returns a list of tuples that contains two ranges, where the frist and second range correspond to the line
    * numbers of each file.
    */
-  private toRange(matches: Array<[number, number]>): RangesTuple[] {
-    const ranges: RangesTuple[] = new Array();
+  private matchesToRange(matches: Array<[number, number]>): RangesTuple[] {
+    const ranges: Array<RangesTuple> = new Array();
 
     // TODO TEST THIS Code
     matches.forEach(next => {
