@@ -91,7 +91,7 @@ export class Summary {
    * @returns The score
    */
   private getScoreForRange(range: Range): number {
-    return range[1] - range[0] + 1;
+    return range.getLineCount();
   }
 
   /**

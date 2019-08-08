@@ -22,9 +22,8 @@ export class Range {
    * tests if the number is withing the given range. This function allows for gaps
    * as long as the gap is smaller than [[Range.gapSize]]
    * @param value the number you want to test
-   * @param range the range you want to test the number with
    */
-  public canNumberExtendRange(value: number): RangeNumberEnum | undefined {
+  public whereCanNumberExtend(value: number): RangeNumberEnum {
     if (this.lowerBound <= value && value <= this.upperBound) {
       return RangeNumberEnum.Middle;
     } else if (value < this.lowerBound && this.upperBound - value - 1 <= Range.gapSize) {
@@ -32,7 +31,7 @@ export class Range {
     } else if (this.upperBound < value && value - this.upperBound - 1 <= Range.gapSize) {
       return RangeNumberEnum.Upper;
     } else {
-      return undefined;
+      return RangeNumberEnum.NotInRange;
     }
   }
 
@@ -45,7 +44,7 @@ export class Range {
    * @param value
    */
   public extendWithNumber(value: number): void {
-    const rangeNumber: RangeNumberEnum | undefined = this.canNumberExtendRange(value, range);
+    const rangeNumber: RangeNumberEnum = this.whereCanNumberExtend(value);
     switch (rangeNumber) {
       case RangeNumberEnum.Lower: {
         this.lowerBound = value;
@@ -62,11 +61,16 @@ export class Range {
    * Attempts to extend the range in place with the given range. The given range will not be changed.
    * @param range the range you want this range to be extended by.
    */
-  public extendRangeWithRange(range: Range): void {
-      if(this.canNumberExtendRange(range.lowerBound) !== RangeNumberEnum.NotInRange || this.canNumberExtendRange(range.upperBound)) {
+  public extendWithRange(range: Range): void {
+      if(this.canExtendWithRange(range)) {
         this.lowerBound = Math.min(range.lowerBound, this.lowerBound);
         this.upperBound = Math.max(range.upperBound, this.upperBound);
       }
+  }
+
+  public canExtendWithRange(range: Range): boolean {
+    return (this.whereCanNumberExtend(range.lowerBound) !== RangeNumberEnum.NotInRange) ||
+       this.whereCanNumberExtend(range.upperBound) !== RangeNumberEnum.NotInRange;
   }
 
   public toString(): string {
@@ -76,8 +80,8 @@ export class Range {
   /**
    * @returns The amount of lines in this range
    */
-  public getLineCount(range: Range): number {
-    return range.upperBound - range.lowerBound + 1;
+  public getLineCount(): number {
+    return this.upperBound - this.lowerBound + 1;
   }
 
 }
