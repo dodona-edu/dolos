@@ -1,5 +1,4 @@
 import fs from "fs";
-import { next } from "nprime";
 import { Matches } from "./comparison";
 enum RangeNumberEnum {
   Lower,
@@ -269,6 +268,7 @@ export class Summary {
   private toRange(matches: Array<[number, number]>): RangesTuple[] {
     const ranges: RangesTuple[] = new Array();
 
+    console.log(matches);
     // TODO TEST THIS Code
     matches.forEach(next => {
       let rangesTuple: [Range | undefined, Range | undefined] = [undefined, undefined];
@@ -285,24 +285,27 @@ export class Summary {
       if (rangesTuple[0] === undefined || rangesTuple[1] === undefined) {
         ranges.push([[next[0], next[0]], [next[1], next[1]]]);
       } else {
+        
         ranges[i] = rangesTuple as RangesTuple;
       }
 
-      // if two rangesTuples overlap with each other then extend the second with the first and remove the
-      // first from the array
-      for (let i = ranges.length - 1; i >= 0; i--) {
-        for (let j = i; j >= 0; j--) {
-          if (i !== j) {
-            const newRangesTuple = this.extendRangesTupleWithRangesTuple(ranges[i], ranges[j]);
-            if (newRangesTuple) {
-              ranges[j] = newRangesTuple;
-            }
-            ranges.splice(i, 1);
-            break;
+    });
+    console.log(ranges);
+
+    // if two rangesTuples overlap with each other then extend the second with the first and remove the
+    // first from the array
+    for (let i = ranges.length - 1; i >= 0; i--) {
+      for (let j = i; j >= 0; j--) {
+        if (i !== j) {
+          const newRangesTuple = this.extendRangesTupleWithRangesTuple(ranges[i], ranges[j]);
+          if (newRangesTuple) {
+            ranges[j] = newRangesTuple;
           }
+          ranges.splice(i, 1);
+          break;
         }
       }
-    });
+    }
 
     // remove all ranges that only contain less the minimum required lines
     return ranges.filter(

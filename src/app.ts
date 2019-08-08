@@ -17,10 +17,9 @@ import { Summary } from "./lib/summary";
   // }
   // const result = await comparison.compareFiles(arr);
 
-  await comparison.addFiles(["samples/js/samples.js", "samples/js/sample.js"]);
+  await comparison.addFiles(["samples/js/sample.js"]);
   const result = await comparison.compareFiles([
     "samples/js/copied_function.js",
-    "samples/js/another_copied_function.js",
   ]);
   const summary = new Summary(result);
   summary.printSummary();
