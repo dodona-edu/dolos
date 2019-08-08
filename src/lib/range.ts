@@ -20,7 +20,7 @@ export class Range {
 
   /**
    * tests if the number is withing the given range. This function allows for gaps
-   * as long as the gap is smaller than [[Range.gapSize]]
+   * as long as the gap is smaller than [[Range.gapSize]] //TODO
    * @param value the number you want to test
    */
   public whereCanNumberExtend(value: number): RangeNumberEnum {
@@ -33,6 +33,10 @@ export class Range {
     } else {
       return RangeNumberEnum.NotInRange;
     }
+  }
+
+  public canExtendWithNumber(value: number): boolean {
+    return this.whereCanNumberExtend(value) !== RangeNumberEnum.NotInRange;
   }
 
 

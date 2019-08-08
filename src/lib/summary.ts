@@ -1,6 +1,6 @@
 import fs from "fs";
 import { Matches } from "./comparison";
-import { Range } from "./range"
+import { Range } from "./range";
 type RangesTuple = [Range, Range];
 export class Summary {
   private readonly results: Map<string, Matches<Range>>;
@@ -31,7 +31,7 @@ export class Summary {
 
       subMap.forEach((rangesTupleArray, matchedFileName) => {
         const score: number = rangesTupleArray
-          .map(rangesTuple => this.getLinesInRange(rangesTuple[0]))
+          .map(rangesTuple => rangesTuple[0].getLineCount())
           .reduce((accumulator, nextValue) => accumulator + nextValue);
 
         const scoreMatchedFile = (score / this.countLinesInFile(matchedFileName)) * 100;
@@ -42,10 +42,7 @@ export class Summary {
         )}%, score source file: ${Math.round(scoreSourceFile)}%\n\n`;
 
         output += "\tranges: ";
-        output += rangesTupleArray.map(
-          rangesTuple =>
-            `[${this.rangeToString(rangesTuple[0])}, ${this.rangeToString(rangesTuple[1])}]`,
-        );
+        output += rangesTupleArray.map(rangesTuple => `[${rangesTuple[0]}, ${rangesTuple[1]}]`);
         output += "\n\n";
       });
     });
@@ -55,30 +52,32 @@ export class Summary {
     return output;
   }
 
-
-
-  /**
-   * Attempts the extend the first element of each tuple with each other and tries the same for the second element. If
-   * this is not possible then undefined is returned.
-   * @param rangesTuple1 the first rangesTuple you want to extend
-   * @param rangesTuple2 the second rangesTuple you wan to extend
-   */
-  public extendRangesTupleWithRangesTuple(
+  public canExtentRangesTupleWithRangesTuple(
     rangesTuple1: RangesTuple,
     rangesTuple2: RangesTuple,
-  ): RangesTuple | undefined {
-    const rangesTuple: [Range | undefined, Range | undefined] = [
-      this.extendRangeWithRange(rangesTuple1[0], rangesTuple2[0]),
-      this.extendRangeWithRange(rangesTuple1[1], rangesTuple2[1]),
-    ];
-
-    if (rangesTuple[0] === undefined || rangesTuple[1] === undefined) {
-      return undefined;
-    } else {
-      return rangesTuple as RangesTuple;
-    }
+  ): boolean {
+    return (
+      rangesTuple1[0].canExtendWithRange(rangesTuple2[0]) &&
+      rangesTuple1[1].canExtendWithRange(rangesTuple2[1])
+    );
   }
 
+  /**
+   * Attempts the extend the first element of each tuple with each other and tries the same for the second element.
+   * Assumes that it is possible to perform this operation, an error is thrown if this is not the case.
+   * @param rangesTuple1 the rangesTuple where the ranges will be extended
+   * @param rangesTuple2 the rangesTuple where the ranges will be used to extend
+   */
+  public extendRangesTupleWithRangesTuple(rangesTuple1: RangesTuple, rangesTuple2: RangesTuple) {
+    if (
+      this.canExtentRangesTupleWithRangesTuple(rangesTuple1, rangesTuple2)
+    ) {
+      throw new RangeError("a value in the rangeTuple could not be extended");
+    }
+
+    rangesTuple1[0].extendWithRange(rangesTuple2[0]);
+    rangesTuple1[1].extendWithRange(rangesTuple2[1]);
+  }
 
   private countLinesInFile(fileName: string): number {
     return fs.readFileSync(fileName, "utf8").split("\n").length;
@@ -179,23 +178,17 @@ export class Summary {
     const ranges: RangesTuple[] = new Array();
 
     matches.forEach(next => {
-      let rangesTuple: [Range | undefined, Range | undefined] = [undefined, undefined];
-      let i = -1;
-      while (
-        i < ranges.length - 1 &&
-        (rangesTuple[0] === undefined || rangesTuple[1] === undefined)
-      ) {
-        i += 1;
-        rangesTuple = [
-          this.extendRangeWithNumber(next[0], ranges[i][0]),
-          this.extendRangeWithNumber(next[1], ranges[i][1]),
-        ];
-      }
+      const rangeTupleIndex: number = ranges.findIndex(rangeTuple => {
+        return (
+          rangeTuple[0].canExtendWithNumber(next[0]) && rangeTuple[1].canExtendWithNumber(next[1])
+        );
+      });
 
-      if (rangesTuple[0] === undefined || rangesTuple[1] === undefined || i === ranges.length) {
-        ranges.push([[next[0], next[0]], [next[1], next[1]]]);
+      if (rangeTupleIndex === -1) {
+        ranges.push([new Range(next[0], next[0]), new Range(next[1], next[1])]);
       } else {
-        ranges[i] = rangesTuple as RangesTuple;
+        ranges[rangeTupleIndex][0].extendWithNumber(next[0]);
+        ranges[rangeTupleIndex][1].extendWithNumber(next[0]);
       }
     });
 
@@ -204,10 +197,9 @@ export class Summary {
     for (let i = ranges.length - 1; i >= 0; i--) {
       for (let j = i; j >= 0; j--) {
         if (i !== j) {
-          const newRangesTuple = this.extendRangesTupleWithRangesTuple(ranges[i], ranges[j]);
           // console.log(ranges[i], ranges[j], newRangesTuple);
-          if (newRangesTuple) {
-            ranges[j] = newRangesTuple;
+          if (this.canExtentRangesTupleWithRangesTuple(ranges[i], ranges[j])) {
+            this.extendRangesTupleWithRangesTuple(ranges[j], ranges[i]);
             ranges.splice(i, 1);
           }
           break;
@@ -218,7 +210,7 @@ export class Summary {
     // remove all ranges that only contain less the minimum required lines
     return ranges.filter(
       rangesTuple =>
-        Math.max(this.getLinesInRange(rangesTuple[0]), this.getLinesInRange(rangesTuple[1])) >=
+        Math.max(rangesTuple[0].getLineCount(), rangesTuple[1].getLineCount()) >=
         this.minimumLines,
     );
   }
