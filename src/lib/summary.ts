@@ -70,30 +70,6 @@ export class Summary {
     }
   }
 
-  /**
-   * Tests if the bounds of the ranges overlap. This function allows for gaps as long as
-   * the gap is smaller or equal than [[this.gapSize]]
-   * @param range1 the first range you want to test
-   * @param range2 the second range you want to test
-   */
-  public doRangesOverlap(range1: Range, range2: Range): boolean {
-    return (
-      this.canNumberExtendRange(range1[0], range2) !== undefined || this.canNumberExtendRange(range1[1], range2) !== undefined
-    );
-  }
-
-  /**
-   * compares the frist range from each tuple with each other and does the same with the second range in the tuples. Allows for a gap as long as it is
-   * smaller than or equal to [[this.gapSize]]
-   * @param rangesTuple1 the frist rangesTuple you want to compare
-   * @param rangesTuple2 the second rangesTuple you want to compare
-   */
-  public doRangesTuplesOverlap(rangesTuple1: RangesTuple, rangesTuple2: RangesTuple): boolean {
-    return (
-      this.doRangesOverlap(rangesTuple1[0], rangesTuple2[0]) &&
-      this.doRangesOverlap(rangesTuple1[1], rangesTuple2[1])
-    );
-  }
 
   /**
    * extends the range with the given number. Allows for a gap as long as that gap is smaller or equal to [[this.gapSize]].
