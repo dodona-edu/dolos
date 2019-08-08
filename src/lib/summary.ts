@@ -1,7 +1,11 @@
 import fs from "fs";
 import { next } from "nprime";
 import { Matches } from "./comparison";
-
+enum RangeNumberEnum {
+  Lower,
+  Upper,
+  Middle,
+}
 type Range = [number, number];
 type RangesTuple = [Range, Range];
 export class Summary {
@@ -54,10 +58,16 @@ export class Summary {
    * @param value the number you want to test
    * @param range the range you want to test the number with
    */
-  public isNumberWithingRange(value: number, range: Range): boolean {
-    console.log(value);
-    console.log(range);
-    return true; // TODO
+  public canNumberExtendRange(value: number, range: Range): RangeNumberEnum | undefined {
+    if (range[0] <= value && value <= range[1]) {
+      return RangeNumberEnum.Middle;
+    } else if (value < range[0] && range[0] - value - 1 <= this.gapSize) {
+      return RangeNumberEnum.Lower;
+    } else if (range[1] < value && value - range[1] - 1 <= this.gapSize) {
+      return RangeNumberEnum.Upper;
+    } else {
+      return undefined;
+    }
   }
 
   /**
@@ -67,8 +77,9 @@ export class Summary {
    * @param range2 the second range you want to test
    */
   public doRangesOverlap(range1: Range, range2: Range): boolean {
-    console.log(range1, range2); // TODO
-    return false;
+    return (
+      this.canNumberExtendRange(range1[0], range2) !== undefined || this.canNumberExtendRange(range1[1], range2) !== undefined
+    );
   }
 
   /**
@@ -78,8 +89,10 @@ export class Summary {
    * @param rangesTuple2 the second rangesTuple you want to compare
    */
   public doRangesTuplesOverlap(rangesTuple1: RangesTuple, rangesTuple2: RangesTuple): boolean {
-    console.log(rangesTuple1, rangesTuple2);
-    return false; // TODO
+    return (
+      this.doRangesOverlap(rangesTuple1[0], rangesTuple2[0]) &&
+      this.doRangesOverlap(rangesTuple1[1], rangesTuple2[1])
+    );
   }
 
   /**
@@ -90,18 +103,68 @@ export class Summary {
    * @param range
    */
   public extendRangeWithNumber(value: number, range: Range): Range | undefined {
-    console.log(value);
-    return range; // TODO
+    const rangeNumber: RangeNumberEnum | undefined = this.canNumberExtendRange(value, range);
+    switch (rangeNumber) {
+      case RangeNumberEnum.Middle: {
+        return range;
+        break;
+      }
+      case RangeNumberEnum.Lower: {
+        return [value, range[1]];
+        break;
+      }
+      case RangeNumberEnum.Upper: {
+        return [range[0], value];
+        break;
+      }
+      default: {
+        return undefined;
+        break;
+      }
+    }
   }
 
   /**
-   * attempts to extend one range with the other. lllllllllllllllllllllllllllllllllllf it fails then it returns undefined.
+   * attempts to extend one range with the other. If it fails then it returns undefined.
    * @param range1 the first range you want to extend
    * @param range2 the second range you want to extend
    */
-  public extendRangeWithRange(range1: Range, range2: Range): Range {
-    console.log(range2);
-    return range1; // TODO
+  public extendRangeWithRange(range1: Range, range2: Range): Range | undefined {
+    let rangeNumber: RangeNumberEnum | undefined = this.canNumberExtendRange(range1[0], range2);
+    switch (rangeNumber) {
+      case RangeNumberEnum.Middle: {
+        return [range2[0], Math.max(range1[1], range2[1])];
+        break;
+      }
+      case RangeNumberEnum.Lower: {
+        return [range1[0], Math.max(range1[1], range2[1])];
+        break;
+      }
+      case RangeNumberEnum.Upper: {
+        return [range2[0], range1[1]];
+        break;
+      }
+      default: {
+        rangeNumber = this.canNumberExtendRange(range1[1], range2);
+        switch (rangeNumber) {
+          case RangeNumberEnum.Middle: {
+            return [Math.min(range1[0], range2[0]), range2[1]];
+            break;
+          }
+          case RangeNumberEnum.Lower: {
+            return [range1[0], range2[1]];
+            break;
+          }
+          case RangeNumberEnum.Upper: {
+            return [Math.min(range1[0], range2[0]), range1[1]];
+            break;
+          }
+          default: {
+            return undefined;
+          }
+        }
+      }
+    }
   }
 
   /**
@@ -113,8 +176,16 @@ export class Summary {
     rangesTuple1: RangesTuple,
     rangesTuple2: RangesTuple,
   ): RangesTuple | undefined {
-    console.log(rangesTuple2);
-    return rangesTuple1; // TODO
+    const rangesTuple: [Range | undefined, Range | undefined] = [
+      this.extendRangeWithRange(rangesTuple1[0], rangesTuple2[0]),
+      this.extendRangeWithRange(rangesTuple1[1], rangesTuple2[1]),
+    ];
+
+    if (rangesTuple[0] === undefined || rangesTuple[1] === undefined) {
+      return undefined;
+    } else {
+      return rangesTuple as RangesTuple;
+    }
   }
 
   /**
@@ -228,8 +299,8 @@ export class Summary {
       let i = 0;
       while (i < ranges.length && (rangesTuple[0] !== undefined && rangesTuple[1] !== undefined)) {
         rangesTuple = [
-          this.extendRangeWithNumber(next[0], ranges[i][0]), 
-          this.extendRangeWithNumber(next[1], ranges[i][1])
+          this.extendRangeWithNumber(next[0], ranges[i][0]),
+          this.extendRangeWithNumber(next[1], ranges[i][1]),
         ];
 
         i += 1;
