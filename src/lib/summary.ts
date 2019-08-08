@@ -1,8 +1,9 @@
 import fs from "fs";
+import { next } from "nprime";
 import { Matches } from "./comparison";
 
 type Range = [number, number];
-type RangeTuple = [Range, Range];
+type RangesTuple = [Range, Range];
 export class Summary {
   private readonly results: Map<string, Matches<Range>>;
   private readonly minimumLines: number;
@@ -29,8 +30,8 @@ export class Summary {
     this.results.forEach((subMap, sourceFileName) => {
       console.log(`source: ${sourceFileName}`);
       console.log();
-      subMap.forEach((rangeTupleArray, matchedFileName) => {
-        let score = rangeTupleArray
+      subMap.forEach((rangesTupleArray, matchedFileName) => {
+        let score = rangesTupleArray
           .map(rangesTuple => this.getLinesInRange(rangesTuple[0]))
           .reduce((accumulator, nextValue) => accumulator + nextValue);
 
@@ -38,7 +39,7 @@ export class Summary {
 
         console.log(`\tmatched file: ${matchedFileName}, score: ${Math.round(score * 100)}%`);
         console.log("\tranges: ");
-        console.log(rangeTupleArray);
+        console.log(rangesTupleArray);
         console.log();
       });
     });
@@ -73,28 +74,28 @@ export class Summary {
   /**
    * compares the frist range from each tuple with each other and does the same with the second range in the tuples. Allows for a gap as long as it is
    * smaller than or equal to [[this.gapSize]]
-   * @param rangeTuple1 the frist rangesTuple you want to compare
-   * @param rangeTuple2 the second rangesTuple you want to compare
+   * @param rangesTuple1 the frist rangesTuple you want to compare
+   * @param rangesTuple2 the second rangesTuple you want to compare
    */
-  public doRangeTuplesOverlap(rangeTuple1: RangeTuple, rangeTuple2: RangeTuple): boolean {
-    console.log(rangeTuple1, rangeTuple2);
+  public doRangesTuplesOverlap(rangesTuple1: RangesTuple, rangesTuple2: RangesTuple): boolean {
+    console.log(rangesTuple1, rangesTuple2);
     return false; // TODO
   }
 
   /**
    * extends the range with the given number. Allows for a gap as long as that gap is smaller or equal to [[this.gapSize]].
    * If the number is smaller or bigger than the lower, and upper bounds respectively then the corresponding bound is replaced. If the number is smaller than the upper
-   * bound and bigger than the lower then the range does not change.
+   * bound and bigger than the lower then the range does not change. The number cannot extend the range then undefined is returned.
    * @param value
    * @param range
    */
-  public extendRangeWithNumber(value: number, range: Range): Range {
+  public extendRangeWithNumber(value: number, range: Range): Range | undefined {
     console.log(value);
     return range; // TODO
   }
 
   /**
-   * attempts to extend one range with the other. If it fails then it returns undefined.
+   * attempts to extend one range with the other. lllllllllllllllllllllllllllllllllllf it fails then it returns undefined.
    * @param range1 the first range you want to extend
    * @param range2 the second range you want to extend
    */
@@ -105,15 +106,15 @@ export class Summary {
 
   /**
    * Attempts the extend the first element of each tuple with each other and tries the same for the second element. If this is not possible then undefined is returned.
-   * @param rangeTuple1 the first rangeTuple you want to extend
-   * @param rangeTuple2 the second rangeTuple you wan to extend
+   * @param rangesTuple1 the first rangesTuple you want to extend
+   * @param rangesTuple2 the second rangesTuple you wan to extend
    */
-  public extendRangeTupleWithRangeTuple(
-    rangeTuple1: RangeTuple,
-    rangeTuple2: RangeTuple,
-  ): RangeTuple | undefined {
-    console.log(rangeTuple2);
-    return rangeTuple1; // TODO
+  public extendRangesTupleWithRangesTuple(
+    rangesTuple1: RangesTuple,
+    rangesTuple2: RangesTuple,
+  ): RangesTuple | undefined {
+    console.log(rangesTuple2);
+    return rangesTuple1; // TODO
   }
 
   /**
@@ -139,7 +140,7 @@ export class Summary {
   }
 
   /**
-   * First sorts the array of rangeTuples, then the subMaps and finally the main maps according to their corresponding score functions.
+   * First sorts the array of rangesTuples, then the subMaps and finally the main maps according to their corresponding score functions.
    */
   private sortResults(): Map<string, Matches<Range>> {
     // TODO index the score of the ranges, arrays and submaps to make this more efficient.
@@ -147,8 +148,8 @@ export class Summary {
       subMap.forEach((rangeArray, _) => {
         // sorts the arrays based on the score of the ranges.
         rangeArray.sort(
-          (rangeTuple1, rangeTuple2) =>
-            this.getScoreForRange(rangeTuple2[0]) - this.getScoreForRangeTuple(rangeTuple1),
+          (rangesTuple1, rangesTuple2) =>
+            this.getScoreForRange(rangesTuple2[0]) - this.getScoreForRangesTuple(rangesTuple1),
         );
       });
       // sorts the submaps based on the score of the arrays, this is the sum of all the scores within the array.
@@ -196,9 +197,9 @@ export class Summary {
     return results;
   }
 
-  private getScoreForArray(arr: RangeTuple[]): number {
+  private getScoreForArray(arr: RangesTuple[]): number {
     return arr
-      .map(rangeTuple => this.getScoreForRangeTuple(rangeTuple))
+      .map(rangesTuple => this.getScoreForRangesTuple(rangesTuple))
       .reduce((acc, nextNumber) => acc + nextNumber);
   }
 
@@ -208,8 +209,8 @@ export class Summary {
       .reduce((acc, nextNumber) => acc + nextNumber);
   }
 
-  private getScoreForRangeTuple(rangeTuple: RangeTuple): number {
-    return this.getScoreForRange(rangeTuple[0]) + this.getScoreForRange(rangeTuple[1]);
+  private getScoreForRangesTuple(rangesTuple: RangesTuple): number {
+    return this.getScoreForRange(rangesTuple[0]) + this.getScoreForRange(rangesTuple[1]);
   }
 
   /**
@@ -218,33 +219,37 @@ export class Summary {
    * @returns a list of tuples that contains two ranges, where the frist and second range correspond to the line
    * numbers of each file.
    */
-  private toRange(matches: Array<[number, number]>): RangeTuple[] {
-    const ranges: RangeTuple[] = new Array();
+  private toRange(matches: Array<[number, number]>): RangesTuple[] {
+    const ranges: RangesTuple[] = new Array();
+
     // TODO TEST THIS Code
     matches.forEach(next => {
-      const rangeTupleIndex: number = ranges.findIndex(rangeTuple => {
-        return (
-          this.isNumberWithingRange(next[0], rangeTuple[0]) &&
-          this.isNumberWithingRange(next[1], rangeTuple[1])
-        );
-      });
+      let rangesTuple: [Range | undefined, Range | undefined] = [undefined, undefined];
+      let i = 0;
+      while (i < ranges.length && (rangesTuple[0] !== undefined && rangesTuple[1] !== undefined)) {
+        rangesTuple = [
+          this.extendRangeWithNumber(next[0], ranges[i][0]), 
+          this.extendRangeWithNumber(next[1], ranges[i][1])
+        ];
 
-      if (rangeTupleIndex === -1) {
+        i += 1;
+      }
+
+      if (rangesTuple[0] === undefined || rangesTuple[1] === undefined) {
         ranges.push([[next[0], next[0]], [next[1], next[1]]]);
       } else {
-        const rangeTuple = ranges[rangeTupleIndex];
-        ranges[rangeTupleIndex] = [
-          this.extendRangeWithNumber(next[0], rangeTuple[0]),
-          this.extendRangeWithNumber(next[1], rangeTuple[1]),
-        ];
+        ranges[i] = rangesTuple as RangesTuple;
       }
 
       // if two rangesTuples overlap with each other then extend the second with the first and remove the
       // first from the array
       for (let i = ranges.length - 1; i >= 0; i--) {
         for (let j = i; j >= 0; j--) {
-          if (i !== j && this.doRangeTuplesOverlap(ranges[i], ranges[j])) {
-            ranges[j] = this.extendRangeTupleWithRangeTuple(ranges[i], ranges[j]);
+          if (i !== j) {
+            const newRangesTuple = this.extendRangesTupleWithRangesTuple(ranges[i], ranges[j]);
+            if (newRangesTuple) {
+              ranges[j] = newRangesTuple;
+            }
             ranges.splice(i, 1);
             break;
           }
