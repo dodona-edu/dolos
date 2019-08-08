@@ -28,27 +28,36 @@ export class Summary {
     this.results = this.sortResults();
   }
 
-  // TODO return a string and rename this function to 'toString';
-  public printSummary(): void {
+  public toString(): string {
+    let output: string = "";
     this.results.forEach((subMap, sourceFileName) => {
-      console.log(`source: ${sourceFileName}`);
-      console.log();
+      output += `source: ${sourceFileName}\n\n`;
+      const linesInSourceFile = this.countLinesInFile(sourceFileName);
+
       subMap.forEach((rangesTupleArray, matchedFileName) => {
-        let score = rangesTupleArray
+        const score: number = rangesTupleArray
           .map(rangesTuple => this.getLinesInRange(rangesTuple[0]))
           .reduce((accumulator, nextValue) => accumulator + nextValue);
 
-        score = score / this.countLinesInFile(matchedFileName);
+        const scoreMatchedFile = (score / this.countLinesInFile(matchedFileName)) * 100;
+        const scoreSourceFile = (score / linesInSourceFile) * 100;
 
-        console.log(`\tmatched file: ${matchedFileName}, score: ${Math.round(score * 100)}%`);
-        console.log("\tranges: ");
-        console.log(rangesTupleArray);
-        console.log();
+        output += `\tmatched file: ${matchedFileName}, score matched file: ${Math.round(
+          scoreMatchedFile,
+        )}%, score source file: ${Math.round(scoreSourceFile)}%\n\n`;
+
+        output += "\tranges: ";
+        output += rangesTupleArray.map(
+          rangesTuple =>
+            `[${this.rangeToString(rangesTuple[0])}, ${this.rangeToString(rangesTuple[1])}]`,
+        );
+        output += "\n\n";
       });
     });
     if (this.results.size === 0) {
-      console.log("There were no matches");
+      output += "There were no matches";
     }
+    return output;
   }
 
   /**
@@ -58,26 +67,16 @@ export class Summary {
    * @param range the range you want to test the number with
    */
   public canNumberExtendRange(value: number, range: Range): RangeNumberEnum | undefined {
-    let returnValue;
     if (range[0] <= value && value <= range[1]) {
-      returnValue = RangeNumberEnum.Middle;
-    } else if ((value < range[0]) && ((range[0] - value - 1) <= this.gapSize)) {
-      returnValue = RangeNumberEnum.Lower;
-    } else if ((range[1] < value) && ((value - range[1] - 1) <= this.gapSize)) {
-      returnValue = RangeNumberEnum.Upper;
+      return RangeNumberEnum.Middle;
+    } else if (value < range[0] && range[0] - value - 1 <= this.gapSize) {
+      return RangeNumberEnum.Lower;
+    } else if (range[1] < value && value - range[1] - 1 <= this.gapSize) {
+      return RangeNumberEnum.Upper;
     } else {
-      returnValue = undefined;
+      return undefined;
     }
-    // TODO remove this
-    // process.stdout.write('comparing: ')
-    // console.log(value, range);
-    // console.log(value - range[1] -1);
-    // console.log(this.gapSize)
-    // process.stdout.write('returns: ')
-    // console.log(returnValue);
-    return returnValue;
   }
-
 
   /**
    * extends the range with the given number. Allows for a gap as long as that gap is smaller or equal to [[this.gapSize]].
@@ -172,6 +171,10 @@ export class Summary {
     }
   }
 
+  private rangeToString(range: Range): string {
+    return `[${range[0]}, ${range[1]}]`;
+  }
+
   /**
    * @param range the range you want the length of
    * @returns the amount of lines in the given range
@@ -239,7 +242,7 @@ export class Summary {
     matchesPerFile.forEach((matches, matchedFileName) => {
       matches.forEach((matchLocations, matchingFile) => {
         let map: Matches<Range> | undefined = results.get(matchingFile);
-        const rangesTupleArray: Array<RangesTuple> = this.matchesToRange(matchLocations);
+        const rangesTupleArray: RangesTuple[] = this.matchesToRange(matchLocations);
         if (rangesTupleArray.length !== 0) {
           if (map === undefined) {
             map = new Map();
@@ -275,19 +278,20 @@ export class Summary {
    * numbers of each file.
    */
   private matchesToRange(matches: Array<[number, number]>): RangesTuple[] {
-    const ranges: Array<RangesTuple> = new Array();
+    const ranges: RangesTuple[] = new Array();
 
-    // TODO TEST THIS Code
     matches.forEach(next => {
       let rangesTuple: [Range | undefined, Range | undefined] = [undefined, undefined];
       let i = -1;
-      while (i < ranges.length -1 && (rangesTuple[0] === undefined || rangesTuple[1] === undefined)) {
+      while (
+        i < ranges.length - 1 &&
+        (rangesTuple[0] === undefined || rangesTuple[1] === undefined)
+      ) {
         i += 1;
         rangesTuple = [
           this.extendRangeWithNumber(next[0], ranges[i][0]),
           this.extendRangeWithNumber(next[1], ranges[i][1]),
         ];
-
       }
 
       if (rangesTuple[0] === undefined || rangesTuple[1] === undefined || i === ranges.length) {
@@ -295,7 +299,6 @@ export class Summary {
       } else {
         ranges[i] = rangesTuple as RangesTuple;
       }
-
     });
 
     // if two rangesTuples overlap with each other then extend the second with the first and remove the
@@ -313,7 +316,6 @@ export class Summary {
         }
       }
     }
-    console.log(ranges);
 
     // remove all ranges that only contain less the minimum required lines
     return ranges.filter(

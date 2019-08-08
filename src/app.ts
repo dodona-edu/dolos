@@ -23,5 +23,5 @@ import { Summary } from "./lib/summary";
     "samples/js/another_copied_function.js"
   ]);
   const summary = new Summary(result);
-  summary.printSummary();
+  console.log(summary.toString());
 })();
