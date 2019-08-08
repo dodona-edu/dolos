@@ -1,11 +1,6 @@
 import fs from "fs";
 import { Matches } from "./comparison";
-enum RangeNumberEnum {
-  Lower,
-  Upper,
-  Middle,
-}
-type Range = [number, number];
+import { Range } from "./range"
 type RangesTuple = [Range, Range];
 export class Summary {
   private readonly results: Map<string, Matches<Range>>;
@@ -60,96 +55,7 @@ export class Summary {
     return output;
   }
 
-  /**
-   * tests if the number is withing the given range. This function allows for gaps
-   * as long as the gap is smaller than [[this.gapSize]]
-   * @param value the number you want to test
-   * @param range the range you want to test the number with
-   */
-  public canNumberExtendRange(value: number, range: Range): RangeNumberEnum | undefined {
-    if (range[0] <= value && value <= range[1]) {
-      return RangeNumberEnum.Middle;
-    } else if (value < range[0] && range[0] - value - 1 <= this.gapSize) {
-      return RangeNumberEnum.Lower;
-    } else if (range[1] < value && value - range[1] - 1 <= this.gapSize) {
-      return RangeNumberEnum.Upper;
-    } else {
-      return undefined;
-    }
-  }
 
-  /**
-   * extends the range with the given number. Allows for a gap as long as that gap is smaller or equal to
-   * [[this.gapSize]]. If the number is smaller or bigger than the lower, and upper bounds respectively then the
-   * corresponding bound is replaced. If the number is smaller than the upper bound and bigger than the lower then the
-   * range does not change. The number cannot extend the range then undefined is returned.
-   * @param value
-   * @param range
-   */
-  public extendRangeWithNumber(value: number, range: Range): Range | undefined {
-    const rangeNumber: RangeNumberEnum | undefined = this.canNumberExtendRange(value, range);
-    switch (rangeNumber) {
-      case RangeNumberEnum.Middle: {
-        return range;
-        break;
-      }
-      case RangeNumberEnum.Lower: {
-        return [value, range[1]];
-        break;
-      }
-      case RangeNumberEnum.Upper: {
-        return [range[0], value];
-        break;
-      }
-      default: {
-        return undefined;
-        break;
-      }
-    }
-  }
-
-  /**
-   * attempts to extend one range with the other. If it fails then it returns undefined.
-   * @param range1 the first range you want to extend
-   * @param range2 the second range you want to extend
-   */
-  public extendRangeWithRange(range1: Range, range2: Range): Range | undefined {
-    let rangeNumber: RangeNumberEnum | undefined = this.canNumberExtendRange(range1[0], range2);
-    switch (rangeNumber) {
-      case RangeNumberEnum.Middle: {
-        return [range2[0], Math.max(range1[1], range2[1])];
-        break;
-      }
-      case RangeNumberEnum.Lower: {
-        return [range1[0], Math.max(range1[1], range2[1])];
-        break;
-      }
-      case RangeNumberEnum.Upper: {
-        return [range2[0], range1[1]];
-        break;
-      }
-      default: {
-        rangeNumber = this.canNumberExtendRange(range1[1], range2);
-        switch (rangeNumber) {
-          case RangeNumberEnum.Middle: {
-            return [Math.min(range1[0], range2[0]), range2[1]];
-            break;
-          }
-          case RangeNumberEnum.Lower: {
-            return [range1[0], range2[1]];
-            break;
-          }
-          case RangeNumberEnum.Upper: {
-            return [Math.min(range1[0], range2[0]), range1[1]];
-            break;
-          }
-          default: {
-            return undefined;
-          }
-        }
-      }
-    }
-  }
 
   /**
    * Attempts the extend the first element of each tuple with each other and tries the same for the second element. If
@@ -173,17 +79,6 @@ export class Summary {
     }
   }
 
-  private rangeToString(range: Range): string {
-    return `[${range[0]}, ${range[1]}]`;
-  }
-
-  /**
-   * @param range the range you want the length of
-   * @returns the amount of lines in the given range
-   */
-  private getLinesInRange(range: Range): number {
-    return range[1] - range[0] + 1;
-  }
 
   private countLinesInFile(fileName: string): number {
     return fs.readFileSync(fileName, "utf8").split("\n").length;
