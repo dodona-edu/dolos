@@ -75,3 +75,9 @@ test("test range extend range", () => {
   expect(new Range(0, 5).extendWithRange(new Range(3, 10)).areEqual(0, 10)).toBeTruthy();
   expect(new Range(0, 5).extendWithRange(new Range(-10, 5)).areEqual(-10, 5)).toBeTruthy();
 });
+
+test("lines in range", () => {
+  const range = new Range(100, 200);
+  expect(range.getLineCount()).toBe(101);
+
+});

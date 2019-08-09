@@ -3,8 +3,7 @@ import { RangesTuple, Summary } from "./../summary";
 
 /**
  * adapted from https://stackoverflow.com/questions/6274339/how-can-i-shuffle-an-array
- * Shuffles array in place. ES6 version
- * @param {Array} a items An array containing the items.
+ * @param a An array containing the items.
  */
 
 function shuffle<T>(a: T[]) {
@@ -21,7 +20,7 @@ function random(): number {
   return x - Math.floor(x);
 }
 
-test("simple join", () => {
+test("simple match to ranges", () => {
   const summary = new Summary(new Map());
   const array: Array<[number, number]> = [[1, 5], [2, 6], [3, 7], [4, 8]];
   shuffle(array);
@@ -29,7 +28,7 @@ test("simple join", () => {
   expect(summary.matchesToRange(array)).toContainEqual([new Range(1, 4), new Range(5, 8)]);
 });
 
-test("simple one sided join", () => {
+test("simple match to ranges where second element stays constant", () => {
   const summary = new Summary(new Map());
   const array: Array<[number, number]> = [[1, 5], [2, 5], [3, 5], [4, 5]];
   shuffle(array);
@@ -37,7 +36,7 @@ test("simple one sided join", () => {
   expect(summary.matchesToRange(array)).toContainEqual([new Range(1, 4), new Range(5, 5)]);
 });
 
-test("simple join", () => {
+test("simple match to ranges where first element stays constant", () => {
   const summary = new Summary(new Map());
   const array: Array<[number, number]> = [[1, 5], [1, 6], [1, 7], [1, 8]];
   shuffle(array);
@@ -45,19 +44,55 @@ test("simple join", () => {
   expect(summary.matchesToRange(array)).toContainEqual([new Range(1, 1), new Range(5, 8)]);
 });
 
-test("filter rangesTuple", () => {
-  const summary1 = new Summary(new Map(), 1);
-  const summary2 = new Summary(new Map(), 2);
+test("simple match to ranges where first element stays constant and a gap exists", () => {
+  const summary1 = new Summary(new Map(), 1, 1, 1);
+  const summary2 = new Summary(new Map(), 1, 1, 0);
+  const array: Array<[number, number]> = [[1, 5], [1, 6], [1, 7], [1, 9]];
+  shuffle(array);
+
+  const summary2Array = summary2.matchesToRange(array);
+  expect(summary1.matchesToRange(array)).toContainEqual([new Range(1, 1), new Range(5, 9)]);
+  expect(summary2Array).toContainEqual([new Range(1, 1), new Range(5, 7)]);
+  expect(summary2Array).toContainEqual([new Range(1, 1), new Range(9, 9)]);
+});
+
+test("filter rangesTuple by minimum lines", () => {
+  const summary = new Summary(new Map(), 3, 2);
   const rangesTupleArray: RangesTuple[] = [
     [new Range(1, 1), new Range(2, 2)],
     [new Range(1, 1000), new Range(8002, 9001)],
+    [new Range(1, 2), new Range(1, 2)],
+    [new Range(1, 1), new Range(1, 5)],
+    [new Range(1, 2), new Range(1, 3)],
   ];
 
-  const summary1Array = summary1.filterByMinimumLines(rangesTupleArray);
-  const summary2Array = summary2.filterByMinimumLines(rangesTupleArray);
+  const summaryArray = summary.filterByMinimumLines(rangesTupleArray);
 
-  expect(summary2Array).not.toContainEqual(rangesTupleArray[0]);
-  expect(summary2Array).toContainEqual(rangesTupleArray[1]);
-  expect(summary1Array).toContainEqual(rangesTupleArray[0]);
-  expect(summary1Array).toContainEqual(rangesTupleArray[1]);
+  expect(summaryArray).not.toContainEqual(rangesTupleArray[0]);
+  expect(summaryArray).toContainEqual(rangesTupleArray[1]);
+  expect(summaryArray).not.toContainEqual(rangesTupleArray[2]);
+  expect(summaryArray).not.toContainEqual(rangesTupleArray[3]);
+  expect(summaryArray).toContainEqual(rangesTupleArray[4]);
+});
+
+test("test extending related functions rangesTuples", () => {
+  const summary1 = new Summary(new Map(), 1, 1, 0);
+  const summary2 = new Summary(new Map(), 1, 1, 1);
+  const rangesTuple1: RangesTuple = [new Range(1, 5), new Range(1, 5)];
+  const rangesTuple2: RangesTuple = [new Range(6, 10), new Range(6, 20)];
+  const rangesTuple3: RangesTuple = [new Range(7, 10), new Range(7, 30)];
+  const rangesTuple4: RangesTuple = [new Range(1, 5), new Range(1, 5)];
+  const rangesTuple5: RangesTuple = [new Range(12, 200), new Range(21, 5000)];
+
+  expect(summary1.canExtentRangesTupleWithRangesTuple(rangesTuple1, rangesTuple2)).toBeTruthy();
+  expect(summary1.canExtentRangesTupleWithRangesTuple(rangesTuple1, rangesTuple3)).toBeFalsy();
+  expect(summary2.canExtentRangesTupleWithRangesTuple(rangesTuple1, rangesTuple3)).toBeTruthy();
+
+  summary1.extendRangesTupleWithRangesTuple(rangesTuple1, rangesTuple2);
+  expect(rangesTuple1).toEqual([new Range(1, 10), new Range(1, 20)]);
+  summary2.extendRangesTupleWithRangesTuple(rangesTuple4, rangesTuple3);
+  expect(rangesTuple4).toEqual([new Range(1, 10), new Range(1, 30)]);
+  expect(() => summary1.extendRangesTupleWithRangesTuple(rangesTuple1, rangesTuple5)).toThrowError(
+    RangeError,
+  );
 });

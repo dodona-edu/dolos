@@ -60,7 +60,7 @@ export class Comparison<Location> {
         }
       }
     } catch (error) {
-      console.error(`There was a problem parsing ${file}.`);
+      console.error(`There was a problem parsing ${file}. ${error}`);
       return; // this makes sure the promise resolves instead of rejects
     }
   }
