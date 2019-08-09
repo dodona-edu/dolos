@@ -1,41 +1,39 @@
-
 export class Range {
   private from: number;
   private to: number;
 
-  constructor(from: number, to: number ) {
-    if(from > to){
+  constructor(from: number, to: number) {
+    if (from > to) {
       throw RangeError("from must be lower then to");
     }
     this.from = from;
     this.to = to;
   }
-  
-  getFrom(): number {
+
+  public getFrom(): number {
     return this.from;
   }
 
-  getTo(): number {
+  public getTo(): number {
     return this.to;
   }
 
-
-  areEqual(from: number, to: number): boolean {
-      return this.getFrom() === from && this.getTo() === to;
+  public areEqual(from: number, to: number): boolean {
+    return this.getFrom() === from && this.getTo() === to;
   }
 
   /**
    * Tests wether or not the given number can extend the range.
    * @param value The number you want to test.
-   * @param gapSize The maximum gap size you want to allow. For example if the gap size is 0 then 2 cannot extend [4,5]. 
+   * @param gapSize The maximum gap size you want to allow. For example if the gap size is 0 then 2 cannot extend [4,5].
    * If you take a gap size of 1 however then the range can be extended and would become [2,5].
    */
   public canExtendWithNumber(value: number, gapSize: number = 0): boolean {
-    return (this.from - 1 - gapSize <= value && value <= this.to + 1 + gapSize) 
+    return this.from - 1 - gapSize <= value && value <= this.to + 1 + gapSize;
   }
 
   /**
-   * Extends the range with the given number. 
+   * Extends the range with the given number.
    * @param value
    * @returns A reference to this.
    */
@@ -45,12 +43,11 @@ export class Range {
     return this;
   }
 
-
-  /**  
+  /**
    * Extends the range with the given range in place. The given range will not be changed.
    * @param range The range you want this range to be extended by.
    */
-  public extendWithRange(range: Range ): this {
+  public extendWithRange(range: Range): this {
     this.from = Math.min(range.from, this.from);
     this.to = Math.max(range.to, this.to);
     return this;
@@ -59,28 +56,27 @@ export class Range {
   /**
    * Tests wether or not the given range can extend the current range.
    * @param range The range you want to test if can be used to extend the current range with.
-   * @param gapSize The maximum gap size you want to allow. For example if the gap size is 0 then [1, 3] and [5,6] 
+   * @param gapSize The maximum gap size you want to allow. For example if the gap size is 0 then [1, 3] and [5,6]
    * will not be joined. If you take a gap size of 1 however then the ranges can be combined into [1,6].
    * @returns A boolean if the range can be used to extend the current range.
    */
-  public canExtendWithRange(range: Range, gapSize: number = 0 ): boolean {
-    const test = (
+  public canExtendWithRange(range: Range, gapSize: number = 0): boolean {
+    const test =
       this.canExtendWithNumber(range.from, gapSize) ||
       this.canExtendWithNumber(range.to, gapSize) ||
       range.canExtendWithNumber(this.to, gapSize) ||
-      range.canExtendWithNumber(this.from, gapSize)
-    );
+      range.canExtendWithNumber(this.from, gapSize);
     return test;
   }
 
   /**
    * @param zeroBased If true the lines will be zero based, if it is true it will be 1-based
    */
-  public toString(zeroBased: boolean=false): string {
-    if(zeroBased){
+  public toString(zeroBased: boolean = false): string {
+    if (zeroBased) {
       return `[${this.from}, ${this.to}]`;
     } else {
-      return `[${this.from+1}, ${this.to+1}]`;
+      return `[${this.from + 1}, ${this.to + 1}]`;
     }
   }
 

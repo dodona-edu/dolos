@@ -28,7 +28,7 @@ export class Summary {
     this.results = this.sortResults();
   }
 
-  public toString(zeroBase: boolean=false): string {
+  public toString(zeroBase: boolean = false): string {
     if (this.results.size === 0) {
       return "There were no matches";
     }
@@ -56,9 +56,9 @@ export class Summary {
             )}%, score source file: ${Math.round(scoreSourceFile)}%\n\n`;
 
             matchedFilenameOutput += "\tranges: [\n";
-            matchedFilenameOutput += rangesTupleArray.map(
-              rangesTuple => '\t ' +  this.rangesTupleToString(rangesTuple, zeroBase)
-            ).join('\n');
+            matchedFilenameOutput += rangesTupleArray
+              .map(rangesTuple => "\t " + this.rangesTupleToString(rangesTuple, zeroBase))
+              .join("\n");
             matchedFilenameOutput += "\n\t]\n\n";
             return matchedFilenameOutput;
           })
@@ -72,8 +72,8 @@ export class Summary {
    * @param zeroBase Wether or not you want the lines to be zero based.
    * @returns A string representation of the rangesTuple.
    */
-  rangesTupleToString(rangesTuple: RangesTuple, zeroBase: boolean=false): string {
-    return `[${rangesTuple[0].toString(zeroBase)}, ${rangesTuple[1].toString(zeroBase)}]`
+  public rangesTupleToString(rangesTuple: RangesTuple, zeroBase: boolean = false): string {
+    return `[${rangesTuple[0].toString(zeroBase)}, ${rangesTuple[1].toString(zeroBase)}]`;
   }
 
   /**
@@ -105,6 +105,70 @@ export class Summary {
 
     rangesTuple1[0].extendWithRange(rangesTuple2[0]);
     rangesTuple1[1].extendWithRange(rangesTuple2[1]);
+  }
+
+  /**
+   * Converts a list of matching lines to a list of ranges.
+   * @param matches The list of matching lines.
+   * @returns A list of tuples that contains two ranges, where the frist and second range correspond to the line
+   * numbers of each file.
+   */
+  public matchesToRange(matches: Array<[number, number]>): RangesTuple[] {
+    let ranges: RangesTuple[] = new Array();
+
+    matches.forEach(next => {
+      const rangeTupleIndex: number = ranges.findIndex(rangeTuple => {
+        return (
+          rangeTuple[0].canExtendWithNumber(next[0], this.gapSize) &&
+          rangeTuple[1].canExtendWithNumber(next[1], this.gapSize)
+        );
+      });
+      if (rangeTupleIndex === -1) {
+        ranges.push([new Range(next[0], next[0]), new Range(next[1], next[1])]);
+      } else {
+        ranges[rangeTupleIndex][0].extendWithNumber(next[0]);
+        ranges[rangeTupleIndex][1].extendWithNumber(next[1]);
+      }
+    });
+
+    ranges = this.concatenateRanges(ranges);
+
+    return this.filterByMinimumLines(ranges);
+  }
+
+  /**
+   * Remove all ranges that only contain less the minimum required lines.
+   * @param rangesTupleArray The rangesTupleArray you want filter.
+   */
+
+  public filterByMinimumLines(rangesTupleArray: RangesTuple[]): RangesTuple[] {
+    return rangesTupleArray.filter(
+      rangesTuple =>
+        Math.max(rangesTuple[0].getLineCount(), rangesTuple[1].getLineCount()) >= this.minimumLines,
+    );
+  }
+
+  /**
+   * Concatenates all the rangesTuples whenever possible.
+   * @param rangesTupleArray The rangesTuples you want to concatenate where possible. Returns a new array with the
+   * result.
+   */
+  public concatenateRanges(rangesTupleArray: RangesTuple[]): RangesTuple[] {
+    const ranges: RangesTuple[] = rangesTupleArray.slice();
+    // If two rangesTuples overlap with each other then extend the second with the first and remove the
+    // first from the array.
+    for (let i = ranges.length - 1; i >= 0; i--) {
+      for (let j = i; j >= 0; j--) {
+        if (i !== j) {
+          if (this.canExtentRangesTupleWithRangesTuple(ranges[i], ranges[j])) {
+            this.extendRangesTupleWithRangesTuple(ranges[j], ranges[i]);
+            ranges.splice(i, 1);
+          }
+          break;
+        }
+      }
+    }
+    return ranges;
   }
 
   private countLinesInFile(fileName: string): number {
@@ -194,73 +258,5 @@ export class Summary {
 
   private getScoreForRangesTuple(rangesTuple: RangesTuple): number {
     return this.getScoreForRange(rangesTuple[0]) + this.getScoreForRange(rangesTuple[1]);
-  }
-
-  /**
-   * Converts a list of matching lines to a list of ranges.
-   * @param matches The list of matching lines.
-   * @returns A list of tuples that contains two ranges, where the frist and second range correspond to the line
-   * numbers of each file.
-   */
-  public matchesToRange(matches: Array<[number, number]>): Array<RangesTuple> {
-    let ranges: RangesTuple[] = new Array();
-
-    matches.forEach(next => {
-      const rangeTupleIndex: number = ranges.findIndex(rangeTuple => {
-        return (
-          rangeTuple[0].canExtendWithNumber(next[0], this.gapSize) && rangeTuple[1].canExtendWithNumber(next[1], this.gapSize)
-        );
-      });
-      if (rangeTupleIndex === -1) {
-        ranges.push([
-          new Range(next[0], next[0]),
-          new Range(next[1], next[1]),
-        ]);
-      } else {
-        ranges[rangeTupleIndex][0].extendWithNumber(next[0]);
-        ranges[rangeTupleIndex][1].extendWithNumber(next[1]);
-      }
-    });
-
-
-
-    ranges = this.concatenateRanges(ranges);
-
-    return this.filterByMinimumLines(ranges);
-  }
-
-   /**
-    * Remove all ranges that only contain less the minimum required lines.
-    * @param rangesTupleArray The rangesTupleArray you want filter.
-    */  
-  public filterByMinimumLines(rangesTupleArray: Array<RangesTuple>): Array<RangesTuple> {
-    return rangesTupleArray.filter(
-      rangesTuple =>
-        Math.max(rangesTuple[0].getLineCount(), rangesTuple[1].getLineCount()) >= this.minimumLines,
-    );
-  }
-
-  /**
-   * Concatenates all the rangesTuples whenever possible.
-   * @param rangesTupleArray The rangesTuples you want to concatenate where possible. Returns a new array with the
-   * result.
-   */
-  public concatenateRanges(rangesTupleArray: Array<RangesTuple>): Array<RangesTuple> {
-    let ranges: Array<RangesTuple> = rangesTupleArray.slice();
-    // If two rangesTuples overlap with each other then extend the second with the first and remove the
-    // first from the array.
-    for (let i = ranges.length - 1; i >= 0; i--) {
-      for (let j = i; j >= 0; j--) {
-        if (i !== j) {
-          if (this.canExtentRangesTupleWithRangesTuple(ranges[i], ranges[j])) {
-            this.extendRangesTupleWithRangesTuple(ranges[j], ranges[i]);
-            ranges.splice(i, 1);
-          }
-          break;
-        }
-      }
-    }
-    return ranges;
-
   }
 }

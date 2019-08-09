@@ -1,7 +1,6 @@
 import { CodeTokenizer } from "./lib/codeTokenizer";
 import { Comparison } from "./lib/comparison";
 import { Summary } from "./lib/summary";
-// import fs from 'fs';
 
 (async () => {
   const tokenizer = new CodeTokenizer("python");
