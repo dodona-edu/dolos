@@ -169,7 +169,7 @@ export class Summary {
   }
 
   rangesTupleToString(rangesTuple: RangesTuple): string {
-    return `[${rangesTuple[0]}, ${rangesTuple[1]}]`
+    return `[${rangesTuple[0].toString(false)}, ${rangesTuple[1].toString(false)}]`
   }
 
   /**
