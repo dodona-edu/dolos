@@ -79,8 +79,8 @@ export class Summary {
     rangesTuple2: RangesTuple,
   ): boolean {
     return (
-      rangesTuple1[0].canExtendWithRange(rangesTuple2[0]) &&
-      rangesTuple1[1].canExtendWithRange(rangesTuple2[1])
+      rangesTuple1[0].canExtendWithRange(rangesTuple2[0], this.gapSize) &&
+      rangesTuple1[1].canExtendWithRange(rangesTuple2[1], this.gapSize)
     );
   }
 
@@ -200,14 +200,14 @@ export class Summary {
     matches.forEach(next => {
       const rangeTupleIndex: number = ranges.findIndex(rangeTuple => {
         return (
-          rangeTuple[0].canExtendWithNumber(next[0]) && rangeTuple[1].canExtendWithNumber(next[1])
+          rangeTuple[0].canExtendWithNumber(next[0], this.gapSize) && rangeTuple[1].canExtendWithNumber(next[1], this.gapSize)
         );
       });
 
       if (rangeTupleIndex === -1) {
         ranges.push([
-          new Range(next[0], next[0], this.gapSize),
-          new Range(next[1], next[1], this.gapSize),
+          new Range(next[0], next[0]),
+          new Range(next[1], next[1]),
         ]);
       } else {
         ranges[rangeTupleIndex][0].extendWithNumber(next[0]);
