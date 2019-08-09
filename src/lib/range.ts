@@ -1,46 +1,24 @@
-enum RangeNumberEnum {
-  Lower,
-  Upper,
-  Middle,
-  NotInRange,
-}
 
 export class Range {
-  private lowerBound: number;
-  private upperBound: number;
+  private from: number;
+  private to: number;
   private readonly gapSize: number;
 
-  constructor(lowerBound: number, upperBound: number, gapSize: number) {
-    this.lowerBound = lowerBound;
-    this.upperBound = upperBound;
+  constructor(from: number, to: number, gapSize: number) {
+    this.from = from;
+    this.to = to;
     this.gapSize = gapSize;
   }
 
-  /**
-   * Tests if and where the given number can extend this range. There are four possible return values, all part of the
-   * RangeNumberEnum: Lower, Upper if the number can extend the lower and upper bound of the range respectively. Middle
-   * if the number is within the range but does not extend it in any way. Finally NotInRange, when the number cannot
-   * extend the range. This function allows for gaps as long as the gap is smaller than [[this.gapSize]]
-   * @param value the number you want to test
-   */
-  public whereCanNumberExtend(value: number): RangeNumberEnum {
-    if (this.lowerBound <= value && value <= this.upperBound) {
-      return RangeNumberEnum.Middle;
-    } else if (value < this.lowerBound && this.upperBound - value - 1 <= this.gapSize) {
-      return RangeNumberEnum.Lower;
-    } else if (this.upperBound < value && value - this.upperBound - 1 <= this.gapSize) {
-      return RangeNumberEnum.Upper;
-    } else {
-      return RangeNumberEnum.NotInRange;
-    }
-  }
 
   /**
    * Tests if the given number can extend the range.
    * @param value The number you want to test.
    */
   public canExtendWithNumber(value: number): boolean {
-    return this.whereCanNumberExtend(value) !== RangeNumberEnum.NotInRange;
+    return (this.from <= value && value <= this.to) ||
+           (value < this.from && this.to - value - 1 <= this.gapSize) ||
+           (this.to < value && value - this.to - 1 <= this.gapSize)
   }
 
   /**
@@ -49,30 +27,25 @@ export class Range {
    * corresponding bound is replaced. If the number is smaller than the upper bound and bigger than the lower then the
    * range does not change. Nothing will happen if the number cannot extend the range.
    * @param value
+   * @returns A reference to this.
    */
-  public extendWithNumber(value: number): void {
-    const rangeNumber: RangeNumberEnum = this.whereCanNumberExtend(value);
-    switch (rangeNumber) {
-      case RangeNumberEnum.Lower: {
-        this.lowerBound = value;
-        break;
-      }
-      case RangeNumberEnum.Upper: {
-        this.upperBound = value;
-        break;
-      }
-    }
+  public extendWithNumber(value: number): this {
+    this.from = Math.min(value, this.from);
+    this.to = Math.max(value, this.to);
+    return this;
   }
+
 
   /**
    * Attempts to extend the range in place with the given range. The given range will not be changed.
    * @param range The range you want this range to be extended by.
    */
-  public extendWithRange(range: Range): void {
+  public extendWithRange(range: Range): this {
     if (this.canExtendWithRange(range)) {
-      this.lowerBound = Math.min(range.lowerBound, this.lowerBound);
-      this.upperBound = Math.max(range.upperBound, this.upperBound);
+      this.from = Math.min(range.from, this.from);
+      this.to = Math.max(range.to, this.to);
     }
+    return this;
   }
 
   /**
@@ -83,16 +56,19 @@ export class Range {
    */
   public canExtendWithRange(range: Range): boolean {
     return (
-      this.whereCanNumberExtend(range.lowerBound) !== RangeNumberEnum.NotInRange ||
-      this.whereCanNumberExtend(range.upperBound) !== RangeNumberEnum.NotInRange
+      this.canExtendWithNumber(range.from) &&
+      this.canExtendWithNumber(range.to)
     );
   }
 
-  public toString(zeroBased?: true): string {
-    if (zeroBased) {
-      return `[${this.lowerBound}, ${this.upperBound}]`;
+  /**
+   * @param zeroBased If true the lines will be zero based, if it is true it will be 1-based
+   */
+  public toString(zeroBased: boolean=false): string {
+    if(zeroBased){
+      return `[${this.from}, ${this.to}]`;
     } else {
-      return `[${this.lowerBound + 1}, ${this.upperBound + 1}]`;
+      return `[${this.from+1}, ${this.to+1}]`;
     }
   }
 
@@ -100,6 +76,6 @@ export class Range {
    * @returns The amount of lines in this range.
    */
   public getLineCount(): number {
-    return this.upperBound - this.lowerBound + 1;
+    return this.to - this.from + 1;
   }
 }
