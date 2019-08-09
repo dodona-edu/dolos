@@ -89,10 +89,10 @@ export class Range {
   }
 
   public toString(zeroBased?: true): string {
-    if(zeroBased){
+    if (zeroBased) {
       return `[${this.lowerBound}, ${this.upperBound}]`;
     } else {
-      return `[${this.lowerBound+1}, ${this.upperBound+1}]`;
+      return `[${this.lowerBound + 1}, ${this.upperBound + 1}]`;
     }
   }
 
