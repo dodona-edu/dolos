@@ -88,8 +88,12 @@ export class Range {
     );
   }
 
-  public toString(): string {
-    return `[${this.lowerBound}, ${this.upperBound}]`;
+  public toString(zeroBased?: true): string {
+    if(zeroBased){
+      return `[${this.lowerBound}, ${this.upperBound}]`;
+    } else {
+      return `[${this.lowerBound+1}, ${this.upperBound+1}]`;
+    }
   }
 
   /**
