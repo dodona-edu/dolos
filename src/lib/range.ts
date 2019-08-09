@@ -43,6 +43,7 @@ export class Range {
     return this;
   }
 
+
   /**
    * Extends the range with the given range in place. The given range will not be changed.
    * @param range The range you want this range to be extended by.
