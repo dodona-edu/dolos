@@ -167,14 +167,6 @@ export class Summary {
   public rangesTupleToString(rangesTuple: RangesTuple): string {
     return `[${rangesTuple[0].toString()}, ${rangesTuple[1].toString()}]`;
   }
-  /**
-   * @param rangesTuple The tuple you want a string representation of.
-   * @param zeroBase Wether or not you want the lines to be zero based.
-   * @returns A string representation of the rangesTuple.
-   */
-  rangesTupleToString(rangesTuple: RangesTuple, zeroBase: boolean=false): string {
-    return `[${rangesTuple[0].toString(zeroBase)}, ${rangesTuple[1].toString(zeroBase)}]`
-  }
 
   /**
    * Checks pairwise if the first element of each RangesTuple can be extended with the second.

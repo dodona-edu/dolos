@@ -128,7 +128,7 @@ test("extend rangesTuples", () => {
     expect(summary2.canExtentRangesTupleWithRangesTuple(rangesTuple1, rangesTuple3)).toBeTruthy();
 
     summary1.extendRangesTupleWithRangesTuple(rangesTuple1, rangesTuple2)
-    expect(summary1).toEqual(
+    expect(rangesTuple1).toEqual(
         [new Range(1, 10), new Range(1, 20)]
     )
     summary2.extendRangesTupleWithRangesTuple(rangesTuple4, rangesTuple3)
