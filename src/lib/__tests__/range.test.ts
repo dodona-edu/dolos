@@ -79,5 +79,4 @@ test("test range extend range", () => {
 test("lines in range", () => {
   const range = new Range(100, 200);
   expect(range.getLineCount()).toBe(101);
-
 });
