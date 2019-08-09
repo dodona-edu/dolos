@@ -4,8 +4,24 @@ export class Range {
   private to: number;
 
   constructor(from: number, to: number ) {
+    if(from > to){
+      throw RangeError("from must be lower then to");
+    }
     this.from = from;
     this.to = to;
+  }
+  
+  getFrom(): number {
+    return this.from;
+  }
+
+  getTo(): number {
+    return this.to;
+  }
+
+
+  areEqual(from: number, to: number): boolean {
+      return this.getFrom() === from && this.getTo() === to;
   }
 
   /**
@@ -15,9 +31,7 @@ export class Range {
    * If you take a gap size of 1 however then the range can be extended and would become [2,5].
    */
   public canExtendWithNumber(value: number, gapSize: number = 0): boolean {
-    return (this.from <= value && value <= this.to) ||
-           (value < this.from && this.to - value - 1 <= gapSize) ||
-           (this.to < value && value - this.to - 1 <= gapSize)
+    return (this.from - 1 - gapSize <= value && value <= this.to + 1 + gapSize) 
   }
 
   /**
@@ -50,10 +64,13 @@ export class Range {
    * @returns A boolean if the range can be used to extend the current range.
    */
   public canExtendWithRange(range: Range, gapSize: number = 0 ): boolean {
-    return (
-      this.canExtendWithNumber(range.from, gapSize) &&
-      this.canExtendWithNumber(range.to, gapSize)
+    const test = (
+      this.canExtendWithNumber(range.from, gapSize) ||
+      this.canExtendWithNumber(range.to, gapSize) ||
+      range.canExtendWithNumber(this.to, gapSize) ||
+      range.canExtendWithNumber(this.from, gapSize)
     );
+    return test;
   }
 
   /**

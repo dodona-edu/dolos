@@ -1,7 +1,7 @@
 import fs from "fs";
 import { Matches } from "./comparison";
 import { Range } from "./range";
-type RangesTuple = [Range, Range];
+export type RangesTuple = [Range, Range];
 export class Summary {
   private readonly results: Map<string, Matches<Range>>;
   private readonly minimumLines: number;
@@ -202,8 +202,8 @@ export class Summary {
    * @returns A list of tuples that contains two ranges, where the frist and second range correspond to the line
    * numbers of each file.
    */
-  private matchesToRange(matches: Array<[number, number]>): RangesTuple[] {
-    const ranges: RangesTuple[] = new Array();
+  public matchesToRange(matches: Array<[number, number]>): Array<RangesTuple> {
+    let ranges: RangesTuple[] = new Array();
 
     matches.forEach(next => {
       const rangeTupleIndex: number = ranges.findIndex(rangeTuple => {
@@ -222,6 +222,31 @@ export class Summary {
       }
     });
 
+
+
+    ranges = this.concatenateRanges(ranges);
+
+    return this.filterByMinimumLines(ranges);
+  }
+
+   /**
+    * Remove all ranges that only contain less the minimum required lines.
+    * @param rangesTupleArray The rangesTupleArray you want filter.
+    */  
+  public filterByMinimumLines(rangesTupleArray: Array<RangesTuple>): Array<RangesTuple> {
+    return rangesTupleArray.filter(
+      rangesTuple =>
+        Math.max(rangesTuple[0].getLineCount(), rangesTuple[1].getLineCount()) >= this.minimumLines,
+    );
+  }
+
+  /**
+   * Concatenates all the rangesTuples whenever possible.
+   * @param rangesTupleArray The rangesTuples you want to concatenate where possible. Returns a new array with the
+   * result.
+   */
+  public concatenateRanges(rangesTupleArray: Array<RangesTuple>): Array<RangesTuple> {
+    let ranges: Array<RangesTuple> = rangesTupleArray.slice();
     // If two rangesTuples overlap with each other then extend the second with the first and remove the
     // first from the array.
     for (let i = ranges.length - 1; i >= 0; i--) {
@@ -235,11 +260,7 @@ export class Summary {
         }
       }
     }
+    return ranges;
 
-    // Remove all ranges that only contain less the minimum required lines.
-    return ranges.filter(
-      rangesTuple =>
-        Math.max(rangesTuple[0].getLineCount(), rangesTuple[1].getLineCount()) >= this.minimumLines,
-    );
   }
 }
