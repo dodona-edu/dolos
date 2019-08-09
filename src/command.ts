@@ -38,6 +38,7 @@ program
     "the maximum allowed amount of lines between two ranges that are not part of the ranges them selves",
     0,
   )
+  .option('-z, --zero-based-lines', 'specifies whether or not you want lines to be zero based', false)
   .arguments("<locations...>")
   .action((filesArgs) => {
     locations = filesArgs;
@@ -73,9 +74,7 @@ program.parse(process.argv);
       await comparison.addFile(location);
       const result = await comparison.compareFiles(locations);
       const summary = new Summary(result, program.minimumLines, program.gapSize);
-      console.log(summary.toString());
+      console.log(summary.toString(program.zeroBasedLines));
       results = new Map([...results, ...result]);
     }
-
 })();
-// sourceFile: "samples/js/copied_function.js", result visualizer.getSourceFile()
