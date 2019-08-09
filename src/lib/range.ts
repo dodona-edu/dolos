@@ -21,12 +21,12 @@ export class Range {
   public areEqual(from: number, to: number): boolean {
     return this.from === from && this.to === to;
   }
-  
-  getFrom(): number {
+
+  public getFrom(): number {
     return this.from;
   }
 
-  getTo(): number {
+  public getTo(): number {
     return this.to;
   }
 
@@ -50,7 +50,6 @@ export class Range {
     this.upperBound = Math.max(value, this.to);
     return this;
   }
-
 
   /**
    * Extends the range with the given range in place. The given range will not be changed.
