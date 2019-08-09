@@ -11,7 +11,7 @@ export class Summary {
    * @param matches A many-to-many comparison of a set of files. This map contains an entry for each of the
    * input files with the key being its file name and the value a list of matches. These matches are grouped
    * per matching file. The compareFiles function of the Comparison class can generate such mapping.
-   * @param minimumLines The minimum amount of lines required by a rangesTuple. If the rangesTuple has less lines then 
+   * @param minimumLines The minimum amount of lines required by a rangesTuple. If the rangesTuple has less lines then
    * it will be filtered out. When the rangesTuple has two ranges with a different amount of lines, then the maximum
    * between to two is used.
    * @param gapSize The gap size allowed during the joining of two ranges. For example if the gap size is 0 then [1,3]
@@ -30,41 +30,47 @@ export class Summary {
 
   public toString(): string {
     if (this.results.size === 0) {
-       return "There were no matches";
+      return "There were no matches";
     }
 
-    return Array.from(this.results.entries()).map((resultEntry) => {
-      let [sourceFileName, subMap] = resultEntry;
-      let output = "";
-      output += `source: ${sourceFileName}\n\n`;
-      const linesInSourceFile = this.countLinesInFile(sourceFileName);
+    return Array.from(this.results.entries())
+      .map(resultEntry => {
+        const [sourceFileName, subMap] = resultEntry;
+        let output = "";
+        output += `source: ${sourceFileName}\n\n`;
+        const linesInSourceFile = this.countLinesInFile(sourceFileName);
 
-      output += Array.from(subMap.entries()).map((subMapEntry) => {
-        let matchedFilenameOutput = "";
-        let [matchedFileName, rangesTupleArray] = subMapEntry;
-        const score: number = rangesTupleArray
-          .map(rangesTuple => rangesTuple[0].getLineCount())
-          .reduce((accumulator, nextValue) => accumulator + nextValue);
+        output += Array.from(subMap.entries())
+          .map(subMapEntry => {
+            let matchedFilenameOutput = "";
+            const [matchedFileName, rangesTupleArray] = subMapEntry;
+            const score: number = rangesTupleArray
+              .map(rangesTuple => rangesTuple[0].getLineCount())
+              .reduce((accumulator, nextValue) => accumulator + nextValue);
 
-        const scoreMatchedFile = (score / this.countLinesInFile(matchedFileName)) * 100;
-        const scoreSourceFile = (score / linesInSourceFile) * 100;
+            const scoreMatchedFile = (score / this.countLinesInFile(matchedFileName)) * 100;
+            const scoreSourceFile = (score / linesInSourceFile) * 100;
 
-        matchedFilenameOutput += `\tmatched file: ${matchedFileName}, score matched file: ${Math.round(
-          scoreMatchedFile,
-        )}%, score source file: ${Math.round(scoreSourceFile)}%\n\n`;
+            matchedFilenameOutput += `\tmatched file: ${matchedFileName}, score matched file: ${Math.round(
+              scoreMatchedFile,
+            )}%, score source file: ${Math.round(scoreSourceFile)}%\n\n`;
 
-        matchedFilenameOutput += "\tranges: ";
-        matchedFilenameOutput += rangesTupleArray.map(rangesTuple => `[${rangesTuple[0]}, ${rangesTuple[1]}]`);
-        matchedFilenameOutput += "\n\n";
-        return matchedFilenameOutput;
-      }).join('');
-      return output
-    }).join('');
+            matchedFilenameOutput += "\tranges: ";
+            matchedFilenameOutput += rangesTupleArray.map(
+              rangesTuple => `[${rangesTuple[0]}, ${rangesTuple[1]}]`,
+            );
+            matchedFilenameOutput += "\n\n";
+            return matchedFilenameOutput;
+          })
+          .join("");
+        return output;
+      })
+      .join("");
   }
 
   /**
    * Checks pairwise if the first element of each RangesTuple can be extended with the second.
-   * @param rangesTuple1 The tuple where the ranges will be tested if it can be extended from the ranges from the 
+   * @param rangesTuple1 The tuple where the ranges will be tested if it can be extended from the ranges from the
    * second tuple.
    * @param rangesTuple2 The tuple where the ranges will be used to extend with.
    */
@@ -85,9 +91,7 @@ export class Summary {
    * @param rangesTuple2 The rangesTuple where the ranges will be used to extend.
    */
   public extendRangesTupleWithRangesTuple(rangesTuple1: RangesTuple, rangesTuple2: RangesTuple) {
-    if (
-      this.canExtentRangesTupleWithRangesTuple(rangesTuple1, rangesTuple2)
-    ) {
+    if (this.canExtentRangesTupleWithRangesTuple(rangesTuple1, rangesTuple2)) {
       throw new RangeError("a value in the rangeTuple could not be extended");
     }
 
@@ -201,7 +205,10 @@ export class Summary {
       });
 
       if (rangeTupleIndex === -1) {
-        ranges.push([new Range(next[0], next[0], this.gapSize), new Range(next[1], next[1], this.gapSize)]);
+        ranges.push([
+          new Range(next[0], next[0], this.gapSize),
+          new Range(next[1], next[1], this.gapSize),
+        ]);
       } else {
         ranges[rangeTupleIndex][0].extendWithNumber(next[0]);
         ranges[rangeTupleIndex][1].extendWithNumber(next[1]);
@@ -226,8 +233,7 @@ export class Summary {
     // Remove all ranges that only contain less the minimum required lines.
     return ranges.filter(
       rangesTuple =>
-        Math.max(rangesTuple[0].getLineCount(), rangesTuple[1].getLineCount()) >=
-        this.minimumLines,
+        Math.max(rangesTuple[0].getLineCount(), rangesTuple[1].getLineCount()) >= this.minimumLines,
     );
   }
 }

@@ -1,20 +1,20 @@
-
-
 enum RangeNumberEnum {
-    Lower, Upper, Middle, NotInRange
+  Lower,
+  Upper,
+  Middle,
+  NotInRange,
 }
 
-
 export class Range {
-    private lowerBound: number;
-    private upperBound: number;
-    private readonly gapSize :number;
+  private lowerBound: number;
+  private upperBound: number;
+  private readonly gapSize: number;
 
-    constructor(lowerBound: number, upperBound: number , gapSize: number) {
-        this.lowerBound = lowerBound;
-        this.upperBound = upperBound;
-        this.gapSize = gapSize; 
-    }
+  constructor(lowerBound: number, upperBound: number, gapSize: number) {
+    this.lowerBound = lowerBound;
+    this.upperBound = upperBound;
+    this.gapSize = gapSize;
+  }
 
   /**
    * Tests if and where the given number can extend this range. There are four possible return values, all part of the
@@ -43,7 +43,6 @@ export class Range {
     return this.whereCanNumberExtend(value) !== RangeNumberEnum.NotInRange;
   }
 
-
   /**
    * Extends the range with the given number. Allows for a gap as long as that gap is smaller or equal to
    * [[this.gapSize]]. If the number is smaller or bigger than the lower, and upper bounds respectively then the
@@ -70,10 +69,10 @@ export class Range {
    * @param range The range you want this range to be extended by.
    */
   public extendWithRange(range: Range): void {
-      if(this.canExtendWithRange(range)) {
-        this.lowerBound = Math.min(range.lowerBound, this.lowerBound);
-        this.upperBound = Math.max(range.upperBound, this.upperBound);
-      }
+    if (this.canExtendWithRange(range)) {
+      this.lowerBound = Math.min(range.lowerBound, this.lowerBound);
+      this.upperBound = Math.max(range.upperBound, this.upperBound);
+    }
   }
 
   /**
@@ -83,8 +82,10 @@ export class Range {
    * @returns A boolean if the range can be used to extend the current range.
    */
   public canExtendWithRange(range: Range): boolean {
-    return (this.whereCanNumberExtend(range.lowerBound) !== RangeNumberEnum.NotInRange) ||
-       this.whereCanNumberExtend(range.upperBound) !== RangeNumberEnum.NotInRange;
+    return (
+      this.whereCanNumberExtend(range.lowerBound) !== RangeNumberEnum.NotInRange ||
+      this.whereCanNumberExtend(range.upperBound) !== RangeNumberEnum.NotInRange
+    );
   }
 
   public toString(): string {
@@ -97,5 +98,4 @@ export class Range {
   public getLineCount(): number {
     return this.upperBound - this.lowerBound + 1;
   }
-
 }
