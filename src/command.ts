@@ -13,7 +13,7 @@ const packageJson = require("../package.json");
 const program = new commander.Command();
 
 // Initial program description and version
-program.version(packageJson.version).description("Plagarism detection for programming exercises");
+program.version(packageJson.version).description("Plagiarism detection for programming exercises");
 
 
 let locations: Array<string> = [];
@@ -58,9 +58,6 @@ program.on("--help", () => {
 });
 
 program.parse(process.argv);
-// function XOR(a: boolean, b: boolean) {
-//     return a ? !b : b;
-// }
 
 (async () => {
     if(locations.length < 2){
@@ -71,13 +68,13 @@ program.parse(process.argv);
 
     let results: Map<string, Matches<number>> = new Map();
     while(locations.length > 1){
-        const location: string = locations.shift() as string; //will not be undefined
-        const comparison = new Comparison(tokenizer);
-        await comparison.addFile(location);
-        const result = await comparison.compareFiles(locations);
-        const summary = new Summary(result, program.minimumLines, program.gapSize);
-        console.log(summary.toString());
-        results = new Map([...results, ...result]);
+      const location: string = locations.shift() as string; //will not be undefined
+      const comparison = new Comparison(tokenizer);
+      await comparison.addFile(location);
+      const result = await comparison.compareFiles(locations);
+      const summary = new Summary(result, program.minimumLines, program.gapSize);
+      console.log(summary.toString());
+      results = new Map([...results, ...result]);
     }
 
 })();

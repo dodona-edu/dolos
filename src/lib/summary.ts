@@ -168,6 +168,10 @@ export class Summary {
     return `[${rangesTuple[0].toString()}, ${rangesTuple[1].toString()}]`;
   }
 
+  rangesTupleToString(rangesTuple: RangesTuple): string {
+    return `[${rangesTuple[0]}, ${rangesTuple[1]}]`
+  }
+
   /**
    * Checks pairwise if the first element of each RangesTuple can be extended with the second.
    * @param rangesTuple1 The tuple where the ranges will be tested if it can be extended from the ranges from the
