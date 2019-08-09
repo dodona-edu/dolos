@@ -21,6 +21,14 @@ export class Range {
   public areEqual(from: number, to: number): boolean {
     return this.from === from && this.to === to;
   }
+  
+  getFrom(): number {
+    return this.from;
+  }
+
+  getTo(): number {
+    return this.to;
+  }
 
   /**
    * Tests wether or not the given number can extend the range.
