@@ -4,25 +4,29 @@ import { Range } from "./range";
 export type RangesTuple = [Range, Range];
 export class Summary {
   private readonly results: Map<string, Matches<Range>>;
-  private readonly minimumLines: number;
+  private readonly minimumMaximumLines: number;
   private readonly gapSize: number;
+  private readonly minimumMinimumLines: number;
 
   /**
    * @param matches A many-to-many comparison of a set of files. This map contains an entry for each of the
    * input files with the key being its file name and the value a list of matches. These matches are grouped
    * per matching file. The compareFiles function of the Comparison class can generate such mapping.
-   * @param minimumLines The minimum amount of lines required by a rangesTuple. If the rangesTuple has less lines then
+   * @param minimumMaximumLines The minimum amount of lines required by the longest range in a rangesTuple. If the rangesTuple has less lines then
    * it will be filtered out. When the rangesTuple has two ranges with a different amount of lines, then the maximum
    * between to two is used.
+   * @param minimumMinimumLines The minimum amount of lines required by the shortest range in a rangesTuple.
    * @param gapSize The gap size allowed during the joining of two ranges. For example if the gap size is 0 then [1,3]
    * and [5,7] wont be joined, and if the gap size is one these will be joined into [1,7].
    */
   constructor(
     matchesPerFile: Map<string, Matches<number>>,
-    minimumLines: number = 2,
+    minimumMaximumLines: number = 2,
+    minimumMinimumLines: number = 1,
     gapSize: number = 1,
   ) {
-    this.minimumLines = minimumLines;
+    this.minimumMaximumLines = minimumMaximumLines;
+    this.minimumMinimumLines = minimumMinimumLines;
     this.gapSize = gapSize;
     this.results = this.transformMatches(matchesPerFile);
     this.results = this.sortResults();
@@ -99,7 +103,7 @@ export class Summary {
    * @param rangesTuple2 The rangesTuple where the ranges will be used to extend.
    */
   public extendRangesTupleWithRangesTuple(rangesTuple1: RangesTuple, rangesTuple2: RangesTuple) {
-    if (this.canExtentRangesTupleWithRangesTuple(rangesTuple1, rangesTuple2)) {
+    if (!this.canExtentRangesTupleWithRangesTuple(rangesTuple1, rangesTuple2)) {
       throw new RangeError("a value in the rangeTuple could not be extended");
     }
 
@@ -144,7 +148,8 @@ export class Summary {
   public filterByMinimumLines(rangesTupleArray: RangesTuple[]): RangesTuple[] {
     return rangesTupleArray.filter(
       rangesTuple =>
-        Math.max(rangesTuple[0].getLineCount(), rangesTuple[1].getLineCount()) >= this.minimumLines,
+        Math.max(rangesTuple[0].getLineCount(), rangesTuple[1].getLineCount()) >= this.minimumMaximumLines &&
+        Math.min(rangesTuple[0].getLineCount(), rangesTuple[1].getLineCount()) >= this.minimumMinimumLines
     );
   }
 
