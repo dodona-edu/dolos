@@ -114,3 +114,9 @@ test("lines in range", () => {
   const negativeBoundRange = new Range(-500, -100);
   expect(negativeBoundRange.getLineCount()).toBe(401);
 });
+
+test("lines in range", () => {
+  const range = new Range(100, 200);
+  expect(range.getLineCount()).toBe(101);
+
+});
