@@ -12,9 +12,9 @@ export class Summary {
    * @param matches A many-to-many comparison of a set of files. This map contains an entry for each of the
    * input files with the key being its file name and the value a list of matches. These matches are grouped
    * per matching file. The compareFiles function of the Comparison class can generate such mapping.
-   * @param minimumMaximumLines The minimum amount of lines required by the longest range in a rangesTuple. If the rangesTuple has less lines then
-   * it will be filtered out. When the rangesTuple has two ranges with a different amount of lines, then the maximum
-   * between to two is used.
+   * @param minimumMaximumLines The minimum amount of lines required by the longest range in a rangesTuple. If the
+   * rangesTuple has less lines then it will be filtered out. When the rangesTuple has two ranges with a different
+   * amount of lines, then the maximum between to two is used.
    * @param minimumMinimumLines The minimum amount of lines required by the shortest range in a rangesTuple.
    * @param gapSize The gap size allowed during the joining of two ranges. For example if the gap size is 0 then [1,3]
    * and [5,7] wont be joined, and if the gap size is one these will be joined into [1,7].
@@ -148,8 +148,10 @@ export class Summary {
   public filterByMinimumLines(rangesTupleArray: RangesTuple[]): RangesTuple[] {
     return rangesTupleArray.filter(
       rangesTuple =>
-        Math.max(rangesTuple[0].getLineCount(), rangesTuple[1].getLineCount()) >= this.minimumMaximumLines &&
-        Math.min(rangesTuple[0].getLineCount(), rangesTuple[1].getLineCount()) >= this.minimumMinimumLines
+        Math.max(rangesTuple[0].getLineCount(), rangesTuple[1].getLineCount()) >=
+          this.minimumMaximumLines &&
+        Math.min(rangesTuple[0].getLineCount(), rangesTuple[1].getLineCount()) >=
+          this.minimumMinimumLines,
     );
   }
 
