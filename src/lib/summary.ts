@@ -28,7 +28,7 @@ export class Summary {
     this.results = this.sortResults();
   }
 
-  public toString(): string {
+  public toString(zeroBase: boolean=false): string {
     if (this.results.size === 0) {
       return "There were no matches";
     }
@@ -55,17 +55,25 @@ export class Summary {
               scoreMatchedFile,
             )}%, score source file: ${Math.round(scoreSourceFile)}%\n\n`;
 
-            matchedFilenameOutput += "\tranges: ";
+            matchedFilenameOutput += "\tranges: [\n";
             matchedFilenameOutput += rangesTupleArray.map(
-              rangesTuple => `[${rangesTuple[0]}, ${rangesTuple[1]}]`,
-            );
-            matchedFilenameOutput += "\n\n";
+              rangesTuple => '\t ' +  this.rangesTupleToString(rangesTuple, zeroBase)
+            ).join('\n');
+            matchedFilenameOutput += "\n\t]\n\n";
             return matchedFilenameOutput;
           })
           .join("");
         return output;
       })
       .join("");
+  }
+  /**
+   * @param rangesTuple The tuple you want a string representation of.
+   * @param zeroBase Wether or not you want the lines to be zero based.
+   * @returns A string representation of the rangesTuple.
+   */
+  rangesTupleToString(rangesTuple: RangesTuple, zeroBase: boolean=false): string {
+    return `[${rangesTuple[0].toString(zeroBase)}, ${rangesTuple[1].toString(zeroBase)}]`
   }
 
   /**
@@ -203,7 +211,6 @@ export class Summary {
           rangeTuple[0].canExtendWithNumber(next[0], this.gapSize) && rangeTuple[1].canExtendWithNumber(next[1], this.gapSize)
         );
       });
-
       if (rangeTupleIndex === -1) {
         ranges.push([
           new Range(next[0], next[0]),
@@ -220,7 +227,6 @@ export class Summary {
     for (let i = ranges.length - 1; i >= 0; i--) {
       for (let j = i; j >= 0; j--) {
         if (i !== j) {
-          // console.log(ranges[i], ranges[j], newRangesTuple);
           if (this.canExtentRangesTupleWithRangesTuple(ranges[i], ranges[j])) {
             this.extendRangesTupleWithRangesTuple(ranges[j], ranges[i]);
             ranges.splice(i, 1);
