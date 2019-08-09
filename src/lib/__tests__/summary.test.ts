@@ -112,3 +112,28 @@ test("concatenate ranges", () => {
   expect(concatenatedRanges2).toContainEqual(rangesTupleArray[3]);
   expect(concatenatedRanges2).not.toContainEqual([new Range(5, 25), new Range(105, 115)]);
 });
+
+
+test("extend rangesTuples", () => {
+    const summary1 = new Summary(new Map(), 1, 0);
+    const summary2 = new Summary(new Map(), 1, 1);
+    const rangesTuple1: RangesTuple = [new Range(1, 5), new Range(1, 5)];
+    const rangesTuple2: RangesTuple = [new Range(6, 10), new Range(6, 20)];
+    const rangesTuple3: RangesTuple = [new Range(7, 10), new Range(7, 30)];
+    const rangesTuple4: RangesTuple = [new Range(1, 5), new Range(1, 5)];
+
+
+    expect(summary1.canExtentRangesTupleWithRangesTuple(rangesTuple1, rangesTuple2)).toBeTruthy();
+    expect(summary1.canExtentRangesTupleWithRangesTuple(rangesTuple1, rangesTuple3)).toBeFalsy();
+    expect(summary2.canExtentRangesTupleWithRangesTuple(rangesTuple1, rangesTuple3)).toBeTruthy();
+
+    summary1.extendRangesTupleWithRangesTuple(rangesTuple1, rangesTuple2)
+    expect(summary1).toEqual(
+        [new Range(1, 10), new Range(1, 20)]
+    )
+    summary2.extendRangesTupleWithRangesTuple(rangesTuple4, rangesTuple3)
+    expect(rangesTuple4).toEqual(
+        [new Range(1, 10), new Range(1, 30)]
+    ) //TODO fix this test
+
+});
