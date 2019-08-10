@@ -2,6 +2,7 @@ import commander from "commander";
 import { Matches } from "./lib/comparison.js";
 // import fs from "fs";
 
+import path from "path";
 import { CodeTokenizer } from "./lib/codeTokenizer";
 import { Comparison } from "./lib/comparison";
 import { Summary } from "./lib/summary.js";
@@ -75,22 +76,45 @@ program.parse(process.argv);
   const tokenizer = new CodeTokenizer(program.language);
 
   const results: Map<string, Matches<number>> = new Map();
-  while (locations.length > 1) {
-    const location: string = locations.shift() as string; 
-    const comparison = new Comparison(tokenizer);
-    await comparison.addFile(location);
-    const matchesPerFile: Map<string, Matches<number>> = await comparison.compareFiles(locations);
+  if (program.directory) {
+    const locationsFragments = locations.map((filePath) => filePath.split(path.sep));
+    const filesGroupedPerDirectory: Map<string ,Array<string>> = new Map();
 
-    matchesPerFile.forEach((matches, matchedFileName) => {
-      matches.forEach((matchLocations, matchingFile) => {
-        let map: Matches<number> | undefined = results.get(matchingFile);
-        if (map === undefined) {
-          map = new Map();
-          results.set(matchedFileName, map);
-        }
-        map.set(matchingFile, matchLocations);
-      });
+    let baseDirIndex = 0;
+    let baseDir = locationsFragments[0][0];
+    while (locationsFragments.every(filePathFragments => filePathFragments[baseDirIndex] === baseDir)) {
+      baseDirIndex += 1;
+      baseDir = locationsFragments[0][baseDirIndex]
+    } 
+    locationsFragments.forEach((filePathFragments) => {
+      let groupedFiles: Array<string> | undefined = filesGroupedPerDirectory.get(filePathFragments[baseDirIndex]);
+      if( groupedFiles === undefined) {
+        groupedFiles = new Array();
+        filesGroupedPerDirectory.set(filePathFragments[baseDirIndex], groupedFiles);
+      }
+      groupedFiles.push(path.join(...filePathFragments));
     });
+
+    console.log(filesGroupedPerDirectory);
+
+  } else {
+    while (locations.length > 1) {
+      const location: string = locations.shift() as string;
+      const comparison = new Comparison(tokenizer);
+      await comparison.addFile(location);
+      const matchesPerFile: Map<string, Matches<number>> = await comparison.compareFiles(locations);
+
+      matchesPerFile.forEach((matches, matchedFileName) => {
+        matches.forEach((matchLocations, matchingFile) => {
+          let map: Matches<number> | undefined = results.get(matchingFile);
+          if (map === undefined) {
+            map = new Map();
+            results.set(matchedFileName, map);
+          }
+          map.set(matchingFile, matchLocations);
+        });
+      });
+    }
   }
   const summary = new Summary(results, program.minimumLines, 0, program.gapSize);
   console.log(summary.toString(program.zeroBasedLines));
