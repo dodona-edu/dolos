@@ -1,5 +1,5 @@
 import commander from "commander";
-import { Matches } from "./lib/comparison.js"
+import { Matches } from "./lib/comparison.js";
 // import fs from "fs";
 
 import { CodeTokenizer } from "./lib/codeTokenizer";
@@ -15,15 +15,14 @@ const program = new commander.Command();
 // Initial program description and version
 program.version(packageJson.version).description("Plagiarism detection for programming exercises");
 
-
-let locations: Array<string> = [];
+let locations: string[] = [];
 
 program
   .option("-l, --language <language>", "language used in the compared programs", "javascript")
   .option("-d, --directory", "specifies that submission are per directory, not by file")
   .option(
     "-b, --base <base>",
-    `this option specifies a base file, any code that also appears in the base file is not shown. A typical base file 
+    `this option specifies a base file, any code that also appears in the base file is not shown. A typical base file
      is the supplied code for an exercise`,
   )
   .option(
@@ -32,17 +31,25 @@ program
     10,
   )
   .option("-c, --comment <string>", "comment string that is attached to the generated report")
-  .option("-n, --minimum-lines <integer>", "the minimum amount of lines in a range before it is shown", 2)
+  .option(
+    "-n, --minimum-lines <integer>",
+    "the minimum amount of lines in a range before it is shown",
+    2,
+  )
   .option(
     "-g, --maximum-gap-size <integer>",
     "the maximum allowed amount of lines between two ranges that are not part of the ranges them selves",
     0,
   )
-  .option('-z, --zero-based-lines', 'specifies whether or not you want lines to be zero based', false)
+  .option(
+    "-z, --zero-based-lines",
+    "specifies whether or not you want lines to be zero based",
+    false,
+  )
   .arguments("<locations...>")
-  .action((filesArgs) => {
+  .action(filesArgs => {
     locations = filesArgs;
-  })
+  });
 
 // TODO examples
 program.on("--help", () => {
@@ -61,20 +68,30 @@ program.on("--help", () => {
 program.parse(process.argv);
 
 (async () => {
-    if(locations.length < 2){
-        console.error('need at least two locations');
-        process.exit(1);
-    } 
-    const tokenizer = new CodeTokenizer(program.language);
+  if (locations.length < 2) {
+    console.error("need at least two locations");
+    process.exit(1);
+  }
+  const tokenizer = new CodeTokenizer(program.language);
 
-    let results: Map<string, Matches<number>> = new Map();
-    while(locations.length > 1){
-      const location: string = locations.shift() as string; //will not be undefined
-      const comparison = new Comparison(tokenizer);
-      await comparison.addFile(location);
-      const result = await comparison.compareFiles(locations);
-      const summary = new Summary(result, program.minimumLines, program.gapSize);
-      console.log(summary.toString(program.zeroBasedLines));
-      results = new Map([...results, ...result]);
-    }
+  const results: Map<string, Matches<number>> = new Map();
+  while (locations.length > 1) {
+    const location: string = locations.shift() as string; 
+    const comparison = new Comparison(tokenizer);
+    await comparison.addFile(location);
+    const matchesPerFile: Map<string, Matches<number>> = await comparison.compareFiles(locations);
+
+    matchesPerFile.forEach((matches, matchedFileName) => {
+      matches.forEach((matchLocations, matchingFile) => {
+        let map: Matches<number> | undefined = results.get(matchingFile);
+        if (map === undefined) {
+          map = new Map();
+          results.set(matchedFileName, map);
+        }
+        map.set(matchingFile, matchLocations);
+      });
+    });
+  }
+  const summary = new Summary(results, program.minimumLines, 0, program.gapSize);
+  console.log(summary.toString(program.zeroBasedLines));
 })();
