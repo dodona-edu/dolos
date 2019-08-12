@@ -68,6 +68,21 @@ program.on("--help", () => {
 
 program.parse(process.argv);
 
+//TODO better naming
+function compose(results: Map<string, Matches<number>>, newMatches: Map<string, Matches<number>>) {
+    newMatches.forEach((matches, matchedFileName) => {
+      matches.forEach((matchLocations, matchingFile) => {
+        let map: Matches<number> | undefined = results.get(matchingFile);
+        if (map === undefined) {
+          map = new Map();
+          results.set(matchedFileName, map);
+        }
+        map.set(matchingFile, matchLocations);
+      });
+    });
+
+}
+
 (async () => {
   if (locations.length < 2) {
     console.error("need at least two locations");
@@ -78,7 +93,7 @@ program.parse(process.argv);
   const results: Map<string, Matches<number>> = new Map();
   if (program.directory) {
     const locationsFragments = locations.map((filePath) => filePath.split(path.sep));
-    const filesGroupedPerDirectory: Map<string ,Array<string>> = new Map();
+    const filesGroupedPerDirectoryMap: Map<string ,Array<string>> = new Map();
 
     let baseDirIndex = 0;
     let baseDir = locationsFragments[0][0];
@@ -86,34 +101,40 @@ program.parse(process.argv);
       baseDirIndex += 1;
       baseDir = locationsFragments[0][baseDirIndex]
     } 
+
     locationsFragments.forEach((filePathFragments) => {
-      let groupedFiles: Array<string> | undefined = filesGroupedPerDirectory.get(filePathFragments[baseDirIndex]);
+      let groupedFiles: Array<string> | undefined = filesGroupedPerDirectoryMap.get(filePathFragments[baseDirIndex]);
       if( groupedFiles === undefined) {
         groupedFiles = new Array();
-        filesGroupedPerDirectory.set(filePathFragments[baseDirIndex], groupedFiles);
+        filesGroupedPerDirectoryMap.set(filePathFragments[baseDirIndex], groupedFiles);
       }
       groupedFiles.push(path.join(...filePathFragments));
     });
 
-    console.log(filesGroupedPerDirectory);
 
+    const filesGroupPerDirectory: Array<Array<string>> = [...filesGroupedPerDirectoryMap.values()];
+
+    console.log(filesGroupPerDirectory);
+    for(let i = 0; i < filesGroupPerDirectory.length; i += 1) {
+      for (let j = i + 1; j < filesGroupPerDirectory.length; j += 1) {
+        const comparison = new Comparison(tokenizer);
+        await comparison.addFiles(filesGroupPerDirectory[i]);
+        const matchesPerFile: Map<string, Matches<number>> = await comparison.compareFiles(filesGroupPerDirectory[j]);
+        compose(results, matchesPerFile);
+
+
+      }
+    } 
+    console.log(filesGroupedPerDirectoryMap);
   } else {
+
     while (locations.length > 1) {
       const location: string = locations.shift() as string;
       const comparison = new Comparison(tokenizer);
       await comparison.addFile(location);
       const matchesPerFile: Map<string, Matches<number>> = await comparison.compareFiles(locations);
 
-      matchesPerFile.forEach((matches, matchedFileName) => {
-        matches.forEach((matchLocations, matchingFile) => {
-          let map: Matches<number> | undefined = results.get(matchingFile);
-          if (map === undefined) {
-            map = new Map();
-            results.set(matchedFileName, map);
-          }
-          map.set(matchingFile, matchLocations);
-        });
-      });
+      compose(results, matchesPerFile);
     }
   }
   const summary = new Summary(results, program.minimumLines, 0, program.gapSize);
