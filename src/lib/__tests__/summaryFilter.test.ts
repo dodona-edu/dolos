@@ -76,7 +76,6 @@ test("filter by maximum passage percentage", () => {
     ]);
 
     const filteredDummyResults = filter.filterByMaximumPassagePercentage(dummyResults, 3);
-    console.log(filteredDummyResults);
     expect(filteredDummyResults.has('dummyFile1'));
     let dummyMatches: Matches<number> = filteredDummyResults.get('dummyFile1') as Matches<number>;
     expect(dummyMatches.has('dummyFile2')).toBeTruthy();
@@ -84,6 +83,10 @@ test("filter by maximum passage percentage", () => {
     let dummyLines: Array<[number, number]> = dummyMatches.get('dummyFile2') as Array<[number, number]>;
     expect(dummyLines).toContainEqual([4, 9]);
     expect(dummyLines).not.toContainEqual([5, 10]);
+
+    expect(dummyMatches.has('dummyFile3')).toBeTruthy();
+    dummyLines = dummyMatches.get('dummyFile3') as Array<[number, number]>;
+    expect(dummyLines.length).toBe(2);
 
     expect(filteredDummyResults.has('dummyFile3')).toBeFalsy();
 })

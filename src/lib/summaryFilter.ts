@@ -8,7 +8,7 @@ export class SummaryFilter {
   constructor(
     minimumMaximumLines: number = 1,
     minimumMinimumLines: number = 1,
-    maximumPassagePercentage: number = 10,
+    maximumPassagePercentage: number = 0.9,
   ) {
     this.minimumMaximumLines = minimumMaximumLines;
     this.minimumMinimumLines = minimumMinimumLines;

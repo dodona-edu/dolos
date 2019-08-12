@@ -6,6 +6,7 @@ import path from "path";
 import { CodeTokenizer } from "./lib/codeTokenizer";
 import { Comparison } from "./lib/comparison";
 import { Summary } from "./lib/summary.js";
+import { SummaryFilter } from "./lib/summaryFilter.js";
 // import { Visualize } from "./lib/visualize";
 // import { stringLiteral } from "@babel/types";
 
@@ -27,8 +28,10 @@ program
      is the supplied code for an exercise`,
   )
   .option(
-    "-m, --maximum <number>",
-    "maximum number of times a given passage may appear before it is ignored",
+    "-m, --maximum <percentage>",
+    "maximum percentage a passage may appear before it is ignored. The percentage is calculated using the amount of\
+    different groups there are. So with the -d options the amount of directories is used where normally the amount of \
+    file is used",
     10,
   )
   .option("-c, --comment <string>", "comment string that is attached to the generated report")
@@ -91,6 +94,7 @@ function compose(results: Map<string, Matches<number>>, newMatches: Map<string, 
   const tokenizer = new CodeTokenizer(program.language);
 
   const results: Map<string, Matches<number>> = new Map();
+  const summaryFilter: SummaryFilter = new SummaryFilter(0, program.minimumLines, program.maximum); //TODO use this, in the summary class too
   if (program.directory) {
     const locationsFragments = locations.map((filePath) => filePath.split(path.sep));
     const filesGroupedPerDirectoryMap: Map<string ,Array<string>> = new Map();

@@ -1,6 +1,7 @@
 import fs from "fs";
 import { Matches } from "./comparison";
 import { Range } from "./range";
+import { SummaryFilter } from "./summaryFilter";
 export type RangesTuple = [Range, Range];
 
 /**
