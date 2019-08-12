@@ -121,11 +121,8 @@ function compose(results: Map<string, Matches<number>>, newMatches: Map<string, 
         await comparison.addFiles(filesGroupPerDirectory[i]);
         const matchesPerFile: Map<string, Matches<number>> = await comparison.compareFiles(filesGroupPerDirectory[j]);
         compose(results, matchesPerFile);
-
-
       }
     } 
-    console.log(filesGroupedPerDirectoryMap);
   } else {
 
     while (locations.length > 1) {
