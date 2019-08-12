@@ -1,8 +1,7 @@
-import { stringLiteral } from "@babel/types";
 import { Matches } from "./comparison";
 import { RangesTuple } from "./summary";
 
-export class RangesTupleFilter {
+export class SummaryFilter {
   public readonly minimumMaximumLines: number;
   public readonly minimumMinimumLines: number;
   public readonly maximumPassagePercentage: number;
@@ -53,7 +52,7 @@ export class RangesTupleFilter {
           lineCountPerFile.set(matchedFileName, matchedLinesCount);
         }
 
-        matchingLinesArray.forEach(matchingLines => {
+        SummaryFilter.unique(matchingLinesArray).forEach(matchingLines => {
           matchesLinesCount.set(
             matchingLines[0],
             (matchesLinesCount.get(matchingLines[0]) || 0) + 1,
@@ -65,6 +64,7 @@ export class RangesTupleFilter {
         });
       });
     });
+
     const returnMap: Map<string, Matches<number>> = new Map();
 
     matchesPerFile.forEach((matches, matchingFileName) => {
@@ -73,16 +73,16 @@ export class RangesTupleFilter {
         matchingFileName,
       ) as Map<number, number>;
       matches.forEach((matchingLinesArray, matchedFileName) => {
+
         const matchedFileNameLinesCount: Map<number, number> = lineCountPerFile.get(
           matchedFileName,
         ) as Map<number, number>;
-        const filteredMatchingLinesArray = this.unique(matchingLinesArray).filter(matchingLines => {
-          const matchingLineCount: number = matchingFileNameLinesCount.get(
-            matchingLines[0],
-          ) as number;
-          const matchedLineCount: number = matchedFileNameLinesCount.get(
-            matchingLines[1],
-          ) as number;
+
+        const filteredMatchingLinesArray = SummaryFilter.unique(matchingLinesArray).filter((matchingLines) => {
+
+          const matchingLineCount: number = matchingFileNameLinesCount.get(matchingLines[0]) as number;
+          const matchedLineCount: number = matchedFileNameLinesCount.get( matchingLines[1]) as number;
+
           return (
             matchingLineCount / groupAmount <= this.maximumPassagePercentage &&
             matchedLineCount / groupAmount <= this.maximumPassagePercentage
@@ -100,7 +100,7 @@ export class RangesTupleFilter {
   }
 
   //TODO test
-  public filterByBaseFile(
+  public static filterByBaseFile(
     matchingLinesArray: Array<[number, number]>,
     baseFileMatches: RangesTuple[],
   ): Array<[number, number]> {
@@ -113,11 +113,11 @@ export class RangesTupleFilter {
     );
   }
 
-  private contains(list: Array<[number, number]>, item: [number, number]): boolean {
+  public static contains(list: Array<[number, number]>, item: [number, number]): boolean {
     return list.some(listItem => listItem[0] === item[0] && listItem[1] === item[1]);
   }
 
-  private unique(list: Array<[number, number]>): Array<[number, number]> {
+  public static unique(list: Array<[number, number]>): Array<[number, number]> {
     const returnArray: Array<[number, number]> = new Array();
     list.forEach(value => {
       if (!this.contains(returnArray, value)) {
