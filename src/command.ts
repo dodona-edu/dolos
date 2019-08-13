@@ -18,34 +18,40 @@ const program = new commander.Command();
 program.version(packageJson.version).description("Plagiarism detection for programming exercises");
 
 let locations: string[] = [];
+const align: string = new Array(34).fill(' ').join("");
 
-program
-  .option("-l, --language <language>", "language used in the compared programs", "javascript")
-  .option("-d, --directory", "specifies that submission are per directory, not by file")
+function formatString(str: string) {
+
+}
+
+program //TODO ask about if the indentation is ok
+  .option("-l, --language <language>", "Language used in the compared programs.", "javascript")
+  .option("-d, --directory", "Specifies that submission are per directory, not by file.")
   .option(
     "-b, --base <base>",
-    `this option specifies a base file, any code that also appears in the base file is not shown. A typical base file\
-      is the supplied code for an exercise. If used in combination with with the -d option then the location supplied\
-      should be the location of the directory and the actual files should then be supplied with the rest of the files.\
-      For example: dolos -d -b exercises/assignment1-basefile/ exercises/assignment1-basefile/*.js student-solutions/*/*.js:w
-      `,
+    "this option specifies a base file, any code that also appears in the base file is not shown. A typical base " +
+    "file is the supplied code for an exercise. If used in combination with with the -d option then the location " + 
+    "supplied should be the location of the directory and the actual files should then be supplied with the rest of " + 
+    "the files. For example: dolos -d -b exercises/assignment1-basefile/ exercises/assignment1-basefile/*.js " +
+    "student-solutions/*/*.js:w",
   )
   .option(
     "-m, --maximum <number>",
-    "The -m options sets the maximum number of time a given passage may appear before it is ignored. A passage of code \
-    that appears in many programs is probably legitimate sharing and not the result of plagiarism. With -m N any\
-    passage appearing in more that N program is filtered out. Using this option will overwrite the -M option."
+    "The -m options sets the maximum number of time a given passage may appear before it is ignored. A passage of " + 
+    "code that appears in many programs is probably legitimate sharing and not the result of plagiarism. With -m N " +
+    "any passage appearing in more that N program is filtered out. Using this option will overwrite the -M option." 
   )
   .option(
     "-M --maximum-percentage <float>",
-    "maximum percentage a passage may appear before it is ignored. The percentage is calculated using the amount of\
-     different groups there are. So with the -d options the amount of directories is used where normally the amount of \
-    file is used. Must be a value between 1 and 0.", 0.9 
+    "maximum percentage a passage may appear before it is ignored. The percentage is calculated using the amount of " +
+    "different groups there are. So with the -d options the amount of directories is used where normally the " +
+    "amount of files is used. Must be a value between 1 and 0.", 0.9 
   )
-  .option("-c, --comment <string>", "comment string that is attached to the generated report") //TODO implement this
+  .option("-c, --comment <string>", "comment string that is attached to the generated report")
+  .option("-n, --file-amount", "The -n option specifies how many matching file are shown in the result")
   .option(
-    "-n, --minimum-lines <integer>",
-    "the minimum amount of lines in a range before it is shown",
+    "-s, --minimum-lines <integer>",
+    "the minimum amount of lines in the longest range in a rangesTuple before it is shown",
     2,
   )
   .option(
@@ -197,6 +203,6 @@ function compose(results: Map<string, Matches<number>>, newMatches: Map<string, 
     program.maximum === undefined,
     baseFileMatches
   );
-  const summary = new Summary(results,summaryFilter, program.MaximumGapSize);
+  const summary = new Summary(results,summaryFilter, program.MaximumGapSize, program.comment, program.fileAmount);
   console.log(summary.toString(program.zeroBasedLines));
 })();
