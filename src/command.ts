@@ -31,13 +31,18 @@ program
       `,
   )
   .option(
-    "-m, --maximum <float>",
+    "-m, --maximum <number>",
+    "The -m options sets the maximum number of time a given passage may appear before it is ignored. A passage of code \
+    that appears in many programs is probably legitimate sharing and not the result of plagiarism. With -m N any\
+    passage appearing in more that N program is filtered out. Using this option will overwrite the -M option."
+  )
+  .option(
+    "-M --maximum-percentage <float>",
     "maximum percentage a passage may appear before it is ignored. The percentage is calculated using the amount of\
      different groups there are. So with the -d options the amount of directories is used where normally the amount of \
-    file is used. Must be a value between 1 and 0.",
-    10,
+    file is used. Must be a value between 1 and 0.", 0.9 
   )
-  .option("-c, --comment <string>", "comment string that is attached to the generated report")
+  .option("-c, --comment <string>", "comment string that is attached to the generated report") //TODO implement this
   .option(
     "-n, --minimum-lines <integer>",
     "the minimum amount of lines in a range before it is shown",
@@ -73,7 +78,7 @@ program.on("--help", () => {
 });
 
 program.parse(process.argv);
-
+process.exit(0);
 // TODO better naming
 function compose(results: Map<string, Matches<number>>, newMatches: Map<string, Matches<number>>) {
   newMatches.forEach((matches, matchedFileName) => {
@@ -188,11 +193,10 @@ function compose(results: Map<string, Matches<number>>, newMatches: Map<string, 
     groupAmount,
     0,
     program.minimumLines,
-    program.maximum,
+    program.maximum || program.maximumPercentage,
+    program.maximum === undefined,
+    baseFileMatches
   );
-  const summary = new Summary(results, program.MaximumGapSize, summaryFilter);
+  const summary = new Summary(results,summaryFilter, program.MaximumGapSize);
   console.log(summary.toString(program.zeroBasedLines));
-  if (program.base) {
-    console.log(baseFileMatches);
-  }
 })();
