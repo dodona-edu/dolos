@@ -2,17 +2,63 @@ import { Matches } from "./comparison";
 import { RangesTuple } from "./summary";
 
 export class SummaryFilter {
+
+  // TODO implement and test
+  public static prune(matchesPerFile: Map<string, Matches<number>>): Map<string, Matches<number>> {
+    return matchesPerFile;
+  }
+  // TODO test, better naming
+  public static filterByBaseFile(
+    matchingLinesArray: Array<[number, number]>,
+    baseFileMatches1: Array<[number, number]>,
+    baseFileMatches2: Array<[number, number]>,
+  ): Array<[number, number]> {
+    // it is assumed that the order of the tuples withing basefileMatches is: [range corresponding with the basefile, range corresponding with the matched file]
+    // the first element in each number tuple will be assumed to belong to the matched file you want to filter TODO edit this comment
+    const baseFileMatchingLines1: number[] = baseFileMatches1.map(
+      matchingLines => matchingLines[1],
+    );
+    const baseFileMatchingLines2: number[] = baseFileMatches2.map(
+      matchingLines => matchingLines[1],
+    );
+
+    return matchingLinesArray.filter(
+      matchingLines =>
+        !baseFileMatchingLines1.some(line => line === matchingLines[0]) ||
+        !baseFileMatchingLines2.some(line => line === matchingLines[1]),
+    );
+  }
+
+  public static contains(list: Array<[number, number]>, item: [number, number]): boolean {
+    return list.some(listItem => listItem[0] === item[0] && listItem[1] === item[1]);
+  }
+
+  public static unique(list: Array<[number, number]>): Array<[number, number]> {
+    const returnArray: Array<[number, number]> = new Array();
+    list.forEach(value => {
+      if (!this.contains(returnArray, value)) {
+        returnArray.push(value);
+      }
+    });
+    return returnArray;
+  }
   public readonly minimumMaximumLines: number;
   public readonly minimumMinimumLines: number;
   public readonly maximumPassagePercentage: number;
+  public readonly groupAmount: number;
+  private readonly baseFileMatches: Map<string, Matches<number>>;
   constructor(
+    groupAmount: number,
     minimumMaximumLines: number = 1,
     minimumMinimumLines: number = 1,
     maximumPassagePercentage: number = 0.9,
+    baseFileMatches?: Map<string, Matches<number>>,
   ) {
+    this.groupAmount = groupAmount;
     this.minimumMaximumLines = minimumMaximumLines;
     this.minimumMinimumLines = minimumMinimumLines;
     this.maximumPassagePercentage = maximumPassagePercentage;
+    this.baseFileMatches = baseFileMatches || new Map();
   }
 
   /**
@@ -31,7 +77,6 @@ export class SummaryFilter {
   // TODO test
   public filterByMaximumPassagePercentage(
     matchesPerFile: Map<string, Matches<number>>,
-    groupAmount: number,
   ): Map<string, Matches<number>> {
     const lineCountPerFile: Map<string, Map<number, number>> = new Map();
     matchesPerFile.forEach((matches, matchingFileName) => {
@@ -73,21 +118,25 @@ export class SummaryFilter {
         matchingFileName,
       ) as Map<number, number>;
       matches.forEach((matchingLinesArray, matchedFileName) => {
-
         const matchedFileNameLinesCount: Map<number, number> = lineCountPerFile.get(
           matchedFileName,
         ) as Map<number, number>;
 
-        const filteredMatchingLinesArray = SummaryFilter.unique(matchingLinesArray).filter((matchingLines) => {
+        const filteredMatchingLinesArray = SummaryFilter.unique(matchingLinesArray).filter(
+          matchingLines => {
+            const matchingLineCount: number = matchingFileNameLinesCount.get(
+              matchingLines[0],
+            ) as number;
+            const matchedLineCount: number = matchedFileNameLinesCount.get(
+              matchingLines[1],
+            ) as number;
 
-          const matchingLineCount: number = matchingFileNameLinesCount.get(matchingLines[0]) as number;
-          const matchedLineCount: number = matchedFileNameLinesCount.get( matchingLines[1]) as number;
-
-          return (
-            matchingLineCount / groupAmount <= this.maximumPassagePercentage &&
-            matchedLineCount / groupAmount <= this.maximumPassagePercentage
-          );
-        });
+            return (
+              matchingLineCount / this.groupAmount <= this.maximumPassagePercentage &&
+              matchedLineCount / this.groupAmount <= this.maximumPassagePercentage
+            );
+          },
+        );
         if (filteredMatchingLinesArray.length > 0) {
           filteredMatchingFileName.set(matchedFileName, filteredMatchingLinesArray);
         }
@@ -99,31 +148,47 @@ export class SummaryFilter {
     return returnMap;
   }
 
-  //TODO test
-  public static filterByBaseFile(
-    matchingLinesArray: Array<[number, number]>,
-    baseFileMatches: RangesTuple[],
-  ): Array<[number, number]> {
-    const matchedFileRangesArray = baseFileMatches.map(rangesTuple => rangesTuple[1]);
-    // it is assumed that the order of the tuples withing basefileMatches is: [range corresponding with the basefile, range corresponding with the matched file]
-    // the first element in each number tuple will be assumed to belong to the matched file you want to filter
-    return matchingLinesArray.filter(
-      matchingLines =>
-        !matchedFileRangesArray.some(range => range.isNumberWithingBounds(matchingLines[0])),
+  // TODO
+  public filterByBaseFile(
+    matchesPerFile: Map<string, Matches<number>>,
+  ): Map<string, Matches<number>> {
+    const filteredMatchesPerFile: Array<[string, Matches<number>]> = [...matchesPerFile.entries()].map(
+      entry => {
+        let [matchedFileName, matches] = entry;
+        matches = new Map(
+          [...matches.entries()].map(matchesEntry => {
+            let [matchingFileName, matchedLines] = matchesEntry;
+            let matchedFileNameBaseLines: Array<[number, number]> = new Array();
+            let matchingFileNameBaseLines: Array<[number, number]> = new Array();
+
+            if (this.baseFileMatches.has(matchedFileName)) {
+              matchedFileNameBaseLines = [
+                ...(this.baseFileMatches.get(matchedFileName) as Matches<number>).values(),
+              ].flatMap(matchingLines => matchingLines);
+              // It doesn't matter which basefile it has matched with, just that it did.
+            }
+
+            if (this.baseFileMatches.has(matchingFileName)) {
+              matchingFileNameBaseLines = [
+                ...(this.baseFileMatches.get(matchingFileName) as Matches<number>).values(),
+              ].flatMap(matchingLines => matchingLines);
+              // It doesn't matter which basefile it has matched with, just that it did.
+            }
+
+            matchedLines = SummaryFilter.filterByBaseFile(
+              matchedLines,
+              matchedFileNameBaseLines,
+              matchingFileNameBaseLines,
+            );
+
+            return [matchedFileName, matchedLines];
+          }),
+        );
+
+        return [matchedFileName, matches];
+      },
     );
-  }
 
-  public static contains(list: Array<[number, number]>, item: [number, number]): boolean {
-    return list.some(listItem => listItem[0] === item[0] && listItem[1] === item[1]);
-  }
-
-  public static unique(list: Array<[number, number]>): Array<[number, number]> {
-    const returnArray: Array<[number, number]> = new Array();
-    list.forEach(value => {
-      if (!this.contains(returnArray, value)) {
-        returnArray.push(value);
-      }
-    });
-    return returnArray;
+    return SummaryFilter.prune(new Map(filteredMatchesPerFile));
   }
 }
