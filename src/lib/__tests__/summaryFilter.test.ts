@@ -92,6 +92,48 @@ test("filter by base file test",() => {
 });
 
 
+test('filter by base file map', () => {
+
+    const dummyResults: Map<string, Matches<number>> = new Map([
+        ['dummyFile1', new Map([
+            ['dummyFile2', [[4, 9], [5, 10], [6, 30]]],
+            ['dummyFile3', [[30, 31], [6, 20]]]
+        ])],
+        ['dummyFile3', new Map([
+            ['dummyFile2', [[5, 10]]]
+        ])]
+    ]);
+
+    const dummyBaseFileMatching: Map<string, Matches<number>> = new Map([
+        ['dummyFile1', new Map([
+            ['sourceFile1', [[4, 2000]]],
+            ['sourceFile2', [[5, 9001]]]
+        ])],
+        ['dummyFile2', new Map([
+            ['sourceFile1', [[10, 7999]]]
+        ])]
+    ]);
+
+    const summaryFilter = new SummaryFilter(0, 0, 0, 0, dummyBaseFileMatching);
+    const filteredDummyResults: Map<string, Matches<number>> = summaryFilter.filterByBaseFile(dummyResults)
+
+    expect(filteredDummyResults.has('dummyFile2')).toBeFalsy();
+    expect(filteredDummyResults.has('dummyFile1')).toBeTruthy();
+    const matches = filteredDummyResults.get('dummyFile1') as Matches<number>;
+    expect(matches.has('dummyFile2')).toBeTruthy();
+
+    let matchedLines: Array<[number, number]> = matches.get('dummyFile2') as Array<[number, number]>;
+    expect(matchedLines.length).toBe(1);
+    expect(matchedLines).toContainEqual([6, 30]);
+
+    expect(matches.has('dummyFile3')).toBeTruthy();
+    matchedLines = matches.get('dummyFile3') as Array<[number, number]>;
+
+    expect(matchedLines.length).toBe(2);
+
+});
+
+
 test("filter by maximum passage percentage", () => {
     const filter: SummaryFilter = new SummaryFilter(3, 0, 0, 0.5);
     const dummyResults: Map<string, Matches<number>> = new Map([

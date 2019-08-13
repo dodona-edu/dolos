@@ -2,10 +2,26 @@ import { Matches } from "./comparison";
 import { RangesTuple } from "./summary";
 
 export class SummaryFilter {
-
-  // TODO implement and test
+  // TODO test
   public static prune(matchesPerFile: Map<string, Matches<number>>): Map<string, Matches<number>> {
-    return matchesPerFile;
+    const filteredMatchesPerFile: Array<[string, Matches<number>]> = [
+      ...matchesPerFile.entries(),
+    ].map(matchesEntry => {
+      let [matchedFileName, matches]: [string, Matches<number>] = matchesEntry;
+      matches = new Map(
+        [...matches.entries()].filter(matchedEntry => {
+          const [, matchingLines] = matchedEntry;
+          return matchingLines.length !== 0;
+        }),
+      );
+      return [matchedFileName, matches];
+    });
+    return new Map(
+      filteredMatchesPerFile.filter(matchesEntry => {
+        const [, matches] = matchesEntry;
+        return matches.size > 0;
+      }),
+    );
   }
   // TODO test, better naming
   public static filterByBaseFile(
@@ -16,16 +32,18 @@ export class SummaryFilter {
     // it is assumed that the order of the tuples withing basefileMatches is: [range corresponding with the basefile, range corresponding with the matched file]
     // the first element in each number tuple will be assumed to belong to the matched file you want to filter TODO edit this comment
     const baseFileMatchingLines1: number[] = baseFileMatches1.map(
-      matchingLines => matchingLines[1],
+      matchingLines => matchingLines[0],
     );
     const baseFileMatchingLines2: number[] = baseFileMatches2.map(
-      matchingLines => matchingLines[1],
+      matchingLines => matchingLines[0],
     );
 
     return matchingLinesArray.filter(
       matchingLines =>
-        !baseFileMatchingLines1.some(line => line === matchingLines[0]) ||
-        !baseFileMatchingLines2.some(line => line === matchingLines[1]),
+        !(
+          baseFileMatchingLines1.some(line => line === matchingLines[0]) ||
+          baseFileMatchingLines2.some(line => line === matchingLines[1])
+        ),
     );
   }
 
@@ -148,46 +166,51 @@ export class SummaryFilter {
     return returnMap;
   }
 
+  private concat<T>(iterable: IterableIterator<Array<T>>): Array<T> {
+    let returnArr = new Array();
+    [...iterable].forEach((value) => {
+      returnArr = returnArr.concat(value);
+    });
+    return returnArr;
+  }
   // TODO
   public filterByBaseFile(
     matchesPerFile: Map<string, Matches<number>>,
   ): Map<string, Matches<number>> {
-    const filteredMatchesPerFile: Array<[string, Matches<number>]> = [...matchesPerFile.entries()].map(
-      entry => {
-        let [matchedFileName, matches] = entry;
-        matches = new Map(
-          [...matches.entries()].map(matchesEntry => {
-            let [matchingFileName, matchedLines] = matchesEntry;
-            let matchedFileNameBaseLines: Array<[number, number]> = new Array();
-            let matchingFileNameBaseLines: Array<[number, number]> = new Array();
+    const filteredMatchesPerFile: Array<[string, Matches<number>]> = [
+      ...matchesPerFile.entries(),
+    ].map(entry => {
+      let [matchedFileName, matches] = entry;
+      matches = new Map(
+        [...matches.entries()].map(matchesEntry => {
+          let [matchingFileName, matchedLines] = matchesEntry;
+          let matchedFileNameBaseLines: Array<[number, number]> = new Array();
+          let matchingFileNameBaseLines: Array<[number, number]> = new Array();
 
-            if (this.baseFileMatches.has(matchedFileName)) {
-              matchedFileNameBaseLines = [
-                ...(this.baseFileMatches.get(matchedFileName) as Matches<number>).values(),
-              ].flatMap(matchingLines => matchingLines);
-              // It doesn't matter which basefile it has matched with, just that it did.
-            }
+          if (this.baseFileMatches.has(matchedFileName)) {
+            const baseFileMatches: Matches<number> = this.baseFileMatches.get(matchedFileName) as Matches<number>;
+            matchedFileNameBaseLines = this.concat(baseFileMatches.values());
+            // It doesn't matter which basefile it has matched with, just that it did.
+          }
 
-            if (this.baseFileMatches.has(matchingFileName)) {
-              matchingFileNameBaseLines = [
-                ...(this.baseFileMatches.get(matchingFileName) as Matches<number>).values(),
-              ].flatMap(matchingLines => matchingLines);
-              // It doesn't matter which basefile it has matched with, just that it did.
-            }
+          if (this.baseFileMatches.has(matchingFileName)) {
+            const baseFileMatches: Matches<number> = this.baseFileMatches.get(matchingFileName) as Matches<number>;
+            matchingFileNameBaseLines = this.concat(baseFileMatches.values()); 
+            // It doesn't matter which basefile it has matched with, just that it did.
+          }
 
-            matchedLines = SummaryFilter.filterByBaseFile(
-              matchedLines,
-              matchedFileNameBaseLines,
-              matchingFileNameBaseLines,
-            );
+          matchedLines = SummaryFilter.filterByBaseFile(
+            matchedLines,
+            matchedFileNameBaseLines,
+            matchingFileNameBaseLines,
+          );
 
-            return [matchedFileName, matchedLines];
-          }),
-        );
+          return [matchingFileName, matchedLines];
+        }),
+      );
 
-        return [matchedFileName, matches];
-      },
-    );
+      return [matchedFileName, matches];
+    });
 
     return SummaryFilter.prune(new Map(filteredMatchesPerFile));
   }
