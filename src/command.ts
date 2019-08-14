@@ -47,7 +47,7 @@ program // TODO ask about if the indentation is ok
   .option(
     "-s, --minimum-lines <integer>",
     "the minimum amount of lines in the longest range in a rangesTuple before it is shown",
-    2,
+    0,
   )
   .option(
     "-g, --maximum-gap-size <integer>",
@@ -140,7 +140,6 @@ function groupPerDirectory(files: string[]): string[][] {
   let baseFileMatches: Map<string, Matches<number>> = new Map();
 
   // if the -d and the -b flag are active, filter out all the basefile locations
-  console.log('hello');
   if (program.directory && program.base) {
     program.base = path.normalize(program.base);
 
@@ -160,7 +159,6 @@ function groupPerDirectory(files: string[]): string[][] {
     }
 
     const filesGroupPerDirectory: string[][] = groupPerDirectory(locations);
-    console.log(filesGroupPerDirectory);
 
     // If each program is a directory, then count the amount of directories.
     groupAmount = filesGroupPerDirectory.length;
@@ -223,6 +221,7 @@ function groupPerDirectory(files: string[]): string[][] {
     baseFileMatches,
     program.maximum === undefined ? groupAmount : undefined,
   );
+
   const summary = new Summary(
     results,
     summaryFilter,
