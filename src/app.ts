@@ -7,11 +7,7 @@ import { SummaryFilter } from "./lib/summaryFilter";
   const tokenizer = new CodeTokenizer("javascript");
   const comparison = new Comparison(tokenizer);
 
-
-
-  await comparison.addFiles([
-    "samples/js/another_copied_function.js",
-  ]);
+  await comparison.addFiles(["samples/js/another_copied_function.js"]);
   const result = await comparison.compareFiles([
     "samples/js/sample.js",
     "samples/js/copied_function.js",
