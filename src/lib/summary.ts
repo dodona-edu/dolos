@@ -121,10 +121,10 @@ export class Summary {
     let ranges: RangesTuple[] = new Array();
 
     matches.forEach(next => {
-      const rangeTuple: RangesTuple | undefined = ranges.find(rangeTuple => {
+      const rangeTuple: RangesTuple | undefined = ranges.find(lambdaRangeTuple => {
         return (
-          rangeTuple[0].canExtendWithNumber(next[0], this.gapSize) &&
-          rangeTuple[1].canExtendWithNumber(next[1], this.gapSize)
+          lambdaRangeTuple[0].canExtendWithNumber(next[0], this.gapSize) &&
+          lambdaRangeTuple[1].canExtendWithNumber(next[1], this.gapSize)
         );
       });
       if (rangeTuple === undefined) {
