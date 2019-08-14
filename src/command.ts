@@ -1,45 +1,26 @@
 import commander from "commander";
-// import { Matches } from "./lib/comparison.js"
-// import fs from "fs";
+import path from "path";
+import { CodeTokenizer } from "./lib/codeTokenizer";
+import { Comparison } from "./lib/comparison";
+import { Matches } from "./lib/comparison.js";
+import { Summary } from "./lib/summary.js";
+import { SummaryFilter } from "./lib/summaryFilter.js";
 
-// import { CodeTokenizer } from "./lib/codeTokenizer";
-// import { Comparison } from "./lib/comparison";
-// import { Visualize } from "./lib/visualize";
-// import { stringLiteral } from "@babel/types";
-
-import packageJson from "../package.json";
+import packageJson from "./../package.json";
 
 const program = new commander.Command();
 
 // Initial program description and version
-program.version(packageJson.version).description("Plagarism detection for programming exercises");
+program.version(packageJson.version).description("Plagiarism detection for programming exercises");
 
+let locations: string[] = [];
 
-<<<<<<< HEAD
-let locations: Array<string> = [];
-
-program
-  .option("-l, --language <language>", "language used in the compared programs", "javascript")
-  .option("-d, --directory", "specifies that submission are per directory, not by file")
-  .option(
-    "-b, --base <base>",
-    `this option specifies a base file, any code that also appears in the base file is not shown. A typical base file 
-     is the supplied code for an exercise`,
-  )
-  .option(
-    "-m, --maximum <number>",
-    "maximum number of times a given passage may appear before it is ignored",
-    10,
-  )
-  .option("-c, --comment <string>", "comment string that is attached to the generated report")
-  .option("-n, --minimum-lines", "the minimum amount of lines in a range before it is shown", 2)
-=======
 program // TODO ask about if the indentation is ok
   .option("-l, --language <language>", "Language used in the compared programs.", "javascript")
   .option("-d, --directory", "Specifies that submission are per directory, not by file.")
   .option(
     "-b, --base <base>",
-    "this option specifies a base file, any code that also appears in the base file is not shown. A typical base " +
+    "This option specifies a base file, any code that also appears in the base file is not shown. A typical base " +
       "file is the supplied code for an exercise. If used in combination with with the -d option then the location " +
       "supplied should be the location of the directory and the actual files should then be supplied with the rest " +
       "of the files. For example: dolos -d -b exercises/assignment1-basefile/ exercises/assignment1-basefile/*.js " +
@@ -53,7 +34,7 @@ program // TODO ask about if the indentation is ok
   )
   .option(
     "-M --maximum-percentage <float>",
-    "maximum percentage a passage may appear before it is ignored. The percentage is calculated using the amount of " +
+    "Maximum percentage a passage may appear before it is ignored. The percentage is calculated using the amount of " +
       "different groups there are. So with the -d options the amount of directories is used where normally the " +
       "amount of files is used. Must be a value between 1 and 0.",
     0.9,
@@ -65,28 +46,35 @@ program // TODO ask about if the indentation is ok
   )
   .option(
     "-s, --minimum-lines <integer>",
-    "the minimum amount of lines in the longest range in a rangesTuple before it is shown",
-    2,
-  )
->>>>>>> 4029a4c... fixed some small things
-  .option(
-    "-g, --maximum-gap-size",
-    "the maximum allowed amount of lines between two ranges that are not part of the ranges them selves",
+    "The minimum amount of lines in the longest range in a rangesTuple before it is shown",
     0,
   )
+  .option(
+    "-g, --maximum-gap-size <integer>",
+    "If two passages need to be joined, then this parameter specifies how large the gap between the two passages may" +
+      "be.",
+    0,
+  )
+  .option(
+    "-z, --zero-based-lines",
+    "Specifies whether or not you want lines to be zero based",
+    false,
+  )
   .arguments("<locations...>")
-  .action((filesArgs) => {
+  .action(filesArgs => {
     locations = filesArgs;
-  })
+  });
 
-// TODO examples
+// TODO examples and formatting
 program.on("--help", () => {
   console.log("");
   console.log("Examples:");
+  console.log("  $ dolos -l javascript *.js");
   console.log(
-    "  $ dolos -l javascript *.js",
-    "gives dolos all the files in the current directory and tells that tells dolos that they are in javascript",
+    "Gives dolos all the files in the current directory and tells that tells dolos that they are in javascript",
   );
+  console.log("");
+  console.log("Specifies the gap size.");
   console.log("  $ dolos *.js -g 0");
   console.log("  [[[0, 2], [9, 11]], [[4, 5], [13, 14]]]");
   console.log("  $ dolos *.js -g 1");
@@ -94,26 +82,6 @@ program.on("--help", () => {
 });
 
 program.parse(process.argv);
-<<<<<<< HEAD
-// function XOR(a: boolean, b: boolean) {
-//     return a ? !b : b;
-// }
-
-(async () => {
-    if(locations.length < 2){
-        console.error('need at least two locations');
-        process.exit(1);
-    } 
-    const tokenizer = new CodeTokenizer("javascript");
-    const comparison = new Comparison(tokenizer);
-
-    let results: Map<string, Matches<number>> = new Map();
-    let location: string = locations.shift() as string; //will not be 
-    while(locations.length > 1){
-        await comparison.addFile(location);
-        const result = await comparison.compareFile("samples/js/copied_function.js");
-        results = new Map([...results,  ])
-=======
 /**
  * This function allows one to merge two maps into one.
  * @param matchesPerFile A map containing the matches. This map will be modified in place.
@@ -233,14 +201,15 @@ function groupPerDirectory(files: string[]): string[][] {
       const baseFileComparison = new Comparison(tokenizer);
       await baseFileComparison.addFile(program.base);
       baseFileMatches = await baseFileComparison.compareFiles(locations);
->>>>>>> 4029a4c... fixed some small things
     }
 
-    console.log(locations);
-    console.log(program.directory);
+    // Compare all the file with each other.
+    while (locations.length > 1) {
+      const location: string = locations.shift() as string;
+      const comparison = new Comparison(tokenizer);
+      await comparison.addFile(location);
+      const matchesPerFile: Map<string, Matches<number>> = await comparison.compareFiles(locations);
 
-<<<<<<< HEAD
-=======
       compose(
         results,
         matchesPerFile,
@@ -255,6 +224,7 @@ function groupPerDirectory(files: string[]): string[][] {
     baseFileMatches,
     program.maximum === undefined ? groupAmount : undefined,
   );
+
   const summary = new Summary(
     results,
     summaryFilter,
@@ -263,6 +233,4 @@ function groupPerDirectory(files: string[]): string[][] {
     program.fileAmount,
   );
   console.log(summary.toString(program.zeroBasedLines));
->>>>>>> 4029a4c... fixed some small things
 })();
-// sourceFile: "samples/js/copied_function.js", result visualizer.getSourceFile()
