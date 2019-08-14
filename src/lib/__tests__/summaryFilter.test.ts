@@ -124,7 +124,9 @@ test("filter by maximum passage percentage", () => {
   const dummyMatches: Matches<number> = filteredDummyResults.get("dummyFile1") as Matches<number>;
   expect(dummyMatches.has("dummyFile2")).toBe(true);
 
-  let dummyLines: Array<[number, number]> = dummyMatches.get("dummyFile2") as Array<[number, number]>;
+  let dummyLines: Array<[number, number]> = dummyMatches.get("dummyFile2") as Array<
+    [number, number]
+  >;
   expect(dummyLines).toContainEqual([4, 9]);
   expect(dummyLines).not.toContainEqual([5, 10]);
 
@@ -150,7 +152,9 @@ test("filter by maximum passage count", () => {
   const dummyMatches: Matches<number> = filteredDummyResults.get("dummyFile1") as Matches<number>;
   expect(dummyMatches.has("dummyFile2")).toBe(true);
 
-  let dummyLines: Array<[number, number]> = dummyMatches.get("dummyFile2") as Array<[number, number]>;
+  let dummyLines: Array<[number, number]> = dummyMatches.get("dummyFile2") as Array<
+    [number, number]
+  >;
   expect(dummyLines).toContainEqual([4, 9]);
   expect(dummyLines).not.toContainEqual([5, 10]);
 
@@ -163,22 +167,16 @@ test("filter by maximum passage count", () => {
 
 test("prune test", () => {
   const dummyMap: Map<string, Matches<number>> = new Map([
-    ['dummyFile1', new Map([
-      ['dummyFile2', [[1, 3]]],
-      ['dummyFile3', []]
-    ])] ,
-    ['dummyFile2', new Map([
-      ['dummyFile3', []]
-    ])]
+    ["dummyFile1", new Map([["dummyFile2", [[1, 3]]], ["dummyFile3", []]])],
+    ["dummyFile2", new Map([["dummyFile3", []]])],
   ]);
 
   const filteredMap: Map<string, Matches<number>> = SummaryFilter.prune(dummyMap);
 
+  expect(filteredMap.has("dummyFile1")).toBe(true);
+  const subMap: Matches<number> = filteredMap.get("dummyFile1") as Matches<number>;
+  expect(subMap.has("dummyFile2")).toBe(true);
+  expect(subMap.has("dummyFile3")).toBe(false);
 
-  expect(filteredMap.has('dummyFile1')).toBe(true);
-  const subMap: Matches<number> = filteredMap.get('dummyFile1') as Matches<number>;
-  expect(subMap.has('dummyFile2')).toBe(true);
-  expect(subMap.has('dummyFile3')).toBe(false);
-
-  expect(filteredMap.has('dummyFile2')).toBe(false);
+  expect(filteredMap.has("dummyFile2")).toBe(false);
 });

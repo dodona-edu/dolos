@@ -211,7 +211,8 @@ export class SummaryFilter {
   }
 
   /**
-   * Filters the [number, number] tuples in the entry when a line from the matched file if that line also matched with a line from a basefile.
+   * Filters the [number, number] tuples in the entry when a line from the matched file if that line also matched with a
+   * line from a basefile.
    * @param matchedFileName The filename of the matched file.
    * @param matchesEntry The correspinding entry for the matched file.
    */
@@ -346,7 +347,7 @@ export class SummaryFilter {
    * @param iterable The iterable that contains the array you want to concatenate.
    */
   private concat<T>(iterable: IterableIterator<T[]>): T[] {
-    let returnArr: Array<T> = new Array();
+    let returnArr: T[] = new Array();
     [...iterable].forEach(value => {
       returnArr = returnArr.concat(value);
     });
