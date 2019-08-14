@@ -22,11 +22,11 @@ export class Range {
     return this.from === from && this.to === to;
   }
 
-  public getFrom(): number {
+  public get From(): number {
     return this.from;
   }
 
-  public getTo(): number {
+  public get To(): number {
     return this.to;
   }
 
