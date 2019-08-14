@@ -37,6 +37,8 @@ export class Summary {
       return "There were no matches";
     }
 
+    const linesInFileMap: Map<string, number> = new Map();
+
     return Array.from(this.results.entries())
       .map(resultEntry => {
         const [sourceFileName, subMap] = resultEntry;
@@ -52,7 +54,10 @@ export class Summary {
               .map(rangesTuple => rangesTuple[0].getLineCount())
               .reduce((accumulator, nextValue) => accumulator + nextValue);
 
-            const scoreMatchedFile = (score / this.countLinesInFile(matchedFileName)) * 100;
+            if(!linesInFileMap.has(matchedFileName)){
+              linesInFileMap.set(matchedFileName, this.countLinesInFile(matchedFileName));
+            }
+            const scoreMatchedFile = (score / (linesInFileMap.get(matchedFileName) as number)) * 100;
             const scoreSourceFile = (score / linesInSourceFile) * 100;
 
             matchedFilenameOutput += `\tmatched file: ${matchedFileName}, score matched file: ${Math.round(
