@@ -1,3 +1,4 @@
+import { SummaryFilter } from "../summaryFilter";
 import { Range } from "./../range";
 import { RangesTuple, Summary } from "./../summary";
 
@@ -20,28 +21,39 @@ function random(): number {
   return x - Math.floor(x);
 }
 
+let dummySummaryFilter: SummaryFilter;
+beforeAll(() => {
+  dummySummaryFilter = new SummaryFilter(0, 1);
+});
+
 test("simple match to ranges", () => {
-  const summary = new Summary(new Map());
+  const summary = new Summary(new Map(), new SummaryFilter(0, 1), 0);
   const array: Array<[number, number]> = [[1, 5], [2, 6], [3, 7], [4, 8]];
   shuffle(array);
 
-  expect(summary.matchesToRange(array)).toContainEqual([new Range(1, 4), new Range(5, 8)]);
+  const rangesTupleArray: RangesTuple[] = summary.matchesToRange(array);
+  expect(rangesTupleArray).toContainEqual([new Range(1, 4), new Range(5, 8)]);
+  expect(rangesTupleArray.length).toBe(1);
 });
 
 test("simple match to ranges where second element stays constant", () => {
-  const summary = new Summary(new Map());
+  const summary = new Summary(new Map(), dummySummaryFilter, 0);
   const array: Array<[number, number]> = [[1, 5], [2, 5], [3, 5], [4, 5]];
   shuffle(array);
 
-  expect(summary.matchesToRange(array)).toContainEqual([new Range(1, 4), new Range(5, 5)]);
+  const rangesTupleArray: RangesTuple[] = summary.matchesToRange(array);
+  expect(rangesTupleArray).toContainEqual([new Range(1, 4), new Range(5, 5)]);
+  expect(rangesTupleArray.length).toBe(1);
 });
 
 test("simple match to ranges where first element stays constant", () => {
-  const summary = new Summary(new Map());
+  const summary = new Summary(new Map(), dummySummaryFilter, 0);
   const array: Array<[number, number]> = [[1, 5], [1, 6], [1, 7], [1, 8]];
   shuffle(array);
 
-  expect(summary.matchesToRange(array)).toContainEqual([new Range(1, 1), new Range(5, 8)]);
+  const rangesTupleArray: RangesTuple[] = summary.matchesToRange(array);
+  expect(rangesTupleArray).toContainEqual([new Range(1, 1), new Range(5, 8)]);
+  expect(rangesTupleArray.length).toBe(1);
 });
 
 test("simple match to ranges where first element stays constant and a gap exists", () => {
@@ -54,25 +66,6 @@ test("simple match to ranges where first element stays constant and a gap exists
   expect(summary1.matchesToRange(array)).toContainEqual([new Range(1, 1), new Range(5, 9)]);
   expect(summary2Array).toContainEqual([new Range(1, 1), new Range(5, 7)]);
   expect(summary2Array).toContainEqual([new Range(1, 1), new Range(9, 9)]);
-});
-
-test("filter rangesTuple by minimum lines", () => {
-  const summary = new Summary(new Map(), 3, 2);
-  const rangesTupleArray: RangesTuple[] = [
-    [new Range(1, 1), new Range(2, 2)],
-    [new Range(1, 1000), new Range(8002, 9001)],
-    [new Range(1, 2), new Range(1, 2)],
-    [new Range(1, 1), new Range(1, 5)],
-    [new Range(1, 2), new Range(1, 3)],
-  ];
-
-  const summaryArray = summary.filterByMinimumLines(rangesTupleArray);
-
-  expect(summaryArray).not.toContainEqual(rangesTupleArray[0]);
-  expect(summaryArray).toContainEqual(rangesTupleArray[1]);
-  expect(summaryArray).not.toContainEqual(rangesTupleArray[2]);
-  expect(summaryArray).not.toContainEqual(rangesTupleArray[3]);
-  expect(summaryArray).toContainEqual(rangesTupleArray[4]);
 });
 
 test("test extending related functions rangesTuples", () => {

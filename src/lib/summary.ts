@@ -42,11 +42,19 @@ export class Summary {
     return Array.from(this.results.entries())
       .map(resultEntry => {
         const [sourceFileName, subMap] = resultEntry;
-        let output = "";
-        output += `source: ${sourceFileName}\n\n`;
+        let subOutput = "";
+        subOutput += `source: ${sourceFileName}\n\n`;
         const linesInSourceFile = this.countLinesInFile(sourceFileName);
 
-        output += Array.from(subMap.entries())
+        let entryArray: Array<[string, RangesTuple[]]> = Array.from(subMap.entries());
+        if (this.outputAmount !== undefined) {
+          outputCount += entryArray.length;
+          if (outputCount > this.outputAmount) {
+            entryArray = entryArray.slice(0, outputCount - this.outputAmount);
+          }
+        }
+
+        subOutput += entryArray
           .map(subMapEntry => {
             let matchedFilenameOutput = "";
             const [matchedFileName, rangesTupleArray] = subMapEntry;
@@ -73,7 +81,7 @@ export class Summary {
             return matchedFilenameOutput;
           })
           .join("");
-        return output;
+        return subOutput;
       })
       .join("");
   }
