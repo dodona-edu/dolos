@@ -135,6 +135,32 @@ test("filter by maximum passage percentage", () => {
   expect(filteredDummyResults.has("dummyFile3")).toBe(false);
 });
 
+test("filter by maximum passage count", () => {
+  const filter: SummaryFilter = new SummaryFilter(0, 0, 1, undefined);
+  const dummyResults: Map<string, Matches<number>> = new Map([
+    [
+      "dummyFile1",
+      new Map([["dummyFile2", [[4, 9], [5, 10]]], ["dummyFile3", [[30, 31], [6, 20]]]]),
+    ],
+    ["dummyFile3", new Map([["dummyFile2", [[5, 10]]]])],
+  ]);
+
+  const filteredDummyResults = filter.filterByMaximumPassageCount(dummyResults);
+  expect(filteredDummyResults.has("dummyFile1"));
+  const dummyMatches: Matches<number> = filteredDummyResults.get("dummyFile1") as Matches<number>;
+  expect(dummyMatches.has("dummyFile2")).toBe(true);
+
+  let dummyLines: Array<[number, number]> = dummyMatches.get("dummyFile2") as Array<[number, number]>;
+  expect(dummyLines).toContainEqual([4, 9]);
+  expect(dummyLines).not.toContainEqual([5, 10]);
+
+  expect(dummyMatches.has("dummyFile3")).toBe(true);
+  dummyLines = dummyMatches.get("dummyFile3") as Array<[number, number]>;
+  expect(dummyLines.length).toBe(2);
+
+  expect(filteredDummyResults.has("dummyFile3")).toBe(false);
+});
+
 test("prune test", () => {
   const dummyMap: Map<string, Matches<number>> = new Map([
     ['dummyFile1', new Map([

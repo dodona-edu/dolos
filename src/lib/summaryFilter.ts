@@ -145,7 +145,7 @@ export class SummaryFilter {
   public filterByMaximumPassageCount(
     matchesPerFile: Map<string, Matches<number>>,
   ): Map<string, Matches<number>> {
-    return this.filterByPassagePredicate(matchesPerFile, value => value < this.maximumPassage);
+    return this.filterByPassagePredicate(matchesPerFile, value => value <= this.maximumPassage);
   }
 
   /**
