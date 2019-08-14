@@ -46,7 +46,11 @@ program // TODO ask about if the indentation is ok
   )
   .option(
     "-s, --minimum-lines <integer>",
+<<<<<<< HEAD
     "The minimum amount of lines in the longest range in a rangesTuple before it is shown",
+=======
+    "the minimum amount of lines in the longest range in a rangesTuple before it is shown",
+>>>>>>> d613e84... last commit of the day, breaks stuff
     0,
   )
   .option(

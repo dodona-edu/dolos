@@ -250,37 +250,37 @@ export class SummaryFilter {
     return [matchingFileName, matchedLines];
   }
 
-  /**
+  /** //TODO documentation no longer matches with implementation
    * Count the amount of times a line appears in a file, and do this for all the files in the map.
    * @param matchesPerFile The map where with all the files you want to count
    * @returns A map that maps the filename to another map that maps the line number to the amount that line occurred.
    */
   private countLineOccurrences(
-    matchesPerFile: Map<string, Matches<number>>,
-  ): Map<string, Map<number, number>> {
-    const lineCountPerFile: Map<string, Map<number, number>> = new Map();
+    matchesPerFile: Map<string, Matches<Range>>,
+  ): Map<string, Map<Range, number>> {
+    const lineCountPerFile: Map<string, Map<Range, number>> = new Map();
 
     matchesPerFile.forEach((matches, matchingFileName) => {
       matches.forEach((matchingLinesArray, matchedFileName) => {
-        let matchesLinesCount: Map<number, number>;
+        let matchesLinesCount: Map<Range, number>;
         if (lineCountPerFile.has(matchingFileName)) {
-          matchesLinesCount = lineCountPerFile.get(matchingFileName) as Map<number, number>;
+          matchesLinesCount = lineCountPerFile.get(matchingFileName) as Map<Range, number>;
         } else {
           matchesLinesCount = new Map();
           lineCountPerFile.set(matchingFileName, matchesLinesCount);
         }
 
-        let matchedLinesCount: Map<number, number>;
+        let matchedLinesCount: Map<Range, number>;
         if (lineCountPerFile.has(matchedFileName)) {
-          matchedLinesCount = lineCountPerFile.get(matchedFileName) as Map<number, number>;
+          matchedLinesCount = lineCountPerFile.get(matchedFileName) as Map<Range, number>;
         } else {
           matchedLinesCount = new Map();
           lineCountPerFile.set(matchedFileName, matchedLinesCount);
         }
 
         // When a line is encountered, add one to the line counter for that file. Only do this for unique
-        // [number, number] tuples.
-        SummaryFilter.unique(matchingLinesArray).forEach(matchingLines => {
+        // [number, number] tuples. //TODO no longer up-to-date
+        (matchingLinesArray).forEach(matchingLines => {
           matchesLinesCount.set(
             matchingLines[0],
             (matchesLinesCount.get(matchingLines[0]) || 0) + 1,
@@ -295,32 +295,32 @@ export class SummaryFilter {
     return lineCountPerFile;
   }
 
-  /**
+  /** //TODO code changes so should the documentation
    * A private function used to filter by passage count based on the output of a predicate.
    * @param matchesPerFile The matchedPerFile you want to filter.
    * @param predicate The predicate that is used to filter, will be given the passage count and must return a boolean.
    */
-  private filterByPassagePredicate(
-    matchesPerFile: Map<string, Matches<number>>,
+  private filterByPassagePredicate( //TODO this filters too much, it counts the same line multiple times in the same match. It should filter passages aka range instead of the lines
+    matchesPerFile: Map<string, Matches<Range>>,
     predicate: (value: number) => boolean,
-  ): Map<string, Matches<number>> {
-    const returnMap: Map<string, Matches<number>> = new Map();
+  ): Map<string, Matches<Range>> {
+    const returnMap: Map<string, Matches<Range>> = new Map();
 
-    const lineCountPerFile: Map<string, Map<number, number>> = this.countLineOccurrences(
+    const lineCountPerFile: Map<string, Map<Range, number>> = this.countLineOccurrences(
       matchesPerFile,
     );
 
     matchesPerFile.forEach((matches, matchingFileName) => {
-      const filteredMatchingFileName: Matches<number> = new Map();
-      const matchingFileNameLinesCount: Map<number, number> = lineCountPerFile.get(
+      const filteredMatchingFileName: Matches<Range> = new Map();
+      const matchingFileNameLinesCount: Map<Range, number> = lineCountPerFile.get(
         matchingFileName,
-      ) as Map<number, number>;
+      ) as Map<Range, number>;
       matches.forEach((matchingLinesArray, matchedFileName) => {
-        const matchedFileNameLinesCount: Map<number, number> = lineCountPerFile.get(
+        const matchedFileNameLinesCount: Map<Range, number> = lineCountPerFile.get(
           matchedFileName,
-        ) as Map<number, number>;
+        ) as Map<Range, number>;
 
-        const filteredMatchingLinesArray = SummaryFilter.unique(matchingLinesArray).filter(
+        const filteredMatchingLinesArray = matchingLinesArray.filter(
           matchingLines => {
             const matchingLineCount: number = matchingFileNameLinesCount.get(
               matchingLines[0],
