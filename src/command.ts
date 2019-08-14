@@ -215,12 +215,11 @@ function groupPerDirectory(locations: string[]): Array<Array<string>> {
   }
 
   const summaryFilter: SummaryFilter = new SummaryFilter(
-    groupAmount,
     0,
     program.minimumLines,
     program.maximum || program.maximumPercentage,
-    program.maximum === undefined,
-    baseFileMatches
+    baseFileMatches,
+    program.maximum === undefined ? program.maximumPercentage : undefined
   );
   const summary = new Summary(results,summaryFilter, program.MaximumGapSize, program.comment, program.fileAmount);
   console.log(summary.toString(program.zeroBasedLines));
