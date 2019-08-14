@@ -27,7 +27,7 @@
   },
   "dependencies": {
     "nprime": "^0.2.1",
-    "tree-sitter": "^0.15.7",
+    "tree-sitter": "^0.15.8",
     "tree-sitter-c-sharp": "^0.13.0",
     "tree-sitter-haskell": "^0.13.0",
     "tree-sitter-java": "^0.13.0",
