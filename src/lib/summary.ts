@@ -54,10 +54,11 @@ export class Summary {
               .map(rangesTuple => rangesTuple[0].getLineCount())
               .reduce((accumulator, nextValue) => accumulator + nextValue);
 
-            if(!linesInFileMap.has(matchedFileName)){
+            if (!linesInFileMap.has(matchedFileName)) {
               linesInFileMap.set(matchedFileName, this.countLinesInFile(matchedFileName));
             }
-            const scoreMatchedFile = (score / (linesInFileMap.get(matchedFileName) as number)) * 100;
+            const scoreMatchedFile =
+              (score / (linesInFileMap.get(matchedFileName) as number)) * 100;
             const scoreSourceFile = (score / linesInSourceFile) * 100;
 
             matchedFilenameOutput += `\tmatched file: ${matchedFileName}, score matched file: ${Math.round(
