@@ -84,9 +84,9 @@ test("test extending related functions rangesTuples", () => {
   const rangesTuple4: RangesTuple = [new Range(1, 5), new Range(1, 5)];
   const rangesTuple5: RangesTuple = [new Range(12, 200), new Range(21, 5000)];
 
-  expect(summary1.canExtentRangesTupleWithRangesTuple(rangesTuple1, rangesTuple2)).toBeTruthy();
-  expect(summary1.canExtentRangesTupleWithRangesTuple(rangesTuple1, rangesTuple3)).toBeFalsy();
-  expect(summary2.canExtentRangesTupleWithRangesTuple(rangesTuple1, rangesTuple3)).toBeTruthy();
+  expect(summary1.canExtendRangesTupleWithRangesTuple(rangesTuple1, rangesTuple2)).toBe(true);
+  expect(summary1.canExtendRangesTupleWithRangesTuple(rangesTuple1, rangesTuple3)).toBe(false);
+  expect(summary2.canExtendRangesTupleWithRangesTuple(rangesTuple1, rangesTuple3)).toBe(true);
 
   summary1.extendRangesTupleWithRangesTuple(rangesTuple1, rangesTuple2);
   expect(rangesTuple1).toEqual([new Range(1, 10), new Range(1, 20)]);

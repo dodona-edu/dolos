@@ -86,7 +86,7 @@ export class Summary {
    * second tuple.
    * @param rangesTuple2 The tuple where the ranges will be used to extend with.
    */
-  public canExtentRangesTupleWithRangesTuple(
+  public canExtendRangesTupleWithRangesTuple(
     rangesTuple1: RangesTuple,
     rangesTuple2: RangesTuple,
   ): boolean {
@@ -103,7 +103,7 @@ export class Summary {
    * @param rangesTuple2 The rangesTuple where the ranges will be used to extend.
    */
   public extendRangesTupleWithRangesTuple(rangesTuple1: RangesTuple, rangesTuple2: RangesTuple) {
-    if (!this.canExtentRangesTupleWithRangesTuple(rangesTuple1, rangesTuple2)) {
+    if (!this.canExtendRangesTupleWithRangesTuple(rangesTuple1, rangesTuple2)) {
       throw new RangeError("a value in the rangeTuple could not be extended");
     }
 
@@ -121,17 +121,17 @@ export class Summary {
     let ranges: RangesTuple[] = new Array();
 
     matches.forEach(next => {
-      const rangeTupleIndex: number = ranges.findIndex(rangeTuple => {
+      const rangeTuple: RangesTuple | undefined = ranges.find(rangeTuple => {
         return (
           rangeTuple[0].canExtendWithNumber(next[0], this.gapSize) &&
           rangeTuple[1].canExtendWithNumber(next[1], this.gapSize)
         );
       });
-      if (rangeTupleIndex === -1) {
+      if (rangeTuple === undefined) {
         ranges.push([new Range(next[0], next[0]), new Range(next[1], next[1])]);
       } else {
-        ranges[rangeTupleIndex][0].extendWithNumber(next[0]);
-        ranges[rangeTupleIndex][1].extendWithNumber(next[1]);
+        rangeTuple[0].extendWithNumber(next[0]);
+        rangeTuple[1].extendWithNumber(next[1]);
       }
     });
 
@@ -165,12 +165,10 @@ export class Summary {
     // If two rangesTuples overlap with each other then extend the second with the first and remove the
     // first from the array.
     for (let i = ranges.length - 1; i >= 0; i--) {
-      for (let j = i; j >= 0; j--) {
-        if (i !== j) {
-          if (this.canExtentRangesTupleWithRangesTuple(ranges[i], ranges[j])) {
-            this.extendRangesTupleWithRangesTuple(ranges[j], ranges[i]);
-            ranges.splice(i, 1);
-          }
+      for (let j = i - 1; j >= 0; j--) {
+        if (this.canExtendRangesTupleWithRangesTuple(ranges[i], ranges[j])) {
+          this.extendRangesTupleWithRangesTuple(ranges[j], ranges[i]);
+          ranges.splice(i, 1);
           break;
         }
       }

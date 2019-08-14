@@ -10,16 +10,16 @@ export class Range {
     this.to = to;
   }
 
-  public getFrom(): number {
+  public get From(): number {
     return this.from;
   }
 
-  public getTo(): number {
+  public get To(): number {
     return this.to;
   }
 
   public areEqual(from: number, to: number): boolean {
-    return this.getFrom() === from && this.getTo() === to;
+    return this.From === from && this.To === to;
   }
 
   /**
