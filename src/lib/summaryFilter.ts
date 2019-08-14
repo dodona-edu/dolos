@@ -11,7 +11,6 @@ export class SummaryFilter {
     const filteredMatchesPerFile: Array<[string, Matches<number>]> = [
       ...matchesPerFile.entries(),
     ].map(matchesEntry => {
-
       const matchedFileName: string = matchesEntry[0];
       let matches: Matches<number> = matchesEntry[1];
       matches = new Map(
@@ -178,39 +177,12 @@ export class SummaryFilter {
     const filteredMatchesPerFile: Array<[string, Matches<number>]> = [
       ...matchesPerFile.entries(),
     ].map(entry => {
-      const matchedFileName = entry[0];
-      let matches = entry[1];
+      const matchedFileName: string = entry[0];
+      let matches: Map<string, Array<[number, number]>> = entry[1];
       matches = new Map(
-        [...matches.entries()].map(matchesEntry => {
-          const matchingFileName = matchesEntry[0];
-          let matchedLines = matchesEntry[1];
-          let matchedFileNameBaseLines: Array<[number, number]> = new Array();
-          let matchingFileNameBaseLines: Array<[number, number]> = new Array();
-
-          if (this.baseFileMatches.has(matchedFileName)) {
-            const baseFileMatches: Matches<number> = this.baseFileMatches.get(
-              matchedFileName,
-            ) as Matches<number>;
-            matchedFileNameBaseLines = this.concat(baseFileMatches.values());
-            // It doesn't matter which basefile it has matched with, just that it did.
-          }
-
-          if (this.baseFileMatches.has(matchingFileName)) {
-            const baseFileMatches: Matches<number> = this.baseFileMatches.get(
-              matchingFileName,
-            ) as Matches<number>;
-            matchingFileNameBaseLines = this.concat(baseFileMatches.values());
-            // It doesn't matter which basefile it has matched with, just that it did.
-          }
-
-          matchedLines = SummaryFilter.filterByBaseFile(
-            matchedLines,
-            matchedFileNameBaseLines,
-            matchingFileNameBaseLines,
-          );
-
-          return [matchingFileName, matchedLines];
-        }),
+        [...matches.entries()].map(matchesEntry =>
+          this.filterMatchesEntryByBaseFile(matchedFileName, matchesEntry),
+        ),
       );
 
       return [matchedFileName, matches];
@@ -219,6 +191,12 @@ export class SummaryFilter {
     return SummaryFilter.prune(new Map(filteredMatchesPerFile));
   }
 
+  /**
+   * Filters the given map. What filters are applied depends on the options given in the contructor of the summary
+   * filter class.
+   * @param matchesPerFile The matchesPerFile map you want to filter.
+   * @return A filtered copy of the matchesPerFile.
+   */
   public filter(matchesPerFile: Map<string, Matches<number>>): Map<string, Matches<number>> {
     let filteredMatchesPerFile: Map<string, Matches<number>>;
     if (this.groupAmount) {
@@ -233,15 +211,54 @@ export class SummaryFilter {
   }
 
   /**
-   * A private function used to filter by passage count.
-   * @param matchesPerFile The matchedPerFile you want to filter.
-   * @param predicate The predicate that is used to filter, will be given the passage count and must return a boolean.
+   * Filters the [number, number] tuples in the entry when a line from the matched file if that line also matched with a line from a basefile.
+   * @param matchedFileName The filename of the matched file.
+   * @param matchesEntry The correspinding entry for the matched file.
    */
-  private filterByPassagePredicate(
+  private filterMatchesEntryByBaseFile(
+    matchedFileName: string,
+    matchesEntry: [string, Array<[number, number]>],
+  ): [string, Array<[number, number]>] {
+    const matchingFileName = matchesEntry[0];
+    let matchedLines = matchesEntry[1];
+    let matchedFileNameBaseLines: Array<[number, number]> = new Array();
+    let matchingFileNameBaseLines: Array<[number, number]> = new Array();
+
+    if (this.baseFileMatches.has(matchedFileName)) {
+      const baseFileMatches: Matches<number> = this.baseFileMatches.get(matchedFileName) as Matches<
+        number
+      >;
+      matchedFileNameBaseLines = this.concat(baseFileMatches.values());
+      // It doesn't matter which basefile it has matched with, just that it did.
+    }
+
+    if (this.baseFileMatches.has(matchingFileName)) {
+      const baseFileMatches: Matches<number> = this.baseFileMatches.get(
+        matchingFileName,
+      ) as Matches<number>;
+      matchingFileNameBaseLines = this.concat(baseFileMatches.values());
+      // It doesn't matter which basefile it has matched with, just that it did.
+    }
+
+    matchedLines = SummaryFilter.filterByBaseFile(
+      matchedLines,
+      matchedFileNameBaseLines,
+      matchingFileNameBaseLines,
+    );
+
+    return [matchingFileName, matchedLines];
+  }
+
+  /**
+   * Count the amount of times a line appears in a file, and do this for all the files in the map.
+   * @param matchesPerFile The map where with all the files you want to count
+   * @returns A map that maps the filename to another map that maps the line number to the amount that line occurred.
+   */
+  private countLineOccurrences(
     matchesPerFile: Map<string, Matches<number>>,
-    predicate: (value: number) => boolean,
-  ): Map<string, Matches<number>> {
+  ): Map<string, Map<number, number>> {
     const lineCountPerFile: Map<string, Map<number, number>> = new Map();
+
     matchesPerFile.forEach((matches, matchingFileName) => {
       matches.forEach((matchingLinesArray, matchedFileName) => {
         let matchesLinesCount: Map<number, number>;
@@ -260,6 +277,8 @@ export class SummaryFilter {
           lineCountPerFile.set(matchedFileName, matchedLinesCount);
         }
 
+        // When a line is encountered, add one to the line counter for that file. Only do this for unique
+        // [number, number] tuples.
         SummaryFilter.unique(matchingLinesArray).forEach(matchingLines => {
           matchesLinesCount.set(
             matchingLines[0],
@@ -272,11 +291,26 @@ export class SummaryFilter {
         });
       });
     });
+    return lineCountPerFile;
+  }
 
+  /**
+   * A private function used to filter by passage count based on the output of a predicate.
+   * @param matchesPerFile The matchedPerFile you want to filter.
+   * @param predicate The predicate that is used to filter, will be given the passage count and must return a boolean.
+   */
+  private filterByPassagePredicate(
+    matchesPerFile: Map<string, Matches<number>>,
+    predicate: (value: number) => boolean,
+  ): Map<string, Matches<number>> {
     const returnMap: Map<string, Matches<number>> = new Map();
 
+    const lineCountPerFile: Map<string, Map<number, number>> = this.countLineOccurrences(
+      matchesPerFile,
+    );
+
     matchesPerFile.forEach((matches, matchingFileName) => {
-      const filteredMatchingFileName: Map<string, Array<[number, number]>> = new Map();
+      const filteredMatchingFileName: Matches<number> = new Map();
       const matchingFileNameLinesCount: Map<number, number> = lineCountPerFile.get(
         matchingFileName,
       ) as Map<number, number>;
@@ -312,7 +346,7 @@ export class SummaryFilter {
    * @param iterable The iterable that contains the array you want to concatenate.
    */
   private concat<T>(iterable: IterableIterator<T[]>): T[] {
-    let returnArr = new Array();
+    let returnArr: Array<T> = new Array();
     [...iterable].forEach(value => {
       returnArr = returnArr.concat(value);
     });
