@@ -1,16 +1,12 @@
 import commander from "commander";
 import { Matches } from "./lib/comparison.js";
-// import fs from "fs";
-
 import path from "path";
 import { CodeTokenizer } from "./lib/codeTokenizer";
 import { Comparison } from "./lib/comparison";
 import { Summary } from "./lib/summary.js";
 import { SummaryFilter } from "./lib/summaryFilter.js";
-// import { Visualize } from "./lib/visualize";
-// import { stringLiteral } from "@babel/types";
 
-import packageJson from "../package.json";
+var packageJson = require("../package.json");
 
 const program = new commander.Command();
 
@@ -144,6 +140,7 @@ function groupPerDirectory(files: string[]): string[][] {
   let baseFileMatches: Map<string, Matches<number>> = new Map();
 
   // if the -d and the -b flag are active, filter out all the basefile locations
+  console.log('hello');
   if (program.directory && program.base) {
     program.base = path.normalize(program.base);
 
@@ -163,6 +160,7 @@ function groupPerDirectory(files: string[]): string[][] {
     }
 
     const filesGroupPerDirectory: string[][] = groupPerDirectory(locations);
+    console.log(filesGroupPerDirectory);
 
     // If each program is a directory, then count the amount of directories.
     groupAmount = filesGroupPerDirectory.length;
