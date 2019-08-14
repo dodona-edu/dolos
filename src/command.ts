@@ -18,11 +18,6 @@ const program = new commander.Command();
 program.version(packageJson.version).description("Plagiarism detection for programming exercises");
 
 let locations: string[] = [];
-const align: string = new Array(34).fill(' ').join("");
-
-function formatString(str: string) {
-
-}
 
 program //TODO ask about if the indentation is ok
   .option("-l, --language <language>", "Language used in the compared programs.", "javascript")
@@ -84,38 +79,30 @@ program.on("--help", () => {
 });
 
 program.parse(process.argv);
-process.exit(0);
-// TODO better naming
-function compose(results: Map<string, Matches<number>>, newMatches: Map<string, Matches<number>>) {
+/**
+ * This function allows one to merge two maps into one. 
+ * @param matchesPerFile A map containing the matches. This map will be modified in place.
+ * @param newMatches The map you want to merge into the first map.
+ */
+function compose(matchesPerFile: Map<string, Matches<number>>, newMatches: Map<string, Matches<number>>) {
   newMatches.forEach((matches, matchedFileName) => {
     matches.forEach((matchLocations, matchingFile) => {
-      let map: Matches<number> | undefined = results.get(matchingFile);
+      let map: Matches<number> | undefined = matchesPerFile.get(matchingFile);
       if (map === undefined) {
         map = new Map();
-        results.set(matchedFileName, map);
+        matchesPerFile.set(matchedFileName, map);
       }
       map.set(matchingFile, matchLocations);
     });
   });
 }
 
-(async () => {
-  if (locations.length < 2) {
-    console.error("need at least two locations");
-    process.exit(1);
-  }
-  let groupAmount: number;
-  const tokenizer = new CodeTokenizer(program.language);
-  let baseFileMatches: Map<string, Matches<number>> = new Map();
-  const results: Map<string, Matches<number>> = new Map();
-  if (program.directory) {
-    let baseFiles: string[] | undefined;
-
-    if (program.base) {
-      // TODO use path.normalize
-      baseFiles = locations.filter(filePath => filePath.startsWith(program.base));
-      locations = locations.filter(filePath => !filePath.startsWith(program.base));
-    }
+/**
+ * Groups files per directory. 
+ * @param locations The locations you want to group.
+ * @returns An array where each subArray contains files that are in the same directory.
+ */
+function groupPerDirectory(locations: string[]): Array<Array<string>> {
 
     const locationsFragments = locations.map(filePath => filePath.split(path.sep));
     const filesGroupedPerDirectoryMap: Map<string, string[]> = new Map();
@@ -140,15 +127,45 @@ function compose(results: Map<string, Matches<number>>, newMatches: Map<string, 
       groupedFiles.push(path.join(...filePathFragments));
     });
 
+    return [...filesGroupedPerDirectoryMap.values()];
+}
+
+(async () => {
+
+  let baseFiles: string[] | undefined;
+  let groupAmount: number;
+  const tokenizer = new CodeTokenizer(program.language);
+  const results: Map<string, Matches<number>> = new Map();
+  let baseFileMatches: Map<string, Matches<number>> = new Map();
+
+  // if the -d and the -b flag are active, filter out all the basefile locations
+  if (program.directory && program.base) {
+    program.base = path.normalize(program.base);
+
+    baseFiles = locations.filter(filePath => filePath.startsWith(program.base));
+    locations = locations.filter(filePath => !filePath.startsWith(program.base));
+  }
+
+  if (locations.length < 2) {
+    console.error("need at least two locations");
+    process.exit(1);
+  }
+
+
+  if (program.directory) {
+
+
     if (program.base && baseFiles === undefined) {
       console.error("no valid base files given");
       process.exit(2);
     }
 
-    const filesGroupPerDirectory: string[][] = [...filesGroupedPerDirectoryMap.values()];
+    const filesGroupPerDirectory: string[][] = groupPerDirectory(locations);
 
+    // If each program is a directory, then count the amount of directories.
     groupAmount = filesGroupPerDirectory.length;
     
+    // If there is a base directory, compare all directories with it and put the results in one map.
     if (program.base) {
       for(let i = 0; i < filesGroupPerDirectory.length; i += 1){
         const baseFileComparison = new Comparison(tokenizer);
@@ -156,9 +173,8 @@ function compose(results: Map<string, Matches<number>>, newMatches: Map<string, 
         compose(baseFileMatches, await baseFileComparison.compareFiles(filesGroupPerDirectory[i]));
       }
     }
-    // baseFileMatches.forEach((map, fileName) => map.forEach((_, name) => console.log(fileName, name)));
-    // TODO remove this
 
+    // Compare all directories with each other.
     for (let i = 0; i < filesGroupPerDirectory.length; i += 1) {
       for (let j = i + 1; j < filesGroupPerDirectory.length; j += 1) {
         const comparison = new Comparison(tokenizer);
@@ -174,14 +190,17 @@ function compose(results: Map<string, Matches<number>>, newMatches: Map<string, 
       }
     }
   } else {
+    // If each file is a separate program then count the amount of files.
     groupAmount = locations.length;
 
+    // Compare the base file with all the other files when there is a base file.
     if (program.base) {
       const baseFileComparison = new Comparison(tokenizer);
       await baseFileComparison.addFile(program.base);
-      baseFileMatches = await baseFileComparison.compareFiles(locations); // TODO
+      baseFileMatches = await baseFileComparison.compareFiles(locations);
     }
 
+    // Compare all the file with each other.
     while (locations.length > 1) {
       const location: string = locations.shift() as string;
       const comparison = new Comparison(tokenizer);
