@@ -11,15 +11,14 @@ export class SummaryFilter {
   public static prune<T>(matchesPerFile: Map<string, Matches<T>>): Map<string, Matches<T>> {
     const filteredMatchesPerFile: Array<[string, Matches<T>]> = [...matchesPerFile.entries()].map(
       matchesEntry => {
-        const matchedFileName: string = matchesEntry[0];
-        let matches: Matches<T> = matchesEntry[1];
-        matches = new Map(
+        const [matchedFileName, matches]: [string, Matches<T>] = matchesEntry;
+        const filteredMatches: Matches<T> = new Map(
           [...matches.entries()].filter(matchedEntry => {
             const matchingLines: Array<[T, T]> = matchedEntry[1];
             return matchingLines.length !== 0;
           }),
         );
-        return [matchedFileName, matches];
+        return [matchedFileName, filteredMatches];
       },
     );
     return new Map(
@@ -57,30 +56,6 @@ export class SummaryFilter {
           baseFileMatchingLines2.some(line => line === matchingLines[1])
         ),
     );
-  }
-
-  /**
-   * A function to check if a number tuple exists within an array.
-   * @param list The list you ant to check.
-   * @param item The item you want to know if it is contained within the list.
-   */
-  public static contains(list: Array<[number, number]>, item: [number, number]): boolean {
-    return list.some(listItem => listItem[0] === item[0] && listItem[1] === item[1]);
-  }
-
-  /**
-   * Makes a new list where all the double values where removed.
-   * @param list The list you want all the non unique elements removed from.
-   * @return A new list that only contains unique elements.
-   */
-  public static unique(list: Array<[number, number]>): Array<[number, number]> {
-    const returnArray: Array<[number, number]> = new Array();
-    list.forEach(value => {
-      if (!this.contains(returnArray, value)) {
-        returnArray.push(value);
-      }
-    });
-    return returnArray;
   }
 
   public readonly minimumMaximumLines: number;
@@ -182,21 +157,20 @@ export class SummaryFilter {
     const filteredMatchesPerFile: Array<[string, Matches<number>]> = [
       ...matchesPerFile.entries(),
     ].map(entry => {
-      const matchedFileName: string = entry[0];
-      let matches: Map<string, Array<[number, number]>> = entry[1];
-      matches = new Map(
+      const [matchedFileName, matches]: [string, Matches<number>] = entry;
+      let filteredMatches = new Map(
         [...matches.entries()].map(matchesEntry =>
           this.filterMatchesEntryByBaseFile(matchedFileName, matchesEntry),
         ),
       );
 
-      return [matchedFileName, matches];
+      return [matchedFileName, filteredMatches];
     });
 
     return SummaryFilter.prune(new Map(filteredMatchesPerFile));
   }
 
-  /** //TODO
+  /**
    * Filters the given map. What filters are applied depends on the options given in the contructor of the summary
    * filter class.
    * @param matchesPerFile The matchesPerFile map you want to filter.
@@ -309,15 +283,11 @@ export class SummaryFilter {
     matchesPerFile: Map<string, Matches<Range>>,
     predicate: (value: number) => boolean,
   ): Map<string, Matches<Range>> {
-    // TODO make a const out of this
-    let returnMap: Map<string, Matches<Range>> = new Map();
-
     const rangeCountPerFile: Map<string, Map<string, number>> = this.countLineOccurrences(
       matchesPerFile,
     );
 
-    // assign return map to this
-    returnMap = new Map(
+    const returnMap: Map<string, Matches<Range>> = new Map(
       [...matchesPerFile.entries()].map(matchesPerFileEntry => {
         const [matchingFileName, matches]: [string, Matches<Range>] = matchesPerFileEntry;
         let filteredMatches: Matches<Range> = new Map();
@@ -354,13 +324,9 @@ export class SummaryFilter {
   }
 
   /**
-   * @param iterable The iterable that contains the array you want to concatenate.
+   * @param iterable The iterable that contains the arrays you want to concatenate.
    */
   private concat<T>(iterable: IterableIterator<T[]>): T[] {
-    let returnArr: T[] = new Array();
-    [...iterable].forEach(value => {
-      returnArr = returnArr.concat(value);
-    });
-    return returnArr;
+    return [...iterable].reduce((acc, val) => acc.concat(val), []);
   }
 }
