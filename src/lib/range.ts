@@ -1,25 +1,25 @@
 export class Range {
-  private from: number;
-  private to: number;
+  private lowerBound: number;
+  private upperBound: number;
 
   constructor(from: number, to: number) {
     if (from > to) {
       throw RangeError("from must be lower then to");
     }
-    this.from = from;
-    this.to = to;
+    this.lowerBound = from;
+    this.upperBound = to;
   }
 
-  public get From(): number {
-    return this.from;
+  public get from(): number {
+    return this.lowerBound;
   }
 
-  public get To(): number {
-    return this.to;
+  public get to(): number {
+    return this.upperBound;
   }
 
   public areEqual(from: number, to: number): boolean {
-    return this.From === from && this.To === to;
+    return this.from === from && this.to === to;
   }
 
   /**
@@ -38,8 +38,8 @@ export class Range {
    * @returns A reference to this.
    */
   public extendWithNumber(value: number): this {
-    this.from = Math.min(value, this.from);
-    this.to = Math.max(value, this.to);
+    this.lowerBound = Math.min(value, this.from);
+    this.upperBound = Math.max(value, this.to);
     return this;
   }
 
@@ -48,8 +48,8 @@ export class Range {
    * @param range The range you want this range to be extended by.
    */
   public extendWithRange(range: Range): this {
-    this.from = Math.min(range.from, this.from);
-    this.to = Math.max(range.to, this.to);
+    this.lowerBound = Math.min(range.from, this.from);
+    this.upperBound = Math.max(range.to, this.to);
     return this;
   }
 
