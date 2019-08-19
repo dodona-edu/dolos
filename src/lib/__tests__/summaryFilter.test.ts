@@ -111,27 +111,28 @@ test("filter by base file map", () => {
 
 test("filter by maximum passage percentage", () => {
   const filter: SummaryFilter = new SummaryFilter(0, 0, 0.5, undefined, 3);
-  const dummyResults: Map<string, Matches<number>> = new Map([
+  const dummyResults: Map<string, Matches<Range>> = new Map([
     [
       "dummyFile1",
-      new Map([["dummyFile2", [[4, 9], [5, 10]]], ["dummyFile3", [[30, 31], [6, 20]]]]),
+      new Map([
+        ["dummyFile2", [[new Range(4, 9), new Range(5, 10)], [new Range(3, 7), new Range(6, 11)]]],
+        ["dummyFile3", [[new Range(3, 31), new Range(6, 62)], [new Range(6, 20), new Range(5, 7)]]],
+      ]),
     ],
-    ["dummyFile3", new Map([["dummyFile2", [[5, 10]]]])],
+    ["dummyFile3", new Map([["dummyFile2", [[new Range(11, 30), new Range(5, 10)]]]])],
   ]);
 
   const filteredDummyResults = filter.filterByMaximumPassagePercentage(dummyResults);
   expect(filteredDummyResults.has("dummyFile1"));
-  const dummyMatches: Matches<number> = filteredDummyResults.get("dummyFile1") as Matches<number>;
+  const dummyMatches: Matches<Range> = filteredDummyResults.get("dummyFile1") as Matches<Range>;
   expect(dummyMatches.has("dummyFile2")).toBe(true);
 
-  let dummyLines: Array<[number, number]> = dummyMatches.get("dummyFile2") as Array<
-    [number, number]
-  >;
-  expect(dummyLines).toContainEqual([4, 9]);
-  expect(dummyLines).not.toContainEqual([5, 10]);
+  let dummyLines: Array<[Range, Range]> = dummyMatches.get("dummyFile2") as Array<[Range, Range]>;
+  expect(dummyLines).toContainEqual([new Range(3, 7), new Range(6, 11)]);
+  expect(dummyLines).not.toContainEqual([new Range(4, 9), new Range(5, 10)]);
 
   expect(dummyMatches.has("dummyFile3")).toBe(true);
-  dummyLines = dummyMatches.get("dummyFile3") as Array<[number, number]>;
+  dummyLines = dummyMatches.get("dummyFile3") as Array<[Range, Range]>;
   expect(dummyLines.length).toBe(2);
 
   expect(filteredDummyResults.has("dummyFile3")).toBe(false);
@@ -139,27 +140,29 @@ test("filter by maximum passage percentage", () => {
 
 test("filter by maximum passage count", () => {
   const filter: SummaryFilter = new SummaryFilter(0, 0, 1, undefined);
-  const dummyResults: Map<string, Matches<number>> = new Map([
+
+  const dummyResults: Map<string, Matches<Range>> = new Map([
     [
       "dummyFile1",
-      new Map([["dummyFile2", [[4, 9], [5, 10]]], ["dummyFile3", [[30, 31], [6, 20]]]]),
+      new Map([
+        ["dummyFile2", [[new Range(4, 9), new Range(5, 10)], [new Range(3, 7), new Range(6, 11)]]],
+        ["dummyFile3", [[new Range(3, 31), new Range(6, 62)], [new Range(6, 20), new Range(5, 7)]]],
+      ]),
     ],
-    ["dummyFile3", new Map([["dummyFile2", [[5, 10]]]])],
+    ["dummyFile3", new Map([["dummyFile2", [[new Range(11, 30), new Range(5, 10)]]]])],
   ]);
 
   const filteredDummyResults = filter.filterByMaximumPassageCount(dummyResults);
   expect(filteredDummyResults.has("dummyFile1"));
-  const dummyMatches: Matches<number> = filteredDummyResults.get("dummyFile1") as Matches<number>;
+  const dummyMatches: Matches<Range> = filteredDummyResults.get("dummyFile1") as Matches<Range>;
   expect(dummyMatches.has("dummyFile2")).toBe(true);
 
-  let dummyLines: Array<[number, number]> = dummyMatches.get("dummyFile2") as Array<
-    [number, number]
-  >;
-  expect(dummyLines).toContainEqual([4, 9]);
-  expect(dummyLines).not.toContainEqual([5, 10]);
+  let dummyLines: Array<[Range, Range]> = dummyMatches.get("dummyFile2") as Array<[Range, Range]>;
+  expect(dummyLines).toContainEqual([new Range(3, 7), new Range(6, 11)]);
+  expect(dummyLines).not.toContainEqual([new Range(4, 9), new Range(5, 10)]);
 
   expect(dummyMatches.has("dummyFile3")).toBe(true);
-  dummyLines = dummyMatches.get("dummyFile3") as Array<[number, number]>;
+  dummyLines = dummyMatches.get("dummyFile3") as Array<[Range, Range]>;
   expect(dummyLines.length).toBe(2);
 
   expect(filteredDummyResults.has("dummyFile3")).toBe(false);

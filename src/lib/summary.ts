@@ -28,7 +28,12 @@ export class Summary {
     this.minimumMaximumLines = minimumMaximumLines;
     this.minimumMinimumLines = minimumMinimumLines;
     this.gapSize = gapSize;
+<<<<<<< HEAD
     this.results = this.transformMatches(matchesPerFile);
+=======
+    this.results = this.transformMatches(summaryFilter.filterByBaseFile(matchesPerFile));
+    this.results = this.summaryFilter.filterByMaximumPassage(this.results);
+>>>>>>> 678a837... fixed filterByPassageCountPredicate and changed tests accordingly
     this.results = this.sortResults();
   }
 
