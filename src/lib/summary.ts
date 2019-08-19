@@ -1,0 +1,273 @@
+import fs from "fs";
+import { Matches } from "./comparison";
+import { Range } from "./range";
+export type RangesTuple = [Range, Range];
+export class Summary {
+  private readonly results: Map<string, Matches<Range>>;
+  private readonly minimumMaximumLines: number;
+  private readonly gapSize: number;
+  private readonly minimumMinimumLines: number;
+
+  /**
+   * @param matches A many-to-many comparison of a set of files. This map contains an entry for each of the
+   * input files with the key being its file name and the value a list of matches. These matches are grouped
+   * per matching file. The compareFiles function of the Comparison class can generate such mapping.
+   * @param minimumMaximumLines The minimum amount of lines required by the longest range in a rangesTuple. If the
+   * rangesTuple has less lines then it will be filtered out. When the rangesTuple has two ranges with a different
+   * amount of lines, then the maximum between to two is used.
+   * @param minimumMinimumLines The minimum amount of lines required by the shortest range in a rangesTuple.
+   * @param gapSize The gap size allowed during the joining of two ranges. For example if the gap size is 0 then [1,3]
+   * and [5,7] wont be joined, and if the gap size is one these will be joined into [1,7].
+   */
+  constructor(
+    matchesPerFile: Map<string, Matches<number>>,
+    minimumMaximumLines: number = 2,
+    minimumMinimumLines: number = 1,
+    gapSize: number = 1,
+  ) {
+    this.minimumMaximumLines = minimumMaximumLines;
+    this.minimumMinimumLines = minimumMinimumLines;
+    this.gapSize = gapSize;
+    this.results = this.transformMatches(matchesPerFile);
+    this.results = this.sortResults();
+  }
+
+  public toString(zeroBase: boolean = false): string {
+    if (this.results.size === 0) {
+      return "There were no matches";
+    }
+
+    const linesInFileMap: Map<string, number> = new Map();
+
+    return Array.from(this.results.entries())
+      .map(resultEntry => {
+        const [sourceFileName, subMap] = resultEntry;
+        let output = "";
+        output += `source: ${sourceFileName}\n\n`;
+        const linesInSourceFile = this.countLinesInFile(sourceFileName);
+
+        output += Array.from(subMap.entries())
+          .map(subMapEntry => {
+            let matchedFilenameOutput = "";
+            const [matchedFileName, rangesTupleArray] = subMapEntry;
+            const score: number = rangesTupleArray
+              .map(rangesTuple => rangesTuple[0].getLineCount())
+              .reduce((accumulator, nextValue) => accumulator + nextValue);
+
+            if (!linesInFileMap.has(matchedFileName)) {
+              linesInFileMap.set(matchedFileName, this.countLinesInFile(matchedFileName));
+            }
+            const scoreMatchedFile =
+              (score / (linesInFileMap.get(matchedFileName) as number)) * 100;
+            const scoreSourceFile = (score / linesInSourceFile) * 100;
+
+            matchedFilenameOutput += `\tmatched file: ${matchedFileName}, score matched file: ${Math.round(
+              scoreMatchedFile,
+            )}%, score source file: ${Math.round(scoreSourceFile)}%\n\n`;
+
+            matchedFilenameOutput += "\tranges: [\n";
+            matchedFilenameOutput += rangesTupleArray
+              .map(rangesTuple => "\t " + this.rangesTupleToString(rangesTuple, zeroBase))
+              .join("\n");
+            matchedFilenameOutput += "\n\t]\n\n";
+            return matchedFilenameOutput;
+          })
+          .join("");
+        return output;
+      })
+      .join("");
+  }
+  /**
+   * @param rangesTuple The tuple you want a string representation of.
+   * @param zeroBase Wether or not you want the lines to be zero based.
+   * @returns A string representation of the rangesTuple.
+   */
+  public rangesTupleToString(rangesTuple: RangesTuple, zeroBase: boolean = false): string {
+    return `[${rangesTuple[0].toString(zeroBase)}, ${rangesTuple[1].toString(zeroBase)}]`;
+  }
+
+  /**
+   * Checks pairwise if the first element of each RangesTuple can be extended with the second.
+   * @param rangesTuple1 The tuple where the ranges will be tested if it can be extended from the ranges from the
+   * second tuple.
+   * @param rangesTuple2 The tuple where the ranges will be used to extend with.
+   */
+  public canExtendRangesTupleWithRangesTuple(
+    rangesTuple1: RangesTuple,
+    rangesTuple2: RangesTuple,
+  ): boolean {
+    return (
+      rangesTuple1[0].canExtendWithRange(rangesTuple2[0], this.gapSize) &&
+      rangesTuple1[1].canExtendWithRange(rangesTuple2[1], this.gapSize)
+    );
+  }
+
+  /**
+   * Attempts the extend the first element of each tuple with each other and tries the same for the second element.
+   * Assumes that it is possible to perform this operation, an error is thrown if this is not the case.
+   * @param rangesTuple1 The rangesTuple where the ranges will be extended.
+   * @param rangesTuple2 The rangesTuple where the ranges will be used to extend.
+   */
+  public extendRangesTupleWithRangesTuple(rangesTuple1: RangesTuple, rangesTuple2: RangesTuple) {
+    if (!this.canExtendRangesTupleWithRangesTuple(rangesTuple1, rangesTuple2)) {
+      throw new RangeError("a value in the rangeTuple could not be extended");
+    }
+
+    rangesTuple1[0].extendWithRange(rangesTuple2[0]);
+    rangesTuple1[1].extendWithRange(rangesTuple2[1]);
+  }
+
+  /**
+   * Converts a list of matching lines to a list of ranges.
+   * @param matches The list of matching lines.
+   * @returns A list of tuples that contains two ranges, where the frist and second range correspond to the line
+   * numbers of each file.
+   */
+  public matchesToRange(matches: Array<[number, number]>): RangesTuple[] {
+    let ranges: RangesTuple[] = new Array();
+
+    matches.forEach(next => {
+      const rangeTuple: RangesTuple | undefined = ranges.find(lambdaRangeTuple => {
+        return (
+          lambdaRangeTuple[0].canExtendWithNumber(next[0], this.gapSize) &&
+          lambdaRangeTuple[1].canExtendWithNumber(next[1], this.gapSize)
+        );
+      });
+      if (rangeTuple === undefined) {
+        ranges.push([new Range(next[0], next[0]), new Range(next[1], next[1])]);
+      } else {
+        rangeTuple[0].extendWithNumber(next[0]);
+        rangeTuple[1].extendWithNumber(next[1]);
+      }
+    });
+
+    ranges = this.concatenateRanges(ranges);
+
+    return this.filterByMinimumLines(ranges);
+  }
+
+  /**
+   * Remove all ranges that only contain less the minimum required lines.
+   * @param rangesTupleArray The rangesTupleArray you want filter.
+   */
+
+  public filterByMinimumLines(rangesTupleArray: RangesTuple[]): RangesTuple[] {
+    return rangesTupleArray.filter(
+      rangesTuple =>
+        Math.max(rangesTuple[0].getLineCount(), rangesTuple[1].getLineCount()) >=
+          this.minimumMaximumLines &&
+        Math.min(rangesTuple[0].getLineCount(), rangesTuple[1].getLineCount()) >=
+          this.minimumMinimumLines,
+    );
+  }
+
+  /**
+   * Concatenates all the rangesTuples whenever possible.
+   * @param rangesTupleArray The rangesTuples you want to concatenate where possible. Returns a new array with the
+   * result.
+   */
+  public concatenateRanges(rangesTupleArray: RangesTuple[]): RangesTuple[] {
+    const ranges: RangesTuple[] = rangesTupleArray.slice();
+    // If two rangesTuples overlap with each other then extend the second with the first and remove the
+    // first from the array.
+    for (let i = ranges.length - 1; i >= 0; i--) {
+      for (let j = i - 1; j >= 0; j--) {
+        if (this.canExtendRangesTupleWithRangesTuple(ranges[i], ranges[j])) {
+          this.extendRangesTupleWithRangesTuple(ranges[j], ranges[i]);
+          ranges.splice(i, 1);
+          break;
+        }
+      }
+    }
+    return ranges;
+  }
+
+  private countLinesInFile(fileName: string): number {
+    return fs.readFileSync(fileName, "utf8").split("\n").length;
+  }
+
+  /**
+   * Calculates the score, currently just returns the number of lines in the range. A possible alternative is counting
+   * the number of k-mers.
+   * @param range The range you want to get the score of
+   * @returns The score
+   */
+  private getScoreForRange(range: Range): number {
+    return range.getLineCount();
+  }
+
+  /**
+   * First sorts the array of rangesTuples, then the subMaps and finally the main maps according to their corresponding
+   * score functions.
+   */
+  private sortResults(): Map<string, Matches<Range>> {
+    // TODO index the score of the ranges, arrays and submaps to make this more efficient.
+    this.results.forEach((matches, matchedFileName) => {
+      matches.forEach((rangesTupleArray, _) => {
+        // Sorts the arrays based on the score of the ranges.
+        rangesTupleArray.sort(
+          (rangesTuple1, rangesTuple2) =>
+            this.getScoreForRange(rangesTuple2[0]) - this.getScoreForRangesTuple(rangesTuple1),
+        );
+      });
+      // Sorts the submaps based on the score of the arrays, this is the sum of all the scores within the array.
+      const tempMatches = new Map(
+        [...matches.entries()].sort(
+          (subMapEntry1, subMapEntry2) =>
+            this.getScoreForArray(subMapEntry2[1]) - this.getScoreForArray(subMapEntry1[1]),
+        ),
+      );
+      this.results.set(matchedFileName, tempMatches);
+    });
+
+    // sorts the maps based on the score of the submaps, which is the sum of the scores contained within the submaps.
+    return new Map(
+      [...this.results.entries()].sort(
+        (subMap1, subMap2) =>
+          this.getScoreForSubMap(subMap2[1]) - this.getScoreForSubMap(subMap1[1]),
+      ),
+    );
+  }
+
+  /**
+   * Transforms all the tuples to rangesTuples.
+   * @param matchesPerFile A many-to-many comparison of a set of files. This map contains an entry for each of the
+   * input files with the key being its file name and the value a list of matches. These matches are grouped
+   * per matching file. The compareFiles function of the Comparison class can generate such mapping.
+   */
+  private transformMatches(
+    matchesPerFile: Map<string, Matches<number>>,
+  ): Map<string, Matches<Range>> {
+    const results: Map<string, Matches<Range>> = new Map();
+    matchesPerFile.forEach((matches, matchedFileName) => {
+      matches.forEach((matchLocations, matchingFile) => {
+        let map: Matches<Range> | undefined = results.get(matchingFile);
+        const rangesTupleArray: RangesTuple[] = this.matchesToRange(matchLocations);
+        if (rangesTupleArray.length !== 0) {
+          if (map === undefined) {
+            map = new Map();
+            results.set(matchedFileName, map);
+          }
+          map.set(matchingFile, rangesTupleArray);
+        }
+      });
+    });
+    return results;
+  }
+
+  private getScoreForArray(arr: RangesTuple[]): number {
+    return arr
+      .map(rangesTuple => this.getScoreForRangesTuple(rangesTuple))
+      .reduce((acc, nextNumber) => acc + nextNumber);
+  }
+
+  private getScoreForSubMap(subMap: Matches<Range>): number {
+    return [...subMap.values()]
+      .map(rangesArray => this.getScoreForArray(rangesArray))
+      .reduce((acc, nextNumber) => acc + nextNumber);
+  }
+
+  private getScoreForRangesTuple(rangesTuple: RangesTuple): number {
+    return this.getScoreForRange(rangesTuple[0]) + this.getScoreForRange(rangesTuple[1]);
+  }
+}

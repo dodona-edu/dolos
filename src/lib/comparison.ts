@@ -2,7 +2,7 @@ import { HashFilter } from "./hashFilter";
 import { Tokenizer } from "./tokenizer";
 import { WinnowFilter } from "./winnowFilter";
 
-type Matches<Location> = Map<string, Array<[Location, Location]>>;
+export type Matches<Location> = Map<string, Array<[Location, Location]>>;
 
 export class Comparison<Location> {
   private readonly defaultK: number = 50;
@@ -60,7 +60,7 @@ export class Comparison<Location> {
         }
       }
     } catch (error) {
-      console.error(`There was a problem parsing ${file}.`);
+      console.error(`There was a problem parsing ${file}. ${error}`);
       return; // this makes sure the promise resolves instead of rejects
     }
   }
