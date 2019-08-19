@@ -249,84 +249,92 @@ export class SummaryFilter {
 
     return [matchingFileName, matchedLines];
   }
+<<<<<<< HEAD
 
   /** //TODO documentation no longer matches with implementation
+=======
+  
+  /** 
+>>>>>>> fixed filterByPassageCountPredicate and changed tests accordingly
    * Count the amount of times a line appears in a file, and do this for all the files in the map.
    * @param matchesPerFile The map where with all the files you want to count
-   * @returns A map that maps the filename to another map that maps the line number to the amount that line occurred.
+   * @returns A map that maps the filename to another map that maps the string retuned by the toString method of range 
+   * to the amount that range occurred in that file. 
    */
   private countLineOccurrences(
     matchesPerFile: Map<string, Matches<Range>>,
-  ): Map<string, Map<Range, number>> {
-    const lineCountPerFile: Map<string, Map<Range, number>> = new Map();
+  ): Map<string, Map<string, number>> {
+    const rangeCountPerFile: Map<string, Map<string, number>> = new Map();
+    // A string as a key to the second map is used because if an object is directly used as a key the the map 
+    // implementation will check if the references are equal, which we do not need as two different ranges objects can 
+    // be equal.
 
     matchesPerFile.forEach((matches, matchingFileName) => {
       matches.forEach((matchingLinesArray, matchedFileName) => {
-        let matchesLinesCount: Map<Range, number>;
-        if (lineCountPerFile.has(matchingFileName)) {
-          matchesLinesCount = lineCountPerFile.get(matchingFileName) as Map<Range, number>;
+        let matchesLinesCount: Map<string, number>;
+        if (rangeCountPerFile.has(matchingFileName)) {
+          matchesLinesCount = rangeCountPerFile.get(matchingFileName) as Map<string, number>;
         } else {
           matchesLinesCount = new Map();
-          lineCountPerFile.set(matchingFileName, matchesLinesCount);
+          rangeCountPerFile.set(matchingFileName, matchesLinesCount);
         }
 
-        let matchedLinesCount: Map<Range, number>;
-        if (lineCountPerFile.has(matchedFileName)) {
-          matchedLinesCount = lineCountPerFile.get(matchedFileName) as Map<Range, number>;
+        let matchedLinesCount: Map<string, number>;
+        if (rangeCountPerFile.has(matchedFileName)) {
+          matchedLinesCount = rangeCountPerFile.get(matchedFileName) as Map<string, number>;
         } else {
           matchedLinesCount = new Map();
-          lineCountPerFile.set(matchedFileName, matchedLinesCount);
+          rangeCountPerFile.set(matchedFileName, matchedLinesCount);
         }
 
-        // When a line is encountered, add one to the line counter for that file. Only do this for unique
-        // [number, number] tuples. //TODO no longer up-to-date
+        // When a range is encountered, add one to the range counter for that file.
         (matchingLinesArray).forEach(matchingLines => {
           matchesLinesCount.set(
-            matchingLines[0],
-            (matchesLinesCount.get(matchingLines[0]) || 0) + 1,
+            matchingLines[0].toString(),
+            (matchesLinesCount.get(matchingLines[0].toString()) || 0) + 1,
           );
           matchedLinesCount.set(
-            matchingLines[1],
-            (matchedLinesCount.get(matchingLines[1]) || 0) + 1,
+            matchingLines[1].toString(),
+            (matchedLinesCount.get(matchingLines[1].toString()) || 0) + 1,
           );
         });
       });
     });
-    return lineCountPerFile;
+    return rangeCountPerFile;
   }
 
-  /** //TODO code changes so should the documentation
+  /** 
    * A private function used to filter by passage count based on the output of a predicate.
    * @param matchesPerFile The matchedPerFile you want to filter.
    * @param predicate The predicate that is used to filter, will be given the passage count and must return a boolean.
    */
-  private filterByPassagePredicate( //TODO this filters too much, it counts the same line multiple times in the same match. It should filter passages aka range instead of the lines
+  private filterByPassagePredicate( 
     matchesPerFile: Map<string, Matches<Range>>,
     predicate: (value: number) => boolean,
   ): Map<string, Matches<Range>> {
     const returnMap: Map<string, Matches<Range>> = new Map();
 
-    const lineCountPerFile: Map<string, Map<Range, number>> = this.countLineOccurrences(
+    const rangeCountPerFile: Map<string, Map<string, number>> = this.countLineOccurrences(
       matchesPerFile,
     );
 
     matchesPerFile.forEach((matches, matchingFileName) => {
       const filteredMatchingFileName: Matches<Range> = new Map();
-      const matchingFileNameLinesCount: Map<Range, number> = lineCountPerFile.get(
+      const matchingFileNameLinesCount: Map<string, number> = rangeCountPerFile.get(
         matchingFileName,
-      ) as Map<Range, number>;
+      ) as Map<string, number>;
       matches.forEach((matchingLinesArray, matchedFileName) => {
-        const matchedFileNameLinesCount: Map<Range, number> = lineCountPerFile.get(
+        const matchedFileNameLinesCount: Map<string, number> = rangeCountPerFile.get(
           matchedFileName,
-        ) as Map<Range, number>;
+        ) as Map<string, number>;
 
         const filteredMatchingLinesArray = matchingLinesArray.filter(
           matchingLines => {
             const matchingLineCount: number = matchingFileNameLinesCount.get(
-              matchingLines[0],
+              matchingLines[0].toString(),
             ) as number;
             const matchedLineCount: number = matchedFileNameLinesCount.get(
-              matchingLines[1],
+              matchingLines[1].toString(),
             ) as number;
 
             return predicate(matchingLineCount) && predicate(matchedLineCount);
