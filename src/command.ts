@@ -46,12 +46,13 @@ program // TODO ask about if the indentation is ok
   )
   .option(
     "-s, --minimum-lines <integer>",
-    "the minimum amount of lines in the longest range in a rangesTuple before it is shown",
+    "The minimum amount of lines in the longest range in a rangesTuple before it is shown",
     0,
   )
   .option(
     "-g, --maximum-gap-size <integer>",
-    "the maximum allowed amount of lines between two ranges that are not part of the ranges them selves",
+    "Ff two passages need to be joined, then this parameter specifies how large the gap between the two passages may" +
+      "be.",
     0,
   )
   .option(
@@ -68,10 +69,12 @@ program // TODO ask about if the indentation is ok
 program.on("--help", () => {
   console.log("");
   console.log("Examples:");
+  console.log("  $ dolos -l javascript *.js");
   console.log(
-    "  $ dolos -l javascript *.js",
     "gives dolos all the files in the current directory and tells that tells dolos that they are in javascript",
   );
+  console.log("");
+  console.log("specifies the gap size.");
   console.log("  $ dolos *.js -g 0");
   console.log("  [[[0, 2], [9, 11]], [[4, 5], [13, 14]]]");
   console.log("  $ dolos *.js -g 1");

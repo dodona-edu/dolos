@@ -1,4 +1,5 @@
 import { Matches } from "./comparison";
+import { Range } from "./range";
 import { RangesTuple } from "./summary";
 
 export class SummaryFilter {
@@ -7,23 +8,22 @@ export class SummaryFilter {
    * @param matchesPerFile A filtered matchedPerFile map that might contain empty matching line array.
    * @returns A new map with all the empty values removes.
    */
-  public static prune(matchesPerFile: Map<string, Matches<number>>): Map<string, Matches<number>> {
-    const filteredMatchesPerFile: Array<[string, Matches<number>]> = [
-      ...matchesPerFile.entries(),
-    ].map(matchesEntry => {
-      const matchedFileName: string = matchesEntry[0];
-      let matches: Matches<number> = matchesEntry[1];
-      matches = new Map(
-        [...matches.entries()].filter(matchedEntry => {
-          const [, matchingLines] = matchedEntry;
-          return matchingLines.length !== 0;
-        }),
-      );
-      return [matchedFileName, matches];
-    });
+  public static prune<T>(matchesPerFile: Map<string, Matches<T>>): Map<string, Matches<T>> {
+    const filteredMatchesPerFile: Array<[string, Matches<T>]> = [...matchesPerFile.entries()].map(
+      matchesEntry => {
+        const [matchedFileName, matches]: [string, Matches<T>] = matchesEntry;
+        const filteredMatches: Matches<T> = new Map(
+          [...matches.entries()].filter(matchedEntry => {
+            const matchingLines: Array<[T, T]> = matchedEntry[1];
+            return matchingLines.length !== 0;
+          }),
+        );
+        return [matchedFileName, filteredMatches];
+      },
+    );
     return new Map(
       filteredMatchesPerFile.filter(matchesEntry => {
-        const [, matches] = matchesEntry;
+        const matches: Matches<T> = matchesEntry[1];
         return matches.size > 0;
       }),
     );
@@ -56,30 +56,6 @@ export class SummaryFilter {
           baseFileMatchingLines2.some(line => line === matchingLines[1])
         ),
     );
-  }
-
-  /**
-   * A function to check if a number tuple exists within an array.
-   * @param list The list you ant to check.
-   * @param item The item you want to know if it is contained within the list.
-   */
-  public static contains(list: Array<[number, number]>, item: [number, number]): boolean {
-    return list.some(listItem => listItem[0] === item[0] && listItem[1] === item[1]);
-  }
-
-  /**
-   * Makes a new list where all the double values where removed.
-   * @param list The list you want all the non unique elements removed from.
-   * @return A new list that only contains unique elements.
-   */
-  public static unique(list: Array<[number, number]>): Array<[number, number]> {
-    const returnArray: Array<[number, number]> = new Array();
-    list.forEach(value => {
-      if (!this.contains(returnArray, value)) {
-        returnArray.push(value);
-      }
-    });
-    return returnArray;
   }
 
   public readonly minimumMaximumLines: number;
@@ -142,8 +118,8 @@ export class SummaryFilter {
    * @returns A filtered copy of the map.
    */
   public filterByMaximumPassageCount(
-    matchesPerFile: Map<string, Matches<number>>,
-  ): Map<string, Matches<number>> {
+    matchesPerFile: Map<string, Matches<Range>>,
+  ): Map<string, Matches<Range>> {
     return this.filterByPassagePredicate(matchesPerFile, value => value <= this.maximumPassage);
   }
 
@@ -153,8 +129,8 @@ export class SummaryFilter {
    * @returns A filtered copy of the map.
    */
   public filterByMaximumPassagePercentage(
-    matchesPerFile: Map<string, Matches<number>>,
-  ): Map<string, Matches<number>> {
+    matchesPerFile: Map<string, Matches<Range>>,
+  ): Map<string, Matches<Range>> {
     if (this.groupAmount === undefined) {
       throw new TypeError(
         "groupAmount cannot be undefined when using the filterByMaximumPassagePercentage function",
@@ -174,18 +150,21 @@ export class SummaryFilter {
   public filterByBaseFile(
     matchesPerFile: Map<string, Matches<number>>,
   ): Map<string, Matches<number>> {
+    if (this.baseFileMatches.size === 0) {
+      return matchesPerFile;
+    }
+
     const filteredMatchesPerFile: Array<[string, Matches<number>]> = [
       ...matchesPerFile.entries(),
     ].map(entry => {
-      const matchedFileName: string = entry[0];
-      let matches: Map<string, Array<[number, number]>> = entry[1];
-      matches = new Map(
+      const [matchedFileName, matches]: [string, Matches<number>] = entry;
+      let filteredMatches = new Map(
         [...matches.entries()].map(matchesEntry =>
           this.filterMatchesEntryByBaseFile(matchedFileName, matchesEntry),
         ),
       );
 
-      return [matchedFileName, matches];
+      return [matchedFileName, filteredMatches];
     });
 
     return SummaryFilter.prune(new Map(filteredMatchesPerFile));
@@ -197,17 +176,14 @@ export class SummaryFilter {
    * @param matchesPerFile The matchesPerFile map you want to filter.
    * @return A filtered copy of the matchesPerFile.
    */
-  public filter(matchesPerFile: Map<string, Matches<number>>): Map<string, Matches<number>> {
-    let filteredMatchesPerFile: Map<string, Matches<number>>;
+  public filterByMaximumPassage(
+    matchesPerFile: Map<string, Matches<Range>>,
+  ): Map<string, Matches<Range>> {
     if (this.groupAmount) {
-      filteredMatchesPerFile = this.filterByMaximumPassagePercentage(matchesPerFile);
+      return this.filterByMaximumPassagePercentage(matchesPerFile);
     } else {
-      filteredMatchesPerFile = this.filterByMaximumPassageCount(matchesPerFile);
+      return this.filterByMaximumPassageCount(matchesPerFile);
     }
-    if (this.baseFileMatches.size > 0) {
-      filteredMatchesPerFile = this.filterByBaseFile(filteredMatchesPerFile);
-    }
-    return filteredMatchesPerFile;
   }
 
   /**
@@ -249,18 +225,8 @@ export class SummaryFilter {
 
     return [matchingFileName, matchedLines];
   }
-<<<<<<< HEAD
-<<<<<<< HEAD
-
-  /** //TODO documentation no longer matches with implementation
-=======
-  
-  /** 
->>>>>>> fixed filterByPassageCountPredicate and changed tests accordingly
-=======
 
   /**
->>>>>>> fixed json import
    * Count the amount of times a line appears in a file, and do this for all the files in the map.
    * @param matchesPerFile The map where with all the files you want to count
    * @returns A map that maps the filename to another map that maps the string retuned by the toString method of range
@@ -317,51 +283,50 @@ export class SummaryFilter {
     matchesPerFile: Map<string, Matches<Range>>,
     predicate: (value: number) => boolean,
   ): Map<string, Matches<Range>> {
-    const returnMap: Map<string, Matches<Range>> = new Map();
-
     const rangeCountPerFile: Map<string, Map<string, number>> = this.countLineOccurrences(
       matchesPerFile,
     );
 
-    matchesPerFile.forEach((matches, matchingFileName) => {
-      const filteredMatchingFileName: Matches<Range> = new Map();
-      const matchingFileNameLinesCount: Map<string, number> = rangeCountPerFile.get(
-        matchingFileName,
-      ) as Map<string, number>;
-      matches.forEach((matchingLinesArray, matchedFileName) => {
-        const matchedFileNameLinesCount: Map<string, number> = rangeCountPerFile.get(
-          matchedFileName,
+    const returnMap: Map<string, Matches<Range>> = new Map(
+      [...matchesPerFile.entries()].map(matchesPerFileEntry => {
+        const [matchingFileName, matches]: [string, Matches<Range>] = matchesPerFileEntry;
+        let filteredMatches: Matches<Range> = new Map();
+
+        const matchingFileNameLinesCount: Map<string, number> = rangeCountPerFile.get(
+          matchingFileName,
         ) as Map<string, number>;
+        filteredMatches = new Map(
+          [...matches.entries()].map(matchesEntry => {
+            const [matchedFileName, matchingLinesArray]: [string, RangesTuple[]] = matchesEntry;
 
-        const filteredMatchingLinesArray = matchingLinesArray.filter(matchingLines => {
-          const matchingLineCount: number = matchingFileNameLinesCount.get(
-            matchingLines[0].toString(),
-          ) as number;
-          const matchedLineCount: number = matchedFileNameLinesCount.get(
-            matchingLines[1].toString(),
-          ) as number;
+            const matchedFileNameLinesCount: Map<string, number> = rangeCountPerFile.get(
+              matchedFileName,
+            ) as Map<string, number>;
 
-          return predicate(matchingLineCount) && predicate(matchedLineCount);
-        });
-        if (filteredMatchingLinesArray.length > 0) {
-          filteredMatchingFileName.set(matchedFileName, filteredMatchingLinesArray);
-        }
-      });
-      if (filteredMatchingFileName.size > 0) {
-        returnMap.set(matchingFileName, filteredMatchingFileName);
-      }
-    });
-    return returnMap;
+            const filteredMatchingLinesArray = matchingLinesArray.filter(matchingLines => {
+              const matchingLineCount: number = matchingFileNameLinesCount.get(
+                matchingLines[0].toString(),
+              ) as number;
+              const matchedLineCount: number = matchedFileNameLinesCount.get(
+                matchingLines[1].toString(),
+              ) as number;
+
+              return predicate(matchingLineCount) && predicate(matchedLineCount);
+            });
+            return [matchedFileName, filteredMatchingLinesArray];
+          }),
+        );
+        return [matchingFileName, filteredMatches];
+      }),
+    );
+
+    return SummaryFilter.prune(returnMap);
   }
 
   /**
-   * @param iterable The iterable that contains the array you want to concatenate.
+   * @param iterable The iterable that contains the arrays you want to concatenate.
    */
   private concat<T>(iterable: IterableIterator<T[]>): T[] {
-    let returnArr: T[] = new Array();
-    [...iterable].forEach(value => {
-      returnArr = returnArr.concat(value);
-    });
-    return returnArr;
+    return [...iterable].reduce((acc, val) => acc.concat(val), []);
   }
 }

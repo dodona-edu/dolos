@@ -3,24 +3,6 @@ import { Matches } from "./../comparison";
 import { Range } from "./../range";
 import { SummaryFilter } from "./../summaryFilter";
 
-test("simple contains test", () => {
-  const array: Array<[number, number]> = [[1, 3], [1, 5], [1, 3], [1, 4], [1, 6], [1, 4]];
-  expect(SummaryFilter.contains(array, [1, 3])).toBe(true);
-  expect(SummaryFilter.contains(array, [1, 4])).toBe(true);
-  expect(SummaryFilter.contains(array, [1, 5])).toBe(true);
-  expect(SummaryFilter.contains(array, [1, 6])).toBe(true);
-  expect(SummaryFilter.contains(array, [1, 7])).toBe(false);
-});
-
-test("simple unique test", () => {
-  const array: Array<[number, number]> = [[1, 3], [1, 5], [1, 3], [1, 4], [1, 6], [1, 4]];
-
-  const uniqueArray = SummaryFilter.unique(array);
-  expect(uniqueArray.length).toBe(4);
-  expect(uniqueArray.filter(item => item[0] === 1 && item[1] === 3).length).toBe(1);
-  expect(uniqueArray.filter(item => item[0] === 1 && item[1] === 4).length).toBe(1);
-});
-
 test("filter rangesTuple by minimum lines", () => {
   const summaryFilter = new SummaryFilter(3, 2);
   const rangesTupleArray: RangesTuple[] = [
