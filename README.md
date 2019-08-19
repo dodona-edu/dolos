@@ -58,4 +58,4 @@ Afterwards, if we want to check a file against the rest, we can simply compute a
 - Running `yarn test` will run all tests
 - Running `yarn lint` will run the linter
 - Running `yarn start` will compile everything and run the `app.js` file
-- RUnning `yarn compare` will compile everything and run the `compare.js` file. Additional arguments are required, use the --help option for more information.
+- Running `yarn compare` will compile everything and run the `compare.js` file. Additional arguments are required, use the --help option for more information.
