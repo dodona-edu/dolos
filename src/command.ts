@@ -20,7 +20,7 @@ program // TODO ask about if the indentation is ok
   .option("-d, --directory", "Specifies that submission are per directory, not by file.")
   .option(
     "-b, --base <base>",
-    "this option specifies a base file, any code that also appears in the base file is not shown. A typical base " +
+    "This option specifies a base file, any code that also appears in the base file is not shown. A typical base " +
       "file is the supplied code for an exercise. If used in combination with with the -d option then the location " +
       "supplied should be the location of the directory and the actual files should then be supplied with the rest " +
       "of the files. For example: dolos -d -b exercises/assignment1-basefile/ exercises/assignment1-basefile/*.js " +
@@ -34,7 +34,7 @@ program // TODO ask about if the indentation is ok
   )
   .option(
     "-M --maximum-percentage <float>",
-    "maximum percentage a passage may appear before it is ignored. The percentage is calculated using the amount of " +
+    "Maximum percentage a passage may appear before it is ignored. The percentage is calculated using the amount of " +
       "different groups there are. So with the -d options the amount of directories is used where normally the " +
       "amount of files is used. Must be a value between 1 and 0.",
     0.9,
@@ -51,13 +51,13 @@ program // TODO ask about if the indentation is ok
   )
   .option(
     "-g, --maximum-gap-size <integer>",
-    "Ff two passages need to be joined, then this parameter specifies how large the gap between the two passages may" +
+    "If two passages need to be joined, then this parameter specifies how large the gap between the two passages may" +
       "be.",
     0,
   )
   .option(
     "-z, --zero-based-lines",
-    "specifies whether or not you want lines to be zero based",
+    "Specifies whether or not you want lines to be zero based",
     false,
   )
   .arguments("<locations...>")
@@ -71,10 +71,10 @@ program.on("--help", () => {
   console.log("Examples:");
   console.log("  $ dolos -l javascript *.js");
   console.log(
-    "gives dolos all the files in the current directory and tells that tells dolos that they are in javascript",
+    "Gives dolos all the files in the current directory and tells that tells dolos that they are in javascript",
   );
   console.log("");
-  console.log("specifies the gap size.");
+  console.log("Specifies the gap size.");
   console.log("  $ dolos *.js -g 0");
   console.log("  [[[0, 2], [9, 11]], [[4, 5], [13, 14]]]");
   console.log("  $ dolos *.js -g 1");

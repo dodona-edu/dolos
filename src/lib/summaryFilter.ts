@@ -113,7 +113,7 @@ export class SummaryFilter {
   }
 
   /**
-   * Filters out the passages that appear more than [[this.maximumPassage]].
+   * Filters out the passages that appear more than [[this.maximumPassage]] times.
    * @param matchesPerFile The matchesPerFile you want to filter.
    * @returns A filtered copy of the map.
    */
@@ -158,7 +158,7 @@ export class SummaryFilter {
       ...matchesPerFile.entries(),
     ].map(entry => {
       const [matchedFileName, matches]: [string, Matches<number>] = entry;
-      let filteredMatches = new Map(
+      const filteredMatches = new Map(
         [...matches.entries()].map(matchesEntry =>
           this.filterMatchesEntryByBaseFile(matchedFileName, matchesEntry),
         ),
@@ -171,7 +171,8 @@ export class SummaryFilter {
   }
 
   /**
-   * Filters the given map. What filters are applied depends on the options given in the contructor of the summary
+   * Filters the given map. Wether [[this.filterByMaximumPassagePercentage]] or [[this.filterByMaximumPassageCount]]
+   * are applied depends on if [[this.groupAmount]] is given.
    * filter class.
    * @param matchesPerFile The matchesPerFile map you want to filter.
    * @return A filtered copy of the matchesPerFile.
@@ -227,12 +228,12 @@ export class SummaryFilter {
   }
 
   /**
-   * Count the amount of times a line appears in a file, and do this for all the files in the map.
+   * Count the amount of times a range appears in a file, and do this for all the files in the map.
    * @param matchesPerFile The map where with all the files you want to count
-   * @returns A map that maps the filename to another map that maps the string retuned by the toString method of range
+   * @returns A map that maps the filename to another map that maps the string returned by the toString method of range
    * to the amount that range occurred in that file.
    */
-  private countLineOccurrences(
+  private countRangeOccurrences(
     matchesPerFile: Map<string, Matches<Range>>,
   ): Map<string, Map<string, number>> {
     const rangeCountPerFile: Map<string, Map<string, number>> = new Map();
@@ -283,7 +284,7 @@ export class SummaryFilter {
     matchesPerFile: Map<string, Matches<Range>>,
     predicate: (value: number) => boolean,
   ): Map<string, Matches<Range>> {
-    const rangeCountPerFile: Map<string, Map<string, number>> = this.countLineOccurrences(
+    const rangeCountPerFile: Map<string, Map<string, number>> = this.countRangeOccurrences(
       matchesPerFile,
     );
 
