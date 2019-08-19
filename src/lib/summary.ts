@@ -103,9 +103,35 @@ export class Summary {
         (this.filterOptions.minimumFragmentLength || 0),
     );
   }
-  /**
-   * @param comment A command you want to add to the summary.
-   */
+
+  public toJSON(zeroBase: boolean = false): string {
+    const obj: any = {};
+    this.results.forEach((matches, matchedFileName) => {
+      const matchesObj: any = {};
+      matches.forEach((matchedRanges, matchingFileName) => {
+        matchesObj[matchingFileName] = matchedRanges;
+      })
+      obj[matchedFileName] = matchesObj;
+    });
+    return JSON.stringify(obj, Summary.JSONReplacerFunction(zeroBase));
+
+  }
+
+  private static JSONReplacerFunction(zeroBase: boolean = false): (key: string, value:any) => any {
+    return (_, value) => {
+      if(value instanceof Range) {
+        const range: Range = value as Range;
+        if(zeroBase) {
+          return [range.from, range.to];
+        } else {
+          return [range.from + 1, range.to + 1];
+        }
+      } else {
+        return value;
+      }
+    }
+
+  }
   public toString(comment?: string): string {
     if (this.results.size === 0) {
       return "There were no matches";

@@ -60,6 +60,12 @@ program // TODO ask about if the indentation is ok
     "Specifies whether or not you want lines to be zero based",
     false,
   )
+  .option(
+    "-o, --output-format <format>",
+    "Specifies what format the output should be, current options are: terminal, json, html.",
+    "terminal",
+  )
+
   .arguments("<locations...>")
   .action(filesArgs => {
     locations = filesArgs;
@@ -232,5 +238,20 @@ function groupPerDirectory(files: string[]): string[][] {
     program.comment,
     program.fileAmount,
   );
-  console.log(summary.toString(program.zeroBasedLines));
+  let outputString: string = '';
+  switch(program.outputFormat.toLowerCase()) {
+    case "terminal":
+      outputString = summary.toString(program.zeroBasedLines);
+      break;
+    case "json":
+      outputString = summary.toJSON(program.zeroBasedLines);
+      break;
+    case "html":
+      console.log("html"); //TODO
+      break;
+    default:
+      console.error("Output format not recognized");
+      process.exit(3);
+  }
+  console.log(outputString);
 })();
