@@ -1,5 +1,6 @@
 import { Matches } from "./comparison";
 import { RangesTuple } from "./summary";
+import { Range } from "./range";
 
 export class SummaryFilter {
   /**
@@ -142,8 +143,8 @@ export class SummaryFilter {
    * @returns A filtered copy of the map.
    */
   public filterByMaximumPassageCount(
-    matchesPerFile: Map<string, Matches<number>>,
-  ): Map<string, Matches<number>> {
+    matchesPerFile: Map<string, Matches<Range>>,
+  ): Map<string, Matches<Range>> {
     return this.filterByPassagePredicate(matchesPerFile, value => value <= this.maximumPassage);
   }
 
@@ -153,8 +154,8 @@ export class SummaryFilter {
    * @returns A filtered copy of the map.
    */
   public filterByMaximumPassagePercentage(
-    matchesPerFile: Map<string, Matches<number>>,
-  ): Map<string, Matches<number>> {
+    matchesPerFile: Map<string, Matches<Range>>,
+  ): Map<string, Matches<Range>> {
     if (this.groupAmount === undefined) {
       throw new TypeError(
         "groupAmount cannot be undefined when using the filterByMaximumPassagePercentage function",
@@ -174,6 +175,11 @@ export class SummaryFilter {
   public filterByBaseFile(
     matchesPerFile: Map<string, Matches<number>>,
   ): Map<string, Matches<number>> {
+
+    if (this.baseFileMatches.size === 0) {
+      return matchesPerFile;
+    }
+
     const filteredMatchesPerFile: Array<[string, Matches<number>]> = [
       ...matchesPerFile.entries(),
     ].map(entry => {
@@ -191,23 +197,18 @@ export class SummaryFilter {
     return SummaryFilter.prune(new Map(filteredMatchesPerFile));
   }
 
-  /**
+  /** //TODO
    * Filters the given map. What filters are applied depends on the options given in the contructor of the summary
    * filter class.
    * @param matchesPerFile The matchesPerFile map you want to filter.
    * @return A filtered copy of the matchesPerFile.
    */
-  public filter(matchesPerFile: Map<string, Matches<number>>): Map<string, Matches<number>> {
-    let filteredMatchesPerFile: Map<string, Matches<number>>;
-    if (this.groupAmount) {
-      filteredMatchesPerFile = this.filterByMaximumPassagePercentage(matchesPerFile);
+  public filterByMaximumPassage(matchesPerFile: Map<string, Matches<Range>>): Map<string, Matches<Range>> {
+    if (this.groupAmount) { 
+      return this.filterByMaximumPassagePercentage(matchesPerFile);
     } else {
-      filteredMatchesPerFile = this.filterByMaximumPassageCount(matchesPerFile);
+      return this.filterByMaximumPassageCount(matchesPerFile);
     }
-    if (this.baseFileMatches.size > 0) {
-      filteredMatchesPerFile = this.filterByBaseFile(filteredMatchesPerFile);
-    }
-    return filteredMatchesPerFile;
   }
 
   /**
@@ -248,6 +249,24 @@ export class SummaryFilter {
     );
 
     return [matchingFileName, matchedLines];
+  }
+  
+
+  private get(linesCountPerFile: Map<Range, number>, range: Range): number | undefined{
+    for(const linesCountPerFileEntry of [...linesCountPerFile.entries()]){
+      const forLoopRange: Range = linesCountPerFileEntry[0];
+      if(forLoopRange.equals(range)){
+        return linesCountPerFileEntry[1];
+      }
+    }
+    return undefined;
+  }
+
+  private increment(linesCountPerFile: Map<Range, number>, range: Range): Map<Range, number> {
+    const entries: Array<[Range, number]> = [...linesCountPerFile.entries()];
+    
+    return new Map(entries);
+
   }
 
   /** //TODO documentation no longer matches with implementation
@@ -309,6 +328,7 @@ export class SummaryFilter {
     const lineCountPerFile: Map<string, Map<Range, number>> = this.countLineOccurrences(
       matchesPerFile,
     );
+    console.log(lineCountPerFile);
 
     matchesPerFile.forEach((matches, matchingFileName) => {
       const filteredMatchingFileName: Matches<Range> = new Map();
