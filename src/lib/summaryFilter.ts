@@ -8,23 +8,23 @@ export class SummaryFilter {
    * @param matchesPerFile A filtered matchedPerFile map that might contain empty matching line array.
    * @returns A new map with all the empty values removes.
    */
-  public static prune(matchesPerFile: Map<string, Matches<number>>): Map<string, Matches<number>> {
-    const filteredMatchesPerFile: Array<[string, Matches<number>]> = [
-      ...matchesPerFile.entries(),
-    ].map(matchesEntry => {
-      const matchedFileName: string = matchesEntry[0];
-      let matches: Matches<number> = matchesEntry[1];
-      matches = new Map(
-        [...matches.entries()].filter(matchedEntry => {
-          const [, matchingLines] = matchedEntry;
-          return matchingLines.length !== 0;
-        }),
-      );
-      return [matchedFileName, matches];
-    });
+  public static prune<T>(matchesPerFile: Map<string, Matches<T>>): Map<string, Matches<T>> {
+    const filteredMatchesPerFile: Array<[string, Matches<T>]> = [...matchesPerFile.entries()].map(
+      matchesEntry => {
+        const matchedFileName: string = matchesEntry[0];
+        let matches: Matches<T> = matchesEntry[1];
+        matches = new Map(
+          [...matches.entries()].filter(matchedEntry => {
+            const matchingLines: Array<[T, T]> = matchedEntry[1];
+            return matchingLines.length !== 0;
+          }),
+        );
+        return [matchedFileName, matches];
+      },
+    );
     return new Map(
       filteredMatchesPerFile.filter(matchesEntry => {
-        const [, matches] = matchesEntry;
+        const matches: Matches<T> = matchesEntry[1];
         return matches.size > 0;
       }),
     );
@@ -309,41 +309,48 @@ export class SummaryFilter {
     matchesPerFile: Map<string, Matches<Range>>,
     predicate: (value: number) => boolean,
   ): Map<string, Matches<Range>> {
-    const returnMap: Map<string, Matches<Range>> = new Map();
+    // TODO make a const out of this
+    let returnMap: Map<string, Matches<Range>> = new Map();
 
     const rangeCountPerFile: Map<string, Map<string, number>> = this.countLineOccurrences(
       matchesPerFile,
     );
 
-    matchesPerFile.forEach((matches, matchingFileName) => {
-      const filteredMatchingFileName: Matches<Range> = new Map();
-      const matchingFileNameLinesCount: Map<string, number> = rangeCountPerFile.get(
-        matchingFileName,
-      ) as Map<string, number>;
-      matches.forEach((matchingLinesArray, matchedFileName) => {
-        const matchedFileNameLinesCount: Map<string, number> = rangeCountPerFile.get(
-          matchedFileName,
+    // assign return map to this
+    returnMap = new Map(
+      [...matchesPerFile.entries()].map(matchesPerFileEntry => {
+        const [matchingFileName, matches]: [string, Matches<Range>] = matchesPerFileEntry;
+        let filteredMatches: Matches<Range> = new Map();
+
+        const matchingFileNameLinesCount: Map<string, number> = rangeCountPerFile.get(
+          matchingFileName,
         ) as Map<string, number>;
+        filteredMatches = new Map(
+          [...matches.entries()].map(matchesEntry => {
+            const [matchedFileName, matchingLinesArray]: [string, RangesTuple[]] = matchesEntry;
 
-        const filteredMatchingLinesArray = matchingLinesArray.filter(matchingLines => {
-          const matchingLineCount: number = matchingFileNameLinesCount.get(
-            matchingLines[0].toString(),
-          ) as number;
-          const matchedLineCount: number = matchedFileNameLinesCount.get(
-            matchingLines[1].toString(),
-          ) as number;
+            const matchedFileNameLinesCount: Map<string, number> = rangeCountPerFile.get(
+              matchedFileName,
+            ) as Map<string, number>;
 
-          return predicate(matchingLineCount) && predicate(matchedLineCount);
-        });
-        if (filteredMatchingLinesArray.length > 0) {
-          filteredMatchingFileName.set(matchedFileName, filteredMatchingLinesArray);
-        }
-      });
-      if (filteredMatchingFileName.size > 0) {
-        returnMap.set(matchingFileName, filteredMatchingFileName);
-      }
-    });
-    return returnMap;
+            const filteredMatchingLinesArray = matchingLinesArray.filter(matchingLines => {
+              const matchingLineCount: number = matchingFileNameLinesCount.get(
+                matchingLines[0].toString(),
+              ) as number;
+              const matchedLineCount: number = matchedFileNameLinesCount.get(
+                matchingLines[1].toString(),
+              ) as number;
+
+              return predicate(matchingLineCount) && predicate(matchedLineCount);
+            });
+            return [matchedFileName, filteredMatchingLinesArray];
+          }),
+        );
+        return [matchingFileName, filteredMatches];
+      }),
+    );
+
+    return SummaryFilter.prune(returnMap);
   }
 
   /**
