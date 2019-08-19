@@ -1,12 +1,12 @@
 import commander from "commander";
-import { Matches } from "./lib/comparison.js";
 import path from "path";
 import { CodeTokenizer } from "./lib/codeTokenizer";
 import { Comparison } from "./lib/comparison";
+import { Matches } from "./lib/comparison.js";
 import { Summary } from "./lib/summary.js";
 import { SummaryFilter } from "./lib/summaryFilter.js";
 
-var packageJson = require("../package.json");
+import packageJson from "./../package.json";
 
 const program = new commander.Command();
 
