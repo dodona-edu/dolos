@@ -1,6 +1,6 @@
 import { Matches } from "./comparison";
-import { RangesTuple } from "./summary";
 import { Range } from "./range";
+import { RangesTuple } from "./summary";
 
 export class SummaryFilter {
   /**
@@ -175,7 +175,6 @@ export class SummaryFilter {
   public filterByBaseFile(
     matchesPerFile: Map<string, Matches<number>>,
   ): Map<string, Matches<number>> {
-
     if (this.baseFileMatches.size === 0) {
       return matchesPerFile;
     }
@@ -203,8 +202,10 @@ export class SummaryFilter {
    * @param matchesPerFile The matchesPerFile map you want to filter.
    * @return A filtered copy of the matchesPerFile.
    */
-  public filterByMaximumPassage(matchesPerFile: Map<string, Matches<Range>>): Map<string, Matches<Range>> {
-    if (this.groupAmount) { 
+  public filterByMaximumPassage(
+    matchesPerFile: Map<string, Matches<Range>>,
+  ): Map<string, Matches<Range>> {
+    if (this.groupAmount) {
       return this.filterByMaximumPassagePercentage(matchesPerFile);
     } else {
       return this.filterByMaximumPassageCount(matchesPerFile);
@@ -250,19 +251,19 @@ export class SummaryFilter {
 
     return [matchingFileName, matchedLines];
   }
-  
-  /** 
+
+  /**
    * Count the amount of times a line appears in a file, and do this for all the files in the map.
    * @param matchesPerFile The map where with all the files you want to count
-   * @returns A map that maps the filename to another map that maps the string retuned by the toString method of range 
-   * to the amount that range occurred in that file. 
+   * @returns A map that maps the filename to another map that maps the string retuned by the toString method of range
+   * to the amount that range occurred in that file.
    */
   private countLineOccurrences(
     matchesPerFile: Map<string, Matches<Range>>,
   ): Map<string, Map<string, number>> {
     const rangeCountPerFile: Map<string, Map<string, number>> = new Map();
-    // A string as a key to the second map is used because if an object is directly used as a key the the map 
-    // implementation will check if the references are equal, which we do not need as two different ranges objects can 
+    // A string as a key to the second map is used because if an object is directly used as a key the the map
+    // implementation will check if the references are equal, which we do not need as two different ranges objects can
     // be equal.
 
     matchesPerFile.forEach((matches, matchingFileName) => {
@@ -284,7 +285,7 @@ export class SummaryFilter {
         }
 
         // When a range is encountered, add one to the range counter for that file.
-        (matchingLinesArray).forEach(matchingLines => {
+        matchingLinesArray.forEach(matchingLines => {
           matchesLinesCount.set(
             matchingLines[0].toString(),
             (matchesLinesCount.get(matchingLines[0].toString()) || 0) + 1,
@@ -299,12 +300,12 @@ export class SummaryFilter {
     return rangeCountPerFile;
   }
 
-  /** 
+  /**
    * A private function used to filter by passage count based on the output of a predicate.
    * @param matchesPerFile The matchedPerFile you want to filter.
    * @param predicate The predicate that is used to filter, will be given the passage count and must return a boolean.
    */
-  private filterByPassagePredicate( 
+  private filterByPassagePredicate(
     matchesPerFile: Map<string, Matches<Range>>,
     predicate: (value: number) => boolean,
   ): Map<string, Matches<Range>> {
@@ -324,18 +325,16 @@ export class SummaryFilter {
           matchedFileName,
         ) as Map<string, number>;
 
-        const filteredMatchingLinesArray = matchingLinesArray.filter(
-          matchingLines => {
-            const matchingLineCount: number = matchingFileNameLinesCount.get(
-              matchingLines[0].toString(),
-            ) as number;
-            const matchedLineCount: number = matchedFileNameLinesCount.get(
-              matchingLines[1].toString(),
-            ) as number;
+        const filteredMatchingLinesArray = matchingLinesArray.filter(matchingLines => {
+          const matchingLineCount: number = matchingFileNameLinesCount.get(
+            matchingLines[0].toString(),
+          ) as number;
+          const matchedLineCount: number = matchedFileNameLinesCount.get(
+            matchingLines[1].toString(),
+          ) as number;
 
-            return predicate(matchingLineCount) && predicate(matchedLineCount);
-          },
-        );
+          return predicate(matchingLineCount) && predicate(matchedLineCount);
+        });
         if (filteredMatchingLinesArray.length > 0) {
           filteredMatchingFileName.set(matchedFileName, filteredMatchingLinesArray);
         }
