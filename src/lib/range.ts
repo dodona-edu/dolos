@@ -22,14 +22,6 @@ export class Range {
     return this.from === from && this.to === to;
   }
 
-  public get From(): number {
-    return this.from;
-  }
-
-  public get To(): number {
-    return this.to;
-  }
-
   /**
    * Tests wether or not the given number can extend the range.
    * @param value The number you want to test.
