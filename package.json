@@ -2,12 +2,12 @@
   "name": "dolos",
   "version": "0.0.1",
   "description": "Plagiarism detection for Dodona based on the Winnowing algorithm",
-  "main": "dist/app.js",
+  "main": "dist/src/app.js",
   "scripts": {
-    "start": "tsc && node dist/app.js",
-    "compare": "tsc && node --no-warnings ./dist/command.js",
-    "test-hash-performance": "tsc && time head -c 1000000 /dev/random | node dist/bin/hash.js > /dev/null",
-    "test-winnow-performance": "tsc && time head -c 1000000 /dev/random | node dist/bin/hash.js > /dev/null",
+    "start": "tsc && node dist/src/app.js",
+    "compare": "tsc && node --no-warnings ./dist/src/command.js",
+    "test-hash-performance": "tsc && time head -c 1000000 /dev/random | node dist/src/bin/hash.js > /dev/null",
+    "test-winnow-performance": "tsc && time head -c 1000000 /dev/random | node dist/src/bin/hash.js > /dev/null",
     "test": "jest --coverage",
     "build": "tsc",
     "lint": "tslint 'src/**/*.ts'"
