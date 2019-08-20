@@ -1,40 +1,39 @@
 import fs from "fs";
 import { Matches } from "./comparison";
 import { Range } from "./range";
+import { SummaryFilter } from "./summaryFilter";
 export type RangesTuple = [Range, Range];
+
 export class Summary {
+  public readonly gapSize: number;
+  public readonly summaryFilter: SummaryFilter;
+  public readonly comment: string | undefined;
+  public readonly outputAmount: number | undefined;
   private readonly results: Map<string, Matches<Range>>;
-  private readonly minimumMaximumLines: number;
-  private readonly gapSize: number;
-  private readonly minimumMinimumLines: number;
 
   /**
+   * Generates a summary for the given matches.
    * @param matches A many-to-many comparison of a set of files. This map contains an entry for each of the
    * input files with the key being its file name and the value a list of matches. These matches are grouped
    * per matching file. The compareFiles function of the Comparison class can generate such mapping.
-   * @param minimumMaximumLines The minimum amount of lines required by the longest range in a rangesTuple. If the
-   * rangesTuple has less lines then it will be filtered out. When the rangesTuple has two ranges with a different
-   * amount of lines, then the maximum between to two is used.
-   * @param minimumMinimumLines The minimum amount of lines required by the shortest range in a rangesTuple.
+   * @param summaryFilter The summary filter that will be used to filter the results.
    * @param gapSize The gap size allowed during the joining of two ranges. For example if the gap size is 0 then [1,3]
    * and [5,7] wont be joined, and if the gap size is one these will be joined into [1,7].
    */
   constructor(
     matchesPerFile: Map<string, Matches<number>>,
-    minimumMaximumLines: number = 2,
-    minimumMinimumLines: number = 1,
-    gapSize: number = 1,
+    summaryFilter: SummaryFilter,
+    gapSize: number = 0,
+    comment?: string,
+    outputAmount?: number,
   ) {
-    this.minimumMaximumLines = minimumMaximumLines;
-    this.minimumMinimumLines = minimumMinimumLines;
+    this.summaryFilter = summaryFilter;
     this.gapSize = gapSize;
-<<<<<<< HEAD
-    this.results = this.transformMatches(matchesPerFile);
-=======
     this.results = this.transformMatches(summaryFilter.filterByBaseFile(matchesPerFile));
     this.results = this.summaryFilter.filterByMaximumPassage(this.results);
->>>>>>> 678a837... fixed filterByPassageCountPredicate and changed tests accordingly
     this.results = this.sortResults();
+    this.comment = comment;
+    this.outputAmount = outputAmount;
   }
 
   public toString(zeroBase: boolean = false): string {
@@ -42,9 +41,16 @@ export class Summary {
       return "There were no matches";
     }
 
+    let output = "";
+    if (this.comment !== undefined) {
+      output += this.comment + "\n";
+    }
+
+    let outputCount: number = 0;
+
     const linesInFileMap: Map<string, number> = new Map();
 
-    return Array.from(this.results.entries())
+    output += Array.from(this.results.entries())
       .map(resultEntry => {
         const [sourceFileName, subMap] = resultEntry;
         let subOutput = "";
@@ -89,6 +95,7 @@ export class Summary {
         return subOutput;
       })
       .join("");
+    return output;
   }
   /**
    * @param rangesTuple The tuple you want a string representation of.
@@ -156,22 +163,7 @@ export class Summary {
 
     ranges = this.concatenateRanges(ranges);
 
-    return this.filterByMinimumLines(ranges);
-  }
-
-  /**
-   * Remove all ranges that only contain less the minimum required lines.
-   * @param rangesTupleArray The rangesTupleArray you want filter.
-   */
-
-  public filterByMinimumLines(rangesTupleArray: RangesTuple[]): RangesTuple[] {
-    return rangesTupleArray.filter(
-      rangesTuple =>
-        Math.max(rangesTuple[0].getLineCount(), rangesTuple[1].getLineCount()) >=
-          this.minimumMaximumLines &&
-        Math.min(rangesTuple[0].getLineCount(), rangesTuple[1].getLineCount()) >=
-          this.minimumMinimumLines,
-    );
+    return this.summaryFilter.filterByMinimumLines(ranges);
   }
 
   /**

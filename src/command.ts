@@ -46,28 +46,12 @@ program // TODO ask about if the indentation is ok
   )
   .option(
     "-s, --minimum-lines <integer>",
-<<<<<<< HEAD
-<<<<<<< HEAD
     "The minimum amount of lines in the longest range in a rangesTuple before it is shown",
-=======
-    "the minimum amount of lines in the longest range in a rangesTuple before it is shown",
->>>>>>> d613e84... last commit of the day, breaks stuff
-=======
-    "The minimum amount of lines in the longest range in a rangesTuple before it is shown",
->>>>>>> 8d145e3... code cleanup
     0,
   )
   .option(
     "-g, --maximum-gap-size <integer>",
-<<<<<<< HEAD
-<<<<<<< HEAD
     "If two passages need to be joined, then this parameter specifies how large the gap between the two passages may" +
-=======
-    "Ff two passages need to be joined, then this parameter specifies how large the gap between the two passages may" +
->>>>>>> 8d145e3... code cleanup
-=======
-    "If two passages need to be joined, then this parameter specifies how large the gap between the two passages may" +
->>>>>>> cd3acd9... updating documentation
       "be.",
     0,
   )
@@ -87,24 +71,10 @@ program.on("--help", () => {
   console.log("Examples:");
   console.log("  $ dolos -l javascript *.js");
   console.log(
-<<<<<<< HEAD
-<<<<<<< HEAD
     "Gives dolos all the files in the current directory and tells that tells dolos that they are in javascript",
   );
   console.log("");
   console.log("Specifies the gap size.");
-=======
-    "gives dolos all the files in the current directory and tells that tells dolos that they are in javascript",
-  );
-  console.log("");
-  console.log("specifies the gap size.");
->>>>>>> 8d145e3... code cleanup
-=======
-    "Gives dolos all the files in the current directory and tells that tells dolos that they are in javascript",
-  );
-  console.log("");
-  console.log("Specifies the gap size.");
->>>>>>> cd3acd9... updating documentation
   console.log("  $ dolos *.js -g 0");
   console.log("  [[[0, 2], [9, 11]], [[4, 5], [13, 14]]]");
   console.log("  $ dolos *.js -g 1");
