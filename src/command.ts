@@ -15,7 +15,7 @@ program.version(packageJson.version).description("Plagiarism detection for progr
 
 let locations: string[] = [];
 
-program // TODO ask about if the indentation is ok
+program
   .option("-l, --language <language>", "Language used in the compared programs.", "javascript")
   .option("-d, --directory", "Specifies that submission are per directory, not by file.")
   .option(
