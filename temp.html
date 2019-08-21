@@ -1,12 +1,24 @@
 <!doctype html>
 <html lang="en">
 <head>
+<<<<<<< HEAD
+=======
+  <script>
+    function show(shown, hidden) {
+      console.log(shown, hidden);
+      document.getElementById(shown).style.display='block';
+      document.getElementById(hidden).style.display='none';
+      return false;
+    }
+  </script>
+>>>>>>> working on html layout
   <meta charset="utf-8">
   <title>Dolos summary</title>
 </head>
 
 <body>
   
+<<<<<<< HEAD
     <table>
       <tr>
         <th>File 1</th>
@@ -15,6 +27,30 @@
       </tr>
       <tr><td>samples/js/sample.js</td><td>samples/js/another_copied_function.js</td><td  align="right">20</td></tr><tr><td>samples/js/copied_function.js</td><td>samples/js/copied_function.js</td><td  align="right">12</td></tr><tr><td>samples/js/copied_function.js</td><td>samples/js/another_copied_function.js</td><td  align="right">2</td></tr>
     </table>
+=======
+<div id="Index">
+  <table>
+    <tr>
+      <th>File 1</th>
+      <th>File 2</th>
+      <th>Lines matched</th>
+    </tr>
+    <tr><td><a href=# onclick="return show('samples/js/sample.js-samples/js/another_copied_function.js', 'Index');">samples/js/sample.js</a></td><td><a href=# onclick="return show('samples/js/sample.js-samples/js/another_copied_function.js', 'Index');">samples/js/another_copied_function.js</a></td><td  align="right">20</td></tr>
+<tr><td><a href=# onclick="return show('samples/js/copied_function.js-samples/js/copied_function.js', 'Index');">samples/js/copied_function.js</a></td><td><a href=# onclick="return show('samples/js/copied_function.js-samples/js/copied_function.js', 'Index');">samples/js/copied_function.js</a></td><td  align="right">12</td></tr>
+<tr><td><a href=# onclick="return show('samples/js/copied_function.js-samples/js/another_copied_function.js', 'Index');">samples/js/copied_function.js</a></td><td><a href=# onclick="return show('samples/js/copied_function.js-samples/js/another_copied_function.js', 'Index');">samples/js/another_copied_function.js</a></td><td  align="right">2</td></tr>
+  </table>
+</div>
+<div style="display:none" id="samples/js/sample.js-samples/js/another_copied_function.js"><div> <a href=# onclick="return show('Index', 'samples/js/sample.js-samples/js/another_copied_function.js')">Back to index</a> </div><div><div>samples/js/sample.js and samples/js/another_copied_function.js match like [[5, 7], [5, 5]]</div>
+<div>samples/js/sample.js and samples/js/another_copied_function.js match like [[4, 7], [53, 56]]</div>
+<div>samples/js/sample.js and samples/js/another_copied_function.js match like [[6, 6], [13, 13]]</div>
+<div>samples/js/sample.js and samples/js/another_copied_function.js match like [[7, 7], [19, 19]]</div>
+<div>samples/js/sample.js and samples/js/another_copied_function.js match like [[4, 4], [37, 37]]</div>
+<div>samples/js/sample.js and samples/js/another_copied_function.js match like [[4, 4], [45, 45]]</div></div></div>
+<div style="display:none" id="samples/js/copied_function.js-samples/js/copied_function.js"><div> <a href=# onclick="return show('Index', 'samples/js/copied_function.js-samples/js/copied_function.js')">Back to index</a> </div><div><div>samples/js/copied_function.js and samples/js/copied_function.js match like [[5, 8], [16, 19]]</div>
+<div>samples/js/copied_function.js and samples/js/copied_function.js match like [[8, 8], [30, 30]]</div>
+<div>samples/js/copied_function.js and samples/js/copied_function.js match like [[8, 8], [56, 56]]</div></div></div>
+<div style="display:none" id="samples/js/copied_function.js-samples/js/another_copied_function.js"><div> <a href=# onclick="return show('Index', 'samples/js/copied_function.js-samples/js/another_copied_function.js')">Back to index</a> </div><div><div>samples/js/copied_function.js and samples/js/another_copied_function.js match like [[7, 7], [8, 8]]</div></div></div>
+>>>>>>> working on html layout
     
 </body>
 </html>
