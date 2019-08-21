@@ -21,6 +21,20 @@ export class Summary {
     fragmentOutputLimit: undefined,
     minimumFragmentLength: 0,
   });
+  private static JSONReplacerFunction(zeroBase: boolean = false): (key: string, value: any) => any {
+    return (_, value) => {
+      if (value instanceof Range) {
+        const range: Range = value as Range;
+        if (zeroBase) {
+          return [range.from, range.to];
+        } else {
+          return [range.from + 1, range.to + 1];
+        }
+      } else {
+        return value;
+      }
+    };
+  }
   public readonly gapSize: number;
   private readonly results: Map<string, Matches<Range>>;
   private readonly filterOptions: FilterOptions;
@@ -110,29 +124,64 @@ export class Summary {
       const matchesObj: any = {};
       matches.forEach((matchedRanges, matchingFileName) => {
         matchesObj[matchingFileName] = matchedRanges;
-      })
+      });
       obj[matchedFileName] = matchesObj;
     });
     return JSON.stringify(obj, Summary.JSONReplacerFunction(zeroBase));
-
   }
 
-  private static JSONReplacerFunction(zeroBase: boolean = false): (key: string, value:any) => any {
-    return (_, value) => {
-      if(value instanceof Range) {
-        const range: Range = value as Range;
-        if(zeroBase) {
-          return [range.from, range.to];
-        } else {
-          return [range.from + 1, range.to + 1];
-        }
-      } else {
-        return value;
-      }
-    }
+  public toHTML(): string {
+    const JSONData = JSON.parse(this.toJSON());
+    let tableRows: string = "";
 
+    Object.entries(JSONData).forEach(([matchedFileName, matches]) => {
+      Object.entries(matches as any).forEach(([matchingFileName, rangesTupleArray]) => {
+        tableRows += `<tr>` + 
+        `<td>${escape(matchedFileName as string)}</td>` + 
+        `<td>${escape(matchingFileName as string)}</td>` + 
+        `<td  align="right">${this.getScoreForArray(
+          this.numberTupleArrayToRangesTuplesArray(rangesTupleArray as Array<
+            [[number, number], [number, number]]
+          >),
+        )}</td>` + 
+        `</tr>`
+      });
+    });
+
+    const body: string = `
+<div id="Index">
+  <table>
+    <tr>
+      <th>File 1</th>
+      <th>File 2</th>
+      <th>Lines matched</th>
+    </tr>
+    ${tableRows}
+  </table>
+</div>
+<div>
+</div>
+
+    `;
+
+    return `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Dolos summary</title>
+</head>
+
+<body>
+  ${body}
+</body>
+</html>`;
   }
+<<<<<<< HEAD
   public toString(comment?: string): string {
+=======
+
+  public toString(zeroBase: boolean = false): string {
+>>>>>>> working on html output
     if (this.results.size === 0) {
       return "There were no matches";
     }
@@ -273,6 +322,15 @@ export class Summary {
       }
     }
     return ranges;
+  }
+
+  private numberTupleArrayToRangesTuplesArray(
+    numberTupleArray: Array<[[number, number], [number, number]]>,
+  ): RangesTuple[] {
+    return numberTupleArray.map(([[from1, to1], [from2, to2]]) => [
+      new Range(from1, to1),
+      new Range(from2, to2),
+    ]);
   }
 
   private countLinesInFile(fileName: string): number {

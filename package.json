@@ -7,6 +7,7 @@
     "start": "tsc && node dist/app.js",
     "test-hash-performance": "tsc && time head -c 1000000 /dev/random | node dist/bin/hash.js > /dev/null",
     "test-winnow-performance": "tsc && time head -c 1000000 /dev/random | node dist/bin/hash.js > /dev/null",
+    "make-html-file": "tsc && node ./dist/app.js -l javascript -o html samples/js/*.js > temp.html",
     "test": "jest --coverage",
     "build": "tsc",
     "lint": "tslint 'src/**/*.ts'"

@@ -247,7 +247,7 @@ function groupPerDirectory(files: string[]): string[][] {
       outputString = summary.toJSON(program.zeroBasedLines);
       break;
     case "html":
-      console.log("html"); //TODO
+      outputString = summary.toHTML();
       break;
     default:
       console.error("Output format not recognized");
