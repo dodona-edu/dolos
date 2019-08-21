@@ -101,12 +101,14 @@ export class Comparison<Location> {
       const matches = this.index.get(hash);
       if (matches) {
         for (const [fileName, lineNumber] of matches) {
-          const match: [Location, Location] = [lineNumber, mapping[location]];
-          const lines = matchingFiles.get(fileName);
-          if (lines) {
-            lines.push(match);
-          } else {
-            matchingFiles.set(fileName, [match]);
+          if( fileName !== file){
+            const match: [Location, Location] = [lineNumber, mapping[location]];
+            const lines = matchingFiles.get(fileName);
+            if (lines) {
+              lines.push(match);
+            } else {
+              matchingFiles.set(fileName, [match]);
+            }
           }
         }
       }

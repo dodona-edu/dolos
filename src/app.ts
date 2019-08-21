@@ -58,7 +58,6 @@ program
     locations = filesArgs;
   });
 
-// TODO examples and formatting
 program.on("--help", () => {
   console.log(`
 Examples:
@@ -100,7 +99,6 @@ if (locations.length < 2) {
   // Compare all the file with each other.
   const comparison = new Comparison(tokenizer);
   await comparison.addFiles(locations);
-  // TODO filter matches comparing the same file with itself.
   const matchesPerFile: Map<string, Matches<number>> = await comparison.compareFiles(locations);
   
 
