@@ -1,4 +1,4 @@
-import commander from "commander";
+import { Command } from "commander";
 import path from "path";
 import { CodeTokenizer } from "./lib/codeTokenizer";
 import { Comparison } from "./lib/comparison";
@@ -6,24 +6,19 @@ import { Matches } from "./lib/comparison.js";
 import { Summary } from "./lib/summary.js";
 import { SummaryFilter } from "./lib/summaryFilter.js";
 
-const program = new commander.Command();
+let locations: string[] = [];
+const program = new Command();
 
 // Initial program description and version
 program.version("0.0.1").description("Plagiarism detection for programming exercises");
 
-let locations: string[] = [];
 
 program
-  .option("-l, --language <language>", "Language used in the compared programs.", "javascript")
-  .option("-d, --directory", "Specifies that submission are per directory, not by file.")
+  .option("-l, --language <language>", "Programming language used in the submitted files.", "javascript")
   .option(
     "-b, --base <base>",
-    "This option specifies a base file, any code that also appears in the base file is not shown. A typical base " +
-      "file is the supplied code for an exercise. If used in combination with with the -d option then the location " +
-      "supplied should be the location of the directory and the actual files should then be supplied with the rest " +
-      "of the files. For example: dolos -d -b exercises/assignment1-basefile/ exercises/assignment1-basefile/*.js " +
-      "student-solutions/*/*.js:w",
-  )
+    "Specifies a base file. Matches with code from this file will never be reported in the output. A typical base " +
+      "file is the supplied code for an exercise."   )
   .option(
     "-m, --maximum <number>",
     "The -m options sets the maximum number of time a given passage may appear before it is ignored. A passage of " +
@@ -37,14 +32,14 @@ program
       "amount of files is used. Must be a value between 1 and 0.",
     0.9,
   )
-  .option("-c, --comment <string>", "comment string that is attached to the generated report")
+  .option("-c, --comment <string>", "Comment string that is attached to the generated report")
   .option(
     "-n, --file-amount",
-    "The -n option specifies how many matching file are shown in the result",
+    "Specifies how many matching pairs are shown in the result",
   )
   .option(
     "-s, --minimum-lines <integer>",
-    "The minimum amount of lines in the longest range in a rangesTuple before it is shown",
+    "The minimum amount of lines in the longest code passage in a before it is shown",
     0,
   )
   .option(
@@ -65,18 +60,17 @@ program
 
 // TODO examples and formatting
 program.on("--help", () => {
-  console.log("");
-  console.log("Examples:");
-  console.log("  $ dolos -l javascript *.js");
-  console.log(
-    "Gives dolos all the files in the current directory and tells that tells dolos that they are in javascript",
-  );
-  console.log("");
-  console.log("Specifies the gap size.");
-  console.log("  $ dolos *.js -g 0");
-  console.log("  [[[0, 2], [9, 11]], [[4, 5], [13, 14]]]");
-  console.log("  $ dolos *.js -g 1");
-  console.log("  [[[0, 5], [9, 14]]]");
+  console.log(`
+Examples:
+Gives dolos all the files in the current directory and tells dolos that they are in javascript
+  $ dolos -l javascript *.js
+
+Specifies the gap size.
+  $ dolos *.js -g 0");
+  [[[0, 2], [9, 11]], [[4, 5], [13, 14]]]");
+  $ dolos *.js -g 1");
+  [[[0, 5], [9, 14]]]");
+    `);
 });
 
 program.parse(process.argv);
@@ -134,85 +128,38 @@ function groupPerDirectory(files: string[]): string[][] {
 }
 
 (async () => {
-  let baseFiles: string[] | undefined;
   let groupAmount: number;
   const tokenizer = new CodeTokenizer(program.language);
   const results: Map<string, Matches<number>> = new Map();
   let baseFileMatches: Map<string, Matches<number>> = new Map();
 
-  // if the -d and the -b flag are active, filter out all the basefile locations
-  if (program.directory && program.base) {
-    program.base = path.normalize(program.base);
+if (locations.length < 2) {
+  console.error("Need at least two locations");
+  program.outputHelp();
+  process.exit(1);
+}
 
-    baseFiles = locations.filter(filePath => filePath.startsWith(program.base));
-    locations = locations.filter(filePath => !filePath.startsWith(program.base));
+  // If each file is a separate program then count the amount of files.
+  groupAmount = locations.length;
+
+  // Compare the base file with all the other files when there is a base file.
+  if (program.base) {
+    const baseFileComparison = new Comparison(tokenizer);
+    await baseFileComparison.addFile(program.base);
+    baseFileMatches = await baseFileComparison.compareFiles(locations);
   }
 
-  if (locations.length < 2) {
-    console.error("need at least two locations");
-    process.exit(1);
-  }
+  // Compare all the file with each other.
+  while (locations.length > 1) {
+    const location: string = locations.shift() as string;
+    const comparison = new Comparison(tokenizer);
+    await comparison.addFile(location);
+    const matchesPerFile: Map<string, Matches<number>> = await comparison.compareFiles(locations);
 
-  if (program.directory) {
-    if (program.base && baseFiles === undefined) {
-      console.error("no valid base files given");
-      process.exit(2);
-    }
-
-    const filesGroupPerDirectory: string[][] = groupPerDirectory(locations);
-
-    // If each program is a directory, then count the amount of directories.
-    groupAmount = filesGroupPerDirectory.length;
-
-    // If there is a base directory, compare all directories with it and put the results in one map.
-    if (program.base) {
-      for (const directory of filesGroupPerDirectory) {
-        const baseFileComparison = new Comparison(tokenizer);
-        await baseFileComparison.addFiles(baseFiles as string[]);
-        compose(
-          baseFileMatches,
-          await baseFileComparison.compareFiles(directory),
-        );
-      }
-    }
-
-    // Compare all directories with each other.
-    for (let i = 0; i < filesGroupPerDirectory.length; i += 1) {
-      for (let j = i + 1; j < filesGroupPerDirectory.length; j += 1) {
-        const comparison = new Comparison(tokenizer);
-        await comparison.addFiles(filesGroupPerDirectory[i]);
-        const matchesPerFile: Map<string, Matches<number>> = await comparison.compareFiles(
-          filesGroupPerDirectory[j],
-        );
-        compose(
-          results,
-          matchesPerFile,
-        );
-      }
-    }
-  } else {
-    // If each file is a separate program then count the amount of files.
-    groupAmount = locations.length;
-
-    // Compare the base file with all the other files when there is a base file.
-    if (program.base) {
-      const baseFileComparison = new Comparison(tokenizer);
-      await baseFileComparison.addFile(program.base);
-      baseFileMatches = await baseFileComparison.compareFiles(locations);
-    }
-
-    // Compare all the file with each other.
-    while (locations.length > 1) {
-      const location: string = locations.shift() as string;
-      const comparison = new Comparison(tokenizer);
-      await comparison.addFile(location);
-      const matchesPerFile: Map<string, Matches<number>> = await comparison.compareFiles(locations);
-
-      compose(
-        results,
-        matchesPerFile,
-      );
-    }
+    compose(
+      results,
+      matchesPerFile,
+    );
   }
 
   const summaryFilter: SummaryFilter = new SummaryFilter(
