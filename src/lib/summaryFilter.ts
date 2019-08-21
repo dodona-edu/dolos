@@ -60,26 +60,31 @@ export class SummaryFilter {
     this.outputAmount = outputAmount;
   }
 
-  public filterOutputAmount(matchesPerFile: Map<string, Matches<Range>>): Map<string, Matches<Range>> {
-    if(!this.outputAmount) {
+  public filterOutputAmount(
+    matchesPerFile: Map<string, Matches<Range>>,
+  ): Map<string, Matches<Range>> {
+    if (!this.outputAmount) {
       return matchesPerFile;
     }
 
     let outputCount = 0;
     const filteredMatchesPerFile: Map<string, Matches<Range>> = new Map();
-    for( const [matchingFileName, matches] of matchesPerFile.entries()){
-      const filteredMatches: Matches<Range> = new Map(); 
+    for (const [matchingFileName, matches] of matchesPerFile.entries()) {
+      const filteredMatches: Matches<Range> = new Map();
       filteredMatchesPerFile.set(matchingFileName, filteredMatches);
-      for( const [matchedFileName, rangesTuplesArray] of matches.entries()) {
-        if(outputCount + rangesTuplesArray.length <= this.outputAmount) {
-          filteredMatches.set(matchedFileName, rangesTuplesArray); 
+      for (const [matchedFileName, rangesTuplesArray] of matches.entries()) {
+        if (outputCount + rangesTuplesArray.length <= this.outputAmount) {
+          filteredMatches.set(matchedFileName, rangesTuplesArray);
         } else {
-          const elementsExtra: number =  (outputCount + rangesTuplesArray.length) - this.outputAmount;
-          filteredMatches.set(matchedFileName, rangesTuplesArray.slice(0,rangesTuplesArray.length - elementsExtra ));
+          const elementsExtra: number = outputCount + rangesTuplesArray.length - this.outputAmount;
+          filteredMatches.set(
+            matchedFileName,
+            rangesTuplesArray.slice(0, rangesTuplesArray.length - elementsExtra),
+          );
         }
         outputCount += rangesTuplesArray.length;
       }
-      if(this.outputAmount < outputCount){
+      if (this.outputAmount < outputCount) {
         break;
       }
     }

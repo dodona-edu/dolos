@@ -47,7 +47,6 @@ export class Summary {
       output += this.comment + "\n";
     }
 
-
     const linesInFileMap: Map<string, number> = new Map();
 
     output += Array.from(this.results.entries())
@@ -57,7 +56,7 @@ export class Summary {
         subOutput += `source: ${sourceFileName}\n\n`;
         const linesInSourceFile = this.countLinesInFile(sourceFileName);
 
-        let entryArray: Array<[string, RangesTuple[]]> = Array.from(subMap.entries());
+        const entryArray: Array<[string, RangesTuple[]]> = Array.from(subMap.entries());
 
         subOutput += entryArray
           .map(subMapEntry => {
@@ -269,5 +268,4 @@ export class Summary {
   private getScoreForRangesTuple(rangesTuple: RangesTuple): number {
     return this.getScoreForRange(rangesTuple[0]) + this.getScoreForRange(rangesTuple[1]);
   }
-
 }
