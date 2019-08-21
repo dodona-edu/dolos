@@ -11,13 +11,17 @@ const program = new Command();
 // Initial program description and version
 program.version("0.0.1").description("Plagiarism detection for programming exercises");
 
-
 program
-  .option("-l, --language <language>", "Programming language used in the submitted files.", "javascript")
+  .option(
+    "-l, --language <language>",
+    "Programming language used in the submitted files.",
+    "javascript",
+  )
   .option(
     "-b, --base <base>",
     "Specifies a base file. Matches with code from this file will never be reported in the output. A typical base " +
-      "file is the supplied code for an exercise."   )
+      "file is the supplied code for an exercise.",
+  )
   .option(
     "-m, --maximum <number>",
     "The -m options sets the maximum number of time a given passage may appear before it is ignored. A passage of " +
@@ -32,10 +36,7 @@ program
     0.9,
   )
   .option("-c, --comment <string>", "Comment string that is attached to the generated report")
-  .option(
-    "-n, --file-amount",
-    "Specifies how many matching pairs are shown in the result",
-  )
+  .option("-n, --file-amount", "Specifies how many matching pairs are shown in the result")
   .option(
     "-s, --minimum-lines <integer>",
     "The minimum amount of lines in the longest code passage in a before it is shown",
@@ -73,20 +74,18 @@ Specifies the gap size.
 
 program.parse(process.argv);
 
-
 (async () => {
   let groupAmount: number;
   const tokenizer = new CodeTokenizer(program.language);
 
-if (locations.length < 2) {
-  console.error("Need at least two locations");
-  program.outputHelp();
-  process.exit(1);
-}
+  if (locations.length < 2) {
+    console.error("Need at least two locations");
+    program.outputHelp();
+    process.exit(1);
+  }
 
   // If each file is a separate program then count the amount of files.
   groupAmount = locations.length;
-
 
   // Compare all the file with each other.
   const comparison = new Comparison(tokenizer);
@@ -98,7 +97,6 @@ if (locations.length < 2) {
 
   await comparison.addFiles(locations);
   const matchesPerFile: Map<string, Matches<number>> = await comparison.compareFiles(locations);
-  
 
   const summaryFilter: SummaryFilter = new SummaryFilter(
     0,
