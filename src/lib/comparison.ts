@@ -7,6 +7,9 @@ export type Matches<Location> = Map<string, Array<[Location, Location]>>;
 export class Comparison<Location> {
   private readonly defaultK: number = 50;
   private readonly defaultW: number = 40;
+  // Maps a hash to an array of typles that are composed of the file with the same hash and the location in that file
+  // where that hash is located.
+  private readonly filerList: string[] = new Array();
   private readonly index: Map<number, Array<[string, Location]>> = new Map();
   private readonly tokenizer: Tokenizer<Location>;
   private readonly hashFilter: HashFilter;
@@ -101,7 +104,8 @@ export class Comparison<Location> {
       const matches = this.index.get(hash);
       if (matches) {
         for (const [fileName, lineNumber] of matches) {
-          if( fileName !== file){
+          // add the match if the match is not with the file itself and if the matched file in not in the filtered list.
+          if (fileName !== file && this.filerList.includes(fileName)) {
             const match: [Location, Location] = [lineNumber, mapping[location]];
             const lines = matchingFiles.get(fileName);
             if (lines) {
@@ -114,5 +118,11 @@ export class Comparison<Location> {
       }
     }
     return matchingFiles;
+  }
+
+  // TODO documentation
+  public async addFileToFilterList(file: string): Promise<void> {
+    this.filerList.push(file);
+    this.addFile(file);
   }
 }

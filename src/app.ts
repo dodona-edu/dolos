@@ -1,5 +1,4 @@
 import { Command } from "commander";
-import path from "path";
 import { CodeTokenizer } from "./lib/codeTokenizer";
 import { Comparison } from "./lib/comparison";
 import { Matches } from "./lib/comparison.js";
@@ -78,7 +77,6 @@ program.parse(process.argv);
 (async () => {
   let groupAmount: number;
   const tokenizer = new CodeTokenizer(program.language);
-  let baseFileMatches: Map<string, Matches<number>> = new Map();
 
 if (locations.length < 2) {
   console.error("Need at least two locations");
@@ -89,15 +87,15 @@ if (locations.length < 2) {
   // If each file is a separate program then count the amount of files.
   groupAmount = locations.length;
 
-  // Compare the base file with all the other files when there is a base file.
-  if (program.base) {
-    const baseFileComparison = new Comparison(tokenizer);
-    await baseFileComparison.addFile(program.base);
-    baseFileMatches = await baseFileComparison.compareFiles(locations);
-  }
 
   // Compare all the file with each other.
   const comparison = new Comparison(tokenizer);
+
+  // Compare the base file with all the other files when there is a base file.
+  if (program.base) {
+    comparison.addFileToFilterList(program.base);
+  }
+
   await comparison.addFiles(locations);
   const matchesPerFile: Map<string, Matches<number>> = await comparison.compareFiles(locations);
   
@@ -106,7 +104,6 @@ if (locations.length < 2) {
     0,
     program.minimumLines,
     program.maximum || program.maximumPercentage,
-    baseFileMatches,
     program.maximum === undefined ? groupAmount : undefined,
   );
 

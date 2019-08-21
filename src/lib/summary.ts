@@ -31,7 +31,7 @@ export class Summary {
   ) {
     this.summaryFilter = summaryFilter;
     this.gapSize = gapSize;
-    this.results = this.transformMatches(summaryFilter.filterByBaseFile(matchesPerFile));
+    this.results = this.transformMatches(matchesPerFile);
     this.results = this.summaryFilter.filterByMaximumPassage(this.results);
     this.results = this.sortResults();
     this.comment = comment;
@@ -277,4 +277,5 @@ export class Summary {
   private getScoreForRangesTuple(rangesTuple: RangesTuple): number {
     return this.getScoreForRange(rangesTuple[0]) + this.getScoreForRange(rangesTuple[1]);
   }
+
 }

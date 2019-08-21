@@ -28,41 +28,11 @@ export class SummaryFilter {
       }),
     );
   }
-  /**
-   * Filter the tuples pair based on the maches with the base file.
-   * @param matchingLinesArray A matching line array between two files that you want to be filtered.
-   * @param baseFileMatches1 The base file matches with the first file. The first elements of each tuples in this will
-   * be used to filter the tuples based on the first element of each tuple in [[matchingLinesArray]].
-   * @param baseFileMatches2 The same as [[baseFileMatches1]] but then for the second file. Here the first elements
-   * in the tuples from this array will be used to filter the second element from the tuples from
-   * [[matchingLinesArray]].
-   */
-  public static filterByBaseFile(
-    matchingLinesArray: Array<[number, number]>,
-    baseFileMatches1: Array<[number, number]>,
-    baseFileMatches2: Array<[number, number]>,
-  ): Array<[number, number]> {
-    const baseFileMatchingLines1: number[] = baseFileMatches1.map(
-      matchingLines => matchingLines[0],
-    );
-    const baseFileMatchingLines2: number[] = baseFileMatches2.map(
-      matchingLines => matchingLines[0],
-    );
-
-    return matchingLinesArray.filter(
-      matchingLines =>
-        !(
-          baseFileMatchingLines1.some(line => line === matchingLines[0]) ||
-          baseFileMatchingLines2.some(line => line === matchingLines[1])
-        ),
-    );
-  }
 
   public readonly minimumMaximumLines: number;
   public readonly minimumMinimumLines: number;
   public readonly maximumPassage: number;
   public readonly groupAmount: number | undefined;
-  private readonly baseFileMatches: Map<string, Matches<number>>;
   /**
    * @param minimumMaximumLines The minimum amount of lines required by the longest range in a rangesTuple. If the
    * rangesTuple has less lines then it will be filtered out. When the rangesTuple has two ranges with a different
@@ -71,15 +41,6 @@ export class SummaryFilter {
    * @param maximumPassage Will be used by either filterByMaximumPassageCount as the maximum passageCount or in
    * filterByMaximumPassagePercentage as the percentage (between 0 and 1). It will be used as a percentage if
    * groupAmount is a value different from undefined.
-   * @param baseFileMatches The matched per file resulting with from the comparison with the base file and all the
-   * relevant files. This will usually be the result from
-   * ```javascript
-   *  const baseFileComparison = new Comparison(tokenizer);
-   *  await baseFileComparison.addFile(program.base);
-   *  baseFileMatches = await baseFileComparison.compareFiles(locations);
-   * ```
-   * or something similar. Note that you compare the base with all the other locations and not the other way around. If
-   * this is not the case then the filtereing by basefile won't work as expected.
    * @param groupAmount The total amount of groups you are comparing, only use this when you want to use
    * [[filterByMaximumPassagePercentage]]. If this option is used then [[filterByMaximumPassagePercentage]] will be used
    * in filter instead of [[filterByMaximumPassageCount]].
@@ -88,13 +49,11 @@ export class SummaryFilter {
     minimumMaximumLines: number = 1,
     minimumMinimumLines: number = 1,
     maximumPassage: number = 0.9,
-    baseFileMatches?: Map<string, Matches<number>>,
     groupAmount?: number,
   ) {
     this.minimumMaximumLines = minimumMaximumLines;
     this.minimumMinimumLines = minimumMinimumLines;
     this.maximumPassage = maximumPassage;
-    this.baseFileMatches = baseFileMatches || new Map();
     this.groupAmount = groupAmount;
   }
 
@@ -143,34 +102,6 @@ export class SummaryFilter {
   }
 
   /**
-   * Filters the given map if a line if that lines also matched with a basefile.
-   * @param matchesPerFile The map you want to filter.
-   * @returns A filtered copy of the map.
-   */
-  public filterByBaseFile(
-    matchesPerFile: Map<string, Matches<number>>,
-  ): Map<string, Matches<number>> {
-    if (this.baseFileMatches.size === 0) {
-      return matchesPerFile;
-    }
-
-    const filteredMatchesPerFile: Array<[string, Matches<number>]> = [
-      ...matchesPerFile.entries(),
-    ].map(entry => {
-      const [matchedFileName, matches]: [string, Matches<number>] = entry;
-      const filteredMatches = new Map(
-        [...matches.entries()].map(matchesEntry =>
-          this.filterMatchesEntryByBaseFile(matchedFileName, matchesEntry),
-        ),
-      );
-
-      return [matchedFileName, filteredMatches];
-    });
-
-    return SummaryFilter.prune(new Map(filteredMatchesPerFile));
-  }
-
-  /**
    * Filters the given map. Wether [[this.filterByMaximumPassagePercentage]] or [[this.filterByMaximumPassageCount]]
    * are applied depends on if [[this.groupAmount]] is given.
    * filter class.
@@ -185,46 +116,6 @@ export class SummaryFilter {
     } else {
       return this.filterByMaximumPassageCount(matchesPerFile);
     }
-  }
-
-  /**
-   * Filters the [number, number] tuples in the entry when a line from the matched file if that line also matched with a
-   * line from a basefile.
-   * @param matchedFileName The filename of the matched file.
-   * @param matchesEntry The correspinding entry for the matched file.
-   */
-  private filterMatchesEntryByBaseFile(
-    matchedFileName: string,
-    matchesEntry: [string, Array<[number, number]>],
-  ): [string, Array<[number, number]>] {
-    const matchingFileName = matchesEntry[0];
-    let matchedLines = matchesEntry[1];
-    let matchedFileNameBaseLines: Array<[number, number]> = new Array();
-    let matchingFileNameBaseLines: Array<[number, number]> = new Array();
-
-    if (this.baseFileMatches.has(matchedFileName)) {
-      const baseFileMatches: Matches<number> = this.baseFileMatches.get(matchedFileName) as Matches<
-        number
-      >;
-      matchedFileNameBaseLines = this.concat(baseFileMatches.values());
-      // It doesn't matter which basefile it has matched with, just that it did.
-    }
-
-    if (this.baseFileMatches.has(matchingFileName)) {
-      const baseFileMatches: Matches<number> = this.baseFileMatches.get(
-        matchingFileName,
-      ) as Matches<number>;
-      matchingFileNameBaseLines = this.concat(baseFileMatches.values());
-      // It doesn't matter which basefile it has matched with, just that it did.
-    }
-
-    matchedLines = SummaryFilter.filterByBaseFile(
-      matchedLines,
-      matchedFileNameBaseLines,
-      matchingFileNameBaseLines,
-    );
-
-    return [matchingFileName, matchedLines];
   }
 
   /**
@@ -322,12 +213,5 @@ export class SummaryFilter {
     );
 
     return SummaryFilter.prune(returnMap);
-  }
-
-  /**
-   * @param iterable The iterable that contains the arrays you want to concatenate.
-   */
-  private concat<T>(iterable: IterableIterator<T[]>): T[] {
-    return [...iterable].reduce((acc, val) => acc.concat(val), []);
   }
 }
