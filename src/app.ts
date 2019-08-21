@@ -74,63 +74,11 @@ Specifies the gap size.
 });
 
 program.parse(process.argv);
-/**
- * This function allows one to merge two maps into one.
- * @param matchesPerFile A map containing the matches. This map will be modified in place.
- * @param newMatches The map you want to merge into the first map.
- */
-function compose(
-  matchesPerFile: Map<string, Matches<number>>,
-  newMatches: Map<string, Matches<number>>,
-) {
-  newMatches.forEach((matches, matchedFileName) => {
-    matches.forEach((matchLocations, matchingFile) => {
-      let map: Matches<number> | undefined = matchesPerFile.get(matchingFile);
-      if (map === undefined) {
-        map = new Map();
-        matchesPerFile.set(matchedFileName, map);
-      }
-      map.set(matchingFile, matchLocations);
-    });
-  });
-}
 
-/**
- * Groups files per directory.
- * @param locations The locations you want to group.
- * @returns An array where each subArray contains files that are in the same directory.
- */
-function groupPerDirectory(files: string[]): string[][] {
-  const locationsFragments = files.map(filePath => filePath.split(path.sep));
-  const filesGroupedPerDirectoryMap: Map<string, string[]> = new Map();
-
-  let baseDirIndex = 0;
-  let baseDir = locationsFragments[0][0];
-  while (
-    locationsFragments.every(filePathFragments => filePathFragments[baseDirIndex] === baseDir)
-  ) {
-    baseDirIndex += 1;
-    baseDir = locationsFragments[0][baseDirIndex];
-  }
-
-  locationsFragments.forEach(filePathFragments => {
-    let groupedFiles: string[] | undefined = filesGroupedPerDirectoryMap.get(
-      filePathFragments[baseDirIndex],
-    );
-    if (groupedFiles === undefined) {
-      groupedFiles = new Array();
-      filesGroupedPerDirectoryMap.set(filePathFragments[baseDirIndex], groupedFiles);
-    }
-    groupedFiles.push(path.join(...filePathFragments));
-  });
-
-  return [...filesGroupedPerDirectoryMap.values()];
-}
 
 (async () => {
   let groupAmount: number;
   const tokenizer = new CodeTokenizer(program.language);
-  const results: Map<string, Matches<number>> = new Map();
   let baseFileMatches: Map<string, Matches<number>> = new Map();
 
 if (locations.length < 2) {
@@ -150,17 +98,11 @@ if (locations.length < 2) {
   }
 
   // Compare all the file with each other.
-  while (locations.length > 1) {
-    const location: string = locations.shift() as string;
-    const comparison = new Comparison(tokenizer);
-    await comparison.addFile(location);
-    const matchesPerFile: Map<string, Matches<number>> = await comparison.compareFiles(locations);
-
-    compose(
-      results,
-      matchesPerFile,
-    );
-  }
+  const comparison = new Comparison(tokenizer);
+  await comparison.addFiles(locations);
+  // TODO filter matches comparing the same file with itself.
+  const matchesPerFile: Map<string, Matches<number>> = await comparison.compareFiles(locations);
+  
 
   const summaryFilter: SummaryFilter = new SummaryFilter(
     0,
@@ -171,7 +113,7 @@ if (locations.length < 2) {
   );
 
   const summary = new Summary(
-    results,
+    matchesPerFile,
     summaryFilter,
     program.MaximumGapSize,
     program.comment,

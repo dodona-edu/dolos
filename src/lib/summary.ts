@@ -13,12 +13,14 @@ export class Summary {
 
   /**
    * Generates a summary for the given matches.
-   * @param matches A many-to-many comparison of a set of files. This map contains an entry for each of the
+   * @param matchesPerFile A many-to-many comparison of a set of files. This map contains an entry for each of the
    * input files with the key being its file name and the value a list of matches. These matches are grouped
    * per matching file. The compareFiles function of the Comparison class can generate such mapping.
    * @param summaryFilter The summary filter that will be used to filter the results.
    * @param gapSize The gap size allowed during the joining of two ranges. For example if the gap size is 0 then [1,3]
    * and [5,7] wont be joined, and if the gap size is one these will be joined into [1,7].
+   * @param comment A command you want to add to the summary.
+   * @param outputAmount The amount of code passage pairs you want in the result.
    */
   constructor(
     matchesPerFile: Map<string, Matches<number>>,
