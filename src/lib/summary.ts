@@ -130,23 +130,48 @@ export class Summary {
     return JSON.stringify(obj, Summary.JSONReplacerFunction(zeroBase));
   }
 
-  public toHTML(): string {
-    const JSONData = JSON.parse(this.toJSON());
-    let tableRows: string = "";
+  private toCompareView(matchedFile: string, matchingFile: string, matchingRangesTuples: RangesTuple): string {
+    return `<div>${matchedFile} and ${matchingFile} match like ${this.rangesTupleToString(matchingRangesTuples)}</div>`
+  }
 
-    Object.entries(JSONData).forEach(([matchedFileName, matches]) => {
-      Object.entries(matches as any).forEach(([matchingFileName, rangesTupleArray]) => {
-        tableRows += `<tr>` + 
-        `<td>${escape(matchedFileName as string)}</td>` + 
-        `<td>${escape(matchingFileName as string)}</td>` + 
-        `<td  align="right">${this.getScoreForArray(
-          this.numberTupleArrayToRangesTuplesArray(rangesTupleArray as Array<
-            [[number, number], [number, number]]
-          >),
-        )}</td>` + 
+  private toComparePage(matchedFile: string, matchingFile: string, matchingRangesTuples: Array<RangesTuple>): string {
+    const comparePage: string = matchingRangesTuples
+      .map(rangesTuple => this.toCompareView(matchedFile, matchingFile, rangesTuple))
+      .join('\n');
+
+    const id: string = this.makeId(matchedFile, matchingFile);
+    return `<div style="display:none" id="${id}">` + 
+        `<div> <a href=# onclick="return show('Index', '${id}')">Back to index</a> </div>`+
+        `<div>${comparePage}</div>` + 
+        `</div>`;
+  }
+
+  private makeId(matchedFile: string, matchingFile: string): string {
+    return `${escape(matchedFile)}-${escape(matchingFile)}`
+  }
+
+  private makeTableRow(matchedFile: string, matchingFile: string, rangesTupleArray: Array<RangesTuple>): string {
+    const id: string = this.makeId(matchedFile, matchingFile);
+    return `<tr>` + 
+        `<td><a href=# onclick="return show('${id}', 'Index');">${escape(matchedFile)}</a></td>` + 
+        `<td><a href=# onclick="return show('${id}', 'Index');">${escape(matchingFile)}</a></td>` + 
+        `<td  align="right">${this.getScoreForArray( rangesTupleArray)}</td>` + 
         `</tr>`
-      });
-    });
+  }
+
+  public toHTML(): string {
+    const JSONData: any = JSON.parse(this.toJSON());
+    const tableRows: Array<string> = new Array();
+    const comparisonPages: Array<string> = new Array();
+
+    for( const [matchedFile, matches] of Object.entries(JSONData)){
+      for(const [matchingFile, rangesTupleArrayObj] of Object.entries(matches as any)) {
+
+        const rangesTuplesArray: Array<RangesTuple> = this.numberTupleArrayToRangesTuplesArray(rangesTupleArrayObj as Array<[[number, number], [number, number]]>);
+        tableRows.push(this.makeTableRow(matchedFile, matchingFile, rangesTuplesArray));
+        comparisonPages.push(this.toComparePage(matchedFile, matchingFile, rangesTuplesArray));
+      }
+    }
 
     const body: string = `
 <div id="Index">
@@ -156,17 +181,24 @@ export class Summary {
       <th>File 2</th>
       <th>Lines matched</th>
     </tr>
-    ${tableRows}
+    ${tableRows.join('\n')}
   </table>
 </div>
-<div>
-</div>
-
+${comparisonPages.join('\n')}
     `;
 
+    //TODO put script in separate file instead of just reading it
     return `<!doctype html>
 <html lang="en">
 <head>
+  <script>
+    function show(shown, hidden) {
+      console.log(shown, hidden);
+      document.getElementById(shown).style.display='block';
+      document.getElementById(hidden).style.display='none';
+      return false;
+    }
+  </script>
   <meta charset="utf-8">
   <title>Dolos summary</title>
 </head>
