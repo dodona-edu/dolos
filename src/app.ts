@@ -48,11 +48,6 @@ program
       "be.",
     0,
   )
-  .option(
-    "-z, --zero-based-lines",
-    "Specifies whether or not you want lines to be zero based",
-    false,
-  )
   .arguments("<locations...>")
   .action(filesArgs => {
     locations = filesArgs;
@@ -112,5 +107,5 @@ program.parse(process.argv);
     program.MaximumGapSize,
     program.comment,
   );
-  console.log(summary.toString(program.zeroBasedLines));
+  console.log(summary.toString());
 })();

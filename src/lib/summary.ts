@@ -37,7 +37,7 @@ export class Summary {
     this.comment = comment;
   }
 
-  public toString(zeroBase: boolean = false): string {
+  public toString(): string {
     if (this.results.size === 0) {
       return "There were no matches";
     }
@@ -80,7 +80,7 @@ export class Summary {
 
             matchedFilenameOutput += "\tranges: [\n";
             matchedFilenameOutput += rangesTupleArray
-              .map(rangesTuple => "\t " + this.rangesTupleToString(rangesTuple, zeroBase))
+              .map(rangesTuple => "\t " + this.rangesTupleToString(rangesTuple))
               .join("\n");
             matchedFilenameOutput += "\n\t]\n\n";
             return matchedFilenameOutput;
@@ -91,13 +91,13 @@ export class Summary {
       .join("");
     return output;
   }
+
   /**
    * @param rangesTuple The tuple you want a string representation of.
-   * @param zeroBase Wether or not you want the lines to be zero based.
    * @returns A string representation of the rangesTuple.
    */
-  public rangesTupleToString(rangesTuple: RangesTuple, zeroBase: boolean = false): string {
-    return `[${rangesTuple[0].toString(zeroBase)}, ${rangesTuple[1].toString(zeroBase)}]`;
+  public rangesTupleToString(rangesTuple: RangesTuple): string {
+    return `[${rangesTuple[0].toString()}, ${rangesTuple[1].toString()}]`;
   }
 
   /**

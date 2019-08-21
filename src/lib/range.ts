@@ -69,15 +69,8 @@ export class Range {
     return test;
   }
 
-  /**
-   * @param zeroBased If true the lines will be zero based, if it is true it will be 1-based
-   */
-  public toString(zeroBased: boolean = false): string {
-    if (zeroBased) {
-      return `[${this.from}, ${this.to}]`;
-    } else {
-      return `[${this.from + 1}, ${this.to + 1}]`;
-    }
+  public toString(): string {
+    return `[${this.from + 1}, ${this.to + 1}]`;
   }
 
   /**
