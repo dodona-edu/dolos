@@ -33,6 +33,7 @@ export class SummaryFilter {
   public readonly minimumMinimumLines: number;
   public readonly maximumPassage: number;
   public readonly groupAmount: number | undefined;
+  public readonly outputAmount: number | undefined;
   /**
    * @param minimumMaximumLines The minimum amount of lines required by the longest range in a rangesTuple. If the
    * rangesTuple has less lines then it will be filtered out. When the rangesTuple has two ranges with a different
@@ -50,11 +51,39 @@ export class SummaryFilter {
     minimumMinimumLines: number = 1,
     maximumPassage: number = 0.9,
     groupAmount?: number,
+    outputAmount?: number,
   ) {
     this.minimumMaximumLines = minimumMaximumLines;
     this.minimumMinimumLines = minimumMinimumLines;
     this.maximumPassage = maximumPassage;
     this.groupAmount = groupAmount;
+    this.outputAmount = outputAmount;
+  }
+
+  public filterOutputAmount(matchesPerFile: Map<string, Matches<Range>>): Map<string, Matches<Range>> {
+    if(!this.outputAmount) {
+      return matchesPerFile;
+    }
+
+    let outputCount = 0;
+    const filteredMatchesPerFile: Map<string, Matches<Range>> = new Map();
+    for( const [matchingFileName, matches] of matchesPerFile.entries()){
+      const filteredMatches: Matches<Range> = new Map(); 
+      filteredMatchesPerFile.set(matchingFileName, filteredMatches);
+      for( const [matchedFileName, rangesTuplesArray] of matches.entries()) {
+        if(outputCount + rangesTuplesArray.length <= this.outputAmount) {
+          filteredMatches.set(matchedFileName, rangesTuplesArray); 
+        } else {
+          const elementsExtra: number =  (outputCount + rangesTuplesArray.length) - this.outputAmount;
+          filteredMatches.set(matchedFileName, rangesTuplesArray.slice(0,rangesTuplesArray.length - elementsExtra ));
+        }
+        outputCount += rangesTuplesArray.length;
+      }
+      if(this.outputAmount < outputCount){
+        break;
+      }
+    }
+    return filteredMatchesPerFile;
   }
 
   /**

@@ -36,7 +36,7 @@ program
     0.9,
   )
   .option("-c, --comment <string>", "Comment string that is attached to the generated report")
-  .option("-n, --file-amount", "Specifies how many matching pairs are shown in the result")
+  .option("-n, --passage-amount", "Specifies how many matching passages are shown in the result")
   .option(
     "-s, --minimum-lines <integer>",
     "The minimum amount of lines in the longest code passage in a before it is shown",
@@ -103,6 +103,7 @@ program.parse(process.argv);
     program.minimumLines,
     program.maximum || program.maximumPercentage,
     program.maximum === undefined ? groupAmount : undefined,
+    program.passageAmount,
   );
 
   const summary = new Summary(
@@ -110,7 +111,6 @@ program.parse(process.argv);
     summaryFilter,
     program.MaximumGapSize,
     program.comment,
-    program.fileAmount,
   );
   console.log(summary.toString(program.zeroBasedLines));
 })();

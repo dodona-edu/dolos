@@ -27,15 +27,14 @@ export class Summary {
     summaryFilter: SummaryFilter,
     gapSize: number = 0,
     comment?: string,
-    outputAmount?: number,
   ) {
     this.summaryFilter = summaryFilter;
     this.gapSize = gapSize;
     this.results = this.transformMatches(matchesPerFile);
     this.results = this.summaryFilter.filterByMaximumPassage(this.results);
+    this.results = this.summaryFilter.filterOutputAmount(this.results);
     this.results = this.sortResults();
     this.comment = comment;
-    this.outputAmount = outputAmount;
   }
 
   public toString(zeroBase: boolean = false): string {
@@ -48,7 +47,6 @@ export class Summary {
       output += this.comment + "\n";
     }
 
-    let outputCount: number = 0;
 
     const linesInFileMap: Map<string, number> = new Map();
 
@@ -60,12 +58,6 @@ export class Summary {
         const linesInSourceFile = this.countLinesInFile(sourceFileName);
 
         let entryArray: Array<[string, RangesTuple[]]> = Array.from(subMap.entries());
-        if (this.outputAmount !== undefined) {
-          outputCount += entryArray.length;
-          if (outputCount > this.outputAmount) {
-            entryArray = entryArray.slice(0, outputCount - this.outputAmount);
-          }
-        }
 
         subOutput += entryArray
           .map(subMapEntry => {
