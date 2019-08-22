@@ -1,9 +1,21 @@
 import { HashFilter } from "./hashFilter";
+import { NoFilter } from "./noFilter";
 import { Tokenizer } from "./tokenizer";
 import { WinnowFilter } from "./winnowFilter";
-import { NoFilter } from "./noFilter";
 
 export type Matches<Location> = Map<string, Array<[Location, Location]>>;
+
+// TODO documentation
+/**
+ * @param filterPassageByPercentage Defines if the passages should be filtered by percentage or by an absolute value.
+ * @param maxPassage The maximum passage. How this will be used depends on the value of [[filterPassageByPercentage]].
+ * If it is used as a percentage then the number should be between 0 and 1. If you want to use it as an absolute value
+ * then a number between 0 and the amount of files given would be the most useful.
+ */
+export interface ComparisonPassageOptions {
+  maxPassage: number;
+  filterPassageByPercentage: boolean;
+}
 
 export class Comparison<Location> {
   private readonly defaultK: number = 50;
@@ -15,9 +27,8 @@ export class Comparison<Location> {
   private readonly tokenizer: Tokenizer<Location>;
   private readonly hashFilter: HashFilter;
   private readonly noFilter: NoFilter;
+  private readonly passageFilterOptions: ComparisonPassageOptions | undefined;
   private fileCount: number = 0;
-  private readonly maxPassage: number | undefined;
-  private readonly filterPassageByPercentage: boolean;
 
   /**
    * Creates a Comparison object with a given Tokenizer and optional HashFilter.
@@ -30,13 +41,19 @@ export class Comparison<Location> {
    * @param hashFilter An optional HashFilter to filter the hashes returned by
    * the rolling hash function.
    * @param noFilter A NoFilter used to generate hashes for blacklisted files.
+   * @param passageOptions The options used to filter based on the passage count. For a more detailed explanation see
+   * [[ComparisonPassageOptions]]. If this options is not used then no filtering will occur.
    */
-  constructor(tokenizer: Tokenizer<Location>, hashFilter?: HashFilter, noFilter?: NoFilter, maxPassage?: number, filterPassageByPercentage: boolean = true) {
+  constructor(
+    tokenizer: Tokenizer<Location>,
+    hashFilter?: HashFilter,
+    noFilter?: NoFilter,
+    passageOptions?: ComparisonPassageOptions,
+  ) {
     this.tokenizer = tokenizer;
     this.hashFilter = hashFilter ? hashFilter : new WinnowFilter(this.defaultK, this.defaultW);
     this.noFilter = noFilter ? noFilter : new NoFilter(this.defaultK);
-    this.maxPassage = maxPassage;
-    this.filterPassageByPercentage = filterPassageByPercentage;
+    this.passageFilterOptions = passageOptions;
   }
 
   /**
@@ -111,12 +128,12 @@ export class Comparison<Location> {
     const matchingFiles: Matches<Location> = new Map();
     const [ast, mapping] = await this.tokenizer.tokenizeFileWithMapping(file);
     for await (const { hash, location } of hashFilter.hashesFromString(ast)) {
-      if(!this.filteredHashSet.has(hash)) {
+      if (!this.filteredHashSet.has(hash)) {
         const matches = this.index.get(hash);
-        if ( matches && this.filterByPassageCount(matches.length)) {
+        if (matches && this.filterByPassageCount(matches.length)) {
           for (const [fileName, lineNumber] of matches) {
             // add the match if the match is not with the file.
-            if (fileName !== file ) {
+            if (fileName !== file) {
               const match: [Location, Location] = [lineNumber, mapping[location]];
               const lines = matchingFiles.get(fileName);
               if (lines) {
@@ -127,21 +144,9 @@ export class Comparison<Location> {
             }
           }
         }
-
       }
     }
     return matchingFiles;
-  }
-
-  //TODO documentation
-  private filterByPassageCount(passageCount: number): boolean {
-    if(!this.maxPassage) {
-      return true;
-    } else if(this.filterPassageByPercentage) {
-      return passageCount / this.fileCount <= this.maxPassage;
-    } else {
-      return passageCount <= this.maxPassage;
-    }
   }
 
   /**
@@ -150,13 +155,29 @@ export class Comparison<Location> {
    */
   public async addFileToFilterList(file: string): Promise<void> {
     try {
-      const [ast,] = await this.tokenizer.tokenizeFileWithMapping(file);
+      const [ast] = await this.tokenizer.tokenizeFileWithMapping(file);
       for await (const { hash } of this.noFilter.hashesFromString(ast)) {
         this.filteredHashSet.add(hash);
       }
     } catch (error) {
       console.error(`There was a problem parsing ${file}. ${error}`);
       return; // this makes sure the promise resolves instead of rejects
+    }
+  }
+
+  /**
+   *
+   * @param passageCount The amount of times a certain code passage has appeared
+   * @returns true if is value is acceptable under the options given in the contructor or when the options are not
+   * defined.
+   */
+  private filterByPassageCount(passageCount: number): boolean {
+    if (!this.passageFilterOptions) {
+      return true;
+    } else if (this.passageFilterOptions.filterPassageByPercentage) {
+      return passageCount / this.fileCount <= this.passageFilterOptions.maxPassage;
+    } else {
+      return passageCount <= this.passageFilterOptions.maxPassage;
     }
   }
 }
