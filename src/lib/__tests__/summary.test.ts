@@ -1,4 +1,3 @@
-import { SummaryFilter } from "../summaryFilter";
 import { Range } from "./../range";
 import { RangesTuple, Summary } from "./../summary";
 
@@ -21,13 +20,8 @@ function random(): number {
   return x - Math.floor(x);
 }
 
-let dummySummaryFilter: SummaryFilter;
-beforeAll(() => {
-  dummySummaryFilter = new SummaryFilter(0, 1);
-});
-
 test("simple match to ranges", () => {
-  const summary = new Summary(new Map(), new SummaryFilter(0, 1), 0);
+  const summary = new Summary(new Map());
   const array: Array<[number, number]> = [[1, 5], [2, 6], [3, 7], [4, 8]];
   shuffle(array);
 
@@ -37,7 +31,7 @@ test("simple match to ranges", () => {
 });
 
 test("simple match to ranges where second element stays constant", () => {
-  const summary = new Summary(new Map(), dummySummaryFilter, 0);
+  const summary = new Summary(new Map());
   const array: Array<[number, number]> = [[1, 5], [2, 5], [3, 5], [4, 5]];
   shuffle(array);
 
@@ -47,7 +41,7 @@ test("simple match to ranges where second element stays constant", () => {
 });
 
 test("simple match to ranges where first element stays constant", () => {
-  const summary = new Summary(new Map(), dummySummaryFilter, 0);
+  const summary = new Summary(new Map());
   const array: Array<[number, number]> = [[1, 5], [1, 6], [1, 7], [1, 8]];
   shuffle(array);
 
@@ -57,8 +51,8 @@ test("simple match to ranges where first element stays constant", () => {
 });
 
 test("simple match to ranges where first element stays constant and a gap exists", () => {
-  const summary1 = new Summary(new Map(), dummySummaryFilter, 1);
-  const summary2 = new Summary(new Map(), dummySummaryFilter, 0);
+  const summary1 = new Summary(new Map(), 1);
+  const summary2 = new Summary(new Map(), 0);
   const array: Array<[number, number]> = [[1, 5], [1, 6], [1, 7], [1, 9]];
   shuffle(array);
 
@@ -72,8 +66,8 @@ test("simple match to ranges where first element stays constant and a gap exists
 });
 
 test("test extending related functions rangesTuples", () => {
-  const summary1 = new Summary(new Map(), dummySummaryFilter, 0);
-  const summary2 = new Summary(new Map(), dummySummaryFilter, 1);
+  const summary1 = new Summary(new Map(), 0);
+  const summary2 = new Summary(new Map(), 1);
   const rangesTuple1: RangesTuple = [new Range(1, 5), new Range(1, 5)];
   const rangesTuple2: RangesTuple = [new Range(6, 10), new Range(6, 20)];
   const rangesTuple3: RangesTuple = [new Range(7, 10), new Range(7, 30)];
@@ -94,7 +88,7 @@ test("test extending related functions rangesTuples", () => {
 });
 
 test("concatenate ranges", () => {
-  const summary = new Summary(new Map(), dummySummaryFilter, 0);
+  const summary = new Summary(new Map(), 0);
   const rangesTupleArray: RangesTuple[] = [
     [new Range(0, 10), new Range(100, 110)],
     [new Range(10, 30), new Range(110, 120)],
