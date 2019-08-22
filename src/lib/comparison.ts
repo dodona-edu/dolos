@@ -5,16 +5,21 @@ import { WinnowFilter } from "./winnowFilter";
 
 export type Matches<Location> = Map<string, Array<[Location, Location]>>;
 
-// TODO documentation
 /**
  * @param filterPassageByPercentage Defines if the passages should be filtered by percentage or by an absolute value.
  * @param maxPassage The maximum passage. How this will be used depends on the value of [[filterPassageByPercentage]].
  * If it is used as a percentage then the number should be between 0 and 1. If you want to use it as an absolute value
  * then a number between 0 and the amount of files given would be the most useful.
  */
-export interface ComparisonPassageOptions {
+export interface ComparisonFilterOptions {
   maxPassage: number;
   filterPassageByPercentage: boolean;
+}
+
+export interface ComparisonOptions {
+  hashFilter?: HashFilter,
+  noFilter?: NoFilter,
+  filterOptions?: ComparisonFilterOptions
 }
 
 export class Comparison<Location> {
@@ -27,7 +32,7 @@ export class Comparison<Location> {
   private readonly tokenizer: Tokenizer<Location>;
   private readonly hashFilter: HashFilter;
   private readonly noFilter: NoFilter;
-  private readonly passageFilterOptions: ComparisonPassageOptions | undefined;
+  private readonly passageFilterOptions: ComparisonFilterOptions | undefined;
   private fileCount: number = 0;
 
   /**
@@ -42,18 +47,16 @@ export class Comparison<Location> {
    * the rolling hash function.
    * @param noFilter A NoFilter used to generate hashes for blacklisted files.
    * @param passageOptions The options used to filter based on the passage count. For a more detailed explanation see
-   * [[ComparisonPassageOptions]]. If this options is not used then no filtering will occur.
+   * [[ComparisonOptions]]. If this options is not used then no filtering will occur.
    */
   constructor(
     tokenizer: Tokenizer<Location>,
-    hashFilter?: HashFilter,
-    noFilter?: NoFilter,
-    passageOptions?: ComparisonPassageOptions,
+    options?: ComparisonOptions,
   ) {
     this.tokenizer = tokenizer;
-    this.hashFilter = hashFilter ? hashFilter : new WinnowFilter(this.defaultK, this.defaultW);
-    this.noFilter = noFilter ? noFilter : new NoFilter(this.defaultK);
-    this.passageFilterOptions = passageOptions;
+    this.hashFilter = options && options.hashFilter ? options.hashFilter : new WinnowFilter(this.defaultK, this.defaultW);
+    this.noFilter = options && options.noFilter ? options.noFilter : new NoFilter(this.defaultK);
+    this.passageFilterOptions = options ? options.filterOptions : undefined;
   }
 
   /**

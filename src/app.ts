@@ -1,9 +1,8 @@
 import { Command } from "commander";
 import { CodeTokenizer } from "./lib/codeTokenizer";
-import { Comparison } from "./lib/comparison";
+import { Comparison, ComparisonFilterOptions } from "./lib/comparison";
 import { Matches } from "./lib/comparison.js";
-import { Summary } from "./lib/summary.js";
-import { SummaryFilter } from "./lib/summaryFilter.js";
+import { FilterOptions, Summary } from "./lib/summary.js";
 
 let locations: string[] = [];
 const program = new Command();
@@ -23,28 +22,35 @@ program
       "file is the supplied code for an exercise.",
   )
   .option(
-    "-m, --maximum <number>",
-    "The -m options sets the maximum number of time a given passage may appear before it is ignored. A passage of " +
+    "-m, --maximum-passage-count <number>",
+    "The -m option sets the maximum number of times a given passage may appear before it is ignored. A passage of " +
       "code that appears in many programs is probably legitimate sharing and not the result of plagiarism. With -m N " +
-      "any passage appearing in more that N program is filtered out. Using this option will overwrite the -M option.", // TODO vermeld de default van -M option
+      "any passage appearing in more that N program is filtered out. Using this option will overwrite the -M option. " +
+      "There is no default for this option as that would always overwrite the -M option, where the default is 0.9",
   )
   .option(
-    "-M --maximum-percentage <float>",
-    "Maximum percentage a passage may appear before it is ignored. The percentage is calculated using the amount of " +
-      "different groups there are. So with the -d options the amount of directories is used where normally the " +
-      "amount of files is used. Must be a value between 1 and 0.",
+    "-M --maximum-passage-percentage <float>",
+    "The -M option sets how many percent of the files the code passage may appear before it is ignored. A passage of " +
+      "code that appears in many programs is probably legitimate sharing and not the result of plagiarism. With -M N " +
+      "any passage appearing in more than N percent of the files is filtered out. " +
+      "Must be a value between 0 and 1.",
     0.9,
   )
   .option("-c, --comment <string>", "Comment string that is attached to the generated report")
   .option(
-    "-n, --passage-amount",
+    "-n, --passage-output-limit",
     "Specifies how many matching passages are shown in the result. All passages are " +
       "shown then this option isn't used.",
   )
   .option(
-    "-s, --minimum-lines <integer>",
-    "The minimum amount of lines in the longest code passage in a before it is shown",
-    0,
+    "-s, --minimum-lines-shortest <integer>",
+    "The minimum amount of lines in the shortest code passage in a comparison before it is shown",
+    1,
+  )
+  .option(
+    "-S, --minimum-lines-longest <integer>",
+    "The minimum amount of lines in the longest code passage in a comparison before it is shown",
+    1,
   )
   .option(
     "-g, --maximum-gap-size <integer>",
@@ -74,7 +80,6 @@ Specifies the gap size.
 program.parse(process.argv);
 
 (async () => {
-  let groupAmount: number;
   const tokenizer = new CodeTokenizer(program.language);
 
   if (locations.length < 2) {
@@ -82,12 +87,18 @@ program.parse(process.argv);
     program.outputHelp();
     process.exit(1);
   }
-
-  // If each file is a separate program then count the amount of files.
-  groupAmount = locations.length;
+  const comparisonPassageFilterOptions: ComparisonFilterOptions = {
+    filterPassageByPercentage: program.maximumPassageCount === undefined,
+    maxPassage:
+      program.maximumPassageCount === undefined
+        ? program.maximumPassagePercentage
+        : program.maximumPassageCount,
+  };
 
   // Compare all the file with each other.
-  const comparison = new Comparison(tokenizer);
+  const comparison = new Comparison(tokenizer, {
+    filterOptions: comparisonPassageFilterOptions,
+  });
 
   // Compare the base file with all the other files when there is a base file.
   if (program.base) {
@@ -97,19 +108,25 @@ program.parse(process.argv);
   await comparison.addFiles(locations);
   const matchesPerFile: Map<string, Matches<number>> = await comparison.compareFiles(locations);
 
-  const summaryFilter: SummaryFilter = new SummaryFilter( // make this an object literal and actually call the contructor in summary
-    0,
-    program.minimumLines,
-    program.maximum || program.maximumPercentage,
-    program.maximum === undefined ? groupAmount : undefined,
-    program.passageAmount,
-  );
+  const filterOptions: FilterOptions = {
+    minimumLinesInSmallestPassage: program.minimumLinesShortest,
+    minimumLinesInLargestPassage: program.minimumLinesLongest,
+    passageOutputLimit: program.passageOutputLimit,
+  };
+
+  // const summaryFilter: SummaryFilter = new SummaryFilter( // make this an object literal and actually call the contructor in summary
+  //   0,
+  //   program.minimumLines,
+  //   program.maximum || program.maximumPercentage,
+  //   program.maximum === undefined ? groupAmount : undefined,
+  //   program.passageAmount,
+  // );
 
   const summary = new Summary(
     matchesPerFile,
-    summaryFilter,
     program.MaximumGapSize,
     program.comment,
+    filterOptions,
   );
   console.log(summary.toString());
 })();
