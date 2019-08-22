@@ -26,7 +26,7 @@ program
     "-m, --maximum <number>",
     "The -m options sets the maximum number of time a given passage may appear before it is ignored. A passage of " +
       "code that appears in many programs is probably legitimate sharing and not the result of plagiarism. With -m N " +
-      "any passage appearing in more that N program is filtered out. Using this option will overwrite the -M option.",
+      "any passage appearing in more that N program is filtered out. Using this option will overwrite the -M option.", // TODO vermeld de default van -M option
   )
   .option(
     "-M --maximum-percentage <float>",
@@ -36,7 +36,11 @@ program
     0.9,
   )
   .option("-c, --comment <string>", "Comment string that is attached to the generated report")
-  .option("-n, --passage-amount", "Specifies how many matching passages are shown in the result")
+  .option(
+    "-n, --passage-amount",
+    "Specifies how many matching passages are shown in the result. All passages are " +
+      "shown then this option isn't used.",
+  )
   .option(
     "-s, --minimum-lines <integer>",
     "The minimum amount of lines in the longest code passage in a before it is shown",
@@ -93,7 +97,7 @@ program.parse(process.argv);
   await comparison.addFiles(locations);
   const matchesPerFile: Map<string, Matches<number>> = await comparison.compareFiles(locations);
 
-  const summaryFilter: SummaryFilter = new SummaryFilter(
+  const summaryFilter: SummaryFilter = new SummaryFilter( // make this an object literal and actually call the contructor in summary
     0,
     program.minimumLines,
     program.maximum || program.maximumPercentage,

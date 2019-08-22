@@ -1,6 +1,7 @@
 import { HashFilter } from "./hashFilter";
 import { Tokenizer } from "./tokenizer";
 import { WinnowFilter } from "./winnowFilter";
+import { NoFilter } from "./noFilter";
 
 export type Matches<Location> = Map<string, Array<[Location, Location]>>;
 
@@ -9,10 +10,14 @@ export class Comparison<Location> {
   private readonly defaultW: number = 40;
   // Maps a hash to an array of typles that are composed of the file with the same hash and the location in that file
   // where that hash is located.
-  private readonly filerList: string[] = new Array();
   private readonly index: Map<number, Array<[string, Location]>> = new Map();
+  private readonly filteredHashSet: Set<number> = new Set();
   private readonly tokenizer: Tokenizer<Location>;
   private readonly hashFilter: HashFilter;
+  private readonly noFilter: NoFilter;
+  private fileCount: number = 0;
+  private readonly maxPassage: number | undefined;
+  private readonly filterPassageByPercentage: boolean;
 
   /**
    * Creates a Comparison object with a given Tokenizer and optional HashFilter.
@@ -24,10 +29,14 @@ export class Comparison<Location> {
    * @param tokenizer A tokenizer for the correct programming language
    * @param hashFilter An optional HashFilter to filter the hashes returned by
    * the rolling hash function.
+   * @param noFilter A NoFilter used to generate hashes for blacklisted files.
    */
-  constructor(tokenizer: Tokenizer<Location>, hashFilter?: HashFilter) {
+  constructor(tokenizer: Tokenizer<Location>, hashFilter?: HashFilter, noFilter?: NoFilter, maxPassage?: number, filterPassageByPercentage: boolean = true) {
     this.tokenizer = tokenizer;
     this.hashFilter = hashFilter ? hashFilter : new WinnowFilter(this.defaultK, this.defaultW);
+    this.noFilter = noFilter ? noFilter : new NoFilter(this.defaultK);
+    this.maxPassage = maxPassage;
+    this.filterPassageByPercentage = filterPassageByPercentage;
   }
 
   /**
@@ -50,10 +59,11 @@ export class Comparison<Location> {
    * @param file The file name of the file to add
    */
   public async addFile(file: string): Promise<void> {
+    this.fileCount += 1;
     try {
       const [ast, mapping] = await this.tokenizer.tokenizeFileWithMapping(file);
       for await (const { hash, location } of this.hashFilter.hashesFromString(ast)) {
-        // hash and the corresponding line number
+        // hash and the corresponding line number //
         const match: [string, Location] = [file, mapping[location]];
         const matches = this.index.get(hash);
         if (matches) {
@@ -101,28 +111,52 @@ export class Comparison<Location> {
     const matchingFiles: Matches<Location> = new Map();
     const [ast, mapping] = await this.tokenizer.tokenizeFileWithMapping(file);
     for await (const { hash, location } of hashFilter.hashesFromString(ast)) {
-      const matches = this.index.get(hash);
-      if (matches) {
-        for (const [fileName, lineNumber] of matches) {
-          // add the match if the match is not with the file itself and if the matched file in not in the filtered list.
-          if (fileName !== file && this.filerList.includes(fileName)) {
-            const match: [Location, Location] = [lineNumber, mapping[location]];
-            const lines = matchingFiles.get(fileName);
-            if (lines) {
-              lines.push(match);
-            } else {
-              matchingFiles.set(fileName, [match]);
+      if(!this.filteredHashSet.has(hash)) {
+        const matches = this.index.get(hash);
+        if ( matches && this.filterByPassageCount(matches.length)) {
+          for (const [fileName, lineNumber] of matches) {
+            // add the match if the match is not with the file.
+            if (fileName !== file ) {
+              const match: [Location, Location] = [lineNumber, mapping[location]];
+              const lines = matchingFiles.get(fileName);
+              if (lines) {
+                lines.push(match);
+              } else {
+                matchingFiles.set(fileName, [match]);
+              }
             }
           }
         }
+
       }
     }
     return matchingFiles;
   }
 
-  // TODO documentation
+  //TODO documentation
+  private filterByPassageCount(passageCount: number): boolean {
+    if(!this.maxPassage) {
+      return true;
+    } else if(this.filterPassageByPercentage) {
+      return passageCount / this.fileCount <= this.maxPassage;
+    } else {
+      return passageCount <= this.maxPassage;
+    }
+  }
+
+  /**
+   * Add a file to the filter index.
+   * @param file The file name of the file you want to add.
+   */
   public async addFileToFilterList(file: string): Promise<void> {
-    this.filerList.push(file);
-    this.addFile(file);
+    try {
+      const [ast,] = await this.tokenizer.tokenizeFileWithMapping(file);
+      for await (const { hash } of this.noFilter.hashesFromString(ast)) {
+        this.filteredHashSet.add(hash);
+      }
+    } catch (error) {
+      console.error(`There was a problem parsing ${file}. ${error}`);
+      return; // this makes sure the promise resolves instead of rejects
+    }
   }
 }

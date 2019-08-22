@@ -1,17 +1,34 @@
 import fs from "fs";
 import { Matches } from "./comparison";
 import { Range } from "./range";
-import { SummaryFilter } from "./summaryFilter";
 export type RangesTuple = [Range, Range];
+
+  /**
+   * @param minimumMaximumLines The minimum amount of lines required by the longest range in a rangesTuple. If the
+   * rangesTuple has less lines then it will be filtered out. When the rangesTuple has two ranges with a different
+   * amount of lines, then the maximum between to two is used.
+   * @param minimumMinimumLines The minimum amount of lines required by the shortest range in a rangesTuple.
+   * @param passageOutputLimit //TODO
+   */
+export interface FilterOptions {
+  passageOutputLimit?: number,
+  minimumLinesInLargestPassage?: number,
+  minimumLinesInSmallestPassage?: number,
+}
 
 export class Summary {
   public readonly gapSize: number;
-  public readonly summaryFilter: SummaryFilter;
   public readonly comment: string | undefined;
-  public readonly outputAmount: number | undefined;
   private readonly results: Map<string, Matches<Range>>;
+  private readonly filterOptions: FilterOptions;
 
-  /**
+  private readonly defaultFilterOptions: FilterOptions = {
+    passageOutputLimit: 0,
+    minimumLinesInLargestPassage: 1,
+    minimumLinesInSmallestPassage: 0,
+  }
+
+  /** //TODO documentation
    * Generates a summary for the given matches.
    * @param matchesPerFile A many-to-many comparison of a set of files. This map contains an entry for each of the
    * input files with the key being its file name and the value a list of matches. These matches are grouped
@@ -20,21 +37,68 @@ export class Summary {
    * @param gapSize The gap size allowed during the joining of two ranges. For example if the gap size is 0 then [1,3]
    * and [5,7] wont be joined, and if the gap size is one these will be joined into [1,7].
    * @param comment A command you want to add to the summary.
-   * @param outputAmount The amount of code passage pairs you want in the result.
    */
   constructor(
     matchesPerFile: Map<string, Matches<number>>,
-    summaryFilter: SummaryFilter,
     gapSize: number = 0,
     comment?: string,
+    filterOptions?: FilterOptions,
   ) {
-    this.summaryFilter = summaryFilter;
     this.gapSize = gapSize;
     this.results = this.transformMatches(matchesPerFile);
-    this.results = this.summaryFilter.filterByMaximumPassage(this.results);
-    this.results = this.summaryFilter.filterOutputAmount(this.results);
+    this.results = this.filterOutputAmount(this.results);
     this.results = this.sortResults();
     this.comment = comment;
+    this.filterOptions = filterOptions || this.defaultFilterOptions;
+
+    this.filterOptions.passageOutputLimit = this.filterOptions.passageOutputLimit || this.defaultFilterOptions.passageOutputLimit;
+    this.filterOptions.minimumLinesInLargestPassage = this.filterOptions.minimumLinesInLargestPassage || this.defaultFilterOptions.minimumLinesInLargestPassage;
+    this.filterOptions.minimumLinesInSmallestPassage = this.filterOptions.minimumLinesInSmallestPassage || this.defaultFilterOptions.minimumLinesInSmallestPassage;
+  }
+
+  public filterOutputAmount(
+    matchesPerFile: Map<string, Matches<Range>>,
+  ): Map<string, Matches<Range>> {
+    if (!this.filterOptions.passageOutputLimit || this.filterOptions.passageOutputLimit <= 0) {
+      return matchesPerFile;
+    }
+
+    let outputCount = 0;
+    const filteredMatchesPerFile: Map<string, Matches<Range>> = new Map();
+    for (const [matchingFileName, matches] of matchesPerFile.entries()) {
+      const filteredMatches: Matches<Range> = new Map();
+      filteredMatchesPerFile.set(matchingFileName, filteredMatches);
+      for (const [matchedFileName, rangesTuplesArray] of matches.entries()) {
+        if (outputCount + rangesTuplesArray.length <= this.filterOptions.passageOutputLimit) {
+          filteredMatches.set(matchedFileName, rangesTuplesArray);
+        } else {
+          const elementsExtra: number = outputCount + rangesTuplesArray.length - this.filterOptions.passageOutputLimit;
+          filteredMatches.set(
+            matchedFileName,
+            rangesTuplesArray.slice(0, rangesTuplesArray.length - elementsExtra),
+          );
+        }
+        outputCount += rangesTuplesArray.length;
+      }
+      if (this.filterOptions.passageOutputLimit < outputCount) {
+        break;
+      }
+    }
+    return filteredMatchesPerFile;
+  }
+
+  /**
+   * Remove all ranges that only contain less the minimum required lines. Returns a filtered copy of the array.
+   * @param rangesTupleArray The rangesTupleArray you want filter.
+   */
+  public filterByMinimumLines(rangesTupleArray: RangesTuple[]): RangesTuple[] {
+    return rangesTupleArray.filter(
+      rangesTuple =>
+        Math.max(rangesTuple[0].getLineCount(), rangesTuple[1].getLineCount()) >=
+          (this.filterOptions.minimumLinesInLargestPassage as number) &&
+        Math.min(rangesTuple[0].getLineCount(), rangesTuple[1].getLineCount()) >=
+          (this.filterOptions.minimumLinesInSmallestPassage as number),
+    );
   }
 
   public toString(): string {
@@ -156,7 +220,7 @@ export class Summary {
 
     ranges = this.concatenateRanges(ranges);
 
-    return this.summaryFilter.filterByMinimumLines(ranges);
+    return this.filterByMinimumLines(ranges);
   }
 
   /**
