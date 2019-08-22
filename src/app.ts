@@ -109,18 +109,10 @@ program.parse(process.argv);
   const matchesPerFile: Map<string, Matches<number>> = await comparison.compareFiles(locations);
 
   const filterOptions: FilterOptions = {
-    minimumLinesInSmallestPassage: program.minimumLinesShortest,
     minimumLinesInLargestPassage: program.minimumLinesLongest,
+    minimumLinesInSmallestPassage: program.minimumLinesShortest,
     passageOutputLimit: program.passageOutputLimit,
   };
-
-  // const summaryFilter: SummaryFilter = new SummaryFilter( // make this an object literal and actually call the contructor in summary
-  //   0,
-  //   program.minimumLines,
-  //   program.maximum || program.maximumPercentage,
-  //   program.maximum === undefined ? groupAmount : undefined,
-  //   program.passageAmount,
-  // );
 
   const summary = new Summary(
     matchesPerFile,

@@ -3,18 +3,18 @@ import { Matches } from "./comparison";
 import { Range } from "./range";
 export type RangesTuple = [Range, Range];
 
-  /**
-   * @param minimumLinesInLargestPassage The minimum amount of lines required by the largest code passage. The default
-   * is 1.
-   * @param minimumLinesInSmallestPassage The minimum amount of lines required by the smallest code passage. The default
-   * is 0.
-   * @param passageOutputLimit The maximum amount of code passages that will appear in the output. Everything is shown
-   * if it is anything other then a number greater then zero.
-   */
+/**
+ * @param minimumLinesInLargestPassage The minimum amount of lines required by the largest code passage. The default
+ * is 1.
+ * @param minimumLinesInSmallestPassage The minimum amount of lines required by the smallest code passage. The default
+ * is 0.
+ * @param passageOutputLimit The maximum amount of code passages that will appear in the output. Everything is shown
+ * if it is anything other then a number greater then zero.
+ */
 export interface FilterOptions {
-  passageOutputLimit?: number,
-  minimumLinesInLargestPassage?: number,
-  minimumLinesInSmallestPassage?: number,
+  passageOutputLimit?: number;
+  minimumLinesInLargestPassage?: number;
+  minimumLinesInSmallestPassage?: number;
 }
 
 export class Summary {
@@ -24,12 +24,12 @@ export class Summary {
   private readonly filterOptions: FilterOptions;
 
   private readonly defaultFilterOptions: FilterOptions = {
-    passageOutputLimit: undefined,
     minimumLinesInLargestPassage: 1,
     minimumLinesInSmallestPassage: 0,
-  }
+    passageOutputLimit: undefined,
+  };
 
-  /** 
+  /**
    * Generates a summary for the given matches.
    * @param matchesPerFile A many-to-many comparison of a set of files. This map contains an entry for each of the
    * input files with the key being its file name and the value a list of matches. These matches are grouped
@@ -38,7 +38,7 @@ export class Summary {
    * and [5,7] wont be joined, and if the gap size is one these will be joined into [1,7].
    * @param comment A command you want to add to the summary.
    * @param filterOptions The options used to filter the output, for a more detailed explanation see [[FilterOptions]].
-   * 
+   *
    */
   constructor(
     matchesPerFile: Map<string, Matches<number>>,
@@ -53,8 +53,12 @@ export class Summary {
     this.comment = comment;
     this.filterOptions = filterOptions || this.defaultFilterOptions;
 
-    this.filterOptions.minimumLinesInLargestPassage = this.filterOptions.minimumLinesInLargestPassage || this.defaultFilterOptions.minimumLinesInLargestPassage;
-    this.filterOptions.minimumLinesInSmallestPassage = this.filterOptions.minimumLinesInSmallestPassage || this.defaultFilterOptions.minimumLinesInSmallestPassage;
+    this.filterOptions.minimumLinesInLargestPassage =
+      this.filterOptions.minimumLinesInLargestPassage ||
+      this.defaultFilterOptions.minimumLinesInLargestPassage;
+    this.filterOptions.minimumLinesInSmallestPassage =
+      this.filterOptions.minimumLinesInSmallestPassage ||
+      this.defaultFilterOptions.minimumLinesInSmallestPassage;
   }
 
   public filterOutputAmount(
@@ -73,7 +77,8 @@ export class Summary {
         if (outputCount + rangesTuplesArray.length <= this.filterOptions.passageOutputLimit) {
           filteredMatches.set(matchedFileName, rangesTuplesArray);
         } else {
-          const elementsExtra: number = outputCount + rangesTuplesArray.length - this.filterOptions.passageOutputLimit;
+          const elementsExtra: number =
+            outputCount + rangesTuplesArray.length - this.filterOptions.passageOutputLimit;
           filteredMatches.set(
             matchedFileName,
             rangesTuplesArray.slice(0, rangesTuplesArray.length - elementsExtra),

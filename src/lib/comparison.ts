@@ -17,9 +17,9 @@ export interface ComparisonFilterOptions {
 }
 
 export interface ComparisonOptions {
-  hashFilter?: HashFilter,
-  noFilter?: NoFilter,
-  filterOptions?: ComparisonFilterOptions
+  hashFilter?: HashFilter;
+  noFilter?: NoFilter;
+  filterOptions?: ComparisonFilterOptions;
 }
 
 export class Comparison<Location> {
@@ -49,12 +49,12 @@ export class Comparison<Location> {
    * @param passageOptions The options used to filter based on the passage count. For a more detailed explanation see
    * [[ComparisonOptions]]. If this options is not used then no filtering will occur.
    */
-  constructor(
-    tokenizer: Tokenizer<Location>,
-    options?: ComparisonOptions,
-  ) {
+  constructor(tokenizer: Tokenizer<Location>, options?: ComparisonOptions) {
     this.tokenizer = tokenizer;
-    this.hashFilter = options && options.hashFilter ? options.hashFilter : new WinnowFilter(this.defaultK, this.defaultW);
+    this.hashFilter =
+      options && options.hashFilter
+        ? options.hashFilter
+        : new WinnowFilter(this.defaultK, this.defaultW);
     this.noFilter = options && options.noFilter ? options.noFilter : new NoFilter(this.defaultK);
     this.passageFilterOptions = options ? options.filterOptions : undefined;
   }
