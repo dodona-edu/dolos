@@ -64,7 +64,7 @@ export class Summary {
   public filterOutputAmount(
     matchesPerFile: Map<string, Matches<Range>>,
   ): Map<string, Matches<Range>> {
-    if (!this.filterOptions.passageOutputLimit || this.filterOptions.passageOutputLimit <= 0) {
+    if (!this.filterOptions  || !this.filterOptions.passageOutputLimit || this.filterOptions.passageOutputLimit <= 0) {
       return matchesPerFile;
     }
 
