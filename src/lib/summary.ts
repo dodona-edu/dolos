@@ -1,4 +1,5 @@
-import fs from "fs";
+import  fs  from "fs";
+import path from "path";
 import { Matches } from "./comparison";
 import { Range } from "./range";
 export type RangesTuple = [Range, Range];
@@ -130,8 +131,25 @@ export class Summary {
     return JSON.stringify(obj, Summary.JSONReplacerFunction(zeroBase));
   }
 
+  private readonly filesContents: Map<string, Array<string>> = new Map();
+  private readFileOverRange(fileName: string, range: Range): string {
+    if(!this.filesContents.has(fileName)){
+      this.filesContents.set(fileName, fs.readFileSync(fileName, "utf8").split('\n'));
+    }
+    return (this.filesContents.get(fileName) as Array<string>).slice(range.from , range.to + 1 ).join('\n');
+  }
   private toCompareView(matchedFile: string, matchingFile: string, matchingRangesTuples: RangesTuple): string {
-    return `<div>${matchedFile} and ${matchingFile} match like ${this.rangesTupleToString(matchingRangesTuples)}</div>`
+    const [ matchingFileRange, matchedFileRange] = matchingRangesTuples;
+    return `<div class="code-comparison">` + 
+              `<div class="left-column">${this.escapeHtml(`>>>File: ${matchedFile}, lines: ${matchedFileRange.toString()}`)}` +
+              `<hr>` +
+              `<div><code>${this.readFileOverRange(matchedFile, matchedFileRange)}<code></div>` +
+              `</div>` + 
+              `<div class="right-column">${this.escapeHtml(`>>>File: ${matchingFile}, lines: ${matchingFileRange.toString()}` )}` +
+              `<hr>` +
+              `<div><code>${this.readFileOverRange(matchingFile, matchingFileRange)}<code></div>` +
+              `</div>` +
+        `</div>`
   }
 
   private toComparePage(matchedFile: string, matchingFile: string, matchingRangesTuples: Array<RangesTuple>): string {
@@ -147,16 +165,29 @@ export class Summary {
   }
 
   private makeId(matchedFile: string, matchingFile: string): string {
-    return `${escape(matchedFile)}-${escape(matchingFile)}`
+    return `${this.escapeHtml(matchedFile)}-${this.escapeHtml(matchingFile)}`
   }
 
   private makeTableRow(matchedFile: string, matchingFile: string, rangesTupleArray: Array<RangesTuple>): string {
     const id: string = this.makeId(matchedFile, matchingFile);
     return `<tr>` + 
-        `<td><a href=# onclick="return show('${id}', 'Index');">${escape(matchedFile)}</a></td>` + 
-        `<td><a href=# onclick="return show('${id}', 'Index');">${escape(matchingFile)}</a></td>` + 
+        `<td><a href=# onclick="return show('${id}', 'Index');">${this.escapeHtml(matchedFile)}</a></td>` + 
+        `<td><a href=# onclick="return show('${id}', 'Index');">${this.escapeHtml(matchingFile)}</a></td>` + 
         `<td  align="right">${this.getScoreForArray( rangesTupleArray)}</td>` + 
         `</tr>`
+  }
+
+  //improve this code
+  private escapeHtml(text: string) {
+    const map: any = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#039;'
+    };
+
+    return text.replace(/[&<>"']/g, m =>  map[m]);
   }
 
   public toHTML(): string {
@@ -172,6 +203,8 @@ export class Summary {
         comparisonPages.push(this.toComparePage(matchedFile, matchingFile, rangesTuplesArray));
       }
     }
+    const stylesheet: string = fs.readFileSync(path.resolve("./src/lib/assets/stylesheet.css"), "utf8");
+    const script : string = fs.readFileSync(path.resolve("./src/lib/assets/scripts.js"), "utf8");
 
     const body: string = `
 <div id="Index">
@@ -192,13 +225,11 @@ ${comparisonPages.join('\n')}
 <html lang="en">
 <head>
   <script>
-    function show(shown, hidden) {
-      console.log(shown, hidden);
-      document.getElementById(shown).style.display='block';
-      document.getElementById(hidden).style.display='none';
-      return false;
-    }
+  ${script}
   </script>
+  <style>
+  ${stylesheet}
+  </style>
   <meta charset="utf-8">
   <title>Dolos summary</title>
 </head>
@@ -212,6 +243,7 @@ ${comparisonPages.join('\n')}
   public toString(comment?: string): string {
 =======
 
+  //TODO make this syncronous again
   public toString(zeroBase: boolean = false): string {
 >>>>>>> working on html output
     if (this.results.size === 0) {
@@ -226,16 +258,16 @@ ${comparisonPages.join('\n')}
     const linesInFileMap: Map<string, number> = new Map();
 
     output += Array.from(this.results.entries())
-      .map(resultEntry => {
+      .map((resultEntry) => {
         const [sourceFileName, subMap] = resultEntry;
         let subOutput = "";
         subOutput += `source: ${sourceFileName}\n\n`;
-        const linesInSourceFile = this.countLinesInFile(sourceFileName);
+        const linesInSourceFile: number = this.countLinesInFile(sourceFileName);
 
         const entryArray: Array<[string, RangesTuple[]]> = Array.from(subMap.entries());
 
         subOutput += entryArray
-          .map(subMapEntry => {
+          .map(  (subMapEntry) => {
             let matchedFilenameOutput = "";
             const [matchedFileName, rangesTupleArray] = subMapEntry;
             const score: number = rangesTupleArray
@@ -243,7 +275,7 @@ ${comparisonPages.join('\n')}
               .reduce((accumulator, nextValue) => accumulator + nextValue);
 
             if (!linesInFileMap.has(matchedFileName)) {
-              linesInFileMap.set(matchedFileName, this.countLinesInFile(matchedFileName));
+              linesInFileMap.set(matchedFileName,this.countLinesInFile(matchedFileName));
             }
             const scoreMatchedFile =
               (score / (linesInFileMap.get(matchedFileName) as number)) * 100;
@@ -365,8 +397,8 @@ ${comparisonPages.join('\n')}
     ]);
   }
 
-  private countLinesInFile(fileName: string): number {
-    return fs.readFileSync(fileName, "utf8").split("\n").length;
+  private  countLinesInFile(fileName: string): number {
+    return (fs.readFileSync(fileName, "utf8")).split("\n").length;
   }
 
   /**

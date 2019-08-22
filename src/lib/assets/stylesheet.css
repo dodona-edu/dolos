@@ -1,14 +1,32 @@
-#compareView{
-    position:absolute;
-    height:100%;
-    margin:0;
-    padding:0;
-    width:100%;
-}
-#codeSection{
-    position:relative;
-    float:left;
-    height:100%;
-    width:50%;
-}
+.right-column {
  
+    border: 3px solid black;
+    overflow: auto;
+}
+
+code {
+    white-space: pre;
+    font-family: monospace;
+}
+
+
+.left-column {
+    border: 3px solid black;
+    overflow: auto;
+    resize: horizontal;
+    
+    min-width: 20vw;
+    width: 45vw;
+    max-width: 70vw;
+}
+
+
+.code-comparison {
+    display: grid;
+    margin: 3px;
+    
+    grid-template: 
+    "nav head" min-content
+    "nav main" 1fr
+        / min-content 1fr;
+}

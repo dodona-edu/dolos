@@ -6,12 +6,11 @@ import { Matches } from "./lib/comparison.js";
 import { Summary } from "./lib/summary.js";
 import { SummaryFilter } from "./lib/summaryFilter.js";
 
-import packageJson from "./../package.json";
 
 const program = new commander.Command();
 
 // Initial program description and version
-program.version(packageJson.version).description("Plagiarism detection for programming exercises");
+program.version("0.0.1").description("Plagiarism detection for programming exercises");
 
 let locations: string[] = [];
 

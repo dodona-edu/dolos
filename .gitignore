@@ -4,3 +4,4 @@ coverage
 yarn-error.log
 .vscode
 samples
+temp.html
