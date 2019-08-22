@@ -239,13 +239,7 @@ ${comparisonPages.join('\n')}
 </body>
 </html>`;
   }
-<<<<<<< HEAD
   public toString(comment?: string): string {
-=======
-
-  //TODO make this syncronous again
-  public toString(zeroBase: boolean = false): string {
->>>>>>> working on html output
     if (this.results.size === 0) {
       return "There were no matches";
     }
