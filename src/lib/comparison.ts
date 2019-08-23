@@ -135,8 +135,10 @@ export class Comparison<Location> {
         const matches = this.index.get(hash);
         if (matches && this.filterByPassageCount(matches.length)) {
           for (const [fileName, lineNumber] of matches) {
-            // add the match if the match is not with the file.
-            if (fileName !== file) {
+            // add the match if the match is not with the file and if the file comes first when alphabetically sorted. 
+            // This is done to avoid the duplicates in the following case: when file A matches with file B, file B will
+            // also match with file A.
+            if (fileName !== file && file < fileName) {
               const match: [Location, Location] = [lineNumber, mapping[location]];
               const lines = matchingFiles.get(fileName);
               if (lines) {
