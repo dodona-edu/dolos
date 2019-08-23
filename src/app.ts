@@ -10,6 +10,7 @@ const program = new Command();
 // Initial program description and version
 program.version("0.0.1").description("Plagiarism detection for programming exercises");
 
+//TODO propper indentation with nodejs tty writeStream.columns
 program
   .option(
     "-l, --language <language>",
@@ -52,6 +53,11 @@ program
     "If two fragments are close to each other, they will be merged into a single fragment if the gap between them is " +
       "smaller than the given number of lines." +
       0,
+  )
+  .option(
+    "-o, --output-format <format>",
+    "Specifies what format the output should be, current options are: terminal, json, html.",
+    "terminal",
   )
   .arguments("<locations...>")
   .action(filesArgs => {
@@ -102,6 +108,26 @@ program.parse(process.argv);
     minimumFragmentLength: program.minimumFragmentLength,
   };
 
-  const summary = new Summary(matchesPerFile, program.MaximumGapSize, filterOptions);
-  console.log(summary.toString(program.comment));
+  const summary = new Summary(
+    matchesPerFile,
+    program.MaximumGapSize,
+    program.comment,
+    filterOptions,
+  );
+  let outputString: string = '';
+  switch(program.outputFormat.toLowerCase()) {
+    case "terminal":
+      outputString = summary.toString();
+      break;
+    case "json":
+      outputString = summary.toJSON();
+      break;
+    case "html":
+      outputString = summary.toHTML();
+      break;
+    default:
+      console.error("Output format not recognized");
+      process.exit(3);
+  }
+  console.log(outputString);
 })();

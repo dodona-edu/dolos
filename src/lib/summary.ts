@@ -54,7 +54,7 @@ export class Summary {
     gapSize: number = 0,
     filterOptions: FilterOptions = Summary.defaultFilterOptions,
   ) {
-    this.filterOptions = filterOptions;
+    this.filterOptions = filterOptions || Summary.defaultFilterOptions;
     this.gapSize = gapSize;
     this.results = this.transformMatches(matchesPerFile);
     this.results = this.filterOutputAmount(this.results);
