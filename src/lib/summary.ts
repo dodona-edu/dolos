@@ -417,7 +417,7 @@ ${comparisonPages.join('\n')}
         // Sorts the arrays based on the score of the ranges.
         rangesTupleArray.sort(
           (rangesTuple1, rangesTuple2) =>
-            this.getScoreForRange(rangesTuple2[0]) - this.getScoreForRangesTuple(rangesTuple1),
+            this.getScoreForRangesTuple(rangesTuple2) - this.getScoreForRangesTuple(rangesTuple1),
         );
       });
       // Sorts the submaps based on the score of the arrays, this is the sum of all the scores within the array.
