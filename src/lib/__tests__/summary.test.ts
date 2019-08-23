@@ -88,7 +88,7 @@ test("test extending related functions rangesTuples", () => {
 });
 
 test("concatenate ranges", () => {
-  const summary = new Summary(new Map(), 0);
+  const summary = new Summary(new Map());
   const rangesTupleArray: RangesTuple[] = [
     [new Range(0, 10), new Range(100, 110)],
     [new Range(10, 30), new Range(110, 120)],
