@@ -177,7 +177,68 @@ export class Summary {
         `</tr>`
   }
 
-  //improve this code
+
+  private readonly clusterCutOffValue: number = 0.5;
+  // TODO documentation
+  // TODO split up in smaller functions perhaps?
+  private clusterResults(results: Map<string, Matches<Range>>): Array<Array<[string , string, Array<RangesTuple>]>> { 
+    const filesSet: Set<string> = new Set();
+    const fileTupleScores: Array<[string, string, Array<RangesTuple>, number]> = new Array();
+    let maxScore: number = Number.MIN_VALUE;
+
+    for(const [matchedFile, matches] of results.entries()){
+      filesSet.add(matchedFile);
+      for(const [matchingFile, matchingRanges] of matches.entries()) {
+        filesSet.add(matchingFile);
+        const score = this.getScoreForArray(matchingRanges);
+        maxScore = Math.max(maxScore, score);
+        fileTupleScores.push([matchedFile, matchingFile, matchingRanges, score])
+      }
+    }
+
+    //TODO maybe make an array so that int => int and mapping all files to an int if that is faster.
+    const equivalenceClasses: Map<string ,string> = new Map([...filesSet.values()].map((file) => [file, file]));
+    for(const [matchedFile, matchingFile, _, score] of fileTupleScores) {
+      if (score / maxScore > this.clusterCutOffValue) { //TODO think of a good score cut off value and better score function
+        const root1: string = this.getRoot(equivalenceClasses, matchedFile);
+        const root2: string = this.getRoot(equivalenceClasses, matchingFile);
+        equivalenceClasses.set(root1, root2);
+      }
+    }
+
+
+    const filesGroupsMap: Map< string, Array<[string, string, Array<RangesTuple>]>> = new Map();
+    const restGroup: Array<[string, string, Array<RangesTuple>]> = new Array();
+    for(const [matchedFile, matchingFile, matchingRanges, ] of fileTupleScores) {
+      const root: string = this.getRoot(equivalenceClasses ,matchedFile);
+      if( root === this.getRoot(equivalenceClasses, matchingFile)) {
+        let filesGroup: Array<[string, string, Array<RangesTuple>]> | undefined = filesGroupsMap.get(root);
+        if(!filesGroup) {
+          filesGroup = new Array();
+          filesGroupsMap.set(root, filesGroup);
+        }
+        filesGroup.push([matchedFile, matchingFile, matchingRanges]);
+      } else {
+        restGroup.push([matchedFile, matchingFile, matchingRanges]);
+      }
+    }
+    const filesGroupsArray: Array<Array<[string, string, Array<RangesTuple>]>> = [...filesGroupsMap.values()];
+
+    filesGroupsArray.push(restGroup);
+
+    //TODO sort filesGroupsArray 
+    return filesGroupsArray;
+    }
+
+  //TODO decomentation
+  private getRoot(equivalenceClasses: Map<string, string>, value: string): string {
+    //TODO implement
+    //TODO path compression maybe?
+
+    return '';
+  }
+
+  //TODO improve this code
   private escapeHtml(text: string) {
     const map: any = {
       '&': '&amp;',
@@ -465,6 +526,7 @@ ${comparisonPages.join('\n')}
     return results;
   }
 
+  // TODO cache results
   private getScoreForArray(arr: RangesTuple[]): number {
     return arr
       .map(rangesTuple => this.getScoreForRangesTuple(rangesTuple))
