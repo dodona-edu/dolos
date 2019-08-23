@@ -140,16 +140,16 @@ export class Summary {
   }
   private toCompareView(matchedFile: string, matchingFile: string, matchingRangesTuples: RangesTuple): string {
     const [ matchingFileRange, matchedFileRange] = matchingRangesTuples;
-    return `<div class="code-comparison">` + 
-              `<div class="left-column">${this.escapeHtml(`>>>File: ${matchedFile}, lines: ${matchedFileRange.toString()}`)}` +
-              `<hr>` +
-              `<div><code>${this.readFileOverRange(matchedFile, matchedFileRange)}<code></div>` +
-              `</div>` + 
-              `<div class="right-column">${this.escapeHtml(`>>>File: ${matchingFile}, lines: ${matchingFileRange.toString()}` )}` +
-              `<hr>` +
-              `<div><code>${this.readFileOverRange(matchingFile, matchingFileRange)}<code></div>` +
-              `</div>` +
-        `</div>`
+    return `\n<div class="code-comparison">\n` + 
+              `<div class="left-column">${this.escapeHtml(`>>>File: ${matchedFile}, lines: ${matchedFileRange.toString()}`)}\n` +
+              `<hr>\n` +
+              `<div><code>${this.escapeHtml(this.readFileOverRange(matchedFile, matchedFileRange))}</code></div>\n` +
+              `</div>\n` + 
+              `<div class="right-column">${this.escapeHtml(`>>>File: ${matchingFile}, lines: ${matchingFileRange.toString()}` )}\n` +
+              `<hr>\n` +
+              `<div><code>${this.escapeHtml(this.readFileOverRange(matchingFile, matchingFileRange))}</code></div>\n` +
+              `</div>\n` +
+        `</div>\n`
   }
 
   private toComparePage(matchedFile: string, matchingFile: string, matchingRangesTuples: Array<RangesTuple>): string {
@@ -224,13 +224,14 @@ ${comparisonPages.join('\n')}
     return `<!doctype html>
 <html lang="en">
 <head>
-  <script>
+  <script type="text/javascript">
   ${script}
   </script>
-  <style>
+  <style type="text/css">
   ${stylesheet}
   </style>
   <meta charset="utf-8">
+  <meta content="utf-8">
   <title>Dolos summary</title>
 </head>
 
