@@ -6,17 +6,23 @@ import { WinnowFilter } from "./winnowFilter";
 export type Matches<Location> = Map<string, Array<[Location, Location]>>;
 
 /**
- * @param filterPassageByPercentage Defines if the passages should be filtered by percentage or by an absolute value.
- * @param maxPassage The maximum passage. How this will be used depends on the value of [[filterPassageByPercentage]].
+ * @param filterFragmentsByPercentage Defines if the fragment should be filtered by percentage or by an absolute value.
+ * @param maxFragment The maximum fragment. How this will be used depends on the value of [[filterFragmentByPercentage]]. //TODO better wording needed
  * If it is used as a percentage then the number should be between 0 and 1. If you want to use it as an absolute value
  * then a number between 0 and the amount of files given would be the most useful.
  */
 export interface ComparisonFilterOptions {
-  maxPassage: number;
-  filterPassageByPercentage: boolean;
+  maxFragment: number;
+  filterFragmentByPercentage: boolean;
 }
 
-export interface ComparisonOptions {
+/**
+ * @param hashFilter An optional HashFilter to filter the hashes returned by
+ * the rolling hash function.
+ * @param noFilter A NoFilter used to generate hashes for blacklisted files.
+ */
+export interface ComparisonOptions<Location> {
+  tokenizer: Tokenizer<Location>;
   hashFilter?: HashFilter;
   noFilter?: NoFilter;
   filterOptions?: ComparisonFilterOptions;
@@ -32,7 +38,7 @@ export class Comparison<Location> {
   private readonly tokenizer: Tokenizer<Location>;
   private readonly hashFilter: HashFilter;
   private readonly noFilter: NoFilter;
-  private readonly passageFilterOptions: ComparisonFilterOptions | undefined;
+  private readonly fragmentFilterOptions: ComparisonFilterOptions | undefined;
   private fileCount: number = 0;
 
   /**
@@ -43,20 +49,14 @@ export class Comparison<Location> {
    * After creation, first add files to the index which can then be queried.
    *
    * @param tokenizer A tokenizer for the correct programming language
-   * @param hashFilter An optional HashFilter to filter the hashes returned by
-   * the rolling hash function.
-   * @param noFilter A NoFilter used to generate hashes for blacklisted files.
-   * @param passageOptions The options used to filter based on the passage count. For a more detailed explanation see
+   * @param fragmentOptions The options used to filter based on the fragment count. For a more detailed explanation see
    * [[ComparisonOptions]]. If this options is not used then no filtering will occur.
    */
-  constructor(tokenizer: Tokenizer<Location>, options?: ComparisonOptions) {
+  constructor({ tokenizer, hashFilter, noFilter, filterOptions }: ComparisonOptions<Location>) {
     this.tokenizer = tokenizer;
-    this.hashFilter =
-      options && options.hashFilter
-        ? options.hashFilter
-        : new WinnowFilter(this.defaultK, this.defaultW);
-    this.noFilter = options && options.noFilter ? options.noFilter : new NoFilter(this.defaultK);
-    this.passageFilterOptions = options ? options.filterOptions : undefined;
+    this.hashFilter = hashFilter || new WinnowFilter(this.defaultK, this.defaultW);
+    this.noFilter = noFilter || new NoFilter(this.defaultK);
+    this.fragmentFilterOptions = filterOptions;
   }
 
   /**
@@ -131,23 +131,28 @@ export class Comparison<Location> {
     const matchingFiles: Matches<Location> = new Map();
     const [ast, mapping] = await this.tokenizer.tokenizeFileWithMapping(file);
     for await (const { hash, location } of hashFilter.hashesFromString(ast)) {
-      if (!this.filteredHashSet.has(hash)) {
-        const matches = this.index.get(hash);
-        if (matches && this.filterByPassageCount(matches.length)) {
-          for (const [fileName, lineNumber] of matches) {
-            // add the match if the match is not with the file and if the file comes first when alphabetically sorted.
-            // This is done to avoid the duplicates in the following case: when file A matches with file B, file B will
-            // also match with file A.
-            if (fileName !== file && file < fileName) {
-              const match: [Location, Location] = [lineNumber, mapping[location]];
-              const lines = matchingFiles.get(fileName);
-              if (lines) {
-                lines.push(match);
-              } else {
-                matchingFiles.set(fileName, [match]);
-              }
-            }
-          }
+      if (this.filteredHashSet.has(hash)) {
+        continue;
+      }
+      const matches = this.index.get(hash);
+      if (!matches || !this.filterByFragmentCount(matches.length)) {
+        continue;
+      }
+
+      for (const [fileName, lineNumber] of matches) {
+        // add the match if the match is not with the file and if the file comes first when alphabetically sorted.
+        // This is done to avoid the duplicates in the following case: when file A matches with file B, file B will
+        // also match with file A.
+        // TODO https://github.com/dodona-edu/dolos/pull/32#discussion_r317101920
+        if (fileName === file || file < fileName) {
+          continue;
+        }
+        const match: [Location, Location] = [lineNumber, mapping[location]];
+        const lines = matchingFiles.get(fileName);
+        if (lines) {
+          lines.push(match);
+        } else {
+          matchingFiles.set(fileName, [match]);
         }
       }
     }
@@ -172,17 +177,17 @@ export class Comparison<Location> {
 
   /**
    *
-   * @param passageCount The amount of times a certain code passage has appeared
+   * @param fragmentCount The amount of times a certain code fragment has appeared
    * @returns true if is value is acceptable under the options given in the contructor or when the options are not
    * defined.
    */
-  private filterByPassageCount(passageCount: number): boolean {
-    if (!this.passageFilterOptions) {
+  private filterByFragmentCount(fragmentCount: number): boolean {
+    if (!this.fragmentFilterOptions) {
       return true;
-    } else if (this.passageFilterOptions.filterPassageByPercentage) {
-      return passageCount / this.fileCount <= this.passageFilterOptions.maxPassage;
+    } else if (this.fragmentFilterOptions.filterFragmentByPercentage) {
+      return fragmentCount / this.fileCount <= this.fragmentFilterOptions.maxFragment;
     } else {
-      return passageCount <= this.passageFilterOptions.maxPassage;
+      return fragmentCount <= this.fragmentFilterOptions.maxFragment;
     }
   }
 }

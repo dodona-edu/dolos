@@ -22,39 +22,39 @@ program
       "file is the supplied code for an exercise.",
   )
   .option(
-    "-m, --maximum-passage-count <number>",
-    "The -m option sets the maximum number of times a given passage may appear before it is ignored. A passage of " +
-      "code that appears in many programs is probably legitimate sharing and not the result of plagiarism. With -m N " +
-      "any passage appearing in more that N program is filtered out. Using this option will overwrite the -M option. " +
-      "There is no default for this option as that would always overwrite the -M option, where the default is 0.9",
+    "-m, --maximum-fragment-count <number>",
+    "The -m option sets the maximum number of times a given fragment may appear before it is ignored. A code fragment" +
+      "that appears in many programs is probably legitimate sharing and not the result of plagiarism. With -m N " +
+      "any fragment appearing in more than N program is filtered out. This option has precedence over the -M option, " +
+      "which is set to 0.9 by default.",
   )
   .option(
-    "-M --maximum-passage-percentage <float>",
-    "The -M option sets how many percent of the files the code passage may appear before it is ignored. A passage of " +
+    "-M --maximum-fragment-percentage <float>",
+    "The -M option sets how many percent of the files the code fragment may appear before it is ignored. A fragment of " +
       "code that appears in many programs is probably legitimate sharing and not the result of plagiarism. With -M N " +
-      "any passage appearing in more than N percent of the files is filtered out. " +
+      "any fragment appearing in more than N percent of the files is filtered out. " +
       "Must be a value between 0 and 1.",
     0.9,
   )
   .option("-c, --comment <string>", "Comment string that is attached to the generated report")
   .option(
-    "-n, --passage-output-limit",
-    "Specifies how many matching passages are shown in the result. All passages are " +
+    "-n, --fragment-output-limit",
+    "Specifies how many matching fragment are shown in the result. All fragment are " +
       "shown then this option isn't used.",
   )
   .option(
     "-s, --minimum-lines-shortest <integer>",
-    "The minimum amount of lines in the shortest code passage in a comparison before it is shown",
+    "The minimum amount of lines in the shortest code fragment in a comparison before it is shown",
     1,
   )
   .option(
     "-S, --minimum-lines-longest <integer>",
-    "The minimum amount of lines in the longest code passage in a comparison before it is shown",
+    "The minimum amount of lines in the longest code fragment in a comparison before it is shown",
     1,
   )
   .option(
     "-g, --maximum-gap-size <integer>",
-    "If two passages need to be joined, then this parameter specifies how large the gap between the two passages may" +
+    "If two fragment need to be joined, then this parameter specifies how large the gap between the two fragment may" +
       "be.",
     0,
   )
@@ -87,17 +87,18 @@ program.parse(process.argv);
     program.outputHelp();
     process.exit(1);
   }
-  const comparisonPassageFilterOptions: ComparisonFilterOptions = {
-    filterPassageByPercentage: program.maximumPassageCount === undefined,
-    maxPassage:
-      program.maximumPassageCount === undefined
-        ? program.maximumPassagePercentage
-        : program.maximumPassageCount,
+  const comparisonFragmentFilterOptions: ComparisonFilterOptions = {
+    filterFragmentByPercentage: program.maximumFragmentCount === undefined,
+    maxFragment:
+      program.maximumFragmentCount === undefined
+        ? program.maximumFragmentPercentage
+        : program.maximumFragmentCount,
   };
 
   // Compare all the file with each other.
-  const comparison = new Comparison(tokenizer, {
-    filterOptions: comparisonPassageFilterOptions,
+  const comparison = new Comparison({
+    tokenizer,
+    filterOptions: comparisonFragmentFilterOptions,
   });
 
   // Compare the base file with all the other files when there is a base file.
@@ -109,16 +110,11 @@ program.parse(process.argv);
   const matchesPerFile: Map<string, Matches<number>> = await comparison.compareFiles(locations);
 
   const filterOptions: FilterOptions = {
-    minimumLinesInLargestPassage: program.minimumLinesLongest,
-    minimumLinesInSmallestPassage: program.minimumLinesShortest,
-    passageOutputLimit: program.passageOutputLimit,
+    minimumLinesInLargestFragment: program.minimumLinesLongest,
+    minimumLinesInSmallestFragment: program.minimumLinesShortest,
+    fragmentOutputLimit: program.fragmentOutputLimit,
   };
 
-  const summary = new Summary(
-    matchesPerFile,
-    program.MaximumGapSize,
-    program.comment,
-    filterOptions,
-  );
-  console.log(summary.toString());
+  const summary = new Summary(matchesPerFile, program.MaximumGapSize, filterOptions);
+  console.log(summary.toString(program.comment));
 })();

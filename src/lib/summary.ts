@@ -4,29 +4,28 @@ import { Range } from "./range";
 export type RangesTuple = [Range, Range];
 
 /**
- * @param minimumLinesInLargestPassage The minimum amount of lines required by the largest code passage. The default
+ * @param minimumLinesInLargestFragment The minimum amount of lines required by the largest code fragment. The default
  * is 1.
- * @param minimumLinesInSmallestPassage The minimum amount of lines required by the smallest code passage. The default
+ * @param minimumLinesInSmallestFragment The minimum amount of lines required by the smallest code fragment. The default
  * is 0.
- * @param passageOutputLimit The maximum amount of code passages that will appear in the output. Everything is shown
+ * @param fragmentOutputLimit The maximum amount of code fragments that will appear in the output. Everything is shown
  * if it is anything other then a number greater then zero.
  */
 export interface FilterOptions {
-  passageOutputLimit?: number;
-  minimumLinesInLargestPassage?: number;
-  minimumLinesInSmallestPassage?: number;
+  fragmentOutputLimit?: number;
+  minimumLinesInLargestFragment?: number;
+  minimumLinesInSmallestFragment?: number;
 }
 
 export class Summary {
   public readonly gapSize: number;
-  public readonly comment: string | undefined;
   private readonly results: Map<string, Matches<Range>>;
   private readonly filterOptions: FilterOptions;
 
   private readonly defaultFilterOptions: FilterOptions = {
-    minimumLinesInLargestPassage: 1,
-    minimumLinesInSmallestPassage: 0,
-    passageOutputLimit: undefined,
+    minimumLinesInLargestFragment: 1,
+    minimumLinesInSmallestFragment: 0,
+    fragmentOutputLimit: undefined,
   };
 
   /**
@@ -36,18 +35,14 @@ export class Summary {
    * per matching file. The compareFiles function of the Comparison class can generate such mapping.
    * @param gapSize The gap size allowed during the joining of two ranges. For example if the gap size is 0 then [1,3]
    * and [5,7] wont be joined, and if the gap size is one these will be joined into [1,7].
-   * @param comment A command you want to add to the summary.
    * @param filterOptions The options used to filter the output, for a more detailed explanation see [[FilterOptions]].
-   *
    */
   constructor(
     matchesPerFile: Map<string, Matches<number>>,
     gapSize: number = 0,
-    comment?: string,
     filterOptions?: FilterOptions,
   ) {
     this.gapSize = gapSize;
-    this.comment = comment;
     this.filterOptions = filterOptions || this.defaultFilterOptions;
     this.results = this.transformMatches(matchesPerFile);
     this.results = this.filterOutputAmount(this.results);
@@ -57,7 +52,11 @@ export class Summary {
   public filterOutputAmount(
     matchesPerFile: Map<string, Matches<Range>>,
   ): Map<string, Matches<Range>> {
-    if (!this.filterOptions  || !this.filterOptions.passageOutputLimit || this.filterOptions.passageOutputLimit <= 0) {
+    if (
+      !this.filterOptions ||
+      !this.filterOptions.fragmentOutputLimit ||
+      this.filterOptions.fragmentOutputLimit <= 0
+    ) {
       return matchesPerFile;
     }
 
@@ -67,11 +66,11 @@ export class Summary {
       const filteredMatches: Matches<Range> = new Map();
       filteredMatchesPerFile.set(matchingFileName, filteredMatches);
       for (const [matchedFileName, rangesTuplesArray] of matches.entries()) {
-        if (outputCount + rangesTuplesArray.length <= this.filterOptions.passageOutputLimit) {
+        if (outputCount + rangesTuplesArray.length <= this.filterOptions.fragmentOutputLimit) {
           filteredMatches.set(matchedFileName, rangesTuplesArray);
         } else {
           const elementsExtra: number =
-            outputCount + rangesTuplesArray.length - this.filterOptions.passageOutputLimit;
+            outputCount + rangesTuplesArray.length - this.filterOptions.fragmentOutputLimit;
           filteredMatches.set(
             matchedFileName,
             rangesTuplesArray.slice(0, rangesTuplesArray.length - elementsExtra),
@@ -79,7 +78,7 @@ export class Summary {
         }
         outputCount += rangesTuplesArray.length;
       }
-      if (this.filterOptions.passageOutputLimit < outputCount) {
+      if (this.filterOptions.fragmentOutputLimit < outputCount) {
         break;
       }
     }
@@ -94,20 +93,22 @@ export class Summary {
     return rangesTupleArray.filter(
       rangesTuple =>
         Math.max(rangesTuple[0].getLineCount(), rangesTuple[1].getLineCount()) >=
-          (this.filterOptions.minimumLinesInLargestPassage  || 0) &&
+          (this.filterOptions.minimumLinesInLargestFragment || 0) &&
         Math.min(rangesTuple[0].getLineCount(), rangesTuple[1].getLineCount()) >=
-          (this.filterOptions.minimumLinesInSmallestPassage || 0),
+          (this.filterOptions.minimumLinesInSmallestFragment || 0),
     );
   }
-
-  public toString(): string {
+  /**
+   * @param comment A command you want to add to the summary.
+   */
+  public toString(comment?: string): string {
     if (this.results.size === 0) {
       return "There were no matches";
     }
 
     let output = "";
-    if (this.comment !== undefined) {
-      output += this.comment + "\n";
+    if (comment !== undefined) {
+      output += comment + "\n";
     }
 
     const linesInFileMap: Map<string, number> = new Map();
