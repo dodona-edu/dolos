@@ -47,18 +47,11 @@ export class Summary {
     filterOptions?: FilterOptions,
   ) {
     this.gapSize = gapSize;
+    this.comment = comment;
+    this.filterOptions = filterOptions || this.defaultFilterOptions;
     this.results = this.transformMatches(matchesPerFile);
     this.results = this.filterOutputAmount(this.results);
     this.results = this.sortResults();
-    this.comment = comment;
-    this.filterOptions = filterOptions || this.defaultFilterOptions;
-
-    this.filterOptions.minimumLinesInLargestPassage =
-      this.filterOptions.minimumLinesInLargestPassage ||
-      this.defaultFilterOptions.minimumLinesInLargestPassage;
-    this.filterOptions.minimumLinesInSmallestPassage =
-      this.filterOptions.minimumLinesInSmallestPassage ||
-      this.defaultFilterOptions.minimumLinesInSmallestPassage;
   }
 
   public filterOutputAmount(
@@ -101,9 +94,9 @@ export class Summary {
     return rangesTupleArray.filter(
       rangesTuple =>
         Math.max(rangesTuple[0].getLineCount(), rangesTuple[1].getLineCount()) >=
-          (this.filterOptions.minimumLinesInLargestPassage as number) &&
+          (this.filterOptions.minimumLinesInLargestPassage  || 0) &&
         Math.min(rangesTuple[0].getLineCount(), rangesTuple[1].getLineCount()) >=
-          (this.filterOptions.minimumLinesInSmallestPassage as number),
+          (this.filterOptions.minimumLinesInSmallestPassage || 0),
     );
   }
 
@@ -307,14 +300,14 @@ export class Summary {
     matchesPerFile: Map<string, Matches<number>>,
   ): Map<string, Matches<Range>> {
     const results: Map<string, Matches<Range>> = new Map();
-    matchesPerFile.forEach((matches, matchedFileName) => {
+    matchesPerFile.forEach((matches, matchedFile) => {
       matches.forEach((matchLocations, matchingFile) => {
-        let map: Matches<Range> | undefined = results.get(matchingFile);
+        let map: Matches<Range> | undefined = results.get(matchedFile);
         const rangesTupleArray: RangesTuple[] = this.matchesToRange(matchLocations);
         if (rangesTupleArray.length !== 0) {
           if (map === undefined) {
             map = new Map();
-            results.set(matchedFileName, map);
+            results.set(matchedFile, map);
           }
           map.set(matchingFile, rangesTupleArray);
         }
