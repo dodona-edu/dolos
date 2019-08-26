@@ -20,6 +20,10 @@ function random(): number {
   return x - Math.floor(x);
 }
 
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
 test("simple match to ranges", () => {
   const summary = new Summary(new Map());
   const array: Array<[number, number]> = [[1, 5], [2, 6], [3, 7], [4, 8]];

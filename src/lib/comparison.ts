@@ -143,8 +143,7 @@ export class Comparison<Location> {
         // add the match if the match is not with the file and if the file comes first when alphabetically sorted.
         // This is done to avoid the duplicates in the following case: when file A matches with file B, file B will
         // also match with file A.
-        // TODO https://github.com/dodona-edu/dolos/pull/32#discussion_r317101920
-        if (fileName === file || file < fileName) {
+        if (fileName === file) {
           continue;
         }
         const match: [Location, Location] = [lineNumber, mapping[location]];
