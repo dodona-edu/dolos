@@ -30,9 +30,9 @@ program
   )
   .option(
     "-M --maximum-fragment-percentage <float>",
-    "The -M option sets how many percent of the files the code fragment may appear before it is ignored. A fragment of " +
-      "code that appears in many programs is probably legitimate sharing and not the result of plagiarism. With -M N " +
-      "any fragment appearing in more than N percent of the files is filtered out. " +
+    "The -M option sets how many percent of the files the code fragment may appear before it is ignored. A fragment " +
+      "of code that appears in many programs is probably legitimate sharing and not the result of plagiarism. With " +
+      "-M N any fragment appearing in more than N percent of the files is filtered out. " +
       "Must be a value between 0 and 1.",
     0.9,
   )
@@ -97,8 +97,8 @@ program.parse(process.argv);
 
   // Compare all the file with each other.
   const comparison = new Comparison({
-    tokenizer,
     filterOptions: comparisonFragmentFilterOptions,
+    tokenizer,
   });
 
   // Compare the base file with all the other files when there is a base file.
@@ -110,9 +110,9 @@ program.parse(process.argv);
   const matchesPerFile: Map<string, Matches<number>> = await comparison.compareFiles(locations);
 
   const filterOptions: FilterOptions = {
+    fragmentOutputLimit: program.fragmentOutputLimit,
     minimumLinesInLargestFragment: program.minimumLinesLongest,
     minimumLinesInSmallestFragment: program.minimumLinesShortest,
-    fragmentOutputLimit: program.fragmentOutputLimit,
   };
 
   const summary = new Summary(matchesPerFile, program.MaximumGapSize, filterOptions);

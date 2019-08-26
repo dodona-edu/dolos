@@ -7,9 +7,9 @@ export type Matches<Location> = Map<string, Array<[Location, Location]>>;
 
 /**
  * @param filterFragmentsByPercentage Defines if the fragment should be filtered by percentage or by an absolute value.
- * @param maxFragment The maximum fragment. How this will be used depends on the value of [[filterFragmentByPercentage]]. //TODO better wording needed
- * If it is used as a percentage then the number should be between 0 and 1. If you want to use it as an absolute value
- * then a number between 0 and the amount of files given would be the most useful.
+ * @param maxFragment The maximum fragment. How this will be used depends on the value of
+ * [[filterFragmentByPercentage]]. If it is used as a percentage then the number should be between 0 and 1. If you want
+ *  to use it as an absolute value then a number between 0 and the amount of files given would be the most useful.
  */
 export interface ComparisonFilterOptions {
   maxFragment: number;

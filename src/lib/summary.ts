@@ -23,9 +23,9 @@ export class Summary {
   private readonly filterOptions: FilterOptions;
 
   private readonly defaultFilterOptions: FilterOptions = {
+    fragmentOutputLimit: undefined,
     minimumLinesInLargestFragment: 1,
     minimumLinesInSmallestFragment: 0,
-    fragmentOutputLimit: undefined,
   };
 
   /**
