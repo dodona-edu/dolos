@@ -1,8 +1,12 @@
-import  fs  from "fs";
+import fs from "fs";
 import path from "path";
 import { Matches } from "./comparison";
 import { Range } from "./range";
 export type RangesTuple = [Range, Range];
+
+// interface ObjectMap<T> {
+//   [key: string]: T;
+// }
 
 /**
  * @param minimumLinesInLargestFragment The minimum amount of lines required by the largest code fragment. The default
@@ -39,6 +43,16 @@ export class Summary {
   public readonly gapSize: number;
   private readonly results: Map<string, Matches<Range>>;
   private readonly filterOptions: FilterOptions;
+
+  private readonly defaultFilterOptions: FilterOptions = {
+    minimumLinesInLargestPassage: 1,
+    minimumLinesInSmallestPassage: 0,
+    passageOutputLimit: undefined,
+  };
+
+  private readonly filesContents: Map<string, string[]> = new Map();
+
+  private readonly clusterCutOffValue: number = 0.5;
 
   /**
    * Generates a summary for the given matches.
@@ -131,157 +145,60 @@ export class Summary {
     return JSON.stringify(obj, Summary.JSONReplacerFunction(zeroBase));
   }
 
-  private readonly filesContents: Map<string, Array<string>> = new Map();
-  private readFileOverRange(fileName: string, range: Range): string {
-    if(!this.filesContents.has(fileName)){
-      this.filesContents.set(fileName, fs.readFileSync(fileName, "utf8").split('\n'));
-    }
-    return (this.filesContents.get(fileName) as Array<string>).slice(range.from , range.to + 1 ).join('\n');
-  }
-  private toCompareView(matchedFile: string, matchingFile: string, matchingRangesTuples: RangesTuple): string {
-    const [ matchingFileRange, matchedFileRange] = matchingRangesTuples;
-    return `\n<div class="code-comparison">\n` + 
-              `<div class="left-column">${this.escapeHtml(`>>>File: ${matchedFile}, lines: ${matchedFileRange.toString()}`)}\n` +
-              `<hr>\n` +
-              `<div><code>${this.escapeHtml(this.readFileOverRange(matchedFile, matchedFileRange))}</code></div>\n` +
-              `</div>\n` + 
-              `<div class="right-column">${this.escapeHtml(`>>>File: ${matchingFile}, lines: ${matchingFileRange.toString()}` )}\n` +
-              `<hr>\n` +
-              `<div><code>${this.escapeHtml(this.readFileOverRange(matchingFile, matchingFileRange))}</code></div>\n` +
-              `</div>\n` +
-        `</div>\n`
-  }
+  //TODO
+  public makeGroupsEntry(group: Array<[string, string, Array<RangesTuple>]>): string {
 
-  private toComparePage(matchedFile: string, matchingFile: string, matchingRangesTuples: Array<RangesTuple>): string {
-    const comparePage: string = matchingRangesTuples
-      .map(rangesTuple => this.toCompareView(matchedFile, matchingFile, rangesTuple))
-      .join('\n');
-
-    const id: string = this.makeId(matchedFile, matchingFile);
-    return `<div style="display:none" id="${id}">` + 
-        `<div> <a href=# onclick="return show('Index', '${id}')">Back to index</a> </div>`+
-        `<div>${comparePage}</div>` + 
-        `</div>`;
-  }
-
-  private makeId(matchedFile: string, matchingFile: string): string {
-    return `${this.escapeHtml(matchedFile)}-${this.escapeHtml(matchingFile)}`
-  }
-
-  private makeTableRow(matchedFile: string, matchingFile: string, rangesTupleArray: Array<RangesTuple>): string {
-    const id: string = this.makeId(matchedFile, matchingFile);
-    return `<tr>` + 
-        `<td><a href=# onclick="return show('${id}', 'Index');">${this.escapeHtml(matchedFile)}</a></td>` + 
-        `<td><a href=# onclick="return show('${id}', 'Index');">${this.escapeHtml(matchingFile)}</a></td>` + 
-        `<td  align="right">${this.getScoreForArray( rangesTupleArray)}</td>` + 
-        `</tr>`
-  }
-
-
-  private readonly clusterCutOffValue: number = 0.5;
-  // TODO documentation
-  // TODO split up in smaller functions perhaps?
-  private clusterResults(results: Map<string, Matches<Range>>): Array<Array<[string , string, Array<RangesTuple>]>> { 
-    const filesSet: Set<string> = new Set();
-    const fileTupleScores: Array<[string, string, Array<RangesTuple>, number]> = new Array();
-    let maxScore: number = Number.MIN_VALUE;
-
-    for(const [matchedFile, matches] of results.entries()){
-      filesSet.add(matchedFile);
-      for(const [matchingFile, matchingRanges] of matches.entries()) {
-        filesSet.add(matchingFile);
-        const score = this.getScoreForArray(matchingRanges);
-        maxScore = Math.max(maxScore, score);
-        fileTupleScores.push([matchedFile, matchingFile, matchingRanges, score])
-      }
-    }
-
-    //TODO maybe make an array so that int => int and mapping all files to an int if that is faster.
-    const equivalenceClasses: Map<string ,string> = new Map([...filesSet.values()].map((file) => [file, file]));
-    for(const [matchedFile, matchingFile, _, score] of fileTupleScores) {
-      if (score / maxScore > this.clusterCutOffValue) { //TODO think of a good score cut off value and better score function
-        const root1: string = this.getRoot(equivalenceClasses, matchedFile);
-        const root2: string = this.getRoot(equivalenceClasses, matchingFile);
-        equivalenceClasses.set(root1, root2);
-      }
-    }
-
-
-    const filesGroupsMap: Map< string, Array<[string, string, Array<RangesTuple>]>> = new Map();
-    const restGroup: Array<[string, string, Array<RangesTuple>]> = new Array();
-    for(const [matchedFile, matchingFile, matchingRanges, ] of fileTupleScores) {
-      const root: string = this.getRoot(equivalenceClasses ,matchedFile);
-      if( root === this.getRoot(equivalenceClasses, matchingFile)) {
-        let filesGroup: Array<[string, string, Array<RangesTuple>]> | undefined = filesGroupsMap.get(root);
-        if(!filesGroup) {
-          filesGroup = new Array();
-          filesGroupsMap.set(root, filesGroup);
-        }
-        filesGroup.push([matchedFile, matchingFile, matchingRanges]);
-      } else {
-        restGroup.push([matchedFile, matchingFile, matchingRanges]);
-      }
-    }
-    const filesGroupsArray: Array<Array<[string, string, Array<RangesTuple>]>> = [...filesGroupsMap.values()];
-
-    filesGroupsArray.push(restGroup);
-
-    //TODO sort filesGroupsArray 
-    return filesGroupsArray;
-    }
-
-  //TODO decomentation
-  private getRoot(equivalenceClasses: Map<string, string>, value: string): string {
-    //TODO implement
-    //TODO path compression maybe?
-
-    return '';
-  }
-
-  //TODO improve this code
-  private escapeHtml(text: string) {
-    const map: any = {
-      '&': '&amp;',
-      '<': '&lt;',
-      '>': '&gt;',
-      '"': '&quot;',
-      "'": '&#039;'
-    };
-
-    return text.replace(/[&<>"']/g, m =>  map[m]);
-  }
-
-  public toHTML(): string {
-    const JSONData: any = JSON.parse(this.toJSON());
-    const tableRows: Array<string> = new Array();
-    const comparisonPages: Array<string> = new Array();
-
-    for( const [matchedFile, matches] of Object.entries(JSONData)){
-      for(const [matchingFile, rangesTupleArrayObj] of Object.entries(matches as any)) {
-
-        const rangesTuplesArray: Array<RangesTuple> = this.numberTupleArrayToRangesTuplesArray(rangesTupleArrayObj as Array<[[number, number], [number, number]]>);
-        tableRows.push(this.makeTableRow(matchedFile, matchingFile, rangesTuplesArray));
-        comparisonPages.push(this.toComparePage(matchedFile, matchingFile, rangesTuplesArray));
-      }
-    }
-    const stylesheet: string = fs.readFileSync(path.resolve("./src/lib/assets/stylesheet.css"), "utf8");
-    const script : string = fs.readFileSync(path.resolve("./src/lib/assets/scripts.js"), "utf8");
-
-    const body: string = `
-<div id="Index">
-  <table>
+    //TODO make this less ugly
+    return `<div class="group" style="border: 3px solid black;">` +
+    `This is a group div <hr>`+ 
+  `<table>
     <tr>
       <th>File 1</th>
       <th>File 2</th>
       <th>Lines matched</th>
     </tr>
-    ${tableRows.join('\n')}
-  </table>
+    ${group.map(([matchedFile, matchingFile, rangesTupleArray]) => this.makeTableRow(matchedFile, matchingFile, rangesTupleArray)).concat('\n')}
+  </table>` +
+    `</div>`;
+
+  }
+  public toHTML(): string {
+    // const JSONData: ObjectMap<ObjectMap<Array<[[number, number], [number, number]]>>> = JSON.parse(
+    //   this.toJSON(),
+    // ); //TODO after json returns the aggregated data this type will not longer be correct
+    const tableRows: string[] = new Array();
+    const comparisonPages: string[] = new Array();
+
+    // for (const [matchedFile, matches] of Object.entries(JSONData)) {
+    //   for (const [matchingFile, rangesTupleArrayObj] of Object.entries(matches)) {
+    //     const rangesTuplesArray: RangesTuple[] = this.numberTupleArrayToRangesTuplesArray(
+    //       rangesTupleArrayObj,
+    //     );
+    //     tableRows.push(this.makeTableRow(matchedFile, matchingFile, rangesTuplesArray));
+    //     comparisonPages.push(this.toComparePage(matchedFile, matchingFile, rangesTuplesArray));
+    //   }
+    // }
+    //TODO use the json results directly
+    for(const group of this.clusterResults(this.results)) {
+      tableRows.push(this.makeGroupsEntry(group));
+      for(const [matchedFile, matchingFile, rangesTupleObj] of group ) {
+        comparisonPages.push(this.toComparePage(matchedFile, matchingFile, rangesTupleObj));
+      }
+    }
+    const stylesheet: string = fs.readFileSync(
+      path.resolve("./src/lib/assets/stylesheet.css"),
+      "utf8",
+    );
+    const script: string = fs.readFileSync(path.resolve("./src/lib/assets/scripts.js"), "utf8");
+
+    const body: string = `
+<div id="Index">
+    ${tableRows.join("\n")}
 </div>
-${comparisonPages.join('\n')}
+${comparisonPages.join("\n")}
     `;
 
-    //TODO put script in separate file instead of just reading it
+    // TODO put script in separate file instead of just reading it
     return `<!doctype html>
 <html lang="en">
 <head>
@@ -314,7 +231,7 @@ ${comparisonPages.join('\n')}
     const linesInFileMap: Map<string, number> = new Map();
 
     output += Array.from(this.results.entries())
-      .map((resultEntry) => {
+      .map(resultEntry => {
         const [sourceFileName, subMap] = resultEntry;
         let subOutput = "";
         subOutput += `source: ${sourceFileName}\n\n`;
@@ -323,7 +240,7 @@ ${comparisonPages.join('\n')}
         const entryArray: Array<[string, RangesTuple[]]> = Array.from(subMap.entries());
 
         subOutput += entryArray
-          .map(  (subMapEntry) => {
+          .map(subMapEntry => {
             let matchedFilenameOutput = "";
             const [matchedFileName, rangesTupleArray] = subMapEntry;
             const score: number = rangesTupleArray
@@ -331,7 +248,7 @@ ${comparisonPages.join('\n')}
               .reduce((accumulator, nextValue) => accumulator + nextValue);
 
             if (!linesInFileMap.has(matchedFileName)) {
-              linesInFileMap.set(matchedFileName,this.countLinesInFile(matchedFileName));
+              linesInFileMap.set(matchedFileName, this.countLinesInFile(matchedFileName));
             }
             const scoreMatchedFile =
               (score / (linesInFileMap.get(matchedFileName) as number)) * 100;
@@ -443,7 +360,170 @@ ${comparisonPages.join('\n')}
     }
     return ranges;
   }
+  private readFileOverRange(fileName: string, range: Range): string {
+    if (!this.filesContents.has(fileName)) {
+      this.filesContents.set(fileName, fs.readFileSync(fileName, "utf8").split("\n"));
+    }
+    return (this.filesContents.get(fileName) as string[])
+      .slice(range.from, range.to + 1)
+      .join("\n");
+  }
+  private toCompareView(
+    matchedFile: string,
+    matchingFile: string,
+    matchingRangesTuples: RangesTuple,
+  ): string {
+    const [matchingFileRange, matchedFileRange] = matchingRangesTuples;
+    return (
+      `\n<div class="code-comparison">\n` +
+      `<div class="left-column">${this.escapeHtml(
+        `>>>File: ${matchedFile}, lines: ${matchedFileRange.toString()}`,
+      )}\n` +
+      `<hr>\n` +
+      `<div><code>${this.escapeHtml(
+        this.readFileOverRange(matchedFile, matchedFileRange),
+      )}</code></div>\n` +
+      `</div>\n` +
+      `<div class="right-column">${this.escapeHtml(
+        `>>>File: ${matchingFile}, lines: ${matchingFileRange.toString()}`,
+      )}\n` +
+      `<hr>\n` +
+      `<div><code>${this.escapeHtml(
+        this.readFileOverRange(matchingFile, matchingFileRange),
+      )}</code></div>\n` +
+      `</div>\n` +
+      `</div>\n`
+    );
+  }
 
+  private toComparePage(
+    matchedFile: string,
+    matchingFile: string,
+    matchingRangesTuples: RangesTuple[],
+  ): string {
+    const comparePage: string = matchingRangesTuples
+      .map(rangesTuple => this.toCompareView(matchedFile, matchingFile, rangesTuple))
+      .join("\n");
+
+    const id: string = this.makeId(matchedFile, matchingFile);
+    return (
+      `<div style="display:none" id="${id}">` +
+      `<div> <a href=# onclick="return show('Index', '${id}')">Back to index</a> </div>` +
+      `<div>${comparePage}</div>` +
+      `</div>`
+    );
+  }
+
+  private makeId(matchedFile: string, matchingFile: string): string {
+    return `${this.escapeHtml(matchedFile)}-${this.escapeHtml(matchingFile)}`;
+  }
+
+  private makeTableRow(
+    matchedFile: string,
+    matchingFile: string,
+    rangesTupleArray: RangesTuple[],
+  ): string {
+    const id: string = this.makeId(matchedFile, matchingFile);
+    return (
+      `<tr>` +
+      `<td><a href=# onclick="return show('${id}', 'Index');">${this.escapeHtml(
+        matchedFile,
+      )}</a></td>` +
+      `<td><a href=# onclick="return show('${id}', 'Index');">${this.escapeHtml(
+        matchingFile,
+      )}</a></td>` +
+      `<td  align="right">${this.getScoreForArray(rangesTupleArray)}</td>` +
+      `</tr>`
+    );
+  }
+  // TODO documentation
+  // TODO split up in smaller functions perhaps?
+  // TODO use this in toString, toJson and toHTML
+  private clusterResults(
+    results: Map<string, Matches<Range>>,
+  ): Array<Array<[string, string, RangesTuple[]]>> {
+    const filesSet: Set<string> = new Set();
+    const fileTupleScores: Array<[string, string, RangesTuple[], number]> = new Array();
+    let maxScore: number = Number.MIN_VALUE;
+
+    for (const [matchedFile, matches] of results.entries()) {
+      filesSet.add(matchedFile);
+      for (const [matchingFile, matchingRanges] of matches.entries()) {
+        filesSet.add(matchingFile);
+        const score = this.getScoreForArray(matchingRanges);
+        maxScore = Math.max(maxScore, score);
+        fileTupleScores.push([matchedFile, matchingFile, matchingRanges, score]);
+      }
+    }
+
+    // TODO maybe make an array so that int => int and mapping all files to an int if that is faster.
+    const equivalenceClasses: Map<string, string> = new Map(
+      [...filesSet.values()].map(file => [file, file]),
+    );
+    for (const [matchedFile, matchingFile, , score] of fileTupleScores) {
+      if (score / maxScore > this.clusterCutOffValue) {
+        // TODO think of a good score cut off value and better score function
+        const root1: string = this.getRoot(equivalenceClasses, matchedFile);
+        const root2: string = this.getRoot(equivalenceClasses, matchingFile);
+        equivalenceClasses.set(root1, root2);
+      }
+    }
+
+    const filesGroupsMap: Map<string, Array<[string, string, RangesTuple[]]>> = new Map();
+    const restGroup: Array<[string, string, RangesTuple[]]> = new Array();
+    for (const [matchedFile, matchingFile, matchingRanges] of fileTupleScores) {
+      const root: string = this.getRoot(equivalenceClasses, matchedFile);
+      if (root === this.getRoot(equivalenceClasses, matchingFile)) {
+        let filesGroup:
+          | Array<[string, string, RangesTuple[]]>
+          | undefined = filesGroupsMap.get(root);
+        if (!filesGroup) {
+          filesGroup = new Array();
+          filesGroupsMap.set(root, filesGroup);
+        }
+        filesGroup.push([matchedFile, matchingFile, matchingRanges]);
+      } else {
+        restGroup.push([matchedFile, matchingFile, matchingRanges]);
+      }
+    }
+    const filesGroupsArray: Array<Array<[string, string, RangesTuple[]]>> = [
+      ...filesGroupsMap.values(),
+    ];
+
+    if(restGroup.length > 0) {
+      filesGroupsArray.push(restGroup);
+    }
+
+    // TODO sort filesGroupsArray
+    return filesGroupsArray;
+  }
+
+  // TODO documentation
+  private getRoot(equivalenceClasses: Map<string, string>, value: string): string {
+    let root: string = equivalenceClasses.get(value) as string;
+    let nextRoot: string = equivalenceClasses.get(root) as string;
+    while (root !== nextRoot) {
+      root = nextRoot;
+      nextRoot = equivalenceClasses.get(root) as string;
+    }
+    // TODO path compression maybe?
+    return root;
+  }
+
+  // TODO improve this code
+  private escapeHtml(text: string) {
+    const map: any = {
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#039;",
+    };
+
+    return text.replace(/[&<>"']/g, m => map[m]);
+  }
+
+  // @ts-ignore TODO remove this
   private numberTupleArrayToRangesTuplesArray(
     numberTupleArray: Array<[[number, number], [number, number]]>,
   ): RangesTuple[] {
@@ -453,8 +533,8 @@ ${comparisonPages.join('\n')}
     ]);
   }
 
-  private  countLinesInFile(fileName: string): number {
-    return (fs.readFileSync(fileName, "utf8")).split("\n").length;
+  private countLinesInFile(fileName: string): number {
+    return fs.readFileSync(fileName, "utf8").split("\n").length;
   }
 
   /**
