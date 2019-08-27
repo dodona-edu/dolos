@@ -59,6 +59,10 @@ program
     "Specifies what format the output should be, current options are: terminal, json, html.",
     "terminal",
   )
+  .option(
+    "-c, --cluster-cut-off-value <number>",
+    "The minimum amount of lines needed before two files will be clustered together"
+  )
   .arguments("<locations...>")
   .action(filesArgs => {
     locations = filesArgs;
@@ -110,9 +114,10 @@ program.parse(process.argv);
 
   const summary = new Summary(
     matchesPerFile,
-    program.MaximumGapSize,
+    program.maximumGapSize,
     program.comment,
     filterOptions,
+    program.clusterCutOffValue,
   );
   let outputString: string = '';
   switch(program.outputFormat.toLowerCase()) {
