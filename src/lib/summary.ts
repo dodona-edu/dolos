@@ -24,13 +24,6 @@ export class Summary {
     minimumFragmentLength: 0,
   });
 
-  private consoleColours: boolean = false; 
-  private colour(colour: string, text: string): string {
-    if (!Summary.colours.has(colour) || !this.consoleColours) {
-      return text;
-    }
-    return `${Summary.colours.get(colour)}${text}${Summary.colours.get("Reset")}`;
-  }
 
   public static readonly JSONReplacerFunction: (key: string, value: any) => any = (_, value) => {
     if (value instanceof Range) {
@@ -47,6 +40,7 @@ export class Summary {
   ]);
 
   public readonly gapSize: number;
+  private consoleColours: boolean = false;
   private readonly clusteredResults: Clustered<[string, string, RangesTuple[]]>;
   private readonly filterOptions: FilterOptions;
   private readonly clusterCutOffValue: number;
@@ -227,13 +221,9 @@ export class Summary {
   public getMaxMatchingLineCount(rangesTupleArray: RangesTuple[]): number {
     return Math.max(...this.countLinesInRanges(rangesTupleArray));
   }
-<<<<<<< HEAD
-  public toString(comment?: string): string {
-=======
 
-  public toString(consoleColours: boolean = false): string {
+  public toString(comment?: string, consoleColours: boolean = false): string {
     this.consoleColours = consoleColours;
->>>>>>> improved toString
     if (this.clusteredResults.length === 0) {
       return "There were no matches";
     }
@@ -253,18 +243,20 @@ export class Summary {
   }
 
   public groupToString(group: Array<[string, string, RangesTuple[]]>): string {
-    return group
-      .map(([matchedFile, matchingFile, matches]) => {
-        const matchesString: string = matches
-          .map(match => JSON.stringify(match, Summary.JSONReplacerFunction))
-          .join("\n\t\t");
+    return (
+      group
+        .map(([matchedFile, matchingFile, matches]) => {
+          const matchesString: string = matches
+            .map(match => JSON.stringify(match, Summary.JSONReplacerFunction))
+            .join("\n\t\t");
 
-        return (
-          this.colour("FgGreen", `\t${matchedFile} + ${matchingFile} => \n`) +
-          `\t\t${matchesString}`
-        );
-      })
-      .join("\n") + '\n';
+          return (
+            this.colour("FgGreen", `\t${matchedFile} + ${matchingFile} => \n`) +
+            `\t\t${matchesString}`
+          );
+        })
+        .join("\n") + "\n"
+    );
   }
 
   /**
@@ -448,6 +440,12 @@ export class Summary {
     );
     return filesGroupsArray;
   }
+  private colour(colour: string, text: string): string {
+    if (!Summary.colours.has(colour) || !this.consoleColours) {
+      return text;
+    }
+    return `${Summary.colours.get(colour)}${text}${Summary.colours.get("Reset")}`;
+  }
 
   /**
    * Counts the total amount of lines that correspond with the first and second file.
@@ -562,7 +560,7 @@ export class Summary {
       root = nextRoot;
       nextRoot = equivalenceClasses.get(root) as string;
     }
-    values.forEach(value => equivalenceClasses.set(value, root));
+    values.forEach(lambdaValue => equivalenceClasses.set(lambdaValue, root));
     return root;
   }
 
@@ -573,11 +571,11 @@ export class Summary {
    */
   private escapeHtml(text: string) {
     const map: any = {
+      '"': "&quot;",
       "&": "&amp;",
+      "'": "&#039;",
       "<": "&lt;",
       ">": "&gt;",
-      '"': "&quot;",
-      "'": "&#039;",
     };
 
     return text.replace(/[&<>"']/g, m => map[m]);

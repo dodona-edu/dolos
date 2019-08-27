@@ -10,7 +10,7 @@ const program = new Command();
 // Initial program description and version
 program.version("0.0.1").description("Plagiarism detection for programming exercises");
 
-//TODO propper indentation with nodejs tty writeStream.columns
+// TODO propper indentation with nodejs tty writeStream.columns
 program
   .option(
     "-l, --language <language>",
@@ -61,7 +61,7 @@ program
   )
   .option(
     "-c, --cluster-cut-off-value <number>",
-    "The minimum amount of lines needed before two files will be clustered together"
+    "The minimum amount of lines needed before two files will be clustered together",
   )
   .arguments("<locations...>")
   .action(filesArgs => {
@@ -119,10 +119,10 @@ program.parse(process.argv);
     filterOptions,
     program.clusterCutOffValue,
   );
-  let outputString: string = '';
-  switch(program.outputFormat.toLowerCase()) {
+  let outputString: string = "";
+  switch (program.outputFormat.toLowerCase()) {
     case "terminal":
-    case "console": 
+    case "console":
       outputString = summary.toString(true);
       break;
     case "json":
