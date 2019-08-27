@@ -56,7 +56,7 @@ program
   )
   .option(
     "-o, --output-format <format>",
-    "Specifies what format the output should be, current options are: terminal, json, html.",
+    "Specifies what format the output should be, current options are: terminal/console, json, html.",
     "terminal",
   )
   .option(
@@ -122,6 +122,7 @@ program.parse(process.argv);
   let outputString: string = '';
   switch(program.outputFormat.toLowerCase()) {
     case "terminal":
+    case "console": 
       outputString = summary.toString(true);
       break;
     case "json":
