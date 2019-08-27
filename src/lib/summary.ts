@@ -18,15 +18,15 @@ export interface FilterOptions {
 }
 
 export class Summary {
-  public readonly gapSize: number;
-  private readonly results: Map<string, Matches<Range>>;
-  private readonly filterOptions: FilterOptions;
 
-  private readonly defaultFilterOptions: FilterOptions = {
+  private static readonly defaultFilterOptions: FilterOptions = Object.freeze({
     fragmentOutputLimit: undefined,
     minimumLinesInLargestFragment: 1,
     minimumLinesInSmallestFragment: 0,
-  };
+  });
+  public readonly gapSize: number;
+  private readonly results: Map<string, Matches<Range>>;
+  private readonly filterOptions: FilterOptions;
 
   /**
    * Generates a summary for the given matches.
@@ -40,10 +40,10 @@ export class Summary {
   constructor(
     matchesPerFile: Map<string, Matches<number>>,
     gapSize: number = 0,
-    filterOptions?: FilterOptions,
+    filterOptions: FilterOptions = Summary.defaultFilterOptions,
   ) {
+    this.filterOptions = filterOptions;
     this.gapSize = gapSize;
-    this.filterOptions = filterOptions || this.defaultFilterOptions;
     this.results = this.transformMatches(matchesPerFile);
     this.results = this.filterOutputAmount(this.results);
     this.results = this.sortResults();

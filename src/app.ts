@@ -1,6 +1,6 @@
 import { Command } from "commander";
 import { CodeTokenizer } from "./lib/codeTokenizer";
-import { Comparison, ComparisonFilterOptions } from "./lib/comparison";
+import { Comparison } from "./lib/comparison";
 import { Matches } from "./lib/comparison.js";
 import { FilterOptions, Summary } from "./lib/summary.js";
 
@@ -38,9 +38,9 @@ program
   )
   .option("-c, --comment <string>", "Comment string that is attached to the generated report")
   .option(
-    "-n, --fragment-output-limit",
-    "Specifies how many matching fragment are shown in the result. All fragment are " +
-      "shown then this option isn't used.",
+    "-n, --file-pair-output-limit",
+    "Specifies how many matching file pairs are shown in the result. All pairs are " +
+      "shown then this option is omitted.",
   )
   .option(
     "-s, --minimum-lines-shortest <integer>",
@@ -54,9 +54,9 @@ program
   )
   .option(
     "-g, --maximum-gap-size <integer>",
-    "If two fragment need to be joined, then this parameter specifies how large the gap between the two fragment may" +
-      "be.",
-    0,
+    "If two fragments are close to each other, they will be merged into a single fragment if the gap between them is " +
+      "smaller than the given number of lines." +
+      0,
   )
   .arguments("<locations...>")
   .action(filesArgs => {
@@ -87,18 +87,14 @@ program.parse(process.argv);
     program.outputHelp();
     process.exit(1);
   }
-  const comparisonFragmentFilterOptions: ComparisonFilterOptions = {
+
+  // Compare all the file with each other.
+  const comparison = new Comparison(tokenizer, {
     filterFragmentByPercentage: program.maximumFragmentCount === undefined,
     maxFragment:
       program.maximumFragmentCount === undefined
         ? program.maximumFragmentPercentage
         : program.maximumFragmentCount,
-  };
-
-  // Compare all the file with each other.
-  const comparison = new Comparison({
-    filterOptions: comparisonFragmentFilterOptions,
-    tokenizer,
   });
 
   // Compare the base file with all the other files when there is a base file.
@@ -110,7 +106,7 @@ program.parse(process.argv);
   const matchesPerFile: Map<string, Matches<number>> = await comparison.compareFiles(locations);
 
   const filterOptions: FilterOptions = {
-    fragmentOutputLimit: program.fragmentOutputLimit,
+    fragmentOutputLimit: program.filePairOutputLimit,
     minimumLinesInLargestFragment: program.minimumLinesLongest,
     minimumLinesInSmallestFragment: program.minimumLinesShortest,
   };

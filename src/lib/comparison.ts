@@ -6,26 +6,21 @@ import { WinnowFilter } from "./winnowFilter";
 export type Matches<Location> = Map<string, Array<[Location, Location]>>;
 
 /**
- * @param filterFragmentsByPercentage Defines if the fragment should be filtered by percentage or by an absolute value.
- * @param maxFragment The maximum fragment. How this will be used depends on the value of
- * [[filterFragmentByPercentage]]. If it is used as a percentage then the number should be between 0 and 1. If you want
- *  to use it as an absolute value then a number between 0 and the amount of files given would be the most useful.
- */
-export interface ComparisonFilterOptions {
-  maxFragment: number;
-  filterFragmentByPercentage: boolean;
-}
-
-/**
  * @param hashFilter An optional HashFilter to filter the hashes returned by
  * the rolling hash function.
  * @param noFilter A NoFilter used to generate hashes for blacklisted files.
+ * @param filterFragmentsByPercentage Defines if the fragment should be filtered by percentage or by an absolute value.
+ * If this option is used [[maxFragment]] must also be defined. Otherwise this option will be ignored.
+ * @param maxFragment The maximum fragment. How this will be used depends on the value of
+ * [[filterFragmentByPercentage]]. If it is used as a percentage then the number should be between 0 and 1. If you want
+ *  to use it as an absolute value then a number between 0 and the amount of files given would be the most useful.
+ * If this option is used [[filterFragmentsByPercentage]] must also be defined. Otherwise this options will be ignored.
  */
-export interface ComparisonOptions<Location> {
-  tokenizer: Tokenizer<Location>;
+export interface ComparisonOptions {
   hashFilter?: HashFilter;
   noFilter?: NoFilter;
-  filterOptions?: ComparisonFilterOptions;
+  maxFragment?: number;
+  filterFragmentByPercentage?: boolean;
 }
 
 export class Comparison<Location> {
@@ -38,7 +33,8 @@ export class Comparison<Location> {
   private readonly tokenizer: Tokenizer<Location>;
   private readonly hashFilter: HashFilter;
   private readonly noFilter: NoFilter;
-  private readonly fragmentFilterOptions: ComparisonFilterOptions | undefined;
+  private readonly maxFragment: number | undefined;
+  private readonly filterFragmentByPercentage: boolean | undefined;
   private fileCount: number = 0;
 
   /**
@@ -52,11 +48,15 @@ export class Comparison<Location> {
    * @param fragmentOptions The options used to filter based on the fragment count. For a more detailed explanation see
    * [[ComparisonOptions]]. If this options is not used then no filtering will occur.
    */
-  constructor({ tokenizer, hashFilter, noFilter, filterOptions }: ComparisonOptions<Location>) {
+  constructor(
+    tokenizer: Tokenizer<Location>,
+    { hashFilter, noFilter, maxFragment, filterFragmentByPercentage }: ComparisonOptions,
+  ) {
     this.tokenizer = tokenizer;
     this.hashFilter = hashFilter || new WinnowFilter(this.defaultK, this.defaultW);
     this.noFilter = noFilter || new NoFilter(this.defaultK);
-    this.fragmentFilterOptions = filterOptions;
+    this.maxFragment = maxFragment;
+    this.filterFragmentByPercentage = filterFragmentByPercentage;
   }
 
   /**
@@ -181,12 +181,12 @@ export class Comparison<Location> {
    * defined.
    */
   private filterByFragmentCount(fragmentCount: number): boolean {
-    if (!this.fragmentFilterOptions) {
+    if (this.maxFragment === undefined || this.filterFragmentByPercentage === undefined) {
       return true;
-    } else if (this.fragmentFilterOptions.filterFragmentByPercentage) {
-      return fragmentCount / this.fileCount <= this.fragmentFilterOptions.maxFragment;
+    } else if (this.filterFragmentByPercentage) {
+      return fragmentCount / this.fileCount <= this.maxFragment;
     } else {
-      return fragmentCount <= this.fragmentFilterOptions.maxFragment;
+      return fragmentCount <= this.maxFragment;
     }
   }
 }
