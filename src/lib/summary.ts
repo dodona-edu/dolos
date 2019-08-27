@@ -23,16 +23,27 @@ export class Summary {
     fragmentOutputLimit: undefined,
     minimumFragmentLength: 0,
   });
-  private static JSONReplacerFunction(): (key: string, value: any) => any {
-    return (_, value) => {
-      if (value instanceof Range) {
-        const range: Range = value as Range;
-        return [range.from + 1, range.to + 1];
-      } else {
-        return value;
-      }
-    };
+  public static colour(colour: string, text: string): string {
+    if (!this.colours.has(colour)) {
+      return text;
+    }
+    return `${this.colours.get(colour)}${text}${this.colours.get("Reset")}`;
   }
+
+  public static readonly JSONReplacerFunction: (key: string, value: any) => any = (_, value) => {
+    if (value instanceof Range) {
+      const range: Range = value as Range;
+      return [range.from + 1, range.to + 1];
+    } else {
+      return value;
+    }
+  }
+  private static readonly colours: Map<string, string> = new Map([
+    ["FgRed", "\x1b[31m"],
+    ["FgGreen", "\x1b[32m"],
+    ["Reset", "\x1b[0m"],
+  ]);
+
   public readonly gapSize: number;
   private readonly clusteredResults: Clustered<[string, string, RangesTuple[]]>;
   private readonly filterOptions: FilterOptions;
@@ -46,7 +57,6 @@ export class Summary {
     minimumLinesInSmallestFragment: 0,
     fragmentOutputLimit: undefined,
   };
-
 
   /**
    * Generates a summary for the given matches.
@@ -73,7 +83,7 @@ export class Summary {
   }
 
   /**
-   * Limits the amount of RangesTuples in the results. 
+   * Limits the amount of RangesTuples in the results.
    * @param matchesPerFile The results you want to filter.
    */
   public filterOutputAmount(
@@ -135,7 +145,7 @@ export class Summary {
   }
 
   public toJSON(): string {
-    return JSON.stringify(this.clusteredResults, Summary.JSONReplacerFunction());
+    return JSON.stringify(this.clusteredResults, Summary.JSONReplacerFunction);
   }
 
   /**
@@ -230,8 +240,9 @@ export class Summary {
     if (comment !== undefined) {
       output += comment + "\n";
     }
+
     for (let index = 0; index < this.clusteredResults.length; index += 1) {
-      output += `Cluster ${index + 1}\n`;
+      output += Summary.colour("FgRed", `Cluster ${index + 1}\n`);
       output += this.groupToString(this.clusteredResults[index]).replace("\n", "\t\n");
       output += "\n";
     }
@@ -240,7 +251,18 @@ export class Summary {
   }
 
   public groupToString(group: Array<[string, string, RangesTuple[]]>): string {
-    return group.map(match => JSON.stringify(match, Summary.JSONReplacerFunction())).join("\n");
+    return group
+      .map(([matchedFile, matchingFile, matches]) => {
+        const matchesString: string = matches
+          .map(match => JSON.stringify(match, Summary.JSONReplacerFunction))
+          .join("\n\t\t");
+
+        return (
+          Summary.colour("FgGreen", `\t${matchedFile} + ${matchingFile} => \n`) +
+          `\t\t${matchesString}`
+        );
+      })
+      .join("\n") + '\n';
   }
 
   /**
