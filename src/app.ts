@@ -117,7 +117,7 @@ program.parse(process.argv);
   let outputString: string = '';
   switch(program.outputFormat.toLowerCase()) {
     case "terminal":
-      outputString = summary.toString();
+      outputString = summary.toString(true);
       break;
     case "json":
       outputString = summary.toJSON();

@@ -23,11 +23,13 @@ export class Summary {
     fragmentOutputLimit: undefined,
     minimumFragmentLength: 0,
   });
-  public static colour(colour: string, text: string): string {
-    if (!this.colours.has(colour)) {
+
+  private consoleColours: boolean = false; 
+  private colour(colour: string, text: string): string {
+    if (!Summary.colours.has(colour) || !this.consoleColours) {
       return text;
     }
-    return `${this.colours.get(colour)}${text}${this.colours.get("Reset")}`;
+    return `${Summary.colours.get(colour)}${text}${Summary.colours.get("Reset")}`;
   }
 
   public static readonly JSONReplacerFunction: (key: string, value: any) => any = (_, value) => {
@@ -52,12 +54,6 @@ export class Summary {
   // Maps the file to the amount of lines in that file.
   private readonly linesInFileMap: Map<string, number> = new Map();
 
-  private readonly defaultFilterOptions: FilterOptions = {
-    minimumLinesInLargestFragment: 1,
-    minimumLinesInSmallestFragment: 0,
-    fragmentOutputLimit: undefined,
-  };
-
   /**
    * Generates a summary for the given matches.
    * @param matchesPerFile A many-to-many comparison of a set of files. This map contains an entry for each of the
@@ -74,9 +70,9 @@ export class Summary {
     clusterCutOffValue: number = 15,
   ) {
     this.clusterCutOffValue = clusterCutOffValue;
-    this.filterOptions = filterOptions || this.defaultFilterOptions;
+    this.filterOptions = filterOptions || Summary.defaultFilterOptions;
     this.gapSize = gapSize;
-    this.filterOptions = filterOptions || this.defaultFilterOptions;
+    this.filterOptions = filterOptions || Summary.defaultFilterOptions;
     let results = this.transformMatches(matchesPerFile);
     results = this.filterOutputAmount(results);
     this.clusteredResults = this.clusterResults(results);
@@ -231,7 +227,13 @@ export class Summary {
   public getMaxMatchingLineCount(rangesTupleArray: RangesTuple[]): number {
     return Math.max(...this.countLinesInRanges(rangesTupleArray));
   }
+<<<<<<< HEAD
   public toString(comment?: string): string {
+=======
+
+  public toString(consoleColours: boolean = false): string {
+    this.consoleColours = consoleColours;
+>>>>>>> improved toString
     if (this.clusteredResults.length === 0) {
       return "There were no matches";
     }
@@ -242,7 +244,7 @@ export class Summary {
     }
 
     for (let index = 0; index < this.clusteredResults.length; index += 1) {
-      output += Summary.colour("FgRed", `Cluster ${index + 1}\n`);
+      output += this.colour("FgRed", `Cluster ${index + 1}\n`);
       output += this.groupToString(this.clusteredResults[index]).replace("\n", "\t\n");
       output += "\n";
     }
@@ -258,7 +260,7 @@ export class Summary {
           .join("\n\t\t");
 
         return (
-          Summary.colour("FgGreen", `\t${matchedFile} + ${matchingFile} => \n`) +
+          this.colour("FgGreen", `\t${matchedFile} + ${matchingFile} => \n`) +
           `\t\t${matchesString}`
         );
       })
