@@ -13,16 +13,13 @@ export type RangesTuple = [Range, Range];
  */
 export interface FilterOptions {
   fragmentOutputLimit?: number;
-  minimumLinesInLargestFragment?: number;
-  minimumLinesInSmallestFragment?: number;
+  minimumFragmentLength?: number;
 }
 
 export class Summary {
-
   private static readonly defaultFilterOptions: FilterOptions = Object.freeze({
     fragmentOutputLimit: undefined,
-    minimumLinesInLargestFragment: 1,
-    minimumLinesInSmallestFragment: 0,
+    minimumFragmentLength: 0,
   });
   public readonly gapSize: number;
   private readonly results: Map<string, Matches<Range>>;
@@ -92,10 +89,8 @@ export class Summary {
   public filterByMinimumLines(rangesTupleArray: RangesTuple[]): RangesTuple[] {
     return rangesTupleArray.filter(
       rangesTuple =>
-        Math.max(rangesTuple[0].getLineCount(), rangesTuple[1].getLineCount()) >=
-          (this.filterOptions.minimumLinesInLargestFragment || 0) &&
         Math.min(rangesTuple[0].getLineCount(), rangesTuple[1].getLineCount()) >=
-          (this.filterOptions.minimumLinesInSmallestFragment || 0),
+        (this.filterOptions.minimumFragmentLength || 0),
     );
   }
   /**

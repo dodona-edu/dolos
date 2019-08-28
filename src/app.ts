@@ -43,13 +43,8 @@ program
       "shown then this option is omitted.",
   )
   .option(
-    "-s, --minimum-lines-shortest <integer>",
-    "The minimum amount of lines in the shortest code fragment in a comparison before it is shown",
-    1,
-  )
-  .option(
-    "-S, --minimum-lines-longest <integer>",
-    "The minimum amount of lines in the longest code fragment in a comparison before it is shown",
+    "-s, --minimum-fragment-length <integer>",
+    "The minimum length of a fragment. Every fragment shorter than this is filtered  out.",
     1,
   )
   .option(
@@ -107,8 +102,7 @@ program.parse(process.argv);
 
   const filterOptions: FilterOptions = {
     fragmentOutputLimit: program.filePairOutputLimit,
-    minimumLinesInLargestFragment: program.minimumLinesLongest,
-    minimumLinesInSmallestFragment: program.minimumLinesShortest,
+    minimumFragmentLength: program.minimumFragmentLength,
   };
 
   const summary = new Summary(matchesPerFile, program.MaximumGapSize, filterOptions);
