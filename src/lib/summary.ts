@@ -19,11 +19,6 @@ export interface FilterOptions {
 }
 
 export class Summary {
-  private static readonly defaultFilterOptions: FilterOptions = Object.freeze({
-    fragmentOutputLimit: undefined,
-    minimumFragmentLength: 0,
-  });
-
 
   public static readonly JSONReplacerFunction: (key: string, value: any) => any = (_, value) => {
     if (value instanceof Range) {
@@ -33,6 +28,10 @@ export class Summary {
       return value;
     }
   }
+  private static readonly defaultFilterOptions: FilterOptions = Object.freeze({
+    fragmentOutputLimit: undefined,
+    minimumFragmentLength: 0,
+  });
   private static readonly colours: Map<string, string> = new Map([
     ["FgRed", "\x1b[31m"],
     ["FgGreen", "\x1b[32m"],
@@ -71,7 +70,6 @@ export class Summary {
     results = this.filterOutputAmount(results);
     this.clusteredResults = this.clusterResults(results);
   }
-
   /**
    * Limits the amount of RangesTuples in the results.
    * @param matchesPerFile The results you want to filter.
@@ -439,6 +437,14 @@ export class Summary {
       (group1, group2) => this.getLineCountForGroup(group2) - this.getLineCountForGroup(group1),
     );
     return filesGroupsArray;
+  }
+  private getScoreForArray(arr: RangesTuple[]): number {
+    return arr
+      .map(rangesTuple => this.getScoreForRangesTuple(rangesTuple))
+      .reduce((acc, nextNumber) => acc + nextNumber);
+  }
+  private getScoreForRangesTuple([range1, range2]: RangesTuple): number {
+    return range1.getLineCount() + range2.getLineCount();
   }
   private colour(colour: string, text: string): string {
     if (!Summary.colours.has(colour) || !this.consoleColours) {

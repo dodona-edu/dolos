@@ -115,7 +115,6 @@ program.parse(process.argv);
   const summary = new Summary(
     matchesPerFile,
     program.maximumGapSize,
-    program.comment,
     filterOptions,
     program.clusterCutOffValue,
   );
@@ -123,7 +122,7 @@ program.parse(process.argv);
   switch (program.outputFormat.toLowerCase()) {
     case "terminal":
     case "console":
-      outputString = summary.toString(true);
+      outputString = summary.toString(program.comment, true);
       break;
     case "json":
       outputString = summary.toJSON();
