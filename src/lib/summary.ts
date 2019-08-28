@@ -132,8 +132,12 @@ export class Summary {
     );
   }
 
-  public toJSON(): string {
-    return JSON.stringify(this.clusteredResults, Summary.JSONReplacerFunction);
+  public toJSON(comment?: string): string {
+    let toJSONObj: any = {results: this.clusteredResults};
+    if(comment){
+      toJSONObj.comment = comment;
+    }
+    return JSON.stringify(toJSONObj, Summary.JSONReplacerFunction);
   }
 
   /**
@@ -147,23 +151,23 @@ export class Summary {
 
     return (
       `<div class="group" style="border: 3px solid black;">\n` +
-      `<table>\n` +
+      `<table><tbody>\n` +
       `<tr>\n` +
-      `<th>File 1</th>\n` +
-      `<th>File 2</th>\n` +
-      `<th>Lines matched in File 1</th>\n` +
-      `<th>Lines matched in File 2</th>\n` +
+      `<th class="filename-column">File 1</th>\n` +
+      `<th class="filename-column">File 2</th>\n` +
+      `<th class="lines-matched-column">Lines matched in File 1</th>\n` +
+      `<th class="lines-matched-column">Lines matched in File 2</th>\n` +
       `</tr>\n` +
       `${tableRows.join("\n")}\n` +
-      `</table>\n` +
+      `</tbody></table>\n` +
       `</div>\n`
     );
   }
 
-  public toHTML(): string {
+  public toHTML(comment?: string): string {
     const jsonData: Clustered<
       [string, string, Array<[[number, number], [number, number]]>]
-    > = JSON.parse(this.toJSON());
+    > = JSON.parse(this.toJSON()).results;
     const tableRows: string[] = new Array();
     const comparisonPages: string[] = new Array();
 
@@ -187,6 +191,12 @@ export class Summary {
     const script: string = fs.readFileSync(path.resolve("./src/lib/assets/scripts.js"), "utf8");
 
     const body: string =
+      `<div>` +
+      `<p>Dolos summary</p>` +
+      `<p>${new Date().toUTCString()}`+
+      (comment ? `<p>${comment}</p>` : ``) +
+      `<hr>` +
+      `</div>` +
       `<div id="Index">\n` +
       `${tableRows.join("\n")}` +
       `</div>\n` +
@@ -529,15 +539,18 @@ export class Summary {
     );
     return (
       `<tr>\n` +
-      `<td>\n` +
+      `<td class="filename-column">\n` +
       `<a href=# onclick="return show('${id}', 'Index');">\n` +
       `${this.escapeHtml(matchedFile)}\n` +
-      `</a></td>\n` +
-      `<td><a href=# onclick="return show('${id}', 'Index');">\n` +
+      `</a>\n` + 
+      `</td>\n` +
+      `<td class="filename-column">` + 
+      `<a href=# onclick="return show('${id}', 'Index');">\n` +
       `${this.escapeHtml(matchingFile)}` +
-      `</a></td>\n` +
-      `<td  align="center">${matchedFileLineCount}</td>\n` +
-      `<td  align="center">${matchingFileLineCount}</td>\n` +
+      `</a>` +
+      `</td>\n` +
+      `<td class="lines-matched-column">${matchedFileLineCount}</td>\n` +
+      `<td class="lines-matched-column">${matchingFileLineCount}</td>\n` +
       `</tr>`
     );
   }
