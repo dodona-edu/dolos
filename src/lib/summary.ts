@@ -152,14 +152,16 @@ export class Summary {
   /**
    * Turns a group into an HTML representation.
    * @param group The group you want the HTML representation of.
+   * @param index The group index.
    */
-  public makeGroupsEntry(group: Array<[string, string, RangesTuple[]]>): string {
+  public makeGroupsEntry(group: Array<[string, string, RangesTuple[]]>, index: number): string {
     const tableRows: string[] = group.map(([matchedFile, matchingFile, rangesTupleArray]) =>
       this.makeTableRow(matchedFile, matchingFile, rangesTupleArray),
     );
 
     return (
       `<div class="group" style="border: 3px solid black;">\n` +
+      `Cluster number ${index + 1}<hr>` +
       `<table><tbody>\n` +
       `<tr>\n` +
       `<th class="filename-column">File 1</th>\n` +
@@ -185,7 +187,8 @@ export class Summary {
     const tableRows: string[] = new Array();
     const comparisonPages: string[] = new Array();
 
-    for (const jsonGroup of jsonData) {
+    for (let jsonGroupIndex = 0; jsonGroupIndex < jsonData.length; jsonGroupIndex += 1) {
+      const jsonGroup = jsonData[jsonGroupIndex];
       const group: Array<[string, string, RangesTuple[]]> = jsonGroup.map(
         ([matchedFile, matchingFile, rangesTupleArray]) => [
           matchedFile,
@@ -193,7 +196,7 @@ export class Summary {
           this.numberTupleArrayToRangesTuplesArray(rangesTupleArray),
         ],
       );
-      tableRows.push(this.makeGroupsEntry(group));
+      tableRows.push(this.makeGroupsEntry(group, jsonGroupIndex));
       for (const [matchedFile, matchingFile, rangesTupleObj] of group) {
         comparisonPages.push(this.toComparePage(matchedFile, matchingFile, rangesTupleObj));
       }
@@ -308,10 +311,12 @@ export class Summary {
 
     const linesInMatchedFile: number = this.countLinesInFile(matchedFile);
     const linesInMatchingFile: number = this.countLinesInFile(matchingFile);
-    const scoreMatchedFile: number =
-      Math.round((matchedLinesInMatchedFile / linesInMatchedFile) * 100) ;
-    const scoreMatchingFile: number =
-      Math.round((matchedLinesInMatchingFile / linesInMatchingFile) * 100);
+    const scoreMatchedFile: number = Math.round(
+      (matchedLinesInMatchedFile / linesInMatchedFile) * 100,
+    );
+    const scoreMatchingFile: number = Math.round(
+      (matchedLinesInMatchingFile / linesInMatchingFile) * 100,
+    );
     return (
       this.colour(
         "FgGreen",
@@ -451,6 +456,10 @@ export class Summary {
     // Puts all the files in their corresponding equivalenceClass. Uses the union-find algorithm.
     for (const [matchedFile, matchingFile, , score] of fileTupleScores) {
       if (score > this.clusterCutOffValue) {
+        if (matchedFile.match("5332") && matchingFile.match("5250")) {
+          console.error(matchedFile, matchingFile, score, this.clusterCutOffValue);
+        }
+
         const root1: string = this.getRoot(equivalenceClasses, matchedFile);
         const root2: string = this.getRoot(equivalenceClasses, matchingFile);
         equivalenceClasses.set(root1, root2);
