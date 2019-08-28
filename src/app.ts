@@ -114,16 +114,16 @@ program.parse(process.argv);
 
   // @ts-ignore TODO
   const optionsArray: Array<[string, string | number]> = [
-    ['-l', program.language],
-    ['-b', program.base],
-    ['-m', program.maximumHashCount],
-    ['-M', program.maximumHashPercentage],
-    ['-c', program.comment],
-    ['-n', program.filePairOutputLimit],
-    ['-s', program.minimumFragmentLength],
-    ['-g', program.maximumGapSize],
-    ['-o', program.outputFormat],
-    ['-v', program.clusterCutOffValue],
+    ["-l", program.language],
+    ["-b", program.base],
+    ["-m", program.maximumHashCount],
+    ["-M", program.maximumHashPercentage],
+    ["-c", program.comment],
+    ["-n", program.filePairOutputLimit],
+    ["-s", program.minimumFragmentLength],
+    ["-g", program.maximumGapSize],
+    ["-o", program.outputFormat],
+    ["-v", program.clusterCutOffValue],
   ].filter(([, optionValue]) => optionValue !== undefined);
 
   const summary = new Summary(
