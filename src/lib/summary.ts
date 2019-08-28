@@ -19,7 +19,6 @@ export interface FilterOptions {
 }
 
 export class Summary {
-
   public static readonly JSONReplacerFunction: (key: string, value: any) => any = (_, value) => {
     if (value instanceof Range) {
       const range: Range = value as Range;
@@ -132,10 +131,13 @@ export class Summary {
     );
   }
 
-  public toJSON(comment?: string): string {
-    let toJSONObj: any = {results: this.clusteredResults};
-    if(comment){
+  public toJSON(comment?: string, options?: Array<[string, string | number]>): string {
+    const toJSONObj: any = { results: this.clusteredResults };
+    if (comment) {
       toJSONObj.comment = comment;
+    }
+    if (options && options.length > 0) {
+      toJSONObj.options = options;
     }
     return JSON.stringify(toJSONObj, Summary.JSONReplacerFunction);
   }
@@ -164,7 +166,7 @@ export class Summary {
     );
   }
 
-  public toHTML(comment?: string): string {
+  public toHTML(comment?: string, options?: Array<[string, string | number]>): string {
     const jsonData: Clustered<
       [string, string, Array<[[number, number], [number, number]]>]
     > = JSON.parse(this.toJSON()).results;
@@ -193,8 +195,11 @@ export class Summary {
     const body: string =
       `<div>` +
       `<p>Dolos summary</p>` +
-      `<p>${new Date().toUTCString()}`+
+      `<p>${new Date().toUTCString()}` +
       (comment ? `<p>${comment}</p>` : ``) +
+      (options && options.length > 0
+        ? `<p>Options: ${this.optionsToString(options as Array<[string, string | number]>)}</p>`
+        : ``) +
       `<hr>` +
       `</div>` +
       `<div id="Index">\n` +
@@ -230,7 +235,25 @@ export class Summary {
     return Math.max(...this.countLinesInRanges(rangesTupleArray));
   }
 
-  public toString(comment?: string, consoleColours: boolean = false): string {
+  public optionsToString(optionsArray: Array<[string, string | number]>): string {
+    return (
+      optionsArray
+        .map(([flag, optionValue]) => {
+          if (typeof optionValue === "string" && optionValue.includes(" ")) {
+            return [flag, `'${optionValue}'`];
+          }
+          return [flag, optionValue];
+        })
+        .map(([flag, optionValue]) => `${flag} ${optionValue}`)
+        .join(" ") + "\n"
+    );
+  }
+
+  public toString(
+    comment?: string,
+    consoleColours: boolean = false,
+    optionsArray?: Array<[string, string | number]>,
+  ): string {
     this.consoleColours = consoleColours;
     if (this.clusteredResults.length === 0) {
       return "There were no matches";
@@ -239,6 +262,9 @@ export class Summary {
     let output = "";
     if (comment !== undefined) {
       output += comment + "\n";
+    }
+    if (optionsArray && optionsArray.length > 0) {
+      output += `Options: ${this.optionsToString(optionsArray)}\n`;
     }
 
     for (let index = 0; index < this.clusteredResults.length; index += 1) {
@@ -542,9 +568,9 @@ export class Summary {
       `<td class="filename-column">\n` +
       `<a href=# onclick="return show('${id}', 'Index');">\n` +
       `${this.escapeHtml(matchedFile)}\n` +
-      `</a>\n` + 
+      `</a>\n` +
       `</td>\n` +
-      `<td class="filename-column">` + 
+      `<td class="filename-column">` +
       `<a href=# onclick="return show('${id}', 'Index');">\n` +
       `${this.escapeHtml(matchingFile)}` +
       `</a>` +

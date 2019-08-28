@@ -60,7 +60,7 @@ program
     "terminal",
   )
   .option(
-    "-c, --cluster-cut-off-value <number>",
+    "-v, --cluster-cut-off-value <number>",
     "The minimum amount of lines needed before two files will be clustered together",
   )
   .arguments("<locations...>")
@@ -112,6 +112,20 @@ program.parse(process.argv);
     minimumFragmentLength: program.minimumFragmentLength,
   };
 
+  // @ts-ignore TODO
+  const optionsArray: Array<[string, string | number]> = [
+    ['-l', program.language],
+    ['-b', program.base],
+    ['-m', program.maximumHashCount],
+    ['-M', program.maximumHashPercentage],
+    ['-c', program.comment],
+    ['-n', program.filePairOutputLimit],
+    ['-s', program.minimumFragmentLength],
+    ['-g', program.maximumGapSize],
+    ['-o', program.outputFormat],
+    ['-v', program.clusterCutOffValue],
+  ].filter(([, optionValue]) => optionValue !== undefined);
+
   const summary = new Summary(
     matchesPerFile,
     program.maximumGapSize,
@@ -122,13 +136,13 @@ program.parse(process.argv);
   switch (program.outputFormat.toLowerCase()) {
     case "terminal":
     case "console":
-      outputString = summary.toString(program.comment, true);
+      outputString = summary.toString(program.comment, true, optionsArray);
       break;
     case "json":
-      outputString = summary.toJSON();
+      outputString = summary.toJSON(program.comment, optionsArray);
       break;
     case "html":
-      outputString = summary.toHTML();
+      outputString = summary.toHTML(program.comment, optionsArray);
       break;
     default:
       console.error("Output format not recognized");
