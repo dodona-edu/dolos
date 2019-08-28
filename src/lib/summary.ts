@@ -289,19 +289,34 @@ export class Summary {
   }
 
   public groupToString(group: Array<[string, string, RangesTuple[]]>): string {
-    return (
-      group
-        .map(([matchedFile, matchingFile, matches]) => {
-          const matchesString: string = matches
-            .map(match => JSON.stringify(match, Summary.JSONReplacerFunction))
-            .join("\n\t\t");
+    return group.map(groupEntry => this.groupEntryToString(groupEntry)).join("\n") + "\n";
+  }
 
-          return (
-            this.colour("FgGreen", `\t${matchedFile} + ${matchingFile} => \n`) +
-            `\t\t${matchesString}`
-          );
-        })
-        .join("\n") + "\n"
+  public groupEntryToString([matchedFile, matchingFile, matches]: [
+    string,
+    string,
+    RangesTuple[],
+  ]): string {
+    const matchesString: string = matches
+      .map(match => JSON.stringify(match, Summary.JSONReplacerFunction))
+      .join("\n\t\t");
+
+    const [matchedLinesInMatchedFile, matchedLinesInMatchingFile]: [
+      number,
+      number,
+    ] = this.countLinesInRanges(matches);
+
+    const linesInMatchedFile: number = this.countLinesInFile(matchedFile);
+    const linesInMatchingFile: number = this.countLinesInFile(matchingFile);
+    const scoreMatchedFile: number =
+      Math.round((matchedLinesInMatchedFile / linesInMatchedFile) * 100) ;
+    const scoreMatchingFile: number =
+      Math.round((matchedLinesInMatchingFile / linesInMatchingFile) * 100);
+    return (
+      this.colour(
+        "FgGreen",
+        `\t${matchedFile}(${scoreMatchedFile}%) + ${matchingFile}(${scoreMatchingFile}%) => \n`,
+      ) + `\t\t${matchesString}`
     );
   }
 
