@@ -456,9 +456,6 @@ export class Summary {
     // Puts all the files in their corresponding equivalenceClass. Uses the union-find algorithm.
     for (const [matchedFile, matchingFile, , score] of fileTupleScores) {
       if (score > this.clusterCutOffValue) {
-        if (matchedFile.match("5332") && matchingFile.match("5250")) {
-          console.error(matchedFile, matchingFile, score, this.clusterCutOffValue);
-        }
 
         const root1: string = this.getRoot(equivalenceClasses, matchedFile);
         const root2: string = this.getRoot(equivalenceClasses, matchingFile);
