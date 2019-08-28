@@ -9,18 +9,18 @@ export type Matches<Location> = Map<string, Array<[Location, Location]>>;
  * @param hashFilter An optional HashFilter to filter the hashes returned by
  * the rolling hash function.
  * @param noFilter A NoFilter used to generate hashes for blacklisted files.
- * @param filterFragmentsByPercentage Defines if the fragment should be filtered by percentage or by an absolute value.
- * If this option is used [[maxFragment]] must also be defined. Otherwise this option will be ignored.
- * @param maxFragment The maximum fragment. How this will be used depends on the value of
- * [[filterFragmentByPercentage]]. If it is used as a percentage then the number should be between 0 and 1. If you want
+ * @param filterHashByPercentage Defines if the fragment should be filtered by percentage or by an absolute value.
+ * If this option is used [[maxHash]] must also be defined. Otherwise this option will be ignored.
+ * @param maxHash The maximum fragment. How this will be used depends on the value of
+ * [[filterHashByPercentage]]. If it is used as a percentage then the number should be between 0 and 1. If you want
  *  to use it as an absolute value then a number between 0 and the amount of files given would be the most useful.
- * If this option is used [[filterFragmentsByPercentage]] must also be defined. Otherwise this options will be ignored.
+ * If this option is used [[filterHashByPercentage]] must also be defined. Otherwise this options will be ignored.
  */
 export interface ComparisonOptions {
   hashFilter?: HashFilter;
   noFilter?: NoFilter;
-  maxFragment?: number;
-  filterFragmentByPercentage?: boolean;
+  maxHash?: number;
+  filterHashByPercentage?: boolean;
 }
 
 export class Comparison<Location> {
@@ -33,8 +33,8 @@ export class Comparison<Location> {
   private readonly tokenizer: Tokenizer<Location>;
   private readonly hashFilter: HashFilter;
   private readonly noFilter: NoFilter;
-  private readonly maxFragment: number | undefined;
-  private readonly filterFragmentByPercentage: boolean | undefined;
+  private readonly maxHash: number | undefined;
+  private readonly filterHashByPercentage: boolean | undefined;
   private fileCount: number = 0;
 
   /**
@@ -50,13 +50,13 @@ export class Comparison<Location> {
    */
   constructor(
     tokenizer: Tokenizer<Location>,
-    { hashFilter, noFilter, maxFragment, filterFragmentByPercentage }: ComparisonOptions,
+    { hashFilter, noFilter, maxHash, filterHashByPercentage }: ComparisonOptions,
   ) {
     this.tokenizer = tokenizer;
     this.hashFilter = hashFilter || new WinnowFilter(this.defaultK, this.defaultW);
     this.noFilter = noFilter || new NoFilter(this.defaultK);
-    this.maxFragment = maxFragment;
-    this.filterFragmentByPercentage = filterFragmentByPercentage;
+    this.maxHash = maxHash;
+    this.filterHashByPercentage = filterHashByPercentage;
   }
 
   /**
@@ -135,7 +135,7 @@ export class Comparison<Location> {
         continue;
       }
       const matches = this.index.get(hash);
-      if (!matches || !this.filterByFragmentCount(matches.length)) {
+      if (!matches || !this.filterByHashCount(matches.length)) {
         continue;
       }
 
@@ -176,17 +176,17 @@ export class Comparison<Location> {
 
   /**
    *
-   * @param fragmentCount The amount of times a certain code fragment has appeared
+   * @param hashCount The amount of times a certain hash has appeared
    * @returns true if is value is acceptable under the options given in the contructor or when the options are not
    * defined.
    */
-  private filterByFragmentCount(fragmentCount: number): boolean {
-    if (this.maxFragment === undefined || this.filterFragmentByPercentage === undefined) {
+  private filterByHashCount(hashCount: number): boolean {
+    if (this.maxHash === undefined || this.filterHashByPercentage === undefined) {
       return true;
-    } else if (this.filterFragmentByPercentage) {
-      return fragmentCount / this.fileCount <= this.maxFragment;
+    } else if (this.filterHashByPercentage) {
+      return hashCount / this.fileCount <= this.maxHash;
     } else {
-      return fragmentCount <= this.maxFragment;
+      return hashCount <= this.maxHash;
     }
   }
 }

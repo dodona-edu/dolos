@@ -22,17 +22,17 @@ program
       "file is the supplied code for an exercise.",
   )
   .option(
-    "-m, --maximum-fragment-count <number>",
-    "The -m option sets the maximum number of times a given fragment may appear before it is ignored. A code fragment" +
+    "-m, --maximum-hash-count <number>",
+    "The -m option sets the maximum number of times a given hash may appear before it is ignored. A code fragment" +
       "that appears in many programs is probably legitimate sharing and not the result of plagiarism. With -m N " +
-      "any fragment appearing in more than N program is filtered out. This option has precedence over the -M option, " +
+      "any hash appearing in more than N program is filtered out. This option has precedence over the -M option, " +
       "which is set to 0.9 by default.",
   )
   .option(
-    "-M --maximum-fragment-percentage <float>",
-    "The -M option sets how many percent of the files the code fragment may appear before it is ignored. A fragment " +
-      "of code that appears in many programs is probably legitimate sharing and not the result of plagiarism. With " +
-      "-M N any fragment appearing in more than N percent of the files is filtered out. " +
+    "-M --maximum-hash-percentage <float>",
+    "The -M option sets how many percent of the files the hash may appear before it is ignored. A hash " +
+      "that appears in many programs is probably legitimate sharing and not the result of plagiarism. With " +
+      "-M N any hash appearing in more than N percent of the files is filtered out. " +
       "Must be a value between 0 and 1.",
     0.9,
   )
@@ -85,11 +85,8 @@ program.parse(process.argv);
 
   // Compare all the file with each other.
   const comparison = new Comparison(tokenizer, {
-    filterFragmentByPercentage: program.maximumFragmentCount === undefined,
-    maxFragment:
-      program.maximumFragmentCount === undefined
-        ? program.maximumFragmentPercentage
-        : program.maximumFragmentCount,
+    filterHashByPercentage: program.maximumHashCount === undefined,
+    maxHash: program.maximumHashCount || program.maximumHashPercentage,
   });
 
   // Compare the base file with all the other files when there is a base file.

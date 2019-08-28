@@ -57,28 +57,38 @@ export class Summary {
       return matchesPerFile;
     }
 
-    let outputCount = 0;
-    const filteredMatchesPerFile: Map<string, Matches<Range>> = new Map();
-    for (const [matchingFileName, matches] of matchesPerFile.entries()) {
-      const filteredMatches: Matches<Range> = new Map();
-      filteredMatchesPerFile.set(matchingFileName, filteredMatches);
-      for (const [matchedFileName, rangesTuplesArray] of matches.entries()) {
-        if (outputCount + rangesTuplesArray.length <= this.filterOptions.fragmentOutputLimit) {
-          filteredMatches.set(matchedFileName, rangesTuplesArray);
-        } else {
-          const elementsExtra: number =
-            outputCount + rangesTuplesArray.length - this.filterOptions.fragmentOutputLimit;
-          filteredMatches.set(
-            matchedFileName,
-            rangesTuplesArray.slice(0, rangesTuplesArray.length - elementsExtra),
-          );
-        }
-        outputCount += rangesTuplesArray.length;
-      }
-      if (this.filterOptions.fragmentOutputLimit < outputCount) {
-        break;
+    let matchesPerFileScoreArray: Array<[string, string, RangesTuple[], number]> = new Array();
+    for (const [matchedFile, matches] of matchesPerFile.entries()) {
+      for (const [matchingFile, rangesTupleArray] of matches.entries()) {
+        matchesPerFileScoreArray.push([
+          matchingFile,
+          matchedFile,
+          rangesTupleArray,
+          this.getScoreForArray(rangesTupleArray),
+        ]);
       }
     }
+    // Sort the matchesPerFileScoreArray so only the largest arrays are kept.
+    matchesPerFileScoreArray.sort(
+      ([, , , matchScore1], [, , , matchScore2]) => matchScore2 - matchScore1,
+    );
+
+    matchesPerFileScoreArray = matchesPerFileScoreArray.slice(
+      0,
+      this.filterOptions.fragmentOutputLimit,
+    );
+
+    const filteredMatchesPerFile: Map<string, Matches<Range>> = new Map();
+    for (const [matchedFile, matchingFile, rangesTupleArray] of matchesPerFileScoreArray) {
+      let matches: Matches<Range> | undefined = filteredMatchesPerFile.get(matchedFile);
+      if (!matches) {
+        matches = new Map();
+        filteredMatchesPerFile.set(matchedFile, matches);
+      }
+
+      matches.set(matchingFile, rangesTupleArray);
+    }
+
     return filteredMatchesPerFile;
   }
 
