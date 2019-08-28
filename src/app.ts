@@ -62,7 +62,7 @@ program
   .option(
     "-v, --cluster-cut-off-value <number>",
     "The minimum amount of lines needed before two files will be clustered together",
-    13
+    13,
   )
   .arguments("<locations...>")
   .action(filesArgs => {

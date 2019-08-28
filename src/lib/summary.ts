@@ -54,6 +54,7 @@ export class Summary {
    * @param gapSize The gap size allowed during the joining of two ranges. For example if the gap size is 0 then [1,3]
    * and [5,7] wont be joined, and if the gap size is one these will be joined into [1,7].
    * @param filterOptions The options used to filter the output, for a more detailed explanation see [[FilterOptions]].
+   * @param clusterCutOffValue The minimum amount of lines required in order for two files to be clustered together.
    */
   constructor(
     matchesPerFile: Map<string, Matches<number>>,
@@ -69,6 +70,7 @@ export class Summary {
     results = this.filterOutputAmount(results);
     this.clusteredResults = this.clusterResults(results);
   }
+
   /**
    * Limits the amount of RangesTuples in the results.
    * @param matchesPerFile The results you want to filter.
@@ -131,6 +133,11 @@ export class Summary {
     );
   }
 
+  /**
+   * Generates a JSON representation of this summary.
+   * @param comment A string you want to add to the report.
+   * @param options The options used to generate the report.L0
+   */
   public toJSON(comment?: string, options?: Array<[string, string | number]>): string {
     const toJSONObj: any = { results: this.clusteredResults };
     if (comment) {
@@ -144,7 +151,7 @@ export class Summary {
 
   /**
    * Turns a group into an HTML representation.
-   * @param group The group you want the HTML representaation of.
+   * @param group The group you want the HTML representation of.
    */
   public makeGroupsEntry(group: Array<[string, string, RangesTuple[]]>): string {
     const tableRows: string[] = group.map(([matchedFile, matchingFile, rangesTupleArray]) =>
@@ -166,6 +173,11 @@ export class Summary {
     );
   }
 
+  /**
+   * Generates a html representation of this summary.
+   * @param comment A comment you want to add to the report.
+   * @param options The options that were used to generate this report.
+   */
   public toHTML(comment?: string, options?: Array<[string, string | number]>): string {
     const jsonData: Clustered<
       [string, string, Array<[[number, number], [number, number]]>]
@@ -474,14 +486,22 @@ export class Summary {
     );
     return filesGroupsArray;
   }
+
   private getScoreForArray(arr: RangesTuple[]): number {
     return arr
       .map(rangesTuple => this.getScoreForRangesTuple(rangesTuple))
       .reduce((acc, nextNumber) => acc + nextNumber);
   }
+
   private getScoreForRangesTuple([range1, range2]: RangesTuple): number {
     return range1.getLineCount() + range2.getLineCount();
   }
+
+  /**
+   * Colours your text with the given colour. Only works for terminal output.
+   * @param colour The colour you want your text to be.
+   * @param text The text you want to colour.
+   */
   private colour(colour: string, text: string): string {
     if (!Summary.colours.has(colour) || !this.consoleColours) {
       return text;
@@ -500,6 +520,12 @@ export class Summary {
       .reduce(([acc1, acc2], [next1, next2]) => [acc1 + next1, acc2 + next2]);
   }
 
+  /**
+   * Generates a view that contains the lines out of each file.
+   * @param matchedFile The matched file name.
+   * @param matchingFile The matching file name.
+   * @param matchingRangesTuples The Range of a match between the two files.
+   */
   private toCompareView(
     matchedFile: string,
     matchingFile: string,
@@ -532,6 +558,12 @@ export class Summary {
     );
   }
 
+  /**
+   * Generates a page containing an overview of all the matches.
+   * @param matchedFile The matched file name.
+   * @param matchingFile The matching file name
+   * @param matchingRangesTuples The matches between the two files.
+   */
   private toComparePage(
     matchedFile: string,
     matchingFile: string,
@@ -550,10 +582,23 @@ export class Summary {
     );
   }
 
+  /**
+   * Generates an html friendly id.
+   * @param matchedFile The matched file.
+   * @param matchingFile The matching file.
+   */
   private makeId(matchedFile: string, matchingFile: string): string {
-    return `${this.escapeHtml(matchedFile)}-${this.escapeHtml(matchingFile)}`;
+    return `${this.escapeHtml(matchedFile.replace(/-/gi, ""))}-${this.escapeHtml(
+      matchingFile.replace(/-/gi, ""),
+    )}`;
   }
 
+  /**
+   * Generates a table row that can be used to navigate to the comparison page.
+   * @param matchedFile The matched file name.
+   * @param matchingFile The matching file name.
+   * @param rangesTupleArray The matches between the two files.
+   */
   private makeTableRow(
     matchedFile: string,
     matchingFile: string,
@@ -635,7 +680,6 @@ export class Summary {
     ]);
   }
 
-  // @ts-ignore TODO use this in toString?
   private countLinesInFile(fileName: string): number {
     if (!this.linesInFileMap.has(fileName)) {
       this.linesInFileMap.set(fileName, fs.readFileSync(fileName, "utf8").split("\n").length);
