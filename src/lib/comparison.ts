@@ -1,15 +1,41 @@
 import { HashFilter } from "./hashFilter";
+import { NoFilter } from "./noFilter";
 import { Tokenizer } from "./tokenizer";
 import { WinnowFilter } from "./winnowFilter";
 
 export type Matches<Location> = Map<string, Array<[Location, Location]>>;
 
+/**
+ * @param hashFilter An optional HashFilter to filter the hashes returned by
+ * the rolling hash function.
+ * @param noFilter A NoFilter used to generate hashes for blacklisted files.
+ * @param filterHashByPercentage Defines if the fragment should be filtered by percentage or by an absolute value.
+ * If this option is used [[maxHash]] must also be defined. Otherwise this option will be ignored.
+ * @param maxHash The maximum fragment. How this will be used depends on the value of
+ * [[filterHashByPercentage]]. If it is used as a percentage then the number should be between 0 and 1. If you want
+ *  to use it as an absolute value then a number between 0 and the amount of files given would be the most useful.
+ * If this option is used [[filterHashByPercentage]] must also be defined. Otherwise this options will be ignored.
+ */
+export interface ComparisonOptions {
+  hashFilter?: HashFilter;
+  noFilter?: NoFilter;
+  maxHash?: number;
+  filterHashByPercentage?: boolean;
+}
+
 export class Comparison<Location> {
   private readonly defaultK: number = 50;
   private readonly defaultW: number = 40;
+  // Maps a hash to an array of typles that are composed of the file with the same hash and the location in that file
+  // where that hash is located.
   private readonly index: Map<number, Array<[string, Location]>> = new Map();
+  private readonly filteredHashSet: Set<number> = new Set();
   private readonly tokenizer: Tokenizer<Location>;
   private readonly hashFilter: HashFilter;
+  private readonly noFilter: NoFilter;
+  private readonly maxHash: number | undefined;
+  private readonly filterHashByPercentage: boolean | undefined;
+  private fileCount: number = 0;
 
   /**
    * Creates a Comparison object with a given Tokenizer and optional HashFilter.
@@ -19,12 +45,18 @@ export class Comparison<Location> {
    * After creation, first add files to the index which can then be queried.
    *
    * @param tokenizer A tokenizer for the correct programming language
-   * @param hashFilter An optional HashFilter to filter the hashes returned by
-   * the rolling hash function.
+   * @param fragmentOptions The options used to filter based on the fragment count. For a more detailed explanation see
+   * [[ComparisonOptions]]. If this options is not used then no filtering will occur.
    */
-  constructor(tokenizer: Tokenizer<Location>, hashFilter?: HashFilter) {
+  constructor(
+    tokenizer: Tokenizer<Location>,
+    { hashFilter, noFilter, maxHash, filterHashByPercentage }: ComparisonOptions,
+  ) {
     this.tokenizer = tokenizer;
-    this.hashFilter = hashFilter ? hashFilter : new WinnowFilter(this.defaultK, this.defaultW);
+    this.hashFilter = hashFilter || new WinnowFilter(this.defaultK, this.defaultW);
+    this.noFilter = noFilter || new NoFilter(this.defaultK);
+    this.maxHash = maxHash;
+    this.filterHashByPercentage = filterHashByPercentage;
   }
 
   /**
@@ -47,10 +79,11 @@ export class Comparison<Location> {
    * @param file The file name of the file to add
    */
   public async addFile(file: string): Promise<void> {
+    this.fileCount += 1;
     try {
       const [ast, mapping] = await this.tokenizer.tokenizeFileWithMapping(file);
       for await (const { hash, location } of this.hashFilter.hashesFromString(ast)) {
-        // hash and the corresponding line number
+        // hash and the corresponding line number //
         const match: [string, Location] = [file, mapping[location]];
         const matches = this.index.get(hash);
         if (matches) {
@@ -98,19 +131,62 @@ export class Comparison<Location> {
     const matchingFiles: Matches<Location> = new Map();
     const [ast, mapping] = await this.tokenizer.tokenizeFileWithMapping(file);
     for await (const { hash, location } of hashFilter.hashesFromString(ast)) {
+      if (this.filteredHashSet.has(hash)) {
+        continue;
+      }
       const matches = this.index.get(hash);
-      if (matches) {
-        for (const [fileName, lineNumber] of matches) {
-          const match: [Location, Location] = [lineNumber, mapping[location]];
-          const lines = matchingFiles.get(fileName);
-          if (lines) {
-            lines.push(match);
-          } else {
-            matchingFiles.set(fileName, [match]);
-          }
+      if (!matches || !this.filterByHashCount(matches.length)) {
+        continue;
+      }
+
+      for (const [fileName, lineNumber] of matches) {
+        // add the match if the match is not with the file and if the file comes first when alphabetically sorted.
+        // This is done to avoid the duplicates in the following case: when file A matches with file B, file B will
+        // also match with file A.
+        if (fileName === file) {
+          continue;
+        }
+        const match: [Location, Location] = [lineNumber, mapping[location]];
+        const lines = matchingFiles.get(fileName);
+        if (lines) {
+          lines.push(match);
+        } else {
+          matchingFiles.set(fileName, [match]);
         }
       }
     }
     return matchingFiles;
+  }
+
+  /**
+   * Add a file to the filter index.
+   * @param file The file name of the file you want to add.
+   */
+  public async addFileToFilterList(file: string): Promise<void> {
+    try {
+      const [ast] = await this.tokenizer.tokenizeFileWithMapping(file);
+      for await (const { hash } of this.noFilter.hashesFromString(ast)) {
+        this.filteredHashSet.add(hash);
+      }
+    } catch (error) {
+      console.error(`There was a problem parsing ${file}. ${error}`);
+      return; // this makes sure the promise resolves instead of rejects
+    }
+  }
+
+  /**
+   *
+   * @param hashCount The amount of times a certain hash has appeared
+   * @returns true if is value is acceptable under the options given in the contructor or when the options are not
+   * defined.
+   */
+  private filterByHashCount(hashCount: number): boolean {
+    if (this.maxHash === undefined || this.filterHashByPercentage === undefined) {
+      return true;
+    } else if (this.filterHashByPercentage) {
+      return hashCount / this.fileCount <= this.maxHash;
+    } else {
+      return hashCount <= this.maxHash;
+    }
   }
 }

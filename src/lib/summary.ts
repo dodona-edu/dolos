@@ -2,51 +2,132 @@ import fs from "fs";
 import { Matches } from "./comparison";
 import { Range } from "./range";
 export type RangesTuple = [Range, Range];
+
+/**
+ * @param minimumLinesInLargestFragment The minimum amount of lines required by the largest code fragment. The default
+ * is 1.
+ * @param minimumLinesInSmallestFragment The minimum amount of lines required by the smallest code fragment. The default
+ * is 0.
+ * @param fragmentOutputLimit The maximum amount of code fragments that will appear in the output. Everything is shown
+ * if it is anything other then a number greater then zero.
+ */
+export interface FilterOptions {
+  fragmentOutputLimit?: number;
+  minimumFragmentLength?: number;
+}
+
 export class Summary {
+  private static readonly defaultFilterOptions: FilterOptions = Object.freeze({
+    fragmentOutputLimit: undefined,
+    minimumFragmentLength: 0,
+  });
+  public readonly gapSize: number;
   private readonly results: Map<string, Matches<Range>>;
-  private readonly minimumMaximumLines: number;
-  private readonly gapSize: number;
-  private readonly minimumMinimumLines: number;
+  private readonly filterOptions: FilterOptions;
 
   /**
-   * @param matches A many-to-many comparison of a set of files. This map contains an entry for each of the
+   * Generates a summary for the given matches.
+   * @param matchesPerFile A many-to-many comparison of a set of files. This map contains an entry for each of the
    * input files with the key being its file name and the value a list of matches. These matches are grouped
    * per matching file. The compareFiles function of the Comparison class can generate such mapping.
-   * @param minimumMaximumLines The minimum amount of lines required by the longest range in a rangesTuple. If the
-   * rangesTuple has less lines then it will be filtered out. When the rangesTuple has two ranges with a different
-   * amount of lines, then the maximum between to two is used.
-   * @param minimumMinimumLines The minimum amount of lines required by the shortest range in a rangesTuple.
    * @param gapSize The gap size allowed during the joining of two ranges. For example if the gap size is 0 then [1,3]
    * and [5,7] wont be joined, and if the gap size is one these will be joined into [1,7].
+   * @param filterOptions The options used to filter the output, for a more detailed explanation see [[FilterOptions]].
    */
   constructor(
     matchesPerFile: Map<string, Matches<number>>,
-    minimumMaximumLines: number = 2,
-    minimumMinimumLines: number = 1,
-    gapSize: number = 1,
+    gapSize: number = 0,
+    filterOptions: FilterOptions = Summary.defaultFilterOptions,
   ) {
-    this.minimumMaximumLines = minimumMaximumLines;
-    this.minimumMinimumLines = minimumMinimumLines;
+    this.filterOptions = filterOptions;
     this.gapSize = gapSize;
     this.results = this.transformMatches(matchesPerFile);
+    this.results = this.filterOutputAmount(this.results);
     this.results = this.sortResults();
   }
 
-  public toString(zeroBase: boolean = false): string {
+  public filterOutputAmount(
+    matchesPerFile: Map<string, Matches<Range>>,
+  ): Map<string, Matches<Range>> {
+    if (
+      !this.filterOptions ||
+      !this.filterOptions.fragmentOutputLimit ||
+      this.filterOptions.fragmentOutputLimit <= 0
+    ) {
+      return matchesPerFile;
+    }
+
+    let matchesPerFileScoreArray: Array<[string, string, RangesTuple[], number]> = new Array();
+    for (const [matchedFile, matches] of matchesPerFile.entries()) {
+      for (const [matchingFile, rangesTupleArray] of matches.entries()) {
+        matchesPerFileScoreArray.push([
+          matchingFile,
+          matchedFile,
+          rangesTupleArray,
+          this.getScoreForArray(rangesTupleArray),
+        ]);
+      }
+    }
+    // Sort the matchesPerFileScoreArray so only the largest arrays are kept.
+    matchesPerFileScoreArray.sort(
+      ([, , , matchScore1], [, , , matchScore2]) => matchScore2 - matchScore1,
+    );
+
+    matchesPerFileScoreArray = matchesPerFileScoreArray.slice(
+      0,
+      this.filterOptions.fragmentOutputLimit,
+    );
+
+    const filteredMatchesPerFile: Map<string, Matches<Range>> = new Map();
+    for (const [matchedFile, matchingFile, rangesTupleArray] of matchesPerFileScoreArray) {
+      let matches: Matches<Range> | undefined = filteredMatchesPerFile.get(matchedFile);
+      if (!matches) {
+        matches = new Map();
+        filteredMatchesPerFile.set(matchedFile, matches);
+      }
+
+      matches.set(matchingFile, rangesTupleArray);
+    }
+
+    return filteredMatchesPerFile;
+  }
+
+  /**
+   * Remove all ranges that only contain less the minimum required lines. Returns a filtered copy of the array.
+   * @param rangesTupleArray The rangesTupleArray you want filter.
+   */
+  public filterByMinimumLines(rangesTupleArray: RangesTuple[]): RangesTuple[] {
+    return rangesTupleArray.filter(
+      rangesTuple =>
+        Math.min(rangesTuple[0].getLineCount(), rangesTuple[1].getLineCount()) >=
+        (this.filterOptions.minimumFragmentLength || 0),
+    );
+  }
+  /**
+   * @param comment A command you want to add to the summary.
+   */
+  public toString(comment?: string): string {
     if (this.results.size === 0) {
       return "There were no matches";
     }
 
+    let output = "";
+    if (comment !== undefined) {
+      output += comment + "\n";
+    }
+
     const linesInFileMap: Map<string, number> = new Map();
 
-    return Array.from(this.results.entries())
+    output += Array.from(this.results.entries())
       .map(resultEntry => {
         const [sourceFileName, subMap] = resultEntry;
-        let output = "";
-        output += `source: ${sourceFileName}\n\n`;
+        let subOutput = "";
+        subOutput += `source: ${sourceFileName}\n\n`;
         const linesInSourceFile = this.countLinesInFile(sourceFileName);
 
-        output += Array.from(subMap.entries())
+        const entryArray: Array<[string, RangesTuple[]]> = Array.from(subMap.entries());
+
+        subOutput += entryArray
           .map(subMapEntry => {
             let matchedFilenameOutput = "";
             const [matchedFileName, rangesTupleArray] = subMapEntry;
@@ -67,23 +148,24 @@ export class Summary {
 
             matchedFilenameOutput += "\tranges: [\n";
             matchedFilenameOutput += rangesTupleArray
-              .map(rangesTuple => "\t " + this.rangesTupleToString(rangesTuple, zeroBase))
+              .map(rangesTuple => "\t " + this.rangesTupleToString(rangesTuple))
               .join("\n");
             matchedFilenameOutput += "\n\t]\n\n";
             return matchedFilenameOutput;
           })
           .join("");
-        return output;
+        return subOutput;
       })
       .join("");
+    return output;
   }
+
   /**
    * @param rangesTuple The tuple you want a string representation of.
-   * @param zeroBase Wether or not you want the lines to be zero based.
    * @returns A string representation of the rangesTuple.
    */
-  public rangesTupleToString(rangesTuple: RangesTuple, zeroBase: boolean = false): string {
-    return `[${rangesTuple[0].toString(zeroBase)}, ${rangesTuple[1].toString(zeroBase)}]`;
+  public rangesTupleToString(rangesTuple: RangesTuple): string {
+    return `[${rangesTuple[0].toString()}, ${rangesTuple[1].toString()}]`;
   }
 
   /**
@@ -144,21 +226,6 @@ export class Summary {
     ranges = this.concatenateRanges(ranges);
 
     return this.filterByMinimumLines(ranges);
-  }
-
-  /**
-   * Remove all ranges that only contain less the minimum required lines.
-   * @param rangesTupleArray The rangesTupleArray you want filter.
-   */
-
-  public filterByMinimumLines(rangesTupleArray: RangesTuple[]): RangesTuple[] {
-    return rangesTupleArray.filter(
-      rangesTuple =>
-        Math.max(rangesTuple[0].getLineCount(), rangesTuple[1].getLineCount()) >=
-          this.minimumMaximumLines &&
-        Math.min(rangesTuple[0].getLineCount(), rangesTuple[1].getLineCount()) >=
-          this.minimumMinimumLines,
-    );
   }
 
   /**
@@ -239,14 +306,14 @@ export class Summary {
     matchesPerFile: Map<string, Matches<number>>,
   ): Map<string, Matches<Range>> {
     const results: Map<string, Matches<Range>> = new Map();
-    matchesPerFile.forEach((matches, matchedFileName) => {
+    matchesPerFile.forEach((matches, matchedFile) => {
       matches.forEach((matchLocations, matchingFile) => {
-        let map: Matches<Range> | undefined = results.get(matchingFile);
+        let map: Matches<Range> | undefined = results.get(matchedFile);
         const rangesTupleArray: RangesTuple[] = this.matchesToRange(matchLocations);
         if (rangesTupleArray.length !== 0) {
           if (map === undefined) {
             map = new Map();
-            results.set(matchedFileName, map);
+            results.set(matchedFile, map);
           }
           map.set(matchingFile, rangesTupleArray);
         }
