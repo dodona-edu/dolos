@@ -109,7 +109,7 @@ program.parse(process.argv);
 
   // Compare the base file with all the other files when there is a base file.
   if (program.base) {
-    comparison.addFileToFilterList(program.base);
+    await comparison.addFileToFilterList(program.base);
   }
 
   await comparison.addFiles(locations);
