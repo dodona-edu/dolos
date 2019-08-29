@@ -23,11 +23,12 @@ program
       "file is the supplied code for an exercise.",
   )
   .option(
-    "-m, --maximum-hash-count <number>",
+    "-m, --maximum-hash-count <integer>",
     "The -m option sets the maximum number of times a given hash may appear before it is ignored. A code fragment" +
       "that appears in many programs is probably legitimate sharing and not the result of plagiarism. With -m N " +
       "any hash appearing in more than N program is filtered out. This option has precedence over the -M option, " +
       "which is set to 0.9 by default.",
+    parseInt,
   )
   .option(
     "-M --maximum-hash-percentage <float>",
@@ -35,6 +36,7 @@ program
       "that appears in many programs is probably legitimate sharing and not the result of plagiarism. With " +
       "-M N any hash appearing in more than N percent of the files is filtered out. " +
       "Must be a value between 0 and 1.",
+    parseFloat,
     0.9,
   )
   .option("-c, --comment <string>", "Comment string that is attached to the generated report")
@@ -46,13 +48,15 @@ program
   .option(
     "-s, --minimum-fragment-length <integer>",
     "The minimum length of a fragment. Every fragment shorter than this is filtered  out.",
+    parseInt,
     2,
   )
   .option(
     "-g, --maximum-gap-size <integer>",
     "If two fragments are close to each other, they will be merged into a single fragment if the gap between them is " +
-      "smaller than the given number of lines." +
-      0,
+      "smaller than the given number of lines.",
+    parseInt,
+    0,
   )
   .option(
     "-o, --output-format <format>",
@@ -60,8 +64,9 @@ program
     "terminal",
   )
   .option(
-    "-v, --cluster-cut-off-value <number>",
+    "-v, --cluster-cut-off-value <integer>",
     "The minimum amount of lines needed before two files will be clustered together",
+    parseInt,
     13,
   )
   .arguments("<locations...>")
@@ -84,13 +89,15 @@ Specifies the gap size.
 });
 
 program.parse(process.argv);
-
 (async () => {
   const tokenizer = new CodeTokenizer(program.language);
 
   if (locations.length < 2) {
-    console.error("Need at least two locations");
-    program.outputHelp();
+    console.error(Summary.colour("FgRed", "Need at least two locations"));
+    program.outputHelp(helpText => {
+      console.error(helpText);
+      return "";
+    });
     process.exit(1);
   }
 
@@ -113,7 +120,7 @@ program.parse(process.argv);
     minimumFragmentLength: program.minimumFragmentLength,
   };
 
-  // @ts-ignore TODO
+  // @ts-ignore
   const optionsArray: Array<[string, string | number]> = [
     ["-l", program.language],
     ["-b", program.base],
@@ -126,6 +133,17 @@ program.parse(process.argv);
     ["-o", program.outputFormat],
     ["-v", program.clusterCutOffValue],
   ].filter(([, optionValue]) => optionValue !== undefined);
+
+  for (const [flag, value] of optionsArray.values()) {
+    if (typeof value === "number" && isNaN(value)) {
+      console.error(Summary.colour("FgRed", `${flag} must have a valid numeric value\n`));
+      program.outputHelp(helpText => {
+        console.error(helpText);
+        return "";
+      });
+      process.exit(2);
+    }
+  }
 
   const summary = new Summary(
     matchesPerFile,

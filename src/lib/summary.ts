@@ -54,6 +54,19 @@ export class Summary {
       .map(([range1, range2]) => [range1.getLineCount(), range2.getLineCount()] as [number, number])
       .reduce(([acc1, acc2], [next1, next2]) => [acc1 + next1, acc2 + next2]);
   }
+
+  /**
+   * Colours your text with the given colour. Only works for terminal output.
+   * @param colour The colour you want your text to be.
+   * @param text The text you want to colour.
+   * @param consoleColours If you want to colour the text or not.
+   */
+  public static colour(colour: string, text: string): string {
+    if (!Summary.colours.has(colour)) {
+      return text;
+    }
+    return `${Summary.colours.get(colour)}${text}${Summary.colours.get("Reset")}`;
+  }
   private static readonly defaultFilterOptions: FilterOptions = Object.freeze({
     fragmentOutputLimit: undefined,
     minimumFragmentLength: 0,
@@ -65,7 +78,6 @@ export class Summary {
   ]);
 
   public readonly gapSize: number;
-  private consoleColours: boolean = false;
   private readonly clusteredResults: Clustered<Match>;
   private readonly filterOptions: FilterOptions;
   private readonly clusterCutOffValue: number;
@@ -189,7 +201,6 @@ export class Summary {
     consoleColours: boolean = false,
     optionsArray?: Array<[string, string | number]>,
   ): string {
-    this.consoleColours = consoleColours;
     if (this.clusteredResults.length === 0) {
       return "There were no matches";
     }
@@ -203,23 +214,31 @@ export class Summary {
     }
 
     for (let index = 0; index < this.clusteredResults.length; index += 1) {
-      output += this.colour("FgRed", `Cluster ${index + 1}\n`);
-      output += this.groupToString(this.clusteredResults[index]).replace("\n", "\t\n");
+      let clusterNameString = `Cluster ${index + 1}\n`;
+      if (consoleColours) {
+        clusterNameString = Summary.colour("FgRed", clusterNameString);
+      }
+      output += clusterNameString;
+      output += this.groupToString(this.clusteredResults[index], consoleColours).replace(
+        "\n",
+        "\t\n",
+      );
       output += "\n";
     }
 
     return output;
   }
 
-  public groupToString(group: Match[]): string {
-    return group.map(groupEntry => this.groupEntryToString(groupEntry)).join("\n") + "\n";
+  public groupToString(group: Match[], consoleColours: boolean): string {
+    return (
+      group.map(groupEntry => this.groupEntryToString(groupEntry, consoleColours)).join("\n") + "\n"
+    );
   }
 
-  public groupEntryToString([matchedFile, matchingFile, matches]: [
-    string,
-    string,
-    RangesTuple[],
-  ]): string {
+  public groupEntryToString(
+    [matchedFile, matchingFile, matches]: [string, string, RangesTuple[]],
+    consoleColours: boolean,
+  ): string {
     const matchesString: string = matches
       .map(match => JSON.stringify(match, Summary.JSONReplacerFunction))
       .join("\n\t\t");
@@ -237,12 +256,12 @@ export class Summary {
     const scoreMatchingFile: number = Math.round(
       (matchedLinesInMatchingFile / linesInMatchingFile) * 100,
     );
-    return (
-      this.colour(
-        "FgGreen",
-        `\t${matchedFile}(${scoreMatchedFile}%) + ${matchingFile}(${scoreMatchingFile}%) => \n`,
-      ) + `\t\t${matchesString}`
-    );
+    let returnString: string = `\t${matchedFile}(${scoreMatchedFile}%) + ${matchingFile}(${scoreMatchingFile}%) => \n`;
+    if (consoleColours) {
+      returnString = Summary.colour("FgGreen", returnString);
+    }
+
+    return `${returnString}\t\t${matchesString}`;
   }
 
   /**
@@ -424,18 +443,6 @@ export class Summary {
 
   private getScoreForRangesTuple([range1, range2]: RangesTuple): number {
     return range1.getLineCount() + range2.getLineCount();
-  }
-
-  /**
-   * Colours your text with the given colour. Only works for terminal output.
-   * @param colour The colour you want your text to be.
-   * @param text The text you want to colour.
-   */
-  private colour(colour: string, text: string): string {
-    if (!Summary.colours.has(colour) || !this.consoleColours) {
-      return text;
-    }
-    return `${Summary.colours.get(colour)}${text}${Summary.colours.get("Reset")}`;
   }
 
   /**
