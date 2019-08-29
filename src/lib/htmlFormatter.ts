@@ -5,6 +5,7 @@ import { Range } from "./range";
 import { Match, RangesTuple, Summary } from "./summary";
 
 export class HTMLFormatter {
+
   public static format(jsonSummary: string): string {
     const jsonData: JSONSummaryFormat = JSON.parse(jsonSummary, (_, value) => {
       if (value instanceof Array && value.length === 2 && typeof value[0] === "number") {
@@ -34,9 +35,7 @@ export class HTMLFormatter {
       `<p>${new Date().toUTCString()}` +
       (jsonData.comment ? `<p>${jsonData.comment}</p>` : ``) +
       (jsonData.options && jsonData.options.length > 0
-        ? `<p>Options: ${Summary.optionsToString(jsonData.options as Array<
-            [string, string | number]
-          >)}</p>`
+        ? `<p>Options: ${Summary.optionsToString(jsonData.options)}</p>`
         : ``) +
       `<hr>` +
       `</div>` +
@@ -78,15 +77,15 @@ export class HTMLFormatter {
       .slice(range.from, range.to + 1)
       .join("\n");
   }
-
   private static readonly filesContents: Map<string, string[]> = new Map();
-  private static saveHTMLMap: Map<string, string> = new Map([
+  private static readonly saveHTMLMap: Map<string, string> = new Map([
     ['"', "&quot;"],
     ["&", "&amp;"],
     ["'", "&#039;"],
     ["<", "&lt;"],
     [">", "&gt;"],
   ]);
+
   /**
    * Turns a group into an HTML representation.
    * @param group The group you want the HTML representation of.
