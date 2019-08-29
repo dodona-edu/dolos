@@ -32,7 +32,7 @@ export class Range {
     return this.from - 1 - gapSize <= value && value <= this.to + 1 + gapSize;
   }
 
-  public isNumberWithingBounds(value: number): boolean {
+  public includes(value: number): boolean {
     return this.from <= value && value <= this.to;
   }
 

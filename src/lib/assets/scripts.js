@@ -1,7 +1,6 @@
 
-function show(shown, hidden) {
-    console.log(shown, hidden);
-    document.getElementById(shown).style.display='block';
+function swap(shown, hidden) {
+    document.getElementById(shown).style.display='initial';
     document.getElementById(hidden).style.display='none';
     return false;
 }

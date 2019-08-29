@@ -5,6 +5,7 @@ import { Range } from "./range";
 export type RangesTuple = [Range, Range];
 
 export type Clustered<T> = T[][];
+export type Match = [string, string, RangesTuple[]];
 /**
  * @param minimumLinesInLargestFragment The minimum amount of lines required by the largest code fragment. The default
  * is 1.
@@ -39,7 +40,7 @@ export class Summary {
 
   public readonly gapSize: number;
   private consoleColours: boolean = false;
-  private readonly clusteredResults: Clustered<[string, string, RangesTuple[]]>;
+  private readonly clusteredResults: Clustered<Match>;
   private readonly filterOptions: FilterOptions;
   private readonly clusterCutOffValue: number;
   private readonly filesContents: Map<string, string[]> = new Map();
@@ -154,7 +155,7 @@ export class Summary {
    * @param group The group you want the HTML representation of.
    * @param index The group index.
    */
-  public makeGroupsEntry(group: Array<[string, string, RangesTuple[]]>, index: number): string {
+  public makeGroupsEntry(group: Array<Match>, index: number): string {
     const tableRows: string[] = group.map(([matchedFile, matchingFile, rangesTupleArray]) =>
       this.makeTableRow(matchedFile, matchingFile, rangesTupleArray),
     );
@@ -189,7 +190,7 @@ export class Summary {
 
     for (let jsonGroupIndex = 0; jsonGroupIndex < jsonData.length; jsonGroupIndex += 1) {
       const jsonGroup = jsonData[jsonGroupIndex];
-      const group: Array<[string, string, RangesTuple[]]> = jsonGroup.map(
+      const group: Array<Match> = jsonGroup.map(
         ([matchedFile, matchingFile, rangesTupleArray]) => [
           matchedFile,
           matchingFile,
@@ -291,7 +292,7 @@ export class Summary {
     return output;
   }
 
-  public groupToString(group: Array<[string, string, RangesTuple[]]>): string {
+  public groupToString(group: Array<Match>): string {
     return group.map(groupEntry => this.groupEntryToString(groupEntry)).join("\n") + "\n";
   }
 
@@ -434,7 +435,7 @@ export class Summary {
    */
   public clusterResults(
     results: Map<string, Matches<Range>>,
-  ): Clustered<[string, string, RangesTuple[]]> {
+  ): Clustered<Match> {
     const filesSet: Set<string> = new Set();
     const fileTupleScores: Array<[string, string, RangesTuple[], number]> = new Array();
 
@@ -463,15 +464,15 @@ export class Summary {
       }
     }
 
-    const filesGroupsMap: Map<string, Array<[string, string, RangesTuple[]]>> = new Map();
-    const restGroup: Array<[string, string, RangesTuple[]]> = new Array();
+    const filesGroupsMap: Map<string, Array<Match>> = new Map();
+    const restGroup: Array<Match> = new Array();
 
     // Uses the generated equivalence classes to cluster fileTuples.
     for (const [matchedFile, matchingFile, matchingRanges] of fileTupleScores) {
       const root: string = this.getRoot(equivalenceClasses, matchedFile);
       const root2: string = this.getRoot(equivalenceClasses, matchingFile);
       if (root === root2) {
-        let filesGroup: Array<[string, string, RangesTuple[]]> | undefined = filesGroupsMap.get(
+        let filesGroup: Array<Match> | undefined = filesGroupsMap.get(
           root,
         );
         if (!filesGroup) {
@@ -483,7 +484,7 @@ export class Summary {
         restGroup.push([matchedFile, matchingFile, matchingRanges]);
       }
     }
-    const filesGroupsArray: Clustered<[string, string, RangesTuple[]]> = [
+    const filesGroupsArray: Clustered<Match> = [
       ...filesGroupsMap.values(),
     ];
 
@@ -597,7 +598,7 @@ export class Summary {
     const id: string = this.makeId(matchedFile, matchingFile);
     return (
       `<div style="display:none" id="${id}">\n` +
-      `<div> <a href=# onclick="return show('Index', '${id}')">Back to index</a> </div>\n` +
+      `<div> <a href=# onclick="return swap('Index', '${id}')">Back to index</a> </div>\n` +
       `<div>${comparePage}</div>\n` +
       `</div>\n`
     );
@@ -632,12 +633,12 @@ export class Summary {
     return (
       `<tr>\n` +
       `<td class="filename-column">\n` +
-      `<a href=# onclick="return show('${id}', 'Index');">\n` +
+      `<a href=# onclick="return swap('${id}', 'Index');">\n` +
       `${this.escapeHtml(matchedFile)}\n` +
       `</a>\n` +
       `</td>\n` +
       `<td class="filename-column">` +
-      `<a href=# onclick="return show('${id}', 'Index');">\n` +
+      `<a href=# onclick="return swap('${id}', 'Index');">\n` +
       `${this.escapeHtml(matchingFile)}` +
       `</a>` +
       `</td>\n` +
@@ -651,7 +652,7 @@ export class Summary {
    * Counts the total amount of lines contained within this group.
    * @param group The group you want to total line count of.
    */
-  private getLineCountForGroup(group: Array<[string, string, RangesTuple[]]>): number {
+  private getLineCountForGroup(group: Array<Match>): number {
     return group
       .map(([, , rangesTupleArray]) => this.getMaxMatchingLineCount(rangesTupleArray))
       .reduce((previous, accumulator) => previous + accumulator, 0);

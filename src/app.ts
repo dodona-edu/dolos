@@ -46,7 +46,7 @@ program
   .option(
     "-s, --minimum-fragment-length <integer>",
     "The minimum length of a fragment. Every fragment shorter than this is filtered  out.",
-    1,
+    2,
   )
   .option(
     "-g, --maximum-gap-size <integer>",
