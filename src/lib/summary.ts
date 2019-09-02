@@ -21,15 +21,6 @@ export interface FilterOptions {
 }
 
 export class Summary {
-  public static readonly JSONReplacerFunction: (key: string, value: any) => any = (_, value) => {
-    if (value instanceof Range) {
-      const range: Range = value as Range;
-      return [range.from + 1, range.to + 1];
-    } else {
-      return value;
-    }
-  }
-
   public static optionsToString(optionsArray: Array<[string, string | number]>): string {
     return (
       optionsArray
@@ -239,8 +230,9 @@ export class Summary {
     [matchedFile, matchingFile, matches]: [string, string, RangesTuple[]],
     consoleColours: boolean,
   ): string {
+    matches.sort(([r1], [r2]) => r1.from - r2.from);
     const matchesString: string = matches
-      .map(match => JSON.stringify(match, Summary.JSONReplacerFunction))
+      .map(match => JSON.stringify(match, JSONFormatter.JSONReplacerFunction))
       .join("\n\t\t");
 
     const [matchedLinesInMatchedFile, matchedLinesInMatchingFile]: [
@@ -417,6 +409,13 @@ export class Summary {
           this.getMaxMatchingLineCount(rangesTupleArray2) -
           this.getMaxMatchingLineCount(rangesTupleArray1),
       );
+      for (const [, , rangesTupleArray] of filesGroup.values()) {
+        rangesTupleArray.sort(
+          ([r11, r12], [r21, r22]) =>
+            Math.max(r21.getLineCount(), r22.getLineCount()) -
+            Math.max(r11.getLineCount(), r12.getLineCount()),
+        );
+      }
     }
 
     // Sort the group themselves.

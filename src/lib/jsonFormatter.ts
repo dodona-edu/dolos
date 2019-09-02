@@ -1,4 +1,5 @@
-import { Clustered, Match, Summary } from "./summary";
+import { Range } from "./range";
+import { Clustered, Match } from "./summary";
 
 export interface JSONSummaryFormat {
   results: Clustered<Match>;
@@ -6,6 +7,20 @@ export interface JSONSummaryFormat {
   options?: Array<[string, string | number]>;
 }
 export class JSONFormatter {
+  public static readonly JSONReplacerFunction: (key: string, value: any) => any = (_, value) => {
+    if (value instanceof Range) {
+      const range: Range = value as Range;
+      return [range.from + 1, range.to + 1];
+    } else {
+      return value;
+    }
+  }
+  public static readonly JSONReviverFunction: (key: any, value: any) => any = (_, value) => {
+    if (value instanceof Array && value.length === 2 && typeof value[0] === "number") {
+      return new Range(value[0] - 1, value[1] - 1);
+    }
+    return value;
+  }
   /**
    * Generates a JSON representation of this summary.
    * @param comment A string you want to add to the report.
@@ -23,6 +38,6 @@ export class JSONFormatter {
     if (options && options.length > 0) {
       toJSONObj.options = options;
     }
-    return JSON.stringify(toJSONObj, Summary.JSONReplacerFunction);
+    return JSON.stringify(toJSONObj, JSONFormatter.JSONReplacerFunction);
   }
 }

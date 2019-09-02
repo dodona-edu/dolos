@@ -1,18 +1,12 @@
 import fs from "fs";
 import path from "path";
-import { JSONSummaryFormat } from "./jsonFormatter";
+import { JSONFormatter, JSONSummaryFormat } from "./jsonFormatter";
 import { Range } from "./range";
 import { Match, RangesTuple, Summary } from "./summary";
 
 export class HTMLFormatter {
-
   public static format(jsonSummary: string): string {
-    const jsonData: JSONSummaryFormat = JSON.parse(jsonSummary, (_, value) => {
-      if (value instanceof Array && value.length === 2 && typeof value[0] === "number") {
-        return new Range(value[0], value[1]);
-      }
-      return value;
-    });
+    const jsonData: JSONSummaryFormat = JSON.parse(jsonSummary, JSONFormatter.JSONReviverFunction);
     const tableRows: string[] = new Array();
     const comparisonPages: string[] = new Array();
 
