@@ -114,6 +114,12 @@ export class HTMLFormatter {
       `</div>\n`
     );
   }
+
+  private static toCodeLine(line: string, index: number): string {
+    return `<span class="tr${
+      index === 0 ? " first-row" : ""
+    }"><span class="th"></span><code>${this.escapeHtml(line)}</code></span>`;
+  }
   /**
    * Generates a view that contains the lines out of each file.
    * @param matchedFile The matched file name.
@@ -123,32 +129,39 @@ export class HTMLFormatter {
   private static toCompareView(
     matchedFile: string,
     matchingFile: string,
-    matchingRangesTuples: RangesTuple,
+    matchingRangesTuples: RangesTuple[],
   ): string {
-    const [matchingFileRange, matchedFileRange] = matchingRangesTuples;
-    const descriptionFile1: string = this.escapeHtml(
-      `>>>File: ${matchedFile}, lines: ${matchedFileRange.toString()}`,
-    );
-    const descriptionFile2: string = this.escapeHtml(
-      `>>>File: ${matchingFile}, lines: ${matchingFileRange.toString()}`,
-    );
+    // const [matchingFileRange, matchedFileRange] = matchingRangesTuples;
+    // const descriptionFile1: string = this.escapeHtml(
+    //   `>>>File: ${matchedFile}, lines: ${matchedFileRange.toString()}`,
+    // );
+    // const descriptionFile2: string = this.escapeHtml(
+    //   `>>>File: ${matchingFile}, lines: ${matchingFileRange.toString()}`,
+    // );
+    const left: string = fs
+      .readFileSync(matchedFile, "utf8")
+      .split("\n")
+      .map((line, index) => this.toCodeLine(line, index))
+      .join("\n");
+
+    const right: string = fs
+      .readFileSync(matchingFile, "utf8")
+      .split("\n")
+      .map((line, index) => this.toCodeLine(line, index))
+      .join("\n");
+
+    (() => matchingRangesTuples)(); // TODO remove this
     return (
       `<div class="code-comparison">\n` +
-      `<div class="left-column">${descriptionFile1}\n` +
-      `<hr>\n` +
-      `<div>` +
-      `<code>${this.escapeHtml(this.readFileOverRange(matchedFile, matchedFileRange))}
-      </code>\n` +
+      `<div class="left-column">\n` +
+      `<pre class="code">\n` +
+      `${left}\n` +
+      `</pre>\n` +
       `</div>\n` +
-      `</div>\n` +
-      `<div class="right-column">${descriptionFile2}\n` +
-      `<hr>\n` +
-      `<div>\n` +
-      `<code>${this.escapeHtml(
-        HTMLFormatter.readFileOverRange(matchingFile, matchingFileRange),
-      )}\n` +
-      `</code>\n` +
-      `</div>\n` +
+      `<div class="right-column">\n` +
+      `<pre class="code">\n` +
+      `${right}\n` +
+      `</pre>\n` +
       `</div>\n` +
       `</div>\n`
     );
@@ -165,9 +178,7 @@ export class HTMLFormatter {
     matchingFile: string,
     matchingRangesTuples: RangesTuple[],
   ): string {
-    const comparePage: string = matchingRangesTuples
-      .map(rangesTuple => this.toCompareView(matchedFile, matchingFile, rangesTuple))
-      .join("\n");
+    const comparePage: string = this.toCompareView(matchedFile, matchingFile, matchingRangesTuples);
 
     const id: string = this.makeId(matchedFile, matchingFile);
     return (

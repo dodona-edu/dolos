@@ -58,3 +58,78 @@ table {
 .clicker:hover {
   background-color: lightgray;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Bare bones style for the desired effect */
+pre.code {
+    display: table;
+    table-layout: fixed;
+    width: 100%; /* anything but auto, otherwise fixed layout not guaranteed */
+    white-space: pre-wrap;
+}
+pre.code::before {
+    counter-reset: linenum;
+}
+pre.code span.tr {
+    display: table-row;
+    counter-increment: linenum;
+}
+pre.code span.th { /* used for line numbers */
+    display: table-cell;
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+}
+pre.code span.th::before {
+    content: counter(linenum);
+    text-align: right;
+    display: block;
+}
+pre.code span.th {
+    width: 3em; 
+}
+pre.code code {
+    display: table-cell;
+}
+pre.code {
+    border: solid 1px black;
+    margin: 0px;
+}
+pre.code span.th {
+    background: #f0f0f0;
+    padding: 3px;
+    padding-top: 0px;
+    border-right: solid 1px silver;
+    border-top: solid 1px silver;
+}
+pre.code span.th::before {
+    font-size: 90%;
+    color: #999;
+}
+pre.code span.tr.first-row span.th {
+    border-top: none;
+}
+pre.code code {
+    padding: 3px;
+}
+pre.code span.e code {
+    background: #f0f8ff;
+}
+pre.code span.th::before {
+    content: counter(linenum) ".";
+}
