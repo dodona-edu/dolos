@@ -43,14 +43,13 @@ export class HTMLFormatter {
       `<html lang="en">\n` +
       `<head>\n` +
       `<meta charset="utf-8">\n` +
-      `<meta content="utf-8">\n` +
-      `<script type="text/javascript">\n` +
+      `<title>Dolos summary</title>\n` +
+      `<script>\n` +
       `${script}` +
       `</script>\n` +
-      `<style type="text/css">\n` +
+      `<style>\n` +
       `${stylesheet}` +
       `</style>\n` +
-      `<title>Dolos summary</title>\n` +
       `</head>\n` +
       `<body>\n` +
       `${body}` +
@@ -110,7 +109,7 @@ export class HTMLFormatter {
       `</tbody>\n` +
       `</table>\n` +
       `</div>\n` +
-      `</summary>\n` +
+      `</details>\n` +
       `</div>\n`
     );
   }
@@ -124,14 +123,17 @@ export class HTMLFormatter {
       `<span class="tr ${extraClasses.join(" ")}">` +
       `<span class="th">` +
       `</span>` +
-      `<code>${this.escapeHtml(line)}</code>` +
+      `<code>${this.escapeHtml(line.length === 0 ? " " : line)}</code>` +
       `</span>`
     );
   }
-  private static rangeToMarkingDiv(range: Range): string {
-    const style: string =
-      `top: ${range.from * 21 + 1}px;` + `height: ${(range.to - range.from) * 21 + 1}px;`;
-    return `<div class="colouredDiv" style="${style}"></div>`;
+  private static rangeToMarkingDiv(range: Range, index: number, rangesAmount: number): string {
+    const style: string[] = [
+      `top: ${range.from * 21 + 1}px`,
+      `height: ${(range.to - range.from) * 21 + 1}px`,
+      `filter: hue-rotate(${(360 / rangesAmount) * index}deg)`,
+    ];
+    return `<div class="colouredDiv" style="${style.join("; ")}"></div>`;
   }
   /**
    * Generates a view that contains the lines out of each file.
@@ -166,9 +168,13 @@ export class HTMLFormatter {
     const leftMarkedAreas: string[] = [];
     const rightMarkedAreas: string[] = [];
 
-    for (const [leftRange, rightRange] of matchingRangesTuples.values()) {
-      rightMarkedAreas.push(HTMLFormatter.rangeToMarkingDiv(leftRange));
-      leftMarkedAreas.push(HTMLFormatter.rangeToMarkingDiv(rightRange));
+    for (const [index, [leftRange, rightRange]] of matchingRangesTuples.entries()) {
+      rightMarkedAreas.push(
+        HTMLFormatter.rangeToMarkingDiv(leftRange, index, matchingRangesTuples.length),
+      );
+      leftMarkedAreas.push(
+        HTMLFormatter.rangeToMarkingDiv(rightRange, index, matchingRangesTuples.length),
+      );
     }
 
     return (

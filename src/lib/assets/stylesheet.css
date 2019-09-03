@@ -21,10 +21,12 @@ code {
   width: 45vw;
   max-width: 70vw;
   position: relative;
+  height: 70vw;
 }
 
-.right-column{
+.right-column {
   position: relative;
+  height: 70vw;
 }
 
 .code-comparison {
@@ -64,87 +66,72 @@ table {
   background-color: lightgray;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /* Bare bones style for the desired effect */
 pre.code {
-    display: table;
-    table-layout: fixed;
-    width: 100%; /* anything but auto, otherwise fixed layout not guaranteed */
-    white-space: pre-wrap;
+  display: table;
+  table-layout: fixed;
+  width: 100%; /* anything but auto, otherwise fixed layout not guaranteed */
+  white-space: pre-wrap;
 }
 pre.code::before {
-    counter-reset: linenum;
+  counter-reset: linenum;
 }
 pre.code span.tr {
-    display: table-row;
-    counter-increment: linenum;
-}
-pre.code span.th { /* used for line numbers */
-    display: table-cell;
-    user-select: none;
-    -moz-user-select: none;
-    -webkit-user-select: none;
-}
-pre.code span.th::before {
-    content: counter(linenum);
-    text-align: right;
-    display: block;
+  display: table-row;
+  counter-increment: linenum;
 }
 pre.code span.th {
-    width: 3em; 
+  /* used for line numbers */
+  display: table-cell;
+  user-select: none;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+}
+pre.code span.th::before {
+  content: counter(linenum);
+  text-align: right;
+  display: block;
+}
+pre.code span.th {
+  width: 3em;
 }
 pre.code code {
-    display: table-cell;
+  display: table-cell;
 }
 pre.code {
-    margin: 0px;
+  margin: 0px;
 }
 pre.code span.th {
-    background: #f0f0f0;
-    padding: 3px;
-    padding-top: 0px;
-    border-right: solid 1px silver;
-    border-top: solid 1px silver;
+  background: #f0f0f0;
+  padding: 3px;
+  padding-top: 0px;
+  border-right: solid 1px silver;
+  border-top: solid 1px silver;
 }
 pre.code span.th::before {
-    font-size: 90%;
-    color: #999;
+  font-size: 90%;
+  color: #999;
 }
 pre.code span.tr.first-row span.th {
-    border-top: none;
+  border-top: none;
 }
 pre.code code {
-    padding: 3px;
-    height: 9px;
+  padding: 3px;
+  height: 9px;
 }
 pre.code span.e code {
-    background: #f0f8ff;
+  background: #f0f8ff;
 }
 pre.code span.th::before {
-    content: counter(linenum) ".";
+  content: counter(linenum) ".";
 }
 
-.colouredDiv{
-    position: absolute;
-    background: blue;
-    width: 100%;
-    height: 40px;
-    opacity: 0.5;
-    margin-left: 1px;
-    z-index: -1;
+.colouredDiv {
+  position: absolute;
+  background: blue;
+  width: 100%;
+  height: 40px;
+  opacity: 0.5;
+  margin-left: 1px;
+  z-index: -1;
 }
