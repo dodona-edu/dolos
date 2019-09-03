@@ -73,12 +73,8 @@ pre.code {
   width: 100%; /* anything but auto, otherwise fixed layout not guaranteed */
   white-space: pre-wrap;
 }
-pre.code::before {
-  counter-reset: linenum;
-}
 pre.code span.tr {
   display: table-row;
-  counter-increment: linenum;
 }
 pre.code span.th {
   /* used for line numbers */
@@ -87,8 +83,8 @@ pre.code span.th {
   -moz-user-select: none;
   -webkit-user-select: none;
 }
-pre.code span.th::before {
-  content: counter(linenum);
+/* pre.code span.th::before { */
+pre.code span.th {
   text-align: right;
   display: block;
 }
@@ -108,7 +104,8 @@ pre.code span.th {
   border-right: solid 1px silver;
   border-top: solid 1px silver;
 }
-pre.code span.th::before {
+/* pre.code span.th::before { */
+pre.code span.th {
   font-size: 90%;
   color: #999;
 }
@@ -121,9 +118,6 @@ pre.code code {
 }
 pre.code span.e code {
   background: #f0f8ff;
-}
-pre.code span.th::before {
-  content: counter(linenum) ".";
 }
 
 .colouredDiv {

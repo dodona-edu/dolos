@@ -121,12 +121,11 @@ export class HTMLFormatter {
     }
     return (
       `<span class="tr ${extraClasses.join(" ")}">` +
-      `<span class="th">` +
-      `</span>` +
       `<code>${this.escapeHtml(line.length === 0 ? " " : line)}</code>` +
       `</span>`
     );
   }
+
   private static rangeToMarkingDiv(range: Range, index: number, rangesAmount: number): string {
     const style: string[] = [
       `top: ${range.from * 21 + 1}px`,
@@ -168,14 +167,14 @@ export class HTMLFormatter {
     const leftMarkedAreas: string[] = [];
     const rightMarkedAreas: string[] = [];
 
-    // for (const [index, [leftRange, rightRange]] of matchingRangesTuples.entries()) {
-    //   rightMarkedAreas.push(
-    //     HTMLFormatter.rangeToMarkingDiv(leftRange, index, matchingRangesTuples.length),
-    //   );
-    //   leftMarkedAreas.push(
-    //     HTMLFormatter.rangeToMarkingDiv(rightRange, index, matchingRangesTuples.length),
-    //   );
-    // }
+    for (const [index, [leftRange, rightRange]] of matchingRangesTuples.entries()) {
+      rightMarkedAreas.push(
+        HTMLFormatter.rangeToMarkingDiv(leftRange, index, matchingRangesTuples.length),
+      );
+      leftMarkedAreas.push(
+        HTMLFormatter.rangeToMarkingDiv(rightRange, index, matchingRangesTuples.length),
+      );
+    }
 
     (() => matchingRangesTuples)();
     return (
