@@ -112,7 +112,6 @@ pre.code code {
     display: table-cell;
 }
 pre.code {
-    border: solid 1px black;
     margin: 0px;
 }
 pre.code span.th {
