@@ -168,15 +168,16 @@ export class HTMLFormatter {
     const leftMarkedAreas: string[] = [];
     const rightMarkedAreas: string[] = [];
 
-    for (const [index, [leftRange, rightRange]] of matchingRangesTuples.entries()) {
-      rightMarkedAreas.push(
-        HTMLFormatter.rangeToMarkingDiv(leftRange, index, matchingRangesTuples.length),
-      );
-      leftMarkedAreas.push(
-        HTMLFormatter.rangeToMarkingDiv(rightRange, index, matchingRangesTuples.length),
-      );
-    }
+    // for (const [index, [leftRange, rightRange]] of matchingRangesTuples.entries()) {
+    //   rightMarkedAreas.push(
+    //     HTMLFormatter.rangeToMarkingDiv(leftRange, index, matchingRangesTuples.length),
+    //   );
+    //   leftMarkedAreas.push(
+    //     HTMLFormatter.rangeToMarkingDiv(rightRange, index, matchingRangesTuples.length),
+    //   );
+    // }
 
+    (() => matchingRangesTuples)();
     return (
       `<div class="code-comparison">\n` +
       `<div class="left-column">\n` +
