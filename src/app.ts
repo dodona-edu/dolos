@@ -28,7 +28,7 @@ program
       "that appears in many programs is probably legitimate sharing and not the result of plagiarism. With -m N " +
       "any hash appearing in more than N program is filtered out. This option has precedence over the -M option, " +
       "which is set to 0.9 by default.",
-    (x) => parseInt(x),
+    x => parseInt(x, 10),
   )
   .option(
     "-M --maximum-hash-percentage <float>",
@@ -36,7 +36,7 @@ program
       "that appears in many programs is probably legitimate sharing and not the result of plagiarism. With " +
       "-M N any hash appearing in more than N percent of the files is filtered out. " +
       "Must be a value between 0 and 1.",
-    (x) => parseFloat(x),
+    x => parseFloat(x),
     0.9,
   )
   .option("-c, --comment <string>", "Comment string that is attached to the generated report")
@@ -48,14 +48,14 @@ program
   .option(
     "-s, --minimum-fragment-length <integer>",
     "The minimum length of a fragment. Every fragment shorter than this is filtered  out.",
-    (x) => parseInt(x),
+    x => parseInt(x, 10),
     2,
   )
   .option(
     "-g, --maximum-gap-size <integer>",
     "If two fragments are close to each other, they will be merged into a single fragment if the gap between them is " +
       "smaller than the given number of lines.",
-    (x) => parseInt(x),
+    x => parseInt(x, 10),
     0,
   )
   .option(
@@ -66,7 +66,7 @@ program
   .option(
     "-v, --cluster-cut-off-value <integer>",
     "The minimum amount of lines needed before two files will be clustered together",
-    (x) => parseInt(x),
+    x => parseInt(x, 10),
     13,
   )
   .arguments("<locations...>")

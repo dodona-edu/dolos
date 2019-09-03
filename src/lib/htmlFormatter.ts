@@ -39,23 +39,23 @@ export class HTMLFormatter {
       `${comparisonPages.join("\n")}`;
 
     return (
-      `<!doctype html>` +
-      `<html lang="en">` +
-      `<head>` +
-      `<script type="text/javascript">` +
+      `<!doctype html>\n` +
+      `<html lang="en">\n` +
+      `<head>\n` +
+      `<meta charset="utf-8">\n` +
+      `<meta content="utf-8">\n` +
+      `<script type="text/javascript">\n` +
       `${script}` +
-      `</script>` +
-      `<style type="text/css">` +
+      `</script>\n` +
+      `<style type="text/css">\n` +
       `${stylesheet}` +
-      `</style>` +
-      `<meta charset="utf-8">` +
-      `<meta content="utf-8">` +
-      `<title>Dolos summary</title>` +
-      `</head>` +
-      `<body> ` +
-      `${body} ` +
-      `</body> ` +
-      `</html>`
+      `</style>\n` +
+      `<title>Dolos summary</title>\n` +
+      `</head>\n` +
+      `<body>\n` +
+      `${body}` +
+      `</body>\n` +
+      `</html>\n`
     );
   }
   /**
@@ -91,9 +91,15 @@ export class HTMLFormatter {
     );
 
     return (
-      `<div class="group" style="border: 3px solid black;">\n` +
-      `Cluster number ${index + 1}<hr>` +
-      `<table><tbody>\n` +
+      `<div class="group">\n` +
+      `<details>\n` +
+      `<summary class="clicker">\n` +
+      `Cluster number ${index + 1}\n` +
+      `</summary>\n` +
+      `<hr>\n` +
+      `<div>\n` +
+      `<table>\n` +
+      `<tbody>\n` +
       `<tr>\n` +
       `<th class="filename-column">File 1</th>\n` +
       `<th class="filename-column">File 2</th>\n` +
@@ -101,7 +107,10 @@ export class HTMLFormatter {
       `<th class="lines-matched-column">Lines matched in File 2</th>\n` +
       `</tr>\n` +
       `${tableRows.join("\n")}\n` +
-      `</tbody></table>\n` +
+      `</tbody>\n` +
+      `</table>\n` +
+      `</div>\n` +
+      `</summary>\n` +
       `</div>\n`
     );
   }
