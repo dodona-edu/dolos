@@ -20,6 +20,11 @@ code {
   min-width: 20vw;
   width: 45vw;
   max-width: 70vw;
+  position: relative;
+}
+
+.right-column{
+  position: relative;
 }
 
 .code-comparison {
@@ -126,10 +131,21 @@ pre.code span.tr.first-row span.th {
 }
 pre.code code {
     padding: 3px;
+    height: 9px;
 }
 pre.code span.e code {
     background: #f0f8ff;
 }
 pre.code span.th::before {
     content: counter(linenum) ".";
+}
+
+.colouredDiv{
+    position: absolute;
+    background: blue;
+    width: 100%;
+    height: 40px;
+    opacity: 0.5;
+    margin-left: 1px;
+    z-index: -1;
 }

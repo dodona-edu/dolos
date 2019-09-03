@@ -116,9 +116,22 @@ export class HTMLFormatter {
   }
 
   private static toCodeLine(line: string, index: number): string {
-    return `<span class="tr${
-      index === 0 ? " first-row" : ""
-    }"><span class="th"></span><code>${this.escapeHtml(line)}</code></span>`;
+    const extraClasses: string[] = [];
+    if (index === 0) {
+      extraClasses.push("first-row");
+    }
+    return (
+      `<span class="tr ${extraClasses.join(" ")}">` +
+      `<span class="th">` +
+      `</span>` +
+      `<code>${this.escapeHtml(line)}</code>` +
+      `</span>`
+    );
+  }
+  private static rangeToMarkingDiv(range: Range): string {
+    const style: string =
+      `top: ${range.from * 21 + 1}px;` + `height: ${(range.to - range.from) * 21 + 1}px;`;
+    return `<div class="colouredDiv" style="${style}"></div>`;
   }
   /**
    * Generates a view that contains the lines out of each file.
@@ -150,15 +163,24 @@ export class HTMLFormatter {
       .map((line, index) => this.toCodeLine(line, index))
       .join("\n");
 
-    (() => matchingRangesTuples)(); // TODO remove this
+    const leftMarkedAreas: string[] = [];
+    const rightMarkedAreas: string[] = [];
+
+    for (const [leftRange, rightRange] of matchingRangesTuples.values()) {
+      rightMarkedAreas.push(HTMLFormatter.rangeToMarkingDiv(leftRange));
+      leftMarkedAreas.push(HTMLFormatter.rangeToMarkingDiv(rightRange));
+    }
+
     return (
       `<div class="code-comparison">\n` +
       `<div class="left-column">\n` +
+      `${leftMarkedAreas.join("\n")}` +
       `<pre class="code">\n` +
       `${left}\n` +
       `</pre>\n` +
       `</div>\n` +
       `<div class="right-column">\n` +
+      `${rightMarkedAreas.join("\n")}` +
       `<pre class="code">\n` +
       `${right}\n` +
       `</pre>\n` +
