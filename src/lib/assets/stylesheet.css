@@ -108,9 +108,8 @@ pre.code {
 .colouredDiv {
   position: absolute;
   background: blue;
-  width: 100%;
+  width: 150vw; /* TODO dynamically set width */
   height: 40px;
   opacity: 0.5;
-  margin-left: 1px;
   z-index: -1;
 }
