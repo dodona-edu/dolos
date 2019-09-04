@@ -1,3 +1,4 @@
+import path from "path";
 import { CodeTokenizer } from "../codeTokenizer";
 
 test("tokenizer creation works for all listed languages", () => {
@@ -18,11 +19,12 @@ test("registering a new invalid language throws error", () => {
   expect(() => CodeTokenizer.registerLanguage("some string")).toThrow();
 });
 
-test.skip("tokenizer with or without location is equal", async () => {
+test("tokenizer with or without location is equal", async () => {
   const tokenizer = new CodeTokenizer("javascript");
-  const file = __filename;
+  const file = path.resolve(`samples/js/sample.js`);
 
-  const [tokenized] = await tokenizer.tokenizeFileWithMapping(file);
+  const [tokenized, mapping] = await tokenizer.tokenizeFileWithMapping(file);
 
-  expect(tokenized).toEqual(await tokenizer.tokenizeFile(file));
+  expect(tokenized).toMatchSnapshot();
+  expect(mapping).toMatchSnapshot();
 });
