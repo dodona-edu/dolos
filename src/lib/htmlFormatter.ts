@@ -70,6 +70,10 @@ export class HTMLFormatter {
       .slice(range.from, range.to + 1)
       .join("\n");
   }
+
+  public static getColourRotation(index: number, total: number): string {
+    return `filter: hue-rotate(${(360 / total) * index}deg)`;
+  }
   private static readonly filesContents: Map<string, string[]> = new Map();
   private static readonly saveHTMLMap: Map<string, string> = new Map([
     ['"', "&quot;"],
@@ -114,13 +118,13 @@ export class HTMLFormatter {
     );
   }
 
-  private static rangeToMarkingDiv(range: Range, index: number, rangesAmount: number): string {
+  private static rangeToMarkingDiv(range: Range, colourRotation: string, id: string): string {
     const style: string[] = [
       `top: ${range.from * 16}px`,
       `height: ${(range.to - range.from) * 16}px`,
-      `filter: hue-rotate(${(360 / rangesAmount) * index}deg)`,
+      `${colourRotation}`,
     ];
-    return `<div class="colouredDiv" style="${style.join("; ")}"></div>`;
+    return `<div class="colouredDiv" style="${style.join("; ")}" id="${id}"></div>`;
   }
   /**
    * Generates a view that contains the lines out of each file.
@@ -142,23 +146,35 @@ export class HTMLFormatter {
     // );
 
     const left: string = fs.readFileSync(matchedFile, "utf8");
-
     const right: string = fs.readFileSync(matchingFile, "utf8");
 
     const leftMarkedAreas: string[] = [];
     const rightMarkedAreas: string[] = [];
+    const ranges: string[] = [];
 
     for (const [index, [leftRange, rightRange]] of matchingRangesTuples.entries()) {
-      rightMarkedAreas.push(
-        HTMLFormatter.rangeToMarkingDiv(leftRange, index, matchingRangesTuples.length),
+      const colourRotation: string = HTMLFormatter.getColourRotation(
+        index,
+        matchingRangesTuples.length,
       );
-      leftMarkedAreas.push(
-        HTMLFormatter.rangeToMarkingDiv(rightRange, index, matchingRangesTuples.length),
+      const id: string = `${HTMLFormatter.makeId(matchedFile, matchingFile, index)}`;
+      rightMarkedAreas.push(HTMLFormatter.rangeToMarkingDiv(leftRange, colourRotation, id));
+      leftMarkedAreas.push(HTMLFormatter.rangeToMarkingDiv(rightRange, colourRotation, id));
+
+      const rangesTupleString: string = `[${leftRange.toString()}, ${rightRange.toString()}]`;
+      ranges.push(
+        `<div class="range" style="${colourRotation}" >` +
+          `<input type="checkbox" class="checkbox" data="${id}">` +
+          `${this.escapeHtml(rangesTupleString)}` +
+          `</div>`,
       );
     }
 
     return (
       `<div class="code-comparison">\n` +
+      `<div class="ranges">\n` +
+      `${ranges.join("\n")}` +
+      `</div>\n` +
       `<div class="left-column">\n` +
       `${leftMarkedAreas.join("\n")}` +
       `<pre class="code">\n` +
@@ -202,10 +218,15 @@ export class HTMLFormatter {
    * @param matchedFile The matched file.
    * @param matchingFile The matching file.
    */
-  private static makeId(matchedFile: string, matchingFile: string): string {
-    return `${this.escapeHtml(matchedFile.replace(/-/gi, ""))}-${this.escapeHtml(
+  private static makeId(matchedFile: string, matchingFile: string, index?: number): string {
+    let id: string = `${this.escapeHtml(matchedFile.replace(/-/gi, ""))}-${this.escapeHtml(
       matchingFile.replace(/-/gi, ""),
     )}`;
+    if (index !== undefined) {
+      id += `-${index}`;
+    }
+    // return base64 version of id;
+    return Buffer.from(id).toString("base64");
   }
 
   /**
