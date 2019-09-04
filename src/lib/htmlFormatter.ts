@@ -139,9 +139,9 @@ export class HTMLFormatter {
   ): string {
     const description: string = this.escapeHtml(`${matchedFile} => ${matchingFile}`);
     matchingRangesTuples.sort(([r11, r12], [r21, r22]) => {
-      const diff = r21.from - r11.from;
+      const diff = r11.from - r21.from;
       if (diff === 0) {
-        return r22.from - r12.from;
+        return r12.from - r22.from;
       } else {
         return diff;
       }
