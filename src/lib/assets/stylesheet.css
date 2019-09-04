@@ -57,10 +57,6 @@ code {
   margin: 3px;
 }
 
-.colouredDiv {
-  display: none;
-}
-
 tr {
   position: relative;
   display: flex;
@@ -105,11 +101,12 @@ pre.code {
   margin: 0px;
 }
 
-.colouredDiv {
+.markingDiv {
   position: absolute;
   background: blue;
   width: 150vw; /* TODO dynamically set width */
   height: 40px;
   opacity: 0.5;
   z-index: -1;
+  display: none;
 }

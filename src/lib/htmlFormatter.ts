@@ -124,7 +124,7 @@ export class HTMLFormatter {
       `height: ${(range.to - range.from + 1) * 16}px`,
       `${colourRotation}`,
     ];
-    return `<div class="colouredDiv" style="${style.join("; ")}" id="${id}"></div>`;
+    return `<div class="markingDiv" style="${style.join("; ")}" id="${id}"></div>`;
   }
   /**
    * Generates a view that contains the lines out of each file.
@@ -137,9 +137,7 @@ export class HTMLFormatter {
     matchingFile: string,
     matchingRangesTuples: RangesTuple[],
   ): string {
-    const description: string = this.escapeHtml(
-      `${matchedFile} => ${matchingFile}`,
-    );
+    const description: string = this.escapeHtml(`${matchedFile} => ${matchingFile}`);
 
     const left: string = fs.readFileSync(matchedFile, "utf8");
     const right: string = fs.readFileSync(matchingFile, "utf8");
@@ -168,7 +166,7 @@ export class HTMLFormatter {
     return (
       `<div>\n` +
       `<hr>` +
-      description + 
+      description +
       `</div>\n` +
       `<div class="code-comparison">\n` +
       `<div class="ranges">\n` +
@@ -225,7 +223,9 @@ export class HTMLFormatter {
       id += `-${index}`;
     }
     // return base64 version of id;
-    return Buffer.from(id).toString("base64").replace(/=/g, '');
+    return Buffer.from(id)
+      .toString("base64")
+      .replace(/=/g, "");
   }
 
   /**
