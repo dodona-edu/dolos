@@ -121,7 +121,7 @@ export class HTMLFormatter {
   private static rangeToMarkingDiv(range: Range, colourRotation: string, id: string): string {
     const style: string[] = [
       `top: ${range.from * 16}px`,
-      `height: ${(range.to - range.from) * 16}px`,
+      `height: ${(range.to - range.from + 1) * 16}px`,
       `${colourRotation}`,
     ];
     return `<div class="colouredDiv" style="${style.join("; ")}" id="${id}"></div>`;
@@ -137,13 +137,9 @@ export class HTMLFormatter {
     matchingFile: string,
     matchingRangesTuples: RangesTuple[],
   ): string {
-    // const [matchingFileRange, matchedFileRange] = matchingRangesTuples;
-    // const descriptionFile1: string = this.escapeHtml(
-    //   `>>>File: ${matchedFile}, lines: ${matchedFileRange.toString()}`,
-    // );
-    // const descriptionFile2: string = this.escapeHtml(
-    //   `>>>File: ${matchingFile}, lines: ${matchingFileRange.toString()}`,
-    // );
+    const description: string = this.escapeHtml(
+      `${matchedFile} => ${matchingFile}`,
+    );
 
     const left: string = fs.readFileSync(matchedFile, "utf8");
     const right: string = fs.readFileSync(matchingFile, "utf8");
@@ -160,13 +156,6 @@ export class HTMLFormatter {
       const id: string = `${HTMLFormatter.makeId(matchedFile, matchingFile, index)}`;
       rightMarkedAreas.push(HTMLFormatter.rangeToMarkingDiv(leftRange, colourRotation, id));
       leftMarkedAreas.push(HTMLFormatter.rangeToMarkingDiv(rightRange, colourRotation, id));
-
-    for (const [index, [leftRange, rightRange]] of matchingRangesTuples.entries()) {
-      rightMarkedAreas.push(
-        HTMLFormatter.rangeToMarkingDiv(leftRange, index, matchingRangesTuples.length),
-      );
-      leftMarkedAreas.push(
-        HTMLFormatter.rangeToMarkingDiv(rightRange, index, matchingRangesTuples.length));
       const rangesTupleString: string = `[${leftRange.toString()}, ${rightRange.toString()}]`;
       ranges.push(
         `<div class="range" style="${colourRotation}" >` +
@@ -177,6 +166,10 @@ export class HTMLFormatter {
     }
 
     return (
+      `<div>\n` +
+      `<hr>` +
+      description + 
+      `</div>\n` +
       `<div class="code-comparison">\n` +
       `<div class="ranges">\n` +
       `${ranges.join("\n")}` +
@@ -232,7 +225,7 @@ export class HTMLFormatter {
       id += `-${index}`;
     }
     // return base64 version of id;
-    return Buffer.from(id).toString("base64");
+    return Buffer.from(id).toString("base64").replace(/=/g, '');
   }
 
   /**
