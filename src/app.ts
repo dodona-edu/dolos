@@ -4,8 +4,34 @@ import { Comparison } from "./lib/comparison";
 import { Matches } from "./lib/comparison.js";
 import { FilterOptions, Summary } from "./lib/summary.js";
 
+const maxLineLength: number = (process.stdout.columns as number) - 43;
 let locations: string[] = [];
 const program = new Command();
+
+function indentHelp(helpText: string): string {
+  const lines: string[] = [];
+  let currentLine: string = "";
+  for (const word of helpText.split(" ")) {
+    if (currentLine.length + word.length < maxLineLength) {
+      if (currentLine.length === 0) {
+        currentLine = word;
+      } else {
+        currentLine += " " + word;
+      }
+    } else {
+      lines.push(currentLine);
+      currentLine = word;
+    }
+  }
+  lines.push(currentLine);
+
+  return lines.join(
+    "\n" +
+      Array(42)
+        .fill(" ")
+        .join(""),
+  );
+}
 
 // Initial program description and version
 program.version("0.0.1").description("Plagiarism detection for programming exercises");
@@ -13,45 +39,57 @@ program.version("0.0.1").description("Plagiarism detection for programming exerc
 program
   .option(
     "-l, --language <language>",
-    "Programming language used in the submitted files.",
+    indentHelp("Programming language used in the submitted files."),
     "javascript",
   )
   .option(
     "-b, --base <base>",
-    "Specifies a base file. Matches with code from this file will never be reported in the output. A typical base " +
-      "file is the supplied code for an exercise.",
+    indentHelp(
+      "Specifies a base file. Matches with code from this file will never be reported in the output. A typical base " +
+        "file is the supplied code for an exercise.",
+    ),
   )
   .option(
     "-m, --maximum-hash-count <number>",
-    "The -m option sets the maximum number of times a given hash may appear before it is ignored. A code fragment" +
-      "that appears in many programs is probably legitimate sharing and not the result of plagiarism. With -m N " +
-      "any hash appearing in more than N program is filtered out. This option has precedence over the -M option, " +
-      "which is set to 0.9 by default.",
+    indentHelp(
+      "The -m option sets the maximum number of times a given hash may appear before it is ignored. A code fragment " +
+        "that appears in many programs is probably legitimate sharing and not the result of plagiarism. With -m N " +
+        "any hash appearing in more than N program is filtered out. This option has precedence over the -M option, " +
+        "which is set to 0.9 by default.",
+    ),
   )
   .option(
     "-M --maximum-hash-percentage <float>",
-    "The -M option sets how many percent of the files the hash may appear before it is ignored. A hash " +
-      "that appears in many programs is probably legitimate sharing and not the result of plagiarism. With " +
-      "-M N any hash appearing in more than N percent of the files is filtered out. " +
-      "Must be a value between 0 and 1.",
+    indentHelp(
+      "The -M option sets how many percent of the files the hash may appear before it is ignored. A hash " +
+        "that appears in many programs is probably legitimate sharing and not the result of plagiarism. With " +
+        "-M N any hash appearing in more than N percent of the files is filtered out. " +
+        "Must be a value between 0 and 1.",
+    ),
     0.9,
   )
   .option("-c, --comment <string>", "Comment string that is attached to the generated report")
   .option(
     "-n, --file-pair-output-limit",
-    "Specifies how many matching file pairs are shown in the result. All pairs are " +
-      "shown then this option is omitted.",
+    indentHelp(
+      "Specifies how many matching file pairs are shown in the result. All pairs are " +
+        "shown then this option is omitted.",
+    ),
   )
   .option(
     "-s, --minimum-fragment-length <integer>",
-    "The minimum length of a fragment. Every fragment shorter than this is filtered  out.",
+    indentHelp(
+      "The minimum length of a fragment. Every fragment shorter than this is filtered  out.",
+    ),
     1,
   )
   .option(
     "-g, --maximum-gap-size <integer>",
-    "If two fragments are close to each other, they will be merged into a single fragment if the gap between them is " +
-      "smaller than the given number of lines." +
-      0,
+    indentHelp(
+      "If two fragments are close to each other, they will be merged into a single fragment if the gap between them " +
+        "is smaller than the given number of lines.",
+    ),
+    0,
   )
   .arguments("<locations...>")
   .action(filesArgs => {
