@@ -115,16 +115,14 @@ export class HTMLFormatter {
   }
 
   private static toCodeLine(line: string, index: number): string {
-    const extraClasses: string[] = [];
-    if (index === 0) {
-      extraClasses.push("first-row");
-    }
     return (
-      `<span class="tr ${extraClasses.join(" ")}">` +
-      `<span class="th">` +
-      `</span>` +
+      `<div class="codeLineContainer>` +
+      `<div class="lineNumber">${index + 1}.` +
+      `</div>` +
+      `<div class="codeLine">` +
       `<code>${this.escapeHtml(line.length === 0 ? " " : line)}</code>` +
-      `</span>`
+      `</div>` +
+      `</div>`
     );
   }
   private static rangeToMarkingDiv(range: Range, index: number, rangesAmount: number): string {

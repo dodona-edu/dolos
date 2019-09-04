@@ -135,3 +135,19 @@ pre.code span.th::before {
   margin-left: 1px;
   z-index: -1;
 }
+
+
+.codeLine {
+  float:left;
+  border: 1px dotted pink;
+}
+
+.lineNumber {
+  float: left;
+  text-align: right;
+  border: 1px dotted hotpink;
+}
+
+.codeLineContainer {
+  overflow: hidden;
+}
