@@ -138,6 +138,14 @@ export class HTMLFormatter {
     matchingRangesTuples: RangesTuple[],
   ): string {
     const description: string = this.escapeHtml(`${matchedFile} => ${matchingFile}`);
+    matchingRangesTuples.sort(([r11, r12], [r21, r22]) => {
+      const diff = r21.from - r11.from;
+      if (diff === 0) {
+        return r22.from - r12.from;
+      } else {
+        return diff;
+      }
+    });
 
     const left: string = fs.readFileSync(matchedFile, "utf8");
     const right: string = fs.readFileSync(matchingFile, "utf8");
