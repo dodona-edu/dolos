@@ -114,21 +114,10 @@ export class HTMLFormatter {
     );
   }
 
-  private static toCodeLine(line: string, index: number): string {
-    return (
-      `<div class="codeLineContainer>` +
-      `<div class="lineNumber">${index + 1}.` +
-      `</div>` +
-      `<div class="codeLine">` +
-      `<code>${this.escapeHtml(line.length === 0 ? " " : line)}</code>` +
-      `</div>` +
-      `</div>`
-    );
-  }
   private static rangeToMarkingDiv(range: Range, index: number, rangesAmount: number): string {
     const style: string[] = [
-      `top: ${range.from * 21 + 1}px`,
-      `height: ${(range.to - range.from) * 21 + 1}px`,
+      `top: ${range.from * 16}px`,
+      `height: ${(range.to - range.from) * 16}px`,
       `filter: hue-rotate(${(360 / rangesAmount) * index}deg)`,
     ];
     return `<div class="colouredDiv" style="${style.join("; ")}"></div>`;
@@ -151,17 +140,10 @@ export class HTMLFormatter {
     // const descriptionFile2: string = this.escapeHtml(
     //   `>>>File: ${matchingFile}, lines: ${matchingFileRange.toString()}`,
     // );
-    const left: string = fs
-      .readFileSync(matchedFile, "utf8")
-      .split("\n")
-      .map((line, index) => this.toCodeLine(line, index))
-      .join("\n");
 
-    const right: string = fs
-      .readFileSync(matchingFile, "utf8")
-      .split("\n")
-      .map((line, index) => this.toCodeLine(line, index))
-      .join("\n");
+    const left: string = fs.readFileSync(matchedFile, "utf8");
+
+    const right: string = fs.readFileSync(matchingFile, "utf8");
 
     const leftMarkedAreas: string[] = [];
     const rightMarkedAreas: string[] = [];
@@ -175,7 +157,6 @@ export class HTMLFormatter {
       );
     }
 
-    (() => matchingRangesTuples)();
     return (
       `<div class="code-comparison">\n` +
       `<div class="left-column">\n` +

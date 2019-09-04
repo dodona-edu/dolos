@@ -6,6 +6,8 @@
 code {
   white-space: pre;
   font-family: monospace;
+  line-height: 16px;
+  font-size: 12px;
 }
 
 .group {
@@ -21,12 +23,12 @@ code {
   width: 45vw;
   max-width: 70vw;
   position: relative;
-  height: 70vw;
+  height: 81vh;
 }
 
 .right-column {
   position: relative;
-  height: 70vw;
+  height: 81vh;
 }
 
 .code-comparison {
@@ -71,7 +73,10 @@ pre.code {
   display: table;
   table-layout: fixed;
   width: 100%; /* anything but auto, otherwise fixed layout not guaranteed */
-  white-space: pre-wrap;
+  white-space: pre;
+  font-family: monospace;
+  line-height: 16px;
+  font-size: 12px;
 }
 pre.code::before {
   counter-reset: linenum;
@@ -136,9 +141,8 @@ pre.code span.th::before {
   z-index: -1;
 }
 
-
 .codeLine {
-  float:left;
+  float: left;
   border: 1px dotted pink;
 }
 
