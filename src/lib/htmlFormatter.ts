@@ -17,6 +17,7 @@ export class HTMLFormatter {
         comparisonPages.push(this.toComparePage(matchedFile, matchingFile, rangesTupleObj));
       }
     }
+
     const stylesheet: string = fs.readFileSync(
       path.resolve("./src/lib/assets/stylesheet.css"),
       "utf8",
@@ -57,24 +58,16 @@ export class HTMLFormatter {
       `</html>\n`
     );
   }
-  /**
-   * Reads the lines in the file over the given range.
-   * @param fileName The File you want to read.
-   * @param range The Range of lines you want to read.
-   */
-  public static readFileOverRange(fileName: string, range: Range): string {
-    if (!HTMLFormatter.filesContents.has(fileName)) {
-      HTMLFormatter.filesContents.set(fileName, fs.readFileSync(fileName, "utf8").split("\n"));
-    }
-    return (HTMLFormatter.filesContents.get(fileName) as string[])
-      .slice(range.from, range.to + 1)
-      .join("\n");
-  }
 
+  /**
+   * Generates a colour rotation for a given item so that each item has a unique colour.
+   * @param index The index of the item.
+   * @param total The total amount of items.
+   */
   public static getColourRotation(index: number, total: number): string {
     return `filter: hue-rotate(${(360 / total) * index}deg)`;
   }
-  private static readonly filesContents: Map<string, string[]> = new Map();
+
   private static readonly saveHTMLMap: Map<string, string> = new Map([
     ['"', "&quot;"],
     ["&", "&amp;"],
@@ -118,6 +111,12 @@ export class HTMLFormatter {
     );
   }
 
+  /**
+   * Generates a div that marks a section of code in the code overview.
+   * @param range The range you want to mark
+   * @param colourRotation The colour rotation you want to use.
+   * @param id The id of the markingDiv
+   */
   private static rangeToMarkingDiv(range: Range, colourRotation: string, id: string): string {
     const style: string[] = [
       `top: ${range.from * 16}px`,
@@ -277,8 +276,8 @@ export class HTMLFormatter {
   }
 
   /**
-   * Escapes all html characters so that no cross site scripting can occur without changing how the text will be
-   * displayed.
+   * Escapes all html characters so that no cross site scripting can occur. This is done without changing how the text
+   * would be display outside of html.
    * @param text The text you want to escape.
    */
   private static escapeHtml(text: string) {
