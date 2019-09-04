@@ -252,16 +252,22 @@ export class HTMLFormatter {
       number,
       number,
     ] = Summary.countLinesInRanges(rangesTupleArray);
+
+    const [scoreMatchedFile, scoreMatchingFile] = Summary.getScoreForFiles(
+      rangesTupleArray,
+      matchedFile,
+      matchingFile,
+    );
     return (
       `<tr>\n` +
       `<td class="filename-column">\n` +
       `<a href=# onclick="return swap('${id}', 'Index');">\n` +
-      `${this.escapeHtml(matchedFile)}\n` +
+      `${this.escapeHtml(matchedFile)} (${scoreMatchedFile}%)\n` +
       `</a>\n` +
       `</td>\n` +
       `<td class="filename-column">` +
       `<a href=# onclick="return swap('${id}', 'Index');">\n` +
-      `${this.escapeHtml(matchingFile)}` +
+      `${this.escapeHtml(matchingFile)} (${scoreMatchingFile}%)` +
       `</a>` +
       `</td>\n` +
       `<td class="lines-matched-column">${matchedFileLineCount}</td>\n` +

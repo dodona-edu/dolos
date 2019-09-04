@@ -58,6 +58,28 @@ export class Summary {
     }
     return `${Summary.colours.get(colour)}${text}${Summary.colours.get("Reset")}`;
   }
+
+  public static getScoreForFiles(
+    matches: RangesTuple[],
+    matchedFile: string,
+    matchingFile: string,
+  ): [number, number] {
+    const [matchedLinesInMatchedFile, matchedLinesInMatchingFile]: [
+      number,
+      number,
+    ] = Summary.countLinesInRanges(matches);
+
+    const linesInMatchedFile: number = this.countLinesInFile(matchedFile);
+    const linesInMatchingFile: number = this.countLinesInFile(matchingFile);
+    const scoreMatchedFile: number = Math.round(
+      (matchedLinesInMatchedFile / linesInMatchedFile) * 100,
+    );
+    const scoreMatchingFile: number = Math.round(
+      (matchedLinesInMatchingFile / linesInMatchingFile) * 100,
+    );
+
+    return [scoreMatchedFile, scoreMatchingFile];
+  }
   private static readonly defaultFilterOptions: FilterOptions = Object.freeze({
     fragmentOutputLimit: undefined,
     minimumFragmentLength: 0,
@@ -67,13 +89,20 @@ export class Summary {
     ["FgGreen", "\x1b[32m"],
     ["Reset", "\x1b[0m"],
   ]);
+  // Maps the file to the amount of lines in that file.
+  private static readonly linesInFileMap: Map<string, number> = new Map();
+
+  private static countLinesInFile(fileName: string): number {
+    if (!this.linesInFileMap.has(fileName)) {
+      this.linesInFileMap.set(fileName, fs.readFileSync(fileName, "utf8").split("\n").length);
+    }
+    return this.linesInFileMap.get(fileName) as number;
+  }
 
   public readonly gapSize: number;
   private readonly clusteredResults: Clustered<Match>;
   private readonly filterOptions: FilterOptions;
   private readonly clusterCutOffValue: number;
-  // Maps the file to the amount of lines in that file.
-  private readonly linesInFileMap: Map<string, number> = new Map();
 
   /**
    * Generates a summary for the given matches.
@@ -235,19 +264,12 @@ export class Summary {
       .map(match => JSON.stringify(match, JSONFormatter.JSONReplacerFunction))
       .join("\n\t\t");
 
-    const [matchedLinesInMatchedFile, matchedLinesInMatchingFile]: [
-      number,
-      number,
-    ] = Summary.countLinesInRanges(matches);
+    const [scoreMatchedFile, scoreMatchingFile] = Summary.getScoreForFiles(
+      matches,
+      matchedFile,
+      matchingFile,
+    );
 
-    const linesInMatchedFile: number = this.countLinesInFile(matchedFile);
-    const linesInMatchingFile: number = this.countLinesInFile(matchingFile);
-    const scoreMatchedFile: number = Math.round(
-      (matchedLinesInMatchedFile / linesInMatchedFile) * 100,
-    );
-    const scoreMatchingFile: number = Math.round(
-      (matchedLinesInMatchingFile / linesInMatchingFile) * 100,
-    );
     let returnString: string = `\t${matchedFile}(${scoreMatchedFile}%) + ${matchingFile}(${scoreMatchingFile}%) => \n`;
     if (consoleColours) {
       returnString = Summary.colour("FgGreen", returnString);
@@ -460,13 +482,6 @@ export class Summary {
     }
     values.forEach(lambdaValue => equivalenceClasses.set(lambdaValue, root));
     return root;
-  }
-
-  private countLinesInFile(fileName: string): number {
-    if (!this.linesInFileMap.has(fileName)) {
-      this.linesInFileMap.set(fileName, fs.readFileSync(fileName, "utf8").split("\n").length);
-    }
-    return this.linesInFileMap.get(fileName) as number;
   }
 
   /**
