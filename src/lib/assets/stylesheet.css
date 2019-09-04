@@ -6,10 +6,23 @@
 code {
   white-space: pre;
   font-family: monospace;
+  line-height: 16px;
+  font-size: 12px;
 }
 
 .group {
   border: 3px solid black;
+}
+
+.code-comparison {
+  display: grid;
+  margin: 3px;
+  grid-template-columns: 50% 50%;
+
+  grid-template:
+    "header header" min-content
+    "left-column right-column" 1fr
+    / min-content 1fr;
 }
 
 .left-column {
@@ -21,22 +34,31 @@ code {
   width: 45vw;
   max-width: 70vw;
   position: relative;
-  height: 70vw;
+  height: 81vh;
+
+  grid-area: left-column;
 }
 
 .right-column {
   position: relative;
-  height: 70vw;
+  height: 81vh;
+  grid-area: right-column;
 }
 
-.code-comparison {
-  display: grid;
-  margin: 3px;
+.ranges {
+  display: flex;
+  grid-area: header;
+  flex-wrap: wrap;
+}
 
-  grid-template:
-    "nav head" min-content
-    "nav main" 1fr
-    / min-content 1fr;
+.range {
+  color: blue;
+  border: 1px solid black;
+  margin: 3px;
+}
+
+.colouredDiv {
+  display: none;
 }
 
 tr {
@@ -66,66 +88,28 @@ table {
   background-color: lightgray;
 }
 
-/* Bare bones style for the desired effect */
 pre.code {
   display: table;
   table-layout: fixed;
-  width: 100%; /* anything but auto, otherwise fixed layout not guaranteed */
-  white-space: pre-wrap;
+  width: 100%;
+  white-space: pre;
+  font-family: monospace;
+  line-height: 16px;
+  font-size: 12px;
 }
-pre.code span.tr {
-  display: table-row;
-}
-pre.code span.th {
-  /* used for line numbers */
-  display: table-cell;
-  user-select: none;
-  -moz-user-select: none;
-  -webkit-user-select: none;
-}
-/* pre.code span.th::before { */
-pre.code span.th {
-  text-align: right;
-  display: block;
-}
-pre.code span.th {
-  width: 3em;
-}
+
 pre.code code {
   display: table-cell;
 }
 pre.code {
   margin: 0px;
 }
-pre.code span.th {
-  background: #f0f0f0;
-  padding: 3px;
-  padding-top: 0px;
-  border-right: solid 1px silver;
-  border-top: solid 1px silver;
-}
-/* pre.code span.th::before { */
-pre.code span.th {
-  font-size: 90%;
-  color: #999;
-}
-pre.code span.tr.first-row span.th {
-  border-top: none;
-}
-pre.code code {
-  padding: 3px;
-  height: 9px;
-}
-pre.code span.e code {
-  background: #f0f8ff;
-}
 
 .colouredDiv {
   position: absolute;
   background: blue;
-  width: 100%;
+  width: 150vw; /* TODO dynamically set width */
   height: 40px;
   opacity: 0.5;
-  margin-left: 1px;
   z-index: -1;
 }
