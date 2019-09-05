@@ -100,7 +100,8 @@ export class Summary {
   }
 
   public readonly gapSize: number;
-  private readonly clusteredResults: Clustered<Match>;
+  public readonly clusteredResults: Clustered<Match>;
+  public readonly results: Map<string, Matches<Range>>;
   private readonly filterOptions: FilterOptions;
   private readonly clusterCutOffValue: number;
 
@@ -124,9 +125,11 @@ export class Summary {
     this.filterOptions = filterOptions || Summary.defaultFilterOptions;
     this.gapSize = gapSize;
     this.filterOptions = filterOptions || Summary.defaultFilterOptions;
-    let results = this.transformMatches(matchesPerFile);
-    results = this.filterOutputAmount(results);
-    this.clusteredResults = this.clusterResults(results);
+    this.results = this.transformMatches(matchesPerFile);
+    this.results = this.filterOutputAmount(this.results);
+    Object.freeze(this.results);
+    this.clusteredResults = this.clusterResults(this.results);
+    Object.freeze(this.clusteredResults);
   }
 
   /**
