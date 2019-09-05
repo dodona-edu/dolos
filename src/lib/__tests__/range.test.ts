@@ -118,5 +118,21 @@ test("lines in range", () => {
 test("lines in range", () => {
   const range = new Range(100, 200);
   expect(range.getLineCount()).toBe(101);
+});
 
+test("overlapping lines", () => {
+  const range = new Range(0, 5);
+  const negativeRange = new Range(-10, -5);
+
+  expect(range.overlappingLinesAmount(new Range(5, 10))).toBe(1);
+  expect(range.overlappingLinesAmount(new Range(6, 10))).toBe(0);
+  expect(range.overlappingLinesAmount(new Range(-10, 5))).toBe(6);
+  expect(range.overlappingLinesAmount(new Range(1, 4))).toBe(4);
+  expect(range.overlappingLinesAmount(new Range(-10, 10))).toBe(6);
+  const test = range.overlappingLinesAmount(new Range(-10, 0));
+  expect(test).toBe(1);
+  expect(range.overlappingLinesAmount(new Range(-5, -1))).toBe(0);
+  expect(negativeRange.overlappingLinesAmount(new Range(-10, -5))).toBe(6);
+  expect(negativeRange.overlappingLinesAmount(new Range(-7, 0))).toBe(3);
+  expect(negativeRange.overlappingLinesAmount(new Range(-20, -9))).toBe(2);
 });

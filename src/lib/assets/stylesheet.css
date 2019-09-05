@@ -80,7 +80,7 @@ table {
   cursor: pointer;
 }
 
-.clicker:hover {
+.clicker:{
   background-color: lightgray;
 }
 
@@ -108,5 +108,5 @@ pre.code {
   height: 40px;
   opacity: 0.5;
   z-index: -1;
-  display: none;
+  display: block;
 }

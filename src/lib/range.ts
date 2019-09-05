@@ -73,6 +73,22 @@ export class Range {
     return test;
   }
 
+  /**
+   * Tests if the two ranges overlap.//TODO
+   * @param other The other range
+   */
+  public overlappingLinesAmount(other: Range): number {
+    if (!this.canExtendWithRange(other, 0)) {
+      return 0;
+    }
+
+    if (Math.sign(this.from - other.from) !== Math.sign(this.to - other.to)) {
+      return Math.min(this.getLineCount(), other.getLineCount());
+    } else {
+      return Math.min(this.to - other.from, other.to - this.from) + 1;
+    }
+  }
+
   public toString(): string {
     return `[${this.from + 1}, ${this.to + 1}]`;
   }

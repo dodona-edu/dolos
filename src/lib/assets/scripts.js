@@ -6,7 +6,7 @@ function swap(shown, hidden) {
 
 function addEventListeners() {
   [].forEach.call(document.querySelectorAll(".range > .checkbox"), function(el) {
-    el.checked = false;
+    el.checked = true;
     el.addEventListener("click", () => {
       const markingDivs = document.querySelectorAll(`#${el.getAttribute("data")}`);
       [].forEach.call(markingDivs, markingDiv => {
