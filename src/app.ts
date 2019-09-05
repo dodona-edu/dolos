@@ -4,9 +4,10 @@ import { Comparison } from "./lib/comparison";
 import { Matches } from "./lib/comparison.js";
 import { FilterOptions, Summary } from "./lib/summary.js";
 
-const maxLineLength: number = (process.stdout.columns as number) - 43;
-let locations: string[] = [];
+const indentLength: number = 43;
+const maxLineLength: number = (process.stdout.columns as number) - indentLength;
 const program = new Command();
+let locations: string[] = [];
 
 function indentHelp(helpText: string): string {
   const lines: string[] = [];
@@ -25,12 +26,7 @@ function indentHelp(helpText: string): string {
   }
   lines.push(currentLine);
 
-  return lines.join(
-    "\n" +
-      Array(42)
-        .fill(" ")
-        .join(""),
-  );
+  return lines.join("\n".padEnd(indentLength, " "));
 }
 
 // Initial program description and version
