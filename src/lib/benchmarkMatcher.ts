@@ -11,7 +11,7 @@ export enum LineState {
 /**
  * Note: the results might be confusing at times because for example the total amount of missed lines might be bigger
  * then the range you gave. This is because it counts the missed lines in *both* files. This is so because the ranges
- * are not guaranteed to be of equal length. 
+ * are not guaranteed to be of equal length.
  */
 export interface BenchmarkResults {
   matchedLines: number; // A line appears in both the expected and actual ranges

@@ -5,7 +5,7 @@ import { Range } from "./range";
 import { Match, RangesTuple, Summary } from "./summary";
 
 export class HTMLFormatter {
-  public static format(jsonSummary: string): string {
+  public static makeBody(jsonSummary: string): string {
     const jsonData: JSONSummaryFormat = JSON.parse(jsonSummary, JSONFormatter.JSONReviverFunction);
     const tableRows: string[] = new Array();
     const comparisonPages: string[] = new Array();
@@ -17,14 +17,7 @@ export class HTMLFormatter {
         comparisonPages.push(this.toComparePage(matchedFile, matchingFile, rangesTupleObj));
       }
     }
-
-    const stylesheet: string = fs.readFileSync(
-      path.resolve("./src/lib/assets/stylesheet.css"),
-      "utf8",
-    );
-    const script: string = fs.readFileSync(path.resolve("./src/lib/assets/scripts.js"), "utf8");
-
-    const body: string =
+    return (
       `<div>` +
       `<p>Dolos summary</p>` +
       `<p>${new Date().toUTCString()}` +
@@ -37,7 +30,18 @@ export class HTMLFormatter {
       `<div id="Index">\n` +
       `${tableRows.join("\n")}` +
       `</div>\n` +
-      `${comparisonPages.join("\n")}`;
+      `${comparisonPages.join("\n")}`
+    );
+  }
+
+  public static format(jsonSummary: string): string {
+    const stylesheet: string = fs.readFileSync(
+      path.resolve("./src/lib/assets/stylesheet.css"),
+      "utf8",
+    );
+    const script: string = fs.readFileSync(path.resolve("./src/lib/assets/scripts.js"), "utf8");
+
+    const body: string = HTMLFormatter.makeBody(jsonSummary);
 
     return (
       `<!doctype html>\n` +
@@ -66,6 +70,88 @@ export class HTMLFormatter {
    */
   public static getColourRotation(index: number, total: number): string {
     return `filter: hue-rotate(${(360 / total) * index}deg)`;
+  }
+
+  /**
+   * Generates a div that marks a section of code in the code overview.
+   * @param range The range you want to mark
+   * @param colourRotation The colour rotation you want to use.
+   * @param id The id of the markingDiv
+   */
+  protected static rangeToMarkingDiv(range: Range, colourRotation: string, id: string): string {
+    const style: string[] = [
+      `top: ${range.from * 16}px`,
+      `height: ${(range.to - range.from + 1) * 16}px`,
+      `${colourRotation}`,
+    ];
+    return `<div class="markingDiv" style="${style.join("; ")}" id="${id}"></div>`;
+  }
+
+  /**
+   * Generates an html friendly id.
+   * @param matchedFile The matched file.
+   * @param matchingFile The matching file.
+   */
+  protected static makeId(matchedFile: string, matchingFile: string, index?: number): string {
+    let id: string = `${this.escapeHtml(matchedFile.replace(/-/gi, ""))}-${this.escapeHtml(
+      matchingFile.replace(/-/gi, ""),
+    )}`;
+    if (index !== undefined) {
+      id += `-${index}`;
+    }
+    // return base64 version of id;
+    return Buffer.from(id)
+      .toString("base64")
+      .replace(/=/g, "");
+  }
+
+  /**
+   * Generates a table row that can be used to navigate to the comparison page.
+   * @param matchedFile The matched file name.
+   * @param matchingFile The matching file name.
+   * @param rangesTupleArray The matches between the two files.
+   */
+  protected static makeTableRow(
+    matchedFile: string,
+    matchingFile: string,
+    rangesTupleArray: RangesTuple[],
+  ): string {
+    const id: string = this.makeId(matchedFile, matchingFile);
+    const [matchedFileLineCount, matchingFileLineCount]: [
+      number,
+      number,
+    ] = Summary.countLinesInRanges(rangesTupleArray);
+
+    const [scoreMatchedFile, scoreMatchingFile] = Summary.getScoreForFiles(
+      rangesTupleArray,
+      matchedFile,
+      matchingFile,
+    );
+    return (
+      `<tr>\n` +
+      `<td class="filename-column">\n` +
+      `<a href=# onclick="return swap('${id}', 'Index');">\n` +
+      `${this.escapeHtml(matchedFile)} (${scoreMatchedFile}%)\n` +
+      `</a>\n` +
+      `</td>\n` +
+      `<td class="filename-column">` +
+      `<a href=# onclick="return swap('${id}', 'Index');">\n` +
+      `${this.escapeHtml(matchingFile)} (${scoreMatchingFile}%)` +
+      `</a>` +
+      `</td>\n` +
+      `<td class="lines-matched-column">${matchedFileLineCount}</td>\n` +
+      `<td class="lines-matched-column">${matchingFileLineCount}</td>\n` +
+      `</tr>`
+    );
+  }
+
+  /**
+   * Escapes all html characters so that no cross site scripting can occur. This is done without changing how the text
+   * would be display outside of html.
+   * @param text The text you want to escape.
+   */
+  protected static escapeHtml(text: string) {
+    return text.replace(/[&<>"']/g, m => HTMLFormatter.saveHTMLMap.get(m) as string);
   }
 
   private static readonly saveHTMLMap: Map<string, string> = new Map([
@@ -109,21 +195,6 @@ export class HTMLFormatter {
       `</details>\n` +
       `</div>\n`
     );
-  }
-
-  /**
-   * Generates a div that marks a section of code in the code overview.
-   * @param range The range you want to mark
-   * @param colourRotation The colour rotation you want to use.
-   * @param id The id of the markingDiv
-   */
-  private static rangeToMarkingDiv(range: Range, colourRotation: string, id: string): string {
-    const style: string[] = [
-      `top: ${range.from * 16}px`,
-      `height: ${(range.to - range.from + 1) * 16}px`,
-      `${colourRotation}`,
-    ];
-    return `<div class="markingDiv" style="${style.join("; ")}" id="${id}"></div>`;
   }
   /**
    * Generates a view that contains the lines out of each file.
@@ -215,72 +286,5 @@ export class HTMLFormatter {
       `<div>${comparePage}</div>\n` +
       `</div>\n`
     );
-  }
-
-  /**
-   * Generates an html friendly id.
-   * @param matchedFile The matched file.
-   * @param matchingFile The matching file.
-   */
-  private static makeId(matchedFile: string, matchingFile: string, index?: number): string {
-    let id: string = `${this.escapeHtml(matchedFile.replace(/-/gi, ""))}-${this.escapeHtml(
-      matchingFile.replace(/-/gi, ""),
-    )}`;
-    if (index !== undefined) {
-      id += `-${index}`;
-    }
-    // return base64 version of id;
-    return Buffer.from(id)
-      .toString("base64")
-      .replace(/=/g, "");
-  }
-
-  /**
-   * Generates a table row that can be used to navigate to the comparison page.
-   * @param matchedFile The matched file name.
-   * @param matchingFile The matching file name.
-   * @param rangesTupleArray The matches between the two files.
-   */
-  private static makeTableRow(
-    matchedFile: string,
-    matchingFile: string,
-    rangesTupleArray: RangesTuple[],
-  ): string {
-    const id: string = this.makeId(matchedFile, matchingFile);
-    const [matchedFileLineCount, matchingFileLineCount]: [
-      number,
-      number,
-    ] = Summary.countLinesInRanges(rangesTupleArray);
-
-    const [scoreMatchedFile, scoreMatchingFile] = Summary.getScoreForFiles(
-      rangesTupleArray,
-      matchedFile,
-      matchingFile,
-    );
-    return (
-      `<tr>\n` +
-      `<td class="filename-column">\n` +
-      `<a href=# onclick="return swap('${id}', 'Index');">\n` +
-      `${this.escapeHtml(matchedFile)} (${scoreMatchedFile}%)\n` +
-      `</a>\n` +
-      `</td>\n` +
-      `<td class="filename-column">` +
-      `<a href=# onclick="return swap('${id}', 'Index');">\n` +
-      `${this.escapeHtml(matchingFile)} (${scoreMatchingFile}%)` +
-      `</a>` +
-      `</td>\n` +
-      `<td class="lines-matched-column">${matchedFileLineCount}</td>\n` +
-      `<td class="lines-matched-column">${matchingFileLineCount}</td>\n` +
-      `</tr>`
-    );
-  }
-
-  /**
-   * Escapes all html characters so that no cross site scripting can occur. This is done without changing how the text
-   * would be display outside of html.
-   * @param text The text you want to escape.
-   */
-  private static escapeHtml(text: string) {
-    return text.replace(/[&<>"']/g, m => HTMLFormatter.saveHTMLMap.get(m) as string);
   }
 }

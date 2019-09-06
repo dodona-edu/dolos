@@ -35,10 +35,7 @@ manager.benchmark("partial copy", async () => {
     "samples/js/sample.js",
     "samples/js/benchmarkFiles/partial_copy.js",
   );
-  const expectedResults: NumericRangesTuple[] = [
-    [[1, 13], [1, 13]],
-    [[24, 46], [16, 34]]
-  ];
+  const expectedResults: NumericRangesTuple[] = [[[1, 13], [1, 13]], [[24, 46], [16, 34]]];
 
   manager.expect(expectedResults).toBePresentIn(matches);
 });
