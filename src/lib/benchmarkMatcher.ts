@@ -86,8 +86,8 @@ export class BenchmarkMatcher {
       for (const expectedRT of this.getMatchingRangesTuples(actualRT[0])) {
         if (this.isAcceptedCombination(actualRT, expectedRT)) {
           hasAMatch = true;
-          this.applyLineStates(actualRT[0], expectedRT[0], true);
-          this.applyLineStates(actualRT[1], expectedRT[1], true);
+          this.applyLineStates(expectedRT[0], actualRT[0], true);
+          this.applyLineStates(expectedRT[1], actualRT[1], false);
         }
       }
       if (!hasAMatch) {
@@ -196,13 +196,13 @@ export class BenchmarkMatcher {
       lineNumber += 1
     ) {
       let lineState: LineState;
-      const inRange1 = expected.includes(lineNumber);
-      const inRange2 = actual.includes(lineNumber);
-      if (inRange1 && inRange2) {
+      const inExpected = expected.includes(lineNumber);
+      const inActual = actual.includes(lineNumber);
+      if (inExpected && inActual) {
         lineState = LineState.Hit;
-      } else if (inRange1 && !inRange2) {
+      } else if (inExpected && !inActual) {
         lineState = LineState.Miss;
-      } else if (!inRange1 && inRange2) {
+      } else if (!inExpected && inActual) {
         lineState = LineState.FalseHit;
       } else {
         continue;
