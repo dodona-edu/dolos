@@ -13,11 +13,7 @@ export enum LineState {
  * @param lineState1 The first line state.
  * @param lineState2 The second line state.
  */
-// @ts-ignore
-LineState.getHigherPrecedence = function getHigherPrecedence(
-  lineState1: LineState | undefined,
-  lineState2: LineState,
-): LineState {
+function getHigherPrecedence(lineState1: LineState | undefined, lineState2: LineState): LineState {
   if (lineState1 === undefined) {
     return lineState2;
   } else if (lineState1 === lineState2) {
@@ -27,7 +23,7 @@ LineState.getHigherPrecedence = function getHigherPrecedence(
   } else {
     throw Error("Cannot compare a FalseHit and a miss");
   }
-};
+}
 
 /**
  * A class used to generate the results for a benchmark.
@@ -161,6 +157,7 @@ export class BenchmarkMatcher {
     const returnValue: boolean | ((rt1: RangesTuple, rt2: RangesTuple) => boolean) = this.map[
       type1
     ][type2];
+
     if (typeof returnValue === "boolean") {
       return returnValue;
     } else {
@@ -169,7 +166,8 @@ export class BenchmarkMatcher {
   }
 
   /**
-   * Calculates the type for the given rangesTuple.
+   * Calculates the type for the given rangesTuple. See [[RangesTupleType]] for more information about what the types
+   * mean.
    * @param param0 The rangesTuple you want the type of.
    */
   private getType([r1, r2]: RangesTuple): RangesTupleType {
@@ -210,7 +208,7 @@ export class BenchmarkMatcher {
         continue;
       }
 
-      fileStates[lineNumber] = LineState.getHigherPrecedence(fileStates[lineNumber], lineState);
+      fileStates[lineNumber] = getHigherPrecedence(fileStates[lineNumber], lineState);
     }
   }
 
