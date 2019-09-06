@@ -1,4 +1,4 @@
-import { BenchmarkMatcher } from "./benchmarkMatcher";
+import { BenchmarkMatcher, BenchmarkResults } from "./benchmarkMatcher";
 import { CodeTokenizer } from "./codeTokenizer";
 import { Comparison, ComparisonOptions, Matches } from "./comparison";
 import { Range } from "./range";
@@ -21,6 +21,8 @@ export class BenchmarkManager {
   private static defaultGapSize: number = 1;
 
   private benchMarks: Map<string, () => Promise<void>> = new Map();
+
+  private benchMarkResults: BenchmarkResults[] = [];
 
   /**
    * A shorthand function used to match two files.
@@ -66,12 +68,23 @@ export class BenchmarkManager {
    */
   public async executeBenchmarks() {
     for (const [name, benchmarkFunction] of this.benchMarks.entries()) {
-      console.info(`${name} =>`);
+      this.benchMarkResults = [];
       await benchmarkFunction();
+      console.log(`${name} =>`);
+      for (const benchmarkResult of this.benchMarkResults.values()) {
+        console.log(
+          `\tmatchedLines: ${benchmarkResult.matchedLines}, missedLines: ${benchmarkResult.missedLines}, ` +
+            `falseLines: ${benchmarkResult.falseLines}, falseMatches: ${benchmarkResult.falseMatches}, ` +
+            ` falseMatchingLines: ${benchmarkResult.falseMatchingLines}`,
+        );
+      }
     }
   }
 
   public expect(actual: NumericRangesTuple[]): BenchmarkMatcher {
-    return new BenchmarkMatcher(actual);
+    return new BenchmarkMatcher(this, actual);
+  }
+  public addBenchmarkResults(results: BenchmarkResults) {
+    this.benchMarkResults.push(results);
   }
 }
