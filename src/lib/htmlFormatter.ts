@@ -41,7 +41,7 @@ export class HTMLFormatter {
     );
     const script: string = fs.readFileSync(path.resolve("./src/lib/assets/scripts.js"), "utf8");
 
-    const body: string = HTMLFormatter.makeBody(jsonSummary);
+    const body: string = this.makeBody(jsonSummary);
 
     return (
       `<!doctype html>\n` +
@@ -151,7 +151,7 @@ export class HTMLFormatter {
    * @param text The text you want to escape.
    */
   protected static escapeHtml(text: string) {
-    return text.replace(/[&<>"']/g, m => HTMLFormatter.saveHTMLMap.get(m) as string);
+    return text.replace(/[&<>"']/g, m => this.saveHTMLMap.get(m) as string);
   }
 
   private static readonly saveHTMLMap: Map<string, string> = new Map([
@@ -225,13 +225,10 @@ export class HTMLFormatter {
     const ranges: string[] = [];
 
     for (const [index, [leftRange, rightRange]] of matchingRangesTuples.entries()) {
-      const colourRotation: string = HTMLFormatter.getColourRotation(
-        index,
-        matchingRangesTuples.length,
-      );
-      const id: string = `${HTMLFormatter.makeId(matchedFile, matchingFile, index)}`;
-      rightMarkedAreas.push(HTMLFormatter.rangeToMarkingDiv(leftRange, colourRotation, id));
-      leftMarkedAreas.push(HTMLFormatter.rangeToMarkingDiv(rightRange, colourRotation, id));
+      const colourRotation: string = this.getColourRotation(index, matchingRangesTuples.length);
+      const id: string = `${this.makeId(matchedFile, matchingFile, index)}`;
+      rightMarkedAreas.push(this.rangeToMarkingDiv(leftRange, colourRotation, id));
+      leftMarkedAreas.push(this.rangeToMarkingDiv(rightRange, colourRotation, id));
       const rangesTupleString: string = `[${leftRange.toString()}, ${rightRange.toString()}]`;
       ranges.push(
         `<div class="range" style="${colourRotation}" >` +

@@ -77,7 +77,7 @@ export class HTMLBenchmarkFormatter extends HTMLFormatter {
 
     const leftMarkedAreas: string[] = [];
     const rightMarkedAreas: string[] = [];
-    const expectedRanges: string[] = [];
+    let expectedRanges: string[] = [];
     const actualRanges: string[] = [];
 
     for (const [index, [leftRange, rightRange]] of benchmarkResults.actual.entries()) {
@@ -86,8 +86,8 @@ export class HTMLBenchmarkFormatter extends HTMLFormatter {
         benchmarkResults.matchingFile,
         index,
       )}`;
-      rightMarkedAreas.push(HTMLFormatter.rangeToMarkingDiv(leftRange, "color: red", id));
-      leftMarkedAreas.push(HTMLFormatter.rangeToMarkingDiv(rightRange, "color: red", id));
+      rightMarkedAreas.push(HTMLFormatter.rangeToMarkingDiv(leftRange, "background: red", id));
+      leftMarkedAreas.push(HTMLFormatter.rangeToMarkingDiv(rightRange, "background: red", id));
       const rangesTupleString: string = `[${leftRange.toString()}, ${rightRange.toString()}]`;
       actualRanges.push(
         `<div class="range" style="color: red;" >` +
@@ -97,23 +97,25 @@ export class HTMLBenchmarkFormatter extends HTMLFormatter {
       );
     }
 
-    const indexOffset: number = benchmarkResults.actual.length - 1;
+    const indexOffset: number = benchmarkResults.actual.length;
     for (const [index, [leftRange, rightRange]] of benchmarkResults.expected.entries()) {
       const id: string = `${HTMLFormatter.makeId(
         benchmarkResults.matchedFile,
         benchmarkResults.matchingFile,
         index + indexOffset,
       )}`;
-      rightMarkedAreas.push(HTMLFormatter.rangeToMarkingDiv(leftRange, "color: green", id));
-      leftMarkedAreas.push(HTMLFormatter.rangeToMarkingDiv(rightRange, "color: green", id));
+      rightMarkedAreas.push(HTMLFormatter.rangeToMarkingDiv(leftRange, "background: green", id));
+      leftMarkedAreas.push(HTMLFormatter.rangeToMarkingDiv(rightRange, "background: green", id));
       const rangesTupleString: string = `[${leftRange.toString()}, ${rightRange.toString()}]`;
       expectedRanges.push(
-        `<div class="range" style="color: red;" >` +
+        `<div class="range" style="color: green;" >` +
           `<input type="checkbox" class="checkbox" data="${id}">` +
           `${this.escapeHtml(rangesTupleString)}` +
           `</div>`,
       );
     }
+
+    expectedRanges = expectedRanges.concat(actualRanges);
 
     return (
       `<div>\n` +
@@ -123,9 +125,6 @@ export class HTMLBenchmarkFormatter extends HTMLFormatter {
       `<div class="code-comparison">\n` +
       `<div class="ranges">\n` +
       `${expectedRanges.join("\n")}` +
-      `</div>\n` +
-      `<div class="ranges">\n` +
-      `${actualRanges.join("\n")}` +
       `</div>\n` +
       `<div class="left-column">\n` +
       `${leftMarkedAreas.join("\n")}` +

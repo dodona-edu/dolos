@@ -61,11 +61,8 @@ export class BenchmarkMatcher {
   /**
    * @param expected The expected numeric rangesTuple
    */
-  constructor(expected: NumericRangesTuple[]) {
-    const mapped: RangesTuple[] = expected.map(expectedValue =>
-      BenchmarkMatcher.toRangesTuple(expectedValue),
-    );
-    this.expected = mapped;
+  constructor(expected: RangesTuple[]) {
+    this.expected = expected;
     this.dataStructure = new Array();
 
     // Registers all the rangesTuple based on the line from the first range in the rangesTuple. This is done so that we

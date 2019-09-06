@@ -1,3 +1,4 @@
+import fs from "fs";
 import { BenchmarkMatcher, BenchmarkResults } from "./benchmarkMatcher";
 import { CodeTokenizer } from "./codeTokenizer";
 import { Comparison, ComparisonOptions, Matches } from "./comparison";
@@ -104,37 +105,41 @@ export class BenchmarkManager {
           matchedFile: this.matchedFile as string,
           matchingFile: this.matchingFile as string,
         });
+      } else {
+        console.log(`${name} =>`);
+        if (this.benchmarkResults) {
+          console.log(
+            `\tmatchedLines: ${this.benchmarkResults.matchedLines}, ` +
+              `missedLines: ${this.benchmarkResults.missedLines}, falseLines: ${this.benchmarkResults.falseLines}, ` +
+              `falseMatches: ${this.benchmarkResults.falseMatches}, ` +
+              `falseMatchingLines: ${this.benchmarkResults.falseMatchingLines}`,
+          );
+        }
+        console.log("");
       }
-
-      console.log(`${name} =>`);
-      if (this.benchmarkResults) {
-        console.log(
-          `\tmatchedLines: ${this.benchmarkResults.matchedLines}, missedLines: ${this.benchmarkResults.missedLines}, ` +
-            `falseLines: ${this.benchmarkResults.falseLines}, falseMatches: ${this.benchmarkResults.falseMatches}, ` +
-            ` falseMatchingLines: ${this.benchmarkResults.falseMatchingLines}`,
-        );
-      }
-      console.log("");
     }
 
     if (this.generateHTML) {
-      const html: string = HTMLBenchmarkFormatter.format(
-        JSON.stringify(this.benchmarkResults, JSONFormatter.JSONReplacerFunction),
-      );
-      fs.writeFileSync("src/dist/__benchmarks__/" + new Date().toISOString(), html, "utf8");
+      const name: string = new Date().toISOString();
+      const json: string = JSON.stringify(jsonResults, JSONFormatter.JSONReplacerFunction);
+      const html: string = HTMLBenchmarkFormatter.format(json);
+      fs.writeFileSync(`src/lib/__benchmarks__/${name}.html`, html, "utf8");
+      fs.writeFileSync(`src/lib/__benchmarks__/latest.html`, html, "utf8");
     }
   }
   public expect(expected: NumericRangesTuple[]): this {
-    this.benchmarkMatcher = new BenchmarkMatcher(expected);
+    this.expected = expected.map(expectedValue => BenchmarkMatcher.toRangesTuple(expectedValue));
+    this.benchmarkMatcher = new BenchmarkMatcher(this.expected);
     return this;
   }
 
-  public toBePresentIn(actual: RangesTuple[]) {
-    this.actual = actual;
+  public toBePresentInMatch() {
+    if (this.actual === undefined) {
+      throw Error("cannot call toBePresentIn without calling match");
+    }
     if (this.benchmarkMatcher === undefined) {
       throw Error("cannot call toBePresentIn without calling expect");
     }
-    this.benchmarkResults = this.benchmarkMatcher.toBePresentIn(actual);
+    this.benchmarkResults = this.benchmarkMatcher.toBePresentIn(this.actual);
   }
 }
-import fs from "fs";
