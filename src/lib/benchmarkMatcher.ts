@@ -1,4 +1,4 @@
-import { BenchmarkManager, NumericRangesTuple } from "./benchmarkManager";
+import { NumericRangesTuple } from "./benchmarkManager";
 import { Range } from "./range";
 import { RangesTuple } from "./summary";
 
@@ -8,6 +8,11 @@ export enum LineState {
   FalseHit, // A line is confirmed but not expected
 }
 
+/**
+ * Note: the results might be confusing at times because for example the total amount of missed lines might be bigger
+ * then the range you gave. This is because it counts the missed lines in *both* files. This is so because the ranges
+ * are not guaranteed to be of equal length. 
+ */
 export interface BenchmarkResults {
   matchedLines: number; // A line appears in both the expected and actual ranges
   missedLines: number; // When a line is expected but not seen in the actual ranges.
@@ -41,7 +46,6 @@ export class BenchmarkMatcher {
   }
   private readonly expected: RangesTuple[];
   private readonly dataStructure: RangesTuple[][];
-  private readonly benchmarkManager: BenchmarkManager;
 
   private readonly map: Array<
     Array<boolean | ((rt1: RangesTuple, rt2: RangesTuple) => boolean)>
@@ -57,12 +61,11 @@ export class BenchmarkMatcher {
   /**
    * @param expected The expected numeric rangesTuple
    */
-  constructor(benchmarkManager: BenchmarkManager, expected: NumericRangesTuple[]) {
+  constructor(expected: NumericRangesTuple[]) {
     const mapped: RangesTuple[] = expected.map(expectedValue =>
       BenchmarkMatcher.toRangesTuple(expectedValue),
     );
     this.expected = mapped;
-    this.benchmarkManager = benchmarkManager;
     this.dataStructure = new Array();
 
     // Registers all the rangesTuple based on the line from the first range in the rangesTuple. This is done so that we
@@ -83,13 +86,13 @@ export class BenchmarkMatcher {
    * Calculates the statistics returned by the benchmark. See [[BenchmarkResults]] for more information.
    * @param actual The actual matches return from the match.
    */
-  public toBePresentIn(actual: RangesTuple[]) {
+  public toBePresentIn(actual: RangesTuple[]): BenchmarkResults {
     const benchmarkResults: BenchmarkResults = {
-      matchedLines: 0, 
-      missedLines: 0, 
-      falseLines: 0, 
-      falseMatches: 0, 
-      falseMatchingLines: 0, 
+      falseLines: 0,
+      falseMatches: 0,
+      falseMatchingLines: 0,
+      matchedLines: 0,
+      missedLines: 0,
     };
 
     for (const actualRT of actual.values()) {
@@ -103,7 +106,8 @@ export class BenchmarkMatcher {
       }
       if (!hasAMatch) {
         benchmarkResults.falseMatches += 1;
-        benchmarkResults.falseMatchingLines += actualRT[0].getLineCount() + actualRT[1].getLineCount();
+        benchmarkResults.falseMatchingLines +=
+          actualRT[0].getLineCount() + actualRT[1].getLineCount();
       }
     }
 
@@ -134,8 +138,7 @@ export class BenchmarkMatcher {
       }
     }
 
-    this.benchmarkManager.addBenchmarkResults(benchmarkResults);
-
+    return benchmarkResults;
   }
 
   /**

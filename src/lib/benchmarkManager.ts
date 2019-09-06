@@ -22,7 +22,7 @@ export class BenchmarkManager {
 
   private benchMarks: Map<string, () => Promise<void>> = new Map();
 
-  private benchMarkResults: BenchmarkResults[] = [];
+  private benchmarkResults: BenchmarkResults | undefined;
 
   /**
    * A shorthand function used to match two files.
@@ -68,23 +68,29 @@ export class BenchmarkManager {
    */
   public async executeBenchmarks() {
     for (const [name, benchmarkFunction] of this.benchMarks.entries()) {
-      this.benchMarkResults = [];
       await benchmarkFunction();
       console.log(`${name} =>`);
-      for (const benchmarkResult of this.benchMarkResults.values()) {
+      if (this.benchmarkResults) {
         console.log(
-          `\tmatchedLines: ${benchmarkResult.matchedLines}, missedLines: ${benchmarkResult.missedLines}, ` +
-            `falseLines: ${benchmarkResult.falseLines}, falseMatches: ${benchmarkResult.falseMatches}, ` +
-            ` falseMatchingLines: ${benchmarkResult.falseMatchingLines}`,
+          `\tmatchedLines: ${this.benchmarkResults.matchedLines}, missedLines: ${this.benchmarkResults.missedLines}, ` +
+            `falseLines: ${this.benchmarkResults.falseLines}, falseMatches: ${this.benchmarkResults.falseMatches}, ` +
+            ` falseMatchingLines: ${this.benchmarkResults.falseMatchingLines}`,
         );
       }
+      console.log("");
     }
   }
 
-  public expect(actual: NumericRangesTuple[]): BenchmarkMatcher {
-    return new BenchmarkMatcher(this, actual);
+  private benchmarkMatcher: BenchmarkMatcher | undefined;
+  public expect(expected: NumericRangesTuple[]): this {
+    this.benchmarkMatcher = new BenchmarkMatcher(expected);
+    return this;
   }
-  public addBenchmarkResults(results: BenchmarkResults) {
-    this.benchMarkResults.push(results);
+
+  public toBePresentIn(actual: RangesTuple[]) {
+    if(this.benchmarkMatcher === undefined) {
+      throw Error("cannot call toBePresentIn without calling expect");
+    }
+    this.benchmarkResults = this.benchmarkMatcher.toBePresentIn(actual);
   }
 }
