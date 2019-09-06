@@ -80,7 +80,7 @@ table {
   cursor: pointer;
 }
 
-.clicker:{
+.clicker:hover {
   background-color: lightgray;
 }
 
