@@ -7,7 +7,8 @@ export interface JSONSummaryFormat {
   options?: Array<[string, string | number]>;
 }
 export class JSONFormatter {
-  public static readonly JSONReplacerFunction: (key: string, value: any) => any = (_, value) => {
+  // @ts-ignore
+  public static JSONReplacerFunction(key: string, value: any): any {
     if (value instanceof Range) {
       const range: Range = value as Range;
       return [range.from + 1, range.to + 1];
@@ -15,7 +16,9 @@ export class JSONFormatter {
       return value;
     }
   }
-  public static readonly JSONReviverFunction: (key: any, value: any) => any = (_, value) => {
+
+  // @ts-ignore
+  public static JSONReviverFunction(key: any, value: any): any {
     if (value instanceof Array && value.length === 2 && typeof value[0] === "number") {
       return new Range(value[0] - 1, value[1] - 1);
     }
