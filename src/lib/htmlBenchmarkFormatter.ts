@@ -1,14 +1,14 @@
 import fs from "fs";
-import { BenchmarkResultsJSONFormat } from "./benchmarkManager";
+import { BenchmarkResults } from "./benchmarkMatcher";
 import { HTMLFormatter } from "./htmlFormatter";
 import { JSONFormatter } from "./jsonFormatter";
 import { Utils } from "./utils";
 
-export class HTMLBenchmarkFormatter extends HTMLFormatter<BenchmarkResultsJSONFormat> {
+export class HTMLBenchmarkFormatter extends HTMLFormatter<BenchmarkResults> {
   public toComparePage(
     matchedFile: string,
     matchingFile: string,
-    benchmarkResults: BenchmarkResultsJSONFormat,
+    benchmarkResults: BenchmarkResults,
   ): string {
     const comparePage: string = this.toCompareView(matchedFile, matchingFile, benchmarkResults);
 
@@ -24,17 +24,13 @@ export class HTMLBenchmarkFormatter extends HTMLFormatter<BenchmarkResultsJSONFo
   public toCompareView(
     matchedFile: string,
     matchingFile: string,
-    benchmarkResults: BenchmarkResultsJSONFormat,
+    benchmarkResults: BenchmarkResults,
   ): string {
     const description: string = HTMLBenchmarkFormatter.escapeHtml(
       `${matchedFile} => ${matchingFile}`,
     );
-    benchmarkResults.benchmarkResults.falseRangesTuples.sort(
-      Utils.sortRangesTuples,
-    );
-    benchmarkResults.benchmarkResults.matchingRangesTuples.sort(
-      Utils.sortRangesTuples,
-    );
+    benchmarkResults.falseRangesTuples.sort(Utils.sortRangesTuples);
+    benchmarkResults.matchingRangesTuples.sort(Utils.sortRangesTuples);
     benchmarkResults.expected.sort(Utils.sortRangesTuples);
 
     const right: string = fs.readFileSync(matchingFile, "utf8");
@@ -52,25 +48,25 @@ export class HTMLBenchmarkFormatter extends HTMLFormatter<BenchmarkResultsJSONFo
       benchmarkResults.matchingFile,
       rightMarkedAreas,
       leftMarkedAreas,
-      benchmarkResults.benchmarkResults.falseRangesTuples,
+      benchmarkResults.falseRangesTuples,
       falseRangesTuples,
       "red",
       indexOffset,
     );
-    indexOffset += benchmarkResults.benchmarkResults.falseRangesTuples.length;
+    indexOffset += benchmarkResults.falseRangesTuples.length;
 
     HTMLBenchmarkFormatter.toMarkingDivAndToggleButton(
       benchmarkResults.matchedFile,
       benchmarkResults.matchingFile,
       rightMarkedAreas,
       leftMarkedAreas,
-      benchmarkResults.benchmarkResults.matchingRangesTuples,
+      benchmarkResults.matchingRangesTuples,
       matchingRangesTuples,
       "blue",
       indexOffset,
     );
 
-    indexOffset += benchmarkResults.benchmarkResults.matchingRangesTuples.length;
+    indexOffset += benchmarkResults.matchingRangesTuples.length;
 
     HTMLBenchmarkFormatter.toMarkingDivAndToggleButton(
       benchmarkResults.matchedFile,
@@ -119,10 +115,7 @@ export class HTMLBenchmarkFormatter extends HTMLFormatter<BenchmarkResultsJSONFo
     );
   }
   public makeBody(jsonString: string): string {
-    const jsonData: BenchmarkResultsJSONFormat[] = JSON.parse(
-      jsonString,
-      JSONFormatter.JSONReviverFunction,
-    );
+    const jsonData: BenchmarkResults[] = JSON.parse(jsonString, JSONFormatter.JSONReviverFunction);
     const tableRows: string[] = new Array();
     const comparisonPages: string[] = new Array();
 
@@ -131,9 +124,7 @@ export class HTMLBenchmarkFormatter extends HTMLFormatter<BenchmarkResultsJSONFo
         HTMLBenchmarkFormatter.makeTableRow(
           benchmarkResults.matchedFile,
           benchmarkResults.matchingFile,
-          benchmarkResults.benchmarkResults.falseRangesTuples.concat(
-            benchmarkResults.benchmarkResults.matchingRangesTuples,
-          ),
+          benchmarkResults.falseRangesTuples.concat(benchmarkResults.matchingRangesTuples),
         ),
       );
       comparisonPages.push(
