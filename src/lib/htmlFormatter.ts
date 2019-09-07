@@ -140,7 +140,21 @@ export abstract class HTMLFormatter<T> {
   protected readonly scriptLocation = "./src/lib/assets/scripts.js";
   protected readonly stylesheetLocation = "./src/lib/assets/stylesheet.css";
   public abstract makeBody(jsonString: string): string;
+
+  /**
+   * Generates a view that contains the lines out of each file.
+   * @param matchedFile The matched file name.
+   * @param matchingFile The matching file name.
+   * @param comparisonData The data to be displayed on the view.
+   */
   public abstract toCompareView(matchedFile: string, matchingFile: string, comparisonData: T): string;
+
+  /**
+   * Generates a page containing an overview of the given data.
+   * @param matchedFile The matched file name.
+   * @param matchingFile The matching file name
+   * @param comparisonData The data to be displayed on the page.
+   */
   public abstract toComparePage(matchedFile: string, matchingFile: string, comparisonData: T): string;
 
   public format(jsonString: string): string {

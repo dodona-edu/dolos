@@ -68,12 +68,6 @@ export class HTMLSummaryFormatter extends HTMLFormatter<RangesTuple[]> {
       `${comparisonPages.join("\n")}`
     );
   }
-  /**
-   * Generates a view that contains the lines out of each file.
-   * @param matchedFile The matched file name.
-   * @param matchingFile The matching file name.
-   * @param matchingRangesTuples The Range of a match between the two files.
-   */
   public toCompareView(
     matchedFile: string,
     matchingFile: string,
@@ -133,12 +127,6 @@ export class HTMLSummaryFormatter extends HTMLFormatter<RangesTuple[]> {
     );
   }
 
-  /**
-   * Generates a page containing an overview of all the matches.
-   * @param matchedFile The matched file name.
-   * @param matchingFile The matching file name
-   * @param matchingRangesTuples The matches between the two files.
-   */
   public toComparePage(
     matchedFile: string,
     matchingFile: string,
