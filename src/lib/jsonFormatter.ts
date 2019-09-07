@@ -1,5 +1,5 @@
 import { Range } from "./range";
-import { Clustered, Match } from "./summary";
+import { Clustered, Match } from "./utils";
 
 export interface JSONSummaryFormat {
   results: Clustered<Match>;

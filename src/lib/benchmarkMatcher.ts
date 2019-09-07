@@ -1,6 +1,6 @@
 import { NumericRangesTuple } from "./benchmarkManager";
 import { Range } from "./range";
-import { RangesTuple } from "./summary";
+import { RangesTuple } from "./utils";
 
 export enum LineState {
   Hit, // A line is both expected and confirmed

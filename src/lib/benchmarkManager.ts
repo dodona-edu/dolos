@@ -5,8 +5,9 @@ import { Comparison, ComparisonOptions, Matches } from "./comparison";
 import { HTMLBenchmarkFormatter } from "./htmlBenchmarkFormatter";
 import { JSONFormatter } from "./jsonFormatter";
 import { Range } from "./range";
-import { FilterOptions, RangesTuple, Summary } from "./summary";
+import { FilterOptions, Summary } from "./summary";
 import { Tokenizer } from "./tokenizer";
+import { RangesTuple } from "./utils";
 
 export type NumericRangesTuple = [[number, number], [number, number]];
 export interface BenchmarkResultsJSONFormat {
@@ -27,13 +28,12 @@ export class BenchmarkManager {
   };
 
   private static defaultGapSize: number = 1;
+  private static readonly htmlFormatter: HTMLBenchmarkFormatter = new HTMLBenchmarkFormatter();
 
   private benchMarks: Map<string, () => Promise<void>> = new Map();
 
   private benchmarkResults: BenchmarkResults | undefined;
-
   private benchmarkMatcher: BenchmarkMatcher | undefined;
-
   private readonly generateHTML: boolean;
 
   private matchedFile: string | undefined;
@@ -119,7 +119,7 @@ export class BenchmarkManager {
     if (this.generateHTML) {
       const name: string = new Date().toISOString();
       const json: string = JSON.stringify(jsonResults, JSONFormatter.JSONReplacerFunction);
-      const html: string = HTMLBenchmarkFormatter.format(json);
+      const html: string = BenchmarkManager.htmlFormatter.format(json);
       fs.writeFileSync(`src/lib/__benchmarks__/${name}.html`, html, "utf8");
       fs.writeFileSync(`src/lib/__benchmarks__/latest.html`, html, "utf8");
     }

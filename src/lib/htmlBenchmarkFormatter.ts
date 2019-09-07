@@ -11,7 +11,7 @@ export class HTMLBenchmarkFormatter extends HTMLFormatter<BenchmarkResultsJSONFo
   ): string {
     const comparePage: string = this.toCompareView(matchedFile, matchingFile, benchmarkResults);
 
-    const id: string = this.makeId(matchedFile, matchingFile);
+    const id: string = HTMLBenchmarkFormatter.makeId(matchedFile, matchingFile);
     return (
       `<div style="display:none" id="${id}">\n` +
       `<div> <a href=# onclick="return swap('Index', '${id}')">Back to index</a> </div>\n` +
@@ -58,7 +58,7 @@ export class HTMLBenchmarkFormatter extends HTMLFormatter<BenchmarkResultsJSONFo
     );
     indexOffset += benchmarkResults.benchmarkResults.falseRangesTuples.length;
 
-    this.toMarkingDivAndToggleButton(
+    HTMLBenchmarkFormatter.toMarkingDivAndToggleButton(
       benchmarkResults.matchedFile,
       benchmarkResults.matchingFile,
       rightMarkedAreas,
@@ -71,7 +71,7 @@ export class HTMLBenchmarkFormatter extends HTMLFormatter<BenchmarkResultsJSONFo
 
     indexOffset += benchmarkResults.benchmarkResults.matchingRangesTuples.length;
 
-    this.toMarkingDivAndToggleButton(
+    HTMLBenchmarkFormatter.toMarkingDivAndToggleButton(
       benchmarkResults.matchedFile,
       benchmarkResults.matchingFile,
       rightMarkedAreas,

@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { Range } from "./range";
-import { RangesTuple, Summary } from "./summary";
+import { RangesTuple, Utils } from "./utils";
 
 export abstract class HTMLFormatter<T> {
   /**
@@ -70,9 +70,9 @@ export abstract class HTMLFormatter<T> {
     const [matchedFileLineCount, matchingFileLineCount]: [
       number,
       number,
-    ] = Summary.countLinesInRanges(rangesTupleArray);
+    ] = Utils.countLinesInRanges(rangesTupleArray);
 
-    const [scoreMatchedFile, scoreMatchingFile] = Summary.getScoreForFiles(
+    const [scoreMatchedFile, scoreMatchingFile] = Utils.getScoreForFiles(
       rangesTupleArray,
       matchedFile,
       matchingFile,
@@ -147,7 +147,11 @@ export abstract class HTMLFormatter<T> {
    * @param matchingFile The matching file name.
    * @param comparisonData The data to be displayed on the view.
    */
-  public abstract toCompareView(matchedFile: string, matchingFile: string, comparisonData: T): string;
+  public abstract toCompareView(
+    matchedFile: string,
+    matchingFile: string,
+    comparisonData: T,
+  ): string;
 
   /**
    * Generates a page containing an overview of the given data.
@@ -155,7 +159,11 @@ export abstract class HTMLFormatter<T> {
    * @param matchingFile The matching file name
    * @param comparisonData The data to be displayed on the page.
    */
-  public abstract toComparePage(matchedFile: string, matchingFile: string, comparisonData: T): string;
+  public abstract toComparePage(
+    matchedFile: string,
+    matchingFile: string,
+    comparisonData: T,
+  ): string;
 
   public format(jsonString: string): string {
     const stylesheet: string = fs.readFileSync(path.resolve(this.stylesheetLocation), "utf8");

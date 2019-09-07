@@ -1,9 +1,7 @@
 import fs from "fs";
-import path from "path";
 import { HTMLFormatter } from "./htmlFormatter";
 import { JSONFormatter, JSONSummaryFormat } from "./jsonFormatter";
-import { Range } from "./range";
-import { Match, RangesTuple, Summary } from "./summary";
+import { Match, RangesTuple, Utils } from "./utils";
 
 export class HTMLSummaryFormatter extends HTMLFormatter<RangesTuple[]> {
   /**
@@ -58,7 +56,7 @@ export class HTMLSummaryFormatter extends HTMLFormatter<RangesTuple[]> {
       `<p>${new Date().toUTCString()}` +
       (jsonData.comment ? `<p>${jsonData.comment}</p>` : ``) +
       (jsonData.options && jsonData.options.length > 0
-        ? `<p>Options: ${Summary.optionsToString(jsonData.options)}</p>`
+        ? `<p>Options: ${Utils.optionsToString(jsonData.options)}</p>`
         : ``) +
       `<hr>` +
       `</div>` +
