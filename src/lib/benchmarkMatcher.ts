@@ -69,14 +69,14 @@ export class BenchmarkMatcher {
 
     // Registers all the rangesTuple based on the line from the first range in the rangesTuple. This is done so that we
     // don't have to do a double for loop over all the ranges but only the relevant ones.
-    for (const [range1, range2] of this.expected.values()) {
-      for (let index = range1.from; index <= range1.to; index += 1) {
+    for (const rangesTuple of this.expected.values()) {
+      for (let index = rangesTuple[0].from; index <= rangesTuple[0].to; index += 1) {
         let subArray: RangesTuple[] = this.dataStructure[index];
         if (subArray === undefined) {
           subArray = new Array();
           this.dataStructure[index] = subArray;
         }
-        subArray.push([range1, range2]);
+        subArray.push(rangesTuple);
       }
     }
   }
