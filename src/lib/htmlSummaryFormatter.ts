@@ -74,7 +74,7 @@ export class HTMLSummaryFormatter extends HTMLFormatter<RangesTuple[]> {
     const description: string = HTMLSummaryFormatter.escapeHtml(
       `${matchedFile} => ${matchingFile}`,
     );
-    matchingRangesTuples.sort(HTMLSummaryFormatter.sortRangesTuples);
+    matchingRangesTuples.sort(Utils.sortRangesTuples);
 
     const left: string = fs.readFileSync(matchedFile, "utf8");
     const right: string = fs.readFileSync(matchingFile, "utf8");

@@ -2,6 +2,7 @@ import fs from "fs";
 import { BenchmarkResultsJSONFormat } from "./benchmarkManager";
 import { HTMLFormatter } from "./htmlFormatter";
 import { JSONFormatter } from "./jsonFormatter";
+import { Utils } from "./utils";
 
 export class HTMLBenchmarkFormatter extends HTMLFormatter<BenchmarkResultsJSONFormat> {
   public toComparePage(
@@ -29,12 +30,12 @@ export class HTMLBenchmarkFormatter extends HTMLFormatter<BenchmarkResultsJSONFo
       `${matchedFile} => ${matchingFile}`,
     );
     benchmarkResults.benchmarkResults.falseRangesTuples.sort(
-      HTMLBenchmarkFormatter.sortRangesTuples,
+      Utils.sortRangesTuples,
     );
     benchmarkResults.benchmarkResults.matchingRangesTuples.sort(
-      HTMLBenchmarkFormatter.sortRangesTuples,
+      Utils.sortRangesTuples,
     );
-    benchmarkResults.expected.sort(HTMLBenchmarkFormatter.sortRangesTuples);
+    benchmarkResults.expected.sort(Utils.sortRangesTuples);
 
     const right: string = fs.readFileSync(matchingFile, "utf8");
     const left: string = fs.readFileSync(matchedFile, "utf8");

@@ -95,15 +95,6 @@ export abstract class HTMLFormatter<T> {
     );
   }
 
-  protected static sortRangesTuples([r11, r12]: RangesTuple, [r21, r22]: RangesTuple): number {
-    const diff = r11.from - r21.from;
-    if (diff === 0) {
-      return r12.from - r22.from;
-    } else {
-      return diff;
-    }
-  }
-
   protected static toMarkingDivAndToggleButton(
     matchedFile: string,
     matchingFile: string,

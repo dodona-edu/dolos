@@ -71,6 +71,14 @@ export class Utils {
         .join(" ") + "\n"
     );
   }
+  public static sortRangesTuples([r11, r12]: RangesTuple, [r21, r22]: RangesTuple): number {
+    const diff = r11.from - r21.from;
+    if (diff === 0) {
+      return r12.from - r22.from;
+    } else {
+      return diff;
+    }
+  }
 
   private static readonly linesInFileMap: Map<string, number> = new Map();
   private static readonly colours: Map<string, string> = new Map([
