@@ -70,8 +70,8 @@ export class HTMLBenchmarkFormatter extends HTMLFormatter {
 
   private static toMarkingDivAndToggleButton(
     benchmarkResults: BenchmarkResultsJSONFormat,
-    leftMarkedAreas: string[],
     rightMarkedAreas: string[],
+    leftMarkedAreas: string[],
     rangesTuples: RangesTuple[],
     rangesList: string[],
     colour: string,
@@ -83,10 +83,10 @@ export class HTMLBenchmarkFormatter extends HTMLFormatter {
         benchmarkResults.matchingFile,
         index + indexOffset,
       )}`;
-      rightMarkedAreas.push(
+      leftMarkedAreas.push(
         HTMLFormatter.rangeToMarkingDiv(leftRange, `background: ${colour}`, id),
       );
-      leftMarkedAreas.push(
+      rightMarkedAreas.push(
         HTMLFormatter.rangeToMarkingDiv(rightRange, `background: ${colour}`, id),
       );
       const rangesTupleString: string = `[${leftRange.toString()}, ${rightRange.toString()}]`;
@@ -119,8 +119,8 @@ export class HTMLBenchmarkFormatter extends HTMLFormatter {
     let indexOffset: number = 0;
     this.toMarkingDivAndToggleButton(
       benchmarkResults,
-      leftMarkedAreas,
       rightMarkedAreas,
+      leftMarkedAreas,
       benchmarkResults.benchmarkResults.falseRangesTuples,
       falseRangesTuples,
       "red",
@@ -130,8 +130,8 @@ export class HTMLBenchmarkFormatter extends HTMLFormatter {
 
     this.toMarkingDivAndToggleButton(
       benchmarkResults,
-      leftMarkedAreas,
       rightMarkedAreas,
+      leftMarkedAreas,
       benchmarkResults.benchmarkResults.matchingRangesTuples,
       matchingRangesTuples,
       "blue",
@@ -142,8 +142,8 @@ export class HTMLBenchmarkFormatter extends HTMLFormatter {
 
     this.toMarkingDivAndToggleButton(
       benchmarkResults,
-      leftMarkedAreas,
       rightMarkedAreas,
+      leftMarkedAreas,
       benchmarkResults.expected,
       expectedRanges,
       "green",
@@ -171,13 +171,13 @@ export class HTMLBenchmarkFormatter extends HTMLFormatter {
       `</div>\n` +
       `</div>\n` +
       `<div class="left-column">\n` +
-      `${rightMarkedAreas.join("\n")}` +
+      `${leftMarkedAreas.join("\n")}` +
       `<pre class="code">\n` +
       `${left}\n` +
       `</pre>\n` +
       `</div>\n` +
       `<div class="right-column">\n` +
-      `${leftMarkedAreas.join("\n")}` +
+      `${rightMarkedAreas.join("\n")}` +
       `<pre class="code">\n` +
       `${right}\n` +
       `</pre>\n` +
