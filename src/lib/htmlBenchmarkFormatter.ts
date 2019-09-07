@@ -107,8 +107,8 @@ export class HTMLBenchmarkFormatter extends HTMLFormatter {
     benchmarkResults.benchmarkResults.matchingRangesTuples.sort(this.sortRangesTuples);
     benchmarkResults.expected.sort(this.sortRangesTuples);
 
-    const left: string = fs.readFileSync(benchmarkResults.matchingFile, "utf8");
-    const right: string = fs.readFileSync(benchmarkResults.matchedFile, "utf8");
+    const right: string = fs.readFileSync(benchmarkResults.matchingFile, "utf8");
+    const left: string = fs.readFileSync(benchmarkResults.matchedFile, "utf8");
 
     const leftMarkedAreas: string[] = [];
     const rightMarkedAreas: string[] = [];
@@ -171,13 +171,13 @@ export class HTMLBenchmarkFormatter extends HTMLFormatter {
       `</div>\n` +
       `</div>\n` +
       `<div class="left-column">\n` +
-      `${leftMarkedAreas.join("\n")}` +
+      `${rightMarkedAreas.join("\n")}` +
       `<pre class="code">\n` +
       `${left}\n` +
       `</pre>\n` +
       `</div>\n` +
       `<div class="right-column">\n` +
-      `${rightMarkedAreas.join("\n")}` +
+      `${leftMarkedAreas.join("\n")}` +
       `<pre class="code">\n` +
       `${right}\n` +
       `</pre>\n` +
