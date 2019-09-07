@@ -161,7 +161,7 @@ export class HTMLFormatter {
       const id: string = `${HTMLFormatter.makeId(matchedFile, matchingFile, index)}`;
       rightMarkedAreas.push(HTMLFormatter.rangeToMarkingDiv(leftRange, colourRotation, id));
       leftMarkedAreas.push(HTMLFormatter.rangeToMarkingDiv(rightRange, colourRotation, id));
-      const rangesTupleString: string = `[${leftRange.toString()}, ${rightRange.toString()}]`;
+      const rangesTupleString: string = `[${rightRange.toString()}, ${leftRange.toString()}]`;
       ranges.push(
         `<div class="range" style="${colourRotation}" >` +
           `<input type="checkbox" class="checkbox" data="${id}">` +
