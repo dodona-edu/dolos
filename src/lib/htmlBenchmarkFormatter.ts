@@ -18,7 +18,9 @@ export class HTMLBenchmarkFormatter extends HTMLFormatter {
         this.makeTableRow(
           benchmarkResults.matchedFile,
           benchmarkResults.matchingFile,
-          benchmarkResults.actual,
+          benchmarkResults.benchmarkResults.falseRangesTuples.concat(
+            benchmarkResults.benchmarkResults.matchingRangesTuples,
+          ),
         ),
       );
       comparisonPages.push(this.toViewPage(benchmarkResults));
@@ -66,56 +68,87 @@ export class HTMLBenchmarkFormatter extends HTMLFormatter {
     }
   }
 
+  private static toMarkingDivAndToggleButton(
+    benchmarkResults: BenchmarkResultsJSONFormat,
+    leftMarkedAreas: string[],
+    rightMarkedAreas: string[],
+    rangesTuples: RangesTuple[],
+    rangesList: string[],
+    colour: string,
+    indexOffset: number = 0,
+  ) {
+    for (const [index, [leftRange, rightRange]] of rangesTuples.entries()) {
+      const id: string = `${HTMLFormatter.makeId(
+        benchmarkResults.matchedFile,
+        benchmarkResults.matchingFile,
+        index + indexOffset,
+      )}`;
+      rightMarkedAreas.push(
+        HTMLFormatter.rangeToMarkingDiv(leftRange, `background: ${colour}`, id),
+      );
+      leftMarkedAreas.push(
+        HTMLFormatter.rangeToMarkingDiv(rightRange, `background: ${colour}`, id),
+      );
+      const rangesTupleString: string = `[${leftRange.toString()}, ${rightRange.toString()}]`;
+      rangesList.push(
+        `<div class="range" style="color: ${colour};" >` +
+          `<input type="checkbox" class="checkbox" data="${id}">` +
+          `${this.escapeHtml(rangesTupleString)}` +
+          `</div>`,
+      );
+    }
+  }
+
   private static toBenchmarkView(benchmarkResults: BenchmarkResultsJSONFormat): string {
     const description: string = this.escapeHtml(
       `${benchmarkResults.matchedFile} => ${benchmarkResults.matchingFile}`,
     );
-    benchmarkResults.actual.sort((rt1, rt2) => this.sortRangesTuples(rt1, rt2));
+    benchmarkResults.benchmarkResults.falseRangesTuples.sort(this.sortRangesTuples);
+    benchmarkResults.benchmarkResults.matchingRangesTuples.sort(this.sortRangesTuples);
+    benchmarkResults.expected.sort(this.sortRangesTuples);
 
     const left: string = fs.readFileSync(benchmarkResults.matchedFile, "utf8");
     const right: string = fs.readFileSync(benchmarkResults.matchedFile, "utf8");
 
     const leftMarkedAreas: string[] = [];
     const rightMarkedAreas: string[] = [];
-    let expectedRanges: string[] = [];
-    const actualRanges: string[] = [];
+    const expectedRanges: string[] = [];
+    const falseRangesTuples: string[] = [];
+    const matchingRangesTuples: string[] = [];
 
-    for (const [index, [leftRange, rightRange]] of benchmarkResults.actual.entries()) {
-      const id: string = `${HTMLFormatter.makeId(
-        benchmarkResults.matchedFile,
-        benchmarkResults.matchingFile,
-        index,
-      )}`;
-      rightMarkedAreas.push(HTMLFormatter.rangeToMarkingDiv(leftRange, "background: red", id));
-      leftMarkedAreas.push(HTMLFormatter.rangeToMarkingDiv(rightRange, "background: red", id));
-      const rangesTupleString: string = `[${leftRange.toString()}, ${rightRange.toString()}]`;
-      actualRanges.push(
-        `<div class="range" style="color: red;" >` +
-          `<input type="checkbox" class="checkbox" data="${id}">` +
-          `${this.escapeHtml(rangesTupleString)}` +
-          `</div>`,
-      );
-    }
+    let indexOffset: number = 0;
+    this.toMarkingDivAndToggleButton(
+      benchmarkResults,
+      leftMarkedAreas,
+      rightMarkedAreas,
+      benchmarkResults.benchmarkResults.falseRangesTuples,
+      falseRangesTuples,
+      "red",
+      indexOffset,
+    );
+    indexOffset += benchmarkResults.benchmarkResults.falseRangesTuples.length;
 
-    const indexOffset: number = benchmarkResults.actual.length;
-    for (const [index, [leftRange, rightRange]] of benchmarkResults.expected.entries()) {
-      const id: string = `${HTMLFormatter.makeId(
-        benchmarkResults.matchedFile,
-        benchmarkResults.matchingFile,
-        index + indexOffset,
-      )}`;
-      rightMarkedAreas.push(HTMLFormatter.rangeToMarkingDiv(leftRange, "background: green", id));
-      leftMarkedAreas.push(HTMLFormatter.rangeToMarkingDiv(rightRange, "background: green", id));
-      const rangesTupleString: string = `[${leftRange.toString()}, ${rightRange.toString()}]`;
-      expectedRanges.push(
-        `<div class="range" style="color: green;" >` +
-          `<input type="checkbox" class="checkbox" data="${id}">` +
-          `${this.escapeHtml(rangesTupleString)}` +
-          `</div>`,
-      );
-    }
+    this.toMarkingDivAndToggleButton(
+      benchmarkResults,
+      leftMarkedAreas,
+      rightMarkedAreas,
+      benchmarkResults.benchmarkResults.matchingRangesTuples,
+      matchingRangesTuples,
+      "blue",
+      indexOffset,
+    );
 
-    expectedRanges = expectedRanges.concat(actualRanges);
+    indexOffset += benchmarkResults.benchmarkResults.matchingRangesTuples.length;
+
+    this.toMarkingDivAndToggleButton(
+      benchmarkResults,
+      leftMarkedAreas,
+      rightMarkedAreas,
+      benchmarkResults.expected,
+      expectedRanges,
+      "green",
+      indexOffset,
+    );
 
     return (
       `<div>\n` +
@@ -123,8 +156,19 @@ export class HTMLBenchmarkFormatter extends HTMLFormatter {
       description +
       `</div>\n` +
       `<div class="code-comparison">\n` +
+      `<div class="allRanges">\n` +
+      `Expected ranges:` +
       `<div class="ranges">\n` +
       `${expectedRanges.join("\n")}` +
+      `</div>\n` +
+      `Ranges with at least one match:` +
+      `<div class="ranges">\n` +
+      `${matchingRangesTuples.join("\n")}` +
+      `</div>\n` +
+      `Ranges with no match:` +
+      `<div class="ranges">\n` +
+      `${falseRangesTuples.join("\n")}` +
+      `</div>\n` +
       `</div>\n` +
       `<div class="left-column">\n` +
       `${leftMarkedAreas.join("\n")}` +

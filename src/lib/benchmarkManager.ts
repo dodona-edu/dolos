@@ -10,11 +10,10 @@ import { Tokenizer } from "./tokenizer";
 
 export type NumericRangesTuple = [[number, number], [number, number]];
 export interface BenchmarkResultsJSONFormat {
+  benchmarkResults: BenchmarkResults;
   matchingFile: string;
   matchedFile: string;
   expected: RangesTuple[];
-  actual: RangesTuple[];
-  benchmarkResults: BenchmarkResults;
 }
 /**
  * A class to manage benchmarks.
@@ -54,7 +53,6 @@ export class BenchmarkManager {
     this.matchedFile = file1;
     this.matchingFile = file2;
     this.expected = [];
-    this.actual = [];
 
     const tokenizer: Tokenizer<number> = new CodeTokenizer("javascript");
     const comparison: Comparison<number> = new Comparison(
@@ -77,7 +75,7 @@ export class BenchmarkManager {
       return this;
     }
 
-    this.actual = results.get(file1) as RangesTuple[];
+    this.actual = results.get(file1);
     return this;
   }
 
@@ -99,7 +97,6 @@ export class BenchmarkManager {
       await benchmarkFunction();
       if (this.generateHTML) {
         jsonResults.push({
-          actual: this.actual as RangesTuple[],
           benchmarkResults: this.benchmarkResults as BenchmarkResults,
           expected: this.expected as RangesTuple[],
           matchedFile: this.matchedFile as string,

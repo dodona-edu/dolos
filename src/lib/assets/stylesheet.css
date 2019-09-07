@@ -45,6 +45,12 @@ code {
   grid-area: right-column;
 }
 
+.allRanges {
+  display: flex;
+  grid-area: header;
+  flex-wrap: wrap;
+  flex-direction: column;
+}
 .ranges {
   display: flex;
   grid-area: header;
