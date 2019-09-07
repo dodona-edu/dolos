@@ -107,7 +107,7 @@ export class HTMLBenchmarkFormatter extends HTMLFormatter {
     benchmarkResults.benchmarkResults.matchingRangesTuples.sort(this.sortRangesTuples);
     benchmarkResults.expected.sort(this.sortRangesTuples);
 
-    const left: string = fs.readFileSync(benchmarkResults.matchedFile, "utf8");
+    const left: string = fs.readFileSync(benchmarkResults.matchingFile, "utf8");
     const right: string = fs.readFileSync(benchmarkResults.matchedFile, "utf8");
 
     const leftMarkedAreas: string[] = [];
