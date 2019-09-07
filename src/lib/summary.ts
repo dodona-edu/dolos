@@ -1,6 +1,6 @@
 import fs from "fs";
 import { Matches } from "./comparison";
-import { HTMLFormatter } from "./htmlFormatter";
+import { HTMLSummaryFormatter } from "./htmlSummaryFormatter";
 import { JSONFormatter } from "./jsonFormatter";
 import { Range } from "./range";
 export type RangesTuple = [Range, Range];
@@ -209,7 +209,7 @@ export class Summary {
    * @param options The options that were used to generate this report.
    */
   public toHTML(comment?: string, options?: Array<[string, string | number]>): string {
-    return HTMLFormatter.format(this.toJSON(comment, options));
+    return HTMLSummaryFormatter.format(this.toJSON(comment, options));
   }
   /**
    * Returns the maximum from the tuples returned from [[this.countLinesInRanges]].
