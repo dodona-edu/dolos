@@ -1,3 +1,4 @@
+import { BenchmarkManager } from "./benchmarkManager";
 import { CodeTokenizer } from "./codeTokenizer";
 import { Comparison, ComparisonOptions, Matches } from "./comparison";
 import { Range } from "./range";
@@ -6,9 +7,9 @@ import { Tokenizer } from "./tokenizer";
 import { RangesTuple } from "./utils";
 
 export interface BenchMarkSettings {
-  filterOptions: FilterOptions;
-  comparisonOptions: ComparisonOptions;
-  gapSize: number;
+  filterOptions?: FilterOptions;
+  comparisonOptions?: ComparisonOptions;
+  gapSize?: number;
 }
 export class BenchmarkHelper {
   private currentBenchmarkSettings: BenchMarkSettings;
@@ -30,7 +31,8 @@ export class BenchmarkHelper {
     const tokenizer: Tokenizer<number> = new CodeTokenizer("javascript");
     const comparison: Comparison<number> = new Comparison(
       tokenizer,
-      this.currentBenchmarkSettings.comparisonOptions,
+      this.currentBenchmarkSettings.comparisonOptions ||
+        (BenchmarkManager.defaultBenchmarkSettings.comparisonOptions as ComparisonOptions),
     );
     await comparison.addFile(file1);
 

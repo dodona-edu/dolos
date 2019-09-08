@@ -10,7 +10,7 @@ export type NumericRangesTuple = [[number, number], [number, number]];
  * A class to manage benchmarks.
  */
 export class BenchmarkManager {
-  private static readonly defaultBenchmarkSettings: BenchMarkSettings = {
+  public static readonly defaultBenchmarkSettings: BenchMarkSettings = {
     comparisonOptions: { filterHashByPercentage: undefined },
     filterOptions: { minimumFragmentLength: 0 },
     gapSize: 0,

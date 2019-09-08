@@ -4,7 +4,7 @@ import { HTMLFormatter } from "./htmlFormatter";
 import { JSONFormatter } from "./jsonFormatter";
 import { ObjectMap, RangesTuple, Utils } from "./utils";
 
-export class HTMLBenchmarkFormatter extends HTMLFormatter<BenchmarkResults> {
+export class HTMLBenchmarkFormatter extends HTMLFormatter<[string, BenchmarkResults]> {
   protected static makeBenchmarkTableRow(
     matchedFile: string,
     matchingFile: string,
@@ -86,9 +86,9 @@ export class HTMLBenchmarkFormatter extends HTMLFormatter<BenchmarkResults> {
   public toComparePage(
     matchedFile: string,
     matchingFile: string,
-    benchmarkResults: BenchmarkResults,
+    nameBenchmarkTuple: [string, BenchmarkResults],
   ): string {
-    const comparePage: string = this.toCompareView(matchedFile, matchingFile, benchmarkResults);
+    const comparePage: string = this.toCompareView(matchedFile, matchingFile, nameBenchmarkTuple);
 
     const id: string = HTMLBenchmarkFormatter.makeId(matchedFile, matchingFile);
     return (
@@ -102,10 +102,10 @@ export class HTMLBenchmarkFormatter extends HTMLFormatter<BenchmarkResults> {
   public toCompareView(
     matchedFile: string,
     matchingFile: string,
-    benchmarkResults: BenchmarkResults,
+    [name, benchmarkResults]: [string, BenchmarkResults],
   ): string {
     const description: string = HTMLBenchmarkFormatter.escapeHtml(
-      `${matchedFile} => ${matchingFile}`,
+      `${name}: ${matchedFile} => ${matchingFile}`,
     );
     benchmarkResults.falseRangesTuples.sort(Utils.sortRangesTuples);
     benchmarkResults.matchingRangesTuples.sort(Utils.sortRangesTuples);
@@ -201,13 +201,12 @@ export class HTMLBenchmarkFormatter extends HTMLFormatter<BenchmarkResults> {
     const groups: string[] = new Array();
 
     for (const [benchmarkSetting, results] of Object.entries(jsonData)) {
-      for (const [, benchmarkResults] of results.values()) {
+      for (const [name, benchmarkResults] of results.values()) {
         comparisonPages.push(
-          this.toComparePage(
-            benchmarkResults.matchedFile,
-            benchmarkResults.matchingFile,
+          this.toComparePage(benchmarkResults.matchedFile, benchmarkResults.matchingFile, [
+            name,
             benchmarkResults,
-          ),
+          ]),
         );
       }
       groups.push(HTMLBenchmarkFormatter.makeGroupsEntry(results, benchmarkSetting));

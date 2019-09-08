@@ -30,4 +30,6 @@ manager.benchmark("partial copy", async matcher => {
   matcher.expect(expectedResults).toBePresentInMatch();
 });
 
+manager.benchmarkSettings = [manager.benchmarkSettingNoFilter, { gapSize: 5 }];
+
 manager.executeBenchmarks();
