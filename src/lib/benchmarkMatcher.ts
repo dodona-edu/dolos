@@ -55,15 +55,22 @@ export class BenchmarkMatcher {
   public static toRangesTuple([[from1, to1], [from2, to2]]: NumericRangesTuple): RangesTuple {
     return [new Range(from1 - 1, to1 - 1), new Range(from2 - 1, to2 - 1)];
   }
+
+  /**
+   * Calculates if the ratio of the amount of lines within the expected range and the amount outside is small enough.
+   * @param rt1 The first rangesTuple.
+   * @param tr2 The second rangesTuple.
+   */
+  public acceptableRatio: number = 0.5;
   private readonly dataStructure: RangesTuple[][];
 
   private readonly map: Array<
     Array<boolean | ((rt1: RangesTuple, rt2: RangesTuple) => boolean)>
   > = [
-    [true, false, this.isAcceptableRatio, this.isAcceptableRatio],
-    [false, true, this.isAcceptableRatio, this.isAcceptableRatio],
-    [this.isAcceptableRatio, this.isAcceptableRatio, true, false],
-    [this.isAcceptableRatio, this.isAcceptableRatio, false, true],
+    [true, false, (_, rt) => this.isAcceptableRatio(rt), (_, rt) => this.isAcceptableRatio(rt)],
+    [false, true, (_, rt) => this.isAcceptableRatio(rt), (_, rt) => this.isAcceptableRatio(rt)],
+    [rt => this.isAcceptableRatio(rt), rt => this.isAcceptableRatio(rt), true, false],
+    [rt => this.isAcceptableRatio(rt), rt => this.isAcceptableRatio(rt), false, true],
   ];
 
   // TODO better naming
@@ -90,8 +97,6 @@ export class BenchmarkMatcher {
   constructor(helper: BenchmarkHelper) {
     this.helper = helper;
     this.dataStructure = new Array();
-
-    // TODO move this to a seperate function.
   }
 
   public async match(matchedFile: string, matchingFile: string): Promise<this> {
@@ -141,21 +146,7 @@ export class BenchmarkMatcher {
       }
     }
 
-    // TODO merge these two together.
-    for (const [, lineState] of this.file1LinesStates.entries()) {
-      switch (lineState) {
-        case LineState.Hit:
-          this.benchmarkResults.matchedLines += 1;
-          break;
-        case LineState.Miss:
-          this.benchmarkResults.missedLines += 1;
-          break;
-        case LineState.FalseHit:
-          this.benchmarkResults.falseLines += 1;
-          break;
-      }
-    }
-    for (const [, lineState] of this.file2LinesStates.entries()) {
+    for (const [, lineState] of this.file1LinesStates.concat(this.file2LinesStates).entries()) {
       switch (lineState) {
         case LineState.Hit:
           this.benchmarkResults.matchedLines += 1;
@@ -187,14 +178,13 @@ export class BenchmarkMatcher {
     }
     return this;
   }
+  private isAcceptableRatio([expected, actual]: RangesTuple): boolean {
+    if (expected.from <= actual.from && actual.from <= expected.to) {
+      return (expected.to - actual.from) / (expected.to - actual.to) >= this.acceptableRatio;
+    } else {
+      return (actual.to - expected.from) / (expected.from - actual.from) >= this.acceptableRatio;
+    }
 
-  /**
-   * Calculates if the ratio of the amount of lines within the expected range and the amount outside is small enough.
-   * @param rt1 The first rangesTuple.
-   * @param tr2 The second rangesTuple.
-   */
-  // @ts-ignore; TODO
-  private isAcceptableRatio(rt1: RangesTuple, tr2: RangesTuple): boolean {
     return true;
   }
 
@@ -203,15 +193,21 @@ export class BenchmarkMatcher {
    * @param actualRT The rangesTuple returned by the matcher.
    * @param expectedRT The rangesTuple expected from the result.
    */
-  private isAcceptedCombination(actualRT: RangesTuple, expectedRT: RangesTuple): boolean {
+  private isAcceptedCombination(
+    [file1Actual, file2Actual]: RangesTuple,
+    [file1Expected, file2Expected]: RangesTuple,
+  ): boolean {
     if (
-      actualRT[0].overlappingLinesAmount(expectedRT[0]) <= 0 ||
-      actualRT[1].overlappingLinesAmount(expectedRT[1]) <= 0
+      file1Actual.overlappingLinesAmount(file1Expected) <= 0 ||
+      file2Actual.overlappingLinesAmount(file2Expected) <= 0
     ) {
       return false;
     }
-    const type1: RangesTupleType = this.getType(actualRT);
-    const type2: RangesTupleType = this.getType(expectedRT);
+    const file1RangesTuple: RangesTuple = [file1Expected, file1Actual];
+    const file2RangesTuple: RangesTuple = [file2Expected, file2Actual];
+
+    const type1: RangesTupleType = this.getType(file1RangesTuple);
+    const type2: RangesTupleType = this.getType(file2RangesTuple);
 
     const returnValue: boolean | ((rt1: RangesTuple, rt2: RangesTuple) => boolean) = this.map[
       type1
@@ -220,7 +216,7 @@ export class BenchmarkMatcher {
     if (typeof returnValue === "boolean") {
       return returnValue;
     } else {
-      return returnValue(actualRT, expectedRT);
+      return returnValue(file1RangesTuple, file2RangesTuple);
     }
   }
 

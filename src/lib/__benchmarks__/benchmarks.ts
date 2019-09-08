@@ -1,6 +1,6 @@
 import { BenchmarkManager, NumericRangesTuple } from "../benchmarkManager";
 
-const manager = new BenchmarkManager(false);
+const manager = new BenchmarkManager(true);
 
 manager.benchmark("basic file match", async matcher => {
   await matcher.match("samples/js/sample.js", "samples/js/copied_function.js");
