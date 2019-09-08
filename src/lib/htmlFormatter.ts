@@ -144,6 +144,11 @@ export abstract class HTMLFormatter<T> {
   ]);
   protected readonly scriptLocation = "./src/lib/assets/scripts.js";
   protected readonly stylesheetLocation = "./src/lib/assets/stylesheet.css";
+
+  protected readonly noTime: boolean;
+  constructor(noTime: boolean = false) {
+    this.noTime = noTime;
+  }
   public abstract makeBody(jsonString: string): string;
 
   /**

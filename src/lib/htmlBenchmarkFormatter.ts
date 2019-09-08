@@ -264,7 +264,7 @@ export class HTMLBenchmarkFormatter extends HTMLFormatter<[string, string, Bench
     return (
       `<div>` +
       `<p>Dolos summary</p>` +
-      `<p>${new Date().toUTCString()}` +
+      (this.noTime ? "" : `<p>${new Date().toUTCString()}</p>`) +
       `<hr>` +
       `</div>` +
       `<div id="Index">\n` +

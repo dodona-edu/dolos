@@ -1,9 +1,11 @@
 import { BenchmarkManager, NumericRangesTuple } from "../benchmarkManager";
 import { HTMLBenchmarkFormatter } from "./../htmlBenchmarkFormatter";
+
 test("general structure test", async () => {
   const manager = new BenchmarkManager(false);
-  const formatter: HTMLBenchmarkFormatter = new HTMLBenchmarkFormatter();
+  const formatter: HTMLBenchmarkFormatter = new HTMLBenchmarkFormatter(true);
 
+  console.log = jest.fn;
   manager.benchmark("dummy benchmark", async helper => {
     await helper.match("samples/js/sample.js", "samples/js/copied_function.js");
     helper.expect([[[15, 20], [4, 9]]] as NumericRangesTuple[]).toBePresentInMatch();
@@ -13,6 +15,6 @@ test("general structure test", async () => {
 
   await manager.executeBenchmarks();
 
-  const output: string = formatter.format(manager.json);
+  const output: string = formatter.format(manager.json as string);
   expect(output).toMatchSnapshot();
 });
