@@ -116,3 +116,7 @@ pre.code {
   z-index: -1;
   display: block;
 }
+
+.benchmarkName-column{
+  flex-basis: 20%;
+}

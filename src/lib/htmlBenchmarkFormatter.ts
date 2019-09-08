@@ -2,9 +2,87 @@ import fs from "fs";
 import { BenchmarkResults } from "./benchmarkMatcher";
 import { HTMLFormatter } from "./htmlFormatter";
 import { JSONFormatter } from "./jsonFormatter";
-import { Utils } from "./utils";
+import { ObjectMap, RangesTuple, Utils } from "./utils";
 
 export class HTMLBenchmarkFormatter extends HTMLFormatter<BenchmarkResults> {
+  protected static makeBenchmarkTableRow(
+    matchedFile: string,
+    matchingFile: string,
+    rangesTupleArray: RangesTuple[],
+    benchmarkName: string,
+  ): string {
+    const id: string = this.makeId(matchedFile, matchingFile);
+    const [matchedFileLineCount, matchingFileLineCount]: [
+      number,
+      number,
+    ] = Utils.countLinesInRanges(rangesTupleArray);
+
+    const [scoreMatchedFile, scoreMatchingFile] = Utils.getScoreForFiles(
+      rangesTupleArray,
+      matchedFile,
+      matchingFile,
+    );
+    return (
+      `<tr>\n` +
+      `<td class="benchmarkName-column">\n` +
+      `<a href=# onclick="return swap('${id}', 'Index');">\n` +
+      `${this.escapeHtml(benchmarkName)}\n` +
+      `</a>\n` +
+      `</td>\n` +
+      `<td class="filename-column">\n` +
+      `<a href=# onclick="return swap('${id}', 'Index');">\n` +
+      `${this.escapeHtml(matchedFile)} (${scoreMatchedFile}%)\n` +
+      `</a>\n` +
+      `</td>\n` +
+      `<td class="filename-column">` +
+      `<a href=# onclick="return swap('${id}', 'Index');">\n` +
+      `${this.escapeHtml(matchingFile)} (${scoreMatchingFile}%)` +
+      `</a>` +
+      `</td>\n` +
+      `<td class="lines-matched-column">${matchedFileLineCount}</td>\n` +
+      `<td class="lines-matched-column">${matchingFileLineCount}</td>\n` +
+      `</tr>`
+    );
+  }
+
+  private static makeGroupsEntry(
+    group: Array<[string, BenchmarkResults]>,
+    settings: string,
+  ): string {
+    const tableRows: string[] = group.map(([benchmarkName, benchmarkResults]) =>
+      this.makeBenchmarkTableRow(
+        benchmarkResults.matchedFile,
+        benchmarkResults.matchingFile,
+        benchmarkResults.falseRangesTuples.concat(benchmarkResults.matchingRangesTuples),
+        benchmarkName,
+      ),
+    );
+
+    return (
+      `<div class="group">\n` +
+      `<details>\n` +
+      `<summary class="clicker">\n` +
+      `${settings}\n` +
+      `</summary>\n` +
+      `<hr>\n` +
+      `<div>\n` +
+      `<table>\n` +
+      `<tbody>\n` +
+      `<tr>\n` +
+      `<th class="benchmarkName-column">Benchmark name</th>\n` +
+      `<th class="filename-column">File 1</th>\n` +
+      `<th class="filename-column">File 2</th>\n` +
+      `<th class="lines-matched-column">Lines matched in File 1</th>\n` +
+      `<th class="lines-matched-column">Lines matched in File 2</th>\n` +
+      `</tr>\n` +
+      `${tableRows.join("\n")}\n` +
+      `</tbody>\n` +
+      `</table>\n` +
+      `</div>\n` +
+      `</details>\n` +
+      `</div>\n`
+    );
+  }
   public toComparePage(
     matchedFile: string,
     matchingFile: string,
@@ -115,25 +193,24 @@ export class HTMLBenchmarkFormatter extends HTMLFormatter<BenchmarkResults> {
     );
   }
   public makeBody(jsonString: string): string {
-    const jsonData: BenchmarkResults[] = JSON.parse(jsonString, JSONFormatter.JSONReviverFunction);
-    const tableRows: string[] = new Array();
+    const jsonData: ObjectMap<Array<[string, BenchmarkResults]>> = JSON.parse(
+      jsonString,
+      JSONFormatter.JSONReviverFunction,
+    );
     const comparisonPages: string[] = new Array();
+    const groups: string[] = new Array();
 
-    for (const benchmarkResults of jsonData.values()) {
-      tableRows.push(
-        HTMLBenchmarkFormatter.makeTableRow(
-          benchmarkResults.matchedFile,
-          benchmarkResults.matchingFile,
-          benchmarkResults.falseRangesTuples.concat(benchmarkResults.matchingRangesTuples),
-        ),
-      );
-      comparisonPages.push(
-        this.toComparePage(
-          benchmarkResults.matchedFile,
-          benchmarkResults.matchingFile,
-          benchmarkResults,
-        ),
-      );
+    for (const [benchmarkSetting, results] of Object.entries(jsonData)) {
+      for (const [, benchmarkResults] of results.values()) {
+        comparisonPages.push(
+          this.toComparePage(
+            benchmarkResults.matchedFile,
+            benchmarkResults.matchingFile,
+            benchmarkResults,
+          ),
+        );
+      }
+      groups.push(HTMLBenchmarkFormatter.makeGroupsEntry(results, benchmarkSetting));
     }
     return (
       `<div>` +
@@ -142,17 +219,7 @@ export class HTMLBenchmarkFormatter extends HTMLFormatter<BenchmarkResults> {
       `<hr>` +
       `</div>` +
       `<div id="Index">\n` +
-      `<table>\n` +
-      `<tbody>\n` +
-      `<tr>\n` +
-      `<th class="filename-column">File 1</th>\n` +
-      `<th class="filename-column">File 2</th>\n` +
-      `<th class="lines-matched-column">Lines matched in File 1</th>\n` +
-      `<th class="lines-matched-column">Lines matched in File 2</th>\n` +
-      `</tr>\n` +
-      `${tableRows.join("\n")}\n` +
-      `</tbody>\n` +
-      `</table>\n` +
+      `${groups.join("\n")}\n` +
       `</div>\n` +
       `${comparisonPages.join("\n")}`
     );

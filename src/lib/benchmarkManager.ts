@@ -3,6 +3,7 @@ import { BenchmarkHelper, BenchMarkSettings } from "./benchmarkHelper";
 import { BenchmarkMatcher, BenchmarkResults } from "./benchmarkMatcher";
 import { HTMLBenchmarkFormatter } from "./htmlBenchmarkFormatter";
 import { JSONFormatter } from "./jsonFormatter";
+import { ObjectMap } from "./utils";
 
 export type NumericRangesTuple = [[number, number], [number, number]];
 /**
@@ -46,11 +47,12 @@ export class BenchmarkManager {
    * Execute all registered benchmarks.
    */
   public async executeBenchmarks() {
-    const jsonResults: BenchmarkResults[] = [];
+    const benchmarkResultsList: ObjectMap<Array<[string, BenchmarkResults]>> = {};
     if (this.benchmarkSettingsList.length === 0) {
       this.benchmarkSettingsList.push(BenchmarkManager.defaultBenchmarkSettings);
     }
     for (const benchmarkSettings of this.benchmarkSettingsList.values()) {
+      const results: Array<[string, BenchmarkResults]> = [];
       this.helper.benchmarkSettings = benchmarkSettings;
       for (const [name, benchmarkFunction] of this.benchMarks.entries()) {
         const benchmarkMatcher: BenchmarkMatcher = new BenchmarkMatcher(this.helper);
@@ -59,17 +61,15 @@ export class BenchmarkManager {
           continue;
         }
 
-        if (this.generateHTML) {
-          jsonResults.push(benchmarkMatcher.result);
-        } else {
-          this.outputResultsToConsole(name, benchmarkMatcher.result);
-        }
+        results.push([name, benchmarkMatcher.result]);
       }
-
-      // TODO make sure things are clustered by settings
-      if (this.generateHTML) {
-        this.generateHTMLFile(jsonResults);
-      }
+      benchmarkResultsList[JSON.stringify(benchmarkSettings)] = results;
+    }
+    // TODO make sure things are clustered by settings
+    if (this.generateHTML) {
+      this.generateHTMLFile(benchmarkResultsList);
+    } else {
+      this.outputResultsToConsole(benchmarkResultsList);
     }
   }
 
@@ -77,21 +77,34 @@ export class BenchmarkManager {
     this.benchmarkSettingsList.push(benchmarkSettings);
   }
 
-  private generateHTMLFile(jsonResults: BenchmarkResults[]) {
-    const name: string = new Date().toISOString();
+  public get benchmarkSettingNoFilter(): BenchMarkSettings {
+    return BenchmarkManager.defaultBenchmarkSettings;
+  }
+
+  public set benchmarkSettings(benchmarkSettings: BenchMarkSettings[]) {
+    this.benchmarkSettingsList = benchmarkSettings;
+  }
+
+  private generateHTMLFile(jsonResults: ObjectMap<Array<[string, BenchmarkResults]>>) {
+    const fileName: string = new Date().toISOString();
     const json: string = JSON.stringify(jsonResults, JSONFormatter.JSONReplacerFunction);
     const html: string = BenchmarkManager.htmlFormatter.format(json);
-    fs.writeFileSync(`src/lib/__benchmarks__/${name}.html`, html, "utf8");
+    fs.writeFileSync(`src/lib/__benchmarks__/${fileName}.html`, html, "utf8");
     fs.writeFileSync(`src/lib/__benchmarks__/latest.html`, html, "utf8");
   }
 
-  private outputResultsToConsole(name: string, result: BenchmarkResults) {
-    console.log(`${name} =>`);
-    console.log(
-      `\tmatchedLines: ${result.matchedLines}, missedLines: ${result.missedLines}, ` +
-        `falseLines: ${result.falseLines}, falseMatches: ${result.falseMatches}, ` +
-        `falseMatchingLines: ${result.falseMatchingLines}`,
-    );
-    console.log("");
+  private outputResultsToConsole(resultsMap: ObjectMap<Array<[string, BenchmarkResults]>>) {
+    for (const [options, results] of Object.entries(resultsMap)) {
+      console.log(`${options} => `);
+      for (const [name, result] of results.values()) {
+        console.log(
+          `\t${name} =>` +
+            `matchedLines: ${result.matchedLines}, missedLines: ${result.missedLines}, ` +
+            `falseLines: ${result.falseLines}, falseMatches: ${result.falseMatches}, ` +
+            `falseMatchingLines: ${result.falseMatchingLines}`,
+        );
+        console.log("");
+      }
+    }
   }
 }

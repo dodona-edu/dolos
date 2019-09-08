@@ -5,6 +5,10 @@ export type RangesTuple = [Range, Range];
 export type Clustered<T> = T[][];
 export type Match = [string, string, RangesTuple[]];
 
+export interface ObjectMap<T> {
+  [key: string]: T;
+}
+
 export class Utils {
 
   /**
