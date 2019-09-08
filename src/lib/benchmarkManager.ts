@@ -3,7 +3,7 @@ import { BenchmarkHelper, BenchMarkSettings } from "./benchmarkHelper";
 import { BenchmarkMatcher, BenchmarkResults } from "./benchmarkMatcher";
 import { HTMLBenchmarkFormatter } from "./htmlBenchmarkFormatter";
 import { JSONFormatter } from "./jsonFormatter";
-import { ObjectMap } from "./utils";
+import { ObjectMap, Utils } from "./utils";
 
 export type NumericRangesTuple = [[number, number], [number, number]];
 /**
@@ -28,6 +28,9 @@ export class BenchmarkManager {
   private helper: BenchmarkHelper = new BenchmarkHelper(BenchmarkManager.defaultBenchmarkSettings);
   private benchmarkSettingsList: BenchMarkSettings[] = [];
 
+  /**
+   * @param generateHTML Wither or not to generate an html output.
+   */
   constructor(generateHTML: boolean = false) {
     this.generateHTML = generateHTML;
   }
@@ -65,7 +68,6 @@ export class BenchmarkManager {
       }
       benchmarkResultsList[JSON.stringify(benchmarkSettings)] = results;
     }
-    // TODO make sure things are clustered by settings
     if (this.generateHTML) {
       this.generateHTMLFile(benchmarkResultsList);
     } else {
@@ -73,38 +75,57 @@ export class BenchmarkManager {
     }
   }
 
+  /**
+   * Add a benchmark setting to the list of benchmarks. If none are add then only the no-filter options is executed.
+   * @param benchmarkSettings The benchmark setting you want to add.
+   */
   public addBenchmarkSettings(benchmarkSettings: BenchMarkSettings) {
     this.benchmarkSettingsList.push(benchmarkSettings);
   }
 
+  /**
+   * A benchmark setting where no filtering is applied.
+   */
   public get benchmarkSettingNoFilter(): BenchMarkSettings {
     return BenchmarkManager.defaultBenchmarkSettings;
   }
 
+  /**
+   * Set all the benchmark settings. Overwrites previous values.
+   */
   public set benchmarkSettings(benchmarkSettings: BenchMarkSettings[]) {
     this.benchmarkSettingsList = benchmarkSettings;
   }
 
-  private generateHTMLFile(jsonResults: ObjectMap<Array<[string, BenchmarkResults]>>) {
+  /**
+   * A function used to generate an html output. Will write to a file with the current timestamp and overwrite the
+   * current latest.html. Both files are written to the `__benchmarks__` directory
+   * @param jsonResults The results you want to show on the html page.
+   */
+  private generateHTMLFile(resultsMap: ObjectMap<Array<[string, BenchmarkResults]>>) {
     const fileName: string = new Date().toISOString();
-    const json: string = JSON.stringify(jsonResults, JSONFormatter.JSONReplacerFunction);
+    const json: string = JSON.stringify(resultsMap, JSONFormatter.JSONReplacerFunction);
     const html: string = BenchmarkManager.htmlFormatter.format(json);
     fs.writeFileSync(`src/lib/__benchmarks__/${fileName}.html`, html, "utf8");
     fs.writeFileSync(`src/lib/__benchmarks__/latest.html`, html, "utf8");
   }
 
+  /**
+   * Prints the given result to the console.
+   * @param resultsMap The results you want to pint to the console.
+   */
   private outputResultsToConsole(resultsMap: ObjectMap<Array<[string, BenchmarkResults]>>) {
     for (const [options, results] of Object.entries(resultsMap)) {
-      console.log(`${options} => `);
+      console.log(Utils.colour("FgGreen", `${options} => `));
       for (const [name, result] of results.values()) {
         console.log(
-          `\t${name} =>` +
+          Utils.colour("FgRed", `\t${name} => `) +
             `matchedLines: ${result.matchedLines}, missedLines: ${result.missedLines}, ` +
             `falseLines: ${result.falseLines}, falseMatches: ${result.falseMatches}, ` +
             `falseMatchingLines: ${result.falseMatchingLines}`,
         );
-        console.log("");
       }
+      console.log("");
     }
   }
 }
