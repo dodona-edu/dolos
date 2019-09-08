@@ -22,17 +22,15 @@ function onStart() {
   [].forEach.call(document.querySelectorAll(".toggleAll"), (el) => {
     el.checked = true;
     el.addEventListener("click", (event) => {
-      const checkboxes = document.querySelectorAll(`#${el.getAttribute("data")}`);
+      const parentId = el.getAttribute("data-parent");
+      const targetId = el.getAttribute("data-target");
+      const checkboxes = document.querySelectorAll(`#${parentId} #${targetId} .checkbox`);
       [].forEach.call(checkboxes, (checkbox) => {
-        console.log(checkbox);
         if(checkbox.checked !== event.target.checked) {
           checkbox.click();
         }
       })
-
-
     })
-
   });
 }
 

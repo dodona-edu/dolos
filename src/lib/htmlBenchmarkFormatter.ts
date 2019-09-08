@@ -172,6 +172,41 @@ export class HTMLBenchmarkFormatter extends HTMLFormatter<[string, string, Bench
       benchmarkSettings,
     );
 
+    const id: string = HTMLBenchmarkFormatter.makeId(
+      matchedFile,
+      matchingFile,
+      undefined,
+      benchmarkSettings,
+    );
+
+    let checkboxes: string = "";
+    if (expectedRanges.length > 0) {
+      checkboxes +=
+        `Expected ranges: ` +
+        this.makeToggleAllButton(id, "expectedRanges", "green") +
+        `<div class="ranges" id="expectedRanges">\n` +
+        `${expectedRanges.join("\n")}` +
+        `</div>\n`;
+    }
+
+    if (matchingFile.length > 0) {
+      checkboxes +=
+        `Ranges with at least one match:` +
+        this.makeToggleAllButton(id, "matchingRanges", "blue") +
+        `<div class="ranges" id="matchingRanges">\n` +
+        `${matchingRangesTuples.join("\n")}` +
+        `</div>\n`;
+    }
+
+    if (falseRangesTuples.length > 0) {
+      checkboxes +=
+        `Ranges with no match:` +
+        this.makeToggleAllButton(id, "falseRanges", "red") +
+        `<div class="ranges" id="falseRanges">\n` +
+        `${falseRangesTuples.join("\n")}` +
+        `</div>\n`;
+    }
+
     return (
       `<div>\n` +
       `<hr>` +
@@ -179,22 +214,7 @@ export class HTMLBenchmarkFormatter extends HTMLFormatter<[string, string, Bench
       `</div>\n` +
       `<div class="code-comparison">\n` +
       `<div class="allRanges">\n` +
-      `Expected ranges: ` +
-      `<div class="range" style="color: green;" >` +
-      `<input type="checkbox" class="toggleAll" data="expectedRanges">` +
-      `Toggle all` +
-      `</div>` +
-      `<div class="ranges" id="expectedRanges">\n` +
-      `${expectedRanges.join("\n")}` +
-      `</div>\n` +
-      `Ranges with at least one match:` +
-      `<div class="ranges" id="matchingRanges">\n` +
-      `${matchingRangesTuples.join("\n")}` +
-      `</div>\n` +
-      `Ranges with no match:` +
-      `<div class="ranges" id="falseRanges">\n` +
-      `${falseRangesTuples.join("\n")}` +
-      `</div>\n` +
+      `${checkboxes}` +
       `</div>\n` +
       `<div class="left-column">\n` +
       `${leftMarkedAreas.join("\n")}` +
@@ -211,6 +231,16 @@ export class HTMLBenchmarkFormatter extends HTMLFormatter<[string, string, Bench
       `</div>\n`
     );
   }
+
+  public makeToggleAllButton(parentId: string, target: string, colour: string): string {
+    return (
+      `<div class="range" style="color: ${colour};" >` +
+      `<input type="checkbox" class="toggleAll" data-target="${target}" data-parent="${parentId}">` +
+      `Toggle all` +
+      `</div>`
+    );
+  }
+
   public makeBody(jsonString: string): string {
     const jsonData: ObjectMap<Array<[string, BenchmarkResults]>> = JSON.parse(
       jsonString,
