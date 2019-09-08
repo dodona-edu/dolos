@@ -4,7 +4,7 @@ function swap(shown, hidden) {
   return false;
 }
 
-function addEventListeners() {
+function onStart() {
   [].forEach.call(document.querySelectorAll(".range > .checkbox"), function(el) {
     el.checked = true;
     el.addEventListener("click", () => {
@@ -18,6 +18,22 @@ function addEventListeners() {
       });
     });
   });
+
+  [].forEach.call(document.querySelectorAll(".toggleAll"), (el) => {
+    el.checked = true;
+    el.addEventListener("click", (event) => {
+      const checkboxes = document.querySelectorAll(`#${el.getAttribute("data")}`);
+      [].forEach.call(checkboxes, (checkbox) => {
+        console.log(checkbox);
+        if(checkbox.checked !== event.target.checked) {
+          checkbox.click();
+        }
+      })
+
+
+    })
+
+  });
 }
 
-window.onload = addEventListeners;
+window.onload = onStart;

@@ -179,16 +179,20 @@ export class HTMLBenchmarkFormatter extends HTMLFormatter<[string, string, Bench
       `</div>\n` +
       `<div class="code-comparison">\n` +
       `<div class="allRanges">\n` +
-      `Expected ranges:` +
-      `<div class="ranges">\n` +
+      `Expected ranges: ` +
+      `<div class="range" style="color: green;" >` +
+      `<input type="checkbox" class="toggleAll" data="expectedRanges">` +
+      `Toggle all` +
+      `</div>` +
+      `<div class="ranges" id="expectedRanges">\n` +
       `${expectedRanges.join("\n")}` +
       `</div>\n` +
       `Ranges with at least one match:` +
-      `<div class="ranges">\n` +
+      `<div class="ranges" id="matchingRanges">\n` +
       `${matchingRangesTuples.join("\n")}` +
       `</div>\n` +
       `Ranges with no match:` +
-      `<div class="ranges">\n` +
+      `<div class="ranges" id="falseRanges">\n` +
       `${falseRangesTuples.join("\n")}` +
       `</div>\n` +
       `</div>\n` +
