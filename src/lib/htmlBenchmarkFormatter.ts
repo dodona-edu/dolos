@@ -4,14 +4,15 @@ import { HTMLFormatter } from "./htmlFormatter";
 import { JSONFormatter } from "./jsonFormatter";
 import { ObjectMap, RangesTuple, Utils } from "./utils";
 
-export class HTMLBenchmarkFormatter extends HTMLFormatter<[string, BenchmarkResults]> {
+export class HTMLBenchmarkFormatter extends HTMLFormatter<[string, string, BenchmarkResults]> {
   protected static makeBenchmarkTableRow(
     matchedFile: string,
     matchingFile: string,
     rangesTupleArray: RangesTuple[],
     benchmarkName: string,
+    benchmarkSettings: string,
   ): string {
-    const id: string = this.makeId(matchedFile, matchingFile);
+    const id: string = this.makeId(matchedFile, matchingFile, undefined, benchmarkSettings);
     const [matchedFileLineCount, matchingFileLineCount]: [
       number,
       number,
@@ -55,6 +56,7 @@ export class HTMLBenchmarkFormatter extends HTMLFormatter<[string, BenchmarkResu
         benchmarkResults.matchingFile,
         benchmarkResults.falseRangesTuples.concat(benchmarkResults.matchingRangesTuples),
         benchmarkName,
+        settings,
       ),
     );
 
@@ -86,11 +88,20 @@ export class HTMLBenchmarkFormatter extends HTMLFormatter<[string, BenchmarkResu
   public toComparePage(
     matchedFile: string,
     matchingFile: string,
-    nameBenchmarkTuple: [string, BenchmarkResults],
+    [settings, name, results]: [string, string, BenchmarkResults],
   ): string {
-    const comparePage: string = this.toCompareView(matchedFile, matchingFile, nameBenchmarkTuple);
+    const comparePage: string = this.toCompareView(matchedFile, matchingFile, [
+      settings,
+      name,
+      results,
+    ]);
 
-    const id: string = HTMLBenchmarkFormatter.makeId(matchedFile, matchingFile);
+    const id: string = HTMLBenchmarkFormatter.makeId(
+      matchedFile,
+      matchingFile,
+      undefined,
+      settings,
+    );
     return (
       `<div style="display:none" id="${id}">\n` +
       `<div> <a href=# onclick="return swap('Index', '${id}')">Back to index</a> </div>\n` +
@@ -102,10 +113,11 @@ export class HTMLBenchmarkFormatter extends HTMLFormatter<[string, BenchmarkResu
   public toCompareView(
     matchedFile: string,
     matchingFile: string,
-    [name, benchmarkResults]: [string, BenchmarkResults],
+    [benchmarkSettings, name, benchmarkResults]: [string, string, BenchmarkResults],
   ): string {
     const description: string = HTMLBenchmarkFormatter.escapeHtml(
-      `${name}: ${matchedFile} => ${matchingFile}`,
+      `Benchmark settings: ${benchmarkSettings}\n` +
+        `Name: ${name}, files: ${matchedFile} => ${matchingFile}`,
     );
     benchmarkResults.falseRangesTuples.sort(Utils.sortRangesTuples);
     benchmarkResults.matchingRangesTuples.sort(Utils.sortRangesTuples);
@@ -130,6 +142,7 @@ export class HTMLBenchmarkFormatter extends HTMLFormatter<[string, BenchmarkResu
       falseRangesTuples,
       "red",
       indexOffset,
+      benchmarkSettings,
     );
     indexOffset += benchmarkResults.falseRangesTuples.length;
 
@@ -142,6 +155,7 @@ export class HTMLBenchmarkFormatter extends HTMLFormatter<[string, BenchmarkResu
       matchingRangesTuples,
       "blue",
       indexOffset,
+      benchmarkSettings,
     );
 
     indexOffset += benchmarkResults.matchingRangesTuples.length;
@@ -155,6 +169,7 @@ export class HTMLBenchmarkFormatter extends HTMLFormatter<[string, BenchmarkResu
       expectedRanges,
       "green",
       indexOffset,
+      benchmarkSettings,
     );
 
     return (
@@ -204,6 +219,7 @@ export class HTMLBenchmarkFormatter extends HTMLFormatter<[string, BenchmarkResu
       for (const [name, benchmarkResults] of results.values()) {
         comparisonPages.push(
           this.toComparePage(benchmarkResults.matchedFile, benchmarkResults.matchingFile, [
+            benchmarkSetting,
             name,
             benchmarkResults,
           ]),

@@ -42,14 +42,22 @@ export abstract class HTMLFormatter<T> {
    * @param matchedFile The matched file.
    * @param matchingFile The matching file.
    */
-  protected static makeId(matchedFile: string, matchingFile: string, index?: number): string {
+  protected static makeId(
+    matchedFile: string,
+    matchingFile: string,
+    index?: number,
+    groupId?: string,
+  ): string {
     let id: string = `${this.escapeHtml(matchedFile.replace(/-/gi, ""))}-${this.escapeHtml(
       matchingFile.replace(/-/gi, ""),
     )}`;
     if (index !== undefined) {
       id += `-${index}`;
     }
-    // return base64 version of id;
+    if (groupId !== undefined) {
+      id += `-${groupId}`;
+    }
+    // return base64 version of id without any `=` symbols;
     return Buffer.from(id)
       .toString("base64")
       .replace(/=/g, "");
@@ -104,9 +112,15 @@ export abstract class HTMLFormatter<T> {
     rangesList: string[],
     colour: string,
     indexOffset: number = 0,
+    benchmarkSettings?: string,
   ) {
     for (const [index, [leftRange, rightRange]] of rangesTuples.entries()) {
-      const id: string = `${HTMLFormatter.makeId(matchedFile, matchingFile, index + indexOffset)}`;
+      const id: string = `${HTMLFormatter.makeId(
+        matchedFile,
+        matchingFile,
+        index + indexOffset,
+        benchmarkSettings,
+      )}`;
       leftMarkedAreas.push(HTMLFormatter.rangeToMarkingDiv(leftRange, `background: ${colour}`, id));
       rightMarkedAreas.push(
         HTMLFormatter.rangeToMarkingDiv(rightRange, `background: ${colour}`, id),

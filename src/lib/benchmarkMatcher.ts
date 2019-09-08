@@ -184,8 +184,6 @@ export class BenchmarkMatcher {
     } else {
       return (actual.to - expected.from) / (expected.from - actual.from) >= this.acceptableRatio;
     }
-
-    return true;
   }
 
   /**

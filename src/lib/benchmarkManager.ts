@@ -63,7 +63,6 @@ export class BenchmarkManager {
         if (benchmarkMatcher.result === undefined) {
           continue;
         }
-
         results.push([name, benchmarkMatcher.result]);
       }
       benchmarkResultsList[JSON.stringify(benchmarkSettings)] = results;
