@@ -10,7 +10,6 @@ export interface ObjectMap<T> {
 }
 
 export class Utils {
-
   /**
    * Colours your text with the given colour. Only works for terminal output.
    * @param colour The colour you want your text to be.
@@ -34,34 +33,6 @@ export class Utils {
       .reduce(([acc1, acc2], [next1, next2]) => [acc1 + next1, acc2 + next2]);
   }
 
-  public static getScoreForFiles(
-    matches: RangesTuple[],
-    matchedFile: string,
-    matchingFile: string,
-  ): [number, number] {
-    const [matchedLinesInMatchedFile, matchedLinesInMatchingFile]: [
-      number,
-      number,
-    ] = this.countLinesInRanges(matches);
-
-    const linesInMatchedFile: number = this.countLinesInFile(matchedFile);
-    const linesInMatchingFile: number = this.countLinesInFile(matchingFile);
-    const scoreMatchedFile: number = Math.round(
-      (matchedLinesInMatchedFile / linesInMatchedFile) * 100,
-    );
-    const scoreMatchingFile: number = Math.round(
-      (matchedLinesInMatchingFile / linesInMatchingFile) * 100,
-    );
-
-    return [scoreMatchedFile, scoreMatchingFile];
-  }
-  public static countLinesInFile(fileName: string): number {
-    if (!this.linesInFileMap.has(fileName)) {
-      this.linesInFileMap.set(fileName, fs.readFileSync(fileName, "utf8").split("\n").length);
-    }
-    return this.linesInFileMap.get(fileName) as number;
-  }
-
   public static optionsToString(optionsArray: Array<[string, string | number]>): string {
     return (
       optionsArray
@@ -83,11 +54,39 @@ export class Utils {
       return diff;
     }
   }
-
-  private static readonly linesInFileMap: Map<string, number> = new Map();
   private static readonly colours: Map<string, string> = new Map([
     ["FgRed", "\x1b[31m"],
     ["FgGreen", "\x1b[32m"],
     ["Reset", "\x1b[0m"],
   ]);
+
+  private readonly linesInFileMap: Map<string, number> = new Map();
+
+  public getScoreForFiles(
+    matches: RangesTuple[],
+    matchedFile: string,
+    matchingFile: string,
+  ): [number, number] {
+    const [matchedLinesInMatchedFile, matchedLinesInMatchingFile]: [
+      number,
+      number,
+    ] = Utils.countLinesInRanges(matches);
+
+    const linesInMatchedFile: number = this.countLinesInFile(matchedFile);
+    const linesInMatchingFile: number = this.countLinesInFile(matchingFile);
+    const scoreMatchedFile: number = Math.round(
+      (matchedLinesInMatchedFile / linesInMatchedFile) * 100,
+    );
+    const scoreMatchingFile: number = Math.round(
+      (matchedLinesInMatchingFile / linesInMatchingFile) * 100,
+    );
+
+    return [scoreMatchedFile, scoreMatchingFile];
+  }
+  public countLinesInFile(fileName: string): number {
+    if (!this.linesInFileMap.has(fileName)) {
+      this.linesInFileMap.set(fileName, fs.readFileSync(fileName, "utf8").split("\n").length);
+    }
+    return this.linesInFileMap.get(fileName) as number;
+  }
 }

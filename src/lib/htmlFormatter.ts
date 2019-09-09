@@ -63,46 +63,6 @@ export abstract class HTMLFormatter<T> {
       .replace(/=/g, "");
   }
 
-  /**
-   * Generates a table row that can be used to navigate to the comparison page.
-   * @param matchedFile The matched file name.
-   * @param matchingFile The matching file name.
-   * @param rangesTupleArray The matches between the two files.
-   */
-  protected static makeTableRow(
-    matchedFile: string,
-    matchingFile: string,
-    rangesTupleArray: RangesTuple[],
-  ): string {
-    const id: string = this.makeId(matchedFile, matchingFile);
-    const [matchedFileLineCount, matchingFileLineCount]: [
-      number,
-      number,
-    ] = Utils.countLinesInRanges(rangesTupleArray);
-
-    const [scoreMatchedFile, scoreMatchingFile] = Utils.getScoreForFiles(
-      rangesTupleArray,
-      matchedFile,
-      matchingFile,
-    );
-    return (
-      `<tr>\n` +
-      `<td class="filename-column">\n` +
-      `<a href=# onclick="return swap('${id}', 'Index');">\n` +
-      `${this.escapeHtml(matchedFile)} (${scoreMatchedFile}%)\n` +
-      `</a>\n` +
-      `</td>\n` +
-      `<td class="filename-column">` +
-      `<a href=# onclick="return swap('${id}', 'Index');">\n` +
-      `${this.escapeHtml(matchingFile)} (${scoreMatchingFile}%)` +
-      `</a>` +
-      `</td>\n` +
-      `<td class="lines-matched-column">${matchedFileLineCount}</td>\n` +
-      `<td class="lines-matched-column">${matchingFileLineCount}</td>\n` +
-      `</tr>`
-    );
-  }
-
   protected static toMarkingDivAndToggleButton(
     matchedFile: string,
     matchingFile: string,
@@ -142,6 +102,7 @@ export abstract class HTMLFormatter<T> {
     ["<", "&lt;"],
     [">", "&gt;"],
   ]);
+  public readonly utils: Utils = new Utils();
   protected readonly scriptLocation = "./src/lib/assets/scripts.js";
   protected readonly stylesheetLocation = "./src/lib/assets/stylesheet.css";
 
@@ -198,6 +159,46 @@ export abstract class HTMLFormatter<T> {
       `${body}` +
       `</body>\n` +
       `</html>\n`
+    );
+  }
+
+  /**
+   * Generates a table row that can be used to navigate to the comparison page.
+   * @param matchedFile The matched file name.
+   * @param matchingFile The matching file name.
+   * @param rangesTupleArray The matches between the two files.
+   */
+  protected makeTableRow(
+    matchedFile: string,
+    matchingFile: string,
+    rangesTupleArray: RangesTuple[],
+  ): string {
+    const id: string = HTMLFormatter.makeId(matchedFile, matchingFile);
+    const [matchedFileLineCount, matchingFileLineCount]: [
+      number,
+      number,
+    ] = Utils.countLinesInRanges(rangesTupleArray);
+
+    const [scoreMatchedFile, scoreMatchingFile] = this.utils.getScoreForFiles(
+      rangesTupleArray,
+      matchedFile,
+      matchingFile,
+    );
+    return (
+      `<tr>\n` +
+      `<td class="filename-column">\n` +
+      `<a href=# onclick="return swap('${id}', 'Index');">\n` +
+      `${HTMLFormatter.escapeHtml(matchedFile)} (${scoreMatchedFile}%)\n` +
+      `</a>\n` +
+      `</td>\n` +
+      `<td class="filename-column">` +
+      `<a href=# onclick="return swap('${id}', 'Index');">\n` +
+      `${HTMLFormatter.escapeHtml(matchingFile)} (${scoreMatchingFile}%)` +
+      `</a>` +
+      `</td>\n` +
+      `<td class="lines-matched-column">${matchedFileLineCount}</td>\n` +
+      `<td class="lines-matched-column">${matchingFileLineCount}</td>\n` +
+      `</tr>`
     );
   }
 }

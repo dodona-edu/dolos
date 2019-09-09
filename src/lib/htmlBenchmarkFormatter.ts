@@ -5,86 +5,6 @@ import { JSONFormatter } from "./jsonFormatter";
 import { ObjectMap, RangesTuple, Utils } from "./utils";
 
 export class HTMLBenchmarkFormatter extends HTMLFormatter<[string, string, BenchmarkResults]> {
-  protected static makeBenchmarkTableRow(
-    matchedFile: string,
-    matchingFile: string,
-    rangesTupleArray: RangesTuple[],
-    benchmarkName: string,
-    benchmarkSettings: string,
-  ): string {
-    const id: string = this.makeId(matchedFile, matchingFile, undefined, benchmarkSettings);
-    const [matchedFileLineCount, matchingFileLineCount]: [
-      number,
-      number,
-    ] = Utils.countLinesInRanges(rangesTupleArray);
-
-    const [scoreMatchedFile, scoreMatchingFile] = Utils.getScoreForFiles(
-      rangesTupleArray,
-      matchedFile,
-      matchingFile,
-    );
-    return (
-      `<tr>\n` +
-      `<td class="benchmarkName-column">\n` +
-      `<a href=# onclick="return swap('${id}', 'Index');">\n` +
-      `${this.escapeHtml(benchmarkName)}\n` +
-      `</a>\n` +
-      `</td>\n` +
-      `<td class="filename-column">\n` +
-      `<a href=# onclick="return swap('${id}', 'Index');">\n` +
-      `${this.escapeHtml(matchedFile)} (${scoreMatchedFile}%)\n` +
-      `</a>\n` +
-      `</td>\n` +
-      `<td class="filename-column">` +
-      `<a href=# onclick="return swap('${id}', 'Index');">\n` +
-      `${this.escapeHtml(matchingFile)} (${scoreMatchingFile}%)` +
-      `</a>` +
-      `</td>\n` +
-      `<td class="lines-matched-column">${matchedFileLineCount}</td>\n` +
-      `<td class="lines-matched-column">${matchingFileLineCount}</td>\n` +
-      `</tr>`
-    );
-  }
-
-  private static makeGroupsEntry(
-    group: Array<[string, BenchmarkResults]>,
-    settings: string,
-  ): string {
-    const tableRows: string[] = group.map(([benchmarkName, benchmarkResults]) =>
-      this.makeBenchmarkTableRow(
-        benchmarkResults.matchedFile,
-        benchmarkResults.matchingFile,
-        benchmarkResults.falseRangesTuples.concat(benchmarkResults.matchingRangesTuples),
-        benchmarkName,
-        settings,
-      ),
-    );
-
-    return (
-      `<div class="group">\n` +
-      `<details>\n` +
-      `<summary class="clicker">\n` +
-      `${settings}\n` +
-      `</summary>\n` +
-      `<hr>\n` +
-      `<div>\n` +
-      `<table>\n` +
-      `<tbody>\n` +
-      `<tr>\n` +
-      `<th class="benchmarkName-column">Benchmark name</th>\n` +
-      `<th class="filename-column">File 1</th>\n` +
-      `<th class="filename-column">File 2</th>\n` +
-      `<th class="lines-matched-column">Lines matched in File 1</th>\n` +
-      `<th class="lines-matched-column">Lines matched in File 2</th>\n` +
-      `</tr>\n` +
-      `${tableRows.join("\n")}\n` +
-      `</tbody>\n` +
-      `</table>\n` +
-      `</div>\n` +
-      `</details>\n` +
-      `</div>\n`
-    );
-  }
   public toComparePage(
     matchedFile: string,
     matchingFile: string,
@@ -259,7 +179,7 @@ export class HTMLBenchmarkFormatter extends HTMLFormatter<[string, string, Bench
           ]),
         );
       }
-      groups.push(HTMLBenchmarkFormatter.makeGroupsEntry(results, benchmarkSetting));
+      groups.push(this.makeGroupsEntry(results, benchmarkSetting));
     }
     return (
       `<div>` +
@@ -271,6 +191,88 @@ export class HTMLBenchmarkFormatter extends HTMLFormatter<[string, string, Bench
       `${groups.join("\n")}\n` +
       `</div>\n` +
       `${comparisonPages.join("\n")}`
+    );
+  }
+  protected makeBenchmarkTableRow(
+    matchedFile: string,
+    matchingFile: string,
+    rangesTupleArray: RangesTuple[],
+    benchmarkName: string,
+    benchmarkSettings: string,
+  ): string {
+    const id: string = HTMLBenchmarkFormatter.makeId(
+      matchedFile,
+      matchingFile,
+      undefined,
+      benchmarkSettings,
+    );
+    const [matchedFileLineCount, matchingFileLineCount]: [
+      number,
+      number,
+    ] = Utils.countLinesInRanges(rangesTupleArray);
+
+    const [scoreMatchedFile, scoreMatchingFile] = this.utils.getScoreForFiles(
+      rangesTupleArray,
+      matchedFile,
+      matchingFile,
+    );
+    return (
+      `<tr>\n` +
+      `<td class="benchmarkName-column">\n` +
+      `<a href=# onclick="return swap('${id}', 'Index');">\n` +
+      `${HTMLBenchmarkFormatter.escapeHtml(benchmarkName)}\n` +
+      `</a>\n` +
+      `</td>\n` +
+      `<td class="filename-column">\n` +
+      `<a href=# onclick="return swap('${id}', 'Index');">\n` +
+      `${HTMLBenchmarkFormatter.escapeHtml(matchedFile)} (${scoreMatchedFile}%)\n` +
+      `</a>\n` +
+      `</td>\n` +
+      `<td class="filename-column">` +
+      `<a href=# onclick="return swap('${id}', 'Index');">\n` +
+      `${HTMLBenchmarkFormatter.escapeHtml(matchingFile)} (${scoreMatchingFile}%)` +
+      `</a>` +
+      `</td>\n` +
+      `<td class="lines-matched-column">${matchedFileLineCount}</td>\n` +
+      `<td class="lines-matched-column">${matchingFileLineCount}</td>\n` +
+      `</tr>`
+    );
+  }
+
+  private makeGroupsEntry(group: Array<[string, BenchmarkResults]>, settings: string): string {
+    const tableRows: string[] = group.map(([benchmarkName, benchmarkResults]) =>
+      this.makeBenchmarkTableRow(
+        benchmarkResults.matchedFile,
+        benchmarkResults.matchingFile,
+        benchmarkResults.falseRangesTuples.concat(benchmarkResults.matchingRangesTuples),
+        benchmarkName,
+        settings,
+      ),
+    );
+
+    return (
+      `<div class="group">\n` +
+      `<details>\n` +
+      `<summary class="clicker">\n` +
+      `${settings}\n` +
+      `</summary>\n` +
+      `<hr>\n` +
+      `<div>\n` +
+      `<table>\n` +
+      `<tbody>\n` +
+      `<tr>\n` +
+      `<th class="benchmarkName-column">Benchmark name</th>\n` +
+      `<th class="filename-column">File 1</th>\n` +
+      `<th class="filename-column">File 2</th>\n` +
+      `<th class="lines-matched-column">Lines matched in File 1</th>\n` +
+      `<th class="lines-matched-column">Lines matched in File 2</th>\n` +
+      `</tr>\n` +
+      `${tableRows.join("\n")}\n` +
+      `</tbody>\n` +
+      `</table>\n` +
+      `</div>\n` +
+      `</details>\n` +
+      `</div>\n`
     );
   }
 }

@@ -4,40 +4,6 @@ import { JSONFormatter, JSONSummaryFormat } from "./jsonFormatter";
 import { Match, RangesTuple, Utils } from "./utils";
 
 export class HTMLSummaryFormatter extends HTMLFormatter<RangesTuple[]> {
-  /**
-   * Turns a group into an HTML representation.
-   * @param group The group you want the HTML representation of.
-   * @param index The group index.
-   */
-  private static makeGroupsEntry(group: Match[], index: number): string {
-    const tableRows: string[] = group.map(([matchedFile, matchingFile, rangesTupleArray]) =>
-      this.makeTableRow(matchedFile, matchingFile, rangesTupleArray),
-    );
-
-    return (
-      `<div class="group">\n` +
-      `<details>\n` +
-      `<summary class="clicker">\n` +
-      `Cluster number ${index + 1}\n` +
-      `</summary>\n` +
-      `<hr>\n` +
-      `<div>\n` +
-      `<table>\n` +
-      `<tbody>\n` +
-      `<tr>\n` +
-      `<th class="filename-column">File 1</th>\n` +
-      `<th class="filename-column">File 2</th>\n` +
-      `<th class="lines-matched-column">Lines matched in File 1</th>\n` +
-      `<th class="lines-matched-column">Lines matched in File 2</th>\n` +
-      `</tr>\n` +
-      `${tableRows.join("\n")}\n` +
-      `</tbody>\n` +
-      `</table>\n` +
-      `</div>\n` +
-      `</details>\n` +
-      `</div>\n`
-    );
-  }
   public makeBody(jsonSummary: string): string {
     const jsonData: JSONSummaryFormat = JSON.parse(jsonSummary, JSONFormatter.JSONReviverFunction);
     const tableRows: string[] = new Array();
@@ -45,7 +11,7 @@ export class HTMLSummaryFormatter extends HTMLFormatter<RangesTuple[]> {
 
     for (let jsonGroupIndex = 0; jsonGroupIndex < jsonData.results.length; jsonGroupIndex += 1) {
       const group = jsonData.results[jsonGroupIndex];
-      tableRows.push(HTMLSummaryFormatter.makeGroupsEntry(group, jsonGroupIndex));
+      tableRows.push(this.makeGroupsEntry(group, jsonGroupIndex));
       for (const [matchedFile, matchingFile, rangesTupleObj] of group) {
         comparisonPages.push(this.toComparePage(matchedFile, matchingFile, rangesTupleObj));
       }
@@ -137,6 +103,40 @@ export class HTMLSummaryFormatter extends HTMLFormatter<RangesTuple[]> {
       `<div style="display:none" id="${id}">\n` +
       `<div> <a href=# onclick="return swap('Index', '${id}')">Back to index</a> </div>\n` +
       `<div>${comparePage}</div>\n` + // TODO this div can go no?
+      `</div>\n`
+    );
+  }
+  /**
+   * Turns a group into an HTML representation.
+   * @param group The group you want the HTML representation of.
+   * @param index The group index.
+   */
+  private makeGroupsEntry(group: Match[], index: number): string {
+    const tableRows: string[] = group.map(([matchedFile, matchingFile, rangesTupleArray]) =>
+      this.makeTableRow(matchedFile, matchingFile, rangesTupleArray),
+    );
+
+    return (
+      `<div class="group">\n` +
+      `<details>\n` +
+      `<summary class="clicker">\n` +
+      `Cluster number ${index + 1}\n` +
+      `</summary>\n` +
+      `<hr>\n` +
+      `<div>\n` +
+      `<table>\n` +
+      `<tbody>\n` +
+      `<tr>\n` +
+      `<th class="filename-column">File 1</th>\n` +
+      `<th class="filename-column">File 2</th>\n` +
+      `<th class="lines-matched-column">Lines matched in File 1</th>\n` +
+      `<th class="lines-matched-column">Lines matched in File 2</th>\n` +
+      `</tr>\n` +
+      `${tableRows.join("\n")}\n` +
+      `</tbody>\n` +
+      `</table>\n` +
+      `</div>\n` +
+      `</details>\n` +
       `</div>\n`
     );
   }

@@ -31,6 +31,8 @@ export class Summary {
   private readonly filterOptions: FilterOptions;
   private readonly clusterCutOffValue: number;
 
+  private readonly utils: Utils = new Utils();
+
   /**
    * Generates a summary for the given matches.
    * @param matchesPerFile A many-to-many comparison of a set of files. This map contains an entry for each of the
@@ -183,7 +185,6 @@ export class Summary {
       group.map(groupEntry => this.groupEntryToString(groupEntry, consoleColours)).join("\n") + "\n"
     );
   }
-
   public groupEntryToString(
     [matchedFile, matchingFile, matches]: [string, string, RangesTuple[]],
     consoleColours: boolean,
@@ -193,7 +194,7 @@ export class Summary {
       .map(match => JSON.stringify(match, JSONFormatter.JSONReplacerFunction))
       .join("\n\t\t");
 
-    const [scoreMatchedFile, scoreMatchingFile] = Utils.getScoreForFiles(
+    const [scoreMatchedFile, scoreMatchingFile] = this.utils.getScoreForFiles(
       matches,
       matchedFile,
       matchingFile,
