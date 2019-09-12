@@ -2,6 +2,7 @@ import { Command } from "commander";
 import { CodeTokenizer } from "./lib/codeTokenizer";
 import { Comparison } from "./lib/comparison";
 import { Matches } from "./lib/comparison.js";
+import { NewComparison } from "./lib/newComparison";
 import { FilterOptions, Summary } from "./lib/summary.js";
 import { Utils } from "./lib/utils";
 
@@ -91,8 +92,12 @@ Specifies the gap size.
 
 program.parse(process.argv);
 (async () => {
-  const tokenizer = new CodeTokenizer(program.language);
+  const newComparator: NewComparison = new NewComparison(program.language);
 
+  newComparator.compareFiles(locations);
+  process.exit(255);
+
+  const tokenizer = new CodeTokenizer(program.language);
   if (locations.length < 2) {
     console.error(Utils.colour("FgRed", "Need at least two locations"));
     program.outputHelp(helpText => {

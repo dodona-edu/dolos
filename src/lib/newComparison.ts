@@ -2,9 +2,9 @@ import fs from "fs";
 import { default as Parser, SyntaxNode, Tree, TreeCursor } from "tree-sitter";
 import { CodeTokenizer } from "./codeTokenizer";
 import { Clustered } from "./utils";
-interface ExtendedSyntaxNode extends SyntaxNode {
-  file: string;
-}
+// interface ExtendedSyntaxNode extends SyntaxNode {
+//   file: string;
+// }
 export class NewComparison {
   public readonly language: string;
   private readonly parser: Parser;
@@ -28,22 +28,23 @@ export class NewComparison {
     this.parser.setLanguage(languageModule);
   }
 
-  public compareFiles(files: string[]): any {
-    const forest: Tree[] = files
-      .map(file => fs.readFileSync(file, "utf8"))
-      .map(fileContents => this.parser.parse(fileContents));
+  public compareFiles(files: string[]) {
+    const nodeMappedToFile: Map<SyntaxNode, string> = new Map();
+    const forest: Tree[] = [];
 
     for (const file of files) {
       const contents: string = fs.readFileSync(file, "utf8");
       const tree = this.parser.parse(contents);
-      const queue: SyntaxNode[] = [];
-      queue.push(tree.rootNode);
-      while (queue.length > 0) {
-        const node: ExtendedSyntaxNode = queue.shift() as ExtendedSyntaxNode;
-        node.file = file;
-        for (const child of this.walkOverChildren(node)) {
-          queue.push(child);
-        }
+      forest.push(tree);
+
+      for (const node of this.breadthFirstWalk(tree)) {
+        nodeMappedToFile.set(node, file);
+      }
+    }
+    for (const node of this.breadthFirstWalkForest(forest)) {
+      // @ts-ignore
+      if (node.file !== undefined) {
+        console.log("here");
       }
     }
 
@@ -52,12 +53,12 @@ export class NewComparison {
     const numberToNodeList: Map<number, SyntaxNode[]> = new Map();
 
     for (const node of this.breadthFirstWalkForest(forest)) {
-      const number: number = this.integer.get(node) as number;
-      const matchedNodes = numberToNodeList.get(number);
+      const integer: number = this.integer.get(node) as number;
+      const matchedNodes = numberToNodeList.get(integer);
       if (matchedNodes !== undefined) {
         matchedNodes.push(node);
       } else {
-        numberToNodeList.set(number, [node]);
+        numberToNodeList.set(integer, [node]);
       }
     }
 
@@ -67,7 +68,6 @@ export class NewComparison {
     for (const node of this.breadthFirstWalkForest(forest)) {
       if (
         acceptedSet.has(node) ||
-        node.childCount === 0 ||
         (!node.parent !== null && acceptedSet.has(node.parent as SyntaxNode))
       ) {
         continue;
@@ -80,7 +80,21 @@ export class NewComparison {
         matchedNodes.forEach(matchedNode => acceptedSet.add(matchedNode));
       }
     }
-    return grouped;
+
+    const filteredGroup = grouped.filter(group =>
+      group.some(node => node.endPosition.row - node.startPosition.row > 0),
+    );
+    for (const group of filteredGroup) {
+      console.log("new group");
+      for (const node of group) {
+        console.log(
+          `\t{from: [${node.startPosition.row}, ${node.startPosition.column}], to: [${
+            node.endPosition.row
+          }, ${node.endPosition.column}]}: => ${nodeMappedToFile.get(node)}`,
+        );
+      }
+      console.log("");
+    }
   }
 
   private isomorphism(forest: Tree[]) {
@@ -126,12 +140,13 @@ export class NewComparison {
       this.integer.set(v, this.count);
     }
   }
-  private *walkOverChildren(node: SyntaxNode | ExtendedSyntaxNode): IterableIterator<SyntaxNode> {
+  private *walkOverChildren(node: SyntaxNode): IterableIterator<SyntaxNode> {
     const cursor: TreeCursor = node.walk();
     if (cursor.gotoFirstChild()) {
-      do {
+      yield cursor.currentNode;
+      while (cursor.gotoNextSibling()) {
         yield cursor.currentNode;
-      } while (cursor.gotoNextSibling());
+      }
     }
   }
 
