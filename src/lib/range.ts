@@ -32,6 +32,10 @@ export class Range {
     return this.from - 1 - gapSize <= value && value <= this.to + 1 + gapSize;
   }
 
+  public includes(value: number): boolean {
+    return this.from <= value && value <= this.to;
+  }
+
   /**
    * Extends the range with the given number.
    * @param value

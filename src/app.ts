@@ -32,6 +32,7 @@ function indentHelp(helpText: string): string {
 // Initial program description and version
 program.version("0.0.1").description("Plagiarism detection for programming exercises");
 
+// TODO propper indentation with nodejs tty writeStream.columns
 program
   .option(
     "-l, --language <language>",
@@ -46,25 +47,23 @@ program
     ),
   )
   .option(
-    "-m, --maximum-hash-count <number>",
-    indentHelp(
-      "The -m option sets the maximum number of times a given hash may appear before it is ignored. A code fragment " +
-        "that appears in many programs is probably legitimate sharing and not the result of plagiarism. With -m N " +
-        "any hash appearing in more than N program is filtered out. This option has precedence over the -M option, " +
-        "which is set to 0.9 by default.",
-    ),
+    "-m, --maximum-hash-count <integer>",
+    indentHelp("The -m option sets the maximum number of times a given hash may appear before it is ignored. A code fragment" +
+      "that appears in many programs is probably legitimate sharing and not the result of plagiarism. With -m N " +
+      "any hash appearing in more than N program is filtered out. This option has precedence over the -M option, " +
+      "which is set to 0.9 by default."),
+    x => parseInt(x, 10),
   )
   .option(
     "-M --maximum-hash-percentage <float>",
-    indentHelp(
-      "The -M option sets how many percent of the files the hash may appear before it is ignored. A hash " +
-        "that appears in many programs is probably legitimate sharing and not the result of plagiarism. With " +
-        "-M N any hash appearing in more than N percent of the files is filtered out. " +
-        "Must be a value between 0 and 1.",
-    ),
+    indentHelp("The -M option sets how many percent of the files the hash may appear before it is ignored. A hash " +
+      "that appears in many programs is probably legitimate sharing and not the result of plagiarism. With " +
+      "-M N any hash appearing in more than N percent of the files is filtered out. " +
+      "Must be a value between 0 and 1."),
+    x => parseFloat(x),
     0.9,
   )
-  .option("-c, --comment <string>", "Comment string that is attached to the generated report")
+  .option("-c, --comment <string>", indentHelp("Comment string that is attached to the generated report"))
   .option(
     "-n, --file-pair-output-limit",
     indentHelp(
@@ -74,18 +73,27 @@ program
   )
   .option(
     "-s, --minimum-fragment-length <integer>",
-    indentHelp(
-      "The minimum length of a fragment. Every fragment shorter than this is filtered  out.",
-    ),
-    1,
+    indentHelp("The minimum length of a fragment. Every fragment shorter than this is filtered  out."),
+    x => parseInt(x, 10),
+    2,
   )
   .option(
     "-g, --maximum-gap-size <integer>",
-    indentHelp(
-      "If two fragments are close to each other, they will be merged into a single fragment if the gap between them " +
-        "is smaller than the given number of lines.",
-    ),
+    indentHelp("If two fragments are close to each other, they will be merged into a single fragment if the gap between them is " +
+      "smaller than the given number of lines."),
+    x => parseInt(x, 10),
     0,
+  )
+  .option(
+    "-o, --output-format <format>",
+    indentHelp("Specifies what format the output should be, current options are: terminal/console, json, html."),
+    "terminal",
+  )
+  .option(
+    "-v, --cluster-cut-off-value <integer>",
+    indentHelp("The minimum amount of lines needed before two files will be clustered together"),
+    x => parseInt(x, 10),
+    13,
   )
   .arguments("<locations...>")
   .action(filesArgs => {
@@ -107,13 +115,15 @@ Specifies the gap size.
 });
 
 program.parse(process.argv);
-
 (async () => {
   const tokenizer = new CodeTokenizer(program.language);
 
   if (locations.length < 2) {
-    console.error("Need at least two locations");
-    program.outputHelp();
+    console.error(Summary.colour("FgRed", "Need at least two locations"));
+    program.outputHelp(helpText => {
+      console.error(helpText);
+      return "";
+    });
     process.exit(1);
   }
 
@@ -125,7 +135,7 @@ program.parse(process.argv);
 
   // Compare the base file with all the other files when there is a base file.
   if (program.base) {
-    comparison.addFileToFilterList(program.base);
+    await comparison.addFileToFilterList(program.base);
   }
 
   await comparison.addFiles(locations);
@@ -136,6 +146,52 @@ program.parse(process.argv);
     minimumFragmentLength: program.minimumFragmentLength,
   };
 
-  const summary = new Summary(matchesPerFile, program.MaximumGapSize, filterOptions);
-  console.log(summary.toString(program.comment));
+  // @ts-ignore
+  const optionsArray: Array<[string, string | number]> = [
+    ["-l", program.language],
+    ["-b", program.base],
+    ["-m", program.maximumHashCount],
+    ["-M", program.maximumHashPercentage],
+    ["-c", program.comment],
+    ["-n", program.filePairOutputLimit],
+    ["-s", program.minimumFragmentLength],
+    ["-g", program.maximumGapSize],
+    ["-o", program.outputFormat],
+    ["-v", program.clusterCutOffValue],
+  ].filter(([, optionValue]) => optionValue !== undefined);
+
+  for (const [flag, value] of optionsArray.values()) {
+    if (typeof value === "number" && isNaN(value)) {
+      console.error(Summary.colour("FgRed", `${flag} must have a valid numeric value\n`));
+      program.outputHelp(helpText => {
+        console.error(helpText);
+        return "";
+      });
+      process.exit(2);
+    }
+  }
+
+  const summary = new Summary(
+    matchesPerFile,
+    program.maximumGapSize,
+    filterOptions,
+    program.clusterCutOffValue,
+  );
+  let outputString: string = "";
+  switch (program.outputFormat.toLowerCase()) {
+    case "terminal":
+    case "console":
+      outputString = summary.toString(program.comment, true, optionsArray);
+      break;
+    case "json":
+      outputString = summary.toJSON(program.comment, optionsArray);
+      break;
+    case "html":
+      outputString = summary.toHTML(program.comment, optionsArray);
+      break;
+    default:
+      console.error("Output format not recognized");
+      process.exit(3);
+  }
+  console.log(outputString);
 })();

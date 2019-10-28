@@ -1,8 +1,12 @@
 import fs from "fs";
 import { Matches } from "./comparison";
+import { HTMLFormatter } from "./htmlFormatter";
+import { JSONFormatter } from "./jsonFormatter";
 import { Range } from "./range";
 export type RangesTuple = [Range, Range];
 
+export type Clustered<T> = T[][];
+export type Match = [string, string, RangesTuple[]];
 /**
  * @param minimumLinesInLargestFragment The minimum amount of lines required by the largest code fragment. The default
  * is 1.
@@ -17,13 +21,88 @@ export interface FilterOptions {
 }
 
 export class Summary {
+  public static optionsToString(optionsArray: Array<[string, string | number]>): string {
+    return (
+      optionsArray
+        .map(([flag, optionValue]) => {
+          if (typeof optionValue === "string" && optionValue.includes(" ")) {
+            return [flag, `'${optionValue}'`];
+          }
+          return [flag, optionValue];
+        })
+        .map(([flag, optionValue]) => `${flag} ${optionValue}`)
+        .join(" ") + "\n"
+    );
+  }
+
+  /**
+   * Counts the total amount of lines that correspond with the first and second file.
+   * @param rangesTupleArray The rangesTupleArray you want the lines count of.
+   * @returns A tuple that contais the line for the first and second file respectively.
+   */
+  public static countLinesInRanges(rangesTupleArray: RangesTuple[]): [number, number] {
+    return rangesTupleArray
+      .map(([range1, range2]) => [range1.getLineCount(), range2.getLineCount()] as [number, number])
+      .reduce(([acc1, acc2], [next1, next2]) => [acc1 + next1, acc2 + next2]);
+  }
+
+  /**
+   * Colours your text with the given colour. Only works for terminal output.
+   * @param colour The colour you want your text to be.
+   * @param text The text you want to colour.
+   * @param consoleColours If you want to colour the text or not.
+   */
+  public static colour(colour: string, text: string): string {
+    if (!Summary.colours.has(colour)) {
+      return text;
+    }
+    return `${Summary.colours.get(colour)}${text}${Summary.colours.get("Reset")}`;
+  }
+
+  public static getScoreForFiles(
+    matches: RangesTuple[],
+    matchedFile: string,
+    matchingFile: string,
+  ): [number, number] {
+    const [matchedLinesInMatchedFile, matchedLinesInMatchingFile]: [
+      number,
+      number,
+    ] = Summary.countLinesInRanges(matches);
+
+    const linesInMatchedFile: number = this.countLinesInFile(matchedFile);
+    const linesInMatchingFile: number = this.countLinesInFile(matchingFile);
+    const scoreMatchedFile: number = Math.round(
+      (matchedLinesInMatchedFile / linesInMatchedFile) * 100,
+    );
+    const scoreMatchingFile: number = Math.round(
+      (matchedLinesInMatchingFile / linesInMatchingFile) * 100,
+    );
+
+    return [scoreMatchedFile, scoreMatchingFile];
+  }
   private static readonly defaultFilterOptions: FilterOptions = Object.freeze({
     fragmentOutputLimit: undefined,
     minimumFragmentLength: 0,
   });
+  private static readonly colours: Map<string, string> = new Map([
+    ["FgRed", "\x1b[31m"],
+    ["FgGreen", "\x1b[32m"],
+    ["Reset", "\x1b[0m"],
+  ]);
+  // Maps the file to the amount of lines in that file.
+  private static readonly linesInFileMap: Map<string, number> = new Map();
+
+  private static countLinesInFile(fileName: string): number {
+    if (!this.linesInFileMap.has(fileName)) {
+      this.linesInFileMap.set(fileName, fs.readFileSync(fileName, "utf8").split("\n").length);
+    }
+    return this.linesInFileMap.get(fileName) as number;
+  }
+
   public readonly gapSize: number;
-  private readonly results: Map<string, Matches<Range>>;
+  private readonly clusteredResults: Clustered<Match>;
   private readonly filterOptions: FilterOptions;
+  private readonly clusterCutOffValue: number;
 
   /**
    * Generates a summary for the given matches.
@@ -33,19 +112,27 @@ export class Summary {
    * @param gapSize The gap size allowed during the joining of two ranges. For example if the gap size is 0 then [1,3]
    * and [5,7] wont be joined, and if the gap size is one these will be joined into [1,7].
    * @param filterOptions The options used to filter the output, for a more detailed explanation see [[FilterOptions]].
+   * @param clusterCutOffValue The minimum amount of lines required in order for two files to be clustered together.
    */
   constructor(
     matchesPerFile: Map<string, Matches<number>>,
     gapSize: number = 0,
-    filterOptions: FilterOptions = Summary.defaultFilterOptions,
+    filterOptions?: FilterOptions,
+    clusterCutOffValue: number = 15,
   ) {
-    this.filterOptions = filterOptions;
+    this.clusterCutOffValue = clusterCutOffValue;
+    this.filterOptions = filterOptions || Summary.defaultFilterOptions;
     this.gapSize = gapSize;
-    this.results = this.transformMatches(matchesPerFile);
-    this.results = this.filterOutputAmount(this.results);
-    this.results = this.sortResults();
+    this.filterOptions = filterOptions || Summary.defaultFilterOptions;
+    let results = this.transformMatches(matchesPerFile);
+    results = this.filterOutputAmount(results);
+    this.clusteredResults = this.clusterResults(results);
   }
 
+  /**
+   * Limits the amount of RangesTuples in the results.
+   * @param matchesPerFile The results you want to filter.
+   */
   public filterOutputAmount(
     matchesPerFile: Map<string, Matches<Range>>,
   ): Map<string, Matches<Range>> {
@@ -103,11 +190,38 @@ export class Summary {
         (this.filterOptions.minimumFragmentLength || 0),
     );
   }
+
   /**
-   * @param comment A command you want to add to the summary.
+   * Generates a JSON representation of this summary.
+   * @param comment A string you want to add to the report.
+   * @param options The options used to generate the report.
    */
-  public toString(comment?: string): string {
-    if (this.results.size === 0) {
+  public toJSON(comment?: string, options?: Array<[string, string | number]>): string {
+    return JSONFormatter.format(this.clusteredResults, comment, options);
+  }
+
+  /**
+   * Generates a html representation of this summary.
+   * @param comment A comment you want to add to the report.
+   * @param options The options that were used to generate this report.
+   */
+  public toHTML(comment?: string, options?: Array<[string, string | number]>): string {
+    return HTMLFormatter.format(this.toJSON(comment, options));
+  }
+  /**
+   * Returns the maximum from the tuples returned from [[this.countLinesInRanges]].
+   * @param rangesTupleArray The rangesTupleArray you want the maximum line count of.
+   */
+  public getMaxMatchingLineCount(rangesTupleArray: RangesTuple[]): number {
+    return Math.max(...Summary.countLinesInRanges(rangesTupleArray));
+  }
+
+  public toString(
+    comment?: string,
+    consoleColours: boolean = false,
+    optionsArray?: Array<[string, string | number]>,
+  ): string {
+    if (this.clusteredResults.length === 0) {
       return "There were no matches";
     }
 
@@ -115,49 +229,53 @@ export class Summary {
     if (comment !== undefined) {
       output += comment + "\n";
     }
+    if (optionsArray && optionsArray.length > 0) {
+      output += `Options: ${Summary.optionsToString(optionsArray)}\n`;
+    }
 
-    const linesInFileMap: Map<string, number> = new Map();
+    for (let index = 0; index < this.clusteredResults.length; index += 1) {
+      let clusterNameString = `Cluster ${index + 1}\n`;
+      if (consoleColours) {
+        clusterNameString = Summary.colour("FgRed", clusterNameString);
+      }
+      output += clusterNameString;
+      output += this.groupToString(this.clusteredResults[index], consoleColours).replace(
+        "\n",
+        "\t\n",
+      );
+      output += "\n";
+    }
 
-    output += Array.from(this.results.entries())
-      .map(resultEntry => {
-        const [sourceFileName, subMap] = resultEntry;
-        let subOutput = "";
-        subOutput += `source: ${sourceFileName}\n\n`;
-        const linesInSourceFile = this.countLinesInFile(sourceFileName);
-
-        const entryArray: Array<[string, RangesTuple[]]> = Array.from(subMap.entries());
-
-        subOutput += entryArray
-          .map(subMapEntry => {
-            let matchedFilenameOutput = "";
-            const [matchedFileName, rangesTupleArray] = subMapEntry;
-            const score: number = rangesTupleArray
-              .map(rangesTuple => rangesTuple[0].getLineCount())
-              .reduce((accumulator, nextValue) => accumulator + nextValue);
-
-            if (!linesInFileMap.has(matchedFileName)) {
-              linesInFileMap.set(matchedFileName, this.countLinesInFile(matchedFileName));
-            }
-            const scoreMatchedFile =
-              (score / (linesInFileMap.get(matchedFileName) as number)) * 100;
-            const scoreSourceFile = (score / linesInSourceFile) * 100;
-
-            matchedFilenameOutput += `\tmatched file: ${matchedFileName}, score matched file: ${Math.round(
-              scoreMatchedFile,
-            )}%, score source file: ${Math.round(scoreSourceFile)}%\n\n`;
-
-            matchedFilenameOutput += "\tranges: [\n";
-            matchedFilenameOutput += rangesTupleArray
-              .map(rangesTuple => "\t " + this.rangesTupleToString(rangesTuple))
-              .join("\n");
-            matchedFilenameOutput += "\n\t]\n\n";
-            return matchedFilenameOutput;
-          })
-          .join("");
-        return subOutput;
-      })
-      .join("");
     return output;
+  }
+
+  public groupToString(group: Match[], consoleColours: boolean): string {
+    return (
+      group.map(groupEntry => this.groupEntryToString(groupEntry, consoleColours)).join("\n") + "\n"
+    );
+  }
+
+  public groupEntryToString(
+    [matchedFile, matchingFile, matches]: [string, string, RangesTuple[]],
+    consoleColours: boolean,
+  ): string {
+    matches.sort(([r1], [r2]) => r1.from - r2.from);
+    const matchesString: string = matches
+      .map(match => JSON.stringify(match, JSONFormatter.JSONReplacerFunction))
+      .join("\n\t\t");
+
+    const [scoreMatchedFile, scoreMatchingFile] = Summary.getScoreForFiles(
+      matches,
+      matchedFile,
+      matchingFile,
+    );
+
+    let returnString: string = `\t${matchedFile}(${scoreMatchedFile}%) + ${matchingFile}(${scoreMatchingFile}%) => \n`;
+    if (consoleColours) {
+      returnString = Summary.colour("FgGreen", returnString);
+    }
+
+    return `${returnString}\t\t${matchesString}`;
   }
 
   /**
@@ -249,51 +367,121 @@ export class Summary {
     return ranges;
   }
 
-  private countLinesInFile(fileName: string): number {
-    return fs.readFileSync(fileName, "utf8").split("\n").length;
-  }
-
   /**
-   * Calculates the score, currently just returns the number of lines in the range. A possible alternative is counting
-   * the number of k-mers.
-   * @param range The range you want to get the score of
-   * @returns The score
+   * Clusters the results based on [[this.clusterCutOffValue]].
+   * @param results The results you want to cluster.
    */
-  private getScoreForRange(range: Range): number {
-    return range.getLineCount();
-  }
+  public clusterResults(results: Map<string, Matches<Range>>): Clustered<Match> {
+    const filesSet: Set<string> = new Set();
+    const fileTupleScores: Array<[string, string, RangesTuple[], number]> = new Array();
 
-  /**
-   * First sorts the array of rangesTuples, then the subMaps and finally the main maps according to their corresponding
-   * score functions.
-   */
-  private sortResults(): Map<string, Matches<Range>> {
-    // TODO index the score of the ranges, arrays and submaps to make this more efficient.
-    this.results.forEach((matches, matchedFileName) => {
-      matches.forEach((rangesTupleArray, _) => {
-        // Sorts the arrays based on the score of the ranges.
-        rangesTupleArray.sort(
-          (rangesTuple1, rangesTuple2) =>
-            this.getScoreForRange(rangesTuple2[0]) - this.getScoreForRangesTuple(rangesTuple1),
-        );
-      });
-      // Sorts the submaps based on the score of the arrays, this is the sum of all the scores within the array.
-      const tempMatches = new Map(
-        [...matches.entries()].sort(
-          (subMapEntry1, subMapEntry2) =>
-            this.getScoreForArray(subMapEntry2[1]) - this.getScoreForArray(subMapEntry1[1]),
-        ),
-      );
-      this.results.set(matchedFileName, tempMatches);
-    });
+    // Maps the results to tuples containing the two files, the matches between those two files and a score for that
+    // File pair. Also fills the file set.
+    for (const [matchedFile, matches] of results.entries()) {
+      filesSet.add(matchedFile);
+      for (const [matchingFile, matchingRanges] of matches.entries()) {
+        filesSet.add(matchingFile);
+        const score = this.getMaxMatchingLineCount(matchingRanges);
+        fileTupleScores.push([matchedFile, matchingFile, matchingRanges, score]);
+      }
+    }
 
-    // sorts the maps based on the score of the submaps, which is the sum of the scores contained within the submaps.
-    return new Map(
-      [...this.results.entries()].sort(
-        (subMap1, subMap2) =>
-          this.getScoreForSubMap(subMap2[1]) - this.getScoreForSubMap(subMap1[1]),
-      ),
+    const equivalenceClasses: Map<string, string> = new Map(
+      [...filesSet.values()].map(file => [file, file]),
     );
+
+    // Puts all the files in their corresponding equivalenceClass. Uses the union-find algorithm.
+    for (const [matchedFile, matchingFile, , score] of fileTupleScores) {
+      if (score > this.clusterCutOffValue) {
+        const root1: string = this.getRoot(equivalenceClasses, matchedFile);
+        const root2: string = this.getRoot(equivalenceClasses, matchingFile);
+        equivalenceClasses.set(root1, root2);
+      }
+    }
+
+    const filesGroupsMap: Map<string, Match[]> = new Map();
+    const restGroup: Match[] = new Array();
+
+    // Uses the generated equivalence classes to cluster fileTuples.
+    for (const [matchedFile, matchingFile, matchingRanges] of fileTupleScores) {
+      const root: string = this.getRoot(equivalenceClasses, matchedFile);
+      const root2: string = this.getRoot(equivalenceClasses, matchingFile);
+      if (root === root2) {
+        let filesGroup: Match[] | undefined = filesGroupsMap.get(root);
+        if (!filesGroup) {
+          filesGroup = new Array();
+          filesGroupsMap.set(root, filesGroup);
+        }
+        filesGroup.push([matchedFile, matchingFile, matchingRanges]);
+      } else {
+        restGroup.push([matchedFile, matchingFile, matchingRanges]);
+      }
+    }
+    const filesGroupsArray: Clustered<Match> = [...filesGroupsMap.values()];
+
+    // Creates an equivalence class for each tuple that didn't belong to any other equivalence class.
+    for (const restGroupEntry of restGroup) {
+      filesGroupsArray.push([restGroupEntry]);
+    }
+
+    // Sort the contents of each group.
+    for (const filesGroup of filesGroupsArray) {
+      filesGroup.sort(
+        ([, , rangesTupleArray1], [, , rangesTupleArray2]) =>
+          this.getMaxMatchingLineCount(rangesTupleArray2) -
+          this.getMaxMatchingLineCount(rangesTupleArray1),
+      );
+      for (const [, , rangesTupleArray] of filesGroup.values()) {
+        rangesTupleArray.sort(
+          ([r11, r12], [r21, r22]) =>
+            Math.max(r21.getLineCount(), r22.getLineCount()) -
+            Math.max(r11.getLineCount(), r12.getLineCount()),
+        );
+      }
+    }
+
+    // Sort the group themselves.
+    filesGroupsArray.sort(
+      (group1, group2) => this.getLineCountForGroup(group2) - this.getLineCountForGroup(group1),
+    );
+    return filesGroupsArray;
+  }
+  /**
+   * Counts the total amount of lines contained within this group.
+   * @param group The group you want to total line count of.
+   */
+  private getLineCountForGroup(group: Match[]): number {
+    return group
+      .map(([, , rangesTupleArray]) => this.getMaxMatchingLineCount(rangesTupleArray))
+      .reduce((previous, accumulator) => previous + accumulator, 0);
+  }
+
+  private getScoreForArray(arr: RangesTuple[]): number {
+    return arr
+      .map(rangesTuple => this.getScoreForRangesTuple(rangesTuple))
+      .reduce((acc, nextNumber) => acc + nextNumber);
+  }
+
+  private getScoreForRangesTuple([range1, range2]: RangesTuple): number {
+    return range1.getLineCount() + range2.getLineCount();
+  }
+
+  /**
+   * Searches for root of the value in the given equivalenceClasses. Performs path compression.
+   * @param equivalenceClasses The current equivalence classes.
+   * @param value The value you want to get the root of.
+   */
+  private getRoot(equivalenceClasses: Map<string, string>, value: string): string {
+    const values: string[] = [];
+    let root: string = equivalenceClasses.get(value) as string;
+    let nextRoot: string = equivalenceClasses.get(root) as string;
+    while (root !== nextRoot) {
+      values.push(root);
+      root = nextRoot;
+      nextRoot = equivalenceClasses.get(root) as string;
+    }
+    values.forEach(lambdaValue => equivalenceClasses.set(lambdaValue, root));
+    return root;
   }
 
   /**
@@ -320,21 +508,5 @@ export class Summary {
       });
     });
     return results;
-  }
-
-  private getScoreForArray(arr: RangesTuple[]): number {
-    return arr
-      .map(rangesTuple => this.getScoreForRangesTuple(rangesTuple))
-      .reduce((acc, nextNumber) => acc + nextNumber);
-  }
-
-  private getScoreForSubMap(subMap: Matches<Range>): number {
-    return [...subMap.values()]
-      .map(rangesArray => this.getScoreForArray(rangesArray))
-      .reduce((acc, nextNumber) => acc + nextNumber);
-  }
-
-  private getScoreForRangesTuple(rangesTuple: RangesTuple): number {
-    return this.getScoreForRange(rangesTuple[0]) + this.getScoreForRange(rangesTuple[1]);
   }
 }

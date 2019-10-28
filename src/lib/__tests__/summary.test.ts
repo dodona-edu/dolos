@@ -1,5 +1,5 @@
 import { Range } from "./../range";
-import { RangesTuple, Summary } from "./../summary";
+import { FilterOptions, RangesTuple, Summary } from "./../summary";
 
 /**
  * adapted from https://stackoverflow.com/questions/6274339/how-can-i-shuffle-an-array
@@ -111,4 +111,31 @@ test("concatenate ranges", () => {
   expect(concatenatedRanges2).toContainEqual([new Range(0, 30), new Range(100, 120)]);
   expect(concatenatedRanges2).toContainEqual(rangesTupleArray[3]);
   expect(concatenatedRanges2).not.toContainEqual([new Range(5, 25), new Range(105, 115)]);
+});
+
+import { Comparison, Matches } from "../comparison";
+import { CodeTokenizer } from "./../codeTokenizer";
+
+test("integration test", async () => {
+  const locations: string[] = [
+    "samples/js/sample.js",
+    "samples/js/copied_function.js",
+    "samples/js/another_copied_function.js",
+  ];
+  const tokenizer = new CodeTokenizer("javascript");
+  const comparison = new Comparison(tokenizer, {
+    filterHashByPercentage: true,
+    maxHash: 0.8,
+  });
+  comparison.addFiles(locations);
+
+  const matchesPerFile: Map<string, Matches<number>> = await comparison.compareFiles(locations);
+
+  const filterOptions: FilterOptions = {
+    minimumFragmentLength: 4,
+  };
+  const summary = new Summary(matchesPerFile, 2, filterOptions, 2);
+
+  expect(summary.toString()).toMatchSnapshot();
+  expect(summary.toJSON()).toMatchSnapshot();
 });

@@ -1,0 +1,112 @@
+.right-column {
+  border: 3px solid black;
+  overflow: auto;
+}
+
+code {
+  white-space: pre;
+  font-family: monospace;
+  line-height: 16px;
+  font-size: 12px;
+}
+
+.group {
+  border: 3px solid black;
+}
+
+.code-comparison {
+  display: grid;
+  margin: 3px;
+  grid-template-columns: 50% 50%;
+
+  grid-template:
+    "header header" min-content
+    "left-column right-column" 1fr
+    / min-content 1fr;
+}
+
+.left-column {
+  border: 3px solid black;
+  overflow: auto;
+  resize: horizontal;
+
+  min-width: 20vw;
+  width: 45vw;
+  max-width: 70vw;
+  position: relative;
+  height: 81vh;
+
+  grid-area: left-column;
+}
+
+.right-column {
+  position: relative;
+  height: 81vh;
+  grid-area: right-column;
+}
+
+.ranges {
+  display: flex;
+  grid-area: header;
+  flex-wrap: wrap;
+}
+
+.range {
+  color: blue;
+  border: 1px solid black;
+  margin: 3px;
+}
+
+tr {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  text-align: left;
+}
+
+table {
+  width: 100%;
+}
+.filename-column {
+  flex-basis: 30%;
+}
+
+.lines-matched-column {
+  flex-basis: 20%;
+}
+
+.clicker {
+  outline: none;
+  cursor: pointer;
+}
+
+.clicker:hover {
+  background-color: lightgray;
+}
+
+pre.code {
+  display: table;
+  table-layout: fixed;
+  width: 100%;
+  white-space: pre;
+  font-family: monospace;
+  line-height: 16px;
+  font-size: 12px;
+}
+
+pre.code code {
+  display: table-cell;
+}
+pre.code {
+  margin: 0px;
+}
+
+.markingDiv {
+  position: absolute;
+  background: blue;
+  width: 150vw; /* TODO dynamically set width */
+  height: 40px;
+  opacity: 0.5;
+  z-index: -1;
+  display: none;
+}
