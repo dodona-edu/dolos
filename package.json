@@ -9,6 +9,7 @@
     "test-hash-performance": "tsc && time head -c 1000000 /dev/random | node dist/bin/hash.js > /dev/null",
     "test-winnow-performance": "tsc && time head -c 1000000 /dev/random | node dist/bin/hash.js > /dev/null",
     "test": "jest --coverage",
+    "testdebug": "node inspect ./node_modules/jest/bin/jest.js --runInBand",
     "build": "tsc",
     "lint": "tslint 'src/**/*.ts'"
   },
