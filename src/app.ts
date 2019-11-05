@@ -42,11 +42,14 @@ program
   )
   .option(
     "-b, --base <base>",
-    indentHelp(
-      "Specifies a base file. Matches with code from this file will never be reported in the output. A typical base " +
-        "file is the supplied code for an exercise.",
-    ),
-  )
+  indentHelp(
+    "Specifies a base file. Matches with code from this file will never be reported in the output. A typical base " +
+      "file is the supplied code for an exercise. When this option is used in conjunction with the -d flag then the " +
+      "location given is interpreted as a directory and all files that are a child of that directory will" +
+      "be used as a base file. When this is the case an path to the directory is need from the current working " +
+      "directory. The name of the directory won't be enough.",
+  ))
+  .option("-d, --directory", "Specifies that submission are per directory, not by file. ")
   .option(
     "-m, --maximum-hash-count <integer>",
     indentHelp("The -m option sets the maximum number of times a given hash may appear before it is ignored. A code fragment" +
@@ -136,11 +139,26 @@ program.parse(process.argv);
 
   // Compare the base file with all the other files when there is a base file.
   if (program.base) {
-    await comparison.addFileToFilterList(program.base);
+    if (program.directory) {
+      let index = locations.length - 1;
+      while (index > 0) {
+        if (locations[index].startsWith(program.base)) {
+          await comparison.addFileToFilterList(locations[index]);
+          locations.splice(index, 1);
+        }
+        index -= 1;
+      }
+    } else {
+      await comparison.addFileToFilterList(program.base);
+    }
   }
 
   await comparison.addFiles(locations);
-  const matchesPerFile: Map<string, Matches<number>> = await comparison.compareFiles(locations);
+  const matchesPerFile: Map<string, Matches<number>> = await comparison.compareFiles(
+    locations,
+    undefined,
+    program.directory !== undefined,
+  );
 
   const filterOptions: FilterOptions = {
     fragmentOutputLimit: program.filePairOutputLimit,

@@ -1,3 +1,4 @@
+import path from "path";
 import { HashFilter } from "./hashFilter";
 import { NoFilter } from "./noFilter";
 import { Tokenizer } from "./tokenizer";
@@ -24,6 +25,61 @@ export interface ComparisonOptions {
 }
 
 export class Comparison<Location> {
+  /**
+   * Groups files per directory.
+   * @param locations The locations you want to group.
+   * @returns A map mapping a filename to it's project's root directory.
+   */
+  public static groupPerDirectory(files: string[]): Map<string, string> {
+    const locationsFragments = files.map(filePath => filePath.split(path.sep));
+    const filesGroupedPerDirectoryMap: Map<string, string[]> = new Map();
+    let baseDirIndex = 0;
+    let baseDir = locationsFragments[0][0];
+    while (
+      locationsFragments.every(filePathFragments => filePathFragments[baseDirIndex] === baseDir)
+    ) {
+      baseDirIndex += 1;
+      baseDir = locationsFragments[0][baseDirIndex];
+    }
+    locationsFragments.forEach(filePathFragments => {
+      let groupedFiles: string[] | undefined = filesGroupedPerDirectoryMap.get(
+        filePathFragments[baseDirIndex],
+      );
+      if (groupedFiles === undefined) {
+        groupedFiles = new Array();
+        filesGroupedPerDirectoryMap.set(filePathFragments[baseDirIndex], groupedFiles);
+      }
+      groupedFiles.push(path.join(...filePathFragments));
+    });
+
+    const returnMap: Map<string, string> = new Map();
+    for (const [directory, groupedFiles] of filesGroupedPerDirectoryMap.entries()) {
+      for (const file of groupedFiles) {
+        returnMap.set(file, directory);
+      }
+    }
+    return returnMap;
+  }
+
+  /**
+   * Tests if two files have the same root.
+   * @param file1 The fist file you want to test.
+   * @param file2 The second file you want to test.
+   * @param filesMappedToRootDirectory The map mapping the files to their root.
+   */
+  public static sameRoot(
+    file1: string,
+    file2: string,
+    filesMappedToRootDirectory: Map<string, string> | undefined,
+  ): boolean {
+    return (
+      filesMappedToRootDirectory !== undefined &&
+      filesMappedToRootDirectory.has(file1) &&
+      filesMappedToRootDirectory.has(file2) &&
+      (filesMappedToRootDirectory.get(file1) as string) ===
+        (filesMappedToRootDirectory.get(file2) as string)
+    );
+  }
   private readonly defaultK: number = 50;
   private readonly defaultW: number = 40;
   // Maps a hash to an array of typles that are composed of the file with the same hash and the location in that file
@@ -105,15 +161,22 @@ export class Comparison<Location> {
    *
    * @param files A list of filenames to query
    * @param hashFilter An optional HashFilter. By default the HashFilter of the Comparison
+   * @param perDirectory Wether or not the files should be grouped together. Any files grouped together won't be
+   * compared with other files from that same group. If a file has no group then it will compared no matter what.
    * object will be used.
    */
   public async compareFiles(
     files: string[],
     hashFilter = this.hashFilter,
+    perDirectory: boolean = false,
   ): Promise<Map<string, Matches<Location>>> {
+    let filesMappedToRootDirectory: Map<string, string> | undefined;
+    if (perDirectory) {
+      filesMappedToRootDirectory = Comparison.groupPerDirectory(files);
+    }
     const matchingFiles: Map<string, Matches<Location>> = new Map();
     for (const file of files) {
-      matchingFiles.set(file, await this.compareFile(file, hashFilter));
+      matchingFiles.set(file, await this.compareFile(file, hashFilter, filesMappedToRootDirectory));
     }
     return matchingFiles;
   }
@@ -125,8 +188,15 @@ export class Comparison<Location> {
    * @param file The file to query
    * @param hashFilter An optional HashFilter. By default the HashFilter of the Comparison
    * object will be used.
+   * @param filesMappedToRootDirectory A map containing all the files mapped to the root of their respective project.
+   * When two files have the same root they won't be compared. When a file does not have a root it will be compared
+   * no matter what.
    */
-  public async compareFile(file: string, hashFilter = this.hashFilter): Promise<Matches<Location>> {
+  public async compareFile(
+    file: string,
+    hashFilter = this.hashFilter,
+    filesMappedToRootDirectory?: Map<string, string>,
+  ): Promise<Matches<Location>> {
     // mapping file names to line number pairs (other file, this file)
     const matchingFiles: Matches<Location> = new Map();
     const [ast, mapping] = await this.tokenizer.tokenizeFileWithMapping(file);
@@ -143,7 +213,7 @@ export class Comparison<Location> {
         // add the match if the match is not with the file and if the file comes first when alphabetically sorted.
         // This is done to avoid the duplicates in the following case: when file A matches with file B, file B will
         // also match with file A.
-        if (fileName === file) {
+        if (fileName === file || Comparison.sameRoot(fileName, file, filesMappedToRootDirectory)) {
           continue;
         }
         const match: [Location, Location] = [lineNumber, mapping[location]];
