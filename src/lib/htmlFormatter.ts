@@ -19,7 +19,7 @@ export abstract class HTMLFormatter<T> {
    * @param text The text you want to escape.
    */
   protected static escapeHtml(text: string) {
-    return text.replace(/[&<>"']/g, m => this.saveHTMLMap.get(m) as string);
+    return text.replace(/[&<>"']/g, m => this.safeHTMLMap.get(m) as string);
   }
 
   /**
@@ -95,7 +95,7 @@ export abstract class HTMLFormatter<T> {
     }
   }
 
-  private static readonly saveHTMLMap: Map<string, string> = new Map([
+  private static readonly safeHTMLMap: Map<string, string> = new Map([
     ['"', "&quot;"],
     ["&", "&amp;"],
     ["'", "&#039;"],
