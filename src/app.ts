@@ -3,6 +3,7 @@ import { CodeTokenizer } from "./lib/codeTokenizer";
 import { Comparison } from "./lib/comparison";
 import { Matches } from "./lib/comparison.js";
 import { FilterOptions, Summary } from "./lib/summary.js";
+import { Utils } from "./lib/utils";
 
 const indentLength: number = 43;
 const maxLineLength: number = (process.stdout.columns as number) - indentLength;
@@ -119,7 +120,7 @@ program.parse(process.argv);
   const tokenizer = new CodeTokenizer(program.language);
 
   if (locations.length < 2) {
-    console.error(Summary.colour("FgRed", "Need at least two locations"));
+    console.error(Utils.colour("FgRed", "Need at least two locations"));
     program.outputHelp(helpText => {
       console.error(helpText);
       return "";
@@ -162,7 +163,7 @@ program.parse(process.argv);
 
   for (const [flag, value] of optionsArray.values()) {
     if (typeof value === "number" && isNaN(value)) {
-      console.error(Summary.colour("FgRed", `${flag} must have a valid numeric value\n`));
+      console.error(Utils.colour("FgRed", `${flag} must have a valid numeric value\n`));
       program.outputHelp(helpText => {
         console.error(helpText);
         return "";

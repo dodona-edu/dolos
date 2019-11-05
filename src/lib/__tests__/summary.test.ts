@@ -1,5 +1,6 @@
 import { Range } from "./../range";
-import { FilterOptions, RangesTuple, Summary } from "./../summary";
+import { FilterOptions, Summary } from "./../summary";
+import { RangesTuple } from "./../utils";
 
 /**
  * adapted from https://stackoverflow.com/questions/6274339/how-can-i-shuffle-an-array

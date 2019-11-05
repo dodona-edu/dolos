@@ -1,12 +1,9 @@
-import fs from "fs";
 import { Matches } from "./comparison";
-import { HTMLFormatter } from "./htmlFormatter";
+import { HTMLSummaryFormatter } from "./htmlSummaryFormatter";
 import { JSONFormatter } from "./jsonFormatter";
 import { Range } from "./range";
-export type RangesTuple = [Range, Range];
+import { Clustered, Match, RangesTuple, Utils } from "./utils";
 
-export type Clustered<T> = T[][];
-export type Match = [string, string, RangesTuple[]];
 /**
  * @param minimumLinesInLargestFragment The minimum amount of lines required by the largest code fragment. The default
  * is 1.
@@ -21,88 +18,20 @@ export interface FilterOptions {
 }
 
 export class Summary {
-  public static optionsToString(optionsArray: Array<[string, string | number]>): string {
-    return (
-      optionsArray
-        .map(([flag, optionValue]) => {
-          if (typeof optionValue === "string" && optionValue.includes(" ")) {
-            return [flag, `'${optionValue}'`];
-          }
-          return [flag, optionValue];
-        })
-        .map(([flag, optionValue]) => `${flag} ${optionValue}`)
-        .join(" ") + "\n"
-    );
-  }
-
-  /**
-   * Counts the total amount of lines that correspond with the first and second file.
-   * @param rangesTupleArray The rangesTupleArray you want the lines count of.
-   * @returns A tuple that contais the line for the first and second file respectively.
-   */
-  public static countLinesInRanges(rangesTupleArray: RangesTuple[]): [number, number] {
-    return rangesTupleArray
-      .map(([range1, range2]) => [range1.getLineCount(), range2.getLineCount()] as [number, number])
-      .reduce(([acc1, acc2], [next1, next2]) => [acc1 + next1, acc2 + next2]);
-  }
-
-  /**
-   * Colours your text with the given colour. Only works for terminal output.
-   * @param colour The colour you want your text to be.
-   * @param text The text you want to colour.
-   * @param consoleColours If you want to colour the text or not.
-   */
-  public static colour(colour: string, text: string): string {
-    if (!Summary.colours.has(colour)) {
-      return text;
-    }
-    return `${Summary.colours.get(colour)}${text}${Summary.colours.get("Reset")}`;
-  }
-
-  public static getScoreForFiles(
-    matches: RangesTuple[],
-    matchedFile: string,
-    matchingFile: string,
-  ): [number, number] {
-    const [matchedLinesInMatchedFile, matchedLinesInMatchingFile]: [
-      number,
-      number,
-    ] = Summary.countLinesInRanges(matches);
-
-    const linesInMatchedFile: number = this.countLinesInFile(matchedFile);
-    const linesInMatchingFile: number = this.countLinesInFile(matchingFile);
-    const scoreMatchedFile: number = Math.round(
-      (matchedLinesInMatchedFile / linesInMatchedFile) * 100,
-    );
-    const scoreMatchingFile: number = Math.round(
-      (matchedLinesInMatchingFile / linesInMatchingFile) * 100,
-    );
-
-    return [scoreMatchedFile, scoreMatchingFile];
-  }
   private static readonly defaultFilterOptions: FilterOptions = Object.freeze({
     fragmentOutputLimit: undefined,
     minimumFragmentLength: 0,
   });
-  private static readonly colours: Map<string, string> = new Map([
-    ["FgRed", "\x1b[31m"],
-    ["FgGreen", "\x1b[32m"],
-    ["Reset", "\x1b[0m"],
-  ]);
-  // Maps the file to the amount of lines in that file.
-  private static readonly linesInFileMap: Map<string, number> = new Map();
 
-  private static countLinesInFile(fileName: string): number {
-    if (!this.linesInFileMap.has(fileName)) {
-      this.linesInFileMap.set(fileName, fs.readFileSync(fileName, "utf8").split("\n").length);
-    }
-    return this.linesInFileMap.get(fileName) as number;
-  }
+  private static readonly htmlFormatter: HTMLSummaryFormatter = new HTMLSummaryFormatter();
 
   public readonly gapSize: number;
-  private readonly clusteredResults: Clustered<Match>;
+  public readonly clusteredResults: Clustered<Match>;
+  public readonly results: Map<string, Matches<Range>>;
   private readonly filterOptions: FilterOptions;
   private readonly clusterCutOffValue: number;
+
+  private readonly utils: Utils = new Utils();
 
   /**
    * Generates a summary for the given matches.
@@ -124,9 +53,11 @@ export class Summary {
     this.filterOptions = filterOptions || Summary.defaultFilterOptions;
     this.gapSize = gapSize;
     this.filterOptions = filterOptions || Summary.defaultFilterOptions;
-    let results = this.transformMatches(matchesPerFile);
-    results = this.filterOutputAmount(results);
-    this.clusteredResults = this.clusterResults(results);
+    this.results = this.transformMatches(matchesPerFile);
+    this.results = this.filterOutputAmount(this.results);
+    Object.freeze(this.results);
+    this.clusteredResults = this.clusterResults(this.results);
+    Object.freeze(this.clusteredResults);
   }
 
   /**
@@ -206,14 +137,14 @@ export class Summary {
    * @param options The options that were used to generate this report.
    */
   public toHTML(comment?: string, options?: Array<[string, string | number]>): string {
-    return HTMLFormatter.format(this.toJSON(comment, options));
+    return Summary.htmlFormatter.format(this.toJSON(comment, options));
   }
   /**
    * Returns the maximum from the tuples returned from [[this.countLinesInRanges]].
    * @param rangesTupleArray The rangesTupleArray you want the maximum line count of.
    */
   public getMaxMatchingLineCount(rangesTupleArray: RangesTuple[]): number {
-    return Math.max(...Summary.countLinesInRanges(rangesTupleArray));
+    return Math.max(...Utils.countLinesInRanges(rangesTupleArray));
   }
 
   public toString(
@@ -230,13 +161,13 @@ export class Summary {
       output += comment + "\n";
     }
     if (optionsArray && optionsArray.length > 0) {
-      output += `Options: ${Summary.optionsToString(optionsArray)}\n`;
+      output += `Options: ${Utils.optionsToString(optionsArray)}\n`;
     }
 
     for (let index = 0; index < this.clusteredResults.length; index += 1) {
       let clusterNameString = `Cluster ${index + 1}\n`;
       if (consoleColours) {
-        clusterNameString = Summary.colour("FgRed", clusterNameString);
+        clusterNameString = Utils.colour("FgRed", clusterNameString);
       }
       output += clusterNameString;
       output += this.groupToString(this.clusteredResults[index], consoleColours).replace(
@@ -254,7 +185,6 @@ export class Summary {
       group.map(groupEntry => this.groupEntryToString(groupEntry, consoleColours)).join("\n") + "\n"
     );
   }
-
   public groupEntryToString(
     [matchedFile, matchingFile, matches]: [string, string, RangesTuple[]],
     consoleColours: boolean,
@@ -264,7 +194,7 @@ export class Summary {
       .map(match => JSON.stringify(match, JSONFormatter.JSONReplacerFunction))
       .join("\n\t\t");
 
-    const [scoreMatchedFile, scoreMatchingFile] = Summary.getScoreForFiles(
+    const [scoreMatchedFile, scoreMatchingFile] = this.utils.getScoreForFiles(
       matches,
       matchedFile,
       matchingFile,
@@ -272,7 +202,7 @@ export class Summary {
 
     let returnString: string = `\t${matchedFile}(${scoreMatchedFile}%) + ${matchingFile}(${scoreMatchingFile}%) => \n`;
     if (consoleColours) {
-      returnString = Summary.colour("FgGreen", returnString);
+      returnString = Utils.colour("FgGreen", returnString);
     }
 
     return `${returnString}\t\t${matchesString}`;
