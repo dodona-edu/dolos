@@ -3,32 +3,30 @@ from collections import defaultdict
 import numpy as np
 import sys
 
-
 class DistanceMatrix:
     def __init__(self, *args):
-        self.distances = np.array(*args)
+        self.D = np.array(*args)
         return
 
     def __str__(self):
-        return str([[float(a) for a in x] for x in self.distances])
+        return str([[float(a) for a in x] for x in self.D])
 
     def __repr__(self):
-        return type(self).__name__ + "(" + str([[float(a) for a in x] for x in self.distances]) + ")"
+        return type(self).__name__ + "(" + str([[float(a) for a in x] for x in self.D]) + ")"
 
     @staticmethod
-    def loadtxt(file_name, dtype=None, comments='#', delimiter=None, converters=None, skiprows=0, usecols=None, unpack=False, ndmin=0):
-        distances = np.loadtxt(file_name, dtype, comments, delimiter, converters, skiprows, usecols, unpack, ndmin)
-        return DistanceMatrix(distances)
+    def loadtxt(file_name, dtype=None,F comments='#', delimiter=None, converters=None, skiprows=0, usecols=None, unpack=False, ndmin=0):
+        D = np.loadtxt(file_name, dtype, comments, delimiter, converters, skiprows, usecols, unpack, ndmin)
+        return DistanceMatrix(D)
 
     def savetxt(self, output_file, fmt='%.18e', delimiter=' ', newline='\n', header='', footer='', comments='# '):
-        np.savetxt(output_file, self.distances, fmt, delimiter, newline, header, footer, comments)
+        np.savetxt(output_file, self.D, fmt, delimiter, newline, header, footer, comments)
         return
 
     def nr_leaves(self):
-        return len(self.distances)
+        return len(self.D)
 
     def limb_length(self, j):
-        #print("llsearch",self.distances,j)
         n = self.nr_leaves()
         assert(j < n)
         minimum = sys.maxsize
@@ -36,12 +34,10 @@ class DistanceMatrix:
             if i != j:
                 for k in range(n):
                     if k != j:
-                        #print(i,j,k)
-                        distances_ij = self.distances[i][j]
-                        distances_jk = self.distances[j][k]
-                        distances_ik = self.distances[i][k]
-                        minimum = min([minimum, (distances_ij+distances_jk-distances_ik)/2])
-                        #print(distances_ij, distances_jk, distances_ik, minimum)
+                        Dij = self.D[i][j]
+                        Djk = self.D[j][k]
+                        Dik = self.D[i][k]
+                        minimum = min([minimum, (Dij+Djk-Dik)/2])
         return minimum
 
     def additive_phylogeny(self):
@@ -49,33 +45,32 @@ class DistanceMatrix:
         return self.additive_phylogeny_rec(self, self.nr_leaves())
 
     def find_i_n_k(self, n):
-        #print(self, n-1)
         for i in range(n-1):
             for k in range(n-1):
                 if i != k:
-                    if self.distances[i][k] == self.distances[i][n-1] + self.distances[n-1][k]:
+                    if self.D[i][k] == self.D[i][n-1] + self.D[n-1][k]:
                         return (i, n, k)
         return "nop"
 
-    def additive_phylogeny_rec(self, distances, n):
+    def additive_phylogeny_rec(self, D, n):
         if n == 3:
-            ll1 = (distances.distances[0][1] + distances.distances[1][2] - distances.distances[0][2])/2
-            ll2 = distances.distances[1][2] - ll1
-            ll0 = distances.distances[0][1] - ll1
+            ll1 = (D.D[0][1] + D.D[1][2] - D.D[0][2])/2
+            ll2 = D.D[1][2] - ll1
+            ll0 = D.D[0][1] - ll1
             edges = {(0, self.node_count, ll0), (1, self.node_count, ll1), (2, self.node_count, ll2)}
             self.node_count += 1
             return UnrootedTree(*edges)
 
-        ll = distances.limb_length(n-1)
-        distances_bald = DistanceMatrix(distances.distances[:])
+        ll = D.limb_length(n-1)
+        D_bald = DistanceMatrix(D.D[:])
         for x in range(n-1):
-            distances_bald.distances[n-1][x] -= ll
-            distances_bald.distances[x][n-1] -= ll
+            D_bald.D[n-1][x] -= ll
+            D_bald.D[x][n-1] -= ll
 
-        i,n,k = distances_bald.find_i_n_k(n)
-        x = distances_bald.distances[i][n-1]
-        trimmed_distances = DistanceMatrix([[distances_bald.distances[a][b] for a in range(n-1)] for b in range(n-1)])
-        T = self.additive_phylogeny_rec(trimmed_distances, n-1)
+        i,n,k = D_bald.find_i_n_k(n)
+        x = D_bald.D[i][n-1]
+        trimmed_D = DistanceMatrix([[D_bald.D[a][b] for a in range(n-1)] for b in range(n-1)])
+        T = self.additive_phylogeny_rec(trimmed_D, n-1)
         path = T.path(i,k)
         i = 1
         while i < len(path) -1 and T.distance(path[0],path[i]) < x:
@@ -85,7 +80,7 @@ class DistanceMatrix:
             T.add_edge(path[i-1],n-1,ll)
         else:
             a,b = path[i-1],path[i]
-            new_d = distances.distances[path[0]][b] - x if b < len(distances.distances) else T.distance(path[0],b) - x
+            new_d = D.D[path[0]][b] - x if b < len(D.D) else T.distance(path[0],b) - x
             T.add_edge(self.node_count, b, new_d)
             T.add_edge(a, self.node_count, T.distance(a,b) - new_d)
             T.add_edge(n-1, self.node_count, ll)
@@ -122,13 +117,10 @@ class DistanceMatrix:
             self.nr_count += 1
         return trees[0]
 
-
-
     def pairwise_distance(self,C1, C2):
         n, m = len(C1), len(C2)
-        s = sum([self.distances[i][j] for i in C1 for j in C2])
+        s = sum([self.D[i][j] for i in C1 for j in C2])
         return s/(n*m)
-
 
 class UnrootedTree:
     def __init__(self, *edges):
@@ -142,7 +134,7 @@ class UnrootedTree:
             x, y, w = edge
             d[(x, y)] = w
             d[(y, x)] = w
-        self.distances = d
+        self.d = d
         nb = defaultdict(list)
         for edge in self.edges:
             x, y, w = edge
@@ -158,8 +150,8 @@ class UnrootedTree:
 
     def add_edge(self, a,b,w):
         self.edges.append((a,b,w))
-        self.distances[(a,b)] = w
-        self.distances[(b,a)] = w
+        self.d[(a,b)] = w
+        self.d[(b,a)] = w
         self.nb[a].append(b)
         self.nb[b].append(a)
 
@@ -169,11 +161,10 @@ class UnrootedTree:
             if (x == a and b == y) or (x == b and y == a):
                 self.edges.remove(edge)
                 break
-        del self.distances[(a,b)]
-        del self.distances[(b,a)]
+        del self.d[(a,b)]
+        del self.d[(b,a)]
         self.nb[a].remove(b)
         self.nb[b].remove(a)
-
 
     @staticmethod
     def loadtxt(input_file):
@@ -194,12 +185,11 @@ class UnrootedTree:
         return p
 
     def distance(self, i,j):
-        if (i,j) in self.distances:
-            return self.distances[(i,j)]
+        if (i,j) in self.d:
+            return self.d[(i,j)]
         else:
             path = self.path(i,j)
             return self.path_weight(path)
-
 
     def path_dfs(self, graph, current_i, j, current_path):
         nb = graph[current_i]
@@ -226,20 +216,19 @@ class UnrootedTree:
     def path_weight(self, path):
         s = 0
         for i in range(len(path) -1):
-            s += self.distances[(path[i],path[i+1])]
+            s += self.d[(path[i],path[i+1])]
         return s
 
     def distance_matrix(self):
         n = self.nr_leaf_nodes()
-        distances = [[0 for _ in range(n)] for _ in range(n)]
+        D = [[0 for _ in range(n)] for _ in range(n)]
         self.path_weight(self.path(0,2))
         for i in range(n):
             for j in range(i+1,n):
                 path = self.path(i,j)
                 w = self.path_weight(path)
-        distances[i][j], distances[j][i] = w, w
-        return DistanceMatrix(distances)
-
+        D[i][j], D[j][i] = w, w
+        return DistanceMatrix(D)
 
 class Tree:
     def __init__(self, root, *subtrees):

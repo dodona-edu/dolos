@@ -28,10 +28,7 @@ class DistanceMatrix:
     def __str__(self):
         return str([[float(a) for a in x] for x in self.D])
 
-
-
     def find_i_n_k(self, n):
-        #print(self, n-1)
         for i in range(n-1):
             for k in range(n-1):
                 if i != k:
@@ -52,7 +49,6 @@ class DistanceMatrix:
         return len(self.D)
 
     def limb_length(self, j):
-        #print("llsearch",self.D,j)
         n = self.nr_leaves()
         assert(j < n)
         minimum = sys.maxsize
@@ -60,12 +56,10 @@ class DistanceMatrix:
             if i != j:
                 for k in range(n):
                     if k != j:
-                        #print(i,j,k)
                         Dij = self.D[i][j]
                         Djk = self.D[j][k]
                         Dik = self.D[i][k]
                         minimum = min([minimum, (Dij+Djk-Dik)/2])
-                        #print(Dij, Djk, Dik, minimum)
         return minimum
 
     def additive_phylogeny(self):

@@ -3,7 +3,6 @@ from collections import defaultdict
 import numpy as np
 import sys
 
-
 class DistanceMatrix:
     def __init__(self, *args):
         self.D = np.array(*args)
@@ -28,7 +27,6 @@ class DistanceMatrix:
         return len(self.D)
 
     def limb_length(self, j):
-        #print("llsearch",self.D,j)
         n = self.nr_leaves()
         assert(j < n)
         minimum = sys.maxsize
@@ -36,12 +34,11 @@ class DistanceMatrix:
             if i != j:
                 for k in range(n):
                     if k != j:
-                        #print(i,j,k)
-                        Dij = self.D[i][j]
-                        Djk = self.D[j][k]
+                        # next 3 lines are shuffled
                         Dik = self.D[i][k]
+                        Djk = self.D[j][k]
+                        Dij = self.D[i][j]
                         minimum = min([minimum, (Dij+Djk-Dik)/2])
-                        #print(Dij, Djk, Dik, minimum)
         return minimum
 
     def additive_phylogeny(self):
@@ -49,7 +46,6 @@ class DistanceMatrix:
         return self.additive_phylogeny_rec(self, self.nr_leaves())
 
     def find_i_n_k(self, n):
-        #print(self, n-1)
         for i in range(n-1):
             for k in range(n-1):
                 if i != k:
@@ -69,8 +65,9 @@ class DistanceMatrix:
         ll = D.limb_length(n-1)
         D_bald = DistanceMatrix(D.D[:])
         for x in range(n-1):
-            D_bald.D[n-1][x] -= ll
+            # next two lines are switched
             D_bald.D[x][n-1] -= ll
+            D_bald.D[n-1][x] -= ll
 
         i,n,k = D_bald.find_i_n_k(n)
         x = D_bald.D[i][n-1]
@@ -122,13 +119,10 @@ class DistanceMatrix:
             self.nr_count += 1
         return trees[0]
 
-
-
     def pairwise_distance(self,C1, C2):
         n, m = len(C1), len(C2)
         s = sum([self.D[i][j] for i in C1 for j in C2])
         return s/(n*m)
-
 
 class UnrootedTree:
     def __init__(self, *edges):
@@ -140,14 +134,16 @@ class UnrootedTree:
         d = dict()
         for edge in self.edges:
             x, y, w = edge
-            d[(x, y)] = w
+            #next two lines are switched
             d[(y, x)] = w
+            d[(x, y)] = w
         self.d = d
         nb = defaultdict(list)
         for edge in self.edges:
             x, y, w = edge
-            nb[x].append(y)
+            # next two lines are switched
             nb[y].append(x)
+            nb[x].append(y)
         self.nb = nb
 
     def __str__(self):
@@ -169,11 +165,11 @@ class UnrootedTree:
             if (x == a and b == y) or (x == b and y == a):
                 self.edges.remove(edge)
                 break
-        del self.d[(a,b)]
+        # deletion order is switched
         del self.d[(b,a)]
-        self.nb[a].remove(b)
+        del self.d[(a,b)]
         self.nb[b].remove(a)
-
+        self.nb[a].remove(b)
 
     @staticmethod
     def loadtxt(input_file):
@@ -200,7 +196,6 @@ class UnrootedTree:
             path = self.path(i,j)
             return self.path_weight(path)
 
-
     def path_dfs(self, graph, current_i, j, current_path):
         nb = graph[current_i]
         for n in nb:
@@ -217,10 +212,11 @@ class UnrootedTree:
         s = set()
         for edge in self.edges:
             x,y,w = edge
-            if len(self.nb[x]) == 1:
-                s.add(x)
+            #these two if cases have been switched
             if len(self.nb[y]) == 1:
                 s.add(y)
+            if len(self.nb[x]) == 1:
+                s.add(x)
         return len(s)
 
     def path_weight(self, path):
@@ -239,7 +235,6 @@ class UnrootedTree:
                 w = self.path_weight(path)
         D[i][j], D[j][i] = w, w
         return DistanceMatrix(D)
-
 
 class Tree:
     def __init__(self, root, *subtrees):

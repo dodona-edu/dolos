@@ -2,7 +2,6 @@ import numpy as np
 from collections import defaultdict
 from math import inf
 
-
 class DistanceMatrix:
 
     def __init__(self, object, dtype=None, copy=True, order='K', subok=False, ndmin=0):
@@ -157,7 +156,6 @@ class DistanceMatrix:
         mat_string = mat_string[:-2] + "]"
         return mat_string
 
-
 class UnrootedTree:
 
     def __init__(self, *args):
@@ -216,7 +214,6 @@ class UnrootedTree:
                     mat[n2][n1] = length
         return DistanceMatrix(mat)
 
-
 class Tree:
 
     def __init__(self, label, *args):
@@ -230,7 +227,6 @@ class Tree:
         for child, weight in self.children.items():
             repr_str += "(" + child.__repr__() + ", " + str(weight) + "), "
         return repr_str[:-2] + ")"
-
 
 if __name__ == "__main__":
     D = DistanceMatrix.loadtxt('distances.txt')

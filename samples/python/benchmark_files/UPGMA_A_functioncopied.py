@@ -3,7 +3,6 @@ from collections import defaultdict
 import numpy as np
 import sys
 
-
 class DistanceMatrix:
     def __init__(self, *args):
         self.D = np.array(*args)
@@ -28,7 +27,6 @@ class DistanceMatrix:
         return len(self.D)
 
     def limb_length(self, j):
-        #print("llsearch",self.D,j)
         n = self.nr_leaves()
         assert(j < n)
         minimum = sys.maxsize
@@ -36,12 +34,10 @@ class DistanceMatrix:
             if i != j:
                 for k in range(n):
                     if k != j:
-                        #print(i,j,k)
                         Dij = self.D[i][j]
                         Djk = self.D[j][k]
                         Dik = self.D[i][k]
                         minimum = min([minimum, (Dij+Djk-Dik)/2])
-                        #print(Dij, Djk, Dik, minimum)
         return minimum
 
     def additive_phylogeny(self):
@@ -49,7 +45,6 @@ class DistanceMatrix:
         return self.additive_phylogeny_rec(self, self.nr_leaves())
 
     def find_i_n_k(self, n):
-        #print(self, n-1)
         for i in range(n-1):
             for k in range(n-1):
                 if i != k:
@@ -122,13 +117,10 @@ class DistanceMatrix:
             self.nr_count += 1
         return trees[0]
 
-
-
     def pairwise_distance(self,C1, C2):
         n, m = len(C1), len(C2)
         s = sum([self.D[i][j] for i in C1 for j in C2])
         return s/(n*m)
-
 
 class UnrootedTree:
     def __init__(self, *edges):
@@ -174,17 +166,16 @@ class UnrootedTree:
         self.nb[a].remove(b)
         self.nb[b].remove(a)
 
-
+    #from B
     @staticmethod
-    def loadtxt(input_file):
-        edges = list()
-        f = open(input_file)
-        for line in f:
-            line = line.rstrip().split(":")
-            line[0] = line[0].split("<->")
-            edges.append((line[0][0],line[0][1],line[1]))
-
-        return UnrootedTree(*edges)
+    def loadtxt(f):
+        with open(f, "r") as graph_file:
+            tuple_list = []
+            for line in graph_file:
+                line_arr = line.strip().split("<->")
+                rhs = line_arr[1].split(":")
+                tuple_list.append((int(line_arr[0]), int(rhs[0]), float(rhs[1])))
+            return UnrootedTree(*tuple_list)
 
     def path(self, i, j):
         self.visited = [i]
@@ -199,7 +190,6 @@ class UnrootedTree:
         else:
             path = self.path(i,j)
             return self.path_weight(path)
-
 
     def path_dfs(self, graph, current_i, j, current_path):
         nb = graph[current_i]
@@ -240,7 +230,6 @@ class UnrootedTree:
         D[i][j], D[j][i] = w, w
         return DistanceMatrix(D)
 
-
 class Tree:
     def __init__(self, root, *subtrees):
         self.root = root
@@ -252,4 +241,3 @@ class Tree:
 
     def __repr__(self):
         return self.__str__()
-

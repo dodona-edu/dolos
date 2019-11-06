@@ -3,7 +3,7 @@ from collections import defaultdict
 import numpy as np
 import sys
 
-
+#from A, except some functions
 class DistanceMatrix:
     def __init__(self, *args):
         self.D = np.array(*args)
@@ -28,7 +28,6 @@ class DistanceMatrix:
         return len(self.D)
 
     def limb_length(self, j):
-        #print("llsearch",self.D,j)
         n = self.nr_leaves()
         assert(j < n)
         minimum = sys.maxsize
@@ -36,20 +35,18 @@ class DistanceMatrix:
             if i != j:
                 for k in range(n):
                     if k != j:
-                        #print(i,j,k)
                         Dij = self.D[i][j]
                         Djk = self.D[j][k]
                         Dik = self.D[i][k]
                         minimum = min([minimum, (Dij+Djk-Dik)/2])
-                        #print(Dij, Djk, Dik, minimum)
         return minimum
 
-    #from Timo
+    #from B
     def additive_phylogeny(self):
         self.max_node = len(self.matrix)
         return UnrootedTree(*sorted(self.additive_phylogeny_recursive(self.matrix, len(self.matrix))))
 
-    #from Timo
+    #from B
     def additive_phylogeny_recursive(self, mat, n):
         if n == 2:
             return [(0, 1, mat[0][1])]
@@ -116,14 +113,12 @@ class DistanceMatrix:
             self.nr_count += 1
         return trees[0]
 
-
-
     def pairwise_distance(self,C1, C2):
         n, m = len(C1), len(C2)
         s = sum([self.D[i][j] for i in C1 for j in C2])
         return s/(n*m)
 
-#from Timo completely
+#from B completely
 class UnrootedTree:
 
     def __init__(self, *args):
@@ -182,7 +177,7 @@ class UnrootedTree:
                     mat[n2][n1] = length
         return DistanceMatrix(mat)
 
-
+#from A
 class Tree:
     def __init__(self, root, *subtrees):
         self.root = root
