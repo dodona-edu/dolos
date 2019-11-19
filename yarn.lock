@@ -3581,10 +3581,10 @@ tree-sitter-python@^0.15.0:
   dependencies:
     nan "^2.4.0"
 
-tree-sitter@^0.15.10:
-  version "0.15.10"
-  resolved "https://registry.yarnpkg.com/tree-sitter/-/tree-sitter-0.15.10.tgz#497c22ffaa9313ca41d85837504c31dbafe4675b"
-  integrity sha512-qqp8MEwcIAdArZXTLuu/k+OvoVkkTTr1dnQo+1NR/6avLxRQTASfWudJJhXYaFfqsv+80cj26DZkRr0wslgEUA==
+tree-sitter@^0.15.14:
+  version "0.15.14"
+  resolved "https://registry.yarnpkg.com/tree-sitter/-/tree-sitter-0.15.14.tgz#fa8635f1965e4fb28d0c5396d87fc814343ed0b0"
+  integrity sha512-SNrEiECLuRkG7zbED9PD74d1HFfwO24HU/SvsP5nQhIxS13K6c1I7LhXRxpBEUuyX3RAXZXVyPchCAevynIm8g==
   dependencies:
     nan "^2.14.0"
     prebuild-install "^5.0.0"
