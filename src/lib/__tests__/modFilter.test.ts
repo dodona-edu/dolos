@@ -1,5 +1,5 @@
-import { ModFilter } from "../modFilter";
-import { NoFilter } from "../noFilter";
+import { ModFilter } from "../filters/modFilter";
+import { NoFilter } from "../filters/noFilter";
 
 test("no hashes for text shorter than k", async () => {
   const text = "abcd";

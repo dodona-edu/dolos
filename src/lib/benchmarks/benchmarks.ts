@@ -1,4 +1,4 @@
-import { BenchmarkManager, NumericRangesTuple } from "../benchmarkManager";
+import { BenchmarkManager, NumericRangesTuple } from "../benchmarks/benchmarkManager";
 
 const manager = new BenchmarkManager(true);
 

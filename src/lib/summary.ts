@@ -1,6 +1,6 @@
 import { Matches } from "./comparison";
-import { HTMLSummaryFormatter } from "./htmlSummaryFormatter";
-import { JSONFormatter } from "./jsonFormatter";
+import { HTMLSummaryFormatter } from "./formatters/htmlSummaryFormatter";
+import { JSONFormatter } from "./formatters/jsonFormatter";
 import { Range } from "./range";
 import { Clustered, Match, RangesTuple, Utils } from "./utils";
 

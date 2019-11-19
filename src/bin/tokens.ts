@@ -1,4 +1,4 @@
-import { CodeTokenizer } from "../lib/codeTokenizer";
+import { CodeTokenizer } from "../lib/tokenizers/codeTokenizer";
 
 (async () => {
   const tokenizer = new CodeTokenizer("javascript");

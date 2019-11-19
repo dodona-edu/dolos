@@ -1,8 +1,8 @@
 import fs from "fs";
-import { BenchmarkResults } from "./benchmarkMatcher";
-import { HTMLFormatter } from "./htmlFormatter";
-import { JSONFormatter } from "./jsonFormatter";
-import { ObjectMap, RangesTuple, Utils } from "./utils";
+import { BenchmarkResults } from "../benchmarks/benchmarkMatcher";
+import { HTMLFormatter } from "../formatters/htmlFormatter";
+import { JSONFormatter } from "../formatters/jsonFormatter";
+import { ObjectMap, RangesTuple, Utils } from "../utils";
 
 export class HTMLBenchmarkFormatter extends HTMLFormatter<[string, string, BenchmarkResults]> {
   public toComparePage(

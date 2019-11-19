@@ -1,7 +1,7 @@
 import fs from "fs";
+import { JSONFormatter, JSONSummaryFormat } from "../formatters/jsonFormatter";
+import { Match, RangesTuple, Utils } from "../utils";
 import { HTMLFormatter } from "./htmlFormatter";
-import { JSONFormatter, JSONSummaryFormat } from "./jsonFormatter";
-import { Match, RangesTuple, Utils } from "./utils";
 
 export class HTMLSummaryFormatter extends HTMLFormatter<RangesTuple[]> {
   public makeBody(jsonSummary: string): string {

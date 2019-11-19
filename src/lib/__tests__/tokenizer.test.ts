@@ -1,5 +1,5 @@
 import path from "path";
-import { CodeTokenizer } from "../codeTokenizer";
+import { CodeTokenizer } from "../tokenizers/codeTokenizer";
 
 test("tokenizer creation works for all listed languages", () => {
   for (const language of CodeTokenizer.supportedLanguages) {

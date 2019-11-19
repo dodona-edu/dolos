@@ -1,6 +1,6 @@
-import { CodeTokenizer } from "../codeTokenizer";
 import { Comparison, Matches } from "../comparison";
-import { Tokenizer } from "../tokenizer";
+import { CodeTokenizer } from "../tokenizers/codeTokenizer";
+import { Tokenizer } from "../tokenizers/tokenizer";
 const files: string[] = [
   "samples/js/sample.js",
   "samples/js/another_copied_function.js",

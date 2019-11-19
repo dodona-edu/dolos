@@ -1,5 +1,5 @@
-import { BenchmarkManager, NumericRangesTuple } from "../benchmarkManager";
-import { HTMLBenchmarkFormatter } from "./../htmlBenchmarkFormatter";
+import { BenchmarkManager, NumericRangesTuple } from "../benchmarks/benchmarkManager";
+import { HTMLBenchmarkFormatter } from "../benchmarks/htmlBenchmarkFormatter";
 
 test("general structure test", async () => {
   const manager = new BenchmarkManager(false);

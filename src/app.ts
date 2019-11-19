@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 import { Command } from "commander";
-import { CodeTokenizer } from "./lib/codeTokenizer";
 import { Comparison } from "./lib/comparison";
 import { Matches } from "./lib/comparison.js";
 import { FilterOptions, Summary } from "./lib/summary.js";
+import { CodeTokenizer } from "./lib/tokenizers/codeTokenizer";
 import { Utils } from "./lib/utils";
 
 const indentLength: number = 43;

@@ -1,10 +1,10 @@
+import { Comparison, ComparisonOptions, Matches } from "../comparison";
+import { Range } from "../range";
+import { FilterOptions, Summary } from "../summary";
+import { CodeTokenizer } from "../tokenizers/codeTokenizer";
+import { Tokenizer } from "../tokenizers/tokenizer";
+import { RangesTuple } from "../utils";
 import { BenchmarkManager } from "./benchmarkManager";
-import { CodeTokenizer } from "./codeTokenizer";
-import { Comparison, ComparisonOptions, Matches } from "./comparison";
-import { Range } from "./range";
-import { FilterOptions, Summary } from "./summary";
-import { Tokenizer } from "./tokenizer";
-import { RangesTuple } from "./utils";
 
 export interface BenchMarkSettings {
   filterOptions?: FilterOptions;

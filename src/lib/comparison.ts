@@ -1,8 +1,8 @@
 import path from "path";
-import { HashFilter } from "./hashFilter";
-import { NoFilter } from "./noFilter";
-import { Tokenizer } from "./tokenizer";
-import { WinnowFilter } from "./winnowFilter";
+import { HashFilter } from "./filters/hashFilter";
+import { NoFilter } from "./filters/noFilter";
+import { WinnowFilter } from "./filters/winnowFilter";
+import { Tokenizer } from "./tokenizers/tokenizer";
 
 export type Matches<Location> = Map<string, Array<[Location, Location]>>;
 

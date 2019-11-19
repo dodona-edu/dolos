@@ -1,6 +1,6 @@
 import fs from "fs";
-import { Hash } from "../lib/hashFilter";
-import { WinnowFilter } from "../lib/winnowFilter";
+import { Hash } from "../lib/filters/hashFilter";
+import { WinnowFilter } from "../lib/filters/winnowFilter";
 
 const winnow = new WinnowFilter(20, 40);
 

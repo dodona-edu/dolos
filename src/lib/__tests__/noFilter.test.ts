@@ -1,4 +1,4 @@
-import { NoFilter } from "../noFilter";
+import { NoFilter } from "../filters/noFilter";
 
 test("no hashes for text shorter than k", async () => {
   const text = "abcd";

@@ -1,6 +1,6 @@
 import { Readable } from "stream";
-import { NoFilter } from "../noFilter";
-import { WinnowFilter } from "../winnowFilter";
+import { NoFilter } from "../filters/noFilter";
+import { WinnowFilter } from "../filters/winnowFilter";
 
 test("Winnow on comparable files", async () => {
   const textA = "abcdefg";

@@ -1,9 +1,9 @@
 import fs from "fs";
+import { BenchmarkMatcher, BenchmarkResults } from "../benchmarks/benchmarkMatcher";
+import { JSONFormatter } from "../formatters/jsonFormatter";
+import { ObjectMap, Utils } from "../utils";
 import { BenchmarkHelper, BenchMarkSettings } from "./benchmarkHelper";
-import { BenchmarkMatcher, BenchmarkResults } from "./benchmarkMatcher";
 import { HTMLBenchmarkFormatter } from "./htmlBenchmarkFormatter";
-import { JSONFormatter } from "./jsonFormatter";
-import { ObjectMap, Utils } from "./utils";
 
 export type NumericRangesTuple = [[number, number], [number, number]];
 /**

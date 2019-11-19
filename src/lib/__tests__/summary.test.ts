@@ -1,6 +1,8 @@
-import { Range } from "./../range";
-import { FilterOptions, Summary } from "./../summary";
-import { RangesTuple } from "./../utils";
+import { Comparison, Matches } from "../comparison";
+import { Range } from "../range";
+import { FilterOptions, Summary } from "../summary";
+import { CodeTokenizer } from "../tokenizers/codeTokenizer";
+import { RangesTuple } from "../utils";
 
 /**
  * adapted from https://stackoverflow.com/questions/6274339/how-can-i-shuffle-an-array
@@ -113,9 +115,6 @@ test("concatenate ranges", () => {
   expect(concatenatedRanges2).toContainEqual(rangesTupleArray[3]);
   expect(concatenatedRanges2).not.toContainEqual([new Range(5, 25), new Range(105, 115)]);
 });
-
-import { Comparison, Matches } from "../comparison";
-import { CodeTokenizer } from "./../codeTokenizer";
 
 test("integration test", async () => {
   const locations: string[] = [

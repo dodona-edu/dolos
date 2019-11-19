@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
-import { Range } from "./range";
-import { RangesTuple, Utils } from "./utils";
+import { Range } from "../range";
+import { RangesTuple, Utils } from "../utils";
 
 export abstract class HTMLFormatter<T> {
   /**
