@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "description": "Plagiarism detection for Dodona based on the Winnowing algorithm",
   "main": "dist/app.js",
+  "bin": "dist/app.js",
   "scripts": {
     "start": "tsc && node dist/app.js",
     "make-html-file": "tsc && node ./dist/app.js -l javascript -o html samples/js/*.js > temp.html",
