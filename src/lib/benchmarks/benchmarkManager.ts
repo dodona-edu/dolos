@@ -1,7 +1,8 @@
 import fs from "fs";
 import { BenchmarkMatcher, BenchmarkResults } from "../benchmarks/benchmarkMatcher";
 import { JSONFormatter } from "../formatters/jsonFormatter";
-import { ObjectMap, Utils } from "../utils";
+import { ObjectMap } from "../utils";
+import * as Utils from "../utils";
 import { BenchmarkHelper, BenchMarkSettings } from "./benchmarkHelper";
 import { HTMLBenchmarkFormatter } from "./htmlBenchmarkFormatter";
 
@@ -123,10 +124,10 @@ export class BenchmarkManager {
    */
   private outputResultsToConsole(resultsMap: ObjectMap<Array<[string, BenchmarkResults]>>) {
     for (const [options, results] of Object.entries(resultsMap)) {
-      console.log(Utils.colour("FgGreen", `${options} => `));
+      console.log(Utils.colour("green", `${options} => `));
       for (const [name, result] of results.values()) {
         console.log(
-          Utils.colour("FgRed", `\t${name} => `) +
+          Utils.colour("red", `\t${name} => `) +
             `matchedLines: ${result.matchedLines}, missedLines: ${result.missedLines}, ` +
             `falseLines: ${result.falseLines}, falseMatches: ${result.falseMatches}, ` +
             `falseMatchingLines: ${result.falseMatchingLines}`,

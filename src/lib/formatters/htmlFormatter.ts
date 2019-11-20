@@ -1,7 +1,8 @@
 import fs from "fs";
 import path from "path";
 import { Range } from "../range";
-import { RangesTuple, Utils } from "../utils";
+import { RangesTuple } from "../utils";
+import * as Utils from "../utils";
 
 export abstract class HTMLFormatter<T> {
   /**
@@ -102,14 +103,15 @@ export abstract class HTMLFormatter<T> {
     ["<", "&lt;"],
     [">", "&gt;"],
   ]);
-  public readonly utils: Utils = new Utils();
   protected readonly scriptLocation = "./src/lib/assets/scripts.js";
   protected readonly stylesheetLocation = "./src/lib/assets/stylesheet.css";
-
   protected readonly noTime: boolean;
+  protected readonly fileLines: Map<string, number> = new Map();
+
   constructor(noTime: boolean = false) {
     this.noTime = noTime;
   }
+
   public abstract makeBody(jsonString: string): string;
 
   /**
@@ -179,7 +181,7 @@ export abstract class HTMLFormatter<T> {
       number,
     ] = Utils.countLinesInRanges(rangesTupleArray);
 
-    const [scoreMatchedFile, scoreMatchingFile] = this.utils.getScoreForFiles(
+    const [scoreMatchedFile, scoreMatchingFile] = this.scoreForFiles(
       rangesTupleArray,
       matchedFile,
       matchingFile,
@@ -200,5 +202,37 @@ export abstract class HTMLFormatter<T> {
       `<td class="lines-matched-column">${matchingFileLineCount}</td>\n` +
       `</tr>`
     );
+  }
+
+  // TODO: temporary duplication, replace by a 'File' class  which keeps track
+  // of the amount of lines in a file.
+  protected scoreForFiles(
+    matches: RangesTuple[],
+    matchedFile: string,
+    matchingFile: string,
+  ): [number, number] {
+
+    const [matchedLinesInMatchedFile, matchedLinesInMatchingFile]: [
+      number,
+      number,
+    ] = Utils.countLinesInRanges(matches);
+
+    const linesInMatchedFile: number = this.countLinesInFile(matchedFile);
+    const linesInMatchingFile: number = this.countLinesInFile(matchingFile);
+    const scoreMatchedFile: number = Math.round(
+      (matchedLinesInMatchedFile / linesInMatchedFile) * 100,
+    );
+    const scoreMatchingFile: number = Math.round(
+      (matchedLinesInMatchingFile / linesInMatchingFile) * 100,
+    );
+
+    return [scoreMatchedFile, scoreMatchingFile];
+  }
+
+  private countLinesInFile(fileName: string): number {
+    if (!this.fileLines.has(fileName)) {
+      this.fileLines.set(fileName, fs.readFileSync(fileName, "utf8").split("\n").length);
+    }
+    return this.fileLines.get(fileName) as number;
   }
 }

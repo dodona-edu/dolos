@@ -4,7 +4,7 @@ import { Comparison } from "./lib/comparison";
 import { Matches } from "./lib/comparison.js";
 import { FilterOptions, Summary } from "./lib/summary.js";
 import { CodeTokenizer } from "./lib/tokenizers/codeTokenizer";
-import { Utils } from "./lib/utils";
+import * as Utils from "./lib/utils";
 
 const indentLength: number = 43;
 const maxLineLength: number = (process.stdout.columns as number) - indentLength;

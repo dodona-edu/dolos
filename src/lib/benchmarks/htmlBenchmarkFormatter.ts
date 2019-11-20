@@ -2,7 +2,8 @@ import fs from "fs";
 import { BenchmarkResults } from "../benchmarks/benchmarkMatcher";
 import { HTMLFormatter } from "../formatters/htmlFormatter";
 import { JSONFormatter } from "../formatters/jsonFormatter";
-import { ObjectMap, RangesTuple, Utils } from "../utils";
+import { ObjectMap, RangesTuple } from "../utils";
+import * as Utils from "../utils";
 
 export class HTMLBenchmarkFormatter extends HTMLFormatter<[string, string, BenchmarkResults]> {
   public toComparePage(
@@ -211,7 +212,7 @@ export class HTMLBenchmarkFormatter extends HTMLFormatter<[string, string, Bench
       number,
     ] = Utils.countLinesInRanges(rangesTupleArray);
 
-    const [scoreMatchedFile, scoreMatchingFile] = this.utils.getScoreForFiles(
+    const [scoreMatchedFile, scoreMatchingFile] = this.scoreForFiles(
       rangesTupleArray,
       matchedFile,
       matchingFile,

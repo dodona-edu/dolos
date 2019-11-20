@@ -1,8 +1,10 @@
+import * as fs from "fs";
 import { Matches } from "./comparison";
 import { HTMLSummaryFormatter } from "./formatters/htmlSummaryFormatter";
 import { JSONFormatter } from "./formatters/jsonFormatter";
 import { Range } from "./range";
-import { Clustered, Match, RangesTuple, Utils } from "./utils";
+import { Clustered, Match, RangesTuple } from "./utils";
+import * as Utils from "./utils";
 
 /**
  * @param minimumLinesInLargestFragment The minimum amount of lines required by the largest code fragment. The default
@@ -31,7 +33,7 @@ export class Summary {
   private readonly filterOptions: FilterOptions;
   private readonly clusterCutOffValue: number;
 
-  private readonly utils: Utils = new Utils();
+  private readonly fileLines: Map<string, number> = new Map();
 
   /**
    * Generates a summary for the given matches.
@@ -167,7 +169,7 @@ export class Summary {
     for (let index = 0; index < this.clusteredResults.length; index += 1) {
       let clusterNameString = `Cluster ${index + 1}\n`;
       if (consoleColours) {
-        clusterNameString = Utils.colour("FgRed", clusterNameString);
+        clusterNameString = Utils.colour("red", clusterNameString);
       }
       output += clusterNameString;
       output += this.groupToString(this.clusteredResults[index], consoleColours).replace(
@@ -194,7 +196,7 @@ export class Summary {
       .map(match => JSON.stringify(match, JSONFormatter.JSONReplacerFunction))
       .join("\n\t\t");
 
-    const [scoreMatchedFile, scoreMatchingFile] = this.utils.getScoreForFiles(
+    const [scoreMatchedFile, scoreMatchingFile] = this.scoreForFiles(
       matches,
       matchedFile,
       matchingFile,
@@ -202,7 +204,7 @@ export class Summary {
 
     let returnString: string = `\t${matchedFile}(${scoreMatchedFile}%) + ${matchingFile}(${scoreMatchingFile}%) => \n`;
     if (consoleColours) {
-      returnString = Utils.colour("FgGreen", returnString);
+      returnString = Utils.colour("green", returnString);
     }
 
     return `${returnString}\t\t${matchesString}`;
@@ -439,4 +441,35 @@ export class Summary {
     });
     return results;
   }
+
+  private scoreForFiles(
+    matches: RangesTuple[],
+    matchedFile: string,
+    matchingFile: string,
+  ): [number, number] {
+
+    const [matchedLinesInMatchedFile, matchedLinesInMatchingFile]: [
+      number,
+      number,
+    ] = Utils.countLinesInRanges(matches);
+
+    const linesInMatchedFile: number = this.countLinesInFile(matchedFile);
+    const linesInMatchingFile: number = this.countLinesInFile(matchingFile);
+    const scoreMatchedFile: number = Math.round(
+      (matchedLinesInMatchedFile / linesInMatchedFile) * 100,
+    );
+    const scoreMatchingFile: number = Math.round(
+      (matchedLinesInMatchingFile / linesInMatchingFile) * 100,
+    );
+
+    return [scoreMatchedFile, scoreMatchingFile];
+  }
+
+  private countLinesInFile(fileName: string): number {
+    if (!this.fileLines.has(fileName)) {
+      this.fileLines.set(fileName, fs.readFileSync(fileName, "utf8").split("\n").length);
+    }
+    return this.fileLines.get(fileName) as number;
+  }
+
 }
