@@ -1,4 +1,5 @@
 import { Comparison, ComparisonOptions, Matches } from "../comparison";
+import { Options } from "../options";
 import { Range } from "../range";
 import { FilterOptions, Summary } from "../summary";
 import { CodeTokenizer } from "../tokenizers/codeTokenizer";
@@ -40,9 +41,7 @@ export class BenchmarkHelper {
 
     const summary = new Summary(
       matchesPerFile,
-      this.currentBenchmarkSettings.gapSize,
-      this.currentBenchmarkSettings.filterOptions,
-      0,
+      new Options(),
     );
 
     if (!summary.results.has(file2)) {

@@ -22,9 +22,7 @@ export class HTMLSummaryFormatter extends HTMLFormatter<RangesTuple[]> {
       `<p>Dolos summary</p>` +
       `<p>${new Date().toUTCString()}` +
       (jsonData.comment ? `<p>${jsonData.comment}</p>` : ``) +
-      (jsonData.options && jsonData.options.length > 0
-        ? `<p>Options: ${Utils.optionsToString(jsonData.options)}</p>`
-        : ``) +
+      (jsonData.options ? `<p>Options: ${jsonData.options}</p>` : ``) +
       `<hr>` +
       `</div>` +
       `<div id="Index">\n` +

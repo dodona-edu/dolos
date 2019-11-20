@@ -1,11 +1,13 @@
+import { Options } from "../options";
 import { Range } from "../range";
 import { Clustered, Match } from "../utils";
 
 export interface JSONSummaryFormat {
   results: Clustered<Match>;
   comment?: string;
-  options?: Array<[string, string | number]>;
+  options?: Options;
 }
+
 export class JSONFormatter {
   // @ts-ignore
   public static JSONReplacerFunction(key: string, value: any): any {
@@ -31,14 +33,13 @@ export class JSONFormatter {
    */
   public static format(
     clusteredResults: Clustered<Match>,
-    comment?: string,
-    options?: Array<[string, string | number]>,
+    options?: Options,
   ): string {
     const toJSONObj: JSONSummaryFormat = { results: clusteredResults };
-    if (comment) {
-      toJSONObj.comment = comment;
-    }
-    if (options && options.length > 0) {
+    if (options) {
+      if (options.comment) {
+        toJSONObj.comment = options.comment;
+      }
       toJSONObj.options = options;
     }
     return JSON.stringify(toJSONObj, JSONFormatter.JSONReplacerFunction);
