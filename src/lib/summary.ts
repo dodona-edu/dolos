@@ -111,7 +111,7 @@ export class Summary {
     return rangesTupleArray.filter(
       rangesTuple =>
         Math.min(rangesTuple[0].getLineCount(), rangesTuple[1].getLineCount()) >=
-        (this.minimumFragmentLength || 0),
+        this.minimumFragmentLength,
     );
   }
 

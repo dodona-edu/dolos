@@ -13,6 +13,14 @@ export interface CustomOptions {
   minFragmentLength?: number;
 }
 
+function definedOrNull<T extends any>(arg: T | undefined): T | null {
+  return arg !== undefined ? arg : null;
+}
+
+function definedOrDefault<T extends any>(arg: T | undefined, def: T): T {
+  return arg !== undefined ? arg : def;
+}
+
 export class Options {
 
   public static defaultDirectory = false;
@@ -20,7 +28,7 @@ export class Options {
   public static defaultKmersInWindow = 40;
   public static defaultLanguage = "javascript";
   public static defaultMaxHashPercentage = 0.9;
-  public static defaultMinFragmentLength = 2;
+  public static defaultMinFragmentLength = 0;
   public static defaultMaxGapSize = 0;
   public static defaultClusterMinMatches = 15;
 
@@ -30,53 +38,50 @@ export class Options {
     if (custom !== undefined) {
       this.custom = custom ;
     }
+    Object.freeze(this);
   }
 
-  get language() {
-    return this.custom.language || Options.defaultLanguage;
+  get language(): string {
+    return definedOrDefault(this.custom.language, Options.defaultLanguage);
   }
 
-  get base() {
-    return this.custom.base || null;
+  get base(): string | null {
+    return definedOrNull(this.custom.base);
   }
 
-  get directory() {
-    if (this.custom.directory !== undefined) {
-      return this.custom.directory;
-    } else {
-      return Options.defaultDirectory;
-    }
+  get directory(): boolean {
+    return definedOrDefault(this.custom.directory, Options.defaultDirectory);
   }
 
-  get filterByPercentage() {
+  get filterByPercentage(): boolean {
     return this.custom.maxHashCount === undefined;
   }
 
-  get maxHash() {
-    return this.custom.maxHashCount || this.maxHashPercent;
+  get maxHash(): number {
+    return definedOrDefault(this.custom.maxHashCount, this.maxHashPercent);
   }
 
-  get maxHashPercent() {
-    return this.custom.maxHashPercent || Options.defaultMaxHashPercentage;
+  get maxHashPercent(): number {
+    return definedOrDefault(this.custom.maxHashPercent, Options.defaultMaxHashPercentage);
   }
 
-  get comment() {
-    return this.custom.comment || null;
+  get comment(): string | null {
+    return definedOrNull(this.custom.comment);
   }
 
-  get minFragmentLength() {
-    return this.custom.minFragmentLength || Options.defaultMinFragmentLength;
+  get minFragmentLength(): number {
+    return definedOrDefault(this.custom.minFragmentLength, Options.defaultMinFragmentLength);
   }
 
-  get maxGapSize() {
-    return this.custom.maxGapSize || Options.defaultMaxGapSize;
+  get maxGapSize(): number {
+    return definedOrDefault(this.custom.maxGapSize, Options.defaultMaxGapSize);
   }
 
-  get clusterMinMatches() {
-    return this.custom.clusterMinMatches || Options.defaultClusterMinMatches;
+  get clusterMinMatches(): number {
+    return definedOrDefault(this.custom.clusterMinMatches, Options.defaultClusterMinMatches);
   }
 
-  get maxMatches() {
-    return this.custom.maxMatches || null;
+  get maxMatches(): number | null {
+    return definedOrNull(this.custom.maxMatches);
   }
 }

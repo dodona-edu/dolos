@@ -35,7 +35,7 @@ test("simple match to ranges", () => {
 });
 
 test("simple match to ranges where second element stays constant", () => {
-  const summary = new Summary(new Map(), new Options());
+  const summary = new Summary(new Map(), new Options({minFragmentLength: 0}));
   const array: Array<[number, number]> = [[1, 5], [2, 5], [3, 5], [4, 5]];
   shuffle(array);
 

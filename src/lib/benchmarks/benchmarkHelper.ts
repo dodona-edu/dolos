@@ -39,9 +39,15 @@ export class BenchmarkHelper {
 
     const matchesPerFile: Map<string, Matches<number>> = await comparison.compareFiles([file2]);
 
+    const filterOptions = this.currentBenchmarkSettings.filterOptions || {};
     const summary = new Summary(
       matchesPerFile,
-      new Options(),
+      new Options({
+        clusterMinMatches: 0,
+        maxGapSize: this.currentBenchmarkSettings.gapSize,
+        maxMatches: filterOptions.fragmentOutputLimit,
+        minFragmentLength: filterOptions.minimumFragmentLength,
+      }),
     );
 
     if (!summary.results.has(file2)) {
