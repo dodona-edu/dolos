@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { Command } from "commander";
 import { Dolos } from "./dolos";
+import { Options } from "./lib/options";
 import * as Utils from "./lib/utils";
 
 // tslint:disable-next-line: no-var-requires
@@ -98,6 +99,18 @@ program
     x => parseInt(x, 10),
     13,
   )
+  .option(
+    "-k, --kmer-length <integer>",
+    indent("The length of each k-mer fragment."),
+    x => parseInt(x, 10),
+    Options.defaultKmerLength,
+  )
+  .option(
+    "-w, --kmers-in-window <integer>",
+    indent("The size of the window that will be used (in kmers)."),
+    x => parseInt(x, 10),
+    Options.defaultKmerLength,
+  )
   .arguments("<locations...>")
   .action(async locations => {
     try {
@@ -106,6 +119,8 @@ program
         clusterMinMatches: program.clusterCutOffValue,
         comment: program.comment,
         directory: program.directory,
+        kmerLength: program.kmerLength,
+        kmersInWindow: program.kmersInWindow,
         language: program.language,
         maxGapSize: program.maxGapSize,
         maxHashCount: program.maximumHashCount,
