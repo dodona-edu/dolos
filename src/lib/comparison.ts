@@ -2,6 +2,7 @@ import path from "path";
 import { HashFilter } from "./filters/hashFilter";
 import { NoFilter } from "./filters/noFilter";
 import { WinnowFilter } from "./filters/winnowFilter";
+import { Options } from "./options";
 import { Tokenizer } from "./tokenizers/tokenizer";
 
 export type Matches<Location> = Map<string, Array<[Location, Location]>>;
@@ -18,9 +19,9 @@ export type Matches<Location> = Map<string, Array<[Location, Location]>>;
  * If this option is used [[filterHashByPercentage]] must also be defined. Otherwise this options will be ignored.
  */
 export interface ComparisonOptions {
-  hashFilter?: HashFilter;
-  noFilter?: NoFilter;
   maxHash?: number;
+  kmerLength?: number;
+  kmersInWindow?: number;
   filterHashByPercentage?: boolean;
 }
 
@@ -80,8 +81,7 @@ export class Comparison<Location> {
         (filesMappedToRootDirectory.get(file2) as string)
     );
   }
-  private readonly defaultK: number = 50;
-  private readonly defaultW: number = 40;
+
   // Maps a hash to an array of typles that are composed of the file with the same hash and the location in that file
   // where that hash is located.
   private readonly index: Map<number, Array<[string, Location]>> = new Map();
@@ -91,6 +91,8 @@ export class Comparison<Location> {
   private readonly noFilter: NoFilter;
   private readonly maxHash: number | undefined;
   private readonly filterHashByPercentage: boolean | undefined;
+  private readonly kmerLength: number;
+  private readonly kmersInWindow: number;
   private fileCount: number = 0;
 
   /**
@@ -106,13 +108,15 @@ export class Comparison<Location> {
    */
   constructor(
     tokenizer: Tokenizer<Location>,
-    { hashFilter, noFilter, maxHash, filterHashByPercentage }: ComparisonOptions,
+    copts: ComparisonOptions,
   ) {
     this.tokenizer = tokenizer;
-    this.hashFilter = hashFilter || new WinnowFilter(this.defaultK, this.defaultW);
-    this.noFilter = noFilter || new NoFilter(this.defaultK);
-    this.maxHash = maxHash;
-    this.filterHashByPercentage = filterHashByPercentage;
+    this.kmerLength = copts.kmerLength || Options.defaultKmerLength;
+    this.kmersInWindow = copts.kmersInWindow || Options.defaultKmersInWindow;
+    this.hashFilter = new WinnowFilter(this.kmerLength, this.kmersInWindow);
+    this.noFilter = new NoFilter(this.kmerLength);
+    this.maxHash = copts.maxHash;
+    this.filterHashByPercentage = copts.filterHashByPercentage;
   }
 
   /**

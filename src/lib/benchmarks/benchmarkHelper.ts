@@ -1,4 +1,5 @@
 import { Comparison, ComparisonOptions, Matches } from "../comparison";
+import { Options } from "../options";
 import { Range } from "../range";
 import { FilterOptions, Summary } from "../summary";
 import { CodeTokenizer } from "../tokenizers/codeTokenizer";
@@ -38,11 +39,15 @@ export class BenchmarkHelper {
 
     const matchesPerFile: Map<string, Matches<number>> = await comparison.compareFiles([file2]);
 
+    const filterOptions = this.currentBenchmarkSettings.filterOptions || {};
     const summary = new Summary(
       matchesPerFile,
-      this.currentBenchmarkSettings.gapSize,
-      this.currentBenchmarkSettings.filterOptions,
-      0,
+      new Options({
+        clusterMinMatches: 0,
+        maxGapSize: this.currentBenchmarkSettings.gapSize,
+        maxMatches: filterOptions.fragmentOutputLimit,
+        minFragmentLength: filterOptions.minimumFragmentLength,
+      }),
     );
 
     if (!summary.results.has(file2)) {

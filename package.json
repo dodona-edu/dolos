@@ -5,7 +5,7 @@
   "main": "dist/dolos.js",
   "bin": "dist/cli.js",
   "scripts": {
-    "start": "tsc && node dist/app.js",
+    "start": "tsc && node dist/cli.js",
     "make-html-file": "tsc && node ./dist/app.js -l javascript -o html samples/js/*.js > temp.html",
     "test-hash-performance": "tsc && time head -c 1000000 /dev/random | node dist/bin/hash.js > /dev/null",
     "test-winnow-performance": "tsc && time head -c 1000000 /dev/random | node dist/bin/hash.js > /dev/null",

@@ -2,6 +2,7 @@ import * as fs from "fs";
 import { Matches } from "./comparison";
 import { HTMLSummaryFormatter } from "./formatters/htmlSummaryFormatter";
 import { JSONFormatter } from "./formatters/jsonFormatter";
+import { Options } from "./options";
 import { Range } from "./range";
 import { Clustered, Match, RangesTuple } from "./utils";
 import * as Utils from "./utils";
@@ -20,17 +21,13 @@ export interface FilterOptions {
 }
 
 export class Summary {
-  private static readonly defaultFilterOptions: FilterOptions = Object.freeze({
-    fragmentOutputLimit: undefined,
-    minimumFragmentLength: 0,
-  });
-
   private static readonly htmlFormatter: HTMLSummaryFormatter = new HTMLSummaryFormatter();
 
-  public readonly gapSize: number;
-  public readonly clusteredResults: Clustered<Match>;
   public readonly results: Map<string, Matches<Range>>;
-  private readonly filterOptions: FilterOptions;
+  private readonly minimumFragmentLength: number;
+  private readonly gapSize: number;
+  private readonly maxMatches: number | null;
+  private readonly clusteredResults: Clustered<Match>;
   private readonly clusterCutOffValue: number;
 
   private readonly fileLines: Map<string, number> = new Map();
@@ -47,14 +44,12 @@ export class Summary {
    */
   constructor(
     matchesPerFile: Map<string, Matches<number>>,
-    gapSize: number = 0,
-    filterOptions?: FilterOptions,
-    clusterCutOffValue: number = 15,
+    options: Options,
   ) {
-    this.clusterCutOffValue = clusterCutOffValue;
-    this.filterOptions = filterOptions || Summary.defaultFilterOptions;
-    this.gapSize = gapSize;
-    this.filterOptions = filterOptions || Summary.defaultFilterOptions;
+    this.clusterCutOffValue = options.clusterMinMatches;
+    this.gapSize = options.maxGapSize;
+    this.maxMatches = options.maxMatches;
+    this.minimumFragmentLength = options.minFragmentLength;
     this.results = this.transformMatches(matchesPerFile);
     this.results = this.filterOutputAmount(this.results);
     Object.freeze(this.results);
@@ -69,11 +64,7 @@ export class Summary {
   public filterOutputAmount(
     matchesPerFile: Map<string, Matches<Range>>,
   ): Map<string, Matches<Range>> {
-    if (
-      !this.filterOptions ||
-      !this.filterOptions.fragmentOutputLimit ||
-      this.filterOptions.fragmentOutputLimit <= 0
-    ) {
+    if (!this.maxMatches) {
       return matchesPerFile;
     }
 
@@ -95,7 +86,7 @@ export class Summary {
 
     matchesPerFileScoreArray = matchesPerFileScoreArray.slice(
       0,
-      this.filterOptions.fragmentOutputLimit,
+      this.maxMatches,
     );
 
     const filteredMatchesPerFile: Map<string, Matches<Range>> = new Map();
@@ -120,7 +111,7 @@ export class Summary {
     return rangesTupleArray.filter(
       rangesTuple =>
         Math.min(rangesTuple[0].getLineCount(), rangesTuple[1].getLineCount()) >=
-        (this.filterOptions.minimumFragmentLength || 0),
+        this.minimumFragmentLength,
     );
   }
 
@@ -129,8 +120,8 @@ export class Summary {
    * @param comment A string you want to add to the report.
    * @param options The options used to generate the report.
    */
-  public toJSON(comment?: string, options?: Array<[string, string | number]>): string {
-    return JSONFormatter.format(this.clusteredResults, comment, options);
+  public toJSON(options?: Options): string {
+    return JSONFormatter.format(this.clusteredResults, options);
   }
 
   /**
@@ -138,8 +129,8 @@ export class Summary {
    * @param comment A comment you want to add to the report.
    * @param options The options that were used to generate this report.
    */
-  public toHTML(comment?: string, options?: Array<[string, string | number]>): string {
-    return Summary.htmlFormatter.format(this.toJSON(comment, options));
+  public toHTML(options?: Options): string {
+    return Summary.htmlFormatter.format(this.toJSON(options));
   }
   /**
    * Returns the maximum from the tuples returned from [[this.countLinesInRanges]].
@@ -150,20 +141,19 @@ export class Summary {
   }
 
   public toString(
-    comment?: string,
+    options?: Options,
     consoleColours: boolean = false,
-    optionsArray?: Array<[string, string | number]>,
   ): string {
     if (this.clusteredResults.length === 0) {
       return "There were no matches";
     }
 
     let output = "";
-    if (comment !== undefined) {
-      output += comment + "\n";
+    if (options && options.comment !== null) {
+      output += options.comment + "\n";
     }
-    if (optionsArray && optionsArray.length > 0) {
-      output += `Options: ${Utils.optionsToString(optionsArray)}\n`;
+    if (options) {
+      output += `Options: ${options}\n`;
     }
 
     for (let index = 0; index < this.clusteredResults.length; index += 1) {
