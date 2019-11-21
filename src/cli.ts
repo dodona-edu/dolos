@@ -65,7 +65,7 @@ program
       "-M N any hash appearing in more than N percent of the files is filtered out. " +
       "Must be a value between 0 and 1."),
     x => parseFloat(x),
-    0.9,
+    Options.defaultMaxHashPercentage,
   )
   .option("-c, --comment <string>", indent("Comment string that is attached to the generated report"))
   .option(
@@ -79,14 +79,14 @@ program
     "-s, --minimum-fragment-length <integer>",
     indent("The minimum length of a fragment. Every fragment shorter than this is filtered  out."),
     x => parseInt(x, 10),
-    2,
+    Options.defaultMinFragmentLength,
   )
   .option(
     "-g, --maximum-gap-size <integer>",
     indent("If two fragments are close to each other, they will be merged into a single fragment if the gap between them is " +
       "smaller than the given number of lines."),
     x => parseInt(x, 10),
-    0,
+    Options.defaultMaxGapSize,
   )
   .option(
     "-o, --output-format <format>",
@@ -97,7 +97,7 @@ program
     "-v, --cluster-cut-off-value <integer>",
     indent("The minimum amount of lines needed before two files will be clustered together"),
     x => parseInt(x, 10),
-    13,
+    Options.defaultClusterMinMatches,
   )
   .option(
     "-k, --kmer-length <integer>",

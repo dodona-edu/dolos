@@ -22,7 +22,7 @@ export class Options {
   public static defaultMaxHashPercentage = 0.9;
   public static defaultMinFragmentLength = 2;
   public static defaultMaxGapSize = 0;
-  public static defaultClusterMinMatches = 0;
+  public static defaultClusterMinMatches = 15;
 
   private custom: CustomOptions = {};
 
