@@ -3,6 +3,8 @@ export interface CustomOptions {
   clusterMinMatches?: number;
   comment?: string;
   directory?: boolean;
+  kmerLength?: number;
+  kmersInWindow?: number;
   language?: string;
   maxGapSize?: number;
   maxHashCount?: number;
@@ -14,6 +16,8 @@ export interface CustomOptions {
 export class Options {
 
   public static defaultDirectory = false;
+  public static defaultKmerLength = 50;
+  public static defaultKmersInWindow = 40;
   public static defaultLanguage = "javascript";
   public static defaultMaxHashPercentage = 0.9;
   public static defaultMinFragmentLength = 2;

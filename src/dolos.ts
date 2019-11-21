@@ -34,10 +34,9 @@ export class Dolos {
           index -= 1;
         }
       } else {
--       await this.comparison.addFileToFilterList(this.options.base);
+        await this.comparison.addFileToFilterList(this.options.base);
       }
     }
-
 
     await this.comparison.addFiles(locations);
     return await this.comparison.compareFiles(
