@@ -53,6 +53,14 @@ export class Options {
     return definedOrDefault(this.custom.directory, Options.defaultDirectory);
   }
 
+  get kmerLength(): number {
+    return definedOrDefault(this.custom.kmerLength, Options.defaultKmerLength);
+  }
+
+  get kmersInWindow(): number {
+    return definedOrDefault(this.custom.kmersInWindow, Options.defaultKmersInWindow);
+  }
+
   get filterByPercentage(): boolean {
     return this.custom.maxHashCount === undefined;
   }
@@ -83,5 +91,22 @@ export class Options {
 
   get maxMatches(): number | null {
     return definedOrNull(this.custom.maxMatches);
+  }
+
+  public toString(): string {
+    return JSON.stringify({
+      base: this.base,
+      clusterMinMatches: this.clusterMinMatches,
+      comment: this.comment,
+      directory: this.directory,
+      kmerLength: this.kmerLength,
+      kmersInWindow: this.kmersInWindow,
+      language: this.language,
+      maxGapSize: this.maxGapSize,
+      maxHashCount: this.custom.maxHashCount,
+      maxHashPercent: this.filterByPercentage ? this.maxHashPercent : undefined,
+      maxMatches: this.maxMatches,
+      minFragmentLength: this.minFragmentLength,
+    } as any);
   }
 }

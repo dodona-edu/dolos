@@ -149,7 +149,7 @@ export class Summary {
     }
 
     let output = "";
-    if (options && options.comment !== undefined) {
+    if (options && options.comment !== null) {
       output += options.comment + "\n";
     }
     if (options) {

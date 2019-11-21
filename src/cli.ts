@@ -129,7 +129,7 @@ program
         minFragmentLength: program.minimumFragmentLength,
       });
       const matches = await dolos.analyze(locations);
-      const output = dolos.output(matches, program.format);
+      const output = dolos.output(matches, program.outputFormat);
       console.log(output);
     } catch (error) {
       console.error(Utils.colour("red", error.message));
