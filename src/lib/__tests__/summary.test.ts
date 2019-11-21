@@ -1,6 +1,7 @@
 import { Comparison, Matches } from "../comparison";
+import { Options } from "../options";
 import { Range } from "../range";
-import { FilterOptions, Summary } from "../summary";
+import { Summary } from "../summary";
 import { CodeTokenizer } from "../tokenizers/codeTokenizer";
 import { RangesTuple } from "../utils";
 
@@ -24,7 +25,7 @@ function random(): number {
 }
 
 test("simple match to ranges", () => {
-  const summary = new Summary(new Map());
+  const summary = new Summary(new Map(), new Options());
   const array: Array<[number, number]> = [[1, 5], [2, 6], [3, 7], [4, 8]];
   shuffle(array);
 
@@ -34,7 +35,7 @@ test("simple match to ranges", () => {
 });
 
 test("simple match to ranges where second element stays constant", () => {
-  const summary = new Summary(new Map());
+  const summary = new Summary(new Map(), new Options());
   const array: Array<[number, number]> = [[1, 5], [2, 5], [3, 5], [4, 5]];
   shuffle(array);
 
@@ -44,7 +45,7 @@ test("simple match to ranges where second element stays constant", () => {
 });
 
 test("simple match to ranges where first element stays constant", () => {
-  const summary = new Summary(new Map());
+  const summary = new Summary(new Map(), new Options());
   const array: Array<[number, number]> = [[1, 5], [1, 6], [1, 7], [1, 8]];
   shuffle(array);
 
@@ -54,8 +55,8 @@ test("simple match to ranges where first element stays constant", () => {
 });
 
 test("simple match to ranges where first element stays constant and a gap exists", () => {
-  const summary1 = new Summary(new Map(), 1);
-  const summary2 = new Summary(new Map(), 0);
+  const summary1 = new Summary(new Map(), new Options({maxGapSize: 1}));
+  const summary2 = new Summary(new Map(), new Options({maxGapSize: 0}));
   const array: Array<[number, number]> = [[1, 5], [1, 6], [1, 7], [1, 9]];
   shuffle(array);
 
@@ -69,8 +70,8 @@ test("simple match to ranges where first element stays constant and a gap exists
 });
 
 test("test extending related functions rangesTuples", () => {
-  const summary1 = new Summary(new Map(), 0);
-  const summary2 = new Summary(new Map(), 1);
+  const summary1 = new Summary(new Map(), new Options({maxGapSize: 0}));
+  const summary2 = new Summary(new Map(), new Options({maxGapSize: 1}));
   const rangesTuple1: RangesTuple = [new Range(1, 5), new Range(1, 5)];
   const rangesTuple2: RangesTuple = [new Range(6, 10), new Range(6, 20)];
   const rangesTuple3: RangesTuple = [new Range(7, 10), new Range(7, 30)];
@@ -91,7 +92,7 @@ test("test extending related functions rangesTuples", () => {
 });
 
 test("concatenate ranges", () => {
-  const summary = new Summary(new Map());
+  const summary = new Summary(new Map(), new Options());
   const rangesTupleArray: RangesTuple[] = [
     [new Range(0, 10), new Range(100, 110)],
     [new Range(10, 30), new Range(110, 120)],
@@ -131,10 +132,11 @@ test("integration test", async () => {
 
   const matchesPerFile: Map<string, Matches<number>> = await comparison.compareFiles(locations);
 
-  const filterOptions: FilterOptions = {
-    minimumFragmentLength: 4,
-  };
-  const summary = new Summary(matchesPerFile, 2, filterOptions, 2);
+  const summary = new Summary(matchesPerFile, new Options({
+    clusterMinMatches: 2,
+    maxGapSize: 2,
+    minFragmentLength: 4,
+  }));
 
   expect(summary.toString()).toMatchSnapshot();
   expect(summary.toJSON()).toMatchSnapshot();
