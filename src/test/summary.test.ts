@@ -28,7 +28,7 @@ function random(): number {
 function containsRangesTuple(
   t: ExecutionContext,
   values: RangesTuple[],
-  expected: RangesTuple
+  expected: RangesTuple,
 ): void {
   t.true(values.some(tup => tup[0].equals(expected[0]) && tup[1].equals(expected[1])));
 }
