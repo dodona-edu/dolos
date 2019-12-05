@@ -12,7 +12,7 @@
     "jest": "jest --coverage",
     "test": "nyc ava",
     "test:watch": "ava --watch",
-    "test:debug": "node inspect ./node_modules/ava/profile.js --serial --",
+    "test:debug": "node inspect ./node_modules/ava/profile.js --",
     "build": "tsc",
     "lint": "tslint 'src/**/*.ts'"
   },
@@ -23,11 +23,13 @@
   "devDependencies": {
     "@types/jest": "^24.0.20",
     "@types/node": "^12.11.7",
+    "@types/sinon": "^7.5.1",
     "ava": "^2.4.0",
     "jest": "^24.9.0",
     "jest-junit": "^9.0.0",
     "nyc": "^14.1.1",
     "prettier": "^1.19.1",
+    "sinon": "^7.5.0",
     "ts-jest": "^24.1.0",
     "ts-node": "^8.5.4",
     "tslint": "^5.20.1",
