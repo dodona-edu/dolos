@@ -18,6 +18,10 @@ export class Range {
     return this.upperBound;
   }
 
+  public equals(other: Range): boolean {
+    return this.to === other.to && this.from === other.from;
+  }
+
   /**
    * Tests wether or not the given number can extend the range.
    * @param value The number you want to test.
