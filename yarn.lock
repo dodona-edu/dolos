@@ -3567,10 +3567,10 @@ tree-sitter-java@^0.13.0:
   dependencies:
     nan "^2.8.0"
 
-tree-sitter-javascript@^0.15.0:
-  version "0.15.1"
-  resolved "https://registry.yarnpkg.com/tree-sitter-javascript/-/tree-sitter-javascript-0.15.1.tgz#6c20b859c6ad67b8e21cf38ec512f7de837228c8"
-  integrity sha512-YqElb/+Ds+wKttfCzNu03/C+gD5PnE79j7ldWnQ+Ww9PqU3QpR3/CdOg/05jqKGMWJVzXcgNEZ3TWOxcJT+Uug==
+tree-sitter-javascript@^0.15.2:
+  version "0.15.2"
+  resolved "https://registry.yarnpkg.com/tree-sitter-javascript/-/tree-sitter-javascript-0.15.2.tgz#3c2c2b7c20a183f9266c4abf531172913a14ba97"
+  integrity sha512-AwgnkVqxglpxWUH07CWq1CmZ1g3emFHCUlMT6hEwNrk5K62I3gmkqMFtzFqXos6U2sEkwBn7IWp753X13KiAdQ==
   dependencies:
     nan "^2.12.1"
 
