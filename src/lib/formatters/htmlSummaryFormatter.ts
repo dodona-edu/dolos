@@ -1,4 +1,4 @@
-import fs from "fs";
+import File from "../files/file";
 import { JSONFormatter, JSONSummaryFormat } from "../formatters/jsonFormatter";
 import { Match, RangesTuple } from "../utils";
 import * as Utils from "../utils";
@@ -32,8 +32,8 @@ export class HTMLSummaryFormatter extends HTMLFormatter<RangesTuple[]> {
     );
   }
   public toCompareView(
-    matchedFile: string,
-    matchingFile: string,
+    matchedFile: File,
+    matchingFile: File,
     matchingRangesTuples: RangesTuple[],
   ): string {
     const description: string = HTMLSummaryFormatter.escapeHtml(
@@ -41,8 +41,8 @@ export class HTMLSummaryFormatter extends HTMLFormatter<RangesTuple[]> {
     );
     matchingRangesTuples.sort(Utils.sortRangesTuples);
 
-    const left: string = fs.readFileSync(matchedFile, "utf8");
-    const right: string = fs.readFileSync(matchingFile, "utf8");
+    const left = matchedFile.showContent();
+    const right = matchingFile.showContent();
 
     const leftMarkedAreas: string[] = [];
     const rightMarkedAreas: string[] = [];
@@ -91,8 +91,8 @@ export class HTMLSummaryFormatter extends HTMLFormatter<RangesTuple[]> {
   }
 
   public toComparePage(
-    matchedFile: string,
-    matchingFile: string,
+    matchedFile: File,
+    matchingFile: File,
     matchingRangesTuples: RangesTuple[],
   ): string {
     const comparePage: string = this.toCompareView(matchedFile, matchingFile, matchingRangesTuples);

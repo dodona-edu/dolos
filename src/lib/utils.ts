@@ -2,12 +2,13 @@
  * This module contains shared helper functions.
  */
 
+import File from "./files/file";
 import { Range } from "./range";
 
 export type Colour = "red" | "green" | "reset";
 export type RangesTuple = [Range, Range];
 export type Clustered<T> = T[][];
-export type Match = [string, string, RangesTuple[]];
+export type Match = [File, File, RangesTuple[]];
 
 export interface ObjectMap<T> {
   [key: string]: T;
@@ -66,3 +67,26 @@ export function sortRangesTuples([r11, r12]: RangesTuple, [r21, r22]: RangesTupl
     return diff;
   }
 }
+
+export function scoreForFiles(
+    matches: RangesTuple[],
+    matchedFile: File,
+    matchingFile: File,
+  ): [number, number] {
+
+    const [matchedLinesInMatchedFile, matchedLinesInMatchingFile]: [
+      number,
+      number,
+    ] = countLinesInRanges(matches);
+
+    const linesInMatchedFile: number = matchedFile.lineCount.okOr(0);
+    const linesInMatchingFile: number = matchingFile.lineCount.okOr(0);
+    const scoreMatchedFile: number = Math.round(
+      (matchedLinesInMatchedFile / linesInMatchedFile) * 100,
+    );
+    const scoreMatchingFile: number = Math.round(
+      (matchedLinesInMatchingFile / linesInMatchingFile) * 100,
+    );
+
+    return [scoreMatchedFile, scoreMatchingFile];
+  }

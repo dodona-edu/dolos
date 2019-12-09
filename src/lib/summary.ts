@@ -1,5 +1,5 @@
-import * as fs from "fs";
 import { Matches } from "./comparison";
+import File from "./files/file";
 import { HTMLSummaryFormatter } from "./formatters/htmlSummaryFormatter";
 import { JSONFormatter } from "./formatters/jsonFormatter";
 import { Options } from "./options";
@@ -23,14 +23,12 @@ export interface FilterOptions {
 export class Summary {
   private static readonly htmlFormatter: HTMLSummaryFormatter = new HTMLSummaryFormatter();
 
-  public readonly results: Map<string, Matches<Range>>;
+  public readonly results: Map<File, Matches<Range>>;
   private readonly minimumFragmentLength: number;
   private readonly gapSize: number;
   private readonly maxMatches: number | null;
   private readonly clusteredResults: Clustered<Match>;
   private readonly clusterCutOffValue: number;
-
-  private readonly fileLines: Map<string, number> = new Map();
 
   /**
    * Generates a summary for the given matches.
@@ -43,7 +41,7 @@ export class Summary {
    * @param clusterCutOffValue The minimum amount of lines required in order for two files to be clustered together.
    */
   constructor(
-    matchesPerFile: Map<string, Matches<number>>,
+    matchesPerFile: Map<File, Matches<number>>,
     options: Options,
   ) {
     this.clusterCutOffValue = options.clusterMinMatches;
@@ -62,13 +60,13 @@ export class Summary {
    * @param matchesPerFile The results you want to filter.
    */
   public filterOutputAmount(
-    matchesPerFile: Map<string, Matches<Range>>,
-  ): Map<string, Matches<Range>> {
+    matchesPerFile: Map<File, Matches<Range>>,
+  ): Map<File, Matches<Range>> {
     if (!this.maxMatches) {
       return matchesPerFile;
     }
 
-    let matchesPerFileScoreArray: Array<[string, string, RangesTuple[], number]> = new Array();
+    let matchesPerFileScoreArray: Array<[File, File, RangesTuple[], number]> = new Array();
     for (const [matchedFile, matches] of matchesPerFile.entries()) {
       for (const [matchingFile, rangesTupleArray] of matches.entries()) {
         matchesPerFileScoreArray.push([
@@ -89,7 +87,7 @@ export class Summary {
       this.maxMatches,
     );
 
-    const filteredMatchesPerFile: Map<string, Matches<Range>> = new Map();
+    const filteredMatchesPerFile: Map<File, Matches<Range>> = new Map();
     for (const [matchedFile, matchingFile, rangesTupleArray] of matchesPerFileScoreArray) {
       let matches: Matches<Range> | undefined = filteredMatchesPerFile.get(matchedFile);
       if (!matches) {
@@ -178,7 +176,7 @@ export class Summary {
     );
   }
   public groupEntryToString(
-    [matchedFile, matchingFile, matches]: [string, string, RangesTuple[]],
+    [matchedFile, matchingFile, matches]: [File, File, RangesTuple[]],
     consoleColours: boolean,
   ): string {
     matches.sort(([r1], [r2]) => r1.from - r2.from);
@@ -186,7 +184,7 @@ export class Summary {
       .map(match => JSON.stringify(match, JSONFormatter.JSONReplacerFunction))
       .join("\n\t\t");
 
-    const [scoreMatchedFile, scoreMatchingFile] = this.scoreForFiles(
+    const [scoreMatchedFile, scoreMatchingFile] = Utils.scoreForFiles(
       matches,
       matchedFile,
       matchingFile,
@@ -293,9 +291,9 @@ export class Summary {
    * Clusters the results based on [[this.clusterCutOffValue]].
    * @param results The results you want to cluster.
    */
-  public clusterResults(results: Map<string, Matches<Range>>): Clustered<Match> {
-    const filesSet: Set<string> = new Set();
-    const fileTupleScores: Array<[string, string, RangesTuple[], number]> = new Array();
+  public clusterResults(results: Map<File, Matches<Range>>): Clustered<Match> {
+    const filesSet: Set<File> = new Set();
+    const fileTupleScores: Array<[File, File, RangesTuple[], number]> = new Array();
 
     // Maps the results to tuples containing the two files, the matches between those two files and a score for that
     // File pair. Also fills the file set.
@@ -308,26 +306,26 @@ export class Summary {
       }
     }
 
-    const equivalenceClasses: Map<string, string> = new Map(
+    const equivalenceClasses: Map<File, File> = new Map(
       [...filesSet.values()].map(file => [file, file]),
     );
 
     // Puts all the files in their corresponding equivalenceClass. Uses the union-find algorithm.
     for (const [matchedFile, matchingFile, , score] of fileTupleScores) {
       if (score > this.clusterCutOffValue) {
-        const root1: string = this.getRoot(equivalenceClasses, matchedFile);
-        const root2: string = this.getRoot(equivalenceClasses, matchingFile);
+        const root1 = this.getRoot(equivalenceClasses, matchedFile);
+        const root2 = this.getRoot(equivalenceClasses, matchingFile);
         equivalenceClasses.set(root1, root2);
       }
     }
 
-    const filesGroupsMap: Map<string, Match[]> = new Map();
+    const filesGroupsMap: Map<File, Match[]> = new Map();
     const restGroup: Match[] = new Array();
 
     // Uses the generated equivalence classes to cluster fileTuples.
     for (const [matchedFile, matchingFile, matchingRanges] of fileTupleScores) {
-      const root: string = this.getRoot(equivalenceClasses, matchedFile);
-      const root2: string = this.getRoot(equivalenceClasses, matchingFile);
+      const root = this.getRoot(equivalenceClasses, matchedFile);
+      const root2 = this.getRoot(equivalenceClasses, matchingFile);
       if (root === root2) {
         let filesGroup: Match[] | undefined = filesGroupsMap.get(root);
         if (!filesGroup) {
@@ -393,16 +391,16 @@ export class Summary {
    * @param equivalenceClasses The current equivalence classes.
    * @param value The value you want to get the root of.
    */
-  private getRoot(equivalenceClasses: Map<string, string>, value: string): string {
-    const values: string[] = [];
-    let root: string = equivalenceClasses.get(value) as string;
-    let nextRoot: string = equivalenceClasses.get(root) as string;
+  private getRoot(equivalenceClasses: Map<File, File>, value: File): File {
+    const values: File[] = [];
+    let root = equivalenceClasses.get(value) as File;
+    let nextRoot = equivalenceClasses.get(root) as File;
     while (root !== nextRoot) {
       values.push(root);
       root = nextRoot;
-      nextRoot = equivalenceClasses.get(root) as string;
+      nextRoot = equivalenceClasses.get(root) as File;
     }
-    values.forEach(lambdaValue => equivalenceClasses.set(lambdaValue, root));
+    values.forEach(v => equivalenceClasses.set(v, root));
     return root;
   }
 
@@ -413,9 +411,9 @@ export class Summary {
    * per matching file. The compareFiles function of the Comparison class can generate such mapping.
    */
   private transformMatches(
-    matchesPerFile: Map<string, Matches<number>>,
-  ): Map<string, Matches<Range>> {
-    const results: Map<string, Matches<Range>> = new Map();
+    matchesPerFile: Map<File, Matches<number>>,
+  ): Map<File, Matches<Range>> {
+    const results: Map<File, Matches<Range>> = new Map();
     matchesPerFile.forEach((matches, matchedFile) => {
       matches.forEach((matchLocations, matchingFile) => {
         let map: Matches<Range> | undefined = results.get(matchedFile);
@@ -431,35 +429,4 @@ export class Summary {
     });
     return results;
   }
-
-  private scoreForFiles(
-    matches: RangesTuple[],
-    matchedFile: string,
-    matchingFile: string,
-  ): [number, number] {
-
-    const [matchedLinesInMatchedFile, matchedLinesInMatchingFile]: [
-      number,
-      number,
-    ] = Utils.countLinesInRanges(matches);
-
-    const linesInMatchedFile: number = this.countLinesInFile(matchedFile);
-    const linesInMatchingFile: number = this.countLinesInFile(matchingFile);
-    const scoreMatchedFile: number = Math.round(
-      (matchedLinesInMatchedFile / linesInMatchedFile) * 100,
-    );
-    const scoreMatchingFile: number = Math.round(
-      (matchedLinesInMatchingFile / linesInMatchingFile) * 100,
-    );
-
-    return [scoreMatchedFile, scoreMatchingFile];
-  }
-
-  private countLinesInFile(fileName: string): number {
-    if (!this.fileLines.has(fileName)) {
-      this.fileLines.set(fileName, fs.readFileSync(fileName, "utf8").split("\n").length);
-    }
-    return this.fileLines.get(fileName) as number;
-  }
-
 }

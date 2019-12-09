@@ -1,13 +1,21 @@
 
 type ResultValue<T> = T | Error;
 
-export class Result<T> {
+export default class Result<T> {
 
   public static try<T>(canFail: () => T): Result<T> {
     try {
       return Result.ok(canFail());
     } catch (err) {
       return Result.err(err);
+    }
+  }
+
+  public static async settled<T>(result: Result<Promise<T>>): Promise<Result<T>> {
+    if (result.isOk()) {
+      return Result.ok(await result.ok());
+    } else {
+      return Result.err(await result.err());
     }
   }
 
@@ -41,9 +49,33 @@ export class Result<T> {
     }
   }
 
+  public andThen<R>(f: (t: T) => Result<R>): Result<R> {
+    if (isError(this.value)) {
+      return Result.err(this.value);
+    } else {
+      return f(this.value);
+    }
+  }
+
   public ok(): T {
     if (isError(this.value)) {
       throw this.value;
+    } else {
+      return this.value;
+    }
+  }
+
+  public okOr(alt: T): T {
+    if (isError(this.value)) {
+      return alt;
+    } else {
+      return this.value;
+    }
+  }
+
+  public okOrElse(alt: () => T): T {
+    if (isError(this.value)) {
+      return alt();
     } else {
       return this.value;
     }

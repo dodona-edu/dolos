@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import File from "../files/file";
 import { Range } from "../range";
 import { RangesTuple } from "../utils";
 import * as Utils from "../utils";
@@ -44,13 +45,13 @@ export abstract class HTMLFormatter<T> {
    * @param matchingFile The matching file.
    */
   protected static makeId(
-    matchedFile: string,
-    matchingFile: string,
+    matchedFile: File,
+    matchingFile: File,
     index?: number,
     groupId?: string,
   ): string {
-    let id: string = `${this.escapeHtml(matchedFile.replace(/-/gi, ""))}-${this.escapeHtml(
-      matchingFile.replace(/-/gi, ""),
+    let id: string = `${this.escapeHtml(matchedFile.location.replace(/-/gi, ""))}-${this.escapeHtml(
+      matchingFile.location.replace(/-/gi, ""),
     )}`;
     if (index !== undefined) {
       id += `-${index}`;
@@ -65,8 +66,8 @@ export abstract class HTMLFormatter<T> {
   }
 
   protected static toMarkingDivAndToggleButton(
-    matchedFile: string,
-    matchingFile: string,
+    matchedFile: File,
+    matchingFile: File,
     rightMarkedAreas: string[],
     leftMarkedAreas: string[],
     rangesTuples: RangesTuple[],
@@ -121,8 +122,8 @@ export abstract class HTMLFormatter<T> {
    * @param comparisonData The data to be displayed on the view.
    */
   public abstract toCompareView(
-    matchedFile: string,
-    matchingFile: string,
+    matchedFile: File,
+    matchingFile: File,
     comparisonData: T,
   ): string;
 
@@ -133,8 +134,8 @@ export abstract class HTMLFormatter<T> {
    * @param comparisonData The data to be displayed on the page.
    */
   public abstract toComparePage(
-    matchedFile: string,
-    matchingFile: string,
+    matchedFile: File,
+    matchingFile: File,
     comparisonData: T,
   ): string;
 
@@ -171,8 +172,8 @@ export abstract class HTMLFormatter<T> {
    * @param rangesTupleArray The matches between the two files.
    */
   protected makeTableRow(
-    matchedFile: string,
-    matchingFile: string,
+    matchedFile: File,
+    matchingFile: File,
     rangesTupleArray: RangesTuple[],
   ): string {
     const id: string = HTMLFormatter.makeId(matchedFile, matchingFile);
@@ -181,58 +182,29 @@ export abstract class HTMLFormatter<T> {
       number,
     ] = Utils.countLinesInRanges(rangesTupleArray);
 
-    const [scoreMatchedFile, scoreMatchingFile] = this.scoreForFiles(
+    const [scoreMatchedFile, scoreMatchingFile] = Utils.scoreForFiles(
       rangesTupleArray,
       matchedFile,
       matchingFile,
     );
+
     return (
       `<tr>\n` +
       `<td class="filename-column">\n` +
       `<a href=# onclick="return swap('${id}', 'Index');">\n` +
-      `${HTMLFormatter.escapeHtml(matchedFile)} (${scoreMatchedFile}%)\n` +
+      `${HTMLFormatter.escapeHtml(matchedFile.showContent())} ` +
+      `(${scoreMatchedFile}%)\n` +
       `</a>\n` +
       `</td>\n` +
       `<td class="filename-column">` +
       `<a href=# onclick="return swap('${id}', 'Index');">\n` +
-      `${HTMLFormatter.escapeHtml(matchingFile)} (${scoreMatchingFile}%)` +
+      `${HTMLFormatter.escapeHtml(matchingFile.showContent())} ` +
+      `(${scoreMatchingFile}%)` +
       `</a>` +
       `</td>\n` +
       `<td class="lines-matched-column">${matchedFileLineCount}</td>\n` +
       `<td class="lines-matched-column">${matchingFileLineCount}</td>\n` +
       `</tr>`
     );
-  }
-
-  // TODO: temporary duplication, replace by a 'File' class  which keeps track
-  // of the amount of lines in a file.
-  protected scoreForFiles(
-    matches: RangesTuple[],
-    matchedFile: string,
-    matchingFile: string,
-  ): [number, number] {
-
-    const [matchedLinesInMatchedFile, matchedLinesInMatchingFile]: [
-      number,
-      number,
-    ] = Utils.countLinesInRanges(matches);
-
-    const linesInMatchedFile: number = this.countLinesInFile(matchedFile);
-    const linesInMatchingFile: number = this.countLinesInFile(matchingFile);
-    const scoreMatchedFile: number = Math.round(
-      (matchedLinesInMatchedFile / linesInMatchedFile) * 100,
-    );
-    const scoreMatchingFile: number = Math.round(
-      (matchedLinesInMatchingFile / linesInMatchingFile) * 100,
-    );
-
-    return [scoreMatchedFile, scoreMatchingFile];
-  }
-
-  private countLinesInFile(fileName: string): number {
-    if (!this.fileLines.has(fileName)) {
-      this.fileLines.set(fileName, fs.readFileSync(fileName, "utf8").split("\n").length);
-    }
-    return this.fileLines.get(fileName) as number;
   }
 }

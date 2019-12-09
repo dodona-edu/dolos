@@ -1,4 +1,6 @@
 import { Comparison, ComparisonOptions, Matches } from "../comparison";
+import File from "../files/file";
+import FileGroup from "../files/fileGroup";
 import { Options } from "../options";
 import { Range } from "../range";
 import { FilterOptions, Summary } from "../summary";
@@ -25,19 +27,19 @@ export class BenchmarkHelper {
 
   /**
    * A shorthand function used to match two files.
-   * @param file1 The first file you want to test.
-   * @param file2 The second file you want to test.
+   * @param group1 The first file group you want to test.
+   * @param group2 The second file group you want to test.
    */
-  public async match(file1: string, file2: string): Promise<RangesTuple[]> {
+  public async match(group1: FileGroup, group2: FileGroup): Promise<RangesTuple[]> {
     const tokenizer: Tokenizer<number> = new CodeTokenizer("javascript");
     const comparison: Comparison<number> = new Comparison(
       tokenizer,
       this.currentBenchmarkSettings.comparisonOptions ||
         (BenchmarkManager.defaultBenchmarkSettings.comparisonOptions as ComparisonOptions),
     );
-    await comparison.addFile(file1);
+    comparison.add(group1);
 
-    const matchesPerFile: Map<string, Matches<number>> = await comparison.compareFiles([file2]);
+    const matchesPerFile: Map<File, Matches<number>> = await comparison.compareFiles([group2]);
 
     const filterOptions = this.currentBenchmarkSettings.filterOptions || {};
     const summary = new Summary(
@@ -50,15 +52,15 @@ export class BenchmarkHelper {
       }),
     );
 
-    if (!summary.results.has(file2)) {
+    if (!summary.results.has(group2.files[0])) {
       return [];
     }
-    const results: Matches<Range> = summary.results.get(file2) as Matches<Range>;
+    const results: Matches<Range> = summary.results.get(group2.files[0]) as Matches<Range>;
 
-    if (!results.has(file1)) {
+    if (!results.has(group1.files[0])) {
       return [];
     }
 
-    return results.get(file1) as RangesTuple[];
+    return results.get(group1.files[0]) as RangesTuple[];
   }
 }
