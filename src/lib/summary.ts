@@ -1,5 +1,6 @@
 import { Matches } from "./comparison";
 import File from "./files/file";
+import FileGroup from "./files/fileGroup";
 import { HTMLSummaryFormatter } from "./formatters/htmlSummaryFormatter";
 import { JSONFormatter } from "./formatters/jsonFormatter";
 import { Options } from "./options";
@@ -23,7 +24,7 @@ export interface FilterOptions {
 export class Summary {
   private static readonly htmlFormatter: HTMLSummaryFormatter = new HTMLSummaryFormatter();
 
-  public readonly results: Map<File, Matches<Range>>;
+  public readonly results: Map<FileGroup, Matches<Range>>;
   private readonly minimumFragmentLength: number;
   private readonly gapSize: number;
   private readonly maxMatches: number | null;
@@ -41,7 +42,7 @@ export class Summary {
    * @param clusterCutOffValue The minimum amount of lines required in order for two files to be clustered together.
    */
   constructor(
-    matchesPerFile: Map<File, Matches<number>>,
+    matchesPerFile: Map<FileGroup, Matches<number>>,
     options: Options,
   ) {
     this.clusterCutOffValue = options.clusterMinMatches;
@@ -60,17 +61,18 @@ export class Summary {
    * @param matchesPerFile The results you want to filter.
    */
   public filterOutputAmount(
-    matchesPerFile: Map<File, Matches<Range>>,
-  ): Map<File, Matches<Range>> {
+    matchesPerFile: Map<FileGroup, Matches<Range>>,
+  ): Map<FileGroup, Matches<Range>> {
+
     if (!this.maxMatches) {
       return matchesPerFile;
     }
 
-    let matchesPerFileScoreArray: Array<[File, File, RangesTuple[], number]> = new Array();
+    let matchesPerFileScoreArray: Array<[FileGroup, FileGroup, RangesTuple[], number]> = new Array();
     for (const [matchedFile, matches] of matchesPerFile.entries()) {
       for (const [matchingFile, rangesTupleArray] of matches.entries()) {
         matchesPerFileScoreArray.push([
-          matchingFile,
+          matchingFile.group,
           matchedFile,
           rangesTupleArray,
           this.getScoreForArray(rangesTupleArray),
@@ -87,7 +89,7 @@ export class Summary {
       this.maxMatches,
     );
 
-    const filteredMatchesPerFile: Map<File, Matches<Range>> = new Map();
+    const filteredMatchesPerFile: Map<FileGroup, Matches<Range>> = new Map();
     for (const [matchedFile, matchingFile, rangesTupleArray] of matchesPerFileScoreArray) {
       let matches: Matches<Range> | undefined = filteredMatchesPerFile.get(matchedFile);
       if (!matches) {
@@ -291,8 +293,8 @@ export class Summary {
    * Clusters the results based on [[this.clusterCutOffValue]].
    * @param results The results you want to cluster.
    */
-  public clusterResults(results: Map<File, Matches<Range>>): Clustered<Match> {
-    const filesSet: Set<File> = new Set();
+  public clusterResults(results: Map<FileGroup, Matches<Range>>): Clustered<Match> {
+    const filesSet: Set<FileGroup> = new Set();
     const fileTupleScores: Array<[File, File, RangesTuple[], number]> = new Array();
 
     // Maps the results to tuples containing the two files, the matches between those two files and a score for that
@@ -411,9 +413,9 @@ export class Summary {
    * per matching file. The compareFiles function of the Comparison class can generate such mapping.
    */
   private transformMatches(
-    matchesPerFile: Map<File, Matches<number>>,
-  ): Map<File, Matches<Range>> {
-    const results: Map<File, Matches<Range>> = new Map();
+    matchesPerFile: Map<FileGroup, Matches<number>>,
+  ): Map<FileGroup, Matches<Range>> {
+    const results: Map<FileGroup, Matches<Range>> = new Map();
     matchesPerFile.forEach((matches, matchedFile) => {
       matches.forEach((matchLocations, matchingFile) => {
         let map: Matches<Range> | undefined = results.get(matchedFile);

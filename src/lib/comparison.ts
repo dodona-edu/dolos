@@ -118,13 +118,13 @@ export class Comparison<Location> {
   public async compareFiles(
     groups: FileGroup[],
     hashFilter = this.hashFilter,
-  ): Promise<Map<File, Matches<Location>>> {
-    const matchingFiles: Map<File, Matches<Location>> = new Map();
+  ): Promise<Map<FileGroup, Matches<Location>>> {
+    const matchingFiles: Map<FileGroup, Matches<Location>> = new Map();
     for (const group of groups) {
       for (const file of group.files) {
         const match = await this.compareFile(file, hashFilter);
         if (match.isOk()) {
-          matchingFiles.set(file, match.ok());
+          matchingFiles.set(file.group, match.ok());
         }
       }
     }

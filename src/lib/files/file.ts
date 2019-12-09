@@ -9,6 +9,10 @@ import FileGroup from "./fileGroup";
  */
 export default class File {
 
+  public static async alone(location: string): Promise<File> {
+    return (await FileGroup.asGroup([location])).files[0];
+  }
+
   public static async read(location: string, group: FileGroup): Promise<File> {
     const readResult = await Result.tryAwait(async () =>
       (await fs.promises.readFile(location)).toString());

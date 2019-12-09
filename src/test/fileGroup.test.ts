@@ -1,5 +1,5 @@
 import test from "ava";
-import FileGroup from "../lib/fileGroup";
+import FileGroup from "../lib/files/fileGroup";
 
 const testLocations: string[] = [
   "samples/js/assignment1/student1/sample.js",
@@ -15,14 +15,14 @@ const testLocations: string[] = [
   "samples/js/assignment1/student3/main.js",
 ];
 
-test("group per file", t => {
-  const groups = FileGroup.groupByFile(testLocations);
+test("group per file", async t => {
+  const groups = await FileGroup.groupByFile(testLocations);
   t.is(testLocations.length, groups.length);
   groups.forEach(g => t.is(1, g.files.length));
 });
 
-test("group per directory", t => {
-  const groups = FileGroup.groupByDirectory(testLocations);
+test("group per directory", async t => {
+  const groups = await FileGroup.groupByDirectory(testLocations);
   t.is(3, groups.length);
 
   for (const group of groups) {
@@ -48,7 +48,7 @@ test("group per directory", t => {
   }
 });
 
-test("all in one group", t => {
-  const group = FileGroup.asGroup(testLocations);
+test("all in one group", async t => {
+  const group = await FileGroup.asGroup(testLocations);
   t.is(testLocations.length, group.files.length);
 });

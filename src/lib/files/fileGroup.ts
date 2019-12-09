@@ -61,10 +61,6 @@ export default class FileGroup {
     this.files = [];
   }
 
-  public first(): File {
-    return this.files[0];
-  }
-
   private async addFile(location: string): Promise<void> {
     this.files.push(await File.read(location, this));
   }

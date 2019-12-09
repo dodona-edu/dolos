@@ -1,5 +1,6 @@
 import test, { ExecutionContext } from "ava";
 import { Comparison, Matches } from "../lib/comparison";
+import FileGroup from "../lib/files/fileGroup";
 import { Options } from "../lib/options";
 import { Range } from "../lib/range";
 import { Summary } from "../lib/summary";
@@ -133,9 +134,10 @@ test("integration test", async t => {
     filterHashByPercentage: true,
     maxHash: 0.8,
   });
-  comparison.addFiles(locations);
+  const groups = await FileGroup.groupByFile(locations);
+  await comparison.addAll(groups);
 
-  const matchesPerFile: Map<string, Matches<number>> = await comparison.compareFiles(locations);
+  const matchesPerFile: Map<FileGroup, Matches<number>> = await comparison.compareFiles(groups);
 
   const summary = new Summary(matchesPerFile, new Options({
     clusterMinMatches: 2,

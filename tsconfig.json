@@ -61,6 +61,5 @@
     // "emitDecoratorMetadata": true,         /* Enables experimental support for emitting type metadata for decorators. */
     "pretty": true,
     "forceConsistentCasingInFileNames": true,
-  },
-  "exclude": ["**/*.test.ts"]
+  }
 }
