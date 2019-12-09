@@ -3546,10 +3546,10 @@ tr46@^1.0.1:
   dependencies:
     punycode "^2.1.0"
 
-tree-sitter-c-sharp@^0.13.0:
-  version "0.13.0"
-  resolved "https://registry.yarnpkg.com/tree-sitter-c-sharp/-/tree-sitter-c-sharp-0.13.0.tgz#16cc401c24805c03727929bbd021f607a6138a82"
-  integrity sha512-6+lLBe6S2R0Rn12jY5CFlekjiXv1wz/4C2bhsbtNse+Wj3o4UT2tKDLDf6xyZI4McLkvB13U8Mgj/bBW+3WtrQ==
+tree-sitter-c-sharp@^0.15.0:
+  version "0.15.0"
+  resolved "https://registry.yarnpkg.com/tree-sitter-c-sharp/-/tree-sitter-c-sharp-0.15.0.tgz#5e0d54e2edd678338e1bf6620264775c2c7dcd05"
+  integrity sha512-4XYXaxcON66AN2USmxv3Nx5IF5+SucVW3NhC+6hUK98ZO7CEICxKrGmpvPe0zWDXuqaCesfVwwCip4eKWiWGHg==
   dependencies:
     nan "^2.10.0"
 
