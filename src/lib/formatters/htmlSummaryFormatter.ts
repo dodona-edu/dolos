@@ -7,6 +7,7 @@ import { HTMLFormatter } from "./htmlFormatter";
 export class HTMLSummaryFormatter extends HTMLFormatter<RangesTuple[]> {
   public makeBody(jsonSummary: string): string {
     const jsonData: JSONSummaryFormat = JSON.parse(jsonSummary, JSONFormatter.JSONReviverFunction);
+
     const tableRows: string[] = new Array();
     const comparisonPages: string[] = new Array();
 

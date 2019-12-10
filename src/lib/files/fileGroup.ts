@@ -1,4 +1,5 @@
 import { default as path } from "path";
+import Result from "../result";
 import File from "./file";
 
 /**
@@ -53,6 +54,14 @@ export default class FileGroup {
       );
   }
 
+  public static createDirty(name: string, files: Array<[string, string]>): FileGroup {
+    const group = new FileGroup(name);
+    for (const [location, content] of files) {
+      group.files.push(new File(location, group, Result.ok(content)));
+    }
+    return group;
+  }
+
   public readonly name: string;
   public readonly files: File[];
 
@@ -62,7 +71,7 @@ export default class FileGroup {
   }
 
   public toString(): string {
-    return `FileGroup[${name}]`;
+    return `FileGroup[${this.name}]`;
   }
 
   private async addFile(location: string): Promise<void> {

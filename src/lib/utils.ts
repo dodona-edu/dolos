@@ -41,8 +41,8 @@ function escapeSeq(c: Colour) {
  */
 export function countLinesInRanges(rangesTupleArray: RangesTuple[]): [number, number] {
   return rangesTupleArray
-    .map(([range1, range2]) => [range1.getLineCount(), range2.getLineCount()] as [number, number])
-    .reduce(([acc1, acc2], [next1, next2]) => [acc1 + next1, acc2 + next2]);
+    .map(([range1, range2]) => [range1.getLineCount(), range2.getLineCount()] as [number, number], [0, 0])
+    .reduce(([acc1, acc2], [next1, next2]) => [acc1 + next1, acc2 + next2], [0, 0]);
 }
 
 export function optionsToString(optionsArray: Array<[string, string | number]>): string {
