@@ -31,7 +31,7 @@ export abstract class Tokenizer<Location> {
    * @param fileName The name of the file to stringify
    */
   public tokenizeFileWithMapping(file: File): Result<[string, Location[]]> {
-    return file.readResult.map(this.tokenizeWithMapping);
+    return file.readResult.map(c => this.tokenizeWithMapping(c));
   }
 
   /**

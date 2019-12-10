@@ -77,7 +77,7 @@ export class Comparison<Location> {
     // still be added. In the future, Promise.all can be replaced by
     // Promise.allSettled, but for now the error handling makes sure they
     // are all resolved correctly.
-    Promise.all(groups.map(this.add));
+    Promise.all(groups.map(g => this.add(g)));
   }
 
   /**

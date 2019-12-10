@@ -15,7 +15,7 @@ export default class FileGroup {
       name = prefix[prefix.length - 1];
     }
     const group = new FileGroup(name);
-    await Promise.all(locations.map(group.addFile));
+    await Promise.all(locations.map(l => group.addFile(l)));
     return group;
   }
 
@@ -59,6 +59,10 @@ export default class FileGroup {
   private constructor(name: string) {
     this.name = name;
     this.files = [];
+  }
+
+  public toString(): string {
+    return `FileGroup[${name}]`;
   }
 
   private async addFile(location: string): Promise<void> {

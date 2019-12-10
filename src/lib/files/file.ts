@@ -44,4 +44,8 @@ export default class File {
       () => `Error while reading file: ${this.readResult.err()}`,
     );
   }
+
+  public toString(): string {
+    return `File: ${this.location}`
+  }
 }
