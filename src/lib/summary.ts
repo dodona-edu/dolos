@@ -68,12 +68,12 @@ export class Summary {
       return matchesPerFile;
     }
 
-    let matchesPerFileScoreArray: Array<[FileGroup, FileGroup, RangesTuple[], number]> = new Array();
+    let matchesPerFileScoreArray: Array<[File, File, RangesTuple[], number]> = new Array();
     for (const [matchedFile, matches] of matchesPerFile.entries()) {
       for (const [matchingFile, rangesTupleArray] of matches.entries()) {
         matchesPerFileScoreArray.push([
-          matchingFile.group,
-          matchedFile,
+          matchingFile,
+          matchedFile.files[0], // TODO again, this assuses the first file matches
           rangesTupleArray,
           this.getScoreForArray(rangesTupleArray),
         ]);
@@ -89,18 +89,18 @@ export class Summary {
       this.maxMatches,
     );
 
-    const filteredMatchesPerFile: Map<FileGroup, Matches<Range>> = new Map();
+    const filteredMatchesPerGroup: Map<FileGroup, Matches<Range>> = new Map();
     for (const [matchedFile, matchingFile, rangesTupleArray] of matchesPerFileScoreArray) {
-      let matches: Matches<Range> | undefined = filteredMatchesPerFile.get(matchedFile);
+      let matches: Matches<Range> | undefined = filteredMatchesPerGroup.get(matchedFile.group);
       if (!matches) {
         matches = new Map();
-        filteredMatchesPerFile.set(matchedFile, matches);
+        filteredMatchesPerGroup.set(matchedFile.group, matches);
       }
 
       matches.set(matchingFile, rangesTupleArray);
     }
 
-    return filteredMatchesPerFile;
+    return filteredMatchesPerGroup;
   }
 
   /**
@@ -294,40 +294,43 @@ export class Summary {
    * @param results The results you want to cluster.
    */
   public clusterResults(results: Map<FileGroup, Matches<Range>>): Clustered<Match> {
-    const filesSet: Set<FileGroup> = new Set();
+    const groupsSet: Set<FileGroup> = new Set();
     const fileTupleScores: Array<[File, File, RangesTuple[], number]> = new Array();
 
     // Maps the results to tuples containing the two files, the matches between those two files and a score for that
     // File pair. Also fills the file set.
-    for (const [matchedFile, matches] of results.entries()) {
-      filesSet.add(matchedFile);
+    for (const [matchedGroup, matches] of results.entries()) {
+      groupsSet.add(matchedGroup);
       for (const [matchingFile, matchingRanges] of matches.entries()) {
-        filesSet.add(matchingFile);
+        groupsSet.add(matchingFile.group);
         const score = this.getMaxMatchingLineCount(matchingRanges);
-        fileTupleScores.push([matchedFile, matchingFile, matchingRanges, score]);
+        // TODO: this assumes the match was with the first file, another
+        // refactor needs to happen to keep track which file matches with which
+        // other file.
+        fileTupleScores.push([matchedGroup.files[0], matchingFile, matchingRanges, score]);
       }
     }
 
-    const equivalenceClasses: Map<File, File> = new Map(
-      [...filesSet.values()].map(file => [file, file]),
+    const equivalenceClasses: Map<FileGroup, FileGroup> = new Map(
+      [...groupsSet.values()].map(group => [group, group]),
     );
 
     // Puts all the files in their corresponding equivalenceClass. Uses the union-find algorithm.
     for (const [matchedFile, matchingFile, , score] of fileTupleScores) {
       if (score > this.clusterCutOffValue) {
-        const root1 = this.getRoot(equivalenceClasses, matchedFile);
-        const root2 = this.getRoot(equivalenceClasses, matchingFile);
+        const root1 = this.getRoot(equivalenceClasses, matchedFile.group);
+        const root2 = this.getRoot(equivalenceClasses, matchingFile.group);
         equivalenceClasses.set(root1, root2);
       }
     }
 
-    const filesGroupsMap: Map<File, Match[]> = new Map();
+    const filesGroupsMap: Map<FileGroup, Match[]> = new Map();
     const restGroup: Match[] = new Array();
 
     // Uses the generated equivalence classes to cluster fileTuples.
     for (const [matchedFile, matchingFile, matchingRanges] of fileTupleScores) {
-      const root = this.getRoot(equivalenceClasses, matchedFile);
-      const root2 = this.getRoot(equivalenceClasses, matchingFile);
+      const root = this.getRoot(equivalenceClasses, matchedFile.group);
+      const root2 = this.getRoot(equivalenceClasses, matchingFile.group);
       if (root === root2) {
         let filesGroup: Match[] | undefined = filesGroupsMap.get(root);
         if (!filesGroup) {
@@ -393,14 +396,14 @@ export class Summary {
    * @param equivalenceClasses The current equivalence classes.
    * @param value The value you want to get the root of.
    */
-  private getRoot(equivalenceClasses: Map<File, File>, value: File): File {
-    const values: File[] = [];
-    let root = equivalenceClasses.get(value) as File;
-    let nextRoot = equivalenceClasses.get(root) as File;
+  private getRoot(equivalenceClasses: Map<FileGroup, FileGroup>, value: FileGroup): FileGroup {
+    const values: FileGroup[] = [];
+    let root = equivalenceClasses.get(value) as FileGroup;
+    let nextRoot = equivalenceClasses.get(root) as FileGroup;
     while (root !== nextRoot) {
       values.push(root);
       root = nextRoot;
-      nextRoot = equivalenceClasses.get(root) as File;
+      nextRoot = equivalenceClasses.get(root) as FileGroup;
     }
     values.forEach(v => equivalenceClasses.set(v, root));
     return root;

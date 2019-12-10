@@ -1,5 +1,4 @@
 import { Comparison, Matches} from "./lib/comparison";
-import File from "./lib/files/file";
 import FileGroup from "./lib/files/fileGroup";
 import { CustomOptions, Options } from "./lib/options";
 import { Summary } from "./lib/summary";
@@ -20,7 +19,7 @@ export class Dolos {
     });
   }
 
-  public async analyze(locations: string[]): Promise<Map<File, Matches<number>>> {
+  public async analyze(locations: string[]): Promise<Map<FileGroup, Matches<number>>> {
     if (locations.length < 2) {
       throw new Error("You need to supply at least two locations");
     }
@@ -55,7 +54,7 @@ export class Dolos {
     );
   }
 
-  public output(matches: Map<File, Matches<number>>, format: string) {
+  public output(matches: Map<FileGroup, Matches<number>>, format: string) {
     const summary = new Summary(matches, this.options);
     switch (format.toLowerCase()) {
       case "terminal":

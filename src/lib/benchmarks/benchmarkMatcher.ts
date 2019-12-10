@@ -1,5 +1,4 @@
 import File from "../files/file";
-import FileGroup from "../files/fileGroup";
 import { Range } from "../range";
 import { RangesTuple } from "../utils";
 import { BenchmarkHelper } from "./benchmarkHelper";
@@ -82,8 +81,8 @@ export class BenchmarkMatcher {
   private readonly helper: BenchmarkHelper;
 
   private expected: RangesTuple[] | undefined;
-  private matchingFile: FileGroup | undefined;
-  private matchedFile: FileGroup | undefined;
+  private matchingFile: File | undefined;
+  private matchedFile: File | undefined;
 
   private actual: RangesTuple[] | undefined;
 
@@ -102,8 +101,8 @@ export class BenchmarkMatcher {
   }
 
   public async match(matchedFile: string, matchingFile: string): Promise<this> {
-    this.matchingFile = await FileGroup.asGroup([matchingFile]);
-    this.matchedFile = await FileGroup.asGroup([matchedFile]);
+    this.matchingFile = await File.alone(matchingFile);
+    this.matchedFile = await File.alone(matchedFile);
     this.actual = await this.helper.match(this.matchedFile, this.matchingFile);
     return this;
   }
@@ -123,9 +122,9 @@ export class BenchmarkMatcher {
       falseMatches: 0,
       falseMatchingLines: 0,
       falseRangesTuples: [],
-      matchedFile: this.matchedFile.first(),
+      matchedFile: this.matchedFile,
       matchedLines: 0,
-      matchingFile: this.matchingFile.first(),
+      matchingFile: this.matchingFile,
       matchingRangesTuples: [],
       missedLines: 0,
     };

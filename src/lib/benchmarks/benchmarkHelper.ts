@@ -30,16 +30,16 @@ export class BenchmarkHelper {
    * @param group1 The first file group you want to test.
    * @param group2 The second file group you want to test.
    */
-  public async match(group1: FileGroup, group2: FileGroup): Promise<RangesTuple[]> {
+  public async match(file1: File, file2: File): Promise<RangesTuple[]> {
     const tokenizer: Tokenizer<number> = new CodeTokenizer("javascript");
     const comparison: Comparison<number> = new Comparison(
       tokenizer,
       this.currentBenchmarkSettings.comparisonOptions ||
         (BenchmarkManager.defaultBenchmarkSettings.comparisonOptions as ComparisonOptions),
     );
-    comparison.add(group1);
+    comparison.add(file1.group);
 
-    const matchesPerFile: Map<File, Matches<number>> = await comparison.compareFiles([group2]);
+    const matchesPerFile: Map<FileGroup, Matches<number>> = await comparison.compareFiles([file2.group]);
 
     const filterOptions = this.currentBenchmarkSettings.filterOptions || {};
     const summary = new Summary(
@@ -52,15 +52,15 @@ export class BenchmarkHelper {
       }),
     );
 
-    if (!summary.results.has(group2.files[0])) {
+    if (!summary.results.has(file2.group)) {
       return [];
     }
-    const results: Matches<Range> = summary.results.get(group2.files[0]) as Matches<Range>;
+    const results: Matches<Range> = summary.results.get(file2.group) as Matches<Range>;
 
-    if (!results.has(group1.files[0])) {
+    if (!results.has(file1)) {
       return [];
     }
 
-    return results.get(group1.files[0]) as RangesTuple[];
+    return results.get(file1) as RangesTuple[];
   }
 }
