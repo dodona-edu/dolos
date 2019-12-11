@@ -9,7 +9,7 @@ export interface CustomOptions {
   maxGapSize?: number;
   maxHashCount?: number;
   maxHashPercent?: number;
-  maxMatches?: number;
+  maxMatches?: number; // still needed?
   minFragmentLength?: number;
 }
 
@@ -89,7 +89,7 @@ export class Options {
     return definedOrDefault(this.custom.clusterMinMatches, Options.defaultClusterMinMatches);
   }
 
-  get maxMatches(): number | null {
+  get maxMatches(): number | null { // still needed?
     return definedOrNull(this.custom.maxMatches);
   }
 
@@ -105,7 +105,7 @@ export class Options {
       maxGapSize: this.maxGapSize,
       maxHashCount: this.custom.maxHashCount,
       maxHashPercent: this.filterByPercentage ? this.maxHashPercent : undefined,
-      maxMatches: this.maxMatches,
+      maxMatches: this.maxMatches, // still needed?
       minFragmentLength: this.minFragmentLength,
     } as any);
   }
