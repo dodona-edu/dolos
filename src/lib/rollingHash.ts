@@ -1,4 +1,5 @@
 /* tslint:disable:no-bitwise */
+/// <reference types="../../typings/nprime" />
 import nPrime from "nprime";
 
 export class RollingHash {

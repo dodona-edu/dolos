@@ -18,8 +18,8 @@ export class Range {
     return this.upperBound;
   }
 
-  public areEqual(from: number, to: number): boolean {
-    return this.from === from && this.to === to;
+  public equals(other: Range): boolean {
+    return this.to === other.to && this.from === other.from;
   }
 
   /**

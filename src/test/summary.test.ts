@@ -1,9 +1,10 @@
-import { Comparison, Matches } from "../comparison";
-import { Options } from "../options";
-import { Range } from "../range";
-import { Summary } from "../summary";
-import { CodeTokenizer } from "../tokenizers/codeTokenizer";
-import { RangesTuple } from "../utils";
+import test, { ExecutionContext } from "ava";
+import { Comparison, Matches } from "../lib/comparison";
+import { Options } from "../lib/options";
+import { Range } from "../lib/range";
+import { Summary } from "../lib/summary";
+import { CodeTokenizer } from "../lib/tokenizers/codeTokenizer";
+import { RangesTuple } from "../lib/utils";
 
 /**
  * adapted from https://stackoverflow.com/questions/6274339/how-can-i-shuffle-an-array
@@ -24,37 +25,45 @@ function random(): number {
   return x - Math.floor(x);
 }
 
-test("simple match to ranges", () => {
+function containsRangesTuple(
+  t: ExecutionContext,
+  values: RangesTuple[],
+  expected: RangesTuple,
+): void {
+  t.true(values.some(tup => tup[0].equals(expected[0]) && tup[1].equals(expected[1])));
+}
+
+test("simple match to ranges", t => {
   const summary = new Summary(new Map(), new Options());
   const array: Array<[number, number]> = [[1, 5], [2, 6], [3, 7], [4, 8]];
   shuffle(array);
 
   const rangesTupleArray: RangesTuple[] = summary.matchesToRange(array);
-  expect(rangesTupleArray).toContainEqual([new Range(1, 4), new Range(5, 8)]);
-  expect(rangesTupleArray.length).toBe(1);
+  containsRangesTuple(t, rangesTupleArray, [new Range(1, 4), new Range(5, 8)]);
+  t.is(1, rangesTupleArray.length);
 });
 
-test("simple match to ranges where second element stays constant", () => {
+test("simple match to ranges where second element stays constant", t => {
   const summary = new Summary(new Map(), new Options({minFragmentLength: 0}));
   const array: Array<[number, number]> = [[1, 5], [2, 5], [3, 5], [4, 5]];
   shuffle(array);
 
   const rangesTupleArray: RangesTuple[] = summary.matchesToRange(array);
-  expect(rangesTupleArray).toContainEqual([new Range(1, 4), new Range(5, 5)]);
-  expect(rangesTupleArray.length).toBe(1);
+  containsRangesTuple(t, rangesTupleArray, [new Range(1, 4), new Range(5, 5)]);
+  t.is(1, rangesTupleArray.length);
 });
 
-test("simple match to ranges where first element stays constant", () => {
+test("simple match to ranges where first element stays constant", t => {
   const summary = new Summary(new Map(), new Options());
   const array: Array<[number, number]> = [[1, 5], [1, 6], [1, 7], [1, 8]];
   shuffle(array);
 
   const rangesTupleArray: RangesTuple[] = summary.matchesToRange(array);
-  expect(rangesTupleArray).toContainEqual([new Range(1, 1), new Range(5, 8)]);
-  expect(rangesTupleArray.length).toBe(1);
+  containsRangesTuple(t, rangesTupleArray, [new Range(1, 1), new Range(5, 8)]);
+  t.is(1, rangesTupleArray.length);
 });
 
-test("simple match to ranges where first element stays constant and a gap exists", () => {
+test("simple match to ranges where first element stays constant and a gap exists", t => {
   const summary1 = new Summary(new Map(), new Options({maxGapSize: 1}));
   const summary2 = new Summary(new Map(), new Options({maxGapSize: 0}));
   const array: Array<[number, number]> = [[1, 5], [1, 6], [1, 7], [1, 9]];
@@ -62,14 +71,14 @@ test("simple match to ranges where first element stays constant and a gap exists
 
   const summary2Array = summary2.matchesToRange(array);
   const summary1Array = summary1.matchesToRange(array);
-  expect(summary1Array).toContainEqual([new Range(1, 1), new Range(5, 9)]);
-  expect(summary1Array.length).toBe(1);
-  expect(summary2Array).toContainEqual([new Range(1, 1), new Range(5, 7)]);
-  expect(summary2Array).toContainEqual([new Range(1, 1), new Range(9, 9)]);
-  expect(summary2Array.length).toBe(2);
+  containsRangesTuple(t, summary1Array, [new Range(1, 1), new Range(5, 9)]);
+  t.is(1, summary1Array.length);
+  containsRangesTuple(t, summary2Array, [new Range(1, 1), new Range(5, 7)]);
+  containsRangesTuple(t, summary2Array, [new Range(1, 1), new Range(9, 9)]);
+  t.is(2, summary2Array.length);
 });
 
-test("test extending related functions rangesTuples", () => {
+test("test extending related functions rangesTuples", t => {
   const summary1 = new Summary(new Map(), new Options({maxGapSize: 0}));
   const summary2 = new Summary(new Map(), new Options({maxGapSize: 1}));
   const rangesTuple1: RangesTuple = [new Range(1, 5), new Range(1, 5)];
@@ -78,20 +87,18 @@ test("test extending related functions rangesTuples", () => {
   const rangesTuple4: RangesTuple = [new Range(1, 5), new Range(1, 5)];
   const rangesTuple5: RangesTuple = [new Range(12, 200), new Range(21, 5000)];
 
-  expect(summary1.canExtendRangesTupleWithRangesTuple(rangesTuple1, rangesTuple2)).toBe(true);
-  expect(summary1.canExtendRangesTupleWithRangesTuple(rangesTuple1, rangesTuple3)).toBe(false);
-  expect(summary2.canExtendRangesTupleWithRangesTuple(rangesTuple1, rangesTuple3)).toBe(true);
+  t.true(summary1.canExtendRangesTupleWithRangesTuple(rangesTuple1, rangesTuple2));
+  t.false(summary1.canExtendRangesTupleWithRangesTuple(rangesTuple1, rangesTuple3));
+  t.true(summary2.canExtendRangesTupleWithRangesTuple(rangesTuple1, rangesTuple3));
 
   summary1.extendRangesTupleWithRangesTuple(rangesTuple1, rangesTuple2);
-  expect(rangesTuple1).toEqual([new Range(1, 10), new Range(1, 20)]);
+  t.deepEqual([new Range(1, 10), new Range(1, 20)], rangesTuple1);
   summary2.extendRangesTupleWithRangesTuple(rangesTuple4, rangesTuple3);
-  expect(rangesTuple4).toEqual([new Range(1, 10), new Range(1, 30)]);
-  expect(() => summary1.extendRangesTupleWithRangesTuple(rangesTuple1, rangesTuple5)).toThrowError(
-    RangeError,
-  );
+  t.deepEqual([new Range(1, 10), new Range(1, 30)], rangesTuple4);
+  t.throws(() => summary1.extendRangesTupleWithRangesTuple(rangesTuple1, rangesTuple5), RangeError);
 });
 
-test("concatenate ranges", () => {
+test("concatenate ranges", t => {
   const summary = new Summary(new Map(), new Options());
   const rangesTupleArray: RangesTuple[] = [
     [new Range(0, 10), new Range(100, 110)],
@@ -108,16 +115,14 @@ test("concatenate ranges", () => {
   const concatenatedRanges1 = summary.concatenateRanges(shuffledArray1);
   const concatenatedRanges2 = summary.concatenateRanges(shuffledArray2);
 
-  expect(concatenatedRanges1).toContainEqual([new Range(0, 30), new Range(100, 120)]);
-  expect(concatenatedRanges1).toContainEqual(rangesTupleArray[3]);
-  expect(concatenatedRanges1).not.toContainEqual([new Range(5, 25), new Range(105, 115)]);
+  containsRangesTuple(t, concatenatedRanges1, [new Range(0, 30), new Range(100, 120)]);
+  containsRangesTuple(t, concatenatedRanges1, rangesTupleArray[3]);
 
-  expect(concatenatedRanges2).toContainEqual([new Range(0, 30), new Range(100, 120)]);
-  expect(concatenatedRanges2).toContainEqual(rangesTupleArray[3]);
-  expect(concatenatedRanges2).not.toContainEqual([new Range(5, 25), new Range(105, 115)]);
+  containsRangesTuple(t, concatenatedRanges2, [new Range(0, 30), new Range(100, 120)]);
+  containsRangesTuple(t, concatenatedRanges2, rangesTupleArray[3]);
 });
 
-test("integration test", async () => {
+test("integration test", async t => {
   const locations: string[] = [
     "samples/js/sample.js",
     "samples/js/copied_function.js",
@@ -138,6 +143,6 @@ test("integration test", async () => {
     minFragmentLength: 4,
   }));
 
-  expect(summary.toString()).toMatchSnapshot();
-  expect(summary.toJSON()).toMatchSnapshot();
+  t.snapshot(summary.toString());
+  t.snapshot(summary.toJSON());
 });

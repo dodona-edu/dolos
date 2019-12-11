@@ -1,0 +1,11 @@
+{
+  "all": true,
+  "extension": [".ts"],
+  "include": [
+    "src/lib/**"
+  ],
+  "exclude": [
+    "src/lib/assets/**",
+    "src/lib/__tests__/**"
+  ]
+}
