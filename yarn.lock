@@ -2206,7 +2206,7 @@ ms@^2.1.1, ms@^2.1.2:
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.1.2.tgz#d09d1f357b443f493382a8eb3ccd183872ae6009"
   integrity sha512-sGkPx+VjMtmA6MX27oA4FBFELFCZZ4S4XqeGOXCv68tT+jb3vk/RyaKWP0PTKyWtmLSM0b+adUTEvbs1PEaH2w==
 
-nan@^2.10.0, nan@^2.12.1, nan@^2.14.0, nan@^2.4.0, nan@^2.8.0:
+nan@^2.10.0, nan@^2.12.1, nan@^2.14.0, nan@^2.4.0:
   version "2.14.0"
   resolved "https://registry.yarnpkg.com/nan/-/nan-2.14.0.tgz#7818f722027b2459a86f0295d434d1fc2336c52c"
   integrity sha512-INOFj37C7k3AfaNTtX8RhsTw7qRy7eLET14cROi9+5HAVbbHuIWUHEauBv5qT4Av2tWasiTY1Jw6puUNqRJXQg==
@@ -3277,12 +3277,12 @@ tree-sitter-haskell@^0.13.0:
   dependencies:
     nan "^2.4.0"
 
-tree-sitter-java@^0.13.0:
-  version "0.13.0"
-  resolved "https://registry.yarnpkg.com/tree-sitter-java/-/tree-sitter-java-0.13.0.tgz#9f438ed8e8c04af6dca36cd67ab047f600f8fd5b"
-  integrity sha512-WNIjmG27KagMGN8HFt9v4do2jCBBDZAA5W5EEkXbzbeHmJ/21IHh8Xu/xV70dUFuzZ9R1krF2CtzwPBF1qcDhA==
+tree-sitter-java@^0.15.0:
+  version "0.15.0"
+  resolved "https://registry.yarnpkg.com/tree-sitter-java/-/tree-sitter-java-0.15.0.tgz#b6fe296eb60b37c3091d07547612802d385ae3d5"
+  integrity sha512-HemCdKo4H7EH5acnqNlCU1ohKYB7Zf3OFw12iFC71lfLWJ1OIvoXDVeBDZRQwTPCkaHBGkJAHP1S2RxIXUq9Rw==
   dependencies:
-    nan "^2.8.0"
+    nan "^2.12.1"
 
 tree-sitter-javascript@^0.15.0:
   version "0.15.2"
