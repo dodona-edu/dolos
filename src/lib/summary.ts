@@ -43,7 +43,7 @@ export class Summary {
    */
   constructor(
     matchesPerFile: Map<FileGroup, Matches<number>>,
-    options: Options,
+    options: Options
   ) {
     this.clusterCutOffValue = options.clusterMinMatches;
     this.gapSize = options.maxGapSize;
@@ -61,14 +61,14 @@ export class Summary {
    * @param matchesPerFile The results you want to filter.
    */
   public filterOutputAmount(
-    matchesPerFile: Map<FileGroup, Matches<Range>>,
+    matchesPerFile: Map<FileGroup, Matches<Range>>
   ): Map<FileGroup, Matches<Range>> {
 
     if (!this.maxMatches) {
       return matchesPerFile;
     }
 
-    let matchesPerFileScoreArray: Array<[File, File, RangesTuple[], number]> = new Array();
+    let matchesPerFileScoreArray: Array<[File, File, RangesTuple[], number]> = [];
     for (const [matchedFile, matches] of matchesPerFile.entries()) {
       for (const [matchingFile, rangesTupleArray] of matches.entries()) {
         matchesPerFileScoreArray.push([
@@ -81,12 +81,12 @@ export class Summary {
     }
     // Sort the matchesPerFileScoreArray so only the largest arrays are kept.
     matchesPerFileScoreArray.sort(
-      ([, , , matchScore1], [, , , matchScore2]) => matchScore2 - matchScore1,
+      ([, , , matchScore1], [, , , matchScore2]) => matchScore2 - matchScore1
     );
 
     matchesPerFileScoreArray = matchesPerFileScoreArray.slice(
       0,
-      this.maxMatches,
+      this.maxMatches
     );
 
     const filteredMatchesPerGroup: Map<FileGroup, Matches<Range>> = new Map();
@@ -111,7 +111,7 @@ export class Summary {
     return rangesTupleArray.filter(
       rangesTuple =>
         Math.min(rangesTuple[0].getLineCount(), rangesTuple[1].getLineCount()) >=
-        this.minimumFragmentLength,
+        this.minimumFragmentLength
     );
   }
 
@@ -142,7 +142,7 @@ export class Summary {
 
   public toString(
     options?: Options,
-    consoleColours: boolean = false,
+    consoleColours = false
   ): string {
     if (this.clusteredResults.length === 0) {
       return "There were no matches";
@@ -164,7 +164,7 @@ export class Summary {
       output += clusterNameString;
       output += this.groupToString(this.clusteredResults[index], consoleColours).replace(
         "\n",
-        "\t\n",
+        "\t\n"
       );
       output += "\n";
     }
@@ -179,7 +179,7 @@ export class Summary {
   }
   public groupEntryToString(
     [matchedFile, matchingFile, matches]: [File, File, RangesTuple[]],
-    consoleColours: boolean,
+    consoleColours: boolean
   ): string {
     matches.sort(([r1], [r2]) => r1.from - r2.from);
     const matchesString: string = matches
@@ -189,10 +189,10 @@ export class Summary {
     const [scoreMatchedFile, scoreMatchingFile] = Utils.scoreForFiles(
       matches,
       matchedFile,
-      matchingFile,
+      matchingFile
     );
 
-    let returnString: string = `\t${matchedFile}(${scoreMatchedFile}%) + ${matchingFile}(${scoreMatchingFile}%) => \n`;
+    let returnString = `\t${matchedFile}(${scoreMatchedFile}%) + ${matchingFile}(${scoreMatchingFile}%) => \n`;
     if (consoleColours) {
       returnString = Utils.colour("green", returnString);
     }
@@ -216,7 +216,7 @@ export class Summary {
    */
   public canExtendRangesTupleWithRangesTuple(
     rangesTuple1: RangesTuple,
-    rangesTuple2: RangesTuple,
+    rangesTuple2: RangesTuple
   ): boolean {
     return (
       rangesTuple1[0].canExtendWithRange(rangesTuple2[0], this.gapSize) &&
@@ -246,7 +246,7 @@ export class Summary {
    * numbers of each file.
    */
   public matchesToRange(matches: Array<[number, number]>): RangesTuple[] {
-    let ranges: RangesTuple[] = new Array();
+    let ranges: RangesTuple[] = [];
 
     matches.forEach(next => {
       const rangeTuple: RangesTuple | undefined = ranges.find(lambdaRangeTuple => {
@@ -295,7 +295,7 @@ export class Summary {
    */
   public clusterResults(results: Map<FileGroup, Matches<Range>>): Clustered<Match> {
     const groupsSet: Set<FileGroup> = new Set();
-    const fileTupleScores: Array<[File, File, RangesTuple[], number]> = new Array();
+    const fileTupleScores: Array<[File, File, RangesTuple[], number]> = [];
 
     // Maps the results to tuples containing the two files, the matches between those two files and a score for that
     // File pair. Also fills the file set.
@@ -312,7 +312,7 @@ export class Summary {
     }
 
     const equivalenceClasses: Map<FileGroup, FileGroup> = new Map(
-      [...groupsSet.values()].map(group => [group, group]),
+      [...groupsSet.values()].map(group => [group, group])
     );
 
     // Puts all the files in their corresponding equivalenceClass. Uses the union-find algorithm.
@@ -325,7 +325,7 @@ export class Summary {
     }
 
     const filesGroupsMap: Map<FileGroup, Match[]> = new Map();
-    const restGroup: Match[] = new Array();
+    const restGroup: Match[] = [];
 
     // Uses the generated equivalence classes to cluster fileTuples.
     for (const [matchedFile, matchingFile, matchingRanges] of fileTupleScores) {
@@ -334,7 +334,7 @@ export class Summary {
       if (root === root2) {
         let filesGroup: Match[] | undefined = filesGroupsMap.get(root);
         if (!filesGroup) {
-          filesGroup = new Array();
+          filesGroup = [];
           filesGroupsMap.set(root, filesGroup);
         }
         filesGroup.push([matchedFile, matchingFile, matchingRanges]);
@@ -354,20 +354,20 @@ export class Summary {
       filesGroup.sort(
         ([, , rangesTupleArray1], [, , rangesTupleArray2]) =>
           this.getMaxMatchingLineCount(rangesTupleArray2) -
-          this.getMaxMatchingLineCount(rangesTupleArray1),
+          this.getMaxMatchingLineCount(rangesTupleArray1)
       );
       for (const [, , rangesTupleArray] of filesGroup.values()) {
         rangesTupleArray.sort(
           ([r11, r12], [r21, r22]) =>
             Math.max(r21.getLineCount(), r22.getLineCount()) -
-            Math.max(r11.getLineCount(), r12.getLineCount()),
+            Math.max(r11.getLineCount(), r12.getLineCount())
         );
       }
     }
 
     // Sort the group themselves.
     filesGroupsArray.sort(
-      (group1, group2) => this.getLineCountForGroup(group2) - this.getLineCountForGroup(group1),
+      (group1, group2) => this.getLineCountForGroup(group2) - this.getLineCountForGroup(group1)
     );
     return filesGroupsArray;
   }
@@ -416,7 +416,7 @@ export class Summary {
    * per matching file. The compareFiles function of the Comparison class can generate such mapping.
    */
   private transformMatches(
-    matchesPerFile: Map<FileGroup, Matches<number>>,
+    matchesPerFile: Map<FileGroup, Matches<number>>
   ): Map<FileGroup, Matches<Range>> {
     const results: Map<FileGroup, Matches<Range>> = new Map();
     matchesPerFile.forEach((matches, matchedFile) => {

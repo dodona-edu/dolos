@@ -29,7 +29,7 @@ function random(): number {
 function containsRangesTuple(
   t: ExecutionContext,
   values: RangesTuple[],
-  expected: RangesTuple,
+  expected: RangesTuple
 ): void {
   t.true(values.some(tup => tup[0].equals(expected[0]) && tup[1].equals(expected[1])));
 }
@@ -45,7 +45,7 @@ test("simple match to ranges", t => {
 });
 
 test("simple match to ranges where second element stays constant", t => {
-  const summary = new Summary(new Map(), new Options({minFragmentLength: 0}));
+  const summary = new Summary(new Map(), new Options({ minFragmentLength: 0 }));
   const array: Array<[number, number]> = [[1, 5], [2, 5], [3, 5], [4, 5]];
   shuffle(array);
 
@@ -65,8 +65,8 @@ test("simple match to ranges where first element stays constant", t => {
 });
 
 test("simple match to ranges where first element stays constant and a gap exists", t => {
-  const summary1 = new Summary(new Map(), new Options({maxGapSize: 1}));
-  const summary2 = new Summary(new Map(), new Options({maxGapSize: 0}));
+  const summary1 = new Summary(new Map(), new Options({ maxGapSize: 1 }));
+  const summary2 = new Summary(new Map(), new Options({ maxGapSize: 0 }));
   const array: Array<[number, number]> = [[1, 5], [1, 6], [1, 7], [1, 9]];
   shuffle(array);
 
@@ -80,8 +80,8 @@ test("simple match to ranges where first element stays constant and a gap exists
 });
 
 test("test extending related functions rangesTuples", t => {
-  const summary1 = new Summary(new Map(), new Options({maxGapSize: 0}));
-  const summary2 = new Summary(new Map(), new Options({maxGapSize: 1}));
+  const summary1 = new Summary(new Map(), new Options({ maxGapSize: 0 }));
+  const summary2 = new Summary(new Map(), new Options({ maxGapSize: 1 }));
   const rangesTuple1: RangesTuple = [new Range(1, 5), new Range(1, 5)];
   const rangesTuple2: RangesTuple = [new Range(6, 10), new Range(6, 20)];
   const rangesTuple3: RangesTuple = [new Range(7, 10), new Range(7, 30)];

@@ -10,8 +10,8 @@ export class RollingHash {
   private readonly memory: number[];
   private readonly maxBase: number;
 
-  private i: number = 0;
-  private hash: number = 0;
+  private i = 0;
+  private hash = 0;
 
   /**
    * Generates a rolling hash object that can be used to create hashes of a
@@ -56,7 +56,7 @@ export class RollingHash {
    * @param mod the modulus
    */
   private modPow(base: number, exp: number, mod: number): number {
-    let y: number = 1;
+    let y = 1;
     while (exp > 1) {
       if (exp & 1) {
         y = (base * y) % mod;

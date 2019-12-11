@@ -40,7 +40,7 @@ export class Comparison<Location> {
   private readonly filterHashByPercentage: boolean | undefined;
   private readonly kmerLength: number;
   private readonly kmersInWindow: number;
-  private fileCount: number = 0;
+  private fileCount = 0;
 
   /**
    * Creates a Comparison object with a given Tokenizer and optional HashFilter.
@@ -55,7 +55,7 @@ export class Comparison<Location> {
    */
   constructor(
     tokenizer: Tokenizer<Location>,
-    copts: ComparisonOptions,
+    copts: ComparisonOptions
   ) {
     this.tokenizer = tokenizer;
     this.kmerLength = copts.kmerLength || Options.defaultKmerLength;
@@ -117,7 +117,7 @@ export class Comparison<Location> {
    */
   public async compareFiles(
     groups: FileGroup[],
-    hashFilter = this.hashFilter,
+    hashFilter = this.hashFilter
   ): Promise<Map<FileGroup, Matches<Location>>> {
     const matchingFiles: Map<FileGroup, Matches<Location>> = new Map();
     for (const group of groups) {
@@ -144,7 +144,7 @@ export class Comparison<Location> {
    */
   public async compareFile(
     file: File,
-    hashFilter = this.hashFilter,
+    hashFilter = this.hashFilter
   ): Promise<Result<Matches<Location>>> {
     // mapping file names to line number pairs (other file, this file)
     const matchingFiles: Matches<Location> = new Map();

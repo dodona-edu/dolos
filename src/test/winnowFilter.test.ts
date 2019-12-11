@@ -97,7 +97,7 @@ test("strings or buffers doesn't matter", async t => {
         this.push(buffer);
         this.push(null);
       }
-    })({ objectMode: false }),
+    })({ objectMode: false })
   )) {
     bufferHashes.push(hash);
   }

@@ -28,7 +28,7 @@ export class Range {
    * @param gapSize The maximum gap size you want to allow. For example if the gap size is 0 then 2 cannot extend [4,5].
    * If you take a gap size of 1 however then the range can be extended and would become [2,5].
    */
-  public canExtendWithNumber(value: number, gapSize: number = 0): boolean {
+  public canExtendWithNumber(value: number, gapSize = 0): boolean {
     return this.from - 1 - gapSize <= value && value <= this.to + 1 + gapSize;
   }
 
@@ -64,7 +64,7 @@ export class Range {
    * will not be joined. If you take a gap size of 1 however then the ranges can be combined into [1,6].
    * @returns A boolean if the range can be used to extend the current range.
    */
-  public canExtendWithRange(range: Range, gapSize: number = 0): boolean {
+  public canExtendWithRange(range: Range, gapSize = 0): boolean {
     const test =
       this.canExtendWithNumber(range.from, gapSize) ||
       this.canExtendWithNumber(range.to, gapSize) ||

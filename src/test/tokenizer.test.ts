@@ -22,7 +22,7 @@ test("registering a new invalid language throws error", t => {
 
 test("tokenizer with or without location is equal", async t => {
   const tokenizer = new CodeTokenizer("javascript");
-  const file = await File.alone(`samples/js/sample.js`);
+  const file = await File.alone("samples/js/sample.js");
 
   const [tokenized, mapping] = (await tokenizer.tokenizeFileWithMapping(file)).ok();
 

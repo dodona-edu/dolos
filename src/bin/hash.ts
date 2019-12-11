@@ -1,4 +1,4 @@
-import {RollingHash} from "../lib/rollingHash";
+import { RollingHash } from "../lib/rollingHash";
 
 const k = 20;
 const hash = new RollingHash(k);

@@ -28,9 +28,9 @@ export function colour(c: Colour, text: string): string {
  */
 function escapeSeq(c: Colour) {
   switch (c) {
-    case "red": return "\u001b[31m";
-    case "green": return "\u001b[32m";
-    case "reset": return "\u001b[0m";
+  case "red": return "\u001b[31m";
+  case "green": return "\u001b[32m";
+  case "reset": return "\u001b[0m";
   }
 }
 
@@ -48,14 +48,14 @@ export function countLinesInRanges(rangesTupleArray: RangesTuple[]): [number, nu
 export function optionsToString(optionsArray: Array<[string, string | number]>): string {
   return (
     optionsArray
-    .map(([flag, optionValue]) => {
-      if (typeof optionValue === "string" && optionValue.includes(" ")) {
-        return [flag, `'${optionValue}'`];
-      }
-      return [flag, optionValue];
-    })
-    .map(([flag, optionValue]) => `${flag} ${optionValue}`)
-    .join(" ") + "\n"
+      .map(([flag, optionValue]) => {
+        if (typeof optionValue === "string" && optionValue.includes(" ")) {
+          return [flag, `'${optionValue}'`];
+        }
+        return [flag, optionValue];
+      })
+      .map(([flag, optionValue]) => `${flag} ${optionValue}`)
+      .join(" ") + "\n"
   );
 }
 
@@ -69,24 +69,24 @@ export function sortRangesTuples([r11, r12]: RangesTuple, [r21, r22]: RangesTupl
 }
 
 export function scoreForFiles(
-    matches: RangesTuple[],
-    matchedFile: File,
-    matchingFile: File,
-  ): [number, number] {
+  matches: RangesTuple[],
+  matchedFile: File,
+  matchingFile: File
+): [number, number] {
 
-    const [matchedLinesInMatchedFile, matchedLinesInMatchingFile]: [
+  const [matchedLinesInMatchedFile, matchedLinesInMatchingFile]: [
       number,
       number,
     ] = countLinesInRanges(matches);
 
-    const linesInMatchedFile: number = matchedFile.lineCount.okOr(0);
-    const linesInMatchingFile: number = matchingFile.lineCount.okOr(0);
-    const scoreMatchedFile: number = Math.round(
-      (matchedLinesInMatchedFile / linesInMatchedFile) * 100,
-    );
-    const scoreMatchingFile: number = Math.round(
-      (matchedLinesInMatchingFile / linesInMatchingFile) * 100,
-    );
+  const linesInMatchedFile: number = matchedFile.lineCount.okOr(0);
+  const linesInMatchingFile: number = matchingFile.lineCount.okOr(0);
+  const scoreMatchedFile: number = Math.round(
+    (matchedLinesInMatchedFile / linesInMatchedFile) * 100
+  );
+  const scoreMatchingFile: number = Math.round(
+    (matchedLinesInMatchingFile / linesInMatchingFile) * 100
+  );
 
-    return [scoreMatchedFile, scoreMatchingFile];
-  }
+  return [scoreMatchedFile, scoreMatchingFile];
+}

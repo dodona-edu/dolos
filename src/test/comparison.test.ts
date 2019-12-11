@@ -76,7 +76,7 @@ test.skip("add non-existing file", async t => {
   await comparison.add(file.group);
   t.true(spy.called);
   t.true(spy.calledWith(
-    `There was a problem parsing ${file}. Error: ENOENT: no such file or directory, open '${file}'`,
+    `There was a problem parsing ${file}. Error: ENOENT: no such file or directory, open '${file}'`
   ));
   spy.restore();
 });
@@ -95,7 +95,7 @@ test.skip("add non-existing file to filter list", async t => {
 
   t.true(spy.called);
   t.true(spy.calledWith(
-    `There was a problem parsing ${file}. Error: ENOENT: no such file or directory, open '${file}'`,
+    `There was a problem parsing ${file}. Error: ENOENT: no such file or directory, open '${file}'`
   ));
   spy.restore();
 });
