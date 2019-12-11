@@ -26,7 +26,7 @@
                 "functions": "never"
             }],
             "indent": ["error", 2],
-            "max-len": ["warn", { "code": 100 }],
+            "max-len": ["warn", { "code": 80 }],
             "no-invalid-this": "warn",
             "no-param-reassign": ["error", { "props": false }],
             "object-curly-spacing": ["error", "always"],

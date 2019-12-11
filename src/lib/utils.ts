@@ -15,6 +15,17 @@ export interface ObjectMap<T> {
 }
 
 /**
+ * Helper function to convert a Colour 'enum' into its ANSI escape sequence.
+ */
+function escapeSeq(c: Colour): string {
+  switch (c) {
+  case "red": return "\u001b[31m";
+  case "green": return "\u001b[32m";
+  case "reset": return "\u001b[0m";
+  }
+}
+
+/**
  * Colours your text with the given colour. Only works for terminal output.
  * @param colour The colour you want your text to be.
  * @param text The text you want to colour.
@@ -24,28 +35,29 @@ export function colour(c: Colour, text: string): string {
 }
 
 /**
- * Helper function to convert a Colour 'enum' into its ANSI escape sequence.
- */
-function escapeSeq(c: Colour) {
-  switch (c) {
-  case "red": return "\u001b[31m";
-  case "green": return "\u001b[32m";
-  case "reset": return "\u001b[0m";
-  }
-}
-
-/**
- * Counts the total amount of lines that correspond with the first and second file.
+ * Counts the total amount of lines that correspond with the first and second
+ * file.
  * @param rangesTupleArray The rangesTupleArray you want the lines count of.
- * @returns A tuple that contais the line for the first and second file respectively.
+ * @returns A tuple that contais the line for the first and second file
+ * respectively.
  */
-export function countLinesInRanges(rangesTupleArray: RangesTuple[]): [number, number] {
+export function countLinesInRanges(
+  rangesTupleArray: RangesTuple[]
+): [number, number] {
   return rangesTupleArray
-    .map(([range1, range2]) => [range1.getLineCount(), range2.getLineCount()] as [number, number], [0, 0])
-    .reduce(([acc1, acc2], [next1, next2]) => [acc1 + next1, acc2 + next2], [0, 0]);
+    .map(
+      ([range1, range2]) => [range1.getLineCount(), range2.getLineCount()],
+      [0, 0]
+    )
+    .reduce(
+      ([acc1, acc2], [next1, next2]) => [acc1 + next1, acc2 + next2],
+      [0, 0]
+    ) as [number, number];
 }
 
-export function optionsToString(optionsArray: Array<[string, string | number]>): string {
+export function optionsToString(
+  optionsArray: Array<[string, string | number]>
+): string {
   return (
     optionsArray
       .map(([flag, optionValue]) => {
@@ -59,7 +71,9 @@ export function optionsToString(optionsArray: Array<[string, string | number]>):
   );
 }
 
-export function sortRangesTuples([r11, r12]: RangesTuple, [r21, r22]: RangesTuple): number {
+export function sortRangesTuples(
+  [r11, r12]: RangesTuple, [r21, r22]: RangesTuple
+): number {
   const diff = r11.from - r21.from;
   if (diff === 0) {
     return r12.from - r22.from;

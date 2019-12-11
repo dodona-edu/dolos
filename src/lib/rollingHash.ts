@@ -3,8 +3,8 @@
 import nPrime from "nprime";
 
 export class RollingHash {
-  private readonly mod: number = nPrime.next(1 << 25);
-  private readonly base: number = nPrime.next(Math.ceil(Math.sqrt(this.mod)));
+  private readonly mod: number;
+  private readonly base: number;
   private readonly k: number;
 
   private readonly memory: number[];
@@ -27,8 +27,8 @@ export class RollingHash {
    */
   constructor(k: number, base?: number, mod?: number) {
     this.k = k;
-    this.base = base ? base : this.base;
-    this.mod = mod ? mod : this.mod;
+    this.mod = mod || nPrime.next(1 << 25);
+    this.base = base || nPrime.next(Math.ceil(Math.sqrt(this.mod)));
 
     this.memory = new Array(k).fill(0);
     this.maxBase = this.mod - this.modPow(this.base, this.k, this.mod);
@@ -40,7 +40,10 @@ export class RollingHash {
    * @param b The next byte
    */
   public nextHash(b: number): number {
-    this.hash = (this.base * this.hash + b + this.maxBase * this.memory[this.i]) % this.mod;
+    this.hash =
+      (this.base * this.hash + b + this.maxBase * this.memory[this.i])
+      % this.mod;
+
     this.memory[this.i] = b;
     this.i = (this.i + 1) % this.k;
     return this.hash;
@@ -57,13 +60,15 @@ export class RollingHash {
    */
   private modPow(base: number, exp: number, mod: number): number {
     let y = 1;
-    while (exp > 1) {
-      if (exp & 1) {
-        y = (base * y) % mod;
+    let b = base;
+    let e = exp;
+    while (e > 1) {
+      if (e & 1) {
+        y = (b * y) % mod;
       }
-      base = (base * base) % mod;
-      exp >>= 1;
+      b = (b * b) % mod;
+      e >>= 1;
     }
-    return (base * y) % mod;
+    return (b * y) % mod;
   }
 }

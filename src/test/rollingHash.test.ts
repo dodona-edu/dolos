@@ -32,15 +32,24 @@ test("prefix should not matter", t => {
   const hashes1 = postfix.split("").map(c => hasher1.nextHash(c.charCodeAt(0)));
   const hashes2 = postfix.split("").map(c => hasher2.nextHash(c.charCodeAt(0)));
 
-  t.notDeepEqual(hashes1.slice(0, k), hashes2.slice(0, k), "first k hashes should not be equal");
-  t.deepEqual(hashes1.slice(k), hashes2.slice(k), "all but first k hashes should be equal");
+  t.notDeepEqual(
+    hashes1.slice(0, k),
+    hashes2.slice(0, k),
+    "first k hashes should not be equal"
+  );
+  t.deepEqual(
+    hashes1.slice(k),
+    hashes2.slice(k),
+    "all but first k hashes should be equal"
+  );
 });
 
 test("hashes should be stable", t => {
-  const data = "Alright, but apart from the sanitation, the medicine, education, wine, public order, irrigation, roads, the fresh-water system, and public health, what have the Romans ever done for us?";
-  const hasher = new RollingHash(3);
+  const data = "Alright, but apart from the sanitation, the medicine, " +
+    "education, wine, public order, irrigation, roads, the fresh-water " +
+    "system, and public health, what have the Romans ever done for us?";
 
+  const hasher = new RollingHash(3);
   const hashes = data.split("").map(c => hasher.nextHash(c.charCodeAt(0)));
   t.snapshot(hashes);
-
 });

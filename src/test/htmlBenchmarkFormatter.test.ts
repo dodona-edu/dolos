@@ -1,6 +1,8 @@
 import test from "ava";
-import { BenchmarkManager, NumericRangesTuple } from "../lib/benchmarks/benchmarkManager";
-import { HTMLBenchmarkFormatter } from "../lib/benchmarks/htmlBenchmarkFormatter";
+import { BenchmarkManager, NumericRangesTuple } from
+  "../lib/benchmarks/benchmarkManager";
+import { HTMLBenchmarkFormatter } from
+  "../lib/benchmarks/htmlBenchmarkFormatter";
 
 test("general structure test", async t => {
   const manager = new BenchmarkManager(false);
@@ -8,10 +10,12 @@ test("general structure test", async t => {
 
   manager.benchmark("dummy benchmark", async helper => {
     await helper.match("samples/js/sample.js", "samples/js/copied_function.js");
-    helper.expect([[[15, 20], [4, 9]]] as NumericRangesTuple[]).toBePresentInMatch();
+    helper.expect([[[15, 20], [4, 9]]] as NumericRangesTuple[])
+      .toBePresentInMatch();
   });
 
-  manager.benchmarkSettings = [manager.benchmarkSettingNoFilter, { gapSize: 5 }];
+  manager.benchmarkSettings =
+    [manager.benchmarkSettingNoFilter, { gapSize: 5 }];
 
   await manager.executeBenchmarks();
 

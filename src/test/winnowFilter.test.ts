@@ -79,8 +79,8 @@ test("winnow 1 and noFilter create same result", async t => {
 });
 
 test("strings or buffers doesn't matter", async t => {
-  const text =
-    "This is a slightly longer text to compare strings with buffers and test multiple hash values.";
+  const text = "This is a slightly longer text to compare strings with " +
+    "buffers and test multiple hash values.";
 
   const winnowFilter = new WinnowFilter(5, 4);
 
@@ -93,7 +93,7 @@ test("strings or buffers doesn't matter", async t => {
   const buffer = Buffer.from(text);
   for await (const hash of winnowFilter.hashes(
     new (class extends Readable {
-      public _read() {
+      public _read(): void {
         this.push(buffer);
         this.push(null);
       }

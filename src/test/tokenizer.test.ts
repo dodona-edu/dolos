@@ -24,7 +24,8 @@ test("tokenizer with or without location is equal", async t => {
   const tokenizer = new CodeTokenizer("javascript");
   const file = await File.alone("samples/js/sample.js");
 
-  const [tokenized, mapping] = (await tokenizer.tokenizeFileWithMapping(file)).ok();
+  const [tokenized, mapping] =
+    (await tokenizer.tokenizeFileWithMapping(file)).ok();
 
   t.snapshot(tokenized);
   t.snapshot(mapping);

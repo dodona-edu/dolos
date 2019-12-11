@@ -13,11 +13,11 @@ export interface CustomOptions {
   minFragmentLength?: number;
 }
 
-function definedOrNull<T extends any>(arg: T | undefined): T | null {
+function definedOrNull<T>(arg: T | undefined): T | null {
   return arg !== undefined ? arg : null;
 }
 
-function definedOrDefault<T extends any>(arg: T | undefined, def: T): T {
+function definedOrDefault<T>(arg: T | undefined, def: T): T {
   return arg !== undefined ? arg : def;
 }
 
@@ -58,7 +58,10 @@ export class Options {
   }
 
   get kmersInWindow(): number {
-    return definedOrDefault(this.custom.kmersInWindow, Options.defaultKmersInWindow);
+    return definedOrDefault(
+      this.custom.kmersInWindow,
+      Options.defaultKmersInWindow
+    );
   }
 
   get filterByPercentage(): boolean {
@@ -70,7 +73,10 @@ export class Options {
   }
 
   get maxHashPercent(): number {
-    return definedOrDefault(this.custom.maxHashPercent, Options.defaultMaxHashPercentage);
+    return definedOrDefault(
+      this.custom.maxHashPercent,
+      Options.defaultMaxHashPercentage
+    );
   }
 
   get comment(): string | null {
@@ -78,7 +84,10 @@ export class Options {
   }
 
   get minFragmentLength(): number {
-    return definedOrDefault(this.custom.minFragmentLength, Options.defaultMinFragmentLength);
+    return definedOrDefault(
+      this.custom.minFragmentLength,
+      Options.defaultMinFragmentLength
+    );
   }
 
   get maxGapSize(): number {
@@ -86,7 +95,10 @@ export class Options {
   }
 
   get clusterMinMatches(): number {
-    return definedOrDefault(this.custom.clusterMinMatches, Options.defaultClusterMinMatches);
+    return definedOrDefault(
+      this.custom.clusterMinMatches,
+      Options.defaultClusterMinMatches
+    );
   }
 
   get maxMatches(): number | null {
@@ -107,6 +119,6 @@ export class Options {
       maxHashPercent: this.filterByPercentage ? this.maxHashPercent : undefined,
       maxMatches: this.maxMatches,
       minFragmentLength: this.minFragmentLength,
-    } as any);
+    });
   }
 }
