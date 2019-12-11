@@ -1,5 +1,5 @@
 import { Comparison, Matches} from "./lib/comparison";
-import FileGroup from "./lib/files/fileGroup";
+import { FileGroup } from "./lib/files/fileGroup";
 import { CustomOptions, Options } from "./lib/options";
 import { Summary } from "./lib/summary";
 import { CodeTokenizer } from "./lib/tokenizers/codeTokenizer";

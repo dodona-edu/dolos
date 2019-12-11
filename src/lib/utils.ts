@@ -2,7 +2,7 @@
  * This module contains shared helper functions.
  */
 
-import File from "./files/file";
+import { File } from "./files/file";
 import { Range } from "./range";
 
 export type Colour = "red" | "green" | "reset";

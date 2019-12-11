@@ -1,6 +1,6 @@
 import test, { ExecutionContext } from "ava";
 import { Comparison, Matches } from "../lib/comparison";
-import FileGroup from "../lib/files/fileGroup";
+import { FileGroup } from "../lib/files/fileGroup";
 import { Options } from "../lib/options";
 import { Range } from "../lib/range";
 import { Summary } from "../lib/summary";

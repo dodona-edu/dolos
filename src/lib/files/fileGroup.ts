@@ -1,14 +1,14 @@
 import { default as path } from "path";
-import Result from "../result";
-import File from "./file";
+import { Result } from "../result";
+import { File } from "./file";
 
 /**
  * Represents a single file or multiple files that form a single unit.
  */
-export default class FileGroup {
+export class FileGroup {
 
   /**
-   * Create a new FileGroup with a file for each given location.
+   * Create a single new FileGroup with File objects for each given location.
    */
   public static async asGroup(locations: string[], name?: string): Promise<FileGroup> {
     if (name === undefined) {
@@ -54,6 +54,11 @@ export default class FileGroup {
       );
   }
 
+  /**
+   * A 'dirty' way to create a new file by passing a list of tuples
+   * [name, content] pairs, this is needed in the HTMLFormatter to 'revive'
+   * JSON objects. TODO: remove this method and provide a better solution.
+   */
   public static createDirty(name: string, files: Array<[string, string]>): FileGroup {
     const group = new FileGroup(name);
     for (const [location, content] of files) {

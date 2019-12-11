@@ -1,5 +1,5 @@
 import test from "ava";
-import File from "../lib/files/file";
+import { File } from "../lib/files/file";
 import { CodeTokenizer } from "../lib/tokenizers/codeTokenizer";
 
 test("tokenizer creation works for all listed languages", t => {

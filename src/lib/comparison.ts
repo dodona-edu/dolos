@@ -1,10 +1,10 @@
-import File from "./files/file";
-import FileGroup from "./files/fileGroup";
+import { File } from "./files/file";
+import { FileGroup } from "./files/fileGroup";
 import { HashFilter } from "./filters/hashFilter";
 import { NoFilter } from "./filters/noFilter";
 import { WinnowFilter } from "./filters/winnowFilter";
 import { Options } from "./options";
-import Result from "./result";
+import { Result } from "./result";
 import { Tokenizer } from "./tokenizers/tokenizer";
 
 export type Matches<Location> = Map<File, Array<[Location, Location]>>;

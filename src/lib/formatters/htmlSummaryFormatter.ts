@@ -1,4 +1,4 @@
-import File from "../files/file";
+import { File } from "../files/file";
 import { JSONFormatter, JSONSummaryFormat } from "../formatters/jsonFormatter";
 import { Match, RangesTuple } from "../utils";
 import * as Utils from "../utils";

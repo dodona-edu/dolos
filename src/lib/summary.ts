@@ -1,6 +1,6 @@
 import { Matches } from "./comparison";
-import File from "./files/file";
-import FileGroup from "./files/fileGroup";
+import { File } from "./files/file";
+import { FileGroup } from "./files/fileGroup";
 import { HTMLSummaryFormatter } from "./formatters/htmlSummaryFormatter";
 import { JSONFormatter } from "./formatters/jsonFormatter";
 import { Options } from "./options";

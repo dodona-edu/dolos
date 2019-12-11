@@ -1,5 +1,5 @@
 import test from "ava";
-import File from "../lib/files/file";
+import { File } from "../lib/files/file";
 
 test("read file", async t => {
   const file = await File.alone("src/test/fixtures/plaintext/test.txt");

@@ -1,4 +1,4 @@
-import File from "../lib/files/file";
+import { File } from "../lib/files/file";
 import { CodeTokenizer } from "../lib/tokenizers/codeTokenizer";
 
 (async () => {

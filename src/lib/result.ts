@@ -1,7 +1,11 @@
-
 type ResultValue<T> = T | Error;
 
-export default class Result<T> {
+/**
+ * A class that represents the result of a computation that could have failed.
+ * Its value is either a T or an Error.
+ *
+ */
+export class Result<T> {
 
   public static try<T>(canFail: () => T): Result<T> {
     try {
@@ -37,7 +41,7 @@ export default class Result<T> {
 
   public readonly value: ResultValue<T>;
 
-  constructor(value: ResultValue<T>) {
+  private constructor(value: ResultValue<T>) {
     this.value = value;
   }
 

@@ -1,6 +1,6 @@
 import { Comparison, ComparisonOptions, Matches } from "../comparison";
-import File from "../files/file";
-import FileGroup from "../files/fileGroup";
+import { File } from "../files/file";
+import { FileGroup } from "../files/fileGroup";
 import { Options } from "../options";
 import { Range } from "../range";
 import { FilterOptions, Summary } from "../summary";

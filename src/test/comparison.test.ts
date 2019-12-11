@@ -1,8 +1,8 @@
 import test from "ava";
 import * as sinon from "sinon";
 import { Comparison, Matches } from "../lib/comparison";
-import File from "../lib/files/file";
-import FileGroup from "../lib/files/fileGroup";
+import { File } from "../lib/files/file";
+import { FileGroup } from "../lib/files/fileGroup";
 import { CodeTokenizer } from "../lib/tokenizers/codeTokenizer";
 import { Tokenizer } from "../lib/tokenizers/tokenizer";
 

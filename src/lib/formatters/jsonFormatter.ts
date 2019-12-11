@@ -1,6 +1,6 @@
 import { default as fs } from "fs";
-import File from "../files/file";
-import FileGroup from "../files/fileGroup";
+import { File } from "../files/file";
+import { FileGroup } from "../files/fileGroup";
 import { Options } from "../options";
 import { Range } from "../range";
 import { Clustered, Match } from "../utils";

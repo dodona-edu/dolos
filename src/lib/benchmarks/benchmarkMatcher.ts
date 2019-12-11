@@ -1,4 +1,4 @@
-import File from "../files/file";
+import { File } from "../files/file";
 import { Range } from "../range";
 import { RangesTuple } from "../utils";
 import { BenchmarkHelper } from "./benchmarkHelper";

@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import File from "../files/file";
+import { File } from "../files/file";
 import { Range } from "../range";
 import { RangesTuple } from "../utils";
 import * as Utils from "../utils";

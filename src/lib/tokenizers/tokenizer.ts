@@ -1,5 +1,5 @@
-import File from "../files/file";
-import Result from "../result";
+import { File } from "../files/file";
+import { Result } from "../result";
 
 export interface Token<Location> {
   token: string;

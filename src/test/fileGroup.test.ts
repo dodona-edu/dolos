@@ -1,5 +1,5 @@
 import test from "ava";
-import FileGroup from "../lib/files/fileGroup";
+import { FileGroup } from "../lib/files/fileGroup";
 
 const testLocations: string[] = [
   "samples/js/assignment1/student1/sample.js",

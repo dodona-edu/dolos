@@ -1,5 +1,5 @@
 import { BenchmarkResults } from "../benchmarks/benchmarkMatcher";
-import File from "../files/file";
+import { File } from "../files/file";
 import { HTMLFormatter } from "../formatters/htmlFormatter";
 import { JSONFormatter } from "../formatters/jsonFormatter";
 import { ObjectMap, RangesTuple } from "../utils";
