@@ -22,7 +22,7 @@ export class File {
    */
   public static async read(location: string, group: FileGroup): Promise<File> {
     const readResult = await Result.tryAwait(async () =>
-      (await fs.promises.readFile(location)).toString());
+      (await fs.promises.readFile(path.resolve(location))).toString());
     return new File(location, group, readResult);
   }
 
@@ -37,7 +37,7 @@ export class File {
    * the amount of newlines contained in the file.
    */
   constructor(location: string, group: FileGroup, readResult: Result<string>) {
-    this.location = path.resolve(location);
+    this.location = location;
     this.group = group;
     this.readResult = readResult;
     this.lineCount = readResult.map(
