@@ -13,8 +13,7 @@
     "test:watch": "ava --watch",
     "test:debug": "node inspect ./node_modules/ava/profile.js --",
     "build": "tsc",
-    "lint": "eslint src/**/*.ts",
-    "tslint": "tslint 'src/**/*.ts'"
+    "lint": "eslint src/**/*.ts"
   },
   "repository": "git@github.com:dodona-edu/dolos.git",
   "author": "Bart Mesuere <Bart.Mesuere@UGent.be>",
@@ -31,7 +30,6 @@
     "prettier": "^1.19.1",
     "sinon": "^7.5.0",
     "ts-node": "^8.5.4",
-    "tslint": "^5.20.1",
     "typescript": "^3.6.4"
   },
   "dependencies": {
