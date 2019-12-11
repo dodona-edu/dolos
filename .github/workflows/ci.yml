@@ -20,7 +20,7 @@ jobs:
         run: |
           yarn install
           yarn build
-          yarn test --ci --verbose
+          yarn test --verbose
   lint:
     name: Lint
     runs-on: ubuntu-latest
