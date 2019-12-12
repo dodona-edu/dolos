@@ -2,9 +2,31 @@ import test from "ava";
 import { File } from "../lib/files/file";
 import { CodeTokenizer } from "../lib/tokenizers/codeTokenizer";
 
-test("tokenizer creation works for all listed languages", t => {
+const languageFiles = {
+  "python": "samples/python/caesar.py",
+  "javascript": "samples/javascript/sample.js",
+  "haskell": "samples/haskell/Caesar.hs",
+  "c-sharp": "samples/c-sharp/Caesar.cs"
+} as any; // eslint-disable-line @typescript-eslint/no-explicit-any
+
+
+
+test("tokenizer works for all listed languages", async t => {
   for (const language of CodeTokenizer.supportedLanguages) {
-    t.truthy(new CodeTokenizer(language));
+    const tokenizer =  new CodeTokenizer(language);
+    t.truthy(tokenizer);
+
+    const sampleFile:  string | undefined = languageFiles[language];
+
+    if (sampleFile === undefined) {
+      t.fail("we should have a sample file for each supported language " +
+        `(${language} has none)`);
+    } else {
+      const file = await File.alone(sampleFile);
+      const tokens = await tokenizer.tokenizeFile(file);
+      t.truthy(tokens);
+      t.snapshot(tokens, "stable tokens");
+    }
   }
 });
 
