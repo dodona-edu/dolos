@@ -150,9 +150,9 @@ test("concatenate ranges", t => {
 
 test("integration test", async t => {
   const locations: string[] = [
-    "samples/js/sample.js",
-    "samples/js/copied_function.js",
-    "samples/js/another_copied_function.js",
+    "samples/javascript/sample.js",
+    "samples/javascript/copied_function.js",
+    "samples/javascript/another_copied_function.js",
   ];
   const tokenizer = new CodeTokenizer("javascript");
   const comparison = new Comparison(tokenizer, {
