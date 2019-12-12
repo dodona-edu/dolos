@@ -1,3 +1,4 @@
+# Source: https://rosettacode.org/wiki/Caesar_cipher#Python3
 def caesar(s, k, decode = False):
     if decode: k = 26 - k
     return "".join([chr((ord(i) - 65 + k) % 26 + 65)
@@ -5,7 +6,7 @@ def caesar(s, k, decode = False):
                     if ord(i) >= 65 and ord(i) <= 90 ])
  
 msg = "The quick brown fox jumped over the lazy dogs"
-print msg
+print(msg)
 enc = caesar(msg, 11)
-print enc
-print caesar(enc, 11, decode = True)
+print(enc)
+print(caesar(enc, 11, decode = True))
