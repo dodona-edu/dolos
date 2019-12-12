@@ -1,4 +1,5 @@
 import { Comparison, Matches} from "./lib/comparison";
+import { FileGroup } from "./lib/files/fileGroup";
 import { CustomOptions, Options } from "./lib/options";
 import { Summary } from "./lib/summary";
 import { CodeTokenizer } from "./lib/tokenizers/codeTokenizer";
@@ -18,35 +19,42 @@ export class Dolos {
     });
   }
 
-  public async analyze(locations: [string]): Promise<Map<string, Matches<number>>> {
+  public async analyze(locations: string[]): Promise<Map<FileGroup, Matches<number>>> {
     if (locations.length < 2) {
       throw new Error("You need to supply at least two locations");
     }
 
+    // TODO: clean this up
     if (this.options.base) {
       if (this.options.directory) {
-        let index = locations.length - 1;
-        while (index > 0) {
-          if (locations[index].startsWith(this.options.base)) {
-            await this.comparison.addFileToFilterList(locations[index]);
-            locations.splice(index, 1);
-          }
-          index -= 1;
-        }
+
+        const baseLocations = locations.filter(l =>
+          l.startsWith(this.options.base as string));
+        this.comparison.addToFilterList(await FileGroup.asGroup(baseLocations));
+
+        locations = locations.filter(l =>
+          !l.startsWith(this.options.base as string));
+
       } else {
-        await this.comparison.addFileToFilterList(this.options.base);
+        this.comparison.addToFilterList(await FileGroup.asGroup([this.options.base]));
       }
     }
 
-    await this.comparison.addFiles(locations);
-    return await this.comparison.compareFiles(
-      locations,
+    let groups;
+    if (this.options.directory) {
+      groups = await FileGroup.groupByDirectory(locations);
+    } else {
+      groups = await FileGroup.groupByFile(locations);
+    }
+
+    await this.comparison.addAll(groups);
+    return this.comparison.compareFiles(
+      groups,
       undefined,
-      this.options.directory,
     );
   }
 
-  public output(matches: Map<string, Matches<number>>, format: string) {
+  public output(matches: Map<FileGroup, Matches<number>>, format: string) {
     const summary = new Summary(matches, this.options);
     switch (format.toLowerCase()) {
       case "terminal":

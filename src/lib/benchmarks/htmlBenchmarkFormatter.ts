@@ -1,5 +1,5 @@
-import fs from "fs";
 import { BenchmarkResults } from "../benchmarks/benchmarkMatcher";
+import { File } from "../files/file";
 import { HTMLFormatter } from "../formatters/htmlFormatter";
 import { JSONFormatter } from "../formatters/jsonFormatter";
 import { ObjectMap, RangesTuple } from "../utils";
@@ -7,8 +7,8 @@ import * as Utils from "../utils";
 
 export class HTMLBenchmarkFormatter extends HTMLFormatter<[string, string, BenchmarkResults]> {
   public toComparePage(
-    matchedFile: string,
-    matchingFile: string,
+    matchedFile: File,
+    matchingFile: File,
     [settings, name, results]: [string, string, BenchmarkResults],
   ): string {
     const comparePage: string = this.toCompareView(matchedFile, matchingFile, [
@@ -32,8 +32,8 @@ export class HTMLBenchmarkFormatter extends HTMLFormatter<[string, string, Bench
   }
 
   public toCompareView(
-    matchedFile: string,
-    matchingFile: string,
+    matchedFile: File,
+    matchingFile: File,
     [benchmarkSettings, name, benchmarkResults]: [string, string, BenchmarkResults],
   ): string {
     const description: string = HTMLBenchmarkFormatter.escapeHtml(
@@ -44,8 +44,8 @@ export class HTMLBenchmarkFormatter extends HTMLFormatter<[string, string, Bench
     benchmarkResults.matchingRangesTuples.sort(Utils.sortRangesTuples);
     benchmarkResults.expected.sort(Utils.sortRangesTuples);
 
-    const right: string = fs.readFileSync(matchingFile, "utf8");
-    const left: string = fs.readFileSync(matchedFile, "utf8");
+    const right = matchingFile.showContent();
+    const left = matchedFile.showContent();
 
     const leftMarkedAreas: string[] = [];
     const rightMarkedAreas: string[] = [];
@@ -110,7 +110,7 @@ export class HTMLBenchmarkFormatter extends HTMLFormatter<[string, string, Bench
         `</div>\n`;
     }
 
-    if (matchingFile.length > 0) {
+    if (matchingFile.lineCount.okOr(0) > 0) {
       checkboxes +=
         `Ranges with at least one match:` +
         this.makeToggleAllButton(id, "matchingRanges", "blue") +
@@ -195,8 +195,8 @@ export class HTMLBenchmarkFormatter extends HTMLFormatter<[string, string, Bench
     );
   }
   protected makeBenchmarkTableRow(
-    matchedFile: string,
-    matchingFile: string,
+    matchedFile: File,
+    matchingFile: File,
     rangesTupleArray: RangesTuple[],
     benchmarkName: string,
     benchmarkSettings: string,
@@ -212,7 +212,7 @@ export class HTMLBenchmarkFormatter extends HTMLFormatter<[string, string, Bench
       number,
     ] = Utils.countLinesInRanges(rangesTupleArray);
 
-    const [scoreMatchedFile, scoreMatchingFile] = this.scoreForFiles(
+    const [scoreMatchedFile, scoreMatchingFile] = Utils.scoreForFiles(
       rangesTupleArray,
       matchedFile,
       matchingFile,
@@ -226,12 +226,12 @@ export class HTMLBenchmarkFormatter extends HTMLFormatter<[string, string, Bench
       `</td>\n` +
       `<td class="filename-column">\n` +
       `<a href=# onclick="return swap('${id}', 'Index');">\n` +
-      `${HTMLBenchmarkFormatter.escapeHtml(matchedFile)} (${scoreMatchedFile}%)\n` +
+      `${HTMLBenchmarkFormatter.escapeHtml(matchedFile.showContent())} (${scoreMatchedFile}%)\n` +
       `</a>\n` +
       `</td>\n` +
       `<td class="filename-column">` +
       `<a href=# onclick="return swap('${id}', 'Index');">\n` +
-      `${HTMLBenchmarkFormatter.escapeHtml(matchingFile)} (${scoreMatchingFile}%)` +
+      `${HTMLBenchmarkFormatter.escapeHtml(matchingFile.showContent())} (${scoreMatchingFile}%)` +
       `</a>` +
       `</td>\n` +
       `<td class="lines-matched-column">${matchedFileLineCount}</td>\n` +

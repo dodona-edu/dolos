@@ -1,5 +1,6 @@
 import { default as Parser, SyntaxNode } from "tree-sitter";
 import { Token, Tokenizer } from "./tokenizer";
+
 Parser.bind(this);
 
 export class CodeTokenizer extends Tokenizer<number> {
@@ -61,8 +62,8 @@ export class CodeTokenizer extends Tokenizer<number> {
    *
    * @param text The text string to parse
    */
-  public tokenize(text: Buffer): string {
-    const tree = this.parser.parse(text.toString("utf8"));
+  public tokenize(text: string): string {
+    const tree = this.parser.parse(text);
     return tree.rootNode.toString();
   }
 
@@ -72,8 +73,8 @@ export class CodeTokenizer extends Tokenizer<number> {
    *
    * @param text The text string to parse
    */
-  public *generateTokens(text: Buffer): IterableIterator<Token<number>> {
-    const tree = this.parser.parse(text.toString("utf8"));
+  public *generateTokens(text: string): IterableIterator<Token<number>> {
+    const tree = this.parser.parse(text);
     yield* this.tokenizeNode(tree.rootNode);
   }
 

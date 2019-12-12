@@ -1,11 +1,13 @@
-import path from "path";
+import { File } from "./files/file";
+import { FileGroup } from "./files/fileGroup";
 import { HashFilter } from "./filters/hashFilter";
 import { NoFilter } from "./filters/noFilter";
 import { WinnowFilter } from "./filters/winnowFilter";
 import { Options } from "./options";
+import { Result } from "./result";
 import { Tokenizer } from "./tokenizers/tokenizer";
 
-export type Matches<Location> = Map<string, Array<[Location, Location]>>;
+export type Matches<Location> = Map<File, Array<[Location, Location]>>;
 
 /**
  * @param hashFilter An optional HashFilter to filter the hashes returned by
@@ -26,65 +28,10 @@ export interface ComparisonOptions {
 }
 
 export class Comparison<Location> {
-  /**
-   * Groups files per directory.
-   * @param locations The locations you want to group.
-   * @returns A map mapping a filename to it's project's root directory.
-   */
-  public static groupPerDirectory(files: string[]): Map<string, string> {
-    const locationsFragments = files.map(filePath => filePath.split(path.sep));
-    const filesGroupedPerDirectoryMap: Map<string, string[]> = new Map();
-    let baseDirIndex = 0;
-    let baseDir = locationsFragments[0][0];
-    while (
-      locationsFragments.every(filePathFragments => filePathFragments[baseDirIndex] === baseDir)
-    ) {
-      baseDirIndex += 1;
-      baseDir = locationsFragments[0][baseDirIndex];
-    }
-    locationsFragments.forEach(filePathFragments => {
-      let groupedFiles: string[] | undefined = filesGroupedPerDirectoryMap.get(
-        filePathFragments[baseDirIndex],
-      );
-      if (groupedFiles === undefined) {
-        groupedFiles = new Array();
-        filesGroupedPerDirectoryMap.set(filePathFragments[baseDirIndex], groupedFiles);
-      }
-      groupedFiles.push(path.join(...filePathFragments));
-    });
-
-    const returnMap: Map<string, string> = new Map();
-    for (const [directory, groupedFiles] of filesGroupedPerDirectoryMap.entries()) {
-      for (const file of groupedFiles) {
-        returnMap.set(file, directory);
-      }
-    }
-    return returnMap;
-  }
-
-  /**
-   * Tests if two files have the same root.
-   * @param file1 The fist file you want to test.
-   * @param file2 The second file you want to test.
-   * @param filesMappedToRootDirectory The map mapping the files to their root.
-   */
-  public static sameRoot(
-    file1: string,
-    file2: string,
-    filesMappedToRootDirectory: Map<string, string> | undefined,
-  ): boolean {
-    return (
-      filesMappedToRootDirectory !== undefined &&
-      filesMappedToRootDirectory.has(file1) &&
-      filesMappedToRootDirectory.has(file2) &&
-      (filesMappedToRootDirectory.get(file1) as string) ===
-        (filesMappedToRootDirectory.get(file2) as string)
-    );
-  }
 
   // Maps a hash to an array of typles that are composed of the file with the same hash and the location in that file
   // where that hash is located.
-  private readonly index: Map<number, Array<[string, Location]>> = new Map();
+  private readonly index: Map<number, Array<[File, Location]>> = new Map();
   private readonly filteredHashSet: Set<number> = new Set();
   private readonly tokenizer: Tokenizer<Location>;
   private readonly hashFilter: HashFilter;
@@ -124,13 +71,13 @@ export class Comparison<Location> {
    *
    * @param files A list of filenames
    */
-  public addFiles(files: string[]): Promise<void[]> {
+  public async addAll(groups: FileGroup[]): Promise<void> {
     // This promise will reject if one of the underlying promises reject
     // which is not what we want. If one file is missing, the others should
     // still be added. In the future, Promise.all can be replaced by
     // Promise.allSettled, but for now the error handling makes sure they
     // are all resolved correctly.
-    return Promise.all(files.map(file => this.addFile(file)));
+    Promise.all(groups.map(g => this.add(g)));
   }
 
   /**
@@ -138,23 +85,22 @@ export class Comparison<Location> {
    *
    * @param file The file name of the file to add
    */
-  public async addFile(file: string): Promise<void> {
-    this.fileCount += 1;
-    try {
-      const [ast, mapping] = await this.tokenizer.tokenizeFileWithMapping(file);
-      for await (const { hash, location } of this.hashFilter.hashesFromString(ast)) {
-        // hash and the corresponding line number //
-        const match: [string, Location] = [file, mapping[location]];
-        const matches = this.index.get(hash);
-        if (matches) {
-          matches.push(match);
-        } else {
-          this.index.set(hash, [match]);
+  public add(group: FileGroup): void {
+    for (const file of group.files) {
+      this.fileCount += 1;
+      const tokens = this.tokenizer.tokenizeFileWithMapping(file);
+      tokens.map(async ([ast, mapping]) => {
+        for await (const { hash, location } of this.hashFilter.hashesFromString(ast)) {
+          // hash and the corresponding line number //
+          const match: [File, Location] = [file, mapping[location]];
+          const matches = this.index.get(hash);
+          if (matches) {
+            matches.push(match);
+          } else {
+            this.index.set(hash, [match]);
+          }
         }
-      }
-    } catch (error) {
-      console.error(`There was a problem parsing ${file}. ${error}`);
-      return; // this makes sure the promise resolves instead of rejects
+      });
     }
   }
 
@@ -170,17 +116,17 @@ export class Comparison<Location> {
    * object will be used.
    */
   public async compareFiles(
-    files: string[],
+    groups: FileGroup[],
     hashFilter = this.hashFilter,
-    perDirectory: boolean = false,
-  ): Promise<Map<string, Matches<Location>>> {
-    let filesMappedToRootDirectory: Map<string, string> | undefined;
-    if (perDirectory) {
-      filesMappedToRootDirectory = Comparison.groupPerDirectory(files);
-    }
-    const matchingFiles: Map<string, Matches<Location>> = new Map();
-    for (const file of files) {
-      matchingFiles.set(file, await this.compareFile(file, hashFilter, filesMappedToRootDirectory));
+  ): Promise<Map<FileGroup, Matches<Location>>> {
+    const matchingFiles: Map<FileGroup, Matches<Location>> = new Map();
+    for (const group of groups) {
+      for (const file of group.files) {
+        const match = await this.compareFile(file, hashFilter);
+        if (match.isOk()) {
+          matchingFiles.set(file.group, match.ok());
+        }
+      }
     }
     return matchingFiles;
   }
@@ -197,54 +143,55 @@ export class Comparison<Location> {
    * no matter what.
    */
   public async compareFile(
-    file: string,
+    file: File,
     hashFilter = this.hashFilter,
-    filesMappedToRootDirectory?: Map<string, string>,
-  ): Promise<Matches<Location>> {
+  ): Promise<Result<Matches<Location>>> {
     // mapping file names to line number pairs (other file, this file)
     const matchingFiles: Matches<Location> = new Map();
-    const [ast, mapping] = await this.tokenizer.tokenizeFileWithMapping(file);
-    for await (const { hash, location } of hashFilter.hashesFromString(ast)) {
-      if (this.filteredHashSet.has(hash)) {
-        continue;
-      }
-      const matches = this.index.get(hash);
-      if (!matches || !this.filterByHashCount(matches.length)) {
-        continue;
-      }
-
-      for (const [fileName, lineNumber] of matches) {
-        // add the match if the match is not with the file and if the file comes first when alphabetically sorted.
-        // This is done to avoid the duplicates in the following case: when file A matches with file B, file B will
-        // also match with file A.
-        if (fileName === file || Comparison.sameRoot(fileName, file, filesMappedToRootDirectory)) {
+    const tokens = this.tokenizer.tokenizeFileWithMapping(file);
+    return Result.settled(tokens.map(async ([ast, mapping]) => {
+      for await (const { hash, location } of hashFilter.hashesFromString(ast)) {
+        if (this.filteredHashSet.has(hash)) {
           continue;
         }
-        const match: [Location, Location] = [lineNumber, mapping[location]];
-        const lines = matchingFiles.get(fileName);
-        if (lines) {
-          lines.push(match);
-        } else {
-          matchingFiles.set(fileName, [match]);
+        const matches = this.index.get(hash);
+        if (!matches || !this.filterByHashCount(matches.length)) {
+          continue;
+        }
+
+        for (const [otherFile, lineNumber] of matches) {
+          // add the match if the match is not with the file and if the file comes first when alphabetically sorted.
+          // This is done to avoid the duplicates in the following case: when file A matches with file B, file B will
+          // also match with file A.
+          if (file.group === otherFile.group) {
+            continue;
+          }
+
+          const match: [Location, Location] = [lineNumber, mapping[location]];
+          const lines = matchingFiles.get(otherFile);
+          if (lines) {
+            lines.push(match);
+          } else {
+            matchingFiles.set(otherFile, [match]);
+          }
         }
       }
-    }
-    return matchingFiles;
+      return matchingFiles;
+    }));
   }
 
   /**
    * Add a file to the filter index.
    * @param file The file name of the file you want to add.
    */
-  public async addFileToFilterList(file: string): Promise<void> {
-    try {
-      const [ast] = await this.tokenizer.tokenizeFileWithMapping(file);
-      for await (const { hash } of this.noFilter.hashesFromString(ast)) {
-        this.filteredHashSet.add(hash);
-      }
-    } catch (error) {
-      console.error(`There was a problem parsing ${file}. ${error}`);
-      return; // this makes sure the promise resolves instead of rejects
+  public async addToFilterList(group: FileGroup): Promise<void> {
+    for (const file of group.files) {
+      const tokens = await this.tokenizer.tokenizeFileWithMapping(file);
+      tokens.map(async ([ast]) => {
+        for await (const { hash } of this.noFilter.hashesFromString(ast)) {
+          this.filteredHashSet.add(hash);
+        }
+      });
     }
   }
 

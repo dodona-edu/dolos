@@ -1,3 +1,4 @@
+import { File } from "../files/file";
 import { Range } from "../range";
 import { RangesTuple } from "../utils";
 import { BenchmarkHelper } from "./benchmarkHelper";
@@ -25,8 +26,8 @@ export interface BenchmarkResults {
   matchingRangesTuples: RangesTuple[]; // The rangesTuples in the actual list that had a match.
   falseRangesTuples: RangesTuple[]; // The rangesTuples in the actual list that had no matches.
   expected: RangesTuple[]; // The expected ranges.
-  matchingFile: string; // The matched file.
-  matchedFile: string; // The matching file.
+  matchingFile: File; // The matched file.
+  matchedFile: File; // The matching file.
 }
 /**
  * Get the lineState with the hightest precedence. Will throw an error when a Miss and FalseHit are compared.
@@ -80,8 +81,8 @@ export class BenchmarkMatcher {
   private readonly helper: BenchmarkHelper;
 
   private expected: RangesTuple[] | undefined;
-  private matchingFile: string | undefined;
-  private matchedFile: string | undefined;
+  private matchingFile: File | undefined;
+  private matchedFile: File | undefined;
 
   private actual: RangesTuple[] | undefined;
 
@@ -100,14 +101,14 @@ export class BenchmarkMatcher {
   }
 
   public async match(matchedFile: string, matchingFile: string): Promise<this> {
-    this.matchingFile = matchingFile;
-    this.matchedFile = matchedFile;
-    this.actual = await this.helper.match(matchedFile, matchingFile);
+    this.matchingFile = await File.alone(matchingFile);
+    this.matchedFile = await File.alone(matchedFile);
+    this.actual = await this.helper.match(this.matchedFile, this.matchingFile);
     return this;
   }
 
   public toBePresentInMatch(): void {
-    if (this.actual === undefined) {
+    if (!this.actual || !this.matchedFile || !this.matchingFile) {
       throw Error("cannot call toBePresentInMatch without calling match");
     }
 
@@ -121,9 +122,9 @@ export class BenchmarkMatcher {
       falseMatches: 0,
       falseMatchingLines: 0,
       falseRangesTuples: [],
-      matchedFile: this.matchedFile as string,
+      matchedFile: this.matchedFile,
       matchedLines: 0,
-      matchingFile: this.matchingFile as string,
+      matchingFile: this.matchingFile,
       matchingRangesTuples: [],
       missedLines: 0,
     };
