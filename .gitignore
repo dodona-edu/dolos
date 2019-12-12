@@ -6,7 +6,6 @@ coverage
 
 yarn-error.log
 .vscode
-samples/**
 temp.html
 src/lib/__benchmarks__/*.json
 src/lib/__benchmarks__/*.html
