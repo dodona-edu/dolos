@@ -139,7 +139,7 @@ program
         maxGapSize: program.maxGapSize,
         maxHashCount: program.maximumHashCount,
         maxHashPercent: program.maximumHashPercentage,
-        maxMatches: program.filePairOutputLimit, // still needed?
+        maxMatches: program.filePairOutputLimit,
         minFragmentLength: program.minimumFragmentLength,
       });
       const matches = await dolos.analyze(locations);
