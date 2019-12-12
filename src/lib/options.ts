@@ -9,7 +9,7 @@ export interface CustomOptions {
   maxGapSize?: number;
   maxHashCount?: number;
   maxHashPercent?: number;
-  maxMatches?: number; // still needed?
+  maxMatches?: number;
   minFragmentLength?: number;
 }
 
@@ -101,7 +101,7 @@ export class Options {
     );
   }
 
-  get maxMatches(): number | null { // still needed?
+  get maxMatches(): number | null {
     return definedOrNull(this.custom.maxMatches);
   }
 
@@ -117,7 +117,7 @@ export class Options {
       maxGapSize: this.maxGapSize,
       maxHashCount: this.custom.maxHashCount,
       maxHashPercent: this.filterByPercentage ? this.maxHashPercent : undefined,
-      maxMatches: this.maxMatches, // still needed?
+      maxMatches: this.maxMatches,
       minFragmentLength: this.minFragmentLength,
     });
   }
