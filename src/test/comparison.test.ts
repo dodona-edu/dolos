@@ -20,7 +20,8 @@ test("all files no filter test", async t => {
   const groups = await FileGroup.groupByFile(files);
   await comparison.addAll(groups);
 
-  const results: Map<FileGroup, Matches<number>> = await comparison.compareFiles(groups);
+  const results: Map<FileGroup, Matches<number>> =
+    await comparison.compareFiles(groups);
   t.snapshot(results);
 });
 
@@ -33,7 +34,8 @@ test("all files basefile test", async t => {
   await comparison.addAll(groups.filter((_, index) => index !== 1));
   await comparison.addToFilterList(groups[1]);
 
-  const results: Map<FileGroup, Matches<number>> = await comparison.compareFiles(groups);
+  const results: Map<FileGroup, Matches<number>> =
+    await comparison.compareFiles(groups);
   t.snapshot(results);
 });
 
@@ -46,7 +48,8 @@ test("all files max hash count", async t => {
   const groups = await FileGroup.groupByFile(files);
   await comparison.addAll(groups);
 
-  const results: Map<FileGroup, Matches<number>> = await comparison.compareFiles(groups);
+  const results: Map<FileGroup, Matches<number>> =
+    await comparison.compareFiles(groups);
   t.snapshot(results);
 });
 
@@ -59,7 +62,8 @@ test("all files max hash percentage", async t => {
   const groups = await FileGroup.groupByFile(files);
   await comparison.addAll(groups);
 
-  const results: Map<FileGroup, Matches<number>> = await comparison.compareFiles(groups);
+  const results: Map<FileGroup, Matches<number>> =
+    await comparison.compareFiles(groups);
   t.snapshot(results);
 });
 
@@ -76,7 +80,8 @@ test.skip("add non-existing file", async t => {
   await comparison.add(file.group);
   t.true(spy.called);
   t.true(spy.calledWith(
-    `There was a problem parsing ${file}. Error: ENOENT: no such file or directory, open '${file}'`,
+    `There was a problem parsing ${file}. ` +
+    `Error: ENOENT: no such file or directory, open '${file}'`
   ));
   spy.restore();
 });
@@ -95,7 +100,8 @@ test.skip("add non-existing file to filter list", async t => {
 
   t.true(spy.called);
   t.true(spy.calledWith(
-    `There was a problem parsing ${file}. Error: ENOENT: no such file or directory, open '${file}'`,
+    `There was a problem parsing ${file}. ` +
+    `Error: ENOENT: no such file or directory, open '${file}'`
   ));
   spy.restore();
 });

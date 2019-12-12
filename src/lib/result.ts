@@ -1,5 +1,9 @@
 type ResultValue<T> = T | Error;
 
+function isError<T>(value: ResultValue<T>): value is Error {
+  return value instanceof Error;
+}
+
 /**
  * A class that represents the result of a computation that could have failed.
  * Its value is either a T or an Error.
@@ -15,7 +19,10 @@ export class Result<T> {
     }
   }
 
-  public static async settled<T>(result: Result<Promise<T>>): Promise<Result<T>> {
+  public static async settled<T>(
+    result: Result<Promise<T>>
+  ): Promise<Result<T>> {
+
     if (result.isOk()) {
       return Result.ok(await result.ok());
     } else {
@@ -23,7 +30,10 @@ export class Result<T> {
     }
   }
 
-  public static async tryAwait<T>(canFail: () => Promise<T>): Promise<Result<T>> {
+  public static async tryAwait<T>(
+    canFail: () => Promise<T>
+  ): Promise<Result<T>> {
+
     try {
       return Result.ok(await canFail());
     } catch (err) {
@@ -43,6 +53,10 @@ export class Result<T> {
 
   private constructor(value: ResultValue<T>) {
     this.value = value;
+  }
+
+  public isError(): boolean {
+    return isError(this.value);
   }
 
   public map<R>(f: (t: T) => R): Result<R> {
@@ -97,16 +111,7 @@ export class Result<T> {
     }
   }
 
-  public isError(): boolean {
-    return isError(this.value);
-  }
-
-  public toString() {
+  public toString(): string {
     return `Result[${this.value}]`;
   }
-
-}
-
-function isError<T>(value: ResultValue<T>): value is Error {
-  return value instanceof Error;
 }

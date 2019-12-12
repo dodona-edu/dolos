@@ -30,17 +30,17 @@ test("group per directory", async t => {
     if (group.name === "student1") {
       t.true(
         testLocations.slice(0, 3)
-          .every(testLoc => fileLocations.some(loc => loc.endsWith(testLoc))),
+          .every(testLoc => fileLocations.some(loc => loc.endsWith(testLoc)))
       );
     } else if (group.name === "student2") {
       t.true(
         testLocations.slice(3, 6)
-          .every(testLoc => fileLocations.some(loc => loc.endsWith(testLoc))),
+          .every(testLoc => fileLocations.some(loc => loc.endsWith(testLoc)))
       );
     } else if (group.name === "student3") {
       t.true(
         testLocations.slice(6)
-          .every(testLoc => fileLocations.some(loc => loc.endsWith(testLoc))),
+          .every(testLoc => fileLocations.some(loc => loc.endsWith(testLoc)))
       );
     } else {
       t.fail("groups should have the name of their differentiating directory");

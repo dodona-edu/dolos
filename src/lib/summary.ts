@@ -9,12 +9,13 @@ import { Clustered, Match, RangesTuple } from "./utils";
 import * as Utils from "./utils";
 
 /**
- * @param minimumLinesInLargestFragment The minimum amount of lines required by the largest code fragment. The default
- * is 1.
- * @param minimumLinesInSmallestFragment The minimum amount of lines required by the smallest code fragment. The default
- * is 0.
- * @param fragmentOutputLimit The maximum amount of code fragments that will appear in the output. Everything is shown
- * if it is anything other then a number greater then zero.
+ * @param minimumLinesInLargestFragment The minimum amount of lines required
+ * by the largest code fragment. The default is 1.
+ * @param minimumLinesInSmallestFragment The minimum amount of lines required
+ * by the smallest code fragment. The default is 0.
+ * @param fragmentOutputLimit The maximum amount of code fragments that will
+ * appear in the output. Everything is shown if it is anything other then a
+ * number greater then zero.
  */
 export interface FilterOptions {
   fragmentOutputLimit?: number;
@@ -22,7 +23,8 @@ export interface FilterOptions {
 }
 
 export class Summary {
-  private static readonly htmlFormatter: HTMLSummaryFormatter = new HTMLSummaryFormatter();
+  private static readonly htmlFormatter: HTMLSummaryFormatter =
+    new HTMLSummaryFormatter();
 
   public readonly results: Map<FileGroup, Matches<Range>>;
   private readonly minimumFragmentLength: number;
@@ -33,17 +35,22 @@ export class Summary {
 
   /**
    * Generates a summary for the given matches.
-   * @param matchesPerFile A many-to-many comparison of a set of files. This map contains an entry for each of the
-   * input files with the key being its file name and the value a list of matches. These matches are grouped
-   * per matching file. The compareFiles function of the Comparison class can generate such mapping.
-   * @param gapSize The gap size allowed during the joining of two ranges. For example if the gap size is 0 then [1,3]
-   * and [5,7] wont be joined, and if the gap size is one these will be joined into [1,7].
-   * @param filterOptions The options used to filter the output, for a more detailed explanation see [[FilterOptions]].
-   * @param clusterCutOffValue The minimum amount of lines required in order for two files to be clustered together.
+   * @param matchesPerFile A many-to-many comparison of a set of files.
+   * This map contains an entry for each of the input files with the key being
+   * its file name and the value a list of matches. These matches are grouped
+   * per matching file. The compareFiles function of the Comparison class can
+   * generate such mapping.
+   * @param gapSize The gap size allowed during the joining of two ranges. For
+   * example if the gap size is 0 then [1,3] and [5,7] wont be joined, and if
+   * the gap size is one these will be joined into [1,7].
+   * @param filterOptions The options used to filter the output, for a more
+   * detailed explanation see [[FilterOptions]].
+   * @param clusterCutOffValue The minimum amount of lines required in order
+   * for two files to be clustered together.
    */
   constructor(
     matchesPerFile: Map<FileGroup, Matches<number>>,
-    options: Options,
+    options: Options
   ) {
     this.clusterCutOffValue = options.clusterMinMatches;
     this.gapSize = options.maxGapSize;
@@ -61,19 +68,22 @@ export class Summary {
    * @param matchesPerFile The results you want to filter.
    */
   public filterOutputAmount(
-    matchesPerFile: Map<FileGroup, Matches<Range>>,
+    matchesPerFile: Map<FileGroup, Matches<Range>>
   ): Map<FileGroup, Matches<Range>> {
 
     if (!this.maxMatches) {
       return matchesPerFile;
     }
 
-    let matchesPerFileScoreArray: Array<[File, File, RangesTuple[], number]> = new Array();
+    let matchesPerFileScoreArray: Array<[File, File, RangesTuple[], number]> =
+      [];
+
     for (const [matchedFile, matches] of matchesPerFile.entries()) {
       for (const [matchingFile, rangesTupleArray] of matches.entries()) {
         matchesPerFileScoreArray.push([
           matchingFile,
-          matchedFile.files[0], // TODO again, this assuses the first file matches
+          // TODO again, this assuses the first file matches
+          matchedFile.files[0],
           rangesTupleArray,
           this.getScoreForArray(rangesTupleArray),
         ]);
@@ -81,17 +91,20 @@ export class Summary {
     }
     // Sort the matchesPerFileScoreArray so only the largest arrays are kept.
     matchesPerFileScoreArray.sort(
-      ([, , , matchScore1], [, , , matchScore2]) => matchScore2 - matchScore1,
+      ([, , , matchScore1], [, , , matchScore2]) => matchScore2 - matchScore1
     );
 
     matchesPerFileScoreArray = matchesPerFileScoreArray.slice(
       0,
-      this.maxMatches,
+      this.maxMatches
     );
 
     const filteredMatchesPerGroup: Map<FileGroup, Matches<Range>> = new Map();
-    for (const [matchedFile, matchingFile, rangesTupleArray] of matchesPerFileScoreArray) {
-      let matches: Matches<Range> | undefined = filteredMatchesPerGroup.get(matchedFile.group);
+    for (const [matchedFile, matchingFile, rangesTupleArray]
+      of matchesPerFileScoreArray) {
+
+      let matches: Matches<Range> | undefined =
+        filteredMatchesPerGroup.get(matchedFile.group);
       if (!matches) {
         matches = new Map();
         filteredMatchesPerGroup.set(matchedFile.group, matches);
@@ -104,14 +117,15 @@ export class Summary {
   }
 
   /**
-   * Remove all ranges that only contain less the minimum required lines. Returns a filtered copy of the array.
+   * Remove all ranges that only contain less the minimum required lines.
+   * Returns a filtered copy of the array.
    * @param rangesTupleArray The rangesTupleArray you want filter.
    */
   public filterByMinimumLines(rangesTupleArray: RangesTuple[]): RangesTuple[] {
     return rangesTupleArray.filter(
       rangesTuple =>
-        Math.min(rangesTuple[0].getLineCount(), rangesTuple[1].getLineCount()) >=
-        this.minimumFragmentLength,
+        Math.min(rangesTuple[0].getLineCount(), rangesTuple[1].getLineCount()) 
+        >= this.minimumFragmentLength
     );
   }
 
@@ -133,8 +147,10 @@ export class Summary {
     return Summary.htmlFormatter.format(this.toJSON(options));
   }
   /**
-   * Returns the maximum from the tuples returned from [[this.countLinesInRanges]].
-   * @param rangesTupleArray The rangesTupleArray you want the maximum line count of.
+   * Returns the maximum from the tuples returned from
+   * [[this.countLinesInRanges]].
+   * @param rangesTupleArray The rangesTupleArray you want the maximum line 
+   * count of.
    */
   public getMaxMatchingLineCount(rangesTupleArray: RangesTuple[]): number {
     return Math.max(...Utils.countLinesInRanges(rangesTupleArray));
@@ -142,7 +158,7 @@ export class Summary {
 
   public toString(
     options?: Options,
-    consoleColours: boolean = false,
+    consoleColours = false
   ): string {
     if (this.clusteredResults.length === 0) {
       return "There were no matches";
@@ -162,9 +178,12 @@ export class Summary {
         clusterNameString = Utils.colour("red", clusterNameString);
       }
       output += clusterNameString;
-      output += this.groupToString(this.clusteredResults[index], consoleColours).replace(
+      output += this.groupToString(
+        this.clusteredResults[index], 
+        consoleColours
+      ).replace(
         "\n",
-        "\t\n",
+        "\t\n"
       );
       output += "\n";
     }
@@ -174,12 +193,14 @@ export class Summary {
 
   public groupToString(group: Match[], consoleColours: boolean): string {
     return (
-      group.map(groupEntry => this.groupEntryToString(groupEntry, consoleColours)).join("\n") + "\n"
+      group.map(
+        groupEntry => this.groupEntryToString(groupEntry, consoleColours)
+      ).join("\n") + "\n"
     );
   }
   public groupEntryToString(
     [matchedFile, matchingFile, matches]: [File, File, RangesTuple[]],
-    consoleColours: boolean,
+    consoleColours: boolean
   ): string {
     matches.sort(([r1], [r2]) => r1.from - r2.from);
     const matchesString: string = matches
@@ -189,10 +210,12 @@ export class Summary {
     const [scoreMatchedFile, scoreMatchingFile] = Utils.scoreForFiles(
       matches,
       matchedFile,
-      matchingFile,
+      matchingFile
     );
 
-    let returnString: string = `\t${matchedFile}(${scoreMatchedFile}%) + ${matchingFile}(${scoreMatchingFile}%) => \n`;
+    let returnString = `\t${matchedFile}(${scoreMatchedFile}%) + ` +
+      `${matchingFile}(${scoreMatchingFile}%) => \n`;
+
     if (consoleColours) {
       returnString = Utils.colour("green", returnString);
     }
@@ -209,14 +232,15 @@ export class Summary {
   }
 
   /**
-   * Checks pairwise if the first element of each RangesTuple can be extended with the second.
-   * @param rangesTuple1 The tuple where the ranges will be tested if it can be extended from the ranges from the
-   * second tuple.
+   * Checks pairwise if the first element of each RangesTuple can be extended
+   * with the second.
+   * @param rangesTuple1 The tuple where the ranges will be tested if it can be
+   * extended from the ranges from the second tuple.
    * @param rangesTuple2 The tuple where the ranges will be used to extend with.
    */
   public canExtendRangesTupleWithRangesTuple(
     rangesTuple1: RangesTuple,
-    rangesTuple2: RangesTuple,
+    rangesTuple2: RangesTuple
   ): boolean {
     return (
       rangesTuple1[0].canExtendWithRange(rangesTuple2[0], this.gapSize) &&
@@ -225,12 +249,19 @@ export class Summary {
   }
 
   /**
-   * Attempts the extend the first element of each tuple with each other and tries the same for the second element.
-   * Assumes that it is possible to perform this operation, an error is thrown if this is not the case.
+   * Attempts the extend the first element of each tuple with each other and
+   * tries the same for the second element.
+   * Assumes that it is possible to perform this operation, an error is thrown
+   * if this is not the case.
    * @param rangesTuple1 The rangesTuple where the ranges will be extended.
-   * @param rangesTuple2 The rangesTuple where the ranges will be used to extend.
+   * @param rangesTuple2 The rangesTuple where the ranges will be used to
+   * extend.
    */
-  public extendRangesTupleWithRangesTuple(rangesTuple1: RangesTuple, rangesTuple2: RangesTuple) {
+  public extendRangesTupleWithRangesTuple(
+    rangesTuple1: RangesTuple,
+    rangesTuple2: RangesTuple
+  ): void {
+
     if (!this.canExtendRangesTupleWithRangesTuple(rangesTuple1, rangesTuple2)) {
       throw new RangeError("a value in the rangeTuple could not be extended");
     }
@@ -242,19 +273,19 @@ export class Summary {
   /**
    * Converts a list of matching lines to a list of ranges.
    * @param matches The list of matching lines.
-   * @returns A list of tuples that contains two ranges, where the frist and second range correspond to the line
-   * numbers of each file.
+   * @returns A list of tuples that contains two ranges, where the frist and
+   * second range correspond to the line numbers of each file.
    */
   public matchesToRange(matches: Array<[number, number]>): RangesTuple[] {
-    let ranges: RangesTuple[] = new Array();
+    let ranges: RangesTuple[] = [];
 
     matches.forEach(next => {
-      const rangeTuple: RangesTuple | undefined = ranges.find(lambdaRangeTuple => {
-        return (
+      const rangeTuple: RangesTuple | undefined = ranges.find(
+        lambdaRangeTuple =>
           lambdaRangeTuple[0].canExtendWithNumber(next[0], this.gapSize) &&
           lambdaRangeTuple[1].canExtendWithNumber(next[1], this.gapSize)
-        );
-      });
+      );
+
       if (rangeTuple === undefined) {
         ranges.push([new Range(next[0], next[0]), new Range(next[1], next[1])]);
       } else {
@@ -270,13 +301,13 @@ export class Summary {
 
   /**
    * Concatenates all the rangesTuples whenever possible.
-   * @param rangesTupleArray The rangesTuples you want to concatenate where possible. Returns a new array with the
-   * result.
+   * @param rangesTupleArray The rangesTuples you want to concatenate where
+   * possible. Returns a new array with the result.
    */
   public concatenateRanges(rangesTupleArray: RangesTuple[]): RangesTuple[] {
     const ranges: RangesTuple[] = rangesTupleArray.slice();
-    // If two rangesTuples overlap with each other then extend the second with the first and remove the
-    // first from the array.
+    // If two rangesTuples overlap with each other then extend the second with
+    // the first and remove the first from the array.
     for (let i = ranges.length - 1; i >= 0; i--) {
       for (let j = i - 1; j >= 0; j--) {
         if (this.canExtendRangesTupleWithRangesTuple(ranges[i], ranges[j])) {
@@ -293,12 +324,15 @@ export class Summary {
    * Clusters the results based on [[this.clusterCutOffValue]].
    * @param results The results you want to cluster.
    */
-  public clusterResults(results: Map<FileGroup, Matches<Range>>): Clustered<Match> {
-    const groupsSet: Set<FileGroup> = new Set();
-    const fileTupleScores: Array<[File, File, RangesTuple[], number]> = new Array();
+  public clusterResults(
+    results: Map<FileGroup, Matches<Range>>
+  ): Clustered<Match> {
 
-    // Maps the results to tuples containing the two files, the matches between those two files and a score for that
-    // File pair. Also fills the file set.
+    const groupsSet: Set<FileGroup> = new Set();
+    const fileTupleScores: Array<[File, File, RangesTuple[], number]> = [];
+
+    // Maps the results to tuples containing the two files, the matches between
+    // those two files and a score for that File pair. Also fills the file set.
     for (const [matchedGroup, matches] of results.entries()) {
       groupsSet.add(matchedGroup);
       for (const [matchingFile, matchingRanges] of matches.entries()) {
@@ -307,15 +341,21 @@ export class Summary {
         // TODO: this assumes the match was with the first file, another
         // refactor needs to happen to keep track which file matches with which
         // other file.
-        fileTupleScores.push([matchedGroup.files[0], matchingFile, matchingRanges, score]);
+        fileTupleScores.push([
+          matchedGroup.files[0],
+          matchingFile,
+          matchingRanges,
+          score
+        ]);
       }
     }
 
     const equivalenceClasses: Map<FileGroup, FileGroup> = new Map(
-      [...groupsSet.values()].map(group => [group, group]),
+      [...groupsSet.values()].map(group => [group, group])
     );
 
-    // Puts all the files in their corresponding equivalenceClass. Uses the union-find algorithm.
+    // Puts all the files in their corresponding equivalenceClass.
+    // Uses the union-find algorithm.
     for (const [matchedFile, matchingFile, , score] of fileTupleScores) {
       if (score > this.clusterCutOffValue) {
         const root1 = this.getRoot(equivalenceClasses, matchedFile.group);
@@ -325,7 +365,7 @@ export class Summary {
     }
 
     const filesGroupsMap: Map<FileGroup, Match[]> = new Map();
-    const restGroup: Match[] = new Array();
+    const restGroup: Match[] = [];
 
     // Uses the generated equivalence classes to cluster fileTuples.
     for (const [matchedFile, matchingFile, matchingRanges] of fileTupleScores) {
@@ -334,7 +374,7 @@ export class Summary {
       if (root === root2) {
         let filesGroup: Match[] | undefined = filesGroupsMap.get(root);
         if (!filesGroup) {
-          filesGroup = new Array();
+          filesGroup = [];
           filesGroupsMap.set(root, filesGroup);
         }
         filesGroup.push([matchedFile, matchingFile, matchingRanges]);
@@ -344,7 +384,8 @@ export class Summary {
     }
     const filesGroupsArray: Clustered<Match> = [...filesGroupsMap.values()];
 
-    // Creates an equivalence class for each tuple that didn't belong to any other equivalence class.
+    // Creates an equivalence class for each tuple that didn't belong to any
+    // other equivalence class.
     for (const restGroupEntry of restGroup) {
       filesGroupsArray.push([restGroupEntry]);
     }
@@ -354,20 +395,21 @@ export class Summary {
       filesGroup.sort(
         ([, , rangesTupleArray1], [, , rangesTupleArray2]) =>
           this.getMaxMatchingLineCount(rangesTupleArray2) -
-          this.getMaxMatchingLineCount(rangesTupleArray1),
+          this.getMaxMatchingLineCount(rangesTupleArray1)
       );
       for (const [, , rangesTupleArray] of filesGroup.values()) {
         rangesTupleArray.sort(
           ([r11, r12], [r21, r22]) =>
             Math.max(r21.getLineCount(), r22.getLineCount()) -
-            Math.max(r11.getLineCount(), r12.getLineCount()),
+            Math.max(r11.getLineCount(), r12.getLineCount())
         );
       }
     }
 
     // Sort the group themselves.
     filesGroupsArray.sort(
-      (group1, group2) => this.getLineCountForGroup(group2) - this.getLineCountForGroup(group1),
+      (group1, group2) =>
+        this.getLineCountForGroup(group2) - this.getLineCountForGroup(group1)
     );
     return filesGroupsArray;
   }
@@ -376,9 +418,9 @@ export class Summary {
    * @param group The group you want to total line count of.
    */
   private getLineCountForGroup(group: Match[]): number {
-    return group
-      .map(([, , rangesTupleArray]) => this.getMaxMatchingLineCount(rangesTupleArray))
-      .reduce((previous, accumulator) => previous + accumulator, 0);
+    return group.map(
+      ([, , rangesTupleArray]) => this.getMaxMatchingLineCount(rangesTupleArray)
+    ).reduce((previous, accumulator) => previous + accumulator, 0);
   }
 
   private getScoreForArray(arr: RangesTuple[]): number {
@@ -392,11 +434,16 @@ export class Summary {
   }
 
   /**
-   * Searches for root of the value in the given equivalenceClasses. Performs path compression.
+   * Searches for root of the value in the given equivalenceClasses.
+   * Performs path compression.
    * @param equivalenceClasses The current equivalence classes.
    * @param value The value you want to get the root of.
    */
-  private getRoot(equivalenceClasses: Map<FileGroup, FileGroup>, value: FileGroup): FileGroup {
+  private getRoot(
+    equivalenceClasses: Map<FileGroup, FileGroup>,
+    value: FileGroup
+  ): FileGroup {
+
     const values: FileGroup[] = [];
     let root = equivalenceClasses.get(value) as FileGroup;
     let nextRoot = equivalenceClasses.get(root) as FileGroup;
@@ -411,18 +458,22 @@ export class Summary {
 
   /**
    * Transforms all the tuples to rangesTuples.
-   * @param matchesPerFile A many-to-many comparison of a set of files. This map contains an entry for each of the
-   * input files with the key being its file name and the value a list of matches. These matches are grouped
-   * per matching file. The compareFiles function of the Comparison class can generate such mapping.
+   * @param matchesPerFile A many-to-many comparison of a set of files.
+   * This map contains an entry for each of the input files with the key being
+   * its file name and the value a list of matches. These matches are grouped
+   * per matching file. The compareFiles function of the Comparison class can
+   * generate such mapping.
    */
   private transformMatches(
-    matchesPerFile: Map<FileGroup, Matches<number>>,
+    matchesPerFile: Map<FileGroup, Matches<number>>
   ): Map<FileGroup, Matches<Range>> {
     const results: Map<FileGroup, Matches<Range>> = new Map();
     matchesPerFile.forEach((matches, matchedFile) => {
       matches.forEach((matchLocations, matchingFile) => {
         let map: Matches<Range> | undefined = results.get(matchedFile);
-        const rangesTupleArray: RangesTuple[] = this.matchesToRange(matchLocations);
+        const rangesTupleArray: RangesTuple[] =
+          this.matchesToRange(matchLocations);
+
         if (rangesTupleArray.length !== 0) {
           if (map === undefined) {
             map = new Map();
