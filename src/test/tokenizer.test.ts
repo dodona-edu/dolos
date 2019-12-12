@@ -6,11 +6,12 @@ const languageFiles = {
   "python": "samples/python/caesar.py",
   "javascript": "samples/javascript/sample.js",
   "haskell": "samples/haskell/Caesar.hs",
-  "c-sharp": "samples/c-sharp/Caesar.cs"
+  "c-sharp": "samples/c-sharp/Caesar.cs",
+  "java": "samples/java/Caesar.java",
 } as any; // eslint-disable-line @typescript-eslint/no-explicit-any
 
 for (const language of CodeTokenizer.supportedLanguages) {
-  test.skip(`tokenizer works for ${language}`, async t => {
+  test(`tokenizer works for ${language}`, async t => {
     const tokenizer =  new CodeTokenizer(language);
     t.truthy(tokenizer);
 
