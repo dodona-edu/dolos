@@ -5,14 +5,3 @@ coverage
 .nyc_output
 
 yarn-error.log
-.vscode
-temp.html
-src/lib/__benchmarks__/*.json
-src/lib/__benchmarks__/*.html
-
-!samples/js
-!samples/js/benchmarkFiles
-!samples/js/benchmarkFiles/*
-!samples/js/sample.js
-!samples/js/copied_function.js
-!samples/js/another_copied_function.js
