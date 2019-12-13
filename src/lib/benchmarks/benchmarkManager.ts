@@ -1,5 +1,6 @@
 import fs from "fs";
-import { BenchmarkMatcher, BenchmarkResults } from "../benchmarks/benchmarkMatcher";
+import { BenchmarkMatcher, BenchmarkResults }
+  from "../benchmarks/benchmarkMatcher";
 import { JSONFormatter } from "../formatters/jsonFormatter";
 import { ObjectMap } from "../utils";
 import * as Utils from "../utils";
@@ -35,16 +36,18 @@ export class BenchmarkManager {
     gapSize: 0,
   };
 
-  private static readonly htmlFormatter: HTMLBenchmarkFormatter = new HTMLBenchmarkFormatter();
+  private static readonly htmlFormatter: HTMLBenchmarkFormatter =
+    new HTMLBenchmarkFormatter();
 
-  private benchMarks: Map<
-    string,
-    (benchmarkMatcher: BenchmarkMatcher) => Promise<void>
-  > = new Map();
+  private benchMarks:
+    Map<string, (benchmarkMatcher: BenchmarkMatcher) => Promise<void>> =
+    new Map();
 
   private readonly generateHTML: boolean;
 
-  private helper: BenchmarkHelper = new BenchmarkHelper(BenchmarkManager.defaultBenchmarkSettings);
+  private helper: BenchmarkHelper =
+    new BenchmarkHelper(BenchmarkManager.defaultBenchmarkSettings);
+
   private benchmarkSettingsList: BenchMarkSettings[] = [];
 
   private jsonResults: string | undefined;
@@ -52,7 +55,7 @@ export class BenchmarkManager {
   /**
    * @param generateHTML Wither or not to generate an html output.
    */
-  constructor(generateHTML: boolean = false) {
+  constructor(generateHTML = false) {
     this.generateHTML = generateHTML;
   }
 
@@ -63,23 +66,30 @@ export class BenchmarkManager {
    */
   public async benchmark(
     benchmarkName: string,
-    benchmarkFunction: (benchmarkMather: BenchmarkMatcher) => Promise<void>,
-  ) {
+    benchmarkFunction: (benchmarkMather: BenchmarkMatcher) => Promise<void>
+  ): Promise<void> {
+
     this.benchMarks.set(benchmarkName, benchmarkFunction);
   }
   /**
    * Execute all registered benchmarks.
    */
-  public async executeBenchmarks() {
-    const benchmarkResultsList: ObjectMap<Array<[string, BenchmarkResults]>> = {};
+  public async executeBenchmarks(): Promise<void> {
+    const benchmarkResultsList: ObjectMap<Array<[string, BenchmarkResults]>> =
+      {};
+
     if (this.benchmarkSettingsList.length === 0) {
-      this.benchmarkSettingsList.push(BenchmarkManager.defaultBenchmarkSettings);
+      this.benchmarkSettingsList.push(
+        BenchmarkManager.defaultBenchmarkSettings
+      );
     }
     for (const benchmarkSettings of this.benchmarkSettingsList.values()) {
       const results: Array<[string, BenchmarkResults]> = [];
       this.helper.benchmarkSettings = benchmarkSettings;
       for (const [name, benchmarkFunction] of this.benchMarks.entries()) {
-        const benchmarkMatcher: BenchmarkMatcher = new BenchmarkMatcher(this.helper);
+        const benchmarkMatcher: BenchmarkMatcher =
+          new BenchmarkMatcher(this.helper);
+
         await benchmarkFunction(benchmarkMatcher);
         if (benchmarkMatcher.result === undefined) {
           continue;
@@ -89,7 +99,9 @@ export class BenchmarkManager {
       benchmarkResultsList[JSON.stringify(benchmarkSettings)] = results;
     }
 
-    const json: string = JSON.stringify(benchmarkResultsList, JSONFormatter.JSONReplacerFunction);
+    const json: string =
+      JSON.stringify(benchmarkResultsList, JSONFormatter.JSONReplacerFunction);
+
     this.jsonResults = json;
     if (this.generateHTML) {
       this.generateHTMLFile(json);
@@ -99,38 +111,47 @@ export class BenchmarkManager {
   }
 
   /**
-   * Add a benchmark setting to the list of benchmarks. If none are add then only the no-filter options is executed.
+   * Add a benchmark setting to the list of benchmarks. If none are add then
+   * only the no-filter options is executed.
+   *
    * @param benchmarkSettings The benchmark setting you want to add.
    */
-  public addBenchmarkSettings(benchmarkSettings: BenchMarkSettings) {
+  public addBenchmarkSettings(benchmarkSettings: BenchMarkSettings): void {
     this.benchmarkSettingsList.push(benchmarkSettings);
   }
 
   /**
-   * A function used to generate an html output. Will write to a file with the current timestamp and overwrite the
-   * current latest.html. Both files are written to the `__benchmarks__` directory
+   * A function used to generate an html output. Will write to a file with the
+   * current timestamp and overwrite the current latest.html. Both files are
+   * written to the `__benchmarks__` directory.
+   *
    * @param jsonResults The results you want to show on the html page.
    */
-  private generateHTMLFile(json: string) {
+  private generateHTMLFile(json: string): void {
     const fileName: string = new Date().toISOString();
     const html: string = BenchmarkManager.htmlFormatter.format(json);
     fs.writeFileSync(`src/lib/__benchmarks__/${fileName}.html`, html, "utf8");
-    fs.writeFileSync(`src/lib/__benchmarks__/latest.html`, html, "utf8");
+    fs.writeFileSync("src/lib/__benchmarks__/latest.html", html, "utf8");
   }
 
   /**
    * Prints the given result to the console.
    * @param resultsMap The results you want to pint to the console.
    */
-  private outputResultsToConsole(resultsMap: ObjectMap<Array<[string, BenchmarkResults]>>) {
+  private outputResultsToConsole(
+    resultsMap: ObjectMap<Array<[string, BenchmarkResults]>>
+  ): void {
+
     for (const [options, results] of Object.entries(resultsMap)) {
       console.log(Utils.colour("green", `${options} => `));
       for (const [name, result] of results.values()) {
         console.log(
           Utils.colour("red", `\t${name} => `) +
-            `matchedLines: ${result.matchedLines}, missedLines: ${result.missedLines}, ` +
-            `falseLines: ${result.falseLines}, falseMatches: ${result.falseMatches}, ` +
-            `falseMatchingLines: ${result.falseMatchingLines}`,
+            `matchedLines: ${result.matchedLines}, ` +
+            `missedLines: ${result.missedLines}, ` +
+            `falseLines: ${result.falseLines}, ` + 
+            `falseMatches: ${result.falseMatches}, ` +
+            `falseMatchingLines: ${result.falseMatchingLines}`
         );
       }
       console.log("");

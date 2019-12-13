@@ -5,11 +5,13 @@ import { JSONFormatter } from "../formatters/jsonFormatter";
 import { ObjectMap, RangesTuple } from "../utils";
 import * as Utils from "../utils";
 
-export class HTMLBenchmarkFormatter extends HTMLFormatter<[string, string, BenchmarkResults]> {
+export class HTMLBenchmarkFormatter
+  extends HTMLFormatter<[string, string, BenchmarkResults]> {
+
   public toComparePage(
     matchedFile: File,
     matchingFile: File,
-    [settings, name, results]: [string, string, BenchmarkResults],
+    [settings, name, results]: [string, string, BenchmarkResults]
   ): string {
     const comparePage: string = this.toCompareView(matchedFile, matchingFile, [
       settings,
@@ -21,24 +23,27 @@ export class HTMLBenchmarkFormatter extends HTMLFormatter<[string, string, Bench
       matchedFile,
       matchingFile,
       undefined,
-      settings,
+      settings
     );
     return (
       `<div style="display:none" id="${id}">\n` +
-      `<div> <a href=# onclick="return swap('Index', '${id}')">Back to index</a> </div>\n` +
+      `<div> <a href=# onclick="return swap('Index', '${id}')">` + 
+      "Back to index</a> </div>\n" +
       `<div>${comparePage}</div>\n` +
-      `</div>\n`
+      "</div>\n"
     );
   }
 
   public toCompareView(
     matchedFile: File,
     matchingFile: File,
-    [benchmarkSettings, name, benchmarkResults]: [string, string, BenchmarkResults],
+    [benchmarkSettings, name, benchmarkResults]:
+      [string, string, BenchmarkResults]
   ): string {
+
     const description: string = HTMLBenchmarkFormatter.escapeHtml(
       `Benchmark settings: ${benchmarkSettings}\n` +
-        `Name: ${name}, files: ${matchedFile} => ${matchingFile}`,
+        `Name: ${name}, files: ${matchedFile} => ${matchingFile}`
     );
     benchmarkResults.falseRangesTuples.sort(Utils.sortRangesTuples);
     benchmarkResults.matchingRangesTuples.sort(Utils.sortRangesTuples);
@@ -53,7 +58,7 @@ export class HTMLBenchmarkFormatter extends HTMLFormatter<[string, string, Bench
     const falseRangesTuples: string[] = [];
     const matchingRangesTuples: string[] = [];
 
-    let indexOffset: number = 0;
+    let indexOffset = 0;
     HTMLBenchmarkFormatter.toMarkingDivAndToggleButton(
       benchmarkResults.matchedFile,
       benchmarkResults.matchingFile,
@@ -63,7 +68,7 @@ export class HTMLBenchmarkFormatter extends HTMLFormatter<[string, string, Bench
       falseRangesTuples,
       "red",
       indexOffset,
-      benchmarkSettings,
+      benchmarkSettings
     );
     indexOffset += benchmarkResults.falseRangesTuples.length;
 
@@ -76,7 +81,7 @@ export class HTMLBenchmarkFormatter extends HTMLFormatter<[string, string, Bench
       matchingRangesTuples,
       "blue",
       indexOffset,
-      benchmarkSettings,
+      benchmarkSettings
     );
 
     indexOffset += benchmarkResults.matchingRangesTuples.length;
@@ -90,107 +95,115 @@ export class HTMLBenchmarkFormatter extends HTMLFormatter<[string, string, Bench
       expectedRanges,
       "green",
       indexOffset,
-      benchmarkSettings,
+      benchmarkSettings
     );
 
     const id: string = HTMLBenchmarkFormatter.makeId(
       matchedFile,
       matchingFile,
       undefined,
-      benchmarkSettings,
+      benchmarkSettings
     );
 
-    let checkboxes: string = "";
+    let checkboxes = "";
     if (expectedRanges.length > 0) {
       checkboxes +=
-        `Expected ranges: ` +
+        "Expected ranges: " +
         this.makeToggleAllButton(id, "expectedRanges", "green") +
-        `<div class="ranges" id="expectedRanges">\n` +
+        "<div class=\"ranges\" id=\"expectedRanges\">\n" +
         `${expectedRanges.join("\n")}` +
-        `</div>\n`;
+        "</div>\n";
     }
 
     if (matchingFile.lineCount.okOr(0) > 0) {
       checkboxes +=
-        `Ranges with at least one match:` +
+        "Ranges with at least one match:" +
         this.makeToggleAllButton(id, "matchingRanges", "blue") +
-        `<div class="ranges" id="matchingRanges">\n` +
+        "<div class=\"ranges\" id=\"matchingRanges\">\n" +
         `${matchingRangesTuples.join("\n")}` +
-        `</div>\n`;
+        "</div>\n";
     }
 
     if (falseRangesTuples.length > 0) {
       checkboxes +=
-        `Ranges with no match:` +
+        "Ranges with no match:" +
         this.makeToggleAllButton(id, "falseRanges", "red") +
-        `<div class="ranges" id="falseRanges">\n` +
+        "<div class=\"ranges\" id=\"falseRanges\">\n" +
         `${falseRangesTuples.join("\n")}` +
-        `</div>\n`;
+        "</div>\n";
     }
 
     return (
-      `<div>\n` +
-      `<hr>` +
+      "<div>\n" +
+      "<hr>" +
       description +
-      `</div>\n` +
-      `<div class="code-comparison">\n` +
-      `<div class="allRanges">\n` +
+      "</div>\n" +
+      "<div class=\"code-comparison\">\n" +
+      "<div class=\"allRanges\">\n" +
       `${checkboxes}` +
-      `</div>\n` +
-      `<div class="left-column">\n` +
+      "</div>\n" +
+      "<div class=\"left-column\">\n" +
       `${leftMarkedAreas.join("\n")}` +
-      `<pre class="code">\n` +
+      "<pre class=\"code\">\n" +
       `${left}\n` +
-      `</pre>\n` +
-      `</div>\n` +
-      `<div class="right-column">\n` +
+      "</pre>\n" +
+      "</div>\n" +
+      "<div class=\"right-column\">\n" +
       `${rightMarkedAreas.join("\n")}` +
-      `<pre class="code">\n` +
+      "<pre class=\"code\">\n" +
       `${right}\n` +
-      `</pre>\n` +
-      `</div>\n` +
-      `</div>\n`
+      "</pre>\n" +
+      "</div>\n" +
+      "</div>\n"
     );
   }
 
-  public makeToggleAllButton(parentId: string, target: string, colour: string): string {
+  public makeToggleAllButton(
+    parentId: string,
+    target: string,
+    colour: string
+  ): string {
+
     return (
       `<div class="range" style="color: ${colour};" >` +
-      `<input type="checkbox" class="toggleAll" data-target="${target}" data-parent="${parentId}">` +
-      `Toggle all` +
-      `</div>`
+      `<input type="checkbox" class="toggleAll" data-target="${target}" ` +
+      `data-parent="${parentId}">` +
+      "Toggle all" +
+      "</div>"
     );
   }
 
   public makeBody(jsonString: string): string {
     const jsonData: ObjectMap<Array<[string, BenchmarkResults]>> = JSON.parse(
       jsonString,
-      JSONFormatter.JSONReviverFunction,
+      JSONFormatter.JSONReviverFunction
     );
-    const comparisonPages: string[] = new Array();
-    const groups: string[] = new Array();
+    const comparisonPages: string[] = [];
+    const groups: string[] = [];
 
     for (const [benchmarkSetting, results] of Object.entries(jsonData)) {
       for (const [name, benchmarkResults] of results.values()) {
         comparisonPages.push(
-          this.toComparePage(benchmarkResults.matchedFile, benchmarkResults.matchingFile, [
-            benchmarkSetting,
-            name,
-            benchmarkResults,
-          ]),
+          this.toComparePage(
+            benchmarkResults.matchedFile,
+            benchmarkResults.matchingFile, [
+              benchmarkSetting,
+              name,
+              benchmarkResults,
+            ])
         );
       }
       groups.push(this.makeGroupsEntry(results, benchmarkSetting));
     }
     return (
-      `<div>` +
-      `<p>Dolos summary</p>` +
+      "<div>" +
+      "<p>Dolos summary</p>" +
       (this.noTime ? "" : `<p>${new Date().toUTCString()}</p>`) +
-      `<hr>` +
-      `</div>` +
-      `<div id="Index">\n` +
+      "<hr>" +
+      "</div>" +
+      "<div id=\"Index\">\n" +
       `${groups.join("\n")}\n` +
-      `</div>\n` +
+      "</div>\n" +
       `${comparisonPages.join("\n")}`
     );
   }
@@ -199,13 +212,13 @@ export class HTMLBenchmarkFormatter extends HTMLFormatter<[string, string, Bench
     matchingFile: File,
     rangesTupleArray: RangesTuple[],
     benchmarkName: string,
-    benchmarkSettings: string,
+    benchmarkSettings: string
   ): string {
     const id: string = HTMLBenchmarkFormatter.makeId(
       matchedFile,
       matchingFile,
       undefined,
-      benchmarkSettings,
+      benchmarkSettings
     );
     const [matchedFileLineCount, matchingFileLineCount]: [
       number,
@@ -215,65 +228,73 @@ export class HTMLBenchmarkFormatter extends HTMLFormatter<[string, string, Bench
     const [scoreMatchedFile, scoreMatchingFile] = Utils.scoreForFiles(
       rangesTupleArray,
       matchedFile,
-      matchingFile,
+      matchingFile
     );
     return (
-      `<tr>\n` +
-      `<td class="benchmarkName-column">\n` +
+      "<tr>\n" +
+      "<td class=\"benchmarkName-column\">\n" +
       `<a href=# onclick="return swap('${id}', 'Index');">\n` +
       `${HTMLBenchmarkFormatter.escapeHtml(benchmarkName)}\n` +
-      `</a>\n` +
-      `</td>\n` +
-      `<td class="filename-column">\n` +
+      "</a>\n" +
+      "</td>\n" +
+      "<td class=\"filename-column\">\n" +
       `<a href=# onclick="return swap('${id}', 'Index');">\n` +
-      `${HTMLBenchmarkFormatter.escapeHtml(matchedFile.showContent())} (${scoreMatchedFile}%)\n` +
-      `</a>\n` +
-      `</td>\n` +
-      `<td class="filename-column">` +
+      `${HTMLBenchmarkFormatter.escapeHtml(matchedFile.showContent())} ` +
+      `(${scoreMatchedFile}%)\n` +
+      "</a>\n" +
+      "</td>\n" +
+      "<td class=\"filename-column\">" +
       `<a href=# onclick="return swap('${id}', 'Index');">\n` +
-      `${HTMLBenchmarkFormatter.escapeHtml(matchingFile.showContent())} (${scoreMatchingFile}%)` +
-      `</a>` +
-      `</td>\n` +
+      `${HTMLBenchmarkFormatter.escapeHtml(matchingFile.showContent())} ` +
+      `(${scoreMatchingFile}%)` +
+      "</a>" +
+      "</td>\n" +
       `<td class="lines-matched-column">${matchedFileLineCount}</td>\n` +
       `<td class="lines-matched-column">${matchingFileLineCount}</td>\n` +
-      `</tr>`
+      "</tr>"
     );
   }
 
-  private makeGroupsEntry(group: Array<[string, BenchmarkResults]>, settings: string): string {
+  private makeGroupsEntry(
+    group: Array<[string, BenchmarkResults]>,
+    settings: string
+  ): string {
+
     const tableRows: string[] = group.map(([benchmarkName, benchmarkResults]) =>
       this.makeBenchmarkTableRow(
         benchmarkResults.matchedFile,
         benchmarkResults.matchingFile,
-        benchmarkResults.falseRangesTuples.concat(benchmarkResults.matchingRangesTuples),
+        benchmarkResults.falseRangesTuples.concat(
+          benchmarkResults.matchingRangesTuples
+        ),
         benchmarkName,
-        settings,
-      ),
+        settings
+      )
     );
 
     return (
-      `<div class="group">\n` +
-      `<details>\n` +
-      `<summary class="clicker">\n` +
+      "<div class=\"group\">\n" +
+      "<details>\n" +
+      "<summary class=\"clicker\">\n" +
       `${settings}\n` +
-      `</summary>\n` +
-      `<hr>\n` +
-      `<div>\n` +
-      `<table>\n` +
-      `<tbody>\n` +
-      `<tr>\n` +
-      `<th class="benchmarkName-column">Benchmark name</th>\n` +
-      `<th class="filename-column">File 1</th>\n` +
-      `<th class="filename-column">File 2</th>\n` +
-      `<th class="lines-matched-column">Lines matched in File 1</th>\n` +
-      `<th class="lines-matched-column">Lines matched in File 2</th>\n` +
-      `</tr>\n` +
+      "</summary>\n" +
+      "<hr>\n" +
+      "<div>\n" +
+      "<table>\n" +
+      "<tbody>\n" +
+      "<tr>\n" +
+      "<th class=\"benchmarkName-column\">Benchmark name</th>\n" +
+      "<th class=\"filename-column\">File 1</th>\n" +
+      "<th class=\"filename-column\">File 2</th>\n" +
+      "<th class=\"lines-matched-column\">Lines matched in File 1</th>\n" +
+      "<th class=\"lines-matched-column\">Lines matched in File 2</th>\n" +
+      "</tr>\n" +
       `${tableRows.join("\n")}\n` +
-      `</tbody>\n` +
-      `</table>\n` +
-      `</div>\n` +
-      `</details>\n` +
-      `</div>\n`
+      "</tbody>\n" +
+      "</table>\n" +
+      "</div>\n" +
+      "</details>\n" +
+      "</div>\n"
     );
   }
 }

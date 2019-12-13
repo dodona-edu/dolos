@@ -1,10 +1,12 @@
 import { default as Parser, SyntaxNode } from "tree-sitter";
 import { Token, Tokenizer } from "./tokenizer";
 
+// eslint-disable-next-line no-invalid-this
 Parser.bind(this);
 
 export class CodeTokenizer extends Tokenizer<number> {
-  public static supportedLanguages = ["c-sharp", "haskell", "java", "javascript", "python"];
+  public static supportedLanguages = ["c-sharp", "haskell", "java",
+    "javascript", "python"];
 
   /**
    * Returns true if the grammar of the given language is supported.
@@ -17,18 +19,20 @@ export class CodeTokenizer extends Tokenizer<number> {
 
   /**
    * Registers an additional language to Dolos. For this to work, the supporting
-   * module of the name `tree-sitter-someLanguage` must first be installed manually
-   * through yarn or npm.
+   * module of the name `tree-sitter-someLanguage` must first be installed
+   * manually through yarn or npm.
    *
    * The function will throw an error when the supported module is not found.
    *
    * @param language The name of the language to register
    */
-  public static registerLanguage(language: string) {
+  public static registerLanguage(language: string): void {
     try {
       require("tree-sitter-" + language);
     } catch (error) {
-      throw new Error(`The module 'tree-sitter-${language}' could not be found`);
+      throw new Error(
+        `The module 'tree-sitter-${language}' could not be found`
+      );
     }
     this.supportedLanguages.push(language);
   }
@@ -37,9 +41,9 @@ export class CodeTokenizer extends Tokenizer<number> {
   private readonly parser: Parser;
 
   /**
-   * Creates a new tokenizer of the given language. Will throw an error when the given
-   * language is not supported. See Tokenizer.supportedLanguages for a list of all
-   * supported languages.
+   * Creates a new tokenizer of the given language. Will throw an error when the
+   * given language is not supported. See Tokenizer.supportedLanguages for a
+   * list of all supported languages.
    *
    * @param language The language to use for this tokenizer.
    */
@@ -51,14 +55,14 @@ export class CodeTokenizer extends Tokenizer<number> {
 
     this.language = language;
     this.parser = new Parser();
-    // tslint:disable-next-line: no-var-requires
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const languageModule = require("tree-sitter-" + language);
     this.parser.setLanguage(languageModule);
   }
 
   /**
-   * Runs the parser on a given string. Returns a stringified version of the abstract
-   * syntax tree.
+   * Runs the parser on a given string. Returns a stringified version of the
+   * abstract syntax tree.
    *
    * @param text The text string to parse
    */
@@ -68,8 +72,9 @@ export class CodeTokenizer extends Tokenizer<number> {
   }
 
   /**
-   * Runs the parser on a given string. Returns an async iterator returning tuples
-   * containing the stringified version of the token and the corresponding position.
+   * Runs the parser on a given string. Returns an async iterator returning
+   * tuples containing the stringified version of the token and the
+   * corresponding position.
    *
    * @param text The text string to parse
    */

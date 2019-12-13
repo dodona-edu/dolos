@@ -24,9 +24,9 @@ export abstract class Tokenizer<Location> {
   public abstract tokenize(text: string): string;
 
   /**
-   * Runs the stringifier on a file with the given name.  Returns a tuple containing the
-   * stringified version and an array containing a mapping from each token to the
-   * corresponding token in the original buffer.
+   * Runs the stringifier on a file with the given name.  Returns a tuple
+   * containing the stringified version and an array containing a mapping from
+   * each token to the corresponding token in the original buffer.
    *
    * @param fileName The name of the file to stringify
    */
@@ -35,9 +35,9 @@ export abstract class Tokenizer<Location> {
   }
 
   /**
-   * Runs the stringifier on a given buffer. Returns a tuple containing the stringified version
-   * and an array containing a mapping from each token to the corresponding token in the
-   * original buffer.
+   * Runs the stringifier on a given buffer. Returns a tuple containing the
+   * stringified version and an array containing a mapping from each token to
+   * the corresponding token in the original buffer.
    *
    * @param text The text buffer to stringify
    */
@@ -52,12 +52,16 @@ export abstract class Tokenizer<Location> {
   }
 
   /**
-   * Runs the stringifier on a file with the given name. Returns an async iterator returning
-   * tuples containing the stringified version of the token and the corresponding position.
+   * Runs the stringifier on a file with the given name. Returns an async
+   * iterator returning tuples containing the stringified version of the token
+   * and the corresponding position.
    *
    * @param fileName The name of the file to stringify
    */
-  public *generateTokensFromFile(file: File): IterableIterator<Token<Location>> {
+  public *generateTokensFromFile(
+    file: File
+  ): IterableIterator<Token<Location>> {
+
     const content = file.readResult;
     if (content.isOk()) {
       yield* this.generateTokens(content.ok());
@@ -65,15 +69,19 @@ export abstract class Tokenizer<Location> {
   }
 
   /**
-   * Runs the tokenizer on a given Buffer. Returns an async iterator returning tuples
-   * containing the stringified version of the token and the corresponding position.
+   * Runs the tokenizer on a given Buffer. Returns an async iterator returning
+   * tuples containing the stringified version of the token and the
+   * corresponding position.
    *
    * @param text The text string to parse
    */
-  public abstract generateTokens(text: string): IterableIterator<Token<Location>>;
+  public abstract generateTokens(
+    text: string
+  ): IterableIterator<Token<Location>>;
 
   /**
-   * Returns a new token-object. Just a shorthand for {token: ..., location: ...}.
+   * Returns a new token-object.
+   * Just a shorthand for {token: ..., location: ...}.
    *
    * @param token the text of the token
    * @param location the location of the token

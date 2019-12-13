@@ -2,6 +2,22 @@ import { default as path } from "path";
 import { Result } from "../result";
 import { File } from "./file";
 
+
+/**
+ * Finds the directory that is the lowest common ancestor of the given files.
+ * I.e. the longest common prefix of directories for each file.
+ */
+function findPrefix(fileLocations: string[]): string[] {
+  return fileLocations.map(location => location.split(path.sep))
+    .reduce((prefix, dirs) => {
+      let i = 0;
+      while (i < prefix.length && prefix[i] === dirs[i]) {
+        i++;
+      }
+      return prefix.slice(0, i);
+    });
+}
+
 /**
  * Represents a single file or multiple files that form a single unit.
  */
@@ -10,12 +26,17 @@ export class FileGroup {
   /**
    * Create a single new FileGroup with File objects for each given location.
    */
-  public static async asGroup(locations: string[], name?: string): Promise<FileGroup> {
-    if (name === undefined) {
+  public static async asGroup(
+    locations: string[],
+    name?: string
+  ): Promise<FileGroup> {
+
+    let groupName = name;
+    if (groupName === undefined) {
       const prefix = findPrefix(locations);
-      name = prefix[prefix.length - 1];
+      groupName = prefix[prefix.length - 1];
     }
-    const group = new FileGroup(name);
+    const group = new FileGroup(groupName);
     await Promise.all(locations.map(l => group.addFile(l)));
     return group;
   }
@@ -26,7 +47,7 @@ export class FileGroup {
   public static async groupByFile(locations: string[]): Promise<FileGroup[]> {
     return Promise.all(
       locations.map(location =>
-        FileGroup.asGroup([location], path.basename(location))),
+        FileGroup.asGroup([location], path.basename(location)))
     );
   }
 
@@ -34,7 +55,10 @@ export class FileGroup {
    * Create for each location a File and group them per child directory
    * of the lowest common ancestor directory.
    */
-  public static async groupByDirectory(fileLocations: string[]): Promise<FileGroup[]> {
+  public static async groupByDirectory(
+    fileLocations: string[]
+  ): Promise<FileGroup[]> {
+
     const groups = new Map<string, string[]>();
     const prefixCount = findPrefix(fileLocations).length;
 
@@ -50,8 +74,8 @@ export class FileGroup {
 
     return await Promise.all(
       Array.from(groups.entries())
-        .map(([name, locations]) => FileGroup.asGroup(locations, name)),
-      );
+        .map(([name, locations]) => FileGroup.asGroup(locations, name))
+    );
   }
 
   /**
@@ -59,7 +83,11 @@ export class FileGroup {
    * [name, content] pairs, this is needed in the HTMLFormatter to 'revive'
    * JSON objects. TODO: remove this method and provide a better solution.
    */
-  public static createDirty(name: string, files: Array<[string, string]>): FileGroup {
+  public static createDirty(
+    name: string,
+    files: Array<[string, string]>
+  ): FileGroup {
+
     const group = new FileGroup(name);
     for (const [location, content] of files) {
       group.files.push(new File(location, group, Result.ok(content)));
@@ -83,19 +111,4 @@ export class FileGroup {
     this.files.push(await File.read(location, this));
   }
 
-}
-
-/**
- * Finds the directory that is the lowest common ancestor of the given files.
- * I.e. the longest common prefix of directories for each file.
- */
-function findPrefix(fileLocations: string[]): string[] {
-  return fileLocations.map(location => location.split(path.sep))
-    .reduce((prefix, dirs) => {
-      let i = 0;
-      while (i < prefix.length && prefix[i] === dirs[i]) {
-        i++;
-      }
-      return prefix.slice(0, i);
-    });
 }
