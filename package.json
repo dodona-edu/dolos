@@ -13,7 +13,7 @@
     "test:watch": "ava --watch",
     "test:debug": "node inspect ./node_modules/ava/profile.js --",
     "build": "tsc",
-    "lint": "eslint --ext .ts src/"
+    "lint": "eslint --max-warnings 0 --ext .ts src/"
   },
   "repository": "git@github.com:dodona-edu/dolos.git",
   "author": "Bart Mesuere <Bart.Mesuere@UGent.be>",
