@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: ["10"]
+        node: ["10", "12", "13"]
       fail-fast: false
     name: Test Node ${{ matrix.node }}
     steps:
