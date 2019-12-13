@@ -58,3 +58,15 @@ Afterwards, if we want to check a file against the rest, we can simply compute a
 - Running `yarn test` will run all tests
 - Running `yarn lint` will run the linter
 - Running `yarn start` will compile everything and run the `app.js` file. Additional arguments are required, use the --help option for more information.
+
+## Contributing
+
+Please adhere to the linter rules. They are quite strict at the moment, but
+they are open for discussion.
+
+You can run the linter before each commit (and prevent a commit from happening
+if there are any errors) by linking the pre-commit file:
+`ln -s ../../.hooks/pre-commit .git/hooks/`.
+
+Our CI will test and lint each pull request automatically, showing any failing
+tests of linter errors.
