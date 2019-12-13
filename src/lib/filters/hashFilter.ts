@@ -6,7 +6,10 @@ export interface Hash {
 }
 
 export abstract class HashFilter {
-  public static async *readBytes(stream: Readable): AsyncIterableIterator<number> {
+  public static async *readBytes(
+    stream: Readable
+  ): AsyncIterableIterator<number> {
+
     for await (const buffer of stream) {
       if (buffer instanceof Buffer) {
         yield* buffer as Buffer;

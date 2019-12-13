@@ -41,7 +41,7 @@ export class File {
     this.group = group;
     this.readResult = readResult;
     this.lineCount = readResult.map(
-      content => content.split("").filter(c => c === "\n").length,
+      content => content.split("").filter(c => c === "\n").length
     );
   }
 
@@ -51,7 +51,7 @@ export class File {
    */
   public showContent(): string {
     return this.readResult.okOrElse(
-      () => `Error while reading file: ${this.readResult.err()}`,
+      () => `Error while reading file: ${this.readResult.err()}`
     );
   }
 

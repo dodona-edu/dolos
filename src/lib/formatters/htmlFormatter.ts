@@ -7,7 +7,9 @@ import * as Utils from "../utils";
 
 export abstract class HTMLFormatter<T> {
   /**
-   * Generates a colour rotation for a given item so that each item has a unique colour.
+   * Generates a colour rotation for a given item so that each item has a
+   * unique colour.
+   *
    * @param index The index of the item.
    * @param total The total amount of items.
    */
@@ -16,11 +18,12 @@ export abstract class HTMLFormatter<T> {
   }
 
   /**
-   * Escapes all html characters so that no cross site scripting can occur. This is done without changing how the text
-   * would be display outside of html.
+   * Escapes all html characters so that no cross site scripting can occur. This
+   * is done without changing how the text would be display outside of html.
+   *
    * @param text The text you want to escape.
    */
-  protected static escapeHtml(text: string) {
+  protected static escapeHtml(text: string): string {
     return text.replace(/[&<>"']/g, m => this.safeHTMLMap.get(m) as string);
   }
 
@@ -30,13 +33,18 @@ export abstract class HTMLFormatter<T> {
    * @param colourRotation The colour rotation you want to use.
    * @param id The id of the markingDiv
    */
-  protected static rangeToMarkingDiv(range: Range, styleing: string, id: string): string {
-    const style: string[] = [
+  protected static rangeToMarkingDiv(
+    range: Range,
+    styleing: string,
+    id: string
+  ): string {
+
+    const style: string = [
       `top: ${range.from * 16}px`,
       `height: ${(range.to - range.from + 1) * 16}px`,
       `${styleing}`,
-    ];
-    return `<div class="markingDiv" style="${style.join("; ")}" id="${id}"></div>`;
+    ].join("; ");
+    return `<div class="markingDiv" style="${style}" id="${id}"></div>`;
   }
 
   /**
@@ -48,11 +56,11 @@ export abstract class HTMLFormatter<T> {
     matchedFile: File,
     matchingFile: File,
     index?: number,
-    groupId?: string,
+    groupId?: string
   ): string {
-    let id: string = `${this.escapeHtml(matchedFile.location.replace(/-/gi, ""))}-${this.escapeHtml(
-      matchingFile.location.replace(/-/gi, ""),
-    )}`;
+    const id1 = this.escapeHtml(matchedFile.location.replace(/-/gi, ""));
+    const id2 = this.escapeHtml(matchingFile.location.replace(/-/gi, ""));
+    let id = `${id1}-${id2}`;
     if (index !== undefined) {
       id += `-${index}`;
     }
@@ -73,32 +81,34 @@ export abstract class HTMLFormatter<T> {
     rangesTuples: RangesTuple[],
     rangesList: string[],
     colour: string,
-    indexOffset: number = 0,
-    benchmarkSettings?: string,
-  ) {
+    indexOffset = 0,
+    benchmarkSettings?: string
+  ): void {
     for (const [index, [leftRange, rightRange]] of rangesTuples.entries()) {
-      const id: string = `${HTMLFormatter.makeId(
+      const id = `${HTMLFormatter.makeId(
         matchedFile,
         matchingFile,
         index + indexOffset,
-        benchmarkSettings,
+        benchmarkSettings
       )}`;
-      leftMarkedAreas.push(HTMLFormatter.rangeToMarkingDiv(leftRange, `background: ${colour}`, id));
-      rightMarkedAreas.push(
-        HTMLFormatter.rangeToMarkingDiv(rightRange, `background: ${colour}`, id),
+      leftMarkedAreas.push(
+        HTMLFormatter.rangeToMarkingDiv(leftRange, `background: ${colour}`, id)
       );
-      const rangesTupleString: string = `[${leftRange.toString()}, ${rightRange.toString()}]`;
+      rightMarkedAreas.push(
+        HTMLFormatter.rangeToMarkingDiv(rightRange, `background: ${colour}`, id)
+      );
+      const rangesTupleString = `[${leftRange}, ${rightRange}]`;
       rangesList.push(
         `<div class="range" style="color: ${colour};" >` +
           `<input type="checkbox" class="checkbox" data="${id}">` +
           `${this.escapeHtml(rangesTupleString)}` +
-          `</div>`,
+          "</div>"
       );
     }
   }
 
   private static readonly safeHTMLMap: Map<string, string> = new Map([
-    ['"', "&quot;"],
+    ["\"", "&quot;"],
     ["&", "&amp;"],
     ["'", "&#039;"],
     ["<", "&lt;"],
@@ -109,7 +119,7 @@ export abstract class HTMLFormatter<T> {
   protected readonly noTime: boolean;
   protected readonly fileLines: Map<string, number> = new Map();
 
-  constructor(noTime: boolean = false) {
+  constructor(noTime = false) {
     this.noTime = noTime;
   }
 
@@ -140,28 +150,30 @@ export abstract class HTMLFormatter<T> {
   ): string;
 
   public format(jsonString: string): string {
-    const stylesheet: string = fs.readFileSync(path.resolve(this.stylesheetLocation), "utf8");
-    const script: string = fs.readFileSync(path.resolve(this.scriptLocation), "utf8");
+    const stylesheet: string =
+      fs.readFileSync(path.resolve(this.stylesheetLocation), "utf8");
+    const script: string =
+      fs.readFileSync(path.resolve(this.scriptLocation), "utf8");
 
     const body: string = this.makeBody(jsonString);
 
     return (
-      `<!doctype html>\n` +
-      `<html lang="en">\n` +
-      `<head>\n` +
-      `<meta charset="utf-8">\n` +
-      `<title>Dolos summary</title>\n` +
-      `<script>\n` +
+      "<!doctype html>\n" +
+      "<html lang=\"en\">\n" +
+      "<head>\n" +
+      "<meta charset=\"utf-8\">\n" +
+      "<title>Dolos summary</title>\n" +
+      "<script>\n" +
       `${script}` +
-      `</script>\n` +
-      `<style>\n` +
+      "</script>\n" +
+      "<style>\n" +
       `${stylesheet}` +
-      `</style>\n` +
-      `</head>\n` +
-      `<body>\n` +
+      "</style>\n" +
+      "</head>\n" +
+      "<body>\n" +
       `${body}` +
-      `</body>\n` +
-      `</html>\n`
+      "</body>\n" +
+      "</html>\n"
     );
   }
 
@@ -174,7 +186,7 @@ export abstract class HTMLFormatter<T> {
   protected makeTableRow(
     matchedFile: File,
     matchingFile: File,
-    rangesTupleArray: RangesTuple[],
+    rangesTupleArray: RangesTuple[]
   ): string {
     const id: string = HTMLFormatter.makeId(matchedFile, matchingFile);
     const [matchedFileLineCount, matchingFileLineCount]: [
@@ -185,26 +197,26 @@ export abstract class HTMLFormatter<T> {
     const [scoreMatchedFile, scoreMatchingFile] = Utils.scoreForFiles(
       rangesTupleArray,
       matchedFile,
-      matchingFile,
+      matchingFile
     );
 
     return (
-      `<tr>\n` +
-      `<td class="filename-column">\n` +
+      "<tr>\n" +
+      "<td class=\"filename-column\">\n" +
       `<a href=# onclick="return swap('${id}', 'Index');">\n` +
       `${HTMLFormatter.escapeHtml(matchedFile.showContent())} ` +
       `(${scoreMatchedFile}%)\n` +
-      `</a>\n` +
-      `</td>\n` +
-      `<td class="filename-column">` +
+      "</a>\n" +
+      "</td>\n" +
+      "<td class=\"filename-column\">" +
       `<a href=# onclick="return swap('${id}', 'Index');">\n` +
       `${HTMLFormatter.escapeHtml(matchingFile.showContent())} ` +
       `(${scoreMatchingFile}%)` +
-      `</a>` +
-      `</td>\n` +
+      "</a>" +
+      "</td>\n" +
       `<td class="lines-matched-column">${matchedFileLineCount}</td>\n` +
       `<td class="lines-matched-column">${matchingFileLineCount}</td>\n` +
-      `</tr>`
+      "</tr>"
     );
   }
 }

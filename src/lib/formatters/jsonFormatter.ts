@@ -12,8 +12,8 @@ export interface JSONSummaryFormat {
 }
 
 export class JSONFormatter {
-  // @ts-ignore
-  public static JSONReplacerFunction(key: string, value: any): any {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  public static JSONReplacerFunction(_key: string, value: any): any {
     if (value instanceof Range) {
       const range: Range = value as Range;
       return [range.from + 1, range.to + 1];
@@ -24,16 +24,22 @@ export class JSONFormatter {
     }
   }
 
-  // @ts-ignore
-  public static JSONReviverFunction(key: any, value: any): any {
-    if (value instanceof Array && value.length === 2 && typeof value[0] === "number") {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  public static JSONReviverFunction(_key: any, value: any): any {
+    if (value instanceof Array && value.length === 2
+        && typeof value[0] === "number") {
+
       return new Range(value[0] - 1, value[1] - 1);
     } else if (value.name && value.files instanceof Array) {
-      const files = value.files.map((f: any) => [f.location, fs.readFileSync(f.location).toString()]);
+      const files = value.files.map(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (f: any) => [f.location, fs.readFileSync(f.location).toString()]
+      );
       return FileGroup.createDirty(value.name, files);
     } else if (typeof value.location === "string") {
       const content = fs.readFileSync(value.location).toString();
-      return FileGroup.createDirty(value.location, [[value.location, content]]).files[0];
+      return FileGroup.createDirty(value.location, [[value.location, content]])
+        .files[0];
     }
     return value;
   }
@@ -44,7 +50,7 @@ export class JSONFormatter {
    */
   public static format(
     clusteredResults: Clustered<Match>,
-    options?: Options,
+    options?: Options
   ): string {
     const toJSONObj: JSONSummaryFormat = { results: clusteredResults };
     if (options) {

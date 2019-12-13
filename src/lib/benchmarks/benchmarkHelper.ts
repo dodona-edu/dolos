@@ -32,14 +32,17 @@ export class BenchmarkHelper {
    */
   public async match(file1: File, file2: File): Promise<RangesTuple[]> {
     const tokenizer: Tokenizer<number> = new CodeTokenizer("javascript");
+    const opts = this.currentBenchmarkSettings.comparisonOptions ||
+      (BenchmarkManager.defaultBenchmarkSettings.comparisonOptions);
+
     const comparison: Comparison<number> = new Comparison(
       tokenizer,
-      this.currentBenchmarkSettings.comparisonOptions ||
-        (BenchmarkManager.defaultBenchmarkSettings.comparisonOptions as ComparisonOptions),
+      opts as ComparisonOptions
     );
     comparison.add(file1.group);
 
-    const matchesPerFile: Map<FileGroup, Matches<number>> = await comparison.compareFiles([file2.group]);
+    const matchesPerFile: Map<FileGroup, Matches<number>> =
+      await comparison.compareFiles([file2.group]);
 
     const filterOptions = this.currentBenchmarkSettings.filterOptions || {};
     const summary = new Summary(
@@ -49,13 +52,14 @@ export class BenchmarkHelper {
         maxGapSize: this.currentBenchmarkSettings.gapSize,
         maxMatches: filterOptions.fragmentOutputLimit,
         minFragmentLength: filterOptions.minimumFragmentLength,
-      }),
+      })
     );
 
     if (!summary.results.has(file2.group)) {
       return [];
     }
-    const results: Matches<Range> = summary.results.get(file2.group) as Matches<Range>;
+    const results: Matches<Range> =
+      summary.results.get(file2.group) as Matches<Range>;
 
     if (!results.has(file1)) {
       return [];

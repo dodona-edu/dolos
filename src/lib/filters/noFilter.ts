@@ -6,8 +6,8 @@ export class NoFilter extends HashFilter {
   private readonly k: number;
 
   /**
-   * Generates a HashFilter object with given k-mer size. It will not filter anything
-   * and return all hashes
+   * Generates a HashFilter object with given k-mer size. It will not filter
+   * anything and return all hashes
    *
    * @param k The k-mer size of which hashes are calculated
    */
@@ -17,11 +17,11 @@ export class NoFilter extends HashFilter {
   }
 
   /**
-   * Returns an async interator that yields tuples containing a hash and its corresponding k-mer
-   * position. Can be called successively on multiple files.
+   * Returns an async interator that yields tuples containing a hash and its
+   * corresponding k-mer position. Can be called successively on multiple files.
    *
-   * @param stream The readable stream of a file (or stdin) to process. Such stream can be created
-   * using fs.createReadStream("path").
+   * @param stream The readable stream of a file (or stdin) to process. Such
+   * stream can be created using fs.createReadStream("path").
    */
   public async *hashes(stream: Readable): AsyncIterableIterator<Hash> {
     const hash = new RollingHash(this.k);

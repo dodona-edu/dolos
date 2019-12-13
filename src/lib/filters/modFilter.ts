@@ -7,8 +7,8 @@ export class ModFilter extends HashFilter {
   private readonly mod: number;
 
   /**
-   * Generates a HashFilter object with given k-mer size and mod value. It will return
-   * all hashes whose value is 0 after % mod.
+   * Generates a HashFilter object with given k-mer size and mod value. It will
+   * return all hashes whose value is 0 after % mod.
    *
    * @param k The k-mer size of which hashes are calculated
    * @param mod The mod value for which hashes to keep
@@ -20,11 +20,11 @@ export class ModFilter extends HashFilter {
   }
 
   /**
-   * Returns an async interator that yields tuples containing a hash and its corresponding k-mer
-   * position. Can be called successively on multiple files.
+   * Returns an async interator that yields tuples containing a hash and its
+   * corresponding k-mer position. Can be called successively on multiple files.
    *
-   * @param stream The readable stream of a file (or stdin) to process. Such stream can be created
-   * using fs.createReadStream("path").
+   * @param stream The readable stream of a file (or stdin) to process. Such
+   * stream can be created using fs.createReadStream("path").
    */
   public async *hashes(stream: Readable): AsyncIterableIterator<Hash> {
     const hash = new RollingHash(this.k);
