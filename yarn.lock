@@ -3785,13 +3785,6 @@ tree-sitter-c-sharp@^0.13.0:
   dependencies:
     nan "^2.10.0"
 
-tree-sitter-haskell@^0.13.0:
-  version "0.13.0"
-  resolved "https://registry.yarnpkg.com/tree-sitter-haskell/-/tree-sitter-haskell-0.13.0.tgz#22dbc61a92e674a7df9700decbb941e4cdfe6419"
-  integrity sha512-aJFmPSjsrcpunGy38hswwBgNHVNf+d8iK0NwiEM9fmhajI3cHxd15Q9FmSrHwhpdcZI5rb8WqTNo9FstmCA15w==
-  dependencies:
-    nan "^2.4.0"
-
 tree-sitter-java@^0.15.0:
   version "0.15.0"
   resolved "https://registry.yarnpkg.com/tree-sitter-java/-/tree-sitter-java-0.15.0.tgz#b6fe296eb60b37c3091d07547612802d385ae3d5"
