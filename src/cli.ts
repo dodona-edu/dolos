@@ -99,10 +99,12 @@ program
     "-M --maximum-hash-percentage <float>",
     indent(
       "The -M option sets how many percent of the files the hash may appear " +
-      "before it is ignored. A hash that appears in many programs is probably" +
-      " legitimate sharing and not the result of plagiarism. With -M N any " +
-      "hash appearing in more than N percent of the files is filtered out. " +
-      "Must be a value between 0 and 1.",
+      "before it is ignored. A hash that appears in many programs is " +
+      "probably legitimate sharing and not the result of plagiarism. With -M " +
+      "N any hash appearing in more than N percent of the files is filtered " +
+      "out. Must be a value between 0 and 1. This option is ignored when " +
+      "comparing only two files, because each match appear in 100% of the " +
+      "files",
       Options.defaultMaxHashPercentage
     ),
     x => parseFloat(x),
@@ -175,6 +177,9 @@ program
   )
   .arguments("<locations...>")
   .action(async locations => {
+    const maxHashPercent =
+      locations.length < 3 ? 1 : program.maximumHashPercentage;
+
     try {
       const dolos = new Dolos({
         base: program.base,
@@ -186,7 +191,7 @@ program
         language: program.language,
         maxGapSize: program.maxGapSize,
         maxHashCount: program.maximumHashCount,
-        maxHashPercent: program.maximumHashPercentage,
+        maxHashPercent: maxHashPercent,
         maxMatches: program.filePairOutputLimit,
         minFragmentLength: program.minimumFragmentLength,
       });
