@@ -13,7 +13,7 @@ export abstract class Tokenizer<Location> {
    * @param fileName The name of the file to parse
    */
   public tokenizeFile(file: File): Result<string> {
-    return file.readResult.map(this.tokenize);
+    return file.readResult.map(f => this.tokenize(f));
   }
 
   /**
