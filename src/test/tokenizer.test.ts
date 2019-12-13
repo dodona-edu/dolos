@@ -2,11 +2,31 @@ import test from "ava";
 import { File } from "../lib/files/file";
 import { CodeTokenizer } from "../lib/tokenizers/codeTokenizer";
 
-test("tokenizer creation works for all listed languages", t => {
-  for (const language of CodeTokenizer.supportedLanguages) {
-    t.truthy(new CodeTokenizer(language));
-  }
-});
+const languageFiles = {
+  "python": "samples/python/caesar.py",
+  "javascript": "samples/javascript/sample.js",
+  "haskell": "samples/haskell/Caesar.hs",
+  "c-sharp": "samples/c-sharp/Caesar.cs",
+  "java": "samples/java/Caesar.java",
+} as any; // eslint-disable-line @typescript-eslint/no-explicit-any
+
+for (const language of CodeTokenizer.supportedLanguages) {
+  test(`tokenizer works for ${language}`, async t => {
+    const tokenizer =  new CodeTokenizer(language);
+    t.truthy(tokenizer);
+
+    const sampleFile:  string | undefined = languageFiles[language];
+
+    if (sampleFile === undefined) {
+      t.fail(`${language} doesn't have a sample file`);
+    } else {
+      const file = await File.alone(sampleFile);
+      const tokens = await tokenizer.tokenizeFile(file);
+      t.truthy(tokens);
+      t.snapshot(tokens, "stable tokenization");
+    }
+  });
+}
 
 test("tokenizer creation throws error for unsupported language", t => {
   t.throws(() => new CodeTokenizer("some string"));
@@ -22,7 +42,7 @@ test("registering a new invalid language throws error", t => {
 
 test("tokenizer with or without location is equal", async t => {
   const tokenizer = new CodeTokenizer("javascript");
-  const file = await File.alone("samples/js/sample.js");
+  const file = await File.alone("samples/javascript/sample.js");
 
   const [tokenized, mapping] =
     (await tokenizer.tokenizeFileWithMapping(file)).ok();

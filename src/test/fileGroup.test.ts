@@ -2,17 +2,17 @@ import test from "ava";
 import { FileGroup } from "../lib/files/fileGroup";
 
 const testLocations: string[] = [
-  "samples/js/assignment1/student1/sample.js",
-  "samples/js/assignment1/student1/main.js",
-  "samples/js/assignment1/student1/subDirectory/childClass.js",
-  "samples/js/assignment1/student2/helperClasses/childClass.js",
-  "samples/js/assignment1/student2/main.js",
-  "samples/js/assignment1/student2/copied_function.js",
-  "samples/js/assignment1/student3/tempName/childClass.js",
-  "samples/js/assignment1/student3/tempName/hello.js",
-  "samples/js/assignment1/student3/tempName/subDir/subsubClass.js",
-  "samples/js/assignment1/student3/another_copied_function.js",
-  "samples/js/assignment1/student3/main.js",
+  "samples/javascript/assignment1/student1/sample.js",
+  "samples/javascript/assignment1/student1/main.js",
+  "samples/javascript/assignment1/student1/subDirectory/childClass.js",
+  "samples/javascript/assignment1/student2/helperClasses/childClass.js",
+  "samples/javascript/assignment1/student2/main.js",
+  "samples/javascript/assignment1/student2/copied_function.js",
+  "samples/javascript/assignment1/student3/tempName/childClass.js",
+  "samples/javascript/assignment1/student3/tempName/hello.js",
+  "samples/javascript/assignment1/student3/tempName/subDir/subsubClass.js",
+  "samples/javascript/assignment1/student3/another_copied_function.js",
+  "samples/javascript/assignment1/student3/main.js",
 ];
 
 test("group per file", async t => {

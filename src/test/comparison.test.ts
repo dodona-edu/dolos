@@ -7,9 +7,9 @@ import { CodeTokenizer } from "../lib/tokenizers/codeTokenizer";
 import { Tokenizer } from "../lib/tokenizers/tokenizer";
 
 const files: string[] = [
-  "samples/js/sample.js",
-  "samples/js/another_copied_function.js",
-  "samples/js/copied_function.js",
+  "samples/javascript/sample.js",
+  "samples/javascript/another_copied_function.js",
+  "samples/javascript/copied_function.js",
 ];
 
 test("all files no filter test", async t => {

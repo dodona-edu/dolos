@@ -9,7 +9,11 @@ test("general structure test", async t => {
   const formatter: HTMLBenchmarkFormatter = new HTMLBenchmarkFormatter(true);
 
   manager.benchmark("dummy benchmark", async helper => {
-    await helper.match("samples/js/sample.js", "samples/js/copied_function.js");
+    await helper.match(
+      "samples/javascript/sample.js",
+      "samples/javascript/copied_function.js"
+    );
+
     helper.expect([[[15, 20], [4, 9]]] as NumericRangesTuple[])
       .toBePresentInMatch();
   });

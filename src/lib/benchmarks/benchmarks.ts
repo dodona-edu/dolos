@@ -4,7 +4,10 @@ import { BenchmarkManager, NumericRangesTuple }
 const manager = new BenchmarkManager(true);
 
 manager.benchmark("basic file match", async matcher => {
-  await matcher.match("samples/js/sample.js", "samples/js/copied_function.js");
+  await matcher.match(
+    "samples/javascript/sample.js",
+    "samples/javascript/copied_function.js"
+  );
 
   matcher.expect(
     [[[15, 20], [4, 9]]] as NumericRangesTuple[]
@@ -13,8 +16,8 @@ manager.benchmark("basic file match", async matcher => {
 
 manager.benchmark("nothing in common", async matcher => {
   await matcher.match(
-    "samples/js/another_copied_function.js",
-    "samples/js/copied_function.js"
+    "samples/javascript/another_copied_function.js",
+    "samples/javascript/copied_function.js"
   );
 
   matcher.expect([] as NumericRangesTuple[]).toBePresentInMatch();
@@ -22,8 +25,8 @@ manager.benchmark("nothing in common", async matcher => {
 
 manager.benchmark("simple rename", async matcher => {
   await matcher.match(
-    "samples/js/benchmarkFiles/simple_rename.js",
-    "samples/js/copied_function.js"
+    "samples/javascript/benchmarkFiles/simple_rename.js",
+    "samples/javascript/copied_function.js"
   );
 
   matcher.expect(
@@ -33,8 +36,8 @@ manager.benchmark("simple rename", async matcher => {
 
 manager.benchmark("partial copy", async matcher => {
   await matcher.match(
-    "samples/js/sample.js",
-    "samples/js/benchmarkFiles/partial_copy.js"
+    "samples/javascript/sample.js",
+    "samples/javascript/benchmarkFiles/partial_copy.js"
   );
 
   const expectedResults: NumericRangesTuple[] =

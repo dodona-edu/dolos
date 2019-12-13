@@ -1,9 +1,6 @@
 import { default as Parser, SyntaxNode } from "tree-sitter";
 import { Token, Tokenizer } from "./tokenizer";
 
-// eslint-disable-next-line no-invalid-this
-Parser.bind(this);
-
 export class CodeTokenizer extends Tokenizer<number> {
   public static supportedLanguages = ["c-sharp", "haskell", "java",
     "javascript", "python"];
