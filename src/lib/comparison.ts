@@ -12,7 +12,18 @@ export type Matches<Location> = Map<File, Array<[Location, Location]>>;
 /**
  * @param hashFilter An optional HashFilter to filter the hashes returned by
  * the rolling hash function.
+<<<<<<< HEAD
  * @param noFilter A NoFilter used to generate hashes for blacklisted files.
+ * @param filterHashByPercentage Defines if the fragment should be filtered by
+ * percentage or by an absolute value. If this option is used [[maxHash]] must
+ * also be defined. Otherwise this option will be ignored.
+ * @param maxHash The maximum fragment. How this will be used depends on the
+ * value of [[filterHashByPercentage]]. If it is used as a percentage then the
+ * number should be between 0 and 1. If you want to use it as an absolute value
+ * then a number between 0 and the amount of files given would be the most
+ * useful. If this option is used [[filterHashByPercentage]] must also be
+ * defined. Otherwise this options will be ignored.
+ * @param noFilter NoFilter is used to generate hashes for blacklisted files.
  * @param filterHashByPercentage Defines if the fragment should be filtered by
  * percentage or by an absolute value. If this option is used [[maxHash]] must
  * also be defined. Otherwise this option will be ignored.
