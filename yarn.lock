@@ -3778,10 +3778,10 @@ to-regex-range@^5.0.1:
   dependencies:
     is-number "^7.0.0"
 
-tree-sitter-c-sharp@^0.16.0:
-  version "0.16.0"
-  resolved "https://registry.yarnpkg.com/tree-sitter-c-sharp/-/tree-sitter-c-sharp-0.16.0.tgz#524f4d835c72218123b7166e4c2433b1cd14be09"
-  integrity sha512-wDwKMRarJkDEEOYkiEhUX0xWEEK3GOaKwblajXnXQa2UWmQ5pFgoKys9OSCXfyJPtcASFjBUdeSfSJouq9LjTQ==
+tree-sitter-c-sharp@^0.16.1:
+  version "0.16.1"
+  resolved "https://registry.yarnpkg.com/tree-sitter-c-sharp/-/tree-sitter-c-sharp-0.16.1.tgz#66ff7abfbeb311e6bf3b354d652ec839c2774992"
+  integrity sha512-NbQVS7if1qfEGGe796J66fynSdy3hoO8v5kOM7ttMMo+NOmJYB4C8CYFOQknt1i6CMGUGL0Oy4V6I6jrsK+TBQ==
   dependencies:
     nan "^2.10.0"
 
