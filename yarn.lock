@@ -3792,10 +3792,10 @@ tree-sitter-haskell@^0.13.0:
   dependencies:
     nan "^2.4.0"
 
-tree-sitter-java@^0.15.0:
-  version "0.15.0"
-  resolved "https://registry.yarnpkg.com/tree-sitter-java/-/tree-sitter-java-0.15.0.tgz#b6fe296eb60b37c3091d07547612802d385ae3d5"
-  integrity sha512-HemCdKo4H7EH5acnqNlCU1ohKYB7Zf3OFw12iFC71lfLWJ1OIvoXDVeBDZRQwTPCkaHBGkJAHP1S2RxIXUq9Rw==
+tree-sitter-java@^0.16.0:
+  version "0.16.0"
+  resolved "https://registry.yarnpkg.com/tree-sitter-java/-/tree-sitter-java-0.16.0.tgz#9fc1be37dd491927581d4d4226e091cf3b139b7a"
+  integrity sha512-oTBBh5C3FuXr8UmDMMrCOBht44Er/QmRijmNu9dGxFQms2L7IhgQN0G39+0fNoV2QwlyE6OQJgJHPMf3ZLb69Q==
   dependencies:
     nan "^2.12.1"
 
