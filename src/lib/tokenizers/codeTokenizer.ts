@@ -2,8 +2,8 @@ import { default as Parser, SyntaxNode } from "tree-sitter";
 import { Token, Tokenizer } from "./tokenizer";
 
 export class CodeTokenizer extends Tokenizer<number> {
-  public static supportedLanguages = ["c-sharp", "haskell", "java",
-    "javascript", "python"];
+  public static supportedLanguages =
+    ["c-sharp", "java", "javascript", "python"];
 
   /**
    * Returns true if the grammar of the given language is supported.

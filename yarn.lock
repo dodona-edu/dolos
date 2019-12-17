@@ -3778,45 +3778,38 @@ to-regex-range@^5.0.1:
   dependencies:
     is-number "^7.0.0"
 
-tree-sitter-c-sharp@^0.13.0:
-  version "0.13.0"
-  resolved "https://registry.yarnpkg.com/tree-sitter-c-sharp/-/tree-sitter-c-sharp-0.13.0.tgz#16cc401c24805c03727929bbd021f607a6138a82"
-  integrity sha512-6+lLBe6S2R0Rn12jY5CFlekjiXv1wz/4C2bhsbtNse+Wj3o4UT2tKDLDf6xyZI4McLkvB13U8Mgj/bBW+3WtrQ==
+tree-sitter-c-sharp@^0.16.1:
+  version "0.16.1"
+  resolved "https://registry.yarnpkg.com/tree-sitter-c-sharp/-/tree-sitter-c-sharp-0.16.1.tgz#66ff7abfbeb311e6bf3b354d652ec839c2774992"
+  integrity sha512-NbQVS7if1qfEGGe796J66fynSdy3hoO8v5kOM7ttMMo+NOmJYB4C8CYFOQknt1i6CMGUGL0Oy4V6I6jrsK+TBQ==
   dependencies:
     nan "^2.10.0"
 
-tree-sitter-haskell@^0.13.0:
-  version "0.13.0"
-  resolved "https://registry.yarnpkg.com/tree-sitter-haskell/-/tree-sitter-haskell-0.13.0.tgz#22dbc61a92e674a7df9700decbb941e4cdfe6419"
-  integrity sha512-aJFmPSjsrcpunGy38hswwBgNHVNf+d8iK0NwiEM9fmhajI3cHxd15Q9FmSrHwhpdcZI5rb8WqTNo9FstmCA15w==
-  dependencies:
-    nan "^2.4.0"
-
-tree-sitter-java@^0.15.0:
-  version "0.15.0"
-  resolved "https://registry.yarnpkg.com/tree-sitter-java/-/tree-sitter-java-0.15.0.tgz#b6fe296eb60b37c3091d07547612802d385ae3d5"
-  integrity sha512-HemCdKo4H7EH5acnqNlCU1ohKYB7Zf3OFw12iFC71lfLWJ1OIvoXDVeBDZRQwTPCkaHBGkJAHP1S2RxIXUq9Rw==
+tree-sitter-java@^0.16.0:
+  version "0.16.0"
+  resolved "https://registry.yarnpkg.com/tree-sitter-java/-/tree-sitter-java-0.16.0.tgz#9fc1be37dd491927581d4d4226e091cf3b139b7a"
+  integrity sha512-oTBBh5C3FuXr8UmDMMrCOBht44Er/QmRijmNu9dGxFQms2L7IhgQN0G39+0fNoV2QwlyE6OQJgJHPMf3ZLb69Q==
   dependencies:
     nan "^2.12.1"
 
-tree-sitter-javascript@^0.15.0:
-  version "0.15.2"
-  resolved "https://registry.yarnpkg.com/tree-sitter-javascript/-/tree-sitter-javascript-0.15.2.tgz#3c2c2b7c20a183f9266c4abf531172913a14ba97"
-  integrity sha512-AwgnkVqxglpxWUH07CWq1CmZ1g3emFHCUlMT6hEwNrk5K62I3gmkqMFtzFqXos6U2sEkwBn7IWp753X13KiAdQ==
+tree-sitter-javascript@^0.16.0:
+  version "0.16.0"
+  resolved "https://registry.yarnpkg.com/tree-sitter-javascript/-/tree-sitter-javascript-0.16.0.tgz#6e63d58cb8f0e41d77d36b23192a55a1f213f314"
+  integrity sha512-ILPyI6ReQUsFIcOUfqdq1Gl71rmaGTRunRFkr4vxLFcnuBhKc8fXCiIClkNTcOclZ/DxRydqVQSrnmaDVzMRMA==
   dependencies:
     nan "^2.12.1"
 
-tree-sitter-python@^0.15.0:
-  version "0.15.1"
-  resolved "https://registry.yarnpkg.com/tree-sitter-python/-/tree-sitter-python-0.15.1.tgz#14c02985bf9fa472cee0af68f0bb61490ef2f6be"
-  integrity sha512-v8HUvx6JnaRNiLM2ur+T5dVEoUKanXYv8vqHWGNzjiyt+vluHKySGR7fWeQVcaotDSulDJfil4Zbye2qIPVKSA==
+tree-sitter-python@^0.16.0:
+  version "0.16.0"
+  resolved "https://registry.yarnpkg.com/tree-sitter-python/-/tree-sitter-python-0.16.0.tgz#bfacce8b9d54b7b0035b79f250e0bc77e1422a5e"
+  integrity sha512-DtMdqQeIJpibuSacNi4uLb3fKLEqZO18um6iKd7zLgKFU7mgPOaC+PPTGzRY8YEcW9zrcBbC++msMFphw1buXA==
   dependencies:
     nan "^2.4.0"
 
-tree-sitter@^0.15.13:
-  version "0.15.13"
-  resolved "https://registry.yarnpkg.com/tree-sitter/-/tree-sitter-0.15.13.tgz#9526491ee0b6ecaa5012cedd8bf1f3f91fcd9cb2"
-  integrity sha512-ZarGoiFZ07caahffCnbW72IHXiez7Y0skrxKdv/6ysRVpiQPyDRQe9DWSlnSkFHTUDSMiSdxdDtgUVJsgobFPA==
+tree-sitter@^0.16.0:
+  version "0.16.0"
+  resolved "https://registry.yarnpkg.com/tree-sitter/-/tree-sitter-0.16.0.tgz#eb225fc7afe6b2c3086ac4e4e2d2d8e9e1c87239"
+  integrity sha512-Iprnr33uQKdpFTT2ceMUwlacjutdtz34us8S8ztqMo2cSKIwDC8BakZAOURFg6Sy4mGUC6G/b6BlBw3RlDj4xQ==
   dependencies:
     nan "^2.14.0"
     prebuild-install "^5.0.0"

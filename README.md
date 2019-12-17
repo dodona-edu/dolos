@@ -2,7 +2,7 @@
 
 Plagiarism detection for computer programming assignments.
 
-Right now, C#, Haskell, Java, JavaScript and Python are officially supported. Additional languages for which a [tree-sitter grammar](https://yarnpkg.com/en/packages?q=tree-sitter-) is available might also work.
+Right now, C#, Java, JavaScript and Python are officially supported. Additional languages for which a [tree-sitter grammar](https://yarnpkg.com/en/packages?q=tree-sitter-) is available might also work.
 
 ## How does Dolos work?
 
@@ -51,7 +51,7 @@ Afterwards, if we want to check a file against the rest, we can simply compute a
 
 ## How to get this code running
 
-- Make sure Node 10 is installed. Node 12 is not supported by tree-sitter, one of our dependencies.
+- Install [Node](https://nodejs.org/en/), we support Node 10, 12 and 13.
 - Clone the repository
 - Run `yarn install` to install all dependencies
 - If you want to generate plain JS files, run `yarn build` and the `dist` folder should be created
