@@ -204,13 +204,13 @@ export abstract class HTMLFormatter<T> {
       "<tr>\n" +
       "<td class=\"filename-column\">\n" +
       `<a href=# onclick="return swap('${id}', 'Index');">\n` +
-      `${HTMLFormatter.escapeHtml(matchedFile.showContent())} ` +
+      `${matchedFile}` +
       `(${scoreMatchedFile}%)\n` +
       "</a>\n" +
       "</td>\n" +
       "<td class=\"filename-column\">" +
       `<a href=# onclick="return swap('${id}', 'Index');">\n` +
-      `${HTMLFormatter.escapeHtml(matchingFile.showContent())} ` +
+      `${matchingFile}` +
       `(${scoreMatchingFile}%)` +
       "</a>" +
       "</td>\n" +
