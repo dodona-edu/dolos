@@ -110,7 +110,7 @@ test("test extending related functions rangesTuples", t => {
   t.deepEqual([new Range(1, 10), new Range(1, 30)], rangesTuple4);
   t.throws(
     () => summary1.extendRangesTupleWithRangesTuple(rangesTuple1, rangesTuple5),
-    RangeError
+    { instanceOf: RangeError }
   );
 });
 

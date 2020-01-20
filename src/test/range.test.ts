@@ -2,7 +2,7 @@ import test from "ava";
 import { Range } from "../lib/range";
 
 test("invalid range", t => {
-  t.throws(() => new Range(1337, 42), RangeError);
+  t.throws(() => new Range(1337, 42), { instanceOf: RangeError });
 });
 
 test("canExtend with number", t => {
