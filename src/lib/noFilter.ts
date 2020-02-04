@@ -33,7 +33,7 @@ export class NoFilter extends HashFilter {
         hash.nextHash(byte);
         continue;
       }
-      yield { hash: hash.nextHash(byte), location: filePos };
+      yield { hash: hash.nextHash(byte), location: filePos, window: "" };
     }
   }
 }

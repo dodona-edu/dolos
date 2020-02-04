@@ -32,6 +32,7 @@ export class WinnowFilter extends HashFilter {
   public async *hashes(stream: Readable): AsyncIterableIterator<Hash> {
     const hash = new RollingHash(this.k);
     const buffer: number[] = new Array(this.windowSize).fill(Number.MAX_SAFE_INTEGER);
+    let window: string = "";
     let filePos: number = -1 * this.k;
     let bufferPos: number = 0;
     let minPos: number = 0;
@@ -41,6 +42,7 @@ export class WinnowFilter extends HashFilter {
     // yield([x,pos]) is called only the first time an instance of x is selected
     for await (const byte of HashFilter.readBytes(stream)) {
       filePos++;
+      window = window.slice(-this.k) + String.fromCharCode(byte);
       if (filePos < 0) {
         hash.nextHash(byte);
         continue;
@@ -63,6 +65,7 @@ export class WinnowFilter extends HashFilter {
         yield {
           hash: buffer[minPos],
           location: filePos + ((minPos - bufferPos - this.windowSize) % this.windowSize),
+          window,
         };
       } else {
         // Otherwise, the previous minimum is still in this window. Compare
@@ -72,6 +75,7 @@ export class WinnowFilter extends HashFilter {
           yield {
             hash: buffer[minPos],
             location: filePos + ((minPos - bufferPos - this.windowSize) % this.windowSize),
+            window,
           };
         }
       }

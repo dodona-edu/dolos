@@ -1,13 +1,15 @@
 import { HashFilter } from "./hashFilter";
+import { Intersection } from "./intersection";
+import { Match } from "./match";
 import { Tokenizer } from "./tokenizer";
 import { WinnowFilter } from "./winnowFilter";
 
-type Matches<Location> = Map<string, Array<[Location, Location]>>;
+// type Matches<Location> = Map<string, Array<[Location, Location]>>;
 
 export class Comparison<Location> {
   private readonly defaultK: number = 50;
   private readonly defaultW: number = 40;
-  private readonly index: Map<number, Array<[string, Location]>> = new Map();
+  private readonly index: Map<number, Array<[string, Location, string]>> = new Map();
   private readonly tokenizer: Tokenizer<Location>;
   private readonly hashFilter: HashFilter;
 
@@ -49,9 +51,9 @@ export class Comparison<Location> {
   public async addFile(file: string): Promise<void> {
     try {
       const [ast, mapping] = await this.tokenizer.tokenizeFileWithMapping(file);
-      for await (const { hash, location } of this.hashFilter.hashesFromString(ast)) {
+      for await (const { hash, location, window } of this.hashFilter.hashesFromString(ast)) {
         // hash and the corresponding line number
-        const match: [string, Location] = [file, mapping[location]];
+        const match: [string, Location, string] = [file, mapping[location], window];
         const matches = this.index.get(hash);
         if (matches) {
           matches.push(match);
@@ -77,12 +79,12 @@ export class Comparison<Location> {
   public async compareFiles(
     files: string[],
     hashFilter = this.hashFilter,
-  ): Promise<Map<string, Matches<Location>>> {
-    const matchingFiles: Map<string, Matches<Location>> = new Map();
+  ): Promise<Array<Intersection<Location>>> {
+    const intersections = [];
     for (const file of files) {
-      matchingFiles.set(file, await this.compareFile(file, hashFilter));
+      intersections.push(...await this.compareFile(file, hashFilter));
     }
-    return matchingFiles;
+    return intersections;
   }
 
   /**
@@ -93,24 +95,32 @@ export class Comparison<Location> {
    * @param hashFilter An optional HashFilter. By default the HashFilter of the Comparison
    * object will be used.
    */
-  public async compareFile(file: string, hashFilter = this.hashFilter): Promise<Matches<Location>> {
-    // mapping file names to line number pairs (other file, this file)
-    const matchingFiles: Matches<Location> = new Map();
+  public async compareFile(
+    file: string,
+    hashFilter = this.hashFilter,
+  ): Promise<Array<Intersection<Location>>> {
+
+    const matchingFiles: Map<string, Intersection<Location>> = new Map();
     const [ast, mapping] = await this.tokenizer.tokenizeFileWithMapping(file);
-    for await (const { hash, location } of hashFilter.hashesFromString(ast)) {
+
+    for await (const { hash, location, window } of hashFilter.hashesFromString(ast)) {
       const matches = this.index.get(hash);
       if (matches) {
-        for (const [fileName, lineNumber] of matches) {
-          const match: [Location, Location] = [lineNumber, mapping[location]];
-          const lines = matchingFiles.get(fileName);
-          if (lines) {
-            lines.push(match);
-          } else {
-            matchingFiles.set(fileName, [match]);
+        for (const [matchFile, matchLocation, matchWindow] of matches) {
+
+          const match = new Match(mapping[location], window, matchLocation, matchWindow, hash);
+
+          // Find or create Intersection object
+          let intersection = matchingFiles.get(matchFile);
+          if (!intersection) {
+            intersection = new Intersection(file, matchFile);
+            matchingFiles.set(matchFile, intersection);
           }
+
+          intersection.matches.push(match);
         }
       }
     }
-    return matchingFiles;
+    return Array.of(...matchingFiles.values());
   }
 }

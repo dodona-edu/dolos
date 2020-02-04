@@ -1,7 +1,8 @@
 import { default as Parser, SyntaxNode } from "tree-sitter";
+import { Selection } from "./selection";
 import { Token, Tokenizer } from "./tokenizer";
 
-export class CodeTokenizer extends Tokenizer<number> {
+export class CodeTokenizer extends Tokenizer<Selection> {
   public static supportedLanguages = ["c-sharp", "haskell", "java", "javascript", "python"];
 
   /**
@@ -71,13 +72,18 @@ export class CodeTokenizer extends Tokenizer<number> {
    *
    * @param text The text string to parse
    */
-  public *generateTokens(text: Buffer): IterableIterator<Token<number>> {
+  public *generateTokens(text: Buffer): IterableIterator<Token<Selection>> {
     const tree = this.parser.parse(text.toString("utf8"));
     yield* this.tokenizeNode(tree.rootNode);
   }
 
-  private *tokenizeNode(node: SyntaxNode): IterableIterator<Token<number>> {
-    const location = node.startPosition.row;
+  private *tokenizeNode(node: SyntaxNode): IterableIterator<Token<Selection>> {
+    const location = {
+      endCol: node.endPosition.column,
+      endRow: node.endPosition.row,
+      startCol: node.startPosition.column,
+      startRow: node.startPosition.row,
+    };
 
     yield this.newToken("(", location);
     // "(node.type child1 child2 ...)"

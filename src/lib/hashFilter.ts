@@ -3,6 +3,7 @@ import { Readable } from "stream";
 export interface Hash {
   hash: number;
   location: number;
+  window: string;
 }
 
 export abstract class HashFilter {

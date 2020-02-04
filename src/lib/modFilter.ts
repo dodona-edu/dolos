@@ -39,7 +39,7 @@ export class ModFilter extends HashFilter {
       }
       currentHash = hash.nextHash(byte);
       if (currentHash % this.mod === 0) {
-        yield { hash: currentHash, location: filePos };
+        yield { hash: currentHash, location: filePos, window: "" };
       }
     }
   }
