@@ -20,6 +20,7 @@ test("1 hash for text length of k", async () => {
     hashes.push(hash);
   }
   expect(hashes.length).toBe(1);
+  expect(hashes[0].data).toEqual(text);
 });
 
 test("number of hashes equals text size minus k plus 1", async () => {

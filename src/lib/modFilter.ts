@@ -30,16 +30,18 @@ export class ModFilter extends HashFilter {
     const hash = new RollingHash(this.k);
     let filePos: number = -1 * this.k;
     let currentHash: number;
+    let window = "";
 
     for await (const byte of HashFilter.readBytes(stream)) {
       filePos++;
+      window = window.slice(-this.k + 1) + String.fromCharCode(byte);
       if (filePos < 0) {
         hash.nextHash(byte);
         continue;
       }
       currentHash = hash.nextHash(byte);
       if (currentHash % this.mod === 0) {
-        yield { hash: currentHash, location: filePos, window: "" };
+        yield { hash: currentHash, location: filePos, data: window };
       }
     }
   }

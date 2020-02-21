@@ -25,15 +25,17 @@ export class NoFilter extends HashFilter {
    */
   public async *hashes(stream: Readable): AsyncIterableIterator<Hash> {
     const hash = new RollingHash(this.k);
+    let window = "";
     let filePos: number = -1 * this.k;
 
     for await (const byte of HashFilter.readBytes(stream)) {
       filePos++;
+      window = window.slice(-this.k+1) + String.fromCharCode(byte);
       if (filePos < 0) {
         hash.nextHash(byte);
         continue;
       }
-      yield { hash: hash.nextHash(byte), location: filePos, window: "" };
+      yield { hash: hash.nextHash(byte), location: filePos, data: window };
     }
   }
 }

@@ -4,8 +4,6 @@ import { Match } from "./match";
 import { Tokenizer } from "./tokenizer";
 import { WinnowFilter } from "./winnowFilter";
 
-// type Matches<Location> = Map<string, Array<[Location, Location]>>;
-
 export class Comparison<Location> {
   private readonly defaultK: number = 50;
   private readonly defaultW: number = 40;
@@ -51,9 +49,9 @@ export class Comparison<Location> {
   public async addFile(file: string): Promise<void> {
     try {
       const [ast, mapping] = await this.tokenizer.tokenizeFileWithMapping(file);
-      for await (const { hash, location, window } of this.hashFilter.hashesFromString(ast)) {
+      for await (const { data, hash, location } of this.hashFilter.hashesFromString(ast)) {
         // hash and the corresponding line number
-        const match: [string, Location, string] = [file, mapping[location], window];
+        const match: [string, Location, string] = [file, mapping[location], data];
         const matches = this.index.get(hash);
         if (matches) {
           matches.push(match);
@@ -103,12 +101,19 @@ export class Comparison<Location> {
     const matchingFiles: Map<string, Intersection<Location>> = new Map();
     const [ast, mapping] = await this.tokenizer.tokenizeFileWithMapping(file);
 
-    for await (const { hash, location, window } of hashFilter.hashesFromString(ast)) {
+    for await (const { hash, location, data } of hashFilter.hashesFromString(ast)) {
       const matches = this.index.get(hash);
-      if (matches) {
-        for (const [matchFile, matchLocation, matchWindow] of matches) {
 
-          const match = new Match(mapping[location], window, matchLocation, matchWindow, hash);
+      if (matches) {
+        for (const [matchFile, matchLocation, matchData] of matches) {
+
+          const match = new Match(
+            mapping[location],
+            data,
+            matchLocation,
+            matchData,
+            hash,
+          );
 
           // Find or create Intersection object
           let intersection = matchingFiles.get(matchFile);

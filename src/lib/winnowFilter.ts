@@ -42,7 +42,7 @@ export class WinnowFilter extends HashFilter {
     // yield([x,pos]) is called only the first time an instance of x is selected
     for await (const byte of HashFilter.readBytes(stream)) {
       filePos++;
-      window = window.slice(-this.k) + String.fromCharCode(byte);
+      window = window.slice(-(this.windowSize + this.k)) + String.fromCharCode(byte);
       if (filePos < 0) {
         hash.nextHash(byte);
         continue;
@@ -62,20 +62,25 @@ export class WinnowFilter extends HashFilter {
             minPos = i;
           }
         }
+
+        const offset = (minPos - bufferPos - this.windowSize) % this.windowSize;
+        const data = window.slice(window.length + offset - this.k, window.length + offset);
         yield {
+          data,
           hash: buffer[minPos],
-          location: filePos + ((minPos - bufferPos - this.windowSize) % this.windowSize),
-          window,
+          location: filePos + offset,
         };
+
       } else {
         // Otherwise, the previous minimum is still in this window. Compare
         // against the new value and update minPos if necessary.
         if (buffer[bufferPos] <= buffer[minPos]) {
           minPos = bufferPos;
           yield {
+            data: window.slice(-this.k),
             hash: buffer[minPos],
             location: filePos + ((minPos - bufferPos - this.windowSize) % this.windowSize),
-            window,
+
           };
         }
       }
