@@ -1,10 +1,9 @@
+#!/usr/bin/env node
 import { CodeTokenizer } from "../lib/codeTokenizer";
 
 (async () => {
   const tokenizer = new CodeTokenizer("javascript");
-  let resultString = "";
-  for await (const { token } of tokenizer.generateTokensFromFile("samples/js/sample.js")) {
-    resultString += token;
+  for await (const { token } of tokenizer.generateTokensFromFile("/dev/stdin")) {
+    process.stdout.write(token);
   }
-  console.log(resultString);
 })();
