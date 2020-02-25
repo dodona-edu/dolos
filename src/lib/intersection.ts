@@ -1,12 +1,11 @@
-import { Match } from "./match";
 
 /**
  * This class represents all the matches between two files (i.e. the
  * intersection of their hashes).
  */
-export class Intersection<Location> {
+export class Intersection<Similarity> {
 
-  public readonly matches: Array<Match<Location>>;
+  public readonly matches: Similarity[];
 
   constructor(
     public readonly leftFile: string,
@@ -14,5 +13,4 @@ export class Intersection<Location> {
   ) {
     this.matches = [];
   }
-
 }

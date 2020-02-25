@@ -78,12 +78,12 @@ export class CodeTokenizer extends Tokenizer<Selection> {
   }
 
   private *tokenizeNode(node: SyntaxNode): IterableIterator<Token<Selection>> {
-    const location = {
-      endCol: node.endPosition.column,
-      endRow: node.endPosition.row,
-      startCol: node.startPosition.column,
-      startRow: node.startPosition.row,
-    };
+    const location = new Selection(
+      node.startPosition.row,
+      node.startPosition.column,
+      node.endPosition.row,
+      node.endPosition.column,
+    );
 
     yield this.newToken("(", location);
     // "(node.type child1 child2 ...)"
