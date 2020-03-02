@@ -479,10 +479,10 @@ astral-regex@^2.0.0:
   resolved "https://registry.yarnpkg.com/astral-regex/-/astral-regex-2.0.0.tgz#483143c567aeed4785759c0865786dc77d7d2e31"
   integrity sha512-Z7tMw1ytTXt5jqMcOP+OQteU1VuNK9Y02uuJtKQ1Sv69jXQKKg5cibLwGJow8yzZP+eAc18EmLGPal0bp36rvQ==
 
-ava@^3.4.0:
-  version "3.4.0"
-  resolved "https://registry.yarnpkg.com/ava/-/ava-3.4.0.tgz#0d082eb645e52e07fce03e3345ba5660891227aa"
-  integrity sha512-Y32CkzR8mrAmn0A9sWhq36kc9GR4eunZ4LZYoFi1VImhNfRh2zmI+8RcNdL/SYdQI1wIklK08rvDdCI58YQQEA==
+ava@^3.5.0:
+  version "3.5.0"
+  resolved "https://registry.yarnpkg.com/ava/-/ava-3.5.0.tgz#589f0f35f51e6ab67eb230a9057fd2442807c62f"
+  integrity sha512-o+xq1RgAZrQ7GX5nddTNeYbUDogwlBoa/Hnt+b1ciCLLxSOj5U6ZFblLNBSKwHtP1X/8R06bmzvX47jmlVu9KQ==
   dependencies:
     "@concordance/react" "^2.0.0"
     ansi-styles "^4.2.1"
