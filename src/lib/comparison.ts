@@ -12,33 +12,32 @@ export type Matches<Location> = Map<File, Array<[Location, Location]>>;
 /**
  * @param hashFilter An optional HashFilter to filter the hashes returned by
  * the rolling hash function.
-<<<<<<< HEAD
  * @param noFilter A NoFilter used to generate hashes for blacklisted files.
- * @param filterHashByPercentage Defines if the fragment should be filtered by
+ * @param filterByPercentage Defines if the fragment should be filtered by
  * percentage or by an absolute value. If this option is used [[maxHash]] must
  * also be defined. Otherwise this option will be ignored.
  * @param maxHash The maximum fragment. How this will be used depends on the
- * value of [[filterHashByPercentage]]. If it is used as a percentage then the
+ * value of [[filterByPercentage]]. If it is used as a percentage then the
  * number should be between 0 and 1. If you want to use it as an absolute value
  * then a number between 0 and the amount of files given would be the most
- * useful. If this option is used [[filterHashByPercentage]] must also be
+ * useful. If this option is used [[filterByPercentage]] must also be
  * defined. Otherwise this options will be ignored.
  * @param noFilter NoFilter is used to generate hashes for blacklisted files.
- * @param filterHashByPercentage Defines if the fragment should be filtered by
+ * @param filterByPercentage Defines if the fragment should be filtered by
  * percentage or by an absolute value. If this option is used [[maxHash]] must
  * also be defined. Otherwise this option will be ignored.
  * @param maxHash The maximum fragment. How this will be used depends on the
- * value of [[filterHashByPercentage]]. If it is used as a percentage then the
+ * value of [[filterByPercentage]]. If it is used as a percentage then the
  * number should be between 0 and 1. If you want to use it as an absolute value
  * then a number between 0 and the amount of files given would be the most
- * useful. If this option is used [[filterHashByPercentage]] must also be
+ * useful. If this option is used [[filterByPercentage]] must also be
  * defined. Otherwise this options will be ignored.
  */
 export interface ComparisonOptions {
   maxHash?: number;
   kmerLength?: number;
   kmersInWindow?: number;
-  filterHashByPercentage?: boolean;
+  filterByPercentage?: boolean;
 }
 
 export class Comparison<Location> {
@@ -51,7 +50,7 @@ export class Comparison<Location> {
   private readonly hashFilter: HashFilter;
   private readonly noFilter: NoFilter;
   private readonly maxHash: number | undefined;
-  private readonly filterHashByPercentage: boolean | undefined;
+  private readonly filterByPercentage: boolean | undefined;
   private readonly kmerLength: number;
   private readonly kmersInWindow: number;
   private fileCount = 0;
@@ -70,15 +69,15 @@ export class Comparison<Location> {
    */
   constructor(
     tokenizer: Tokenizer<Location>,
-    copts: ComparisonOptions
+    opts: ComparisonOptions = new Options()
   ) {
     this.tokenizer = tokenizer;
-    this.kmerLength = copts.kmerLength || Options.defaultKmerLength;
-    this.kmersInWindow = copts.kmersInWindow || Options.defaultKmersInWindow;
+    this.kmerLength = opts.kmerLength || Options.defaultKmerLength;
+    this.kmersInWindow = opts.kmersInWindow || Options.defaultKmersInWindow;
     this.hashFilter = new WinnowFilter(this.kmerLength, this.kmersInWindow);
     this.noFilter = new NoFilter(this.kmerLength);
-    this.maxHash = copts.maxHash;
-    this.filterHashByPercentage = copts.filterHashByPercentage;
+    this.maxHash = opts.maxHash;
+    this.filterByPercentage = opts.filterByPercentage;
   }
 
   /**
@@ -227,9 +226,9 @@ export class Comparison<Location> {
    */
   private filterByHashCount(hashCount: number): boolean {
     if (this.maxHash === undefined
-      || this.filterHashByPercentage === undefined) {
+      || this.filterByPercentage === undefined) {
       return true;
-    } else if (this.filterHashByPercentage) {
+    } else if (this.filterByPercentage) {
       return hashCount / this.fileCount <= this.maxHash;
     } else {
       return hashCount <= this.maxHash;

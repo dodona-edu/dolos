@@ -4,6 +4,7 @@ import { BenchmarkMatcher, BenchmarkResults }
 import { JSONFormatter } from "../formatters/jsonFormatter";
 import { ObjectMap } from "../utils";
 import * as Utils from "../utils";
+import { Options } from "../options";
 import { BenchmarkHelper, BenchMarkSettings } from "./benchmarkHelper";
 import { HTMLBenchmarkFormatter } from "./htmlBenchmarkFormatter";
 
@@ -31,7 +32,7 @@ export class BenchmarkManager {
     return this.jsonResults;
   }
   public static readonly defaultBenchmarkSettings: BenchMarkSettings = {
-    comparisonOptions: { filterHashByPercentage: undefined },
+    comparisonOptions: new Options({}),
     filterOptions: { minimumFragmentLength: 0 },
     gapSize: 0,
   };

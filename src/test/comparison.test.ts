@@ -4,6 +4,7 @@ import { Comparison, Matches } from "../lib/comparison";
 import { File } from "../lib/files/file";
 import { FileGroup } from "../lib/files/fileGroup";
 import { CodeTokenizer } from "../lib/tokenizers/codeTokenizer";
+import { Options } from "../lib/options"
 import { Tokenizer } from "../lib/tokenizers/tokenizer";
 
 const files: string[] = [
@@ -14,9 +15,7 @@ const files: string[] = [
 
 test("all files no filter test", async t => {
   const tokenizer: Tokenizer<number> = new CodeTokenizer("javascript");
-  const comparison: Comparison<number> = new Comparison(tokenizer, {
-    filterHashByPercentage: undefined,
-  });
+  const comparison: Comparison<number> = new Comparison(tokenizer);
   const groups = await FileGroup.groupByFile(files);
   await comparison.addAll(groups);
 
@@ -27,9 +26,7 @@ test("all files no filter test", async t => {
 
 test("all files basefile test", async t => {
   const tokenizer: Tokenizer<number> = new CodeTokenizer("javascript");
-  const comparison: Comparison<number> = new Comparison(tokenizer, {
-    filterHashByPercentage: undefined,
-  });
+  const comparison: Comparison<number> = new Comparison(tokenizer);
   const groups = await FileGroup.groupByFile(files);
   await comparison.addAll(groups.filter((_, index) => index !== 1));
   await comparison.addToFilterList(groups[1]);
@@ -41,10 +38,9 @@ test("all files basefile test", async t => {
 
 test("all files max hash count", async t => {
   const tokenizer: Tokenizer<number> = new CodeTokenizer("javascript");
-  const comparison: Comparison<number> = new Comparison(tokenizer, {
-    filterHashByPercentage: false,
-    maxHash: 4,
-  });
+  const comparison: Comparison<number> = new Comparison(tokenizer, new Options({
+    maxHashCount: 4,
+  }));
   const groups = await FileGroup.groupByFile(files);
   await comparison.addAll(groups);
 
@@ -55,10 +51,9 @@ test("all files max hash count", async t => {
 
 test("all files max hash percentage", async t => {
   const tokenizer: Tokenizer<number> = new CodeTokenizer("javascript");
-  const comparison: Comparison<number> = new Comparison(tokenizer, {
-    filterHashByPercentage: true,
-    maxHash: 0.4,
-  });
+  const comparison: Comparison<number> = new Comparison(tokenizer, new Options({
+    maxHashPercent: 0.4,
+  }));
   const groups = await FileGroup.groupByFile(files);
   await comparison.addAll(groups);
 
@@ -72,10 +67,9 @@ test.skip("add non-existing file", async t => {
   const file = await File.alone("thisFileShouldNotExist.txt");
 
   const tokenizer: Tokenizer<number> = new CodeTokenizer("javascript");
-  const comparison: Comparison<number> = new Comparison(tokenizer, {
-    filterHashByPercentage: true,
-    maxHash: 0.4,
-  });
+  const comparison: Comparison<number> = new Comparison(tokenizer, new Options({
+    maxHashPercent: 0.4,
+  }));
 
   await comparison.add(file.group);
   t.true(spy.called);
@@ -92,10 +86,9 @@ test.skip("add non-existing file to filter list", async t => {
   const file = await File.alone("thisFileShouldNotExist.txt");
 
   const tokenizer: Tokenizer<number> = new CodeTokenizer("javascript");
-  const comparison: Comparison<number> = new Comparison(tokenizer, {
-    filterHashByPercentage: true,
-    maxHash: 0.4,
-  });
+  const comparison: Comparison<number> = new Comparison(tokenizer, new Options({
+    maxHashPercent: 0.4,
+  }));
   await comparison.addToFilterList(file.group);
 
   t.true(spy.called);

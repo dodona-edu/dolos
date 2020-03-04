@@ -155,10 +155,9 @@ test("integration test", async t => {
     "samples/javascript/another_copied_function.js",
   ];
   const tokenizer = new CodeTokenizer("javascript");
-  const comparison = new Comparison(tokenizer, {
-    filterHashByPercentage: true,
-    maxHash: 0.8,
-  });
+  const comparison = new Comparison(tokenizer, new Options({
+    maxHashPercent: 0.8,
+  }));
   const groups = await FileGroup.groupByFile(locations);
   await comparison.addAll(groups);
 

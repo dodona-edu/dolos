@@ -13,10 +13,7 @@ export class Dolos {
   constructor(customOptions?: CustomOptions) {
     this.options = new Options(customOptions);
     this.tokenizer = new CodeTokenizer(this.options.language);
-    this.comparison = new Comparison(this.tokenizer, {
-      filterHashByPercentage: this.options.filterByPercentage,
-      maxHash: this.options.maxHash,
-    });
+    this.comparison = new Comparison(this.tokenizer, this.options);
   }
 
   public async analyze(
