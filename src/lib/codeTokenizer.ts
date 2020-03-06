@@ -3,7 +3,7 @@ import { Selection } from "./selection";
 import { Token, Tokenizer } from "./tokenizer";
 
 export class CodeTokenizer extends Tokenizer<Selection> {
-  public static supportedLanguages = ["c-sharp", "haskell", "java", "javascript", "python"];
+  public static supportedLanguages = ["c-sharp", "java", "javascript", "python"];
 
   /**
    * Returns true if the grammar of the given language is supported.
