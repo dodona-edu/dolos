@@ -11,7 +11,7 @@
     "test-winnow-performance": "tsc && time head -c 1000000 /dev/random | node dist/bin/hash.js > /dev/null",
     "test": "jest --coverage",
     "build": "tsc",
-    "lint": "tslint 'src/**/*.ts'"
+    "lint": "eslint --max-warnings 0 --ext .ts src/"
   },
   "repository": "git@github.com:dodona-edu/dolos.git",
   "author": "Bart Mesuere <Bart.Mesuere@UGent.be>",
@@ -19,13 +19,19 @@
   "private": false,
   "devDependencies": {
     "@types/jest": "^24.0.15",
-    "@types/node": "^12.0.10",
     "jest": "^24.8.0",
     "jest-junit": "^6.4.0",
-    "prettier": "^1.18.2",
     "ts-jest": "^24.0.2",
-    "tslint": "^5.18.0",
-    "typescript": "^3.5.2"
+    "@types/node": "^13.7.4",
+    "@types/sinon": "^7.5.1",
+    "@typescript-eslint/eslint-plugin": "^2.20.0",
+    "@typescript-eslint/parser": "^2.20.0",
+    "ava": "^3.4.0",
+    "eslint": "^6.8.0",
+    "nyc": "^15.0.0",
+    "sinon": "^9.0.0",
+    "ts-node": "^8.6.2",
+    "typescript": "^3.8.2"
   },
   "dependencies": {
     "nprime": "^0.2.1",
