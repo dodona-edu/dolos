@@ -2,6 +2,7 @@ import { HashFilter } from "./hashFilter";
 import { Intersection } from "./intersection";
 import { Match } from "./match";
 import { Options } from "./options";
+import { Result } from "./result";
 import { Selection } from "./selection";
 import { Tokenizer } from "./tokenizer";
 import { WinnowFilter } from "./winnowFilter";
@@ -29,7 +30,7 @@ export class Comparison {
   constructor(
     tokenizer: Tokenizer<Selection>,
     options: Options = new Options(),
-    hashFilter?: HashFilter
+    hashFilter?: HashFilter,
   ) {
     this.tokenizer = tokenizer;
     this.kmerLength = options.kmerLength;
@@ -45,7 +46,7 @@ export class Comparison {
    *
    * @param files A list of filenames
    */
-  public addFiles(files: string[]): Promise<void[]> {
+  public addFiles(files: string[]): Promise<Array<Result<void>>> {
     // This promise will reject if one of the underlying promises reject
     // which is not what we want. If one file is missing, the others should
     // still be added. In the future, Promise.all can be replaced by
@@ -59,8 +60,8 @@ export class Comparison {
    *
    * @param file The file name of the file to add
    */
-  public async addFile(file: string): Promise<void> {
-    try {
+  public async addFile(file: string): Promise<Result<void>> {
+    return Result.tryAwait(async () => {
       const [ast, mapping] = await this.tokenizer.tokenizeFileWithMapping(file);
       for await (const { data, hash, location } of this.hashFilter.hashesFromString(ast)) {
         // hash and the corresponding line number
@@ -72,10 +73,7 @@ export class Comparison {
           this.index.set(hash, [match]);
         }
       }
-    } catch (error) {
-      console.error(`There was a problem parsing ${file}.`);
-      return; // this makes sure the promise resolves instead of rejects
-    }
+    });
   }
 
   /**

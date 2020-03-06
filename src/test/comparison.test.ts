@@ -1,5 +1,4 @@
 import test from "ava";
-import * as sinon from "sinon";
 import { Comparison } from "../lib/comparison";
 import { CodeTokenizer } from "../lib/codeTokenizer";
 import { Options } from "../lib/options";
@@ -44,8 +43,7 @@ test("all files max hash percentage", async t => {
   t.snapshot(results);
 });
 
-test.skip("add non-existing file", async t => {
-  const spy = sinon.spy(console, "error");
+test("add non-existing file", async t => {
   const file = "thisFileShouldNotExist.txt";
 
   const tokenizer: Tokenizer<Selection> = new CodeTokenizer("javascript");
@@ -53,11 +51,6 @@ test.skip("add non-existing file", async t => {
     maxHashPercent: 0.4,
   }));
 
-  await comparison.addFile(file);
-  t.true(spy.called);
-  t.true(spy.calledWith(
-    `There was a problem parsing ${file}. ` +
-    `Error: ENOENT: no such file or directory, open '${file}'`
-  ));
-  spy.restore();
+  const result = await comparison.addFile(file);
+  t.is(result.error().message, "ENOENT: no such file or directory, open \'thisFileShouldNotExist.txt\'");
 });
