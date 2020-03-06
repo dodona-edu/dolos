@@ -34,10 +34,10 @@ export type Matches<Location> = Map<File, Array<[Location, Location]>>;
  * defined. Otherwise this options will be ignored.
  */
 export interface ComparisonOptions {
-  maxHash?: number;
-  kmerLength?: number;
-  kmersInWindow?: number;
-  filterByPercentage?: boolean;
+  maxHash: number;
+  kmerLength: number;
+  kmersInWindow: number;
+  filterByPercentage: boolean;
 }
 
 export class Comparison<Location> {
@@ -72,8 +72,8 @@ export class Comparison<Location> {
     opts: ComparisonOptions = new Options()
   ) {
     this.tokenizer = tokenizer;
-    this.kmerLength = opts.kmerLength || Options.defaultKmerLength;
-    this.kmersInWindow = opts.kmersInWindow || Options.defaultKmersInWindow;
+    this.kmerLength = opts.kmerLength;
+    this.kmersInWindow = opts.kmersInWindow;
     this.hashFilter = new WinnowFilter(this.kmerLength, this.kmersInWindow);
     this.noFilter = new NoFilter(this.kmerLength);
     this.maxHash = opts.maxHash;
