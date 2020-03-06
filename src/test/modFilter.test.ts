@@ -1,7 +1,8 @@
-import { ModFilter } from "../modFilter";
-import { NoFilter } from "../noFilter";
+import test from "ava";
+import { ModFilter } from "../lib/modFilter";
+import { NoFilter } from "../lib/noFilter";
 
-test("no hashes for text shorter than k", async () => {
+test("no hashes for text shorter than k", async t => {
   const text = "abcd";
   const filter = new ModFilter(5, 1);
   const hashes = [];
@@ -9,10 +10,10 @@ test("no hashes for text shorter than k", async () => {
   for await (const hash of filter.hashesFromString(text)) {
     hashes.push(hash);
   }
-  expect(hashes.length).toBe(0);
+  t.is(0, hashes.length);
 });
 
-test("1 hash for text length of k", async () => {
+test("1 hash for text length of k", async t => {
   const text = "abcde";
   const filter = new ModFilter(5, 1);
   const hashes = [];
@@ -20,20 +21,20 @@ test("1 hash for text length of k", async () => {
   for await (const hash of filter.hashesFromString(text)) {
     hashes.push(hash);
   }
-  expect(hashes.length).toBe(1);
+  t.is(1, hashes.length);
 });
 
-test("all hashes are mod m", async () => {
+test("all hashes are mod m", async t => {
   const text = "This is a slightly longer text to test multiple hash values.";
   const mod = 2;
   const filter = new ModFilter(5, mod);
 
   for await (const { hash } of filter.hashesFromString(text)) {
-    expect(hash % mod).toBe(0);
+    t.is(0, hash % mod);
   }
 });
 
-test("mod 1 and noFilter create same result", async () => {
+test("mod 1 and noFilter create same result", async t => {
   const text = "This is a slightly longer text to test multiple hash values.";
   const noFilter = new NoFilter(5);
   const modFilter = new ModFilter(5, 1);
@@ -46,5 +47,5 @@ test("mod 1 and noFilter create same result", async () => {
   for await (const hash of modFilter.hashesFromString(text)) {
     modHashes.push(hash);
   }
-  expect(modHashes).toEqual(noHashes);
+  t.deepEqual(modHashes, noHashes);
 });

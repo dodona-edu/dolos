@@ -1,21 +1,24 @@
 import { HashFilter } from "./hashFilter";
 import { Intersection } from "./intersection";
 import { Match } from "./match";
+import { Options } from "./options";
 import { Selection } from "./selection";
 import { Tokenizer } from "./tokenizer";
 import { WinnowFilter } from "./winnowFilter";
 
 export class Comparison {
-  private readonly defaultK: number = 50;
-  private readonly defaultW: number = 40;
+  private readonly kmerLength: number;
+  private readonly kmersInWindow: number;
   private readonly index: Map<number, Array<[string, Selection, string]>> = new Map();
   private readonly tokenizer: Tokenizer<Selection>;
   private readonly hashFilter: HashFilter;
 
   /**
-   * Creates a Comparison object with a given Tokenizer and optional HashFilter.
-   * If no HashFilter is given, a new WinnowFilter with k-mer length 50 and windows
-   * size 40 will be used.
+   * Creates a Comparison object with a given Tokenizer , an optional Options
+   * object, and an optional HashFilter.
+   *
+   * If no HashFilter is given, a new WinnowFilter is created with values geven
+   * by the Options (or the default Options).
    *
    * After creation, first add files to the index which can then be queried.
    *
@@ -23,9 +26,18 @@ export class Comparison {
    * @param hashFilter An optional HashFilter to filter the hashes returned by
    * the rolling hash function.
    */
-  constructor(tokenizer: Tokenizer<Selection>, hashFilter?: HashFilter) {
+  constructor(
+    tokenizer: Tokenizer<Selection>,
+    options: Options = new Options(),
+    hashFilter?: HashFilter
+  ) {
     this.tokenizer = tokenizer;
-    this.hashFilter = hashFilter ? hashFilter : new WinnowFilter(this.defaultK, this.defaultW);
+    this.kmerLength = options.kmerLength;
+    this.kmersInWindow = options.kmersInWindow;
+    this.hashFilter =
+      hashFilter
+      ? hashFilter
+      : new WinnowFilter(this.kmerLength, this.kmersInWindow);
   }
 
   /**

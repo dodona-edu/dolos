@@ -1,6 +1,7 @@
-import { NoFilter } from "../noFilter";
+import test from "ava";
+import { NoFilter } from "../lib/noFilter";
 
-test("no hashes for text shorter than k", async () => {
+test("no hashes for text shorter than k", async t => {
   const text = "abcd";
   const filter = new NoFilter(5);
   const hashes = [];
@@ -8,10 +9,10 @@ test("no hashes for text shorter than k", async () => {
   for await (const hash of filter.hashesFromString(text)) {
     hashes.push(hash);
   }
-  expect(hashes.length).toBe(0);
+  t.is(0, hashes.length);
 });
 
-test("1 hash for text length of k", async () => {
+test("1 hash for text length of k", async t => {
   const text = "abcde";
   const filter = new NoFilter(5);
   const hashes = [];
@@ -19,11 +20,10 @@ test("1 hash for text length of k", async () => {
   for await (const hash of filter.hashesFromString(text)) {
     hashes.push(hash);
   }
-  expect(hashes.length).toBe(1);
-  expect(hashes[0].data).toEqual(text);
+  t.is(1, hashes.length);
 });
 
-test("number of hashes equals text size minus k plus 1", async () => {
+test("number of hashes equals text size minus k plus 1", async t => {
   const text = "This is a slightly longer text to test multiple hash values.";
   const k = 5;
   const filter = new NoFilter(k);
@@ -32,5 +32,5 @@ test("number of hashes equals text size minus k plus 1", async () => {
   for await (const hash of filter.hashesFromString(text)) {
     hashes.push(hash);
   }
-  expect(hashes.length).toBe(text.length - k + 1);
+  t.is(text.length - k + 1, hashes.length);
 });
