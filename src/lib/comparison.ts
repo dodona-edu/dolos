@@ -78,7 +78,7 @@ export class Comparison {
   public async compareFiles(
     files: string[],
     hashFilter = this.hashFilter,
-  ): Promise<Array<Intersection<Selection>>> {
+  ): Promise<Array<Intersection<Match<Selection>>>> {
     const intersections = [];
     for (const file of files) {
       intersections.push(...await this.compareFile(file, hashFilter));
