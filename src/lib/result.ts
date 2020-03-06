@@ -20,7 +20,7 @@ export class Result<T> {
   }
 
   public static async settled<T>(
-    result: Result<Promise<T>>,
+    result: Result<Promise<T>>
   ): Promise<Result<T>> {
 
     if (result.isOk()) {
@@ -31,7 +31,7 @@ export class Result<T> {
   }
 
   public static async tryAwait<T>(
-    canFail: () => Promise<T>,
+    canFail: () => Promise<T>
   ): Promise<Result<T>> {
 
     try {

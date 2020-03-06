@@ -12,7 +12,7 @@
     "test": "nyc ava",
     "test:watch": "ava --watch",
     "build": "tsc",
-    "lint": "eslint --max-warnings 0 --ext .ts src/"
+    "lint": "eslint --ext .ts src/"
   },
   "repository": "git@github.com:dodona-edu/dolos.git",
   "author": "Bart Mesuere <Bart.Mesuere@UGent.be>",

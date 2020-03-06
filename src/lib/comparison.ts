@@ -30,15 +30,15 @@ export class Comparison {
   constructor(
     tokenizer: Tokenizer<Selection>,
     options: Options = new Options(),
-    hashFilter?: HashFilter,
+    hashFilter?: HashFilter
   ) {
     this.tokenizer = tokenizer;
     this.kmerLength = options.kmerLength;
     this.kmersInWindow = options.kmersInWindow;
     this.hashFilter =
       hashFilter
-      ? hashFilter
-      : new WinnowFilter(this.kmerLength, this.kmersInWindow);
+        ? hashFilter
+        : new WinnowFilter(this.kmerLength, this.kmersInWindow);
   }
 
   /**
@@ -87,7 +87,7 @@ export class Comparison {
    */
   public async compareFiles(
     files: string[],
-    hashFilter = this.hashFilter,
+    hashFilter = this.hashFilter
   ): Promise<Array<Intersection<Match<Selection>>>> {
     const intersections = [];
     for (const file of files) {
@@ -106,7 +106,7 @@ export class Comparison {
    */
   public async compareFile(
     file: string,
-    hashFilter = this.hashFilter,
+    hashFilter = this.hashFilter
   ): Promise<Array<Intersection<Match<Selection>>>> {
 
     const matchingFiles: Map<string, Intersection<Match<Selection>>> = new Map();
@@ -123,7 +123,7 @@ export class Comparison {
             data,
             matchSelection,
             matchData,
-            hash,
+            hash
           );
 
           // Find or create Intersection object

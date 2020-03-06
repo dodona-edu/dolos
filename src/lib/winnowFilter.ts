@@ -32,10 +32,10 @@ export class WinnowFilter extends HashFilter {
   public async *hashes(stream: Readable): AsyncIterableIterator<Hash> {
     const hash = new RollingHash(this.k);
     const buffer: number[] = new Array(this.windowSize).fill(Number.MAX_SAFE_INTEGER);
-    let window: string = "";
+    let window = "";
     let filePos: number = -1 * this.k;
-    let bufferPos: number = 0;
-    let minPos: number = 0;
+    let bufferPos = 0;
+    let minPos = 0;
 
     // At the end of each iteration, minPos holds the position of the rightmost minimal
     // hash in the current window.

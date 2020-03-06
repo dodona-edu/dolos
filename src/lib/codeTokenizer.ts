@@ -23,7 +23,7 @@ export class CodeTokenizer extends Tokenizer<Selection> {
    *
    * @param language The name of the language to register
    */
-  public static registerLanguage(language: string) {
+  public static registerLanguage(language: string): void {
     try {
       require("tree-sitter-" + language);
     } catch (error) {
@@ -50,7 +50,7 @@ export class CodeTokenizer extends Tokenizer<Selection> {
 
     this.language = language;
     this.parser = new Parser();
-    // tslint:disable-next-line: no-var-requires
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const languageModule = require("tree-sitter-" + language);
     this.parser.setLanguage(languageModule);
   }
@@ -82,7 +82,7 @@ export class CodeTokenizer extends Tokenizer<Selection> {
       node.startPosition.row,
       node.startPosition.column,
       node.endPosition.row,
-      node.endPosition.column,
+      node.endPosition.column
     );
 
     yield this.newToken("(", location);

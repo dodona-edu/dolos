@@ -9,7 +9,7 @@ export class Intersection<Similarity> {
 
   constructor(
     public readonly leftFile: string,
-    public readonly rightFile: string,
+    public readonly rightFile: string
   ) {
     this.matches = [];
   }

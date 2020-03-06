@@ -52,5 +52,8 @@ test("add non-existing file", async t => {
   }));
 
   const result = await comparison.addFile(file);
-  t.is(result.error().message, "ENOENT: no such file or directory, open \'thisFileShouldNotExist.txt\'");
+  t.is(
+    result.error().message,
+    "ENOENT: no such file or directory, open 'thisFileShouldNotExist.txt'"
+  );
 });

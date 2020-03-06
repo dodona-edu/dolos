@@ -20,7 +20,7 @@ export class Selection {
     const [left, right] = [first, second].sort();
     return new Selection(
       left.startRow, left.startCol,
-      right.endRow, right.endCol,
+      right.endRow, right.endCol
     );
   }
 
@@ -28,7 +28,7 @@ export class Selection {
     public startRow: number,
     public startCol: number,
     public endRow: number,
-    public endCol: number,
+    public endCol: number
   ) {}
 
   public overlapsWith(other: Selection): boolean {
