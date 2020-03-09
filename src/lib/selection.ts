@@ -1,4 +1,3 @@
-
 /**
  * Defines a selection in a file.
  */
@@ -16,8 +15,7 @@ export class Selection {
     return 0;
   }
 
-  public static merge(first: Selection, second: Selection): Selection {
-    const [left, right] = [first, second].sort();
+  public static merge(left: Selection, right: Selection): Selection {
     return new Selection(
       left.startRow, left.startCol,
       right.endRow, right.endCol
@@ -29,7 +27,13 @@ export class Selection {
     public startCol: number,
     public endRow: number,
     public endCol: number
-  ) {}
+  ) {
+    if (startRow > endRow || (startRow === endRow && startCol > endCol)) {
+      throw new Error(
+        "startRow and startCol should be smaller than endRow and endCol"
+      );
+    }
+  }
 
   public overlapsWith(other: Selection): boolean {
     const [left, right] = [this, other].sort();

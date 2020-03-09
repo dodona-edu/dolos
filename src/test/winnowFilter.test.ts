@@ -11,12 +11,12 @@ test("Winnow on comparable files", async t => {
   const filter = new WinnowFilter(k, 2);
   const hashes: Map<number, number> = new Map();
   // Build a Map from hash to position
-  for await (const { hash, location: posA } of filter.hashesFromString(textA)) {
+  for await (const { hash, start: posA } of filter.hashesFromString(textA)) {
     hashes.set(hash, posA);
   }
 
   let overlap = 0;
-  for await (const { hash, location: posB } of filter.hashesFromString(textB)) {
+  for await (const { hash, start: posB } of filter.hashesFromString(textB)) {
     if (hashes.has(hash)) {
       ++overlap;
       const posA = hashes.get(hash) as number;
@@ -56,9 +56,9 @@ test("maximum gap between hash positions is window size", async t => {
   const winnowFilter = new WinnowFilter(5, windowSize);
   let previousPos = 0;
 
-  for await (const { location } of winnowFilter.hashesFromString(text)) {
-    t.true(location - previousPos <= windowSize);
-    previousPos = location;
+  for await (const { start } of winnowFilter.hashesFromString(text)) {
+    t.true(start - previousPos <= windowSize);
+    previousPos = start;
   }
 });
 

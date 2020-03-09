@@ -7,9 +7,10 @@ export class WinnowFilter extends HashFilter {
   private readonly windowSize: number;
 
   /**
-   * Generates a Winnow object with given window size and k-mer size. The winnowing algorithm
-   * will reduce the number of hash values returned by the hash function. It will at least
-   * return 1 hash for every window (i.e. for every windowSize characters).
+   * Generates a Winnow object with given window size and k-mer size. The
+   * winnowing algorithm will reduce the number of hash values returned by the
+   * hash function. It will at least return 1 hash for every window (i.e. for
+   * every windowSize characters).
    *
    * @param k The k-mer size of which hashes are calculated
    * @param windowSize The window size
@@ -21,28 +22,31 @@ export class WinnowFilter extends HashFilter {
   }
 
   /**
-   * Returns an async interator that yields tuples containing a hash and its corresponding k-mer
-   * position. Can be called successively on multiple files.
+   * Returns an async interator that yields tuples containing a hash and its
+   * corresponding k-mer position. Can be called successively on multiple files.
    *
-   * Code based on pseudocode from http://theory.stanford.edu/~aiken/publications/papers/sigmod03.pdf
+   * Code based on pseudocode from
+   * http://theory.stanford.edu/~aiken/publications/papers/sigmod03.pdf
    *
-   * @param stream The readable stream of a file (or stdin) to process. Such stream can be created
-   * using fs.createReadStream("path").
+   * @param stream The readable stream of a file (or stdin) to process. Such
+   * stream can be created using `fs.createReadStream("path")`.
    */
   public async *hashes(stream: Readable): AsyncIterableIterator<Hash> {
     const hash = new RollingHash(this.k);
-    const buffer: number[] = new Array(this.windowSize).fill(Number.MAX_SAFE_INTEGER);
     let window = "";
     let filePos: number = -1 * this.k;
     let bufferPos = 0;
     let minPos = 0;
+    const buffer: number[] =
+      new Array(this.windowSize).fill(Number.MAX_SAFE_INTEGER);
 
-    // At the end of each iteration, minPos holds the position of the rightmost minimal
-    // hash in the current window.
+    // At the end of each iteration, minPos holds the position of the rightmost
+    // minimal hash in the current window.
     // yield([x,pos]) is called only the first time an instance of x is selected
     for await (const byte of HashFilter.readBytes(stream)) {
       filePos++;
-      window = window.slice(-(this.windowSize + this.k)) + String.fromCharCode(byte);
+      const char = String.fromCharCode(byte);
+      window = window.slice(-(this.windowSize + this.k)) + char;
       if (filePos < 0) {
         hash.nextHash(byte);
         continue;
@@ -64,11 +68,15 @@ export class WinnowFilter extends HashFilter {
         }
 
         const offset = (minPos - bufferPos - this.windowSize) % this.windowSize;
-        const data = window.slice(window.length + offset - this.k, window.length + offset);
+        const start = filePos + offset;
+        const data =
+          window.slice(window.length + offset - this.k, window.length + offset);
+
         yield {
           data,
           hash: buffer[minPos],
-          location: filePos + offset,
+          start,
+          stop: start + this.k,
         };
 
       } else {
@@ -76,11 +84,13 @@ export class WinnowFilter extends HashFilter {
         // against the new value and update minPos if necessary.
         if (buffer[bufferPos] <= buffer[minPos]) {
           minPos = bufferPos;
+          const start =
+            filePos + ((minPos - bufferPos - this.windowSize) % this.windowSize)
           yield {
             data: window.slice(-this.k),
             hash: buffer[minPos],
-            location: filePos + ((minPos - bufferPos - this.windowSize) % this.windowSize),
-
+            start,
+            stop: start + this.k,
           };
         }
       }
