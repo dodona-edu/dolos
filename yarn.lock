@@ -3034,10 +3034,10 @@ tree-sitter-javascript@^0.16.0:
   dependencies:
     nan "^2.12.1"
 
-tree-sitter-python@^0.16.0:
-  version "0.16.0"
-  resolved "https://registry.yarnpkg.com/tree-sitter-python/-/tree-sitter-python-0.16.0.tgz#bfacce8b9d54b7b0035b79f250e0bc77e1422a5e"
-  integrity sha512-DtMdqQeIJpibuSacNi4uLb3fKLEqZO18um6iKd7zLgKFU7mgPOaC+PPTGzRY8YEcW9zrcBbC++msMFphw1buXA==
+tree-sitter-python@^0.16.1:
+  version "0.16.1"
+  resolved "https://registry.yarnpkg.com/tree-sitter-python/-/tree-sitter-python-0.16.1.tgz#c719bc2dac061707bb438d125bcc365e5391450d"
+  integrity sha512-XUxJgecoSZwNYUD+Pfb16pjPmK16T+bqhNdGkX/pgXvaEniaeVLpZP0VSiRpBq7Dx5vaXQcTn1/2MhUxoVBCdg==
   dependencies:
     nan "^2.4.0"
 
