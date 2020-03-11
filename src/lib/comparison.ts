@@ -9,6 +9,7 @@ import { WinnowFilter } from "./winnowFilter";
 
 type Hash = number;
 type File = string;
+export type Analysis = Array<Intersection<Match<Selection>>>;
 
 interface FilePart {
   file: File;
@@ -112,7 +113,7 @@ export class Comparison {
   public async compareFiles(
     files: File[],
     hashFilter = this.hashFilter
-  ): Promise<Array<Intersection<Match<Selection>>>> {
+  ): Promise<Analysis> {
     const intersections = [];
     for (const file of files) {
       intersections.push(...await this.compareFile(file, hashFilter));
@@ -134,7 +135,7 @@ export class Comparison {
   public async compareFile(
     file: File,
     hashFilter = this.hashFilter
-  ): Promise<Array<Intersection<Match<Selection>>>> {
+  ): Promise<Analysis> {
 
     const matchingFiles: Map<File, Intersection<Match<Selection>>> = new Map();
     const [ast, mapping] = await this.tokenizer.tokenizeFileWithMapping(file);
