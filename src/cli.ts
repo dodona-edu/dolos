@@ -200,11 +200,7 @@ program
       NodeUtil.inspect.defaultOptions.depth = null;
       console.dir(analysis);
     } catch (error) {
-      console.error(Utils.colour("red", error.message));
-      program.outputHelp(helpText => {
-        console.error(helpText);
-        return "";
-      });
+      console.error(Utils.colour("red", error.stack));
       process.exit(1);
     }
   })

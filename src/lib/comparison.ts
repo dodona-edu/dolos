@@ -1,3 +1,4 @@
+import assert from "assert";
 import { HashFilter } from "./hashFilter";
 import { Intersection } from "./intersection";
 import { Match } from "./match";
@@ -9,7 +10,7 @@ import { WinnowFilter } from "./winnowFilter";
 
 type Hash = number;
 type File = string;
-export type Analysis = Array<Intersection<Match<Selection>>>;
+export type Analysis = Array<Intersection>;
 
 interface FilePart {
   file: File;
@@ -79,6 +80,7 @@ export class Comparison {
         of this.hashFilter.hashesFromString(ast)
       ) {
 
+        assert(Selection.compare(mapping[start], mapping[stop]) < 0);
         const location = Selection.merge(mapping[start], mapping[stop]);
         const part: FilePart = {
           file,
@@ -137,7 +139,7 @@ export class Comparison {
     hashFilter = this.hashFilter
   ): Promise<Analysis> {
 
-    const matchingFiles: Map<File, Intersection<Match<Selection>>> = new Map();
+    const matchingFiles: Map<File, Intersection> = new Map();
     const [ast, mapping] = await this.tokenizer.tokenizeFileWithMapping(file);
 
     for await (
@@ -159,7 +161,7 @@ export class Comparison {
           const location = Selection.merge(mapping[start], mapping[stop]);
 
           // Add a new match to the intersection object
-          intersection.matches.push(
+          intersection.addMatch(
             new Match(
               location,
               data,
@@ -173,7 +175,6 @@ export class Comparison {
     }
 
     const intersections = Array.of(...matchingFiles.values());
-    intersections.forEach(i => i.matches.sort((a, b) => Selection.compare(a.leftLocation, b.leftLocation)));
     return intersections;
   }
 }

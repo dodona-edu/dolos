@@ -1,3 +1,5 @@
+import assert from "assert";
+
 /**
  * Defines a selection in a file.
  */
@@ -15,7 +17,8 @@ export class Selection {
     return 0;
   }
 
-  public static merge(left: Selection, right: Selection): Selection {
+  public static merge(one: Selection, other: Selection): Selection {
+    const [left, right] = [one, other].sort(Selection.compare);
     return new Selection(
       left.startRow, left.startCol,
       right.endRow, right.endCol
@@ -28,15 +31,14 @@ export class Selection {
     public endRow: number,
     public endCol: number
   ) {
-    if (startRow > endRow || (startRow === endRow && startCol > endCol)) {
-      throw new Error(
-        "startRow and startCol should be smaller than endRow and endCol"
-      );
-    }
+    assert(
+      startRow < endRow || (startRow === endRow && startCol < endCol),
+      "startRow and startCol should be smaller than endRow and endCol"
+    );
   }
 
   public overlapsWith(other: Selection): boolean {
-    const [left, right] = [this, other].sort();
+    const [left, right] = [this, other].sort(Selection.compare);
     if (left.endRow < right.startRow) {
       return false;
     } else if (left.endRow === right.startRow) {
