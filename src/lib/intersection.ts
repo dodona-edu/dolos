@@ -24,9 +24,6 @@ export class Intersection {
     }
     if (i == this.matches.length) {
       this.matches.push(new MergedMatch(newMatch));
-      this.matches.sort(
-        (a, b) => Selection.compare(a.left, b.left)
-      );
     } else {
       this.matches[i].merge(newMatch);
     }

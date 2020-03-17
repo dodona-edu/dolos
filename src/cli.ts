@@ -197,7 +197,7 @@ program
         minFragmentLength: program.minimumFragmentLength,
       });
       const analysis = await dolos.analyze(locations);
-      NodeUtil.inspect.defaultOptions.depth = null;
+      NodeUtil.inspect.defaultOptions.depth = 4;
       console.dir(analysis);
     } catch (error) {
       console.error(Utils.colour("red", error.stack));

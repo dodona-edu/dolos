@@ -14,6 +14,7 @@ export type Analysis = Array<Intersection>;
 
 interface FilePart {
   file: File;
+  kmer: number;
   location: Selection;
   data: string;
 }
@@ -75,6 +76,7 @@ export class Comparison {
     return Result.tryAwait(async () => {
       const [ast, mapping] = await this.tokenizer.tokenizeFileWithMapping(file);
 
+      let kmer = 0;
       for await (
         const { data, hash, start, stop }
         of this.hashFilter.hashesFromString(ast)
@@ -83,6 +85,7 @@ export class Comparison {
         assert(Selection.compare(mapping[start], mapping[stop]) < 0);
         const location = Selection.merge(mapping[start], mapping[stop]);
         const part: FilePart = {
+          kmer,
           file,
           data,
           location,
@@ -98,6 +101,8 @@ export class Comparison {
           // if it doesn't, create a new list
           this.index.set(hash, [part]);
         }
+
+        kmer += 1;
       }
     });
   }
@@ -142,6 +147,7 @@ export class Comparison {
     const matchingFiles: Map<File, Intersection> = new Map();
     const [ast, mapping] = await this.tokenizer.tokenizeFileWithMapping(file);
 
+    let kmer = 0;
     for await (
       const { hash, start, stop, data } of hashFilter.hashesFromString(ast)
     ) {
@@ -150,6 +156,11 @@ export class Comparison {
 
       if (matches) { // a match exists in our index
         for (const matchingPart of matches) {
+
+          // Don't add a match if we've matched ourselves
+          if(matchingPart.file === file) {
+            continue;
+          }
 
           // Find or create an Intersection object
           let intersection = matchingFiles.get(matchingPart.file);
@@ -163,8 +174,10 @@ export class Comparison {
           // Add a new match to the intersection object
           intersection.addMatch(
             new Match(
+              kmer,
               location,
               data,
+              matchingPart.kmer,
               matchingPart.location,
               matchingPart.data,
               hash
@@ -172,6 +185,8 @@ export class Comparison {
           );
         }
       }
+
+      kmer += 1;
     }
 
     const intersections = Array.of(...matchingFiles.values());
