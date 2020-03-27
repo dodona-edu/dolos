@@ -1,9 +1,10 @@
 #!/usr/bin/env node
-import * as NodeUtil from "util";
+//import * as NodeUtil from "util";
 import * as Utils from "./lib/utils";
 import { Command } from "commander";
 import { Dolos } from "./dolos";
 import { Options } from "./lib/options";
+import { TerminalWriter } from "./lib/terminalWriter";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const pkg = require("../package.json");
@@ -197,8 +198,8 @@ program
         minFragmentLength: program.minimumFragmentLength,
       });
       const analysis = await dolos.analyze(locations);
-      NodeUtil.inspect.defaultOptions.depth = 4;
-      console.dir(analysis);
+      const writer = new TerminalWriter();
+      writer.write(analysis);
     } catch (error) {
       console.error(Utils.colour("red", error.stack));
       process.exit(1);

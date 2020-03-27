@@ -32,6 +32,8 @@
     "typescript": "^3.8.2"
   },
   "dependencies": {
+    "chalk": "^3.0.0",
+    "cliui": "^6.0.0",
     "commander": "^4.1.1",
     "nprime": "^0.2.1",
     "tree-sitter": "^0.16.0",
