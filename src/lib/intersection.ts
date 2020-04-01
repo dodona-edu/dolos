@@ -8,7 +8,7 @@ import { MergedMatch } from "./mergedMatch";
  */
 export class Intersection {
 
-  private readonly matches: MergedMatch[];
+  public readonly matches: MergedMatch[];
 
   constructor(
     public readonly leftFile: string,

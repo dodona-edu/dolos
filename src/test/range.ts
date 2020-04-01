@@ -27,6 +27,7 @@ test("range overlap", t => {
 
 test("range merge", t => {
   t.deepEqual(new Range(1, 5), Range.merge(new Range(1, 2), new Range(3, 5)));
+  t.deepEqual(new Range(1, 5), Range.merge(new Range(3, 5), new Range(1, 2)));
   t.deepEqual(new Range(1, 5), Range.merge(new Range(1, 4), new Range(2, 5)));
   t.deepEqual(new Range(1, 5), Range.merge(new Range(4, 5), new Range(1, 2)));
   t.deepEqual(new Range(1, 2), Range.merge(new Range(1, 2), new Range(1, 2)));
