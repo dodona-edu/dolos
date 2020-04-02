@@ -18,11 +18,28 @@ export class Selection {
   }
 
   public static merge(one: Selection, other: Selection): Selection {
-    const [left, right] = [one, other].sort(Selection.compare);
-    return new Selection(
-      left.startRow, left.startCol,
-      right.endRow, right.endCol
-    );
+    let startRow, startCol, endRow, endCol;
+    if(one.startRow < other.startRow) {
+      startRow = one.startRow;
+      startCol = one.startCol;
+    } else if (one.startRow > other.startRow) {
+      startRow = other.startRow;
+      startCol = other.startCol;
+    } else {
+      startRow = one.startRow;
+      startCol = Math.min(one.startCol, other.startCol);
+    }
+    if(one.endRow > other.endRow) {
+      endRow = one.endRow;
+      endCol = one.endCol;
+    } else if (one.endRow < other.endRow) {
+      endRow = other.endRow;
+      endCol = other.endCol;
+    } else {
+      endRow = one.endRow;
+      endCol = Math.max(one.endCol, other.endCol);
+    }
+    return new Selection(startRow, startCol, endRow, endCol);
   }
 
   constructor(
@@ -42,7 +59,7 @@ export class Selection {
     if (left.endRow < right.startRow) {
       return false;
     } else if (left.endRow === right.startRow) {
-      return left.endCol < right.startCol;
+      return right.startCol < left.endCol;
     } else {
       return true;
     }
