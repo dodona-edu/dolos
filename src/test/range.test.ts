@@ -7,9 +7,9 @@ test("illegal range", t => {
 })
 
 test("range length", t => {
-  t.is(0, new Range(10).length);
-  t.is(1, new Range(10, 12).length);
-  t.is(100, new Range(0, 101).length);
+  t.is(1, new Range(10).length);
+  t.is(2, new Range(10, 12).length);
+  t.is(100, new Range(0, 100).length);
 });
 
 test("range overlap", t => {
