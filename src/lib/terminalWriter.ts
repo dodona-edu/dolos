@@ -60,13 +60,23 @@ export class TerminalWriter {
     const nl = (i: number): string =>
       this.c.grey((i + 1).toString().padEnd(lineNrWidth));
 
-    for (const match of intersection.matches) {
-      console.dir(match);
+    for (let i = 0; i < intersection.matches.length; i += 1) {
+      const match = intersection.matches[i];
+
+      this.ui.div({
+        text: chalk.bold(`Match ${i+1}/${intersection.matches.length}:` +
+                         ` ${match.leftKmers.length} kmers`),
+        align: "center",
+        padding: [1, 0, 1, 0],
+      })
+
+      this.ui.div({
+        text: chalk.bold("Tokens: ") + "'" + chalk.red(match.mergedData) + "'",
+        padding: [0, 0, 1, 0],
+      })
 
       const left = this.formatLines(match.leftSelection, leftLines, nl);
       const right = this.formatLines(match.rightSelection, rightLines, nl);
-
-      this.ui.div()
 
       for(let i = 0; i < Math.max(left.length, right.length); i += 1) {
         this.ui.div(
@@ -78,10 +88,9 @@ export class TerminalWriter {
             text: right[i],
             width: lineWidth
           }
-        )
+        );
       }
     }
-
 
     this.output.write(this.ui.toString());
     this.ui.resetOutput();
@@ -119,8 +128,7 @@ export class TerminalWriter {
         this.c.green(startLine.substring(sel.startCol))
       );
       for(let i = sel.startRow + 1; i < sel.endRow; i += 1) {
-        nl(i) +
-        column.push(this.c.green(lines[i]));
+        column.push(nl(i) + this.c.green(lines[i]));
       }
       const endLine = lines[sel.endRow];
       column.push(

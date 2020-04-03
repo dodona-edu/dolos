@@ -27,7 +27,7 @@ export class Range {
   }
 
   get length(): number {
-    return this.to - this.from - 1;
+    return this.to - this.from;
   }
 
   public overlapsWith(other: Range): boolean {
