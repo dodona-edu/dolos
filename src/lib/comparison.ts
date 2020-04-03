@@ -7,9 +7,9 @@ import { Result } from "./result";
 import { Selection } from "./selection";
 import { Tokenizer } from "./tokenizer";
 import { WinnowFilter } from "./winnowFilter";
+import { File } from "./file";
 
 type Hash = number;
-type File = string;
 export type Analysis = Array<Intersection>;
 
 interface FilePart {
@@ -74,7 +74,8 @@ export class Comparison {
    */
   public async addFile(file: File): Promise<Result<void>> {
     return Result.tryAwait(async () => {
-      const [ast, mapping] = await this.tokenizer.tokenizeFileWithMapping(file);
+      const [ast, mapping] =
+        this.tokenizer.tokenizeFileWithMapping(file);
 
       let kmer = 0;
       for await (
@@ -145,7 +146,8 @@ export class Comparison {
   ): Promise<Analysis> {
 
     const matchingFiles: Map<File, Intersection> = new Map();
-    const [ast, mapping] = await this.tokenizer.tokenizeFileWithMapping(file);
+    const [ast, mapping] =
+      await this.tokenizer.tokenizeFileWithMapping(file);
 
     let kmer = 0;
     for await (

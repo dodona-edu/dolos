@@ -1,5 +1,4 @@
-import { default as fsWithCallbacks } from "fs";
-const fs = fsWithCallbacks.promises;
+import { File } from "./file";
 
 export interface Token<Location> {
   token: string;
@@ -12,9 +11,8 @@ export abstract class Tokenizer<Location> {
    *
    * @param fileName The name of the file to parse
    */
-  public async tokenizeFile(fileName: string): Promise<string> {
-    const fileContent = await fs.readFile(fileName);
-    return this.tokenize(fileContent);
+  public tokenizeFile(file: File): string {
+    return this.tokenize(file.content);
   }
 
   /**
@@ -22,7 +20,7 @@ export abstract class Tokenizer<Location> {
    *
    * @param text The buffer to stringify
    */
-  public abstract tokenize(text: Buffer): string;
+  public abstract tokenize(text: string): string;
 
   /**
    * Runs the stringifier on a file with the given name.  Returns a tuple containing the
@@ -31,9 +29,8 @@ export abstract class Tokenizer<Location> {
    *
    * @param fileName The name of the file to stringify
    */
-  public async tokenizeFileWithMapping(fileName: string): Promise<[string, Location[]]> {
-    const fileContent = await fs.readFile(fileName);
-    return this.tokenizeWithMapping(fileContent);
+  public tokenizeFileWithMapping(file: File): [string, Location[]] {
+    return this.tokenizeWithMapping(file.content);
   }
 
   /**
@@ -43,7 +40,7 @@ export abstract class Tokenizer<Location> {
    *
    * @param text The text buffer to stringify
    */
-  public async tokenizeWithMapping(text: Buffer): Promise<[string, Location[]]> {
+  public tokenizeWithMapping(text: string): [string, Location[]] {
     let resultString = "";
     const positionMapping: Location[] = [];
     for (const { token, location } of this.generateTokens(text)) {
@@ -59,9 +56,8 @@ export abstract class Tokenizer<Location> {
    *
    * @param fileName The name of the file to stringify
    */
-  public async *generateTokensFromFile(fileName: string): AsyncIterableIterator<Token<Location>> {
-    const fileContent = await fs.readFile(fileName);
-    yield* this.generateTokens(fileContent);
+  public *generateTokensFromFile(file: File): IterableIterator<Token<Location>> {
+    yield* this.generateTokens(file.content);
   }
 
   /**
@@ -70,7 +66,7 @@ export abstract class Tokenizer<Location> {
    *
    * @param text The text string to parse
    */
-  public abstract generateTokens(text: Buffer): IterableIterator<Token<Location>>;
+  public abstract generateTokens(text: string): IterableIterator<Token<Location>>;
 
   /**
    * Returns a new token-object. Just a shorthand for {token: ..., location: ...}.

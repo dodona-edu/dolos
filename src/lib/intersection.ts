@@ -1,6 +1,7 @@
 import { Selection } from "./selection";
 import { Match } from "./match";
 import { MergedMatch } from "./mergedMatch";
+import { File } from "./file";
 
 /**
  * This class represents all the matches between two files (i.e. the
@@ -11,8 +12,8 @@ export class Intersection {
   public readonly matches: MergedMatch[];
 
   constructor(
-    public readonly leftFile: string,
-    public readonly rightFile: string
+    public readonly leftFile: File,
+    public readonly rightFile: File
   ) {
     this.matches = [];
   }

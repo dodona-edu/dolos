@@ -30,6 +30,28 @@ export class Result<T> {
     }
   }
 
+  public static async all<T>(
+    promises: Array<Promise<Result<T>>>
+  ): Promise<Result<Array<T>>> {
+    const successes = [];
+    const failures = [];
+    for await (const result of promises) {
+      if (result.isOk()) {
+        successes.push(result.ok());
+      } else {
+        failures.push(result.error());
+      }
+    }
+    if (failures.length > 0) {
+      return Result.error(new Error(
+        "There were a few errors: \n" +
+        failures.map(e => e.toString()).join("\n")
+      ));
+    } else {
+      return Result.ok(successes);
+    }
+  }
+
   public static async tryAwait<T>(
     canFail: () => Promise<T>
   ): Promise<Result<T>> {

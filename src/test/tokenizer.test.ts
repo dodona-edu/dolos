@@ -1,5 +1,6 @@
 import test from "ava";
 import { CodeTokenizer } from "../lib/codeTokenizer";
+import { File } from "../lib/file";
 
 const languageFiles = {
   "python": "samples/python/caesar.py",
@@ -19,7 +20,7 @@ for (const language of CodeTokenizer.supportedLanguages) {
     if (sampleFile === undefined) {
       t.fail(`${language} doesn't have a sample file`);
     } else {
-      const file = sampleFile;
+      const file = (await File.fromPath(sampleFile)).ok();
       const tokens = await tokenizer.tokenizeFile(file);
       t.truthy(tokens);
       t.snapshot(tokens, "stable tokenization");
@@ -41,7 +42,7 @@ test("registering a new invalid language throws error", t => {
 
 test("tokenizer with or without location is equal", async t => {
   const tokenizer = new CodeTokenizer("javascript");
-  const file = languageFiles["javascript"];
+  const file = (await File.fromPath(languageFiles["javascript"])).ok();
 
   const [tokenized, mapping] =
     (await tokenizer.tokenizeFileWithMapping(file));

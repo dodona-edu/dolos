@@ -5,8 +5,6 @@ import { Selection } from "./selection";
 import UI from "cliui";
 import chalk from "chalk";
 import { Writable } from "stream";
-import { default as fsWithCallbacks } from "fs";
-const fs = fsWithCallbacks.promises;
 
 export class TerminalWriter {
 
@@ -33,22 +31,20 @@ export class TerminalWriter {
     });
   }
 
-  public async write(intersections: Array<Intersection>): Promise<void> {
-    for (const i of intersections){
-      await this.writeIntersection(i);
-    }
+  public write(intersections: Array<Intersection>): void {
+    intersections.map(i => this.writeIntersection(i));
   }
 
-  public async writeIntersection(intersection: Intersection): Promise<void> {
-    const leftLines = await this.readLines(intersection.leftFile);
-    const rightLines = await this.readLines(intersection.rightFile);
+  public writeIntersection(intersection: Intersection): void {
+    const leftLines = intersection.leftFile.lines;
+    const rightLines = intersection.rightFile.lines;
 
     this.ui.div({
-      text: chalk.bold(intersection.leftFile),
+      text: chalk.bold(intersection.leftFile.name),
       padding: [1, 1, 1, 1],
     },
     {
-      text: chalk.bold(intersection.rightFile),
+      text: chalk.bold(intersection.rightFile.name),
       padding: [1, 1, 1, 1]
     })
 
@@ -146,9 +142,5 @@ export class TerminalWriter {
       }
     }
     return column;
-  }
-
-  public async readLines(file: string): Promise<Array<string>> {
-    return (await fs.readFile(file)).toString().split("\n");
   }
 }

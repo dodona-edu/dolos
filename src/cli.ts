@@ -197,7 +197,7 @@ program
         maxMatches: program.filePairOutputLimit,
         minFragmentLength: program.minimumFragmentLength,
       });
-      const analysis = await dolos.analyze(locations);
+      const analysis = await dolos.analyzePaths(locations);
       const writer = new TerminalWriter();
       writer.write(analysis);
     } catch (error) {

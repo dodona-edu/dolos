@@ -1,6 +1,8 @@
 import { Comparison, Analysis } from "./lib/comparison";
 import { CustomOptions, Options } from "./lib/options";
 import { CodeTokenizer } from "./lib/codeTokenizer";
+import { File } from "./lib/file";
+import { Result } from "./lib/result";
 
 export class Dolos {
 
@@ -14,15 +16,21 @@ export class Dolos {
     this.comparison = new Comparison(this.tokenizer, this.options);
   }
 
+  public async analyzePaths(paths: string[]): Promise<Analysis> {
+    const files = await Result.all(paths.map(File.fromPath));
+    return this.analyze(files.ok());
+  }
+
   public async analyze(
-    locations: string[]
+    files: Array<File>
   ): Promise<Analysis> {
 
-    if (locations.length < 2) {
-      throw new Error("You need to supply at least two locations");
+    if (files.length < 2) {
+      throw new Error("You need to supply at least two files");
     }
 
-    await this.comparison.addFiles(locations);
-    return this.comparison.compareFiles(locations);
+    await this.comparison.addFiles(files);
+    return this.comparison.compareFiles(files);
   }
+
 }
