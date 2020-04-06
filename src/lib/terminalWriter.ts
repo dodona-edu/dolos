@@ -40,11 +40,11 @@ export class TerminalWriter {
     const rightLines = intersection.rightFile.lines;
 
     this.ui.div({
-      text: chalk.bold(intersection.leftFile.name),
+      text: chalk.bold(intersection.leftFile.path),
       padding: [1, 1, 1, 1],
     },
     {
-      text: chalk.bold(intersection.rightFile.name),
+      text: chalk.bold(intersection.rightFile.path),
       padding: [1, 1, 1, 1]
     })
 

@@ -16,7 +16,7 @@ test("all files no filter test", async t => {
   const tokenizer: Tokenizer<Selection> = new CodeTokenizer("javascript");
   const comparison: Comparison = new Comparison(tokenizer);
   const files = (await File.readAll(samples)).ok();
-  await comparison.addFiles(files);
+  await comparison.compareFiles(files);
   const results = await comparison.compareFiles(files);
   t.snapshot(results);
 });
@@ -28,7 +28,7 @@ test("all files max hash count", async t => {
     maxHashCount: 4,
   }));
   const files = (await File.readAll(samples)).ok();
-  await comparison.addFiles(files);
+  await comparison.compareFiles(files);
 
   const results = await comparison.compareFiles(files);
   t.snapshot(results);
@@ -40,7 +40,7 @@ test("all files max hash percentage", async t => {
     maxHashPercent: 0.4,
   }));
   const files = (await File.readAll(samples)).ok();
-  await comparison.addFiles(files);
+  await comparison.compareFiles(files);
 
   const results = await comparison.compareFiles(files);
   t.snapshot(results);

@@ -29,7 +29,6 @@ export class Dolos {
       throw new Error("You need to supply at least two files");
     }
 
-    await this.comparison.addFiles(files);
     return this.comparison.compareFiles(files);
   }
 

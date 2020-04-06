@@ -22,8 +22,8 @@ test("equal content should be a full match", async t => {
 
   const analysis = await dolos.analyze(
     [
-      File.fromContent("file1", content),
-      File.fromContent("file2", content)
+      new File("file1", content),
+      new File("file2", content),
     ]
   );
 

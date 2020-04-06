@@ -3,7 +3,6 @@ import { HashFilter } from "./hashFilter";
 import { Intersection } from "./intersection";
 import { Match } from "./match";
 import { Options } from "./options";
-import { Result } from "./result";
 import { Selection } from "./selection";
 import { Tokenizer } from "./tokenizer";
 import { WinnowFilter } from "./winnowFilter";
@@ -54,34 +53,37 @@ export class Comparison {
   }
 
   /**
-   * Adds a list of files to the comparison index.
+   * Compare a list of files with each other and the files already stored in the
+   * index. The compared files are also added to the index.
    *
-   * @param files A list of filenames
+   * @param files: the file objects which need to be compared to the index
+   * and each other. The file hashes will be added to the index.
+   * @param hashFilter: an optional HashFilter. By default the HashFilter of the
+   * Comparison object will be used.
+   * @return an Analysis object, which is a list of Intersections
+   * (containing all the matches between two files).
    */
-  public addFiles(files: File[]): Promise<Array<Result<void>>> {
-    // This promise will reject if one of the underlying promises reject
-    // which is not what we want. If one file is missing, the others should
-    // still be added. In the future, Promise.all can be replaced by
-    // Promise.allSettled, but for now the error handling makes sure they
-    // are all resolved correctly.
-    return Promise.all(files.map(file => this.addFile(file)));
-  }
+  public async compareFiles(
+    files: File[],
+    hashFilter = this.hashFilter
+  ): Promise<Analysis> {
 
-  /**
-   * Add a file to the comparison index.
-   *
-   * @param file The file name of the file to add
-   */
-  public async addFile(file: File): Promise<Result<void>> {
-    return Result.tryAwait(async () => {
+    // to keep track of which two files match (and not have two times the same
+    // Intersection but in different order), we use a sorted tuple of the two
+    // compared files as key
+    const intersections: Map<[File, File], Intersection> = new Map();
+
+    for (const file of files) {
+
       const [ast, mapping] =
         this.tokenizer.tokenizeFileWithMapping(file);
 
       let kmer = 0;
       for await (
-        const { data, hash, start, stop }
-        of this.hashFilter.hashesFromString(ast)
+        const fullHash
+        of hashFilter.hashesFromString(ast)
       ) {
+        const { data, hash, start, stop } = fullHash;
 
         assert(Selection.compare(mapping[start], mapping[stop]) < 0);
         const location = Selection.merge(mapping[start], mapping[stop]);
@@ -93,40 +95,52 @@ export class Comparison {
         };
 
         // look if the index already contains the given hash
-        const matchingParts = this.index.get(hash);
+        const matches = this.index.get(hash);
 
-        if (matchingParts) {
-          // if it does, append it to the list of parts
-          matchingParts.push(part);
+        if (matches) {
+          // the hash exists in out index, look which files we've matched
+          for (const match of matches) {
+
+            // don't add a match if we've matched ourselves
+            if(match.file === file) {
+              continue;
+            }
+
+            // find or create an Intersection object with the matched file
+            const [first, second] = [match.file, file].sort(File.compare);
+            let intersection = intersections.get([first, second]);
+            if (!intersection) {
+              intersection = new Intersection(file, match.file);
+              intersections.set([first, second], intersection);
+            }
+
+            // add the new match to the intersection object
+            intersection.addMatch(
+              new Match(
+                kmer,
+                location,
+                data,
+                match.kmer,
+                match.location,
+                match.data,
+                hash
+              )
+            );
+          }
+
+          // finally, add our matching part to the index
+          matches.push(part);
         } else {
-          // if it doesn't, create a new list
+
+          // if the hash does not yet exist in the index, add it
           this.index.set(hash, [part]);
         }
 
         kmer += 1;
       }
-    });
-  }
-
-  /**
-   * Compare a list of files to the index. A map will be returned containing for
-   * each file in the input a list of matching files. This list of matching
-   * files is also represented as a map, mapping the filename to the position of
-   * the match in both files.
-   *
-   * @param files A list of filenames to query
-   * @param hashFilter An optional HashFilter. By default the HashFilter of the
-   * Comparison object will be used.
-   */
-  public async compareFiles(
-    files: File[],
-    hashFilter = this.hashFilter
-  ): Promise<Analysis> {
-    const intersections = [];
-    for (const file of files) {
-      intersections.push(...await this.compareFile(file, hashFilter));
     }
-    return intersections;
+
+    return Array.of(...intersections.values());
   }
 
   /**
@@ -144,54 +158,6 @@ export class Comparison {
     file: File,
     hashFilter = this.hashFilter
   ): Promise<Analysis> {
-
-    const matchingFiles: Map<File, Intersection> = new Map();
-    const [ast, mapping] =
-      await this.tokenizer.tokenizeFileWithMapping(file);
-
-    let kmer = 0;
-    for await (
-      const { hash, start, stop, data } of hashFilter.hashesFromString(ast)
-    ) {
-
-      const matches = this.index.get(hash);
-
-      if (matches) { // a match exists in our index
-        for (const matchingPart of matches) {
-
-          // Don't add a match if we've matched ourselves
-          if(matchingPart.file === file) {
-            continue;
-          }
-
-          // Find or create an Intersection object
-          let intersection = matchingFiles.get(matchingPart.file);
-          if (!intersection) {
-            intersection = new Intersection(file, matchingPart.file);
-            matchingFiles.set(matchingPart.file, intersection);
-          }
-
-          const location = Selection.merge(mapping[start], mapping[stop]);
-
-          // Add a new match to the intersection object
-          intersection.addMatch(
-            new Match(
-              kmer,
-              location,
-              data,
-              matchingPart.kmer,
-              matchingPart.location,
-              matchingPart.data,
-              hash
-            )
-          );
-        }
-      }
-
-      kmer += 1;
-    }
-
-    const intersections = Array.of(...matchingFiles.values());
-    return intersections;
+    return this.compareFiles([file], hashFilter);
   }
 }

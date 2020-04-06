@@ -1,5 +1,4 @@
 import { Result } from "./result";
-import Path from "path";
 import { default as fsWithCallbacks } from "fs";
 const fs = fsWithCallbacks.promises;
 
@@ -12,6 +11,16 @@ export class File {
   public readonly charCount: number;
   public readonly lineCount: number;
   public readonly lines: Array<string>;
+
+  public static compare(a: File, b: File): number {
+    if (a.path < b.path) {
+      return -1;
+    } else if (a.path > b.path) {
+      return 1;
+    } else {
+      throw new Error(`Comparing two files with the same path: ${a} and ${b}`);
+    }
+  }
 
   /**
    * Reads all the given locations into files.
@@ -34,22 +43,13 @@ export class File {
     return Result.tryAwait(async () =>
       new File(
         location,
-        Path.basename(location),
         (await fs.readFile(location)).toString()
       )
     );
   }
 
-  /**
-   * Creates a file with the given name and content.
-   */
-  public static fromContent(name: string, content: string): File {
-    return new File(null, name, content);
-  }
-
   constructor(
-    public readonly path: string | null,
-    public readonly name: string,
+    public readonly path: string,
     content: string
   ) {
     this.charCount = content.length;
