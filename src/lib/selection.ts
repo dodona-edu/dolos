@@ -17,6 +17,22 @@ export class Selection {
     return 0;
   }
 
+  public static valid(
+    startRow: number,
+    startCol: number,
+    endRow: number,
+    endCol: number
+  ): boolean {
+    return startRow < endRow || (startRow === endRow && startCol < endCol);
+  }
+
+  public static isInOrder(first: Selection, second: Selection): boolean {
+    return Selection.valid(
+      first.startRow, first.startCol,
+      second.endRow, second.endCol
+    );
+  }
+
   public static merge(one: Selection, other: Selection): Selection {
     let startRow, startCol, endRow, endCol;
     if(one.startRow < other.startRow) {
@@ -49,7 +65,7 @@ export class Selection {
     public endCol: number
   ) {
     assert(
-      startRow < endRow || (startRow === endRow && startCol < endCol),
+      Selection.valid(startRow, startCol, endRow, endCol),
       "startRow and startCol should be smaller than endRow and endCol"
     );
   }
@@ -63,5 +79,9 @@ export class Selection {
     } else {
       return true;
     }
+  }
+
+  public toString(): string {
+    return `Selection {${this.startRow}:${this.startCol} -> ${this.endRow}:${this.endCol}}`;
   }
 }

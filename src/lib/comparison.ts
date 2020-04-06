@@ -85,7 +85,14 @@ export class Comparison {
       ) {
         const { data, hash, start, stop } = fullHash;
 
-        assert(Selection.compare(mapping[start], mapping[stop]) < 0);
+        // sanity check
+        assert(
+          Selection.isInOrder(mapping[start], mapping[stop]),
+          `Invallid ordering:
+            expected ${mapping[start]}
+            to start be before the end of ${mapping[stop]}`
+        );
+
         const location = Selection.merge(mapping[start], mapping[stop]);
         const part: FilePart = {
           kmer,
