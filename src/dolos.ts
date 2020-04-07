@@ -1,4 +1,5 @@
-import { Comparison, Analysis } from "./lib/comparison";
+import { Comparison } from "./lib/comparison";
+import { Analysis } from "./lib/analysis";
 import { CustomOptions, Options } from "./lib/options";
 import { CodeTokenizer } from "./lib/codeTokenizer";
 import { File } from "./lib/file";

@@ -26,8 +26,8 @@ test("equal content should be a full match", async t => {
     ]
   );
 
-  t.is(analysis.length, 1);
-  const intersection = analysis[0];
+  t.is(analysis.intersections().length, 1);
+  const intersection = analysis.intersections()[0];
 
   t.is(intersection.matches.length, 1);
   const match = intersection.matches[0];

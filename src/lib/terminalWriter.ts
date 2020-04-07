@@ -1,5 +1,6 @@
 import { Intersection } from "./intersection";
 import { Selection } from "./selection";
+import { Analysis } from "./analysis";
 
 /// <reference types="../../typings/cliui" />
 import UI from "cliui";
@@ -31,8 +32,8 @@ export class TerminalWriter {
     });
   }
 
-  public write(intersections: Array<Intersection>): void {
-    intersections.map(i => this.writeIntersection(i));
+  public write(analysis: Analysis): void {
+    analysis.intersections().map(i => this.writeIntersection(i));
   }
 
   public writeIntersection(intersection: Intersection): void {

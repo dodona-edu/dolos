@@ -1,16 +1,14 @@
 import assert from "assert";
 import { HashFilter } from "./hashFilter";
-import { Intersection } from "./intersection";
 import { Match } from "./match";
 import { Options } from "./options";
 import { Selection } from "./selection";
 import { Tokenizer } from "./tokenizer";
 import { WinnowFilter } from "./winnowFilter";
-import { DefaultMap } from "./defaultMap";
 import { File } from "./file";
+import { Analysis } from "./analysis";
 
 type Hash = number;
-export type Analysis = Array<Intersection>;
 
 interface FilePart {
   file: File;
@@ -69,11 +67,7 @@ export class Comparison {
     hashFilter = this.hashFilter
   ): Promise<Analysis> {
 
-    // to keep track of which two files match (and not have two times the same
-    // Intersection but in different order), we use a nested map where we use
-    // the two keys in lexicographical order
-    const intersections: DefaultMap<File, Map<File, Intersection>> =
-      new DefaultMap(() => new Map())
+    const analysis = new Analysis();
 
     for (const file of files) {
 
@@ -96,12 +90,7 @@ export class Comparison {
         );
 
         const location = Selection.merge(mapping[start], mapping[stop]);
-        const part: FilePart = {
-          kmer,
-          file,
-          data,
-          location,
-        };
+        const part: FilePart = { kmer, file, data, location };
 
         // look if the index already contains the given hash
         const matches = this.index.get(hash);
@@ -116,16 +105,10 @@ export class Comparison {
               continue;
             }
 
-            // find or create an Intersection object with the matched file
-            const [first, second] = [match.file, file].sort(File.compare);
-            let intersection = intersections.get(first).get(second);
-            if (!intersection) {
-              intersection = new Intersection(file, match.file);
-              intersections.get(first).set(second, intersection);
-            }
-
-            // add the new match to the intersection object
-            intersection.addMatch(
+            // add the match to the analysis
+            analysis.addMatch(
+              file,
+              match.file,
               new Match(
                 kmer,
                 location,
@@ -150,9 +133,7 @@ export class Comparison {
       }
     }
 
-    return Array.of(...intersections.values())
-      .map(m => Array.of(...m.values()))
-      .flat();
+    return analysis;
   }
 
   /**

@@ -56,9 +56,6 @@ export class MergedMatch {
       other.rightLocation
     );
 
-
-
-
   }
 
 }
