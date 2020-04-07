@@ -39,7 +39,7 @@ export class Comparison {
    */
   constructor(
     tokenizer: Tokenizer<Selection>,
-    options: Options = new Options(),
+    private readonly options: Options = new Options(),
     hashFilter?: HashFilter
   ) {
     this.tokenizer = tokenizer;
@@ -67,7 +67,7 @@ export class Comparison {
     hashFilter = this.hashFilter
   ): Promise<Analysis> {
 
-    const analysis = new Analysis();
+    const analysis = new Analysis(this.options);
 
     for (const file of files) {
 

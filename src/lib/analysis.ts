@@ -3,15 +3,19 @@ import { DefaultMap } from "./defaultMap";
 import { File } from "./file";
 import { Match } from "./match";
 import { Selection } from "./selection";
+import { Options } from "./options";
 
 export class Analysis {
-
 
   // to keep track of which two files match (and not have two times the same
   // Intersection but in different order), we use a nested map where we use
   // the two keys in lexicographical order
   private intersectionMap: DefaultMap<File, Map<File, Intersection>> =
       new DefaultMap(() => new Map())
+
+  constructor(
+    public readonly kmerLength: Options
+  ) {}
 
   public addMatch(left: File, right: File, match: Match<Selection>): void {
     const [first, second] = [left, right].sort(File.compare);
