@@ -1,18 +1,31 @@
 import { File } from "./file";
+import { Selection } from "./selection";
+import { TokenizedFile } from "./tokenizedFile";
 
-export interface Token<Location> {
+export interface Token {
   token: string;
-  location: Location;
+  location: Selection;
 }
 
-export abstract class Tokenizer<Location> {
+export abstract class Tokenizer {
+
+  /**
+   * Runs the tokenizer on a given Buffer. Returns an async iterator returning
+   * tuples containing the stringified version of the token and the
+   * corresponding position.
+   *
+   * @param text The text string to parse
+   */
+  public abstract generateTokens(text: string): IterableIterator<Token>;
+
   /**
    * Returns a stringified version the given file.
    *
    * @param fileName The name of the file to parse
    */
-  public tokenizeFile(file: File): string {
-    return this.tokenize(file.content);
+  public tokenizeFile(file: File): TokenizedFile {
+    const [ast, mapping] = this.tokenizeWithMapping(file.content);
+    return new TokenizedFile(file, ast, mapping);
   }
 
   /**
@@ -20,29 +33,20 @@ export abstract class Tokenizer<Location> {
    *
    * @param text The buffer to stringify
    */
-  public abstract tokenize(text: string): string;
-
-  /**
-   * Runs the stringifier on a file with the given name.  Returns a tuple containing the
-   * stringified version and an array containing a mapping from each token to the
-   * corresponding token in the original buffer.
-   *
-   * @param fileName The name of the file to stringify
-   */
-  public tokenizeFileWithMapping(file: File): [string, Location[]] {
-    return this.tokenizeWithMapping(file.content);
+  public tokenize(text: string): string {
+    return Array.of(...this.generateTokens(text)).join();
   }
 
   /**
-   * Runs the stringifier on a given buffer. Returns a tuple containing the stringified version
-   * and an array containing a mapping from each token to the corresponding token in the
-   * original buffer.
+   * Runs the stringifier on a given buffer. Returns a tuple containing the
+   * stringified version and an array containing a mapping from each token to
+   * the corresponding token in the original buffer.
    *
    * @param text The text buffer to stringify
    */
-  public tokenizeWithMapping(text: string): [string, Location[]] {
+  public tokenizeWithMapping(text: string): [string, Selection[]] {
     let resultString = "";
-    const positionMapping: Location[] = [];
+    const positionMapping: Array<Selection> = [];
     for (const { token, location } of this.generateTokens(text)) {
       resultString += token;
       positionMapping.push(...new Array(token.length).fill(location));
@@ -51,30 +55,13 @@ export abstract class Tokenizer<Location> {
   }
 
   /**
-   * Runs the stringifier on a file with the given name. Returns an async iterator returning
-   * tuples containing the stringified version of the token and the corresponding position.
-   *
-   * @param fileName The name of the file to stringify
-   */
-  public *generateTokensFromFile(file: File): IterableIterator<Token<Location>> {
-    yield* this.generateTokens(file.content);
-  }
-
-  /**
-   * Runs the tokenizer on a given Buffer. Returns an async iterator returning tuples
-   * containing the stringified version of the token and the corresponding position.
-   *
-   * @param text The text string to parse
-   */
-  public abstract generateTokens(text: string): IterableIterator<Token<Location>>;
-
-  /**
-   * Returns a new token-object. Just a shorthand for {token: ..., location: ...}.
+   * Returns a new token-object.
+   * Just a shorthand for {token: ..., location: ...}.
    *
    * @param token the text of the token
    * @param location the location of the token
    */
-  protected newToken(token: string, location: Location): Token<Location> {
+  protected newToken(token: string, location: Selection): Token {
     return { token, location };
   }
 }

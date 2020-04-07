@@ -2,8 +2,9 @@ import { default as Parser, SyntaxNode } from "tree-sitter";
 import { Selection } from "./selection";
 import { Token, Tokenizer } from "./tokenizer";
 
-export class CodeTokenizer extends Tokenizer<Selection> {
-  public static supportedLanguages = ["c-sharp", "java", "javascript", "python"];
+export class CodeTokenizer extends Tokenizer {
+  public static supportedLanguages =
+    ["c-sharp", "java", "javascript", "python"];
 
   /**
    * Returns true if the grammar of the given language is supported.
@@ -16,8 +17,8 @@ export class CodeTokenizer extends Tokenizer<Selection> {
 
   /**
    * Registers an additional language to Dolos. For this to work, the supporting
-   * module of the name `tree-sitter-someLanguage` must first be installed manually
-   * through yarn or npm.
+   * module of the name `tree-sitter-someLanguage` must first be installed
+   * manually through yarn or npm.
    *
    * The function will throw an error when the supported module is not found.
    *
@@ -27,7 +28,9 @@ export class CodeTokenizer extends Tokenizer<Selection> {
     try {
       require("tree-sitter-" + language);
     } catch (error) {
-      throw new Error(`The module 'tree-sitter-${language}' could not be found`);
+      throw new Error(
+        `The module 'tree-sitter-${language}' could not be found`
+      );
     }
     this.supportedLanguages.push(language);
   }
@@ -36,9 +39,9 @@ export class CodeTokenizer extends Tokenizer<Selection> {
   private readonly parser: Parser;
 
   /**
-   * Creates a new tokenizer of the given language. Will throw an error when the given
-   * language is not supported. See Tokenizer.supportedLanguages for a list of all
-   * supported languages.
+   * Creates a new tokenizer of the given language. Will throw an error when the
+   * given language is not supported. See Tokenizer.supportedLanguages for a
+   * list of all supported languages.
    *
    * @param language The language to use for this tokenizer.
    */
@@ -56,8 +59,8 @@ export class CodeTokenizer extends Tokenizer<Selection> {
   }
 
   /**
-   * Runs the parser on a given string. Returns a stringified version of the abstract
-   * syntax tree.
+   * Runs the parser on a given string. Returns a stringified version of the
+   * abstract syntax tree.
    *
    * @param text The text string to parse
    */
@@ -67,17 +70,18 @@ export class CodeTokenizer extends Tokenizer<Selection> {
   }
 
   /**
-   * Runs the parser on a given string. Returns an async iterator returning tuples
-   * containing the stringified version of the token and the corresponding position.
+   * Runs the parser on a given string. Returns an async iterator returning
+   * tuples containing the stringified version of the token and the
+   * corresponding position.
    *
    * @param text The text string to parse
    */
-  public *generateTokens(text: string): IterableIterator<Token<Selection>> {
+  public *generateTokens(text: string): IterableIterator<Token> {
     const tree = this.parser.parse(text);
     yield* this.tokenizeNode(tree.rootNode);
   }
 
-  private *tokenizeNode(node: SyntaxNode): IterableIterator<Token<Selection>> {
+  private *tokenizeNode(node: SyntaxNode): IterableIterator<Token> {
     const location = new Selection(
       node.startPosition.row,
       node.startPosition.column,

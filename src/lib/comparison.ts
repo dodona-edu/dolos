@@ -6,12 +6,13 @@ import { Selection } from "./selection";
 import { Tokenizer } from "./tokenizer";
 import { WinnowFilter } from "./winnowFilter";
 import { File } from "./file";
+import { TokenizedFile } from "./tokenizedFile";
 import { Analysis } from "./analysis";
 
 type Hash = number;
 
 interface FilePart {
-  file: File;
+  file: TokenizedFile;
   kmer: number;
   location: Selection;
   data: string;
@@ -21,7 +22,7 @@ export class Comparison {
   private readonly kmerLength: number;
   private readonly kmersInWindow: number;
   private readonly index: Map<Hash, Array<FilePart>> = new Map();
-  private readonly tokenizer: Tokenizer<Selection>;
+  private readonly tokenizer: Tokenizer;
   private readonly hashFilter: HashFilter;
 
   /**
@@ -38,7 +39,7 @@ export class Comparison {
    * the rolling hash function.
    */
   constructor(
-    tokenizer: Tokenizer<Selection>,
+    tokenizer: Tokenizer,
     private readonly options: Options = new Options(),
     hashFilter?: HashFilter
   ) {
@@ -69,27 +70,31 @@ export class Comparison {
 
     const analysis = new Analysis(this.options);
 
-    for (const file of files) {
-
-      const [ast, mapping] =
-        this.tokenizer.tokenizeFileWithMapping(file);
+    for (const file of files.map(f => this.tokenizer.tokenizeFile(f))) {
 
       let kmer = 0;
       for await (
         const fullHash
-        of hashFilter.hashesFromString(ast)
+        of hashFilter.hashesFromString(file.ast)
       ) {
         const { data, hash, start, stop } = fullHash;
 
         // sanity check
         assert(
-          Selection.isInOrder(mapping[start], mapping[stop]),
+          Selection.isInOrder(
+            file.mapping[start],
+            file.mapping[stop]
+          ),
           `Invallid ordering:
-            expected ${mapping[start]}
-            to start be before the end of ${mapping[stop]}`
+            expected ${file.mapping[start]}
+            to start be before the end of ${file.mapping[stop]}`
         );
 
-        const location = Selection.merge(mapping[start], mapping[stop]);
+        const location = Selection.merge(
+          file.mapping[start],
+          file.mapping[stop]
+        );
+
         const part: FilePart = { kmer, file, data, location };
 
         // look if the index already contains the given hash
@@ -103,6 +108,12 @@ export class Comparison {
             // but this is internal duplication (e.g. code reuse)
             if(match.file === file) {
               continue;
+            }
+
+            if (match.file.path === file.path) {
+              console.dir(match.file);
+              console.dir(file);
+              throw new Error("wop");
             }
 
             // add the match to the analysis
