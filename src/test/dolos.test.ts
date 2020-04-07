@@ -1,6 +1,7 @@
 import test from "ava";
 import { Dolos } from "../dolos";
 import { File } from "../lib/file";
+import { Range } from "../lib/range";
 import { Selection } from "../lib/selection";
 
 test("equal content should be a full match", async t => {
@@ -11,9 +12,7 @@ test("equal content should be a full match", async t => {
     return "hello";
   }
 
-  function world() {
-    return "world";
-  }
+  const world = () => "world";
 
   function helloWorld() {
     console.log(hello() + " " + world())
@@ -27,13 +26,16 @@ test("equal content should be a full match", async t => {
     ]
   );
 
-  console.dir(analysis);
   t.is(analysis.length, 1);
   const intersection = analysis[0];
 
   t.is(intersection.matches.length, 1);
   const match = intersection.matches[0];
 
-  t.is(match.leftSelection, new Selection(0, 0, 12, 1));
-  t.is(match.rightSelection, new Selection(0, 0, 12, 1));
+  t.deepEqual(match.leftSelection, new Selection(2, 2, 11, 2));
+  t.deepEqual(match.rightSelection, new Selection(2, 2, 11, 2));
+
+  t.deepEqual(match.leftKmers, new Range(0, 24));
+  t.deepEqual(match.rightKmers, new Range(0, 24));
+
 });

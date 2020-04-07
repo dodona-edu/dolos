@@ -110,7 +110,8 @@ export class Comparison {
           // the hash exists in out index, look which files we've matched
           for (const match of matches) {
 
-            // don't add a match if we've matched ourselves
+            // don't add a match if we've matched ourselves,
+            // but this is internal duplication (e.g. code reuse)
             if(match.file === file) {
               continue;
             }
