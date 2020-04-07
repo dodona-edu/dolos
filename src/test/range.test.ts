@@ -32,3 +32,34 @@ test("range merge", t => {
   t.deepEqual(new Range(1, 5), Range.merge(new Range(4, 5), new Range(1, 2)));
   t.deepEqual(new Range(1, 2), Range.merge(new Range(1, 2), new Range(1, 2)));
 });
+
+test("total cover", t => {
+  t.is(1, Range.totalCovered([new Range(1)]));
+  t.is(3, Range.totalCovered([new Range(1, 4)]));
+  t.is(3, Range.totalCovered([new Range(1, 4), new Range(1, 4)]));
+  t.is(3, Range.totalCovered([new Range(1, 4), new Range(2, 3)]));
+  t.is(3, Range.totalCovered([new Range(1, 3), new Range(3, 4)]));
+  t.is(2, Range.totalCovered([new Range(1), new Range(4)]));
+  t.is(
+    7,
+    Range.totalCovered([
+      new Range(1, 3),
+      new Range(2, 5),
+      new Range(3, 4),
+      new Range(7, 10),
+    ])
+  );
+})
+
+test("compare", t => {
+  const a1 = new Range(1);
+  const a2 = new Range(1, 2);
+  const b = new Range(3, 5);
+  const c = new Range(3, 6);
+  const d = new Range(4);
+
+  t.deepEqual(
+    [a1, a2, b, c, d],
+    [d, c, b, a1, a2].sort(Range.compare)
+  );
+});

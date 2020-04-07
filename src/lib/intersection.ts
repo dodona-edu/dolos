@@ -1,4 +1,5 @@
 import { Selection } from "./selection";
+import { Range } from "./range";
 import { Match } from "./match";
 import { MergedMatch } from "./mergedMatch";
 import { TokenizedFile } from "./tokenizedFile";
@@ -28,5 +29,11 @@ export class Intersection {
     } else {
       this.matches[i].merge(newMatch);
     }
+  }
+
+  public totalOverlapKmers(): number {
+    return Range.totalCovered(
+      this.matches.map(m => m.leftKmers).sort(Range.compare)
+    );
   }
 }

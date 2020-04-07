@@ -4,7 +4,14 @@ import { File } from "./file";
 import { TokenizedFile } from "./tokenizedFile";
 import { Match } from "./match";
 import { Selection } from "./selection";
+import { Range } from "./range";
 import { Options } from "./options";
+
+interface ScoredIntersection {
+  intersection: Intersection;
+  absoluteOverlap: number;
+  jaccard: number;
+}
 
 export class Analysis {
 
@@ -16,7 +23,7 @@ export class Analysis {
     = new DefaultMap(() => new Map())
 
   constructor(
-    public readonly kmerLength: Options
+    public readonly options: Options
   ) {}
 
   public addMatch(
@@ -45,4 +52,20 @@ export class Analysis {
     return Array.of(...this.intersectionIterator());
   }
 
+  public intersectionScores(): Array<ScoredIntersection> {
+    const k = this.options.kmerLength;
+    return this
+      .intersections()
+      .map(intersection => {
+        const overlap =
+          Range.totalCovered(intersection.matches.map(m => m.leftKmers));
+        const leftTotal = intersection.leftFile.totalKmers(k);
+        const rightTotal = intersection.rightFile.totalKmers(k);
+        return {
+          intersection,
+          absoluteOverlap: overlap,
+          jaccard: overlap / (leftTotal + rightTotal - overlap)
+        }})
+      .sort((a, b) => a.absoluteOverlap - b.absoluteOverlap);
+  }
 }

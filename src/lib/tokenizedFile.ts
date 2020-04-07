@@ -11,4 +11,12 @@ export class TokenizedFile extends File {
     super(file.path, file.content);
   }
 
+  public totalKmers(k: number): number {
+    return this.ast.length - k + 1;
+  }
+
+  public kmer(k: number, i: number): string {
+    return this.ast.substring(i, i + k);
+  }
+
 }

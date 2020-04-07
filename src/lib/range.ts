@@ -6,12 +6,33 @@ import assert from "assert";
  */
 export class Range {
 
+  public static compare(one: Range, other: Range): number {
+    if (one.from == other.from){
+      return one.to - other.to;
+    } else {
+      return one.from - other.from;
+    }
+  }
+
   public static merge(one: Range, other: Range): Range {
     return new Range(
       Math.min(one.from, other.from),
       Math.max(one.to, other.to)
     );
   }
+
+  public static totalCovered(ranges: Array<Range>): number {
+    let total = 0;
+    let last = 0;
+    for (const range of ranges.sort(Range.compare)) {
+      if(last < range.to) {
+        total += range.to - Math.max(last, range.from)
+        last = range.to;
+      }
+    }
+    return total;
+  }
+
 
   constructor(
     public readonly from: number,
