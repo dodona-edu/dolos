@@ -6,6 +6,7 @@ import { Options } from "./options";
 import { Selection } from "./selection";
 import { Tokenizer } from "./tokenizer";
 import { WinnowFilter } from "./winnowFilter";
+import { DefaultMap } from "./defaultMap";
 import { File } from "./file";
 
 type Hash = number;
@@ -69,9 +70,10 @@ export class Comparison {
   ): Promise<Analysis> {
 
     // to keep track of which two files match (and not have two times the same
-    // Intersection but in different order), we use a sorted tuple of the two
-    // compared files as key
-    const intersections: Map<[File, File], Intersection> = new Map();
+    // Intersection but in different order), we use a nested map where we use
+    // the two keys in lexicographical order
+    const intersections: DefaultMap<File, Map<File, Intersection>> =
+      new DefaultMap(() => new Map())
 
     for (const file of files) {
 
@@ -115,10 +117,10 @@ export class Comparison {
 
             // find or create an Intersection object with the matched file
             const [first, second] = [match.file, file].sort(File.compare);
-            let intersection = intersections.get([first, second]);
+            let intersection = intersections.get(first).get(second);
             if (!intersection) {
               intersection = new Intersection(file, match.file);
-              intersections.set([first, second], intersection);
+              intersections.get(first).set(second, intersection);
             }
 
             // add the new match to the intersection object
@@ -147,7 +149,9 @@ export class Comparison {
       }
     }
 
-    return Array.of(...intersections.values());
+    return Array.of(...intersections.values())
+      .map(m => Array.of(...m.values()))
+      .flat();
   }
 
   /**
