@@ -1,6 +1,5 @@
-import { Intersection } from "./intersection";
 import { Selection } from "./selection";
-import { Analysis } from "./analysis";
+import { Analysis, ScoredIntersection } from "./analysis";
 
 /// <reference types="../../typings/cliui" />
 import UI from "cliui";
@@ -33,10 +32,12 @@ export class TerminalWriter {
   }
 
   public write(analysis: Analysis): void {
-    analysis.intersections().map(i => this.writeIntersection(i));
+    analysis.scoredIntersections().map(i => this.writeIntersection(i));
   }
 
-  public writeIntersection(intersection: Intersection): void {
+  public writeIntersection(
+    { intersection, overlap, similarity }: ScoredIntersection
+  ): void {
     const leftLines = intersection.leftFile.lines;
     const rightLines = intersection.rightFile.lines;
 
@@ -46,7 +47,15 @@ export class TerminalWriter {
     },
     {
       text: chalk.bold(intersection.rightFile.path),
-      padding: [1, 1, 1, 1]
+      padding: [1, 1, 1, 1],
+    })
+    this.ui.div({
+      text: chalk.bold("Absolute overlap: ") + overlap.toString() + " kmers",
+      padding: [0, 1, 0, 1],
+    })
+    this.ui.div({
+      text: chalk.bold("Similarity score: ") + similarity.toString(),
+      padding: [0, 1, 1, 1],
     })
 
     const maxLines = Math.max(leftLines.length, rightLines.length);

@@ -7,10 +7,10 @@ import { Selection } from "./selection";
 import { Range } from "./range";
 import { Options } from "./options";
 
-interface ScoredIntersection {
+export interface ScoredIntersection {
   intersection: Intersection;
-  absoluteOverlap: number;
-  jaccard: number;
+  overlap: number;
+  similarity: number;
 }
 
 export class Analysis {
@@ -52,7 +52,7 @@ export class Analysis {
     return Array.of(...this.intersectionIterator());
   }
 
-  public intersectionScores(): Array<ScoredIntersection> {
+  public scoredIntersections(): Array<ScoredIntersection> {
     const k = this.options.kmerLength;
     return this
       .intersections()
@@ -63,9 +63,9 @@ export class Analysis {
         const rightTotal = intersection.rightFile.totalKmers(k);
         return {
           intersection,
-          absoluteOverlap: overlap,
-          jaccard: overlap / (leftTotal + rightTotal - overlap)
+          overlap,
+          similarity: 2*overlap / (leftTotal + rightTotal)
         }})
-      .sort((a, b) => a.absoluteOverlap - b.absoluteOverlap);
+      .sort((a, b) => a.overlap - b.overlap);
   }
 }
