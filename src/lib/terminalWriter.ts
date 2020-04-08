@@ -20,7 +20,11 @@ export class TerminalWriter {
     let colorLevel = 0;
     if (output == process.stdout) {
       this.width = width || process.stdout.columns;
-      colorLevel = Math.min(3, process.stdout.getColorDepth());
+      if(process.stdout.getColorDepth) {
+        colorLevel = Math.min(3, process.stdout.getColorDepth());
+      } else {
+        colorLevel = 0;
+      }
     } else {
       this.width = width || +Infinity;
     }

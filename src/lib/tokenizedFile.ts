@@ -1,7 +1,10 @@
 import { File } from "./file";
 import { Selection } from "./selection";
+import { Range } from "./range";
 
 export class TokenizedFile extends File {
+
+  public readonly kmers: Array<Range>;
 
   constructor(
     public file: File,
@@ -9,14 +12,7 @@ export class TokenizedFile extends File {
     public readonly mapping: Array<Selection>
   ) {
     super(file.path, file.content);
-  }
-
-  public totalKmers(k: number): number {
-    return this.ast.length - k + 1;
-  }
-
-  public kmer(k: number, i: number): string {
-    return this.ast.substring(i, i + k);
+    this.kmers = [];
   }
 
 }

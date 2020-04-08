@@ -53,18 +53,19 @@ export class Analysis {
   }
 
   public scoredIntersections(): Array<ScoredIntersection> {
-    const k = this.options.kmerLength;
     return this
       .intersections()
       .map(intersection => {
-        const overlap =
+        const leftCovered =
           Range.totalCovered(intersection.matches.map(m => m.leftKmers));
-        const leftTotal = intersection.leftFile.totalKmers(k);
-        const rightTotal = intersection.rightFile.totalKmers(k);
+        const rightCovered =
+          Range.totalCovered(intersection.matches.map(m => m.rightKmers));
+        const leftTotal = intersection.leftFile.kmers.length;
+        const rightTotal = intersection.rightFile.kmers.length;
         return {
           intersection,
-          overlap,
-          similarity: 2*overlap / (leftTotal + rightTotal)
+          overlap: leftCovered,
+          similarity: (leftCovered + rightCovered) / (leftTotal + rightTotal)
         }})
       .sort((a, b) => a.overlap - b.overlap);
   }

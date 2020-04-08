@@ -2,6 +2,7 @@ import assert from "assert";
 import { HashFilter } from "./hashFilter";
 import { Match } from "./match";
 import { Options } from "./options";
+import { Range } from "./range";
 import { Selection } from "./selection";
 import { Tokenizer } from "./tokenizer";
 import { WinnowFilter } from "./winnowFilter";
@@ -74,10 +75,12 @@ export class Comparison {
 
       let kmer = 0;
       for await (
-        const fullHash
+        const { data, hash, start, stop  }
         of hashFilter.hashesFromString(file.ast)
       ) {
-        const { data, hash, start, stop } = fullHash;
+
+        // add kmer to file
+        file.kmers.push(new Range(start, stop));
 
         // sanity check
         assert(
