@@ -21,7 +21,7 @@ for (const language of CodeTokenizer.supportedLanguages) {
       t.fail(`${language} doesn't have a sample file`);
     } else {
       const file = (await File.fromPath(sampleFile)).ok();
-      const tokens = await tokenizer.tokenizeFile(file);
+      const tokens = (await tokenizer.tokenizeFile(file)).ast;
       t.truthy(tokens);
       t.snapshot(tokens, "stable tokenization");
     }
