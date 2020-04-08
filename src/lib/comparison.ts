@@ -146,7 +146,7 @@ export class Comparison {
         kmer += 1;
       }
     }
-
+    analysis.finish();
     return analysis;
   }
 

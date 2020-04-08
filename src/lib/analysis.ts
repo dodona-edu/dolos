@@ -42,6 +42,16 @@ export class Analysis {
     intersection.addMatch(match);
   }
 
+  /**
+   * Finish the analysis and apply postprocessing steps.
+   */
+  public finish(): void {
+    for(const intersection of this.intersectionIterator()) {
+      intersection.squash();
+    }
+    Object.freeze(this);
+  }
+
   public *intersectionIterator(): IterableIterator<Intersection> {
     for (const map of this.intersectionMap.values()) {
       yield *map.values();
