@@ -151,11 +151,11 @@ export class TerminalWriter {
       for(let i = 0; i < Math.max(left.length, right.length); i += 1) {
         this.ui.div(
           {
-            text: left[i],
+            text: left[i] || "",
             width: lineWidth
           },
           {
-            text: right[i],
+            text: right[i] || "",
             width: lineWidth
           }
         );
