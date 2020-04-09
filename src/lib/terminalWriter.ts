@@ -37,7 +37,7 @@ export class TerminalWriter {
   }
 
   public write(analysis: Analysis): void {
-    const intersections = analysis.scoredIntersections().reverse();
+    const intersections = analysis.scoredIntersections();
     if (this.compare || (this.compare == null && intersections.length == 1)) {
       intersections.map(int => this.writeIntersectionWithComparison(int));
     } else {

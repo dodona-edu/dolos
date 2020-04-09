@@ -6,6 +6,7 @@ export interface CustomOptions {
   kmerLength?: number;
   kmersInWindow?: number;
   language?: string;
+  limitResults?: number;
   maxGapSize?: number;
   maxHashCount?: number;
   maxHashPercent?: number;
@@ -27,6 +28,7 @@ export class Options {
   public static defaultKmerLength = 50;
   public static defaultKmersInWindow = 40;
   public static defaultLanguage = "javascript";
+  public static defaultLimitResults = +Infinity;
   public static defaultMaxHashPercentage = 0.9;
   public static defaultMinFragmentLength = 0;
   public static defaultMaxGapSize = 0;
@@ -39,6 +41,13 @@ export class Options {
       this.custom = custom ;
     }
     Object.freeze(this);
+  }
+
+  get limitResults(): number {
+    return definedOrDefault(
+      this.custom.limitResults,
+      Options.defaultLimitResults,
+    );
   }
 
   get language(): string {
