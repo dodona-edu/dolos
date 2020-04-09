@@ -23,7 +23,7 @@ export class Selection {
     endRow: number,
     endCol: number
   ): boolean {
-    return startRow < endRow || (startRow === endRow && startCol < endCol);
+    return startRow < endRow || (startRow === endRow && startCol <= endCol);
   }
 
   public static isInOrder(first: Selection, second: Selection): boolean {
@@ -66,7 +66,8 @@ export class Selection {
   ) {
     assert(
       Selection.valid(startRow, startCol, endRow, endCol),
-      "startRow and startCol should be smaller than endRow and endCol"
+      "startRow and startCol should be smaller than endRow and endCol, was " +
+      `new Selection(${startRow}, ${startCol}, ${endRow}, ${endCol})`
     );
   }
 
