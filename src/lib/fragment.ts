@@ -3,7 +3,13 @@ import { Match } from "./match";
 import { Selection } from "./selection";
 import { Range } from "./range";
 
-export class MergedMatch {
+/**
+ * A fragment is a collection of one or more consequent matches (kmers).
+ *
+ * A fragment can be extended with a new match if its kmer indices in both
+ * files are directly after that of the fragment.
+ */
+export class Fragment {
 
   public matches: Array<Match<Selection>>;
   public leftKmers: Range;
@@ -21,13 +27,13 @@ export class MergedMatch {
     this.mergedData = initial.leftData;
   }
 
-  public mergeable(other: Match<Selection>): boolean {
+  public extendable(other: Match<Selection>): boolean {
     return this.leftKmers.to == other.leftKmer &&
       this.rightKmers.to == other.rightKmer;
   }
 
-  public merge(other: Match<Selection>): void {
-    assert(this.mergeable(other), "matches are not mergeable");
+  public extend(other: Match<Selection>): void {
+    assert(this.extendable(other), "match does not extend this fragment");
     this.matches.push(other);
 
     // Merge kmers

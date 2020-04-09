@@ -130,23 +130,23 @@ export class TerminalWriter {
     const nl = (i: number): string =>
       this.c.grey((i + 1).toString().padEnd(lineNrWidth));
 
-    for (let i = 0; i < intersection.matches.length; i += 1) {
-      const match = intersection.matches[i];
+    for (let i = 0; i < intersection.fragments.length; i += 1) {
+      const fragment = intersection.fragments[i];
 
       this.ui.div({
-        text: chalk.bold(`Match ${i+1}/${intersection.matches.length}:` +
-                         ` ${match.leftKmers.length} kmers`),
+        text: chalk.bold(`Fragment ${i+1}/${intersection.fragments.length}:` +
+                         ` ${fragment.leftKmers.length} kmers`),
         align: "center",
         padding: [1, 0, 1, 0],
       })
 
       this.ui.div({
-        text: chalk.bold("Tokens: ") + "'" + chalk.red(match.mergedData) + "'",
+        text: chalk.bold("Tokens: ") + "'" + chalk.red(fragment.mergedData) + "'",
         padding: [0, 0, 1, 0],
       })
 
-      const left = this.formatLines(match.leftSelection, leftLines, nl);
-      const right = this.formatLines(match.rightSelection, rightLines, nl);
+      const left = this.formatLines(fragment.leftSelection, leftLines, nl);
+      const right = this.formatLines(fragment.rightSelection, rightLines, nl);
 
       for(let i = 0; i < Math.max(left.length, right.length); i += 1) {
         this.ui.div(

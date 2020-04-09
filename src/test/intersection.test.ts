@@ -107,19 +107,20 @@ test("match merging & squashing", t => {
   int.addMatch(notContained);
 
 
-  t.is(6, int.matches.length);
-  t.deepEqual(biggerTopLeft, int.matches[0].matches)
-  t.deepEqual([topLeftContained], int.matches[1].matches)
-  t.deepEqual(biggerMiddle, int.matches[2].matches)
-  t.deepEqual(biggerBottomLeft, int.matches[3].matches)
-  t.deepEqual([bottomLeftContained], int.matches[4].matches)
-  t.deepEqual([notContained], int.matches[5].matches)
+  t.is(6, int.fragments.length);
+  t.deepEqual(biggerTopLeft, int.fragments[0].matches)
+  t.deepEqual([topLeftContained], int.fragments[1].matches)
+  t.deepEqual(biggerMiddle, int.fragments[2].matches)
+  t.deepEqual(biggerBottomLeft, int.fragments[3].matches)
+  t.deepEqual([bottomLeftContained], int.fragments[4].matches)
+  t.deepEqual([notContained], int.fragments[5].matches)
 
   int.squash();
 
-  t.is(4, int.matches.length);
-  t.deepEqual(biggerTopLeft, int.matches[0].matches)
-  t.deepEqual([notContained], int.matches[1].matches)
-  t.deepEqual(biggerMiddle, int.matches[2].matches)
-  t.deepEqual(biggerBottomLeft, int.matches[3].matches)
+  t.is(4, int.fragments.length);
+  t.deepEqual(biggerTopLeft, int.fragments[0].matches)
+  t.deepEqual([notContained], int.fragments[1].matches)
+  t.deepEqual(biggerMiddle, int.fragments[2].matches)
+  t.deepEqual(biggerBottomLeft, int.fragments[3].matches)
+
 });

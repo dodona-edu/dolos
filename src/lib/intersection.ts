@@ -1,54 +1,55 @@
 import { Selection } from "./selection";
 import { Range } from "./range";
 import { Match } from "./match";
-import { MergedMatch } from "./mergedMatch";
+import { Fragment } from "./fragment";
 import { TokenizedFile } from "./tokenizedFile";
 
 /**
- * This class represents all the matches between two files (i.e. the
+ * This class represents all the fragments between two files (i.e. the
  * intersection of their hashes).
  */
 export class Intersection {
 
-  #matches: MergedMatch[];
+  #fragments: Array<Fragment>;
 
   constructor(
     public readonly leftFile: TokenizedFile,
     public readonly rightFile: TokenizedFile
   ) {
-    this.#matches = [];
+    this.#fragments = [];
   }
 
-  get matches(): Array<MergedMatch> {
-    return this.#matches;
+  get fragments(): Array<Fragment> {
+    return this.#fragments;
   }
 
   public addMatch(newMatch: Match<Selection>): void {
     let i = 0;
-    while(i < this.matches.length && !this.matches[i].mergeable(newMatch)) {
-      i++;
+    while(i < this.fragments.length
+          && !this.fragments[i].extendable(newMatch)) {
+      i += 1;
     }
-    if (i == this.matches.length) {
-      this.matches.push(new MergedMatch(newMatch));
+    if (i == this.fragments.length) {
+      this.fragments.push(new Fragment(newMatch));
     } else {
-      this.matches[i].merge(newMatch);
+      this.fragments[i].extend(newMatch);
     }
   }
 
   /**
-   * Remove each MergedMatch that is contained in a bigger MergedMatch.
+   * Remove each Fragment that is contained in a bigger Fragment.
    */
   public squash(): void {
-    const squashed: Array<MergedMatch> = [];
-    let kandidates: Array<MergedMatch> = [];
+    const squashed: Array<Fragment> = [];
+    let kandidates: Array<Fragment> = [];
     for (
       const match of
-      this.matches.sort((a , b) => Range.compare(a.leftKmers, b.leftKmers))
+      this.fragments.sort((a , b) => Range.compare(a.leftKmers, b.leftKmers))
     ) {
 
       let i = 0;
       let removed = false;
-      const newKandidates: Array<MergedMatch> = [];
+      const newKandidates = [];
 
       while(i < kandidates.length && !removed) {
         if (match.leftKmers.from < kandidates[i].leftKmers.to) {
@@ -71,7 +72,7 @@ export class Intersection {
 
       kandidates = newKandidates;
     }
-    this.#matches = squashed;
+    this.#fragments = squashed;
   }
 
   /**
@@ -79,7 +80,7 @@ export class Intersection {
    */
   public totalOverlapKmers(): number {
     return Range.totalCovered(
-      this.matches.map(m => m.leftKmers).sort(Range.compare)
+      this.fragments.map(m => m.leftKmers).sort(Range.compare)
     );
   }
 }

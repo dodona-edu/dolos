@@ -67,9 +67,9 @@ export class Analysis {
       .intersections()
       .map(intersection => {
         const leftCovered =
-          Range.totalCovered(intersection.matches.map(m => m.leftKmers));
+          Range.totalCovered(intersection.fragments.map(f => f.leftKmers));
         const rightCovered =
-          Range.totalCovered(intersection.matches.map(m => m.rightKmers));
+          Range.totalCovered(intersection.fragments.map(f => f.rightKmers));
         const leftTotal = intersection.leftFile.kmers.length;
         const rightTotal = intersection.rightFile.kmers.length;
         return {
