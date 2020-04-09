@@ -13,10 +13,10 @@ export class TerminalWriter {
   private readonly c: chalk.Chalk;
 
   constructor(
+    private readonly compare?: boolean,
     private readonly output: Writable = process.stdout,
     width?: number,
     private readonly context: number = 3,
-    private readonly compare?: boolean,
   ) {
     let colorLevel = 0;
     if (output == process.stdout) {
@@ -37,23 +37,69 @@ export class TerminalWriter {
   }
 
   public write(analysis: Analysis): void {
-    for (const intersection of analysis.scoredIntersections()) {
-      this.writeIntersectionHeader(intersection);
-      if (this.compare) {
-        this.writeIntersectionComparison(intersection);
-      }
-      this.output.write(this.ui.toString());
-      this.ui.resetOutput();
+    const intersections = analysis.scoredIntersections().reverse();
+    if (this.compare || (this.compare == null && intersections.length == 1)) {
+      intersections.map(int => this.writeIntersectionWithComparison(int));
+    } else {
+      this.writeIntersections(intersections);
+    }
+    this.output.write(this.ui.toString() + "\n");
+    this.ui.resetOutput();
+  }
+
+  private writeIntersections(intersections: Array<ScoredIntersection>): void {
+    const maxOver = Math.max(...intersections.map(s => s.overlap));
+    const overlapWidth = Math.max(9, Math.trunc(Math.log10(maxOver + 1)) + 2);
+    const similarityWidth = 12;
+    const pathWidth = (this.width - similarityWidth - overlapWidth) / 2;
+
+    // header
+    this.ui.div({
+      text: chalk.bold("File path"),
+      width: pathWidth,
+      padding: [1, 1, 1, 1]
+    },
+    {
+      text: chalk.bold("File path"),
+      width: pathWidth,
+      padding: [1, 1, 1, 1]
+    },
+    {
+      text: chalk.bold("Similarity"),
+      width: similarityWidth,
+      padding: [1, 1, 1, 1]
+    },
+    {
+      text: chalk.bold("Overlap"),
+      width: overlapWidth,
+      padding: [1, 1, 1, 1]
+    });
+
+    for (const { intersection, overlap, similarity } of intersections) {
+      this.ui.div({
+        text: intersection.leftFile.path,
+        width: pathWidth,
+        padding: [0, 1, 0, 1]
+      },
+      {
+        text: intersection.rightFile.path,
+        width: pathWidth,
+        padding: [0, 1, 0, 1]
+      },
+      {
+        text: (Math.trunc(similarity * 1000000) / 1000000).toString(),
+        width: similarityWidth,
+        padding: [0, 1, 0, 1]
+      },
+      {
+        text: overlap.toString(),
+        width: overlapWidth,
+        padding: [0, 1, 0, 1]
+      });
     }
   }
 
-  public writeIntersectionHeader(
-    { intersection, overlap, similarity }: ScoredIntersection
-  ): void {
-
-  }
-
-  public writeIntersectionComparison(
+  private writeIntersectionWithComparison(
     { intersection, overlap, similarity }: ScoredIntersection
   ): void {
     const leftLines = intersection.leftFile.lines;

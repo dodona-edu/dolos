@@ -113,7 +113,14 @@ program
     Options.defaultMaxHashPercentage
   )
   .option(
-    "-c, --comment <string>",
+    "-c --compare",
+    indent(
+      "Print a comparison of the matches even if analysiing more than two " +
+      "files. Only valid when the output is set to terminal."
+    )
+  )
+  .option(
+    "-C, --comment <string>",
     indent("Comment string that is attached to the generated report")
   )
   .option(
@@ -198,7 +205,7 @@ program
         minFragmentLength: program.minimumFragmentLength,
       });
       const analysis = await dolos.analyzePaths(locations);
-      const writer = new TerminalWriter();
+      const writer = new TerminalWriter(program.compare);
       writer.write(analysis);
     } catch (error) {
       console.error(Utils.colour("red", error.stack));
