@@ -47,6 +47,7 @@ export class Analysis {
    */
   public finish(): void {
     for(const intersection of this.intersectionIterator()) {
+      intersection.removeSmallerThan(this.options.minFragmentLength),
       intersection.squash();
     }
     Object.freeze(this);

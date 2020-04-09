@@ -23,6 +23,11 @@ export class Intersection {
     return this.#fragments;
   }
 
+  /**
+   * Add a new match to the intersection.
+   *
+   * Tries to extend existing fragments, or creates a new fragment.
+   */
   public addMatch(newMatch: Match<Selection>): void {
     let i = 0;
     while(i < this.fragments.length
@@ -34,6 +39,22 @@ export class Intersection {
     } else {
       this.fragments[i].extend(newMatch);
     }
+  }
+
+  /**
+   * Calculate how much kmers both files share. Each kmer is only counted once.
+   */
+  public totalOverlapKmers(): number {
+    return Range.totalCovered(
+      this.fragments.map(m => m.leftKmers).sort(Range.compare)
+    );
+  }
+
+  /**
+   * Remove fragments which have fewer than the given minimum of matches.
+   */
+  public removeSmallerThan(minimum: number): void {
+    this.#fragments = this.#fragments.filter(f => f.matches.length >= minimum);
   }
 
   /**
@@ -73,14 +94,5 @@ export class Intersection {
       kandidates = newKandidates;
     }
     this.#fragments = squashed;
-  }
-
-  /**
-   * Calculate how much kmers both files share. Each kmer is only counted once.
-   */
-  public totalOverlapKmers(): number {
-    return Range.totalCovered(
-      this.fragments.map(m => m.leftKmers).sort(Range.compare)
-    );
   }
 }
