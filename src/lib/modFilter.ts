@@ -44,7 +44,7 @@ export class ModFilter extends HashFilter {
         yield {
           hash: currentHash,
           start: filePos,
-          stop: filePos + this.k,
+          stop: filePos + this.k - 1,
           data: window
         };
       }

@@ -38,7 +38,7 @@ export class NoFilter extends HashFilter {
       yield {
         hash: hash.nextHash(byte),
         start: filePos,
-        stop: filePos + this.k,
+        stop: filePos + this.k - 1,
         data: window
       };
     }
