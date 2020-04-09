@@ -76,7 +76,7 @@ export class WinnowFilter extends HashFilter {
           data,
           hash: buffer[minPos],
           start,
-          stop: start + this.k,
+          stop: start + this.k - 1,
         };
 
       } else {
