@@ -14,8 +14,9 @@ export class TerminalWriter {
 
   constructor(
     private readonly output: Writable = process.stdout,
-    width: number | null = null,
-    private readonly context: number = 3
+    width?: number,
+    private readonly context: number = 3,
+    private readonly compare?: boolean,
   ) {
     let colorLevel = 0;
     if (output == process.stdout) {
@@ -36,10 +37,23 @@ export class TerminalWriter {
   }
 
   public write(analysis: Analysis): void {
-    analysis.scoredIntersections().map(i => this.writeIntersection(i));
+    for (const intersection of analysis.scoredIntersections()) {
+      this.writeIntersectionHeader(intersection);
+      if (this.compare) {
+        this.writeIntersectionComparison(intersection);
+      }
+      this.output.write(this.ui.toString());
+      this.ui.resetOutput();
+    }
   }
 
-  public writeIntersection(
+  public writeIntersectionHeader(
+    { intersection, overlap, similarity }: ScoredIntersection
+  ): void {
+
+  }
+
+  public writeIntersectionComparison(
     { intersection, overlap, similarity }: ScoredIntersection
   ): void {
     const leftLines = intersection.leftFile.lines;
@@ -101,9 +115,6 @@ export class TerminalWriter {
         );
       }
     }
-
-    this.output.write(this.ui.toString());
-    this.ui.resetOutput();
   }
 
   private formatLines(
