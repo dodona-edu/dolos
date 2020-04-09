@@ -54,9 +54,9 @@ export class Analysis {
       intersection.removeSmallerThan(this.options.minFragmentLength),
       intersection.squash();
     }
-    // calculate final scores
     this.scored = this.intersections()
-      .map(i => this.calculateScore(i))
+      .filter(i => i.fragments.length > 0)    // ignore empty intersections
+      .map(i => this.calculateScore(i))       // calculate their similarity
       .sort((a, b) => b.overlap - a.overlap); // sort in reversed order
     Object.freeze(this);
   }
