@@ -57,7 +57,10 @@ export class Analysis {
     this.scored = this.intersections()
       .filter(i => i.fragments.length > 0)    // ignore empty intersections
       .map(i => this.calculateScore(i))       // calculate their similarity
-      .sort((a, b) => b.overlap - a.overlap); // sort in reversed order
+                                              // filter by minimum similarity
+      .filter(s => s.similarity >= this.options.minSimilarity)
+      .sort((a, b) => b.overlap - a.overlap) // sort in reversed order
+      .slice(0, this.options.limitResults);  // limit to first n results
     Object.freeze(this);
   }
 

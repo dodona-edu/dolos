@@ -98,7 +98,7 @@ program
     x => parseInt(x, 10)
   )
   .option(
-    "-M --maximum-hash-percentage <float>",
+    "-M --maximum-hash-percentage <fraction>",
     indent(
       "The -M option sets how many percent of the files the hash may appear " +
       "before it is ignored. A hash that appears in many programs is " +
@@ -124,11 +124,13 @@ program
     indent("Comment string that is attached to the generated report")
   )
   .option(
-    "-n, --file-pair-output-limit",
+    "-L, --limit <integer>",
     indent(
       "Specifies how many matching file pairs are shown in the result. " +
       "All pairs are shown when this option is omitted."
-    )
+    ),
+    x => parseInt(x, 10),
+    Options.defaultLimitResults
   )
   .option(
     "-s, --minimum-fragment-length <integer>",
@@ -136,6 +138,16 @@ program
       "The minimum length of a fragment. Every fragment shorter than this is " +
       "filtered out.",
       Options.defaultMinFragmentLength
+    ),
+    x => parseInt(x, 10),
+    Options.defaultMinFragmentLength
+  )
+  .option(
+    "-S, --minimum-similarity <fraction>",
+    indent(
+      "The minimum similarity between two files. " +
+      "Must be a value between 0 and 1",
+      Options.defaultMinSimilarity,
     ),
     x => parseInt(x, 10),
     Options.defaultMinFragmentLength
@@ -203,6 +215,8 @@ program
         maxHashPercent: maxHashPercent,
         maxMatches: program.filePairOutputLimit,
         minFragmentLength: program.minimumFragmentLength,
+        minSimilarity: program.minimumSimilarity,
+        limitResults: program.limit,
       });
       const analysis = await dolos.analyzePaths(locations);
       const writer = new TerminalWriter(program.compare);

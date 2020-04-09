@@ -12,6 +12,7 @@ export interface CustomOptions {
   maxHashPercent?: number;
   maxMatches?: number;
   minFragmentLength?: number;
+  minSimilarity?: number;
 }
 
 function definedOrNull<T>(arg: T | undefined): T | null {
@@ -31,6 +32,7 @@ export class Options {
   public static defaultLimitResults = +Infinity;
   public static defaultMaxHashPercentage = 0.9;
   public static defaultMinFragmentLength = 0;
+  public static defaultMinSimilarity = 0;
   public static defaultMaxGapSize = 0;
   public static defaultClusterMinMatches = 15;
 
@@ -96,6 +98,13 @@ export class Options {
     return definedOrDefault(
       this.custom.minFragmentLength,
       Options.defaultMinFragmentLength
+    );
+  }
+
+  get minSimilarity(): number {
+    return definedOrDefault(
+      this.custom.minSimilarity,
+      Options.defaultMinSimilarity
     );
   }
 
