@@ -28,7 +28,7 @@ export class TerminalWriter {
     } else {
       this.width = width || +Infinity;
     }
-    this.c = new chalk.Instance({ level: colorLevel });
+    this.c = new chalk.Instance({ level: colorLevel as 0 | 1 | 2 | 3 });
     this.ui = new UI({
       wrap: true,
       width: this.width,
