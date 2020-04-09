@@ -30,7 +30,7 @@
     "typescript": "^3.8.2"
   },
   "dependencies": {
-    "chalk": "^3.0.0",
+    "chalk": "^4.0.0",
     "cliui": "^6.0.0",
     "commander": "^5.0.0",
     "nprime": "^0.2.1",
