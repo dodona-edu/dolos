@@ -113,12 +113,6 @@ export class Comparison {
               continue;
             }
 
-            if (match.file.path === file.path) {
-              console.dir(match.file);
-              console.dir(file);
-              throw new Error("wop");
-            }
-
             // add the match to the analysis
             analysis.addMatch(
               file,
