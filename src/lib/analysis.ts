@@ -10,6 +10,7 @@ import { Options } from "./options";
 export interface ScoredIntersection {
   intersection: Intersection;
   overlap: number;
+  longest: number;
   similarity: number;
 }
 
@@ -93,6 +94,7 @@ export class Analysis {
     return {
       intersection,
       overlap: leftCovered,
+      longest: intersection.largestFragmentLength(),
       similarity: (leftCovered + rightCovered) / (leftTotal + rightTotal)
     };
   }

@@ -51,6 +51,13 @@ export class Intersection {
   }
 
   /**
+   * Returns the length (in kmers) of the largest fragment in this intersecion.
+   */
+  public largestFragmentLength(): number {
+    return Math.max(...this.fragments.map(f => f.matches.length));
+  }
+
+  /**
    * Remove fragments which have fewer than the given minimum of matches.
    */
   public removeSmallerThan(minimum: number): void {

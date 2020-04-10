@@ -49,9 +49,9 @@ export class TerminalWriter {
 
   private writeIntersections(intersections: Array<ScoredIntersection>): void {
     const maxOver = Math.max(...intersections.map(s => s.overlap));
-    const overlapWidth = Math.max(9, Math.trunc(Math.log10(maxOver + 1)) + 2);
+    const overlapWidth = Math.max(15, Math.trunc(Math.log10(maxOver + 1)) + 2);
     const similarityWidth = 12;
-    const pathWidth = (this.width - similarityWidth - overlapWidth) / 2;
+    const pathWidth = (this.width - similarityWidth - 2*overlapWidth) / 2;
 
     // header
     this.ui.div({
@@ -70,12 +70,20 @@ export class TerminalWriter {
       padding: [1, 1, 1, 1]
     },
     {
-      text: chalk.bold("Overlap"),
+      text: chalk.bold("Cont. overlap"),
+      width: overlapWidth,
+      padding: [1, 1, 1, 1]
+    },
+    {
+      text: chalk.bold("Total overlap"),
       width: overlapWidth,
       padding: [1, 1, 1, 1]
     });
 
-    for (const { intersection, overlap, similarity } of intersections) {
+    for (
+      const { intersection, overlap, similarity, longest }
+      of intersections
+    ) {
       this.ui.div({
         text: intersection.leftFile.path,
         width: pathWidth,
@@ -89,6 +97,11 @@ export class TerminalWriter {
       {
         text: (Math.trunc(similarity * 1000000) / 1000000).toString(),
         width: similarityWidth,
+        padding: [0, 1, 0, 1]
+      },
+      {
+        text: longest.toString(),
+        width: overlapWidth,
         padding: [0, 1, 0, 1]
       },
       {
