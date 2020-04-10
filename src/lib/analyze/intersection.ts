@@ -10,17 +10,12 @@ import { TokenizedFile } from "../file/tokenizedFile";
  */
 export class Intersection {
 
-  #fragments: Array<Fragment>;
+  public fragments: Array<Fragment> = []
 
   constructor(
     public readonly leftFile: TokenizedFile,
     public readonly rightFile: TokenizedFile
   ) {
-    this.#fragments = [];
-  }
-
-  get fragments(): Array<Fragment> {
-    return this.#fragments;
   }
 
   /**
@@ -61,7 +56,7 @@ export class Intersection {
    * Remove fragments which have fewer than the given minimum of matches.
    */
   public removeSmallerThan(minimum: number): void {
-    this.#fragments = this.#fragments.filter(f => f.matches.length >= minimum);
+    this.fragments = this.fragments.filter(f => f.matches.length >= minimum);
   }
 
   /**
@@ -100,6 +95,6 @@ export class Intersection {
 
       kandidates = newKandidates;
     }
-    this.#fragments = squashed;
+    this.fragments = squashed;
   }
 }
