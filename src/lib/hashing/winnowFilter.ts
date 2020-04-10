@@ -8,8 +8,8 @@ export class WinnowFilter extends HashFilter {
 
   /**
    * Generates a Winnow object with given window size and k-mer size. The
-   * winnowing algorithm will reduce the number of hash values returned by the
-   * hash function. It will at least return 1 hash for every window (i.e. for
+   * winnowing algorithm will reduce the number of hashing values returned by the
+   * hashing function. It will at least return 1 hashing for every window (i.e. for
    * every windowSize characters).
    *
    * @param k The k-mer size of which hashes are calculated
@@ -22,7 +22,7 @@ export class WinnowFilter extends HashFilter {
   }
 
   /**
-   * Returns an async interator that yields tuples containing a hash and its
+   * Returns an async interator that yields tuples containing a hashing and its
    * corresponding k-mer position. Can be called successively on multiple files.
    *
    * Code based on pseudocode from
@@ -41,7 +41,7 @@ export class WinnowFilter extends HashFilter {
       new Array(this.windowSize).fill(Number.MAX_SAFE_INTEGER);
 
     // At the end of each iteration, minPos holds the position of the rightmost
-    // minimal hash in the current window.
+    // minimal hashing in the current window.
     // yield([x,pos]) is called only the first time an instance of x is selected
     for await (const byte of HashFilter.readBytes(stream)) {
       filePos++;
@@ -55,8 +55,8 @@ export class WinnowFilter extends HashFilter {
       buffer[bufferPos] = hash.nextHash(byte);
       if (minPos === bufferPos) {
         // The previous minimum is no longer in this window.
-        // Scan buffer starting from bufferPos for the rightmost minimal hash.
-        // Note minPos starts with the index of the rightmost hash.
+        // Scan buffer starting from bufferPos for the rightmost minimal hashing.
+        // Note minPos starts with the index of the rightmost hashing.
         for (
           let i = (bufferPos + 1) % this.windowSize;
           i !== bufferPos;

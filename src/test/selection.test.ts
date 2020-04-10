@@ -1,5 +1,5 @@
 import test from "ava";
-import { Selection } from "../lib/selection";
+import { Selection } from "../lib/util/selection";
 
 test("illegal selection", t => {
   t.throws(() => new Selection(10, 10, 1, 1));

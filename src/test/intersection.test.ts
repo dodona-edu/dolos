@@ -1,9 +1,9 @@
 import test from "ava";
-import { File } from "../lib/file";
-import { TokenizedFile } from "../lib/tokenizedFile";
-import { Intersection } from "../lib/intersection";
-import { Selection } from "../lib/selection";
-import { Match } from "../lib/match";
+import { File } from "../lib/file/file";
+import { TokenizedFile } from "../lib/file/tokenizedFile";
+import { Intersection } from "../lib/analyze/intersection";
+import { Selection } from "../lib/util/selection";
+import { Match } from "../lib/analyze/match";
 
 function createFakeFile(name: string): TokenizedFile {
   return new TokenizedFile(

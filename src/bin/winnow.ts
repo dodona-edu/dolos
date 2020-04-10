@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import fs from "fs";
-import { WinnowFilter } from "../lib/winnowFilter";
+import { WinnowFilter } from "../lib/hashing/winnowFilter";
 
 const winnow = new WinnowFilter(50, 40);
 

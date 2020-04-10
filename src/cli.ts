@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 //import * as NodeUtil from "util";
-import * as Utils from "./lib/utils";
+import * as Utils from "./lib/util/utils";
 import { Command } from "commander";
 import { Dolos } from "./dolos";
-import { Options } from "./lib/options";
-import { TerminalWriter } from "./lib/terminalWriter";
+import { Options } from "./lib/util/options";
+import { TerminalWriter } from "./lib/writer/terminalWriter";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const pkg = require("../package.json");
@@ -86,24 +86,24 @@ program
     indent("Specifies that submision are per directory, not by file. ")
   )
   .option(
-    "-m, --maximum-hash-count <integer>",
+    "-m, --maximum-hashing-count <integer>",
     indent(
-      "The -m option sets the maximum number of times a given hash may " +
+      "The -m option sets the maximum number of times a given hashing may " +
       "appear before it is ignored. A code fragment that appears in many " +
       "programs is probably legitimate sharing and not the result of " +
-      "plagiarism. With -m N any hash appearing in more than N programs is " +
+      "plagiarism. With -m N any hashing appearing in more than N programs is " +
       "filtered out. This option has precedence over the -M option, " +
       "which is set to 0.9 by default."
     ),
     x => parseInt(x, 10)
   )
   .option(
-    "-M --maximum-hash-percentage <fraction>",
+    "-M --maximum-hashing-percentage <fraction>",
     indent(
-      "The -M option sets how many percent of the files the hash may appear " +
-      "before it is ignored. A hash that appears in many programs is " +
+      "The -M option sets how many percent of the files the hashing may appear " +
+      "before it is ignored. A hashing that appears in many programs is " +
       "probably legitimate sharing and not the result of plagiarism. With -M " +
-      "N any hash appearing in more than N percent of the files is filtered " +
+      "N any hashing appearing in more than N percent of the files is filtered " +
       "out. Must be a value between 0 and 1. This option is ignored when " +
       "comparing only two files, because each match appear in 100% of the " +
       "files",

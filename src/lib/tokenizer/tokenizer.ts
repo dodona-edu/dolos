@@ -1,6 +1,6 @@
-import { File } from "./file";
-import { Selection } from "./selection";
-import { TokenizedFile } from "./tokenizedFile";
+import { File } from "../file/file";
+import { Selection } from "../util/selection";
+import { TokenizedFile } from "../file/tokenizedFile";
 
 export interface Token {
   token: string;

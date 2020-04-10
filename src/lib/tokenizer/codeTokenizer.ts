@@ -1,5 +1,5 @@
 import { default as Parser, SyntaxNode } from "tree-sitter";
-import { Selection } from "./selection";
+import { Selection } from "../util/selection";
 import { Token, Tokenizer } from "./tokenizer";
 
 export class CodeTokenizer extends Tokenizer {

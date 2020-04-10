@@ -1,5 +1,5 @@
 import { inspect } from "util";
-import { Result } from "./result";
+import { Result } from "../util/result";
 import { default as fsWithCallbacks } from "fs";
 const fs = fsWithCallbacks.promises;
 

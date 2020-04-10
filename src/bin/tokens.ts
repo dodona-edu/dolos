@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-import { CodeTokenizer } from "../lib/codeTokenizer";
-import { File } from "../lib/file";
+import { CodeTokenizer } from "../lib/tokenizer/codeTokenizer";
+import { File } from "../lib/file/file";
 
 (async () => {
   const tokenizer = new CodeTokenizer("javascript");

@@ -1,11 +1,11 @@
 import { Intersection } from "./intersection";
-import { DefaultMap } from "./defaultMap";
-import { File } from "./file";
-import { TokenizedFile } from "./tokenizedFile";
+import { DefaultMap } from "../util/defaultMap";
+import { File } from "../file/file";
+import { TokenizedFile } from "../file/tokenizedFile";
 import { Match } from "./match";
-import { Selection } from "./selection";
-import { Range } from "./range";
-import { Options } from "./options";
+import { Selection } from "../util/selection";
+import { Range } from "../util/range";
+import { Options } from "../util/options";
 
 export interface ScoredIntersection {
   intersection: Intersection;
@@ -58,7 +58,7 @@ export class Analysis {
     this.scored = this.intersections()
       .filter(i => i.fragments.length > 0)    // ignore empty intersections
       .map(i => this.calculateScore(i))       // calculate their similarity
-      .filter(s =>                            // filter by minimum similarity
+      .filter(s =>                            // hashing by minimum similarity
         s.similarity >= this.options.minSimilarity
       )
       .sort((a, b) => b.overlap - a.overlap) // sort in reversed order

@@ -1,8 +1,8 @@
 import test from "ava";
 import { Dolos } from "../dolos";
-import { File } from "../lib/file";
-import { Range } from "../lib/range";
-import { Selection } from "../lib/selection";
+import { File } from "../lib/file/file";
+import { Range } from "../lib/util/range";
+import { Selection } from "../lib/util/selection";
 
 test("equal content should be a full match", async t => {
   const dolos = new Dolos();

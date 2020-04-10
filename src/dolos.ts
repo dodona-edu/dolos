@@ -1,9 +1,9 @@
-import { Comparison } from "./lib/comparison";
-import { Analysis } from "./lib/analysis";
-import { CustomOptions, Options } from "./lib/options";
-import { CodeTokenizer } from "./lib/codeTokenizer";
-import { File } from "./lib/file";
-import { Result } from "./lib/result";
+import { Comparison } from "./lib/analyze/comparison";
+import { Analysis } from "./lib/analyze/analysis";
+import { CustomOptions, Options } from "./lib/util/options";
+import { CodeTokenizer } from "./lib/tokenizer/codeTokenizer";
+import { File } from "./lib/file/file";
+import { Result } from "./lib/util/result";
 
 export class Dolos {
 

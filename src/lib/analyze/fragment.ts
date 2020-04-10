@@ -1,7 +1,7 @@
 import assert from "assert";
 import { Match } from "./match";
-import { Selection } from "./selection";
-import { Range } from "./range";
+import { Selection } from "../util/selection";
+import { Range } from "../util/range";
 
 /**
  * A fragment is a collection of one or more consequent matches (kmers).

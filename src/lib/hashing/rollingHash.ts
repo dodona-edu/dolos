@@ -1,5 +1,5 @@
 /* tslint:disable:no-bitwise */
-/// <reference types="../../typings/nprime" />
+/// <reference types="../../../typings/nprime" />
 import nPrime from "nprime";
 
 export class RollingHash {
@@ -14,15 +14,15 @@ export class RollingHash {
   private hash = 0;
 
   /**
-   * Generates a rolling hash object that can be used to create hashes of a
+   * Generates a rolling hashing object that can be used to create hashes of a
    * sliding window of values as defined by the Rabin-Karp string matching
    * algorithm.
    *
    * @param k The size of the window/length of the string of which the hashes
    * are calculated.
-   * @param base The base to be used for the hash function. By default, a prime
+   * @param base The base to be used for the hashing function. By default, a prime
    * number around 2^13 is used.
-   * @param mod The modulus to be used for the hash function. By default, a
+   * @param mod The modulus to be used for the hashing function. By default, a
    * prime number just over 2^25 is used.
    */
   constructor(k: number, base?: number, mod?: number) {
@@ -35,7 +35,7 @@ export class RollingHash {
   }
 
   /**
-   * Calculates a new hash based on the previous hash, and the new byte value
+   * Calculates a new hashing based on the previous hashing, and the new byte value
    *
    * @param b The next byte
    */

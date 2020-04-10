@@ -1,6 +1,6 @@
 import test from "ava";
-import { CodeTokenizer } from "../lib/codeTokenizer";
-import { File } from "../lib/file";
+import { CodeTokenizer } from "../lib/tokenizer/codeTokenizer";
+import { File } from "../lib/file/file";
 
 const languageFiles = {
   "python": "samples/python/caesar.py",

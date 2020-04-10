@@ -1,13 +1,13 @@
 import assert from "assert";
-import { HashFilter } from "./hashFilter";
+import { HashFilter } from "../hashing/hashFilter";
 import { Match } from "./match";
-import { Options } from "./options";
-import { Range } from "./range";
-import { Selection } from "./selection";
-import { Tokenizer } from "./tokenizer";
-import { WinnowFilter } from "./winnowFilter";
-import { File } from "./file";
-import { TokenizedFile } from "./tokenizedFile";
+import { Options } from "../util/options";
+import { Range } from "../util/range";
+import { Selection } from "../util/selection";
+import { Tokenizer } from "../tokenizer/tokenizer";
+import { WinnowFilter } from "../hashing/winnowFilter";
+import { File } from "../file/file";
+import { TokenizedFile } from "../file/tokenizedFile";
 import { Analysis } from "./analysis";
 
 type Hash = number;
@@ -36,8 +36,8 @@ export class Comparison {
    * After creation, first add files to the index which can then be queried.
    *
    * @param tokenizer A tokenizer for the correct programming language
-   * @param hashFilter An optional HashFilter to filter the hashes returned by
-   * the rolling hash function.
+   * @param hashFilter An optional HashFilter to hashing the hashes returned by
+   * the rolling hashing function.
    */
   constructor(
     tokenizer: Tokenizer,
@@ -100,11 +100,11 @@ export class Comparison {
 
         const part: FilePart = { kmer, file, data, location };
 
-        // look if the index already contains the given hash
+        // look if the index already contains the given hashing
         const matches = this.index.get(hash);
 
         if (matches) {
-          // the hash exists in out index, look which files we've matched
+          // the hashing exists in out index, look which files we've matched
           for (const match of matches) {
 
             // don't add a match if we've matched ourselves,
@@ -139,7 +139,7 @@ export class Comparison {
           matches.push(part);
         } else {
 
-          // if the hash does not yet exist in the index, add it
+          // if the hashing does not yet exist in the index, add it
           this.index.set(hash, [part]);
         }
 

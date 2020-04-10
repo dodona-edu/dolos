@@ -1,7 +1,7 @@
-import { Selection } from "./selection";
-import { Analysis, ScoredIntersection } from "./analysis";
+import { Selection } from "../util/selection";
+import { Analysis, ScoredIntersection } from "../analyze/analysis";
 
-/// <reference types="../../typings/cliui" />
+/// <reference types="../../../typings/cliui" />
 import UI from "cliui";
 import chalk from "chalk";
 import { Writable } from "stream";

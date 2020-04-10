@@ -1,8 +1,8 @@
-import { Selection } from "./selection";
-import { Range } from "./range";
+import { Selection } from "../util/selection";
+import { Range } from "../util/range";
 import { Match } from "./match";
 import { Fragment } from "./fragment";
-import { TokenizedFile } from "./tokenizedFile";
+import { TokenizedFile } from "../file/tokenizedFile";
 
 /**
  * This class represents all the fragments between two files (i.e. the

@@ -1,5 +1,5 @@
 import test from "ava";
-import { NoFilter } from "../lib/noFilter";
+import { NoFilter } from "../lib/hashing/noFilter";
 
 test("no hashes for text shorter than k", async t => {
   const text = "abcd";
@@ -12,7 +12,7 @@ test("no hashes for text shorter than k", async t => {
   t.is(0, hashes.length);
 });
 
-test("1 hash for text length of k", async t => {
+test("1 hashing for text length of k", async t => {
   const text = "abcde";
   const filter = new NoFilter(5);
   const hashes = [];
@@ -24,7 +24,7 @@ test("1 hash for text length of k", async t => {
 });
 
 test("number of hashes equals text size minus k plus 1", async t => {
-  const text = "This is a slightly longer text to test multiple hash values.";
+  const text = "This is a slightly longer text to test multiple hashing values.";
   const k = 5;
   const filter = new NoFilter(k);
   const hashes = [];

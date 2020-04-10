@@ -1,7 +1,7 @@
 import test from "ava";
 import { Readable } from "stream";
-import { NoFilter } from "../lib/noFilter";
-import { WinnowFilter } from "../lib/winnowFilter";
+import { NoFilter } from "../lib/hashing/noFilter";
+import { WinnowFilter } from "../lib/hashing/winnowFilter";
 
 test("Winnow on comparable files", async t => {
   const textA = "abcdefg";
@@ -10,7 +10,7 @@ test("Winnow on comparable files", async t => {
 
   const filter = new WinnowFilter(k, 2);
   const hashes: Map<number, number> = new Map();
-  // Build a Map from hash to position
+  // Build a Map from hashing to position
   for await (const { hash, start: posA } of filter.hashesFromString(textA)) {
     hashes.set(hash, posA);
   }
@@ -24,7 +24,7 @@ test("Winnow on comparable files", async t => {
       t.is(textA.slice(posA, posA + k), textB.slice(posB, posB + k));
     }
   }
-  // For each equal triplet there has to be a common winnowed hash
+  // For each equal triplet there has to be a common winnowed hashing
   t.true(overlap >= 3);
 });
 
@@ -39,7 +39,7 @@ test("no hashes for text shorter than k", async t => {
   t.is(0, hashes.length);
 });
 
-test("1 hash for text length of k", async t => {
+test("1 hashing for text length of k", async t => {
   const text = "abcde";
   const filter = new WinnowFilter(5, 1);
   const hashes = [];
@@ -50,8 +50,8 @@ test("1 hash for text length of k", async t => {
   t.is(1, hashes.length);
 });
 
-test("maximum gap between hash positions is window size", async t => {
-  const text = "This is a slightly longer text to test multiple hash values.";
+test("maximum gap between hashing positions is window size", async t => {
+  const text = "This is a slightly longer text to test multiple hashing values.";
   const windowSize = 3;
   const winnowFilter = new WinnowFilter(5, windowSize);
   let previousPos = 0;
@@ -63,7 +63,7 @@ test("maximum gap between hash positions is window size", async t => {
 });
 
 test("winnow 1 and noFilter create same result", async t => {
-  const text = "This is a slightly longer text to test multiple hash values.";
+  const text = "This is a slightly longer text to test multiple hashing values.";
   const noFilter = new NoFilter(5);
   const winnowFilter = new WinnowFilter(5, 1);
   const noHashes = [];
@@ -80,7 +80,7 @@ test("winnow 1 and noFilter create same result", async t => {
 
 test("strings or buffers doesn't matter", async t => {
   const text = "This is a slightly longer text to compare strings with " +
-    "buffers and test multiple hash values.";
+    "buffers and test multiple hashing values.";
 
   const winnowFilter = new WinnowFilter(5, 4);
 

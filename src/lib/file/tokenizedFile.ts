@@ -1,6 +1,6 @@
 import { File } from "./file";
-import { Selection } from "./selection";
-import { Range } from "./range";
+import { Selection } from "../util/selection";
+import { Range } from "../util/range";
 
 export class TokenizedFile extends File {
 

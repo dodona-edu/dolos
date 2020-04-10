@@ -1,6 +1,6 @@
 import test from "ava";
-import { ModFilter } from "../lib/modFilter";
-import { NoFilter } from "../lib/noFilter";
+import { ModFilter } from "../lib/hashing/modFilter";
+import { NoFilter } from "../lib/hashing/noFilter";
 
 test("no hashes for text shorter than k", async t => {
   const text = "abcd";
@@ -13,7 +13,7 @@ test("no hashes for text shorter than k", async t => {
   t.is(0, hashes.length);
 });
 
-test("1 hash for text length of k", async t => {
+test("1 hashing for text length of k", async t => {
   const text = "abcde";
   const filter = new ModFilter(5, 1);
   const hashes = [];
@@ -25,7 +25,7 @@ test("1 hash for text length of k", async t => {
 });
 
 test("all hashes are mod m", async t => {
-  const text = "This is a slightly longer text to test multiple hash values.";
+  const text = "This is a slightly longer text to test multiple hashing values.";
   const mod = 2;
   const filter = new ModFilter(5, mod);
 
@@ -35,7 +35,7 @@ test("all hashes are mod m", async t => {
 });
 
 test("mod 1 and noFilter create same result", async t => {
-  const text = "This is a slightly longer text to test multiple hash values.";
+  const text = "This is a slightly longer text to test multiple hashing values.";
   const noFilter = new NoFilter(5);
   const modFilter = new ModFilter(5, 1);
   const noHashes = [];
