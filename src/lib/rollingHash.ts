@@ -40,7 +40,9 @@ export class RollingHash {
    * @param b The next byte
    */
   public nextHash(b: number): number {
-    this.hash = (this.base * this.hash + b + this.maxBase * this.memory[this.i]) % this.mod;
+    this.hash =
+      (this.base * this.hash + b + this.maxBase * this.memory[this.i])
+      % this.mod;
     this.memory[this.i] = b;
     this.i = (this.i + 1) % this.k;
     return this.hash;

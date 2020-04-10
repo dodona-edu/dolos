@@ -154,7 +154,8 @@ export class TerminalWriter {
       })
 
       this.ui.div({
-        text: chalk.bold("Tokens: ") + "'" + chalk.red(fragment.mergedData) + "'",
+        text: chalk.bold("Tokens: ") + "'" +
+              chalk.red(fragment.mergedData) + "'",
         padding: [0, 0, 1, 0],
       })
 

@@ -7,8 +7,8 @@ export class ModFilter extends HashFilter {
   private readonly mod: number;
 
   /**
-   * Generates a HashFilter object with given k-mer size and mod value. It will return
-   * all hashes whose value is 0 after % mod.
+   * Generates a HashFilter object with given k-mer size and mod value. It will
+   * return all hashes whose value is 0 after % mod.
    *
    * @param k The k-mer size of which hashes are calculated
    * @param mod The mod value for which hashes to keep

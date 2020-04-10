@@ -83,6 +83,7 @@ export class Selection {
   }
 
   public toString(): string {
-    return `Selection {${this.startRow}:${this.startCol} -> ${this.endRow}:${this.endCol}}`;
+    return `Selection {${this.startRow}:${this.startCol} ` +
+      `-> ${this.endRow}:${this.endCol}}`;
   }
 }
