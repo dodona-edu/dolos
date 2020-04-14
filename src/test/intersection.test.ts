@@ -26,12 +26,20 @@ test("match merging & squashing", t => {
   // bigger match
   for(let i = 0; i < 10; i++) {
     const match = new Match(
-      i,
-      new Selection(i, 0, i + 1, 0),
-      "lines 0 - 10",
-      20 + i,
-      new Selection(20 + i, 0, 20 + i + 1, 0),
-      "lines 20 - 30",
+      {
+        index: i,
+        start: i,
+        stop: i + 1,
+        location: new Selection(i, 0, i + 1, 0),
+        data: "lines 0 - 10",
+      },
+      {
+        index: 20 + i,
+        start: 20 + i,
+        stop: 20 + i + 1,
+        location: new Selection(20 + i, 0, 20 + i + 1, 0),
+        data: "lines 20 - 30",
+      },
       i
     );
     int.addMatch(match)
@@ -40,12 +48,20 @@ test("match merging & squashing", t => {
 
   // contained match
   const topLeftContained = new Match(
-    5,
-    new Selection(5, 0, 6, 0),
-    "small match line 5",
-    25,
-    new Selection(25, 0, 26, 0),
-    "small match line 25",
+    {
+      index: 5,
+      start: 5 + 1,
+      stop: 5 + 2,
+      location: new Selection(5, 0, 6, 0),
+      data: "small match line 5",
+    },
+    {
+      index: 25,
+      start: 25 + 1,
+      stop: 25 + 2,
+      location: new Selection(25, 0, 26, 0),
+      data: "small match line 25",
+    },
     1337
   );
   int.addMatch(topLeftContained);
@@ -54,12 +70,20 @@ test("match merging & squashing", t => {
   const biggerMiddle = [];
   for(let i = 0; i < 10; i++) {
     const match = new Match(
-      10 + i,
-      new Selection(10 + i, 0, 10 + i + 1, 0),
-      "lines 10 - 20",
-      20 + i,
-      new Selection(10 + i, 0, 10 + i + 1, 0),
-      "lines 10 - 20",
+      {
+        index: 10 + i,
+        start: 10 + i + 1,
+        stop: 10 + i + 2,
+        location: new Selection(10 + i, 0, 10 + i + 1, 0),
+        data: "lines 10 - 20",
+      },
+      {
+        index: 20 + i,
+        start: 20 + i + 1,
+        stop: 20 + i + 2,
+        location: new Selection(10 + i, 0, 10 + i + 1, 0),
+        data: "lines 10 - 20",
+      },
       10 + i
     );
     biggerMiddle.push(match);
@@ -70,12 +94,20 @@ test("match merging & squashing", t => {
   const  biggerBottomLeft = [];
   for(let i = 0; i < 10; i++) {
     const match = new Match(
-      20 + i,
-      new Selection(20 + i, 0, 20 + i + 1, 0),
-      "lines 20 - 30",
-      i,
-      new Selection(i, 0, i + 1, 0),
-      "lines 0 - 10",
+      {
+        index: 20 + i,
+        start: 20 + i + 1,
+        stop: 20 + i + 2,
+        location: new Selection(20 + i, 0, 20 + i + 1, 0),
+        data: "lines 20 - 30",
+      },
+      {
+        index: i,
+        start: i + 1,
+        stop: i + 2,
+        location: new Selection(i, 0, i + 1, 0),
+        data: "lines 0 - 10",
+      },
       20 + i
     );
     biggerBottomLeft.push(match);
@@ -84,24 +116,40 @@ test("match merging & squashing", t => {
 
   // contained match
   const bottomLeftContained = new Match(
-    25,
-    new Selection(25, 0, 26, 0),
-    "small match line 25",
-    5,
-    new Selection(5, 0, 6, 0),
-    "small match line 5",
+    {
+      index: 25,
+      start: 25 + 1,
+      stop: 25 + 2,
+      location: new Selection(25, 0, 26, 0),
+      data: "small match line 25",
+    },
+    {
+      index: 5,
+      start: 5 + 1,
+      stop: 5 + 2,
+      location: new Selection(5, 0, 6, 0),
+      data: "small match line 5",
+    },
     42
   );
   int.addMatch(bottomLeftContained);
 
   // match not contained
   const notContained = new Match(
-    5,
-    new Selection(5, 0, 6, 0),
-    "not contained match line 5",
-    5,
-    new Selection(5, 0, 6, 0),
-    "not contained match line 5",
+    {
+      index: 5,
+      start: 5 + 1,
+      stop: 5 + 2,
+      location: new Selection(5, 0, 6, 0),
+      data: "not contained match line 5",
+    },
+    {
+      index: 5,
+      start: 5 + 1,
+      stop: 5 + 2,
+      location: new Selection(5, 0, 6, 0),
+      data: "not contained match line 5",
+    },
     666
   );
   int.addMatch(notContained);

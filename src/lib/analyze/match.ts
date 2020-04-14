@@ -1,3 +1,31 @@
+
+/**
+ * The information that is needed for one side of a match.
+ */
+export interface Side<Location> {
+  /**
+   * Start index in the AST of this kmer.
+   */
+  start: number;
+  /**
+   * Stop index (inclusive) in the AST of this kmer.
+   */
+  stop: number;
+  /**
+   * The index of when this kmer was outputted by the HashFilter.
+   * This differs of kmerStart if not all kmers in a file are outputted.
+   */
+  index: number;
+  /**
+   * The location in the actual file corrresponding to this kmer.
+   */
+  location: Location;
+  /**
+   * The AST data corresponding to this kmer.
+   */
+  data: string;
+}
+
 /**
  * A match represents a common kmer between two files.
  *
@@ -6,13 +34,9 @@
  */
 export class Match<Location> {
   constructor(
-    public readonly leftKmer: number,
-    public readonly leftLocation: Location,
-    public readonly leftData: string,
-    public readonly rightKmer: number,
-    public readonly rightLocation: Location,
-    public readonly rightData: string,
-    public readonly hash: number
+    public readonly left: Side<Location>,
+    public readonly right: Side<Location>,
+    public readonly hash: number,
   ) {
   }
 }

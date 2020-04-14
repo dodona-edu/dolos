@@ -32,12 +32,20 @@ test("fragment should reconstruct matched kmers", async t => {
 
   const createMatch = (i: number, h1: Hash, h2: Hash): Match<Selection> =>
     new Match(
-      i,
-      Selection.merge(f1.mapping[h1.start], f1.mapping[h1.stop]),
-      h1.data,
-      i,
-      Selection.merge(f2.mapping[h2.start], f2.mapping[h2.stop]),
-      h2.data,
+      {
+        index: i,
+        start: h1.start,
+        stop: h1.stop,
+        location: Selection.merge(f1.mapping[h1.start], f1.mapping[h1.stop]),
+        data: h1.data,
+      },
+      {
+        index: i,
+        start: h2.start,
+        stop: h2.stop,
+        location: Selection.merge(f2.mapping[h2.start], f2.mapping[h2.stop]),
+        data: h2.data,
+      },
       h1.hash
     );
 

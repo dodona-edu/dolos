@@ -1,23 +1,14 @@
 import assert from "assert";
 import { HashFilter } from "../hashing/hashFilter";
-import { Match } from "./match";
 import { Options } from "../util/options";
 import { Range } from "../util/range";
 import { Selection } from "../util/selection";
 import { Tokenizer } from "../tokenizer/tokenizer";
 import { WinnowFilter } from "../hashing/winnowFilter";
 import { File } from "../file/file";
-import { TokenizedFile } from "../file/tokenizedFile";
-import { Analysis } from "./analysis";
+import { Analysis, FilePart } from "./analysis";
 
 type Hash = number;
-
-interface FilePart {
-  file: TokenizedFile;
-  kmer: number;
-  location: Selection;
-  data: string;
-}
 
 export class Comparison {
   private readonly kmerLength: number;
@@ -98,7 +89,10 @@ export class Comparison {
           file.mapping[stop]
         );
 
-        const part: FilePart = { kmer, file, data, location };
+        const part: FilePart = {
+          file,
+          side: { index: kmer, start, stop, data, location }
+        };
 
         // look if the index already contains the given hashing
         const matches = this.index.get(hash);
@@ -114,19 +108,7 @@ export class Comparison {
             }
 
             // add the match to the analysis
-            analysis.addMatch(
-              file,
-              match.file,
-              new Match(
-                kmer,
-                location,
-                data,
-                match.kmer,
-                match.location,
-                match.data,
-                hash
-              )
-            );
+            analysis.addMatch(part, match, hash);
           }
 
           // finally, add our matching part to the index

@@ -20,16 +20,16 @@ export class Fragment {
 
   constructor(initial: Match<Selection>) {
     this.matches = [initial];
-    this.leftKmers = new Range(initial.leftKmer);
-    this.rightKmers = new Range(initial.rightKmer);
-    this.leftSelection = initial.leftLocation;
-    this.rightSelection = initial.rightLocation;
-    this.mergedData = initial.leftData;
+    this.leftKmers = new Range(initial.left.index);
+    this.rightKmers = new Range(initial.right.index);
+    this.leftSelection = initial.left.location;
+    this.rightSelection = initial.right.location;
+    this.mergedData = initial.left.data;
   }
 
   public extendable(other: Match<Selection>): boolean {
-    return this.leftKmers.to == other.leftKmer &&
-      this.rightKmers.to == other.rightKmer;
+    return this.leftKmers.to == other.left.index &&
+      this.rightKmers.to == other.right.index;
   }
 
   public extend(other: Match<Selection>): void {
@@ -37,29 +37,29 @@ export class Fragment {
     this.matches.push(other);
 
     // Merge kmers
-    let i = this.mergedData.length - other.leftData.length;
-    let j = other.leftData.length;
+    let i = this.mergedData.length - other.left.data.length;
+    let j = other.left.data.length;
     while(
       i < this.mergedData.length &&
-      this.mergedData.substring(i) !== other.leftData.substring(0, j)
+      this.mergedData.substring(i) !== other.left.data.substring(0, j)
     ){
       i += 1;
       j -= 1;
     }
-    this.mergedData += other.leftData.substring(j);
+    this.mergedData += other.left.data.substring(j);
 
     // Merge kmers index range
-    this.leftKmers = Range.merge(this.leftKmers, new Range(other.leftKmer));
-    this.rightKmers = Range.merge(this.rightKmers, new Range(other.rightKmer));
+    this.leftKmers = Range.merge(this.leftKmers, new Range(other.left.index));
+    this.rightKmers = Range.merge(this.rightKmers, new Range(other.right.index));
 
     // Merge selection
     this.leftSelection = Selection.merge(
       this.leftSelection,
-      other.leftLocation
+      other.left.location
     );
     this.rightSelection = Selection.merge(
       this.rightSelection,
-      other.rightLocation
+      other.right.location
     );
 
   }

@@ -2,7 +2,7 @@ import { Intersection } from "./intersection";
 import { DefaultMap } from "../util/defaultMap";
 import { File } from "../file/file";
 import { TokenizedFile } from "../file/tokenizedFile";
-import { Match } from "./match";
+import { Match, Side } from "./match";
 import { Selection } from "../util/selection";
 import { Range } from "../util/range";
 import { Options } from "../util/options";
@@ -12,6 +12,11 @@ export interface ScoredIntersection {
   overlap: number;
   longest: number;
   similarity: number;
+}
+
+export interface FilePart {
+  file: TokenizedFile;
+  side: Side<Selection>;
 }
 
 export class Analysis {
@@ -32,18 +37,19 @@ export class Analysis {
   ) {}
 
   public addMatch(
-    left: TokenizedFile,
-    right: TokenizedFile,
-    match: Match<Selection>
+    left: FilePart,
+    right: FilePart,
+    hash: number,
   ): void {
 
-    const [first, second] = [left, right].sort(File.compare);
+    const [first, second] = [left.file, right.file].sort(File.compare);
     let intersection = this.intersectionMap.get(first).get(second);
     if (!intersection) {
-      intersection = new Intersection(left, right);
+      intersection = new Intersection(left.file, right.file);
       this.intersectionMap.get(first).set(second, intersection);
     }
 
+    const match = new Match(left.side, right.side, hash);
     intersection.addMatch(match);
   }
 
