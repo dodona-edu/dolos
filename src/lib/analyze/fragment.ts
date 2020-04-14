@@ -18,6 +18,8 @@ export class Fragment {
   public rightSelection: Selection;
   public mergedData: string;
 
+  private mergedStop: number;
+
   constructor(initial: Match<Selection>) {
     this.matches = [initial];
     this.leftKmers = new Range(initial.left.index);
@@ -25,6 +27,7 @@ export class Fragment {
     this.leftSelection = initial.left.location;
     this.rightSelection = initial.right.location;
     this.mergedData = initial.left.data;
+    this.mergedStop = initial.left.stop;
   }
 
   public extendable(other: Match<Selection>): boolean {
@@ -36,21 +39,19 @@ export class Fragment {
     assert(this.extendable(other), "match does not extend this fragment");
     this.matches.push(other);
 
-    // Merge kmers
-    let i = this.mergedData.length - other.left.data.length;
-    let j = other.left.data.length;
-    while(
-      i < this.mergedData.length &&
-      this.mergedData.substring(i) !== other.left.data.substring(0, j)
-    ){
-      i += 1;
-      j -= 1;
+    if (this.mergedStop < other.left.start) {
+      this.mergedData += "|" + other.left.data;
+    } else {
+      this.mergedData +=
+        other.left.data.substring(this.mergedStop - other.left.start + 1);
     }
-    this.mergedData += other.left.data.substring(j);
+    this.mergedStop = other.left.stop;
 
     // Merge kmers index range
-    this.leftKmers = Range.merge(this.leftKmers, new Range(other.left.index));
-    this.rightKmers = Range.merge(this.rightKmers, new Range(other.right.index));
+    this.leftKmers =
+      Range.merge(this.leftKmers, new Range(other.left.index));
+    this.rightKmers =
+      Range.merge(this.rightKmers, new Range(other.right.index));
 
     // Merge selection
     this.leftSelection = Selection.merge(
