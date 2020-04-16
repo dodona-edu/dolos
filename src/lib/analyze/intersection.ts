@@ -1,4 +1,3 @@
-import { Selection } from "../util/selection";
 import { Range } from "../util/range";
 import { Match } from "./match";
 import { Fragment } from "./fragment";
@@ -23,7 +22,7 @@ export class Intersection {
    *
    * Tries to extend existing fragments, or creates a new fragment.
    */
-  public addMatch(newMatch: Match<Selection>): void {
+  public addMatch(newMatch: Match): void {
     let i = 0;
     while(i < this.fragments.length
           && !this.fragments[i].extendable(newMatch)) {

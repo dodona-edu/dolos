@@ -4,9 +4,9 @@ import { Hash } from "../lib/hashing/hashFilter";
 import { Match } from "../lib/analyze/match";
 import { Fragment } from "../lib/analyze/fragment";
 import { Selection } from "../lib/util/selection";
+import { SharedKmer } from "../lib/analyze/sharedKmer";
 import { CodeTokenizer } from "../lib/tokenizer/codeTokenizer";
 import { WinnowFilter } from "../lib/hashing/winnowFilter";
-
 
 
 test("fragment should reconstruct matched kmers", async t => {
@@ -30,7 +30,7 @@ test("fragment should reconstruct matched kmers", async t => {
   }
   t.is(f1Hashes.length, f2Hashes.length);
 
-  const createMatch = (i: number, h1: Hash, h2: Hash): Match<Selection> =>
+  const createMatch = (i: number, h1: Hash, h2: Hash): Match =>
     new Match(
       {
         index: i,
@@ -46,7 +46,7 @@ test("fragment should reconstruct matched kmers", async t => {
         location: Selection.merge(f2.mapping[h2.start], f2.mapping[h2.stop]),
         data: h2.data,
       },
-      h1.hash
+      new SharedKmer(h1.hash, h1.data),
     );
 
   const fragment = new Fragment(createMatch(0, f1Hashes[0], f2Hashes[0]));

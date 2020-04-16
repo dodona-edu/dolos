@@ -26,8 +26,8 @@ test("equal content should be a full match", async t => {
     ]
   );
 
-  t.is(analysis.intersections().length, 1);
-  const { intersection, similarity } = analysis.scoredIntersections()[0];
+  t.is(1, analysis.scoredIntersections.length);
+  const { intersection, similarity } = analysis.scoredIntersections[0];
   t.is(similarity, 1.0);
 
   t.is(intersection.fragments.length, 1);
@@ -76,8 +76,8 @@ test("renamed variables should be a full match", async t => {
     ]
   );
 
-  t.is(analysis.intersections().length, 1);
-  const { intersection, similarity } = analysis.scoredIntersections()[0];
+  t.is(1, analysis.scoredIntersections.length);
+  const { intersection, similarity } = analysis.scoredIntersections[0];
   t.is(similarity, 1.0);
 
   t.is(intersection.fragments.length, 1);
@@ -128,8 +128,8 @@ test("changed whitespace and semicolons should be a full match", async t => {
     ]
   );
 
-  t.is(analysis.intersections().length, 1);
-  const { intersection, similarity } = analysis.scoredIntersections()[0];
+  t.is(1, analysis.scoredIntersections.length);
+  const { intersection, similarity } = analysis.scoredIntersections[0];
   t.is(similarity, 1.0);
 
   t.is(intersection.fragments.length, 1);
@@ -174,8 +174,8 @@ test("changed order should be a good match", async t => {
     ]
   );
 
-  t.is(analysis.intersections().length, 1);
-  const { intersection, similarity } = analysis.scoredIntersections()[0];
+  t.is(1, analysis.scoredIntersections.length);
+  const { intersection, similarity } = analysis.scoredIntersections[0];
   t.true(similarity > 0.75);
 
   // four fragments: program declaration, hello(), world() and helloWorld()

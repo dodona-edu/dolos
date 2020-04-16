@@ -1,4 +1,3 @@
-import { inspect } from "util";
 import { Result } from "../util/result";
 import { default as fsWithCallbacks } from "fs";
 const fs = fsWithCallbacks.promises;
@@ -19,8 +18,7 @@ export class File {
     } else if (a.path > b.path) {
       return 1;
     } else {
-      throw new Error(`Comparing two files with the same path: ${inspect(a)}` +
-                      ` and ${inspect(b)}`);
+      return 0;
     }
   }
 

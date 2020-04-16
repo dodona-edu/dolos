@@ -1,11 +1,14 @@
+import assert from "assert";
 import { Intersection } from "./intersection";
 import { DefaultMap } from "../util/defaultMap";
 import { File } from "../file/file";
 import { TokenizedFile } from "../file/tokenizedFile";
 import { Match, Side } from "./match";
-import { Selection } from "../util/selection";
 import { Range } from "../util/range";
 import { Options } from "../util/options";
+import { SharedKmer } from "./sharedKmer";
+
+type Hash = number;
 
 export interface ScoredIntersection {
   intersection: Intersection;
@@ -16,73 +19,55 @@ export interface ScoredIntersection {
 
 export interface FilePart {
   file: TokenizedFile;
-  side: Side<Selection>;
+  side: Side;
 }
 
 export class Analysis {
-
-  // to keep track of which two files match (and not have two times the same
-  // Intersection but in different order), we use a nested map where we use
-  // the two keys in lexicographical order
-  private intersectionMap:
-    DefaultMap<TokenizedFile, Map<TokenizedFile, Intersection>>
-    = new DefaultMap(() => new Map())
 
   // computed list of scored intersections,
   // only defined after finished() is called
   private scored?: Array<ScoredIntersection>;
 
+  // collection of all shared kmers
+  private kmers: Map<Hash, SharedKmer> = new Map();
+
   constructor(
     public readonly options: Options
   ) {}
 
-  public addMatch(
-    left: FilePart,
-    right: FilePart,
-    hash: number,
-  ): void {
-
-    const [first, second] = [left.file, right.file].sort(File.compare);
-    let intersection = this.intersectionMap.get(first).get(second);
-    if (!intersection) {
-      intersection = new Intersection(left.file, right.file);
-      this.intersectionMap.get(first).set(second, intersection);
+  public addMatches(hash: Hash, ...parts: Array<FilePart>): void {
+    assert(parts.length > 0);
+    let kmer = this.kmers.get(hash);
+    if(!kmer) {
+      kmer = new SharedKmer(hash, parts[0].side.data);
+      this.kmers.set(hash, kmer);
     }
-
-    const match = new Match(left.side, right.side, hash);
-    intersection.addMatch(match);
+    kmer.addAll(parts);
   }
 
   /**
    * Finish the analysis and apply postprocessing steps.
    */
   public finish(): void {
-    for(const intersection of this.intersectionIterator()) {
-      intersection.removeSmallerThan(this.options.minFragmentLength),
-      intersection.squash();
-    }
-    this.scored = this.intersections()
-      .filter(i => i.fragments.length > 0)    // ignore empty intersections
-      .map(i => this.calculateScore(i))       // calculate their similarity
-      .filter(s =>                            // hashing by minimum similarity
-        s.similarity >= this.options.minSimilarity
-      )
-      .sort((a, b) => b.overlap - a.overlap) // sort in reversed order
-      .slice(0, this.options.limitResults);  // limit to first n results
+    assert(this.scored !== null, "this analysis is already finished");
+    this.scored =
+      this.build()
+        .map(intersection => {
+          intersection.removeSmallerThan(this.options.minFragmentLength),
+          intersection.squash();
+          return intersection;
+        })
+        .filter(i => i.fragments.length > 0)    // ignore empty intersections
+        .map(i => this.calculateScore(i))       // calculate their similarity
+        .filter(s =>                            // filter by minimum similarity
+          s.similarity >= this.options.minSimilarity
+        )
+        .sort((a, b) => b.overlap - a.overlap) // sort in reversed order
+        .slice(0, this.options.limitResults);  // limit to first n results
     Object.freeze(this);
   }
 
-  public *intersectionIterator(): IterableIterator<Intersection> {
-    for (const map of this.intersectionMap.values()) {
-      yield *map.values();
-    }
-  }
-
-  public intersections(): Array<Intersection> {
-    return Array.of(...this.intersectionIterator());
-  }
-
-  public scoredIntersections(): Array<ScoredIntersection> {
+  public get scoredIntersections(): Array<ScoredIntersection> {
     if(this.scored) {
       return this.scored;
     } else {
@@ -90,6 +75,45 @@ export class Analysis {
                       "but scoredIntersections() was called");
     }
   }
+
+  /**
+   * Combining all shared kmers and build intersections
+   */
+  private build(): Array<Intersection> {
+    const intersections:
+      DefaultMap<TokenizedFile, Map<TokenizedFile, Intersection>>
+      = new DefaultMap(() => new Map());
+
+    // create intersections
+    for (const kmer of this.kmers.values()) {
+      const parts = kmer.parts.sort((a, b) => File.compare(a.file, b.file));
+      for (let i = 0; i < parts.length; i += 1) {
+        const first = parts[i];
+        for (let j = i + 1; j < parts.length; j += 1) {
+          const second = parts[j];
+          if (first.file === second.file) {
+            // ignore matches within the same file (internal duplication)
+            continue;
+          }
+
+          let intersection = intersections.get(first.file).get(second.file);
+          if (!intersection) {
+            intersection = new Intersection(first.file, second.file);
+            intersections.get(first.file).set(second.file, intersection);
+          }
+
+          const match = new Match(first.side, second.side, kmer);
+          intersection.addMatch(match);
+        }
+      }
+    }
+
+    // flatten nested map
+    return Array.of(...intersections.values())
+      .map(m => Array.of(...m.values()))
+      .flat();
+  }
+
 
   private calculateScore(intersection: Intersection): ScoredIntersection {
     const leftCovered =
@@ -105,4 +129,5 @@ export class Analysis {
       similarity: (leftCovered + rightCovered) / (leftTotal + rightTotal)
     };
   }
+
 }

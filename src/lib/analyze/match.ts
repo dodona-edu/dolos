@@ -1,8 +1,10 @@
+import { SharedKmer } from "./sharedKmer";
+import { Selection } from "../util/selection";
 
 /**
  * The information that is needed for one side of a match.
  */
-export interface Side<Location> {
+export interface Side {
   /**
    * Start index in the AST of this kmer.
    */
@@ -17,9 +19,9 @@ export interface Side<Location> {
    */
   index: number;
   /**
-   * The location in the actual file corrresponding to this kmer.
+   * The selection in the actual file corrresponding to this kmer.
    */
-  location: Location;
+  location: Selection;
   /**
    * The AST data corresponding to this kmer.
    */
@@ -32,11 +34,11 @@ export interface Side<Location> {
  * It keeps track of the kmer index in both files, the hashing of the kmer, and
  * the location with its data it represents.
  */
-export class Match<Location> {
+export class Match {
   constructor(
-    public readonly left: Side<Location>,
-    public readonly right: Side<Location>,
-    public readonly hash: number,
+    public readonly left: Side,
+    public readonly right: Side,
+    public readonly kmer: SharedKmer,
   ) {
   }
 }

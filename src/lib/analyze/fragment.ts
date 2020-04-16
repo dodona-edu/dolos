@@ -11,7 +11,7 @@ import { Range } from "../util/range";
  */
 export class Fragment {
 
-  public matches: Array<Match<Selection>>;
+  public matches: Array<Match>;
   public leftKmers: Range;
   public rightKmers: Range;
   public leftSelection: Selection;
@@ -20,7 +20,7 @@ export class Fragment {
 
   private mergedStop: number;
 
-  constructor(initial: Match<Selection>) {
+  constructor(initial: Match) {
     this.matches = [initial];
     this.leftKmers = new Range(initial.left.index);
     this.rightKmers = new Range(initial.right.index);
@@ -30,12 +30,12 @@ export class Fragment {
     this.mergedStop = initial.left.stop;
   }
 
-  public extendable(other: Match<Selection>): boolean {
+  public extendable(other: Match): boolean {
     return this.leftKmers.to == other.left.index &&
       this.rightKmers.to == other.right.index;
   }
 
-  public extend(other: Match<Selection>): void {
+  public extend(other: Match): void {
     assert(this.extendable(other), "match does not extend this fragment");
     this.matches.push(other);
 

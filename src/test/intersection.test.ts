@@ -3,6 +3,7 @@ import { File } from "../lib/file/file";
 import { TokenizedFile } from "../lib/file/tokenizedFile";
 import { Intersection } from "../lib/analyze/intersection";
 import { Selection } from "../lib/util/selection";
+import { SharedKmer } from "../lib/analyze/sharedKmer";
 import { Match } from "../lib/analyze/match";
 
 function createFakeFile(name: string): TokenizedFile {
@@ -22,6 +23,7 @@ function createIntersection(): Intersection {
 test("match merging & squashing", t => {
   const int = createIntersection();
 
+  let kmer = new SharedKmer(1, "kmer 1");
   const biggerTopLeft = [];
   // bigger match
   for(let i = 0; i < 10; i++) {
@@ -40,13 +42,14 @@ test("match merging & squashing", t => {
         location: new Selection(20 + i, 0, 20 + i + 1, 0),
         data: "lines 20 - 30",
       },
-      i
+      kmer
     );
     int.addMatch(match)
     biggerTopLeft.push(match);
   }
 
   // contained match
+  kmer = new SharedKmer(2, "kmer 2");
   const topLeftContained = new Match(
     {
       index: 5,
@@ -62,12 +65,13 @@ test("match merging & squashing", t => {
       location: new Selection(25, 0, 26, 0),
       data: "small match line 25",
     },
-    1337
+    kmer
   );
   int.addMatch(topLeftContained);
 
   // bigger match, same location
   const biggerMiddle = [];
+  kmer = new SharedKmer(3, "kmer 3");
   for(let i = 0; i < 10; i++) {
     const match = new Match(
       {
@@ -84,7 +88,7 @@ test("match merging & squashing", t => {
         location: new Selection(10 + i, 0, 10 + i + 1, 0),
         data: "lines 10 - 20",
       },
-      10 + i
+      kmer
     );
     biggerMiddle.push(match);
     int.addMatch(match);
@@ -92,6 +96,7 @@ test("match merging & squashing", t => {
 
   // bigger match
   const  biggerBottomLeft = [];
+  kmer = new SharedKmer(4, "kmer 4");
   for(let i = 0; i < 10; i++) {
     const match = new Match(
       {
@@ -108,13 +113,14 @@ test("match merging & squashing", t => {
         location: new Selection(i, 0, i + 1, 0),
         data: "lines 0 - 10",
       },
-      20 + i
+      kmer
     );
     biggerBottomLeft.push(match);
     int.addMatch(match);
   }
 
   // contained match
+  kmer = new SharedKmer(5, "kmer 5");
   const bottomLeftContained = new Match(
     {
       index: 25,
@@ -130,11 +136,12 @@ test("match merging & squashing", t => {
       location: new Selection(5, 0, 6, 0),
       data: "small match line 5",
     },
-    42
+    kmer
   );
   int.addMatch(bottomLeftContained);
 
   // match not contained
+  kmer = new SharedKmer(6, "kmer 6");
   const notContained = new Match(
     {
       index: 5,
@@ -150,7 +157,7 @@ test("match merging & squashing", t => {
       location: new Selection(5, 0, 6, 0),
       data: "not contained match line 5",
     },
-    666
+    kmer
   );
   int.addMatch(notContained);
 

@@ -97,21 +97,17 @@ export class Comparison {
         // look if the index already contains the given hashing
         const matches = this.index.get(hash);
 
-        if (matches) {
-          // the hashing exists in out index, look which files we've matched
-          for (const match of matches) {
 
+        if (matches) {
+          analysis.addMatches(
+            hash,
+            part,
             // don't add a match if we've matched ourselves,
             // but this is internal duplication (e.g. code reuse)
-            if(match.file === file) {
-              continue;
-            }
+            ...matches.filter(m => m.file !== file)
+          );
 
-            // add the match to the analysis
-            analysis.addMatch(part, match, hash);
-          }
-
-          // finally, add our matching part to the index
+          // add our matching part to the index
           matches.push(part);
         } else {
 
