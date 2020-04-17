@@ -30,7 +30,7 @@ export class Options {
   public static defaultKmersInWindow = 40;
   public static defaultLanguage = "javascript";
   public static defaultLimitResults = +Infinity;
-  public static defaultMaxHashPercentage = 0.9;
+  public static defaultMaxHashPercentage = 1.01;
   public static defaultMinFragmentLength = 0;
   public static defaultMinSimilarity = 0;
   public static defaultMaxGapSize = 0;

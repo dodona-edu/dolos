@@ -20,13 +20,13 @@ export class SharedKmer {
     parts.forEach(p => this.add(p));
   }
 
-  get parts(): Array<FilePart> {
+  public parts(): Array<FilePart> {
     return Array.of(...this.partMap.values())
       .map(set => Array.of(...set))
       .flat();
   }
 
-  get files(): Array<TokenizedFile> {
-    return Array.of(...new Set(this.parts.map(p => p.file)));
+  public files(): Array<TokenizedFile> {
+    return Array.of(...new Set(this.parts().map(p => p.file)));
   }
 }

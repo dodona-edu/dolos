@@ -31,9 +31,14 @@ export class Analysis {
   // collection of all shared kmers
   private kmers: Map<Hash, SharedKmer> = new Map();
 
+  private files: Set<TokenizedFile>;
+
   constructor(
-    public readonly options: Options
-  ) {}
+    public readonly options: Options,
+    files: TokenizedFile[],
+  ) {
+    this.files = new Set(files);
+  }
 
   public addMatches(hash: Hash, ...parts: Array<FilePart>): void {
     assert(parts.length > 0);
@@ -84,9 +89,15 @@ export class Analysis {
       DefaultMap<TokenizedFile, Map<TokenizedFile, Intersection>>
       = new DefaultMap(() => new Map());
 
+    const byMax: (k: SharedKmer) => boolean = this.options.filterByPercentage
+      ? k => this.files.size / k.files().length < this.options.maxHash 
+      : k => k.files().length < this.options.maxHash;
+
+    const filteredKmers = Array.of(...this.kmers.values()).filter(byMax);
+
     // create intersections
-    for (const kmer of this.kmers.values()) {
-      const parts = kmer.parts.sort((a, b) => File.compare(a.file, b.file));
+    for (const kmer of filteredKmers) {
+      const parts = kmer.parts().sort((a, b) => File.compare(a.file, b.file));
       for (let i = 0; i < parts.length; i += 1) {
         const first = parts[i];
         for (let j = i + 1; j < parts.length; j += 1) {

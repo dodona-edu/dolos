@@ -60,9 +60,10 @@ export class Comparison {
     hashFilter = this.hashFilter
   ): Promise<Analysis> {
 
-    const analysis = new Analysis(this.options);
+    const tokenizedFiles = files.map(f => this.tokenizer.tokenizeFile(f));
+    const analysis = new Analysis(this.options, tokenizedFiles);
 
-    for (const file of files.map(f => this.tokenizer.tokenizeFile(f))) {
+    for (const file of tokenizedFiles) {
 
       let kmer = 0;
       for await (
