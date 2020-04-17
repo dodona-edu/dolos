@@ -57,7 +57,7 @@ export class Analysis {
           intersection.squash();
           return intersection;
         })
-        .filter(i => i.fragments.length > 0)    // ignore empty intersections
+        .filter(i => i.fragmentCount > 0)    // ignore empty intersections
         .map(i => this.calculateScore(i))       // calculate their similarity
         .filter(s =>                            // filter by minimum similarity
           s.similarity >= this.options.minSimilarity
@@ -116,10 +116,9 @@ export class Analysis {
 
 
   private calculateScore(intersection: Intersection): ScoredIntersection {
-    const leftCovered =
-      Range.totalCovered(intersection.fragments.map(f => f.leftKmers));
-    const rightCovered =
-      Range.totalCovered(intersection.fragments.map(f => f.rightKmers));
+    const fragments = intersection.fragments();
+    const leftCovered = Range.totalCovered(fragments.map(f => f.leftKmers));
+    const rightCovered = Range.totalCovered(fragments.map(f => f.rightKmers));
     const leftTotal = intersection.leftFile.kmers.length;
     const rightTotal = intersection.rightFile.kmers.length;
     return {

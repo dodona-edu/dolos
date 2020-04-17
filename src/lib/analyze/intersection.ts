@@ -20,10 +20,15 @@ export class Intersection {
   ) {
   }
 
+  get fragmentCount(): number {
+    return this.fragmentStart.size;
+  }
+
   /**
-   * Get an array of fregments, sorted by their leftKmers range.
+   * Creates an array of fragments in this intersection, sorted by their
+   * leftKmers range.
    */
-  public get fragments(): Array<Fragment> {
+  public fragments(): Array<Fragment> {
     return Array.of(...this.fragmentStart.values())
       .sort((a , b) => Range.compare(a.leftKmers, b.leftKmers));
   }
@@ -80,7 +85,7 @@ export class Intersection {
    */
   public totalOverlapKmers(): number {
     return Range.totalCovered(
-      this.fragments.map(m => m.leftKmers).sort(Range.compare)
+      this.fragments().map(m => m.leftKmers).sort(Range.compare)
     );
   }
 
@@ -88,14 +93,14 @@ export class Intersection {
    * Returns the length (in kmers) of the largest fragment in this intersecion.
    */
   public largestFragmentLength(): number {
-    return Math.max(...this.fragments.map(f => f.matches.length));
+    return Math.max(...this.fragments().map(f => f.matches.length));
   }
 
   /**
    * Remove fragments which have fewer than the given minimum of matches.
    */
   public removeSmallerThan(minimum: number): void {
-    this.fragments
+    this.fragments()
       .filter(f => f.matches.length < minimum)
       .forEach(f => this.removeFragment(f));
   }
@@ -105,7 +110,7 @@ export class Intersection {
    */
   public squash(): void {
     const kandidates: Set<Fragment> = new Set();
-    for (const match of this.fragments) {
+    for (const match of this.fragments()) {
 
       const iter = kandidates.values();
       let next = iter.next();

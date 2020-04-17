@@ -143,8 +143,9 @@ export class TerminalWriter {
     const nl = (i: number): string =>
       this.c.grey((i + 1).toString().padEnd(lineNrWidth));
 
-    for (let i = 0; i < intersection.fragments.length; i += 1) {
-      const fragment = intersection.fragments[i];
+    const fragments = intersection.fragments();
+    for (let i = 0; i < fragments.length; i += 1) {
+      const fragment = fragments[i];
 
       this.ui.div({
         text: chalk.bold(`Fragment ${i+1}/${intersection.fragments.length}:` +
@@ -162,14 +163,14 @@ export class TerminalWriter {
       const left = this.formatLines(fragment.leftSelection, leftLines, nl);
       const right = this.formatLines(fragment.rightSelection, rightLines, nl);
 
-      for(let i = 0; i < Math.max(left.length, right.length); i += 1) {
+      for(let j = 0; j < Math.max(left.length, right.length); j += 1) {
         this.ui.div(
           {
-            text: left[i] || "",
+            text: left[j] || "",
             width: lineWidth
           },
           {
-            text: right[i] || "",
+            text: right[j] || "",
             width: lineWidth
           }
         );
