@@ -30,12 +30,12 @@ export class Fragment {
     this.mergedStop = initial.left.stop;
   }
 
-  public extendable(other: Match): boolean {
+  private extendable(other: Match): boolean {
     return this.leftKmers.to == other.left.index &&
       this.rightKmers.to == other.right.index;
   }
 
-  public extend(other: Match): void {
+  public extendWithMatch(other: Match): void {
     assert(this.extendable(other), "match does not extend this fragment");
     this.matches.push(other);
 
@@ -61,6 +61,39 @@ export class Fragment {
     this.rightSelection = Selection.merge(
       this.rightSelection,
       other.right.location
+    );
+
+  }
+
+  public extendWithFragment(other: Fragment): void {
+    const otherFirst = other.matches[0];
+    assert(this.extendable(otherFirst));
+
+    this.matches = this.matches.concat(other.matches);
+
+    if (this.mergedStop < other.leftKmers.from) {
+      this.mergedData += "|" + other.mergedData;
+    } else {
+      this.mergedData +=
+        other.mergedData.substring(this.mergedStop - other.leftKmers.from + 1);
+    }
+
+    this.mergedStop = other.mergedStop;
+
+    // merge kmer ranges
+    this.leftKmers =
+      Range.merge(this.leftKmers, other.leftKmers);
+    this.rightKmers =
+      Range.merge(this.rightKmers, other.rightKmers);
+
+    // merge selections
+    this.leftSelection = Selection.merge(
+      this.leftSelection,
+      other.leftSelection,
+    );
+    this.rightSelection = Selection.merge(
+      this.rightSelection,
+      other.rightSelection,
     );
 
   }

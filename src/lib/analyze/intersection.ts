@@ -3,13 +3,16 @@ import { Match } from "./match";
 import { Fragment } from "./fragment";
 import { TokenizedFile } from "../file/tokenizedFile";
 
+type LeftRight = string;
+
 /**
  * This class represents all the fragments between two files (i.e. the
  * intersection of their hashes).
  */
 export class Intersection {
 
-  public fragments: Array<Fragment> = []
+  private fragmentStart: Map<LeftRight, Fragment> = new Map();
+  private fragmentEnd: Map<LeftRight, Fragment> = new Map();
 
   constructor(
     public readonly leftFile: TokenizedFile,
@@ -18,20 +21,57 @@ export class Intersection {
   }
 
   /**
+   * Get an array of fregments, sorted by their leftKmers range.
+   */
+  public get fragments(): Array<Fragment> {
+    return Array.of(...this.fragmentStart.values())
+      .sort((a , b) => Range.compare(a.leftKmers, b.leftKmers));
+  }
+
+  /**
    * Add a new match to the intersection.
    *
    * Tries to extend existing fragments, or creates a new fragment.
    */
   public addMatch(newMatch: Match): void {
-    let i = 0;
-    while(i < this.fragments.length
-          && !this.fragments[i].extendable(newMatch)) {
-      i += 1;
-    }
-    if (i == this.fragments.length) {
-      this.fragments.push(new Fragment(newMatch));
+    const start = this.key(newMatch.left.index, newMatch.right.index);
+    const end = this.key(newMatch.left.index + 1, newMatch.right.index + 1);
+
+    let fragment = this.fragmentEnd.get(start);
+    if (fragment) {
+
+      // extend fragment at starting position
+      this.fragmentEnd.delete(start);
+      fragment.extendWithMatch(newMatch);
+
     } else {
-      this.fragments[i].extend(newMatch);
+
+      // no fragment on our starting position, create a new one
+      fragment = new Fragment(newMatch);
+      this.fragmentStart.set(start, fragment);
+      this.fragmentEnd.set(end, fragment);
+    }
+
+    const nextFragment = this.fragmentStart.get(end);
+
+    if (nextFragment) {
+      // there is a fragment directly after us we can extend
+
+      // remove next fragment's start position
+      this.fragmentStart.delete(end);
+
+      // extend ourselves
+      fragment.extendWithFragment(nextFragment);
+
+      // overwrite the end position of the next fragment with ours
+      this.fragmentEnd.set(
+        this.key(nextFragment.leftKmers.to, nextFragment.rightKmers.to),
+        fragment
+      );
+    } else {
+
+      // no fragment after us, just set our end position
+      this.fragmentEnd.set(end, fragment);
     }
   }
 
@@ -55,45 +95,51 @@ export class Intersection {
    * Remove fragments which have fewer than the given minimum of matches.
    */
   public removeSmallerThan(minimum: number): void {
-    this.fragments = this.fragments.filter(f => f.matches.length >= minimum);
+    this.fragments
+      .filter(f => f.matches.length < minimum)
+      .forEach(f => this.removeFragment(f));
   }
 
   /**
    * Remove each Fragment that is contained in a bigger Fragment.
    */
   public squash(): void {
-    const squashed: Array<Fragment> = [];
-    let kandidates: Array<Fragment> = [];
-    for (
-      const match of
-      this.fragments.sort((a , b) => Range.compare(a.leftKmers, b.leftKmers))
-    ) {
+    const kandidates: Set<Fragment> = new Set();
+    for (const match of this.fragments) {
 
-      let i = 0;
+      const iter = kandidates.values();
+      let next = iter.next();
       let removed = false;
-      const newKandidates = [];
-
-      while(i < kandidates.length && !removed) {
-        if (match.leftKmers.from < kandidates[i].leftKmers.to) {
-          newKandidates.push(kandidates[i]);
-          removed = kandidates[i].leftKmers.contains(match.leftKmers) &&
-            kandidates[i].rightKmers.contains(match.rightKmers);
+      while (!next.done && !removed) {
+        const kandidate = next.value;
+        if (match.leftKmers.from > kandidate.leftKmers.to) {
+          kandidates.delete(kandidate);
+        } else if (
+          kandidate.leftKmers.contains(match.leftKmers) &&
+          kandidate.rightKmers.contains(match.rightKmers)
+        ){
+          this.removeFragment(match);
+          removed = true;
         }
-        // else: don't push the new kandidate
-        i += 1;
-      }
-      while(i < kandidates.length) {
-        newKandidates.push(kandidates[i]);
-        i += 1;
+        next = iter.next();
       }
 
       if (!removed) {
-        newKandidates.push(match);
-        squashed.push(match);
+        kandidates.add(match);
       }
-
-      kandidates = newKandidates;
     }
-    this.fragments = squashed;
+  }
+
+  private removeFragment(fragment: Fragment): void {
+    this.fragmentStart.delete(
+      this.key(fragment.leftKmers.from, fragment.rightKmers.from)
+    );
+    this.fragmentEnd.delete(
+      this.key(fragment.leftKmers.to, fragment.rightKmers.to)
+    );
+  }
+
+  private key(left: number, right: number): LeftRight {
+    return `${left}|${right}`;
   }
 }

@@ -45,6 +45,7 @@ test("match merging & squashing", t => {
       kmer
     );
     int.addMatch(match)
+    t.is(1, int.fragments.length);
     biggerTopLeft.push(match);
   }
 
@@ -68,6 +69,7 @@ test("match merging & squashing", t => {
     kmer
   );
   int.addMatch(topLeftContained);
+  t.is(2, int.fragments.length);
 
   // bigger match, same location
   const biggerMiddle = [];
@@ -92,6 +94,7 @@ test("match merging & squashing", t => {
     );
     biggerMiddle.push(match);
     int.addMatch(match);
+    t.is(3, int.fragments.length);
   }
 
   // bigger match
@@ -117,6 +120,7 @@ test("match merging & squashing", t => {
     );
     biggerBottomLeft.push(match);
     int.addMatch(match);
+    t.is(4, int.fragments.length);
   }
 
   // contained match
@@ -139,6 +143,7 @@ test("match merging & squashing", t => {
     kmer
   );
   int.addMatch(bottomLeftContained);
+  t.is(5, int.fragments.length);
 
   // match not contained
   kmer = new SharedKmer(6, "kmer 6");
@@ -160,19 +165,19 @@ test("match merging & squashing", t => {
     kmer
   );
   int.addMatch(notContained);
-
-
   t.is(6, int.fragments.length);
-  t.deepEqual(biggerTopLeft, int.fragments[0].matches)
-  t.deepEqual([topLeftContained], int.fragments[1].matches)
-  t.deepEqual(biggerMiddle, int.fragments[2].matches)
-  t.deepEqual(biggerBottomLeft, int.fragments[3].matches)
-  t.deepEqual([bottomLeftContained], int.fragments[4].matches)
-  t.deepEqual([notContained], int.fragments[5].matches)
+
+  t.deepEqual(biggerTopLeft, int.fragments[0].matches);
+  t.deepEqual([topLeftContained], int.fragments[1].matches);
+  t.deepEqual([notContained], int.fragments[2].matches);
+  t.deepEqual(biggerMiddle, int.fragments[3].matches);
+  t.deepEqual(biggerBottomLeft, int.fragments[4].matches);
+  t.deepEqual([bottomLeftContained], int.fragments[5].matches);
 
   int.squash();
 
-  t.is(4, int.fragments.length);
+  t.is(4, int.fragments.length, "squashed too many");
+
   t.deepEqual(biggerTopLeft, int.fragments[0].matches)
   t.deepEqual([notContained], int.fragments[1].matches)
   t.deepEqual(biggerMiddle, int.fragments[2].matches)

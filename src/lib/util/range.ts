@@ -62,6 +62,6 @@ export class Range {
   }
 
   public contains(other: Range): boolean {
-    return this.from <= other.from && other.to <= other.to;
+    return this.from <= other.from && other.to <= this.to;
   }
 }

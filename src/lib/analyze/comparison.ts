@@ -99,13 +99,7 @@ export class Comparison {
 
 
         if (matches) {
-          analysis.addMatches(
-            hash,
-            part,
-            // don't add a match if we've matched ourselves,
-            // but this is internal duplication (e.g. code reuse)
-            ...matches.filter(m => m.file !== file)
-          );
+          analysis.addMatches(hash, part, ...matches);
 
           // add our matching part to the index
           matches.push(part);
