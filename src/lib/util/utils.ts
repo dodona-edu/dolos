@@ -2,7 +2,7 @@
  * This module contains shared helper functions.
  */
 
-export type Colour = "red" | "green" | "reset";
+export type Colour = "red" | "green" | "yellow" | "reset";
 
 /**
  * Helper function to convert a Colour 'enum' into its ANSI escape sequence.
@@ -11,6 +11,7 @@ function escapeSeq(c: Colour): string {
   switch (c) {
   case "red": return "\u001b[31m";
   case "green": return "\u001b[32m";
+  case "yellow": return "\u001b[33m";
   case "reset": return "\u001b[0m";
   }
 }

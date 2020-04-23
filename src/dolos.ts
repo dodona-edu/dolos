@@ -28,6 +28,11 @@ export class Dolos {
 
     if (files.length < 2) {
       throw new Error("You need to supply at least two files");
+    } else if (files.length == 2 && this.options.filterByPercentage) {
+      throw new Error("You have given a maximum hash percentage but your are " +
+                      "comparing two files. Each matching hash will thus " +
+                      "be present in 100% of the files. This option does only" +
+                      "make sense when comparing more than two files.");
     }
 
     return this.comparison.compareFiles(files);

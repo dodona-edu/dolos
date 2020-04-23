@@ -107,10 +107,8 @@ program
       "out. Must be a value between 0 and 1. This option is ignored when " +
       "comparing only two files, because each match appear in 100% of the " +
       "files",
-      Options.defaultMaxHashPercentage
     ),
     x => parseFloat(x),
-    Options.defaultMaxHashPercentage
   )
   .option(
     "-c --compare",
@@ -129,15 +127,13 @@ program
       "Specifies how many matching file pairs are shown in the result. " +
       "All pairs are shown when this option is omitted."
     ),
-    x => parseInt(x, 10),
-    Options.defaultLimitResults
+    x => parseInt(x, 10)
   )
   .option(
     "-s, --minimum-fragment-length <integer>",
     indent(
       "The minimum length of a fragment. Every fragment shorter than this is " +
-      "filtered out.",
-      Options.defaultMinFragmentLength
+      "filtered out."
     ),
     x => parseInt(x, 10),
     Options.defaultMinFragmentLength
@@ -198,8 +194,12 @@ program
   )
   .arguments("<locations...>")
   .action(async locations => {
-    const maxHashPercent =
-      locations.length < 3 ? 1 : program.maximumHashPercentage;
+    if (locations.length < 3 && program.maximumHashPercentage) {
+      console.error(Utils.colour("yellow",
+        "You have given a maximum hash percentage (with -M), but you are" +
+        "comparing less than three files so matching hash will occur in 100% " +
+        "of the files. You might not want to use this option."));
+    }
 
     try {
       const dolos = new Dolos({
@@ -212,7 +212,7 @@ program
         language: program.language,
         maxGapSize: program.maxGapSize,
         maxHashCount: program.maximumHashCount,
-        maxHashPercent: maxHashPercent,
+        maxHashPercentage: program.maxHashPercentage,
         maxMatches: program.filePairOutputLimit,
         minFragmentLength: program.minimumFragmentLength,
         minSimilarity: program.minimumSimilarity,

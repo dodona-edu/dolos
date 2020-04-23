@@ -89,11 +89,17 @@ export class Analysis {
       DefaultMap<TokenizedFile, Map<TokenizedFile, Intersection>>
       = new DefaultMap(() => new Map());
 
-    const byMax: (k: SharedKmer) => boolean = this.options.filterByPercentage
-      ? k => this.files.size / k.files().length < this.options.maxHash 
-      : k => k.files().length < this.options.maxHash;
+    let maxFiles: number;
+    if (this.options.maxHashCount !== undefined) {
+      maxFiles = this.options.maxHashCount;
+    } else if (this.options.maxHashPercentage !== undefined) {
+      maxFiles = this.options.maxHashPercentage * this.files.size;
+    } else {
+      maxFiles = this.files.size;
+    }
 
-    const filteredKmers = Array.of(...this.kmers.values()).filter(byMax);
+    const filteredKmers = Array.of(...this.kmers.values())
+      .filter(k => k.files().length <= maxFiles);
 
     // create intersections
     for (const kmer of filteredKmers) {

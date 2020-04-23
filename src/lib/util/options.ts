@@ -9,7 +9,7 @@ export interface CustomOptions {
   limitResults?: number;
   maxGapSize?: number;
   maxHashCount?: number;
-  maxHashPercent?: number;
+  maxHashPercentage?: number;
   maxMatches?: number;
   minFragmentLength?: number;
   minSimilarity?: number;
@@ -29,8 +29,6 @@ export class Options {
   public static defaultKmerLength = 50;
   public static defaultKmersInWindow = 40;
   public static defaultLanguage = "javascript";
-  public static defaultLimitResults = +Infinity;
-  public static defaultMaxHashPercentage = 1.01;
   public static defaultMinFragmentLength = 0;
   public static defaultMinSimilarity = 0;
   public static defaultMaxGapSize = 0;
@@ -45,11 +43,8 @@ export class Options {
     Object.freeze(this);
   }
 
-  get limitResults(): number {
-    return definedOrDefault(
-      this.custom.limitResults,
-      Options.defaultLimitResults,
-    );
+  get limitResults(): number | undefined {
+    return this.custom.limitResults;
   }
 
   get language(): string {
@@ -79,15 +74,12 @@ export class Options {
     return this.custom.maxHashCount === undefined;
   }
 
-  get maxHash(): number {
-    return definedOrDefault(this.custom.maxHashCount, this.maxHashPercent);
+  get maxHashCount(): number | undefined {
+    return this.custom.maxHashCount;
   }
 
-  get maxHashPercent(): number {
-    return definedOrDefault(
-      this.custom.maxHashPercent,
-      Options.defaultMaxHashPercentage
-    );
+  get maxHashPercentage(): number | undefined {
+    return this.custom.maxHashPercentage;
   }
 
   get comment(): string | null {
@@ -134,7 +126,9 @@ export class Options {
       language: this.language,
       maxGapSize: this.maxGapSize,
       maxHashCount: this.custom.maxHashCount,
-      maxHashPercent: this.filterByPercentage ? this.maxHashPercent : undefined,
+      maxHashPercentage: this.filterByPercentage
+        ? this.maxHashPercentage
+        : undefined,
       maxMatches: this.maxMatches,
       minFragmentLength: this.minFragmentLength,
     });
