@@ -10,52 +10,6 @@ import { TerminalWriter } from "./lib/writer/terminalWriter";
 const pkg = require("../package.json");
 const program = new Command();
 
-const indentLength = 42;
-const maxLineLength: number = (process.stdout.columns as number) - indentLength;
-const defaultLength = 12; // " (default: )"
-
-/**
- * Indent the lines of helpText with an indent size of indentLength. Every line
- * will be at most maxLineLength. All the lines (except the first one) will be
- * indented with indentLength, which is the same indent size used by
- * commander.js. If a default value is present, it's length will be accounted
- * for at the end of the helpText.
- * @param helpText the text to be indented
- * @param defaultValue the default value used, will be appended as
- * "(default: [value])" by commander.js after the helpText
- */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function indent(helpText: string, defaultValue: any = undefined): string {
-  const lines: string[] = [];
-  let currentLine = "";
-  for (const word of helpText.split(" ")) {
-    if (currentLine.length + word.length < maxLineLength - 10) {
-      if (currentLine.length === 0) {
-        currentLine = word;
-      } else {
-        currentLine += " " + word;
-      }
-    } else {
-      lines.push(currentLine);
-      currentLine = word;
-    }
-  }
-  if(defaultValue !== undefined){
-    const defaultValueLength: number =
-      typeof defaultValue === "string" ?
-        defaultValue.toString().length + 2 :
-        defaultValue.toString().length;
-
-    if((currentLine.length + defaultLength + defaultValueLength)
-       >= maxLineLength -1) {
-
-      currentLine += "\n".padEnd(indentLength - 1, " ");
-    }
-  }
-  lines.push(currentLine);
-
-  return lines.join("\n".padEnd(indentLength, " "));
-}
 
 program.version(pkg.version, "-v", "Output the current version.")
   .description("Plagiarism detection for programming exercises");
@@ -63,7 +17,7 @@ program.version(pkg.version, "-v", "Output the current version.")
 program
   .option(
     "-l, --language <language>",
-    indent(
+    Utils.indent(
       "Programming language used in the submitted files.",
       Options.defaultLanguage
     ),
@@ -71,7 +25,7 @@ program
   )
   .option(
     "-b, --base <base>",
-    indent(
+    Utils.indent(
       "Specifies a base file. Matches with code from this file will never be " +
       "reported in the output. A typical base file is the supplied code for " +
       "an exercise. When this option is used in conjunction with the -d flag " +
@@ -83,11 +37,11 @@ program
   )
   .option(
     "-d, --directory",
-    indent("Specifies that submision are per directory, not by file. ")
+    Utils.indent("Specifies that submision are per directory, not by file. ")
   )
   .option(
     "-m, --maximum-hashing-count <integer>",
-    indent(
+    Utils.indent(
       "The -m option sets the maximum number of times a given hashing may " +
       "appear before it is ignored. A code fragment that appears in many " +
       "programs is probably legitimate sharing and not the result of " +
@@ -99,7 +53,7 @@ program
   )
   .option(
     "-M --maximum-hashing-percentage <fraction>",
-    indent(
+    Utils.indent(
       "The -M option sets how many percent of the files the hashing may appear " +
       "before it is ignored. A hashing that appears in many programs is " +
       "probably legitimate sharing and not the result of plagiarism. With -M " +
@@ -112,18 +66,18 @@ program
   )
   .option(
     "-c --compare",
-    indent(
+    Utils.indent(
       "Print a comparison of the matches even if analysiing more than two " +
       "files. Only valid when the output is set to terminal."
     )
   )
   .option(
     "-C, --comment <string>",
-    indent("Comment string that is attached to the generated report")
+    Utils.indent("Comment string that is attached to the generated report")
   )
   .option(
     "-L, --limit <integer>",
-    indent(
+    Utils.indent(
       "Specifies how many matching file pairs are shown in the result. " +
       "All pairs are shown when this option is omitted."
     ),
@@ -131,7 +85,7 @@ program
   )
   .option(
     "-s, --minimum-fragment-length <integer>",
-    indent(
+    Utils.indent(
       "The minimum length of a fragment. Every fragment shorter than this is " +
       "filtered out."
     ),
@@ -140,7 +94,7 @@ program
   )
   .option(
     "-S, --minimum-similarity <fraction>",
-    indent(
+    Utils.indent(
       "The minimum similarity between two files. " +
       "Must be a value between 0 and 1",
       Options.defaultMinSimilarity,
@@ -150,7 +104,7 @@ program
   )
   .option(
     "-g, --maximum-gap-size <integer>",
-    indent(
+    Utils.indent(
       "If two fragments are close to each other, they will be merged into a " +
       "single fragment if the gap between them is smaller than the given " +
       "number of lines.",
@@ -161,7 +115,7 @@ program
   )
   .option(
     "-o, --output-format <format>",
-    indent(
+    Utils.indent(
       "Specifies what format the output should be in, current options are: " +
       "terminal/console, json, html.", "terminal"
     ),
@@ -169,7 +123,7 @@ program
   )
   .option(
     "-v, --cluster-cut-off-value <integer>",
-    indent(
+    Utils.indent(
       "The minimum amount of lines needed before two files will be clustered " +
       "together",
       Options.defaultClusterMinMatches
@@ -179,13 +133,13 @@ program
   )
   .option(
     "-k, --kmer-length <integer>",
-    indent("The length of each k-mer fragment.", Options.defaultKmerLength),
+    Utils.indent("The length of each k-mer fragment.", Options.defaultKmerLength),
     x => parseInt(x, 10),
     Options.defaultKmerLength
   )
   .option(
     "-w, --kmers-in-window <integer>",
-    indent(
+    Utils.indent(
       "The size of the window that will be used (in kmers).",
       Options.defaultKmerLength
     ),
