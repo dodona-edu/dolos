@@ -148,7 +148,7 @@ export class TerminalWriter {
       const fragment = fragments[i];
 
       this.ui.div({
-        text: chalk.bold(`Fragment ${i+1}/${intersection.fragments.length}:` +
+        text: chalk.bold(`Fragment ${i+1}/${fragments.length}:` +
                          ` ${fragment.leftKmers.length} kmers`),
         align: "center",
         padding: [1, 0, 1, 0],
