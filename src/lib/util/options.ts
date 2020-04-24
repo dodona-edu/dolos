@@ -1,29 +1,53 @@
-export interface CustomOptions {
-  base?: string;
-  clusterMinMatches?: number;
-  comment?: string;
-  directory?: boolean;
-  kmerLength?: number;
-  kmersInWindow?: number;
-  language?: string;
-  limitResults?: number;
-  maxGapSize?: number;
-  maxHashCount?: number;
-  maxHashPercentage?: number;
-  maxMatches?: number;
-  minFragmentLength?: number;
-  minSimilarity?: number;
+export interface DolosOptions {
+  base: string | null;
+  clusterMinMatches: number;
+  comment: string | null;
+  directory: boolean;
+  kmerLength: number;
+  kmersInWindow: number;
+  language: string;
+  limitResults: number | null;
+  maxGapSize: number;
+  maxHashCount: number | null;
+  maxHashPercentage: number | null;
+  maxMatches: number | null;
+  minFragmentLength: number;
+  minSimilarity: number;
 }
 
-function definedOrNull<T>(arg: T | undefined): T | null {
-  return arg !== undefined ? arg : null;
+export type CustomOptions = Partial<DolosOptions>;
+
+function validatePercentage(
+  prop: string,
+  value: number | null
+): string | null {
+
+  if (value && (value < 0 || 1 < value)) {
+    return `${prop} must be a fraction between 0 and 1, but was ${value}`;
+  }
+  return null;
 }
 
-function definedOrDefault<T>(arg: T | undefined, def: T): T {
-  return arg !== undefined ? arg : def;
+function validatePositiveInteger(
+  prop: string,
+  value?: number | null
+): string | null {
+
+  if (value && (Number.isInteger(value) && value < 0)) {
+    return `${prop} must be a positive integer, but was ${value}`;
+  }
+  return null;
 }
 
-export class Options {
+function definedOrNull<T>(arg: T | undefined | null): T | null {
+  return arg == null ? null : arg;
+}
+
+function definedOrDefault<T>(arg: T | undefined | null, def: T): T {
+  return arg == null ? def : arg;
+}
+
+export class Options implements DolosOptions {
 
   public static defaultDirectory = false;
   public static defaultKmerLength = 50;
@@ -40,11 +64,28 @@ export class Options {
     if (custom !== undefined) {
       this.custom = custom ;
     }
+
+    const errors = [
+      validatePercentage("minSimilarity", this.minSimilarity),
+      validatePercentage("maxHashPercentage", this.maxHashPercentage),
+      validatePositiveInteger("maxGapSize", this.maxGapSize),
+      validatePositiveInteger("minFragmentLength", this.minFragmentLength),
+      validatePositiveInteger("maxHashCount", this.maxHashCount),
+      validatePositiveInteger("limitResults", this.limitResults),
+      validatePositiveInteger("kmerLength", this.kmerLength),
+      validatePositiveInteger("kmersInWindow", this.kmersInWindow),
+    ].filter(err => err !== null);
+
+    if (errors.length > 0) {
+      throw new Error(
+        `The following options are invalid:\n${errors.join("\n")}`
+      );
+    }
     Object.freeze(this);
   }
 
-  get limitResults(): number | undefined {
-    return this.custom.limitResults;
+  get limitResults(): number | null {
+    return definedOrNull(this.custom.limitResults);
   }
 
   get language(): string {
@@ -74,12 +115,12 @@ export class Options {
     return this.custom.maxHashCount === undefined;
   }
 
-  get maxHashCount(): number | undefined {
-    return this.custom.maxHashCount;
+  get maxHashCount(): number | null {
+    return definedOrNull(this.custom.maxHashCount);
   }
 
-  get maxHashPercentage(): number | undefined {
-    return this.custom.maxHashPercentage;
+  get maxHashPercentage(): number | null {
+    return definedOrNull(this.custom.maxHashPercentage);
   }
 
   get comment(): string | null {

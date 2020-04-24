@@ -49,7 +49,7 @@ program
       "filtered out. This option has precedence over the -M option, " +
       "which is set to 0.9 by default."
     ),
-    x => parseInt(x, 10)
+    x => parseFloat(x)
   )
   .option(
     "-M --maximum-hashing-percentage <fraction>",
@@ -81,7 +81,7 @@ program
       "Specifies how many matching file pairs are shown in the result. " +
       "All pairs are shown when this option is omitted."
     ),
-    x => parseInt(x, 10)
+    x => parseFloat(x)
   )
   .option(
     "-s, --minimum-fragment-length <integer>",
@@ -89,7 +89,7 @@ program
       "The minimum length of a fragment. Every fragment shorter than this is " +
       "filtered out."
     ),
-    x => parseInt(x, 10),
+    x => parseFloat(x),
     Options.defaultMinFragmentLength
   )
   .option(
@@ -99,8 +99,7 @@ program
       "Must be a value between 0 and 1",
       Options.defaultMinSimilarity,
     ),
-    x => parseInt(x, 10),
-    Options.defaultMinFragmentLength
+    x => parseFloat(x),
   )
   .option(
     "-g, --maximum-gap-size <integer>",
@@ -110,7 +109,7 @@ program
       "number of lines.",
       Options.defaultMaxGapSize
     ),
-    x => parseInt(x, 10),
+    x => parseFloat(x),
     Options.defaultMaxGapSize
   )
   .option(
@@ -128,13 +127,13 @@ program
       "together",
       Options.defaultClusterMinMatches
     ),
-    x => parseInt(x, 10),
+    x => parseFloat(x),
     Options.defaultClusterMinMatches
   )
   .option(
     "-k, --kmer-length <integer>",
     Utils.indent("The length of each k-mer fragment.", Options.defaultKmerLength),
-    x => parseInt(x, 10),
+    x => parseFloat(x),
     Options.defaultKmerLength
   )
   .option(
@@ -143,7 +142,7 @@ program
       "The size of the window that will be used (in kmers).",
       Options.defaultKmerLength
     ),
-    x => parseInt(x, 10),
+    x => parseFloat(x),
     Options.defaultKmerLength
   )
   .arguments("<locations...>")

@@ -68,7 +68,7 @@ export class Analysis {
           s.similarity >= this.options.minSimilarity
         )
         .sort((a, b) => b.overlap - a.overlap) // sort in reversed order
-        .slice(0, this.options.limitResults);  // limit to first n results
+        .slice(0, this.options.limitResults || undefined);  // limit results
     Object.freeze(this);
   }
 
@@ -90,9 +90,9 @@ export class Analysis {
       = new DefaultMap(() => new Map());
 
     let maxFiles: number;
-    if (this.options.maxHashCount !== undefined) {
+    if (this.options.maxHashCount != null) {
       maxFiles = this.options.maxHashCount;
-    } else if (this.options.maxHashPercentage !== undefined) {
+    } else if (this.options.maxHashPercentage != null) {
       maxFiles = this.options.maxHashPercentage * this.files.size;
     } else {
       maxFiles = this.files.size;
