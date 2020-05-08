@@ -13,6 +13,7 @@ export interface DolosOptions {
   maxMatches: number | null;
   minFragmentLength: number;
   minSimilarity: number;
+  sortBy: string | null;
 }
 
 export type CustomOptions = Partial<DolosOptions>;
@@ -57,6 +58,7 @@ export class Options implements DolosOptions {
   public static defaultMinSimilarity = 0;
   public static defaultMaxGapSize = 0;
   public static defaultClusterMinMatches = 15;
+  public static defaultSortBy = "total";
 
   private custom: CustomOptions = {};
 
@@ -154,6 +156,10 @@ export class Options implements DolosOptions {
 
   get maxMatches(): number | null {
     return definedOrNull(this.custom.maxMatches);
+  }
+
+  get sortBy(): string {
+    return definedOrDefault(this.custom.sortBy, Options.defaultSortBy);
   }
 
   public toString(): string {

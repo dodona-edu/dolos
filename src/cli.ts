@@ -121,6 +121,13 @@ program
     "terminal"
   )
   .option(
+    "--sort <field>",
+    Utils.indent(
+      "Which field to sort the results by. Options are: similarity, continuous and total", "total"
+    ),
+    "terminal"
+  )
+  .option(
     "-v, --cluster-cut-off-value <integer>",
     Utils.indent(
       "The minimum amount of lines needed before two files will be clustered " +
@@ -170,6 +177,7 @@ program
         minFragmentLength: program.minimumFragmentLength,
         minSimilarity: program.minimumSimilarity,
         limitResults: program.limit,
+        sortBy: program.sort,
       });
       const analysis = await dolos.analyzePaths(locations);
       const writer = new TerminalWriter(program.compare);

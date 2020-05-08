@@ -55,6 +55,19 @@ export class Analysis {
    */
   public finish(): void {
     assert(this.scored !== null, "this analysis is already finished");
+
+    const sortField = this.options.sortBy;
+    let sortfn: (a: ScoredIntersection, b: ScoredIntersection) => number;
+    if ("total".startsWith(sortField)) {
+      sortfn = (a, b) => b.overlap - a.overlap;
+    } else if ("continuous".startsWith(sortField)) {
+      sortfn = (a, b) => b.longest - a.longest;
+    } else if ("similarity".startsWith(sortField)) {
+      sortfn = (a, b) => b.similarity - a.similarity;
+    } else {
+      throw new Error(`${sortField} is not a valid field to sort on`);
+    }
+
     this.scored =
       this.build()
         .map(intersection => {
@@ -62,12 +75,12 @@ export class Analysis {
           intersection.squash();
           return intersection;
         })
-        .filter(i => i.fragmentCount > 0)    // ignore empty intersections
-        .map(i => this.calculateScore(i))       // calculate their similarity
-        .filter(s =>                            // filter by minimum similarity
+        .filter(i => i.fragmentCount > 0) // ignore empty intersections
+        .map(i => this.calculateScore(i)) // calculate their similarity
+        .filter(s =>                      // filter by minimum similarity
           s.similarity >= this.options.minSimilarity
         )
-        .sort((a, b) => b.overlap - a.overlap) // sort in reversed order
+        .sort(sortfn) // sort by desired field (in reversed order)
         .slice(0, this.options.limitResults || undefined);  // limit results
     Object.freeze(this);
   }
