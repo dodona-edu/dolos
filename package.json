@@ -27,7 +27,7 @@
     "eslint": "^6.8.0",
     "nyc": "^15.0.1",
     "ts-node": "^8.9.1",
-    "typescript": "^3.8.2"
+    "typescript": "^3.9.3"
   },
   "dependencies": {
     "chalk": "^4.0.0",
