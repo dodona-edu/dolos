@@ -7,7 +7,7 @@ import { Result } from "./lib/util/result";
 
 export class Dolos {
 
-  private readonly options: Options;
+  readonly options: Options;
   private readonly tokenizer: CodeTokenizer;
   private readonly comparison: Comparison;
 

@@ -1,23 +1,27 @@
 import { Selection } from "../util/selection";
+import { Presenter } from "./presenter";
 import { Analysis, ScoredIntersection } from "../analyze/analysis";
 
 /// <reference types="../../../typings/cliui" />
 import UI from "cliui";
 import chalk from "chalk";
 import { Writable } from "stream";
+import { Options } from "../util/options";
 
-export class TerminalWriter {
+export class TerminalPresenter extends Presenter {
 
   private ui: UI;
   private readonly width: number;
   private readonly c: chalk.Chalk;
 
   constructor(
+    options: Options,
     private readonly compare?: boolean,
     private readonly output: Writable = process.stdout,
     width?: number,
     private readonly context: number = 3,
   ) {
+    super(options);
     let colorLevel = 0;
     if (output == process.stdout) {
       this.width = width || process.stdout.columns;
@@ -36,7 +40,7 @@ export class TerminalWriter {
     });
   }
 
-  public write(analysis: Analysis): void {
+  public async present(analysis: Analysis): Promise<void> {
     const intersections = analysis.scoredIntersections;
     if (this.compare || (this.compare == null && intersections.length == 1)) {
       intersections.map(int => this.writeIntersectionWithComparison(int));

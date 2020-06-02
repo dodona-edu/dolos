@@ -4,7 +4,7 @@ import * as Utils from "./lib/util/utils";
 import { Command } from "commander";
 import { Dolos } from "./dolos";
 import { Options } from "./lib/util/options";
-import { TerminalWriter } from "./lib/writer/terminalWriter";
+import { TerminalPresenter } from "./lib/writer/terminalPresenter";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const pkg = require("../package.json");
@@ -180,7 +180,7 @@ program
         sortBy: program.sort,
       });
       const analysis = await dolos.analyzePaths(locations);
-      const writer = new TerminalWriter(program.compare);
+      const writer = new TerminalPresenter(dolos.options, program.compare);
       writer.write(analysis);
     } catch (error) {
       console.error(Utils.colour("red", error.stack));

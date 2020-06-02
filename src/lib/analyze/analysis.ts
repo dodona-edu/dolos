@@ -158,5 +158,4 @@ export class Analysis {
       similarity: (leftCovered + rightCovered) / (leftTotal + rightTotal)
     };
   }
-
 }
