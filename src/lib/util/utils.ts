@@ -75,11 +75,11 @@ export function indent(
   return lines.join("\n".padEnd(indentLength, " "));
 }
 
-export function closestMatch<T extends string>(input: string, options: T[]): T{
-  for(const option in options) {
-    if(option.startsWith(input)) {
-      return option;
+export function closestMatch<V>(input: string, options: {[key: string]: V}): V | null {
+  for(const key of Object.keys(options)) {
+    if(key.startsWith(input)) {
+      return options[key];
     }
   }
-  return options[0];
+  return null;
 }

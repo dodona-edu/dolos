@@ -7,6 +7,7 @@ import { Match, Side } from "./match";
 import { Range } from "../util/range";
 import { Options } from "../util/options";
 import { SharedKmer } from "./sharedKmer";
+import { closestMatch } from "../util/utils";
 
 type Hash = number;
 
@@ -56,16 +57,15 @@ export class Analysis {
   public finish(): void {
     assert(this.scored !== null, "this analysis is already finished");
 
-    const sortField = this.options.sortBy;
-    let sortfn: (a: ScoredIntersection, b: ScoredIntersection) => number;
-    if ("total".startsWith(sortField)) {
-      sortfn = (a, b) => b.overlap - a.overlap;
-    } else if ("continuous".startsWith(sortField)) {
-      sortfn = (a, b) => b.longest - a.longest;
-    } else if ("similarity".startsWith(sortField)) {
-      sortfn = (a, b) => b.similarity - a.similarity;
-    } else {
-      throw new Error(`${sortField} is not a valid field to sort on`);
+    type SortFn = (a: ScoredIntersection, b: ScoredIntersection) => number;
+    const sortfn = closestMatch<SortFn>(this.options.sortBy, {
+      "total": (a, b) => b.overlap - a.overlap,
+      "continuous": (a, b) => b.longest - a.longest,
+      "similarity": (a, b) => b.similarity - a.similarity,
+    });
+
+    if(sortfn === null) {
+      throw new Error(`${this.options.sortBy} is not a valid field to sort on`);
     }
 
     this.scored =

@@ -4,7 +4,9 @@ import * as Utils from "./lib/util/utils";
 import { Command } from "commander";
 import { Dolos } from "./dolos";
 import { Options } from "./lib/util/options";
-import { TerminalPresenter } from "./lib/writer/terminalPresenter";
+import { TerminalPresenter } from "./lib/presenter/terminalPresenter";
+import { closestMatch } from "./lib/util/utils";
+import { HtmlPresenter } from "./lib/presenter/htmlPresenter";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const pkg = require("../package.json");
@@ -67,8 +69,8 @@ program
   .option(
     "-c --compare",
     Utils.indent(
-      "Print a comparison of the matches even if analysiing more than two " +
-      "files. Only valid when the output is set to terminal."
+      "Print a comparison of the matches even if analysing more than two " +
+      "files. Only valid when the output is set to 'terminal'."
     )
   )
   .option(
@@ -125,7 +127,7 @@ program
     Utils.indent(
       "Which field to sort the results by. Options are: similarity, continuous and total", "total"
     ),
-    "terminal"
+    "total"
   )
   .option(
     "-v, --cluster-cut-off-value <integer>",
@@ -180,8 +182,19 @@ program
         sortBy: program.sort,
       });
       const analysis = await dolos.analyzePaths(locations);
-      const writer = new TerminalPresenter(dolos.options, program.compare);
-      writer.write(analysis);
+
+      const presenter = closestMatch(program.outputFormat, {
+        "terminal": () => new TerminalPresenter(dolos.options, program.compare),
+        "console" : () => new TerminalPresenter(dolos.options, program.compare),
+        "html": () => new HtmlPresenter(dolos.options),
+        "web": () => new HtmlPresenter(dolos.options),
+      });
+
+      if(presenter == null) {
+        throw new Error(`Invalid output format: ${program.format}`);
+      }
+
+      await presenter().present(analysis);
     } catch (error) {
       console.error(Utils.colour("red", error.stack));
       process.exit(1);

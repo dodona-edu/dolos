@@ -20,6 +20,7 @@
   "license": "MIT",
   "private": false,
   "devDependencies": {
+    "@types/express": "^4.17.6",
     "@types/node": "^13.13.4",
     "@typescript-eslint/eslint-plugin": "^2.31.0",
     "@typescript-eslint/parser": "^2.31.0",
@@ -33,6 +34,7 @@
     "chalk": "^4.0.0",
     "cliui": "^6.0.0",
     "commander": "^5.1.0",
+    "express": "^4.17.1",
     "nprime": "^0.2.1",
     "tree-sitter": "^0.16.1",
     "tree-sitter-c-sharp": "^0.16.1",
