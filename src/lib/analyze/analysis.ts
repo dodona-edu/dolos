@@ -68,20 +68,33 @@ export class Analysis {
       throw new Error(`${this.options.sortBy} is not a valid field to sort on`);
     }
 
-    this.scored =
-      this.build()
-        .map(intersection => {
-          intersection.removeSmallerThan(this.options.minFragmentLength),
-          intersection.squash();
-          return intersection;
-        })
-        .filter(i => i.fragmentCount > 0) // ignore empty intersections
-        .map(i => this.calculateScore(i)) // calculate their similarity
-        .filter(s =>                      // filter by minimum similarity
-          s.similarity >= this.options.minSimilarity
-        )
-        .sort(sortfn) // sort by desired field (in reversed order)
-        .slice(0, this.options.limitResults || undefined);  // limit results
+    console.log(`Combining ${ this.kmers.size } into intersections.`);
+    let ints = this.build();
+    console.log(`Cleaning ${ ints.length} intersections.`);
+    ints = ints.map(intersection => {
+      intersection.removeSmallerThan(this.options.minFragmentLength);
+      intersection.squash();
+      return intersection;
+    });
+
+    console.log("Filtering intersections.");
+    ints = ints.filter(i => i.fragmentCount > 0); // ignore empty intersections;
+
+    console.log(`Calculating the score of ${ ints.length } intersections.`);
+    this.scored = ints.map(i => this.calculateScore(i)) // calculate their similarity
+
+    console.log("Filtering by minimum similarity.");
+    this.scored = this.scored.filter(s =>                      // filter by minimum similarity
+      s.similarity >= this.options.minSimilarity
+    );
+
+    console.log(`Sorting ${ this.scored } intersections.`)
+    this.scored.sort(sortfn) // sort by desired field (in reversed order);
+
+    console.log(`Limiting to ${ this.options.limitResults || +Infinity } results.`);
+    this.scored = this.scored.slice(0, this.options.limitResults || undefined);  // limit results
+
+    console.log("Finalised. Freezing Analysis object.");
     Object.freeze(this);
   }
 
