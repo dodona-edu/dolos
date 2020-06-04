@@ -20,11 +20,13 @@
   "license": "MIT",
   "private": false,
   "devDependencies": {
+    "@types/benchmark": "^1.0.33",
     "@types/express": "^4.17.6",
     "@types/node": "^13.13.4",
     "@typescript-eslint/eslint-plugin": "^2.31.0",
     "@typescript-eslint/parser": "^2.31.0",
     "ava": "^3.8.2",
+    "benchmark": "^2.1.4",
     "eslint": "^6.8.0",
     "nyc": "^15.0.1",
     "ts-node": "^8.9.1",
