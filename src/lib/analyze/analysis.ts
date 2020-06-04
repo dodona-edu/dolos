@@ -7,7 +7,7 @@ import { Match, Side } from "./match";
 import { Range } from "../util/range";
 import { Options } from "../util/options";
 import { SharedKmer } from "./sharedKmer";
-import { closestMatch } from "../util/utils";
+import { closestMatch, info } from "../util/utils";
 
 type Hash = number;
 
@@ -68,33 +68,36 @@ export class Analysis {
       throw new Error(`${this.options.sortBy} is not a valid field to sort on`);
     }
 
-    console.log(`Combining ${ this.kmers.size } into intersections.`);
+    info(`Combining ${ this.kmers.size } shared kmers into intersections.`);
     let ints = this.build();
-    console.log(`Cleaning ${ ints.length} intersections.`);
+
+    info(`Cleaning ${ ints.length} intersections.`);
     ints = ints.map(intersection => {
       intersection.removeSmallerThan(this.options.minFragmentLength);
       intersection.squash();
       return intersection;
     });
 
-    console.log("Filtering intersections.");
-    ints = ints.filter(i => i.fragmentCount > 0); // ignore empty intersections;
+    info("Filtering intersections.");
+    ints = ints.filter(i => i.fragmentCount > 0);
 
-    console.log(`Calculating the score of ${ ints.length } intersections.`);
-    this.scored = ints.map(i => this.calculateScore(i)) // calculate their similarity
+    info(`Calculating the score of ${ ints.length } intersections.`);
+    this.scored = ints.map(i => this.calculateScore(i));
 
-    console.log("Filtering by minimum similarity.");
-    this.scored = this.scored.filter(s =>                      // filter by minimum similarity
+    info(`Keeping intersections with similarity >= ${ this.options.minSimilarity }`);
+    this.scored = this.scored.filter(s =>
       s.similarity >= this.options.minSimilarity
     );
 
-    console.log(`Sorting ${ this.scored } intersections.`)
-    this.scored.sort(sortfn) // sort by desired field (in reversed order);
+    info(`Sorting ${ this.scored.length } intersections.`);
+    this.scored.sort(sortfn);
 
-    console.log(`Limiting to ${ this.options.limitResults || +Infinity } results.`);
-    this.scored = this.scored.slice(0, this.options.limitResults || undefined);  // limit results
+    if(this.options.limitResults) {
+      console.error(`Limiting to ${ this.options.limitResults } results.`);
+      this.scored = this.scored.slice(0, this.options.limitResults);
+    }
 
-    console.log("Finalised. Freezing Analysis object.");
+    info("Freezing analysis object.");
     Object.freeze(this);
   }
 

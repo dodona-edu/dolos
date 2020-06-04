@@ -5,7 +5,7 @@ import { Command } from "commander";
 import { Dolos } from "./dolos";
 import { Options } from "./lib/util/options";
 import { TerminalPresenter } from "./lib/presenter/terminalPresenter";
-import { closestMatch } from "./lib/util/utils";
+import { closestMatch, error, setLogging, warning } from "./lib/util/utils";
 import { HtmlPresenter } from "./lib/presenter/htmlPresenter";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -13,10 +13,15 @@ const pkg = require("../package.json");
 const program = new Command();
 
 
-program.version(pkg.version, "-v", "Output the current version.")
+program.version(pkg.version, "-v --version", "Output the current version.")
   .description("Plagiarism detection for programming exercises");
 
 program
+  .option(
+    "-V, --verbose",
+    Utils.indent("Enable verbose logging."),
+    false
+  )
   .option(
     "-l, --language <language>",
     Utils.indent(
@@ -156,11 +161,14 @@ program
   )
   .arguments("<locations...>")
   .action(async locations => {
+    if(program.verbose){
+      setLogging("info");
+    }
+
     if (locations.length < 3 && program.maximumHashPercentage) {
-      console.error(Utils.colour("yellow",
-        "You have given a maximum hash percentage (with -M), but you are" +
-        "comparing less than three files so matching hash will occur in 100% " +
-        "of the files. You might not want to use this option."));
+      warning("You have given a maximum hash percentage (with -M), but " +
+        "you are comparing less than three files so matching hash will occur " +
+        "in 100% of the files. You might not want to use this option.");
     }
 
     try {
@@ -195,8 +203,8 @@ program
       }
 
       await presenter().present(analysis);
-    } catch (error) {
-      console.error(Utils.colour("red", error.stack));
+    } catch (err) {
+      error(err.stack);
       process.exit(1);
     }
   })

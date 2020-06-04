@@ -1,2 +1,2 @@
 #!/bin/sh
-yarn run start $@
+node --max-old-space-size="$(( 1024 * 4 ))" ./dist/cli.js $@

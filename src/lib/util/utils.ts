@@ -2,7 +2,7 @@
  * This module contains shared helper functions.
  */
 
-export type Colour = "red" | "green" | "yellow" | "reset";
+export type Colour = "red" | "green" | "yellow" | "blue" | "reset";
 
 /**
  * Helper function to convert a Colour 'enum' into its ANSI escape sequence.
@@ -12,16 +12,17 @@ function escapeSeq(c: Colour): string {
   case "red": return "\u001b[31m";
   case "green": return "\u001b[32m";
   case "yellow": return "\u001b[33m";
+  case "blue": return "\u001b[34m";
   case "reset": return "\u001b[0m";
   }
 }
 
 /**
  * Colours your text with the given colour. Only works for terminal output.
- * @param colour The colour you want your text to be.
+ * @param c The colour you want your text to be.
  * @param text The text you want to colour.
  */
-export function colour(c: Colour, text: string): string {
+export function colour(c: Colour, text: unknown): string {
   return `${escapeSeq(c)}${text}${escapeSeq("reset")}`;
 }
 
@@ -83,3 +84,46 @@ export function closestMatch<V>(input: string, options: {[key: string]: V}): V |
   }
   return null;
 }
+
+
+type LogLevelName = "info" | "warning" | "error";
+
+const logLevel = {
+  "info": 3,
+  "warning": 2,
+  "error": 1,
+}
+
+const logColor: {[level: string]: Colour} = {
+  "info": "blue",
+  "warning": "yellow",
+  "error": "red",
+}
+
+let currentLogLevel: number = logLevel["warning"];
+
+export function setLogging(level: LogLevelName): void {
+  currentLogLevel = logLevel[level];
+}
+
+export function log(level: LogLevelName, msg: unknown, ...other: unknown[]): void {
+  if (logLevel[level] <= currentLogLevel) {
+    console.error(colour(logColor[level], `[${ level }]`) + ` ${ msg }`, ...other);
+  }
+}
+
+export function info(msg: unknown, ...other: unknown[]): void {
+  log("info",msg, ...other);
+}
+
+export function warning(msg: unknown, ...other: unknown[]): void {
+  log("warning", msg, ...other);
+}
+
+export function error(msg: unknown, ...other: unknown[]): void {
+  log("error", msg, ...other);
+}
+
+
+
+

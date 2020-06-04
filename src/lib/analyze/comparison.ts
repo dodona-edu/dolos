@@ -7,6 +7,7 @@ import { Tokenizer } from "../tokenizer/tokenizer";
 import { WinnowFilter } from "../hashing/winnowFilter";
 import { File } from "../file/file";
 import { Analysis, FilePart } from "./analysis";
+import { info } from "../util/utils";
 
 type Hash = number;
 
@@ -27,6 +28,7 @@ export class Comparison {
    * After creation, first add files to the index which can then be queried.
    *
    * @param tokenizer A tokenizer for the correct programming language
+   * @param options An object with the current options.
    * @param hashFilter An optional HashFilter to hashing the hashes returned by
    * the rolling hashing function.
    */
@@ -59,12 +61,13 @@ export class Comparison {
     files: File[],
     hashFilter = this.hashFilter
   ): Promise<Analysis> {
-    console.log(`Tokenizing ${ files.length} files`);
+
+    info(`Tokenizing ${ files.length} files`);
     const tokenizedFiles = files.map(f => this.tokenizer.tokenizeFile(f));
     const analysis = new Analysis(this.options, tokenizedFiles);
 
     for (const file of tokenizedFiles) {
-      console.log(`Processing file ${file.path}`);
+      info(`Processing file ${file.path}`);
       let kmer = 0;
       for await (
         const { data, hash, start, stop  }
@@ -113,9 +116,9 @@ export class Comparison {
         kmer += 1;
       }
     }
-    console.log("Finishing analysis.");
+    info("Finishing analysis.");
     analysis.finish();
-    console.log("Done.");
+    info("Done.");
     return analysis;
   }
 

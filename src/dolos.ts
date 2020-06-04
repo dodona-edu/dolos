@@ -4,6 +4,7 @@ import { CustomOptions, Options } from "./lib/util/options";
 import { CodeTokenizer } from "./lib/tokenizer/codeTokenizer";
 import { File } from "./lib/file/file";
 import { Result } from "./lib/util/result";
+import { info } from "./lib/util/utils";
 
 export class Dolos {
 
@@ -18,8 +19,8 @@ export class Dolos {
   }
 
   public async analyzePaths(paths: string[]): Promise<Analysis> {
-    console.log("=== Starting analysis ===");
-    console.log(`Reading ${ paths.length} files`);
+    info("=== Starting analysis ===");
+    info(`Reading ${ paths.length} files`);
     const files = await Result.all(paths.map(File.fromPath));
     return this.analyze(files.ok());
   }
