@@ -59,12 +59,12 @@ export class Comparison {
     files: File[],
     hashFilter = this.hashFilter
   ): Promise<Analysis> {
-
+    console.log(`Tokenizing ${ files.length} files`);
     const tokenizedFiles = files.map(f => this.tokenizer.tokenizeFile(f));
     const analysis = new Analysis(this.options, tokenizedFiles);
 
     for (const file of tokenizedFiles) {
-
+      console.log(`Processing file ${file.path}`);
       let kmer = 0;
       for await (
         const { data, hash, start, stop  }
@@ -113,7 +113,9 @@ export class Comparison {
         kmer += 1;
       }
     }
+    console.log("Finishing analysis.");
     analysis.finish();
+    console.log("Done.");
     return analysis;
   }
 
