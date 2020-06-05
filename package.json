@@ -5,7 +5,7 @@
   "main": "dist/dolos.js",
   "bin": "dist/cli.js",
   "scripts": {
-    "start": "tsc && node dist/cli.js",
+    "dolos": "tsc && node dist/cli.js",
     "debug": "tsc && node inspect dist/cli.js",
     "hash": "tsc && node dist/bin/hash.js",
     "test-hash-performance": "tsc && time head -c 1000000 /dev/random | node dist/bin/hash.js > /dev/null",
@@ -13,13 +13,18 @@
     "test": "nyc ava",
     "test:watch": "ava --watch",
     "build": "tsc",
-    "lint": "eslint --ext .ts src/"
+    "lint": "eslint --ext .ts src/",
+    "view:host": "sirv dist/view",
+    "view:dev": "rollup -c -w",
+    "view:build": "rollup -c"
   },
   "repository": "git@github.com:dodona-edu/dolos.git",
   "author": "Bart Mesuere <Bart.Mesuere@UGent.be>",
   "license": "MIT",
   "private": false,
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^13.0.0",
+    "@rollup/plugin-node-resolve": "^8.0.1",
     "@types/benchmark": "^1.0.33",
     "@types/express": "^4.17.6",
     "@types/node": "^13.13.4",
@@ -29,6 +34,13 @@
     "benchmark": "^2.1.4",
     "eslint": "^6.8.0",
     "nyc": "^15.0.1",
+    "rollup": "^2.13.1",
+    "rollup-plugin-copy": "^3.3.0",
+    "rollup-plugin-livereload": "^1.3.0",
+    "rollup-plugin-svelte": "^5.2.2",
+    "rollup-plugin-terser": "^6.1.0",
+    "sirv-cli": "^0.4.6",
+    "svelte": "^3.23.0",
     "ts-node": "^8.9.1",
     "typescript": "^3.8.2"
   },
