@@ -56,8 +56,6 @@ async function setup(): Promise<Hash[]> {
 
   const done = new Promise((r, e) => {
     suite.on("complete", function () {
-      // @ts-ignore
-      console.log("Fastest is " + this.filter("fastest").map("name"));
       r();
     });
     suite.on("error", e);
