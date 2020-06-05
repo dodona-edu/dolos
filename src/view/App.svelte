@@ -1,10 +1,16 @@
 <script>
-	export let name;
+	const promise = fetch("/data/info.json").then(async response => {
+		const data = await response.json();
+		return data["count"];
+	});
 </script>
 
 <main>
-	<h1>Hello {name}!</h1>
-	<p>Visit the <a href="https://svelte.dev/tutorial">Svelte tutorial</a> to learn how to build Svelte apps.</p>
+	{#await promise }
+	<h1>Loading...</h1>
+	{:then count }
+	<h1>Dolos found { count } results.</h1>
+	{/await}
 </main>
 
 <style>
