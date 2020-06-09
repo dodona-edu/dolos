@@ -16,6 +16,7 @@
                 "error",
             { "allowExpressions": true }
             ],
+            "@typescript-eslint/ban-ts-ignore": "off",
             "@typescript-eslint/no-parameter-properties": "off",
             "arrow-parens": ["error", "as-needed"],
             "comma-dangle": ["error", {

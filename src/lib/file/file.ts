@@ -1,12 +1,13 @@
 import { Result } from "../util/result";
 import { default as fsWithCallbacks } from "fs";
+import Identifiable from "../util/identifiable";
 const fs = fsWithCallbacks.promises;
 
 /**
  * Contains the content of a file, does not need to be backed by an actual file
  * (so it can be used to stub files in the tests).
  */
-export class File {
+export class File extends Identifiable {
 
   public readonly charCount: number;
   public readonly lineCount: number;
@@ -52,6 +53,7 @@ export class File {
     public readonly path: string,
     content: string
   ) {
+    super();
     this.charCount = content.length;
     this.lines = content.split("\n");
     this.lineCount = this.lines.length;

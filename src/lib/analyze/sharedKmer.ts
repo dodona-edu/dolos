@@ -1,8 +1,9 @@
 import { FilePart } from "./analysis";
 import { DefaultMap } from "../util/defaultMap";
 import { TokenizedFile } from "../file/tokenizedFile";
+import Identifiable from "../util/identifiable";
 
-export class SharedKmer {
+export class SharedKmer extends Identifiable {
 
   private partMap: DefaultMap<TokenizedFile, Set<FilePart>>
     = new DefaultMap(() => new Set());
@@ -10,7 +11,7 @@ export class SharedKmer {
   constructor(
     public readonly hash: number,
     public readonly kmer: string,
-  ) { }
+  ) { super() }
 
   public add(part: FilePart): void {
     this.partMap.get(part.file).add(part);

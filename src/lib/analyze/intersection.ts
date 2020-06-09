@@ -2,6 +2,7 @@ import { Range } from "../util/range";
 import { Match } from "./match";
 import { Fragment } from "./fragment";
 import { TokenizedFile } from "../file/tokenizedFile";
+import Identifiable from "../util/identifiable";
 
 type LeftRight = string;
 
@@ -9,7 +10,7 @@ type LeftRight = string;
  * This class represents all the fragments between two files (i.e. the
  * intersection of their hashes).
  */
-export class Intersection {
+export class Intersection extends Identifiable {
 
   private fragmentStart: Map<LeftRight, Fragment> = new Map();
   private fragmentEnd: Map<LeftRight, Fragment> = new Map();
@@ -17,8 +18,7 @@ export class Intersection {
   constructor(
     public readonly leftFile: TokenizedFile,
     public readonly rightFile: TokenizedFile
-  ) {
-  }
+  ) { super() }
 
   get fragmentCount(): number {
     return this.fragmentStart.size;

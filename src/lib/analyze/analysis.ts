@@ -32,13 +32,13 @@ export class Analysis {
   // collection of all shared kmers
   private kmers: Map<Hash, SharedKmer> = new Map();
 
-  private files: Set<TokenizedFile>;
+  private fileSet: Set<TokenizedFile>;
 
   constructor(
     public readonly options: Options,
     files: TokenizedFile[],
   ) {
-    this.files = new Set(files);
+    this.fileSet = new Set(files);
   }
 
   public addMatches(hash: Hash, ...parts: Array<FilePart>): void {
@@ -110,6 +110,10 @@ export class Analysis {
     }
   }
 
+  public sharedKmers(): Array<SharedKmer> {
+    return Array.of(...this.kmers.values());
+  }
+
   /**
    * Combining all shared kmers and build intersections
    */
@@ -122,9 +126,9 @@ export class Analysis {
     if (this.options.maxHashCount != null) {
       maxFiles = this.options.maxHashCount;
     } else if (this.options.maxHashPercentage != null) {
-      maxFiles = this.options.maxHashPercentage * this.files.size;
+      maxFiles = this.options.maxHashPercentage * this.fileSet.size;
     } else {
-      maxFiles = this.files.size;
+      maxFiles = this.fileSet.size;
     }
 
     const filteredKmers = Array.of(...this.kmers.values())
@@ -158,6 +162,10 @@ export class Analysis {
     return Array.of(...intersections.values())
       .map(m => Array.of(...m.values()))
       .flat();
+  }
+
+  public files(): TokenizedFile[] {
+    return Array.of(...this.fileSet);
   }
 
 

@@ -1,12 +1,20 @@
 <script>
-	const promise = fetch("/data/info.json").then(async response => {
-		const data = await response.json();
-		return data["count"];
+	const infoReq = fetch("/data/analysis.json").then(async response => {
+		return await response.json();
+	});
+	const intersectionsReq = fetch("/data/intersections.csv").then(async response => {
+		return await response.body.getReader().read();
+	});
+	const filesReq = fetch("/data/files.csv").then(async response => {
+		return await response.body.getReader().read();
+	});
+	const kmersReq = fetch("/data/sharedKmers.csv").then(async response => {
+		return await response.body.getReader().read();
 	});
 </script>
 
 <main>
-	{#await promise }
+	{#await info }
 	<h1>Loading...</h1>
 	{:then count }
 	<h1>Dolos found { count } results.</h1>
