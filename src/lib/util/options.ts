@@ -168,8 +168,8 @@ export class Options implements DolosOptions {
     return definedOrDefault(this.custom.sortBy, Options.defaultSortBy);
   }
 
-  public toString(): string {
-    return JSON.stringify({
+  public asObject(): DolosOptions {
+    return {
       base: this.base,
       clusterMinMatches: this.clusterMinMatches,
       comment: this.comment,
@@ -178,12 +178,18 @@ export class Options implements DolosOptions {
       kmersInWindow: this.kmersInWindow,
       language: this.language,
       maxGapSize: this.maxGapSize,
-      maxHashCount: this.custom.maxHashCount,
-      maxHashPercentage: this.filterByPercentage
-        ? this.maxHashPercentage
-        : undefined,
+      maxHashCount: this.custom.maxHashCount || null,
+      maxHashPercentage: this.maxHashPercentage,
       maxMatches: this.maxMatches,
       minFragmentLength: this.minFragmentLength,
-    });
+      limitResults: this.limitResults,
+      localPort: this.localPort,
+      minSimilarity: this.minSimilarity,
+      sortBy: this.sortBy,
+    };
+  }
+
+  public toString(): string {
+    return JSON.stringify(this.asObject());
   }
 }

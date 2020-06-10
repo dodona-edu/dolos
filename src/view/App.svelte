@@ -1,23 +1,23 @@
 <script>
-	const infoReq = fetch("/data/analysis.json").then(async response => {
-		return await response.json();
+	const metadataReq = fetch("/data/metadata.csv").then(async response => {
+		return await response.text();
 	});
 	const intersectionsReq = fetch("/data/intersections.csv").then(async response => {
-		return await response.body.getReader().read();
+		return await response.text();
 	});
 	const filesReq = fetch("/data/files.csv").then(async response => {
-		return await response.body.getReader().read();
+		return await response.text();
 	});
 	const kmersReq = fetch("/data/sharedKmers.csv").then(async response => {
-		return await response.body.getReader().read();
+		return await response.text();
 	});
 </script>
 
 <main>
-	{#await info }
+	{#await intersectionsReq }
 	<h1>Loading...</h1>
-	{:then count }
-	<h1>Dolos found { count } results.</h1>
+	{:then intersections }
+	<h1>Dolos found { intersections.split("\n").length } results.</h1>
 	{/await}
 </main>
 

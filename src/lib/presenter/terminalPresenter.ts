@@ -15,13 +15,14 @@ export class TerminalPresenter extends Presenter {
   private readonly c: chalk.Chalk;
 
   constructor(
+    analysis: Analysis,
     options: Options,
     private readonly compare?: boolean,
     private readonly output: Writable = process.stdout,
     width?: number,
     private readonly context: number = 3,
   ) {
-    super(options);
+    super(analysis, options);
     let colorLevel = 0;
     if (output == process.stdout) {
       this.width = width || process.stdout.columns;
@@ -40,8 +41,8 @@ export class TerminalPresenter extends Presenter {
     });
   }
 
-  public async present(analysis: Analysis): Promise<void> {
-    const intersections = analysis.scoredIntersections;
+  public async present(): Promise<void> {
+    const intersections = this.analysis.scoredIntersections;
     if (this.compare || (this.compare == null && intersections.length == 1)) {
       intersections.map(int => this.writeIntersectionWithComparison(int));
     } else {

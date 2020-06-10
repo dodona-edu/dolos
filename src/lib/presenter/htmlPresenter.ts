@@ -1,97 +1,29 @@
-import { Presenter } from "./presenter";
-import { Analysis } from "../analyze/analysis";
 import { default as express, Express, RequestHandler } from "express";
 import assert from "assert";
 import * as http from "http";
+import { CsvPresenter } from "./csvPresenter";
+import { Writable } from "stream";
 import path from "path";
-import * as CSV from "csv-string";
-import { PristineInput } from "csv-string/dist/types";
 
-function getCSV<T>(data: T[], extractor: {[field: string]: (obj: T) => PristineInput}): RequestHandler {
-  const keys: string[] = [];
-  const extractors: Array<(obj: T) => PristineInput> = [];
-  Object.entries(extractor).forEach(([key, extractor]) => {keys.push(key); extractors.push(extractor)});
+function respondwithCSV(write: (out: Writable) => void): RequestHandler {
   return ((_req, res) => {
     res.contentType("text/csv");
     res.setHeader("Content-Disposition", "attachment;filename=intersections.csv");
-    res.write(CSV.stringify(keys));
-    for (const datum of data) {
-      res.write(CSV.stringify(extractors.map(e => e(datum))));
-    }
-    res.end();
+    write(res);
   });
 }
 
 
-export class HtmlPresenter extends Presenter {
+export class HtmlPresenter extends CsvPresenter {
 
-  async present(analysis: Analysis): Promise<void> {
-    assert(analysis.scoredIntersections);
+  async present(): Promise<void> {
+    assert(this.analysis.scoredIntersections);
     const app: Express = express();
 
-    const jsonInfo = {
-      options: analysis.options,
-      intersections: analysis.scoredIntersections.map(s => {
-        return {
-          id: s.intersection.id,
-          leftFileId: s.intersection.leftFile.id,
-          rightFileId: s.intersection.rightFile.id,
-          similarity: s.similarity,
-          totalOverlap: s.overlap,
-          continuousOverlap: s.longest,
-          fragmentCount: s.intersection.fragmentCount
-        }
-      })
-    };
-
-    app.get("/data/analysis.json", (_req, res) => {
-      res.json(jsonInfo);
-    });
-
-    app.get("/data/files.csv",
-      getCSV(analysis.files(),
-        {
-          "id": f => f.id,
-          "path": f => f.path,
-          "content": f => f.content,
-          "ast": f => f.ast }
-      ));
-
-    app.get("/data/intersections.csv",
-      getCSV(analysis.scoredIntersections,
-        {
-          "id": s => s.intersection.id,
-          "fragments": s => JSON.stringify(s.intersection.fragments().map(
-            fragment => { return {
-              leftSelection: fragment.leftSelection,
-              rightSelection: fragment.rightSelection,
-              data: fragment.mergedData,
-              matches: fragment.matches.map(match => { return {
-                sharedKmer: match.kmer.id,
-                left: {
-                  start: match.left.start,
-                  stop: match.left.stop,
-                  index: match.left.index,
-                },
-                right: {
-                  start: match.right.start,
-                  stop: match.right.stop,
-                  index: match.right.index,
-                }
-              }})
-            }}))
-        }
-      ));
-
-    app.get("/data/sharedKmers.csv",
-      getCSV(analysis.sharedKmers(), {
-        "id": s => s.id,
-        "hash": s => s.hash,
-        "data": s => s.kmer,
-        "files": s => JSON.stringify(s.files().map(f => f.id))
-      }
-      ));
-
+    app.get("/data/metadata.csv", respondwithCSV(o => this.writeMetadata(o)));
+    app.get("/data/files.csv", respondwithCSV(o => this.writeFiles(o)));
+    app.get("/data/intersections.csv", respondwithCSV(o => this.writeIntersections(o)));
+    app.get("/data/sharedKmers.csv", respondwithCSV(o => this.writeKmers(o)));
 
     app.use(express.static(path.join(__dirname, "..", "..", "view")));
 

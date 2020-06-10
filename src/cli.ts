@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-//import * as NodeUtil from "util";
 import * as Utils from "./lib/util/utils";
 import { Command } from "commander";
 import { Dolos } from "./dolos";
@@ -7,6 +6,7 @@ import { Options } from "./lib/util/options";
 import { TerminalPresenter } from "./lib/presenter/terminalPresenter";
 import { closestMatch, error, setLogging, warning } from "./lib/util/utils";
 import { HtmlPresenter } from "./lib/presenter/htmlPresenter";
+import { CsvPresenter } from "./lib/presenter/csvPresenter";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const pkg = require("../package.json");
@@ -120,10 +120,10 @@ program
     Options.defaultMaxGapSize
   )
   .option(
-    "-o, --output-format <format>",
+    "-f, --output-format <format>",
     Utils.indent(
       "Specifies what format the output should be in, current options are: " +
-      "terminal/console, json, html.", "terminal"
+      "terminal/console, csv, html.", "terminal"
     ),
     "terminal"
   )
@@ -192,17 +192,18 @@ program
       const analysis = await dolos.analyzePaths(locations);
 
       const presenter = closestMatch(program.outputFormat, {
-        "terminal": () => new TerminalPresenter(dolos.options, program.compare),
-        "console" : () => new TerminalPresenter(dolos.options, program.compare),
-        "html": () => new HtmlPresenter(dolos.options),
-        "web": () => new HtmlPresenter(dolos.options),
+        "terminal": () => new TerminalPresenter(analysis, dolos.options, program.compare),
+        "console" : () => new TerminalPresenter(analysis, dolos.options, program.compare),
+        "csv" : () => new CsvPresenter(analysis, dolos.options),
+        "html": () => new HtmlPresenter(analysis, dolos.options),
+        "web": () => new HtmlPresenter(analysis, dolos.options),
       });
 
       if(presenter == null) {
         throw new Error(`Invalid output format: ${program.format}`);
       }
 
-      await presenter().present(analysis);
+      await presenter().present();
     } catch (err) {
       error(err.stack);
       process.exit(1);
