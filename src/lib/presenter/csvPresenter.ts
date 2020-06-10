@@ -23,7 +23,7 @@ export function writeCSVto<T>(
   for(const datum of data) {
     csv.write(extractors.map(e => e(datum)));
   }
-  out.end();
+  csv.end();
 }
 
 export class CsvPresenter extends Presenter {

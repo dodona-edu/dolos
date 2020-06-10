@@ -2,6 +2,7 @@ import svelte from "rollup-plugin-svelte";
 import copy from "rollup-plugin-copy";
 import resolve from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
+import postCss from "rollup-plugin-postcss";
 import livereload from "rollup-plugin-livereload";
 import { terser } from "rollup-plugin-terser";
 
@@ -32,6 +33,14 @@ export default {
       ]
     }),
 
+    postCss({
+      extract: true,
+      minimize: true,
+      use: [
+        ["sass", { includePaths: ["./node_modules", "./src/view"] }]
+      ]
+    }),
+
     // If you have external dependencies installed from
     // npm, you'll most likely need these plugins. In
     // some cases you'll need additional configuration -
@@ -39,13 +48,13 @@ export default {
     // https://github.com/rollup/plugins/tree/master/packages/commonjs
     resolve({
       browser: true,
-      dedupe: ["svelte"]
+      dedupe: i => i === "svelte" || i.startsWith("svelte/")
     }),
     commonjs(),
 
     // In dev mode, call `npm run start` once
     // the bundle has been generated
-    !production && serve(),
+    //!production && serve(),
 
     // Watch the `public` directory and refresh the
     // browser on changes when not in production
@@ -59,20 +68,3 @@ export default {
     clearScreen: false
   }
 };
-
-function serve() {
-  let started = false;
-
-  return {
-    writeBundle() {
-      if (!started) {
-        started = true;
-
-        require("child_process").spawn("yarn", ["run", "view:host", "--", "--dev"], {
-          stdio: ["ignore", "inherit", "inherit"],
-          shell: true
-        });
-      }
-    }
-  };
-}

@@ -1,24 +1,32 @@
 <script>
-	const metadataReq = fetch("/data/metadata.csv").then(async response => {
-		return await response.text();
-	});
-	const intersectionsReq = fetch("/data/intersections.csv").then(async response => {
-		return await response.text();
-	});
-	const filesReq = fetch("/data/files.csv").then(async response => {
-		return await response.text();
-	});
-	const kmersReq = fetch("/data/sharedKmers.csv").then(async response => {
-		return await response.text();
-	});
+	import * as d3 from "d3";
+
+	import { fetchFiles } from "./data.ts";
+	import IntersectionsTable from "./IntersectionsTable.svelte";
+
+	const fileMap = fetchFiles();
+
+	let intersections = [];
+
+	fileMap.then(files => {
+		d3.csv("/data/intersections.csv", row => {
+			intersections.push({
+				leftFile: files[row.leftFileId],
+				rightFile: files[row.rightFileId],
+				...row
+			})
+		});
+	})
+
+
+	//const metadataCSV = d3.csv("/data/metadata.csv");
+
+	//const kmersCSV = d3.csv("/data/sharedKmers.csv");
 </script>
 
 <main>
-	{#await intersectionsReq }
-	<h1>Loading...</h1>
-	{:then intersections }
-	<h1>Dolos found { intersections.split("\n").length } results.</h1>
-	{/await}
+	<h1>Dolos found { intersections.length } results.</h1>
+	<IntersectionsTable intersections={intersections} />
 </main>
 
 <style>
