@@ -1,23 +1,10 @@
-<script>
+<script lang="ts">
 	import * as d3 from "d3";
-
-	import { fetchFiles } from "./data.ts";
+	import Data from "./data";
+    import Test from "./test.svelte";
 	import IntersectionsTable from "./IntersectionsTable.svelte";
 
-	const fileMap = fetchFiles();
-
-	let intersections = [];
-
-	fileMap.then(files => {
-		d3.csv("/data/intersections.csv", row => {
-			intersections.push({
-				leftFile: files[row.leftFileId],
-				rightFile: files[row.rightFileId],
-				...row
-			})
-		});
-	})
-
+	const data = new Data();
 
 	//const metadataCSV = d3.csv("/data/metadata.csv");
 
@@ -25,8 +12,13 @@
 </script>
 
 <main>
-	<h1>Dolos found { intersections.length } results.</h1>
-	<IntersectionsTable intersections={intersections} />
+    <Test />
+	{#await data.intersections() }
+		<h1>Loading data...</h1>
+	{:then intersections }
+		<h1>Dolos found { intersections.length } results.</h1>
+		<IntersectionsTable intersections={intersections} />
+	{/await}
 </main>
 
 <style>

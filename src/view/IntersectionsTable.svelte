@@ -1,4 +1,5 @@
-<script>
+<script lang="ts">
+    /// <reference types="../types/smui-data-table" />
     import DataTable, { Head, Body, Row, Cell } from "@smui/data-table";
     export let intersections;
 </script>

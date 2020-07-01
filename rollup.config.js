@@ -2,6 +2,8 @@ import svelte from "rollup-plugin-svelte";
 import copy from "rollup-plugin-copy";
 import resolve from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
+import typescript from "@rollup/plugin-typescript";
+import sveltePreprocessor from "svelte-preprocess";
 import postCss from "rollup-plugin-postcss";
 import livereload from "rollup-plugin-livereload";
 import { terser } from "rollup-plugin-terser";
@@ -18,20 +20,41 @@ export default {
   },
   plugins: [
     svelte({
+      include: "src/view/**/*.svelte",
       // enable run-time checks when not in production
       dev: !production,
       // we'll extract any component CSS out into
       // a separate file - better for performance
       css: css => {
         css.write("dist/view/build/bundle.css");
-      }
+      },
+      extensions: [".svelte"],
+      preprocess: sveltePreprocessor(),
     }),
+    typescript({
+      tsconfig: "src/view/tsconfig.json",
+      rootDir: "src/view",
+      include: ["src/view"]
+    }),
+
+    // If you have external dependencies installed from
+    // npm, you'll most likely need these plugins. In
+    // some cases you'll need additional configuration -
+    // consult the documentation for details:
+    // https://github.com/rollup/plugins/tree/master/packages/commonjs
+    commonjs({ include: "node_modules/**", extensions: [".js", ".ts"] }),
+    resolve({
+      browser: true,
+      dedupe: i => i === "svelte" || i.startsWith("svelte/")
+    }),
+
 
     copy({
       targets: [
         { src: "src/view/*.{html,css}", dest: "dist/view" }
       ]
     }),
+
 
     postCss({
       extract: true,
@@ -41,16 +64,7 @@ export default {
       ]
     }),
 
-    // If you have external dependencies installed from
-    // npm, you'll most likely need these plugins. In
-    // some cases you'll need additional configuration -
-    // consult the documentation for details:
-    // https://github.com/rollup/plugins/tree/master/packages/commonjs
-    resolve({
-      browser: true,
-      dedupe: i => i === "svelte" || i.startsWith("svelte/")
-    }),
-    commonjs(),
+
 
     // In dev mode, call `npm run start` once
     // the bundle has been generated
