@@ -7,42 +7,15 @@
         },
         "extends": [
             "eslint:recommended",
-        "plugin:@typescript-eslint/eslint-recommended",
-        "plugin:@typescript-eslint/recommended",
+            "plugin:@typescript-eslint/eslint-recommended",
+            "plugin:@typescript-eslint/recommended",
+            "../.eslintrc"
         ],
-        "rules": {
-            "@typescript-eslint/explicit-member-accessibility": "off",
-            "@typescript-eslint/explicit-function-return-type": [
-                "error",
-            { "allowExpressions": true }
-            ],
-            "@typescript-eslint/ban-ts-ignore": "off",
-            "@typescript-eslint/no-parameter-properties": "off",
-            "arrow-parens": ["error", "as-needed"],
-            "comma-dangle": ["error", {
-                "arrays": "only-multiline",
-                "objects": "only-multiline",
-                "imports": "only-multiline",
-                "exports": "only-multiline",
-                "functions": "only-multiline",
-            }],
-            "indent": ["error", 2],
-            "max-len": ["warn", { "code": 80 }],
-            "no-invalid-this": "error",
-            "no-param-reassign": ["error", { "props": false }],
-            "object-curly-spacing": ["error", "always"],
-            "quotes": ["error", "double"],
-            "require-jsdoc": "off",
-            "space-before-function-paren": [
-                "error",
-            { "anonymous": "always", "named": "never", "asyncArrow": "always" }
-            ]
-        },
         "env": {
             "node": true,
-            "es6": true,
+            "es6": true
         },
         "globals": {
             "Promise": "true"
-        },
+        }
 }

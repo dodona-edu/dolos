@@ -4,58 +4,43 @@
       app
       color="primary"
       dark
+      dense
     >
-      <div class="d-flex align-center">
-        <v-img
-          alt="Vuetify Logo"
-          class="shrink mr-2"
-          contain
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-logo-dark.png"
-          transition="scale-transition"
-          width="40"
-        />
-
-        <v-img
-          alt="Vuetify Name"
-          class="shrink mt-1 hidden-sm-and-down"
-          contain
-          min-width="100"
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-name-dark.png"
-          width="100"
-        />
-      </div>
+      <v-toolbar-title>DOLOS</v-toolbar-title>
 
       <v-spacer></v-spacer>
 
       <v-btn
-        href="https://github.com/vuetifyjs/vuetify/releases/latest"
+        href="https://github.com/dodona-edu/dolos"
         target="_blank"
         text
       >
-        <span class="mr-2">Latest Release</span>
-        <v-icon>mdi-open-in-new</v-icon>
+        <v-icon>mdi-github-circle</v-icon>
       </v-btn>
     </v-app-bar>
 
     <v-content>
-      <HelloWorld/>
+      <IntersectionsTable :intersections="intersections" />
     </v-content>
   </v-app>
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import HelloWorld from './components/HelloWorld.vue'
+import { Vue, Component } from "vue-property-decorator";
+import IntersectionsTable from "./components/IntersectionsTable.vue";
 
-export default Vue.extend({
-  name: 'App',
+import { Intersection } from "@/api/api";
 
-  components: {
-    HelloWorld
-  },
-
-  data: () => ({
-    //
-  })
+@Component({
+  components: { IntersectionsTable }
 })
+export default class App extends Vue {
+  created(): void {
+    this.$store.dispatch("loadData");
+  }
+
+  get intersections(): Intersection[] {
+    return this.$store.state.data.intersections;
+  }
+}
 </script>
