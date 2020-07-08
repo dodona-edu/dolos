@@ -3,6 +3,17 @@ module.exports = {
   transpileDependencies: [
     "vuetify"
   ],
+  chainWebpack: config => {
+    config.module.rule("ts").use("ts-loader").tap(options => {
+      options.compiler = "ttypescript";
+      return options;
+    });
+
+    config.module.rule("tsx").use("ts-loader").tap(options => {
+      options.compiler = "ttypescript";
+      return options;
+    });
+  },
   /*
   chainWebpack: config => {
     config.module

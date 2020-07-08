@@ -11,6 +11,9 @@
     "allowSyntheticDefaultImports": true,
     "sourceMap": true,
     "baseUrl": ".",
+    "plugins": [
+      { "transform": "typescript-is/lib/transform-inline/transformer" }
+    ],
     "types": [
       "webpack-env",
       "vuetify"

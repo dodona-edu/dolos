@@ -19,9 +19,18 @@
       </v-btn>
     </v-app-bar>
 
-    <v-content>
-      <IntersectionsTable :intersections="intersections" />
-    </v-content>
+    <v-main>
+      <v-container fluid>
+        <v-row justify="center">
+          <v-col cols="10">
+            <IntersectionsTable
+              :intersections="intersections"
+              :dataLoaded="dataLoaded"
+            />
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-main>
   </v-app>
 </template>
 
@@ -41,6 +50,10 @@ export default class App extends Vue {
 
   get intersections(): Intersection[] {
     return this.$store.state.data.intersections;
+  }
+
+  get dataLoaded(): boolean {
+    return this.$store.state.dataLoaded;
   }
 }
 </script>

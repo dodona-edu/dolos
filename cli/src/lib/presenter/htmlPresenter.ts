@@ -25,7 +25,7 @@ export class HtmlPresenter extends CsvPresenter {
     app.get("/data/intersections.csv", respondwithCSV(o => this.writeIntersections(o)));
     app.get("/data/sharedKmers.csv", respondwithCSV(o => this.writeKmers(o)));
 
-    app.use(express.static(path.join(__dirname, "..", "..", "view")));
+    app.use(express.static(path.join(__dirname, "..", "..", "..", "..", "web", "dist")));
 
     return this.run(app);
   }
