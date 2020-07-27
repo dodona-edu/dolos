@@ -13,8 +13,7 @@ function respondwithCSV(write: (out: Writable) => void): RequestHandler {
   });
 }
 
-
-export class HtmlPresenter extends CsvPresenter {
+export class WebPresenter extends CsvPresenter {
 
   async present(): Promise<void> {
     assert(this.analysis.scoredIntersections);
@@ -23,7 +22,7 @@ export class HtmlPresenter extends CsvPresenter {
     app.get("/data/metadata.csv", respondwithCSV(o => this.writeMetadata(o)));
     app.get("/data/files.csv", respondwithCSV(o => this.writeFiles(o)));
     app.get("/data/intersections.csv", respondwithCSV(o => this.writeIntersections(o)));
-    app.get("/data/sharedKmers.csv", respondwithCSV(o => this.writeKmers(o)));
+    app.get("/data/kmers.csv", respondwithCSV(o => this.writeKmers(o)));
 
     app.use(express.static(path.join(__dirname, "..", "..", "..", "..", "web", "dist")));
 

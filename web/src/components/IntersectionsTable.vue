@@ -14,11 +14,16 @@
     <v-data-table
       :headers="headers"
       :items="items"
+      :must-sort="true"
+      :sort-by="'similarity'"
+      :sort-desc="true"
       :items-per-page="15"
       :search="search"
-      :loading="!dataLoaded"
+      :loading="!loaded"
       class="elevation-1"
-    ></v-data-table>
+      @click:row="rowClicked"
+    >
+    </v-data-table>
   </v-card>
 </template>
 
@@ -28,22 +33,21 @@ import { Intersection } from "@/api/api";
 
 @Component
 export default class IntersectionsTable extends Vue {
-  @Prop() dataLoaded!: boolean;
+  @Prop() loaded!: boolean;
   @Prop() intersections!: Intersection[];
   @Prop({ default: "" }) search!: string;
 
-  get headers(): Array<{text: string; value: string; sortable?: boolean}> {
-    return [
-      { text: "Left file", value: "left", sortable: false },
-      { text: "Right file", value: "right", sortable: false },
-      { text: "Similarity", value: "similarity" },
-      { text: "Continuous overlap", value: "cont" },
-      { text: "Total overlap", value: "total" },
-    ];
-  }
+  headers = [
+    { text: "Left file", value: "left", sortable: false },
+    { text: "Right file", value: "right", sortable: false },
+    { text: "Similarity", value: "similarity" },
+    { text: "Continuous overlap", value: "cont" },
+    { text: "Total overlap", value: "total" },
+  ];
 
   get items(): Array<{left: string; right: string; similarity: string}> {
-    return this.intersections.map(intersection => ({
+    return Object.values(this.intersections).map(intersection => ({
+      intersection,
       left: intersection.leftFile.path,
       right: intersection.rightFile.path,
       similarity: intersection.similarity.toFixed(2),
@@ -51,9 +55,15 @@ export default class IntersectionsTable extends Vue {
       total: intersection.totalOverlap,
     }));
   }
+
+  public rowClicked(item: {intersection: Intersection}): void {
+    this.$router.push(`/compare/${item.intersection.id}`);
+  }
 }
 </script>
 
 <style scoped>
-
+  .v-data-table >>> tr:hover {
+    cursor: pointer;
+  }
 </style>

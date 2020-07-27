@@ -5,7 +5,7 @@ import { Dolos } from "./dolos";
 import { Options } from "./lib/util/options";
 import { TerminalPresenter } from "./lib/presenter/terminalPresenter";
 import { closestMatch, error, setLogging, warning } from "./lib/util/utils";
-import { HtmlPresenter } from "./lib/presenter/htmlPresenter";
+import { WebPresenter } from "./lib/presenter/webPresenter";
 import { CsvPresenter } from "./lib/presenter/csvPresenter";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -195,8 +195,8 @@ program
         "terminal": () => new TerminalPresenter(analysis, dolos.options, program.compare),
         "console" : () => new TerminalPresenter(analysis, dolos.options, program.compare),
         "csv" : () => new CsvPresenter(analysis, dolos.options),
-        "html": () => new HtmlPresenter(analysis, dolos.options),
-        "web": () => new HtmlPresenter(analysis, dolos.options),
+        "html": () => new WebPresenter(analysis, dolos.options),
+        "web": () => new WebPresenter(analysis, dolos.options),
       });
 
       if(presenter == null) {

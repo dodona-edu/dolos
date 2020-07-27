@@ -1,22 +1,23 @@
 import Vue from "vue";
 import VueRouter, { RouteConfig } from "vue-router";
-import Home from "../views/Home.vue";
+import Summary from "@/views/Summary.vue";
 
 Vue.use(VueRouter);
 
 const routes: Array<RouteConfig> = [
   {
     path: "/",
-    name: "Home",
-    component: Home
+    name: "Dolos summary",
+    component: Summary
   },
   {
-    path: "/about",
-    name: "About",
+    path: "/compare/:id",
+    name: "Compare",
+    props: route => ({ intersectionId: route.params.id }),
     // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
+    // this generates a separate chunk (compare.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ "../views/About.vue")
+    component: () => import(/* webpackChunkName: "compare" */ "../views/Compare.vue")
   }
 ];
 
