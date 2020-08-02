@@ -23,7 +23,7 @@
     "@types/benchmark": "^1.0.33",
     "@types/d3": "^5.7.2",
     "@types/express": "^4.17.6",
-    "@types/node": "^13.13.4",
+    "@types/node": "^14.0.27",
     "@typescript-eslint/eslint-plugin": "^2.31.0",
     "@typescript-eslint/parser": "^2.31.0",
     "ava": "^3.8.2",
