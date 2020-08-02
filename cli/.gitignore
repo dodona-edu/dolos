@@ -1,0 +1,7 @@
+node_modules
+dist
+coverage
+yarn-error.log
+.vscode
+dolos-analysis-*
+.nyc_output
