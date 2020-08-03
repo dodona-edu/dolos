@@ -8,23 +8,26 @@
       <v-container fluid>
         <v-row v-if="loaded && intersection" justify="center">
           <v-col sm="6">
-            <code>
-              {{ codeLeft }}
-            </code>
+            <pre>
+              <span v-html="codeLeft"></span>
+            </pre>
           </v-col>
           <v-col sm="6">
-            <code>
-              {{ codeRight }}
-            </code>
+            <pre>
+                <span v-html="codeRight"></span>
+            </pre>
           </v-col>
         </v-row>
       </v-container>
     </v-card>
 </template>
+<style lang="css" src="@/../public/prism.css"></style>
 
 <script lang="ts">
+
 import { Component, Vue, Prop } from "vue-property-decorator";
 import { Intersection } from "@/api/api";
+import Prism from "prismjs";
 
 @Component
 export default class Compare extends Vue {
@@ -32,11 +35,11 @@ export default class Compare extends Vue {
   @Prop() intersection!: Intersection;
 
   get codeRight(): string {
-    return this.intersection.rightFile.content;
+    return Prism.highlight(this.intersection.rightFile.content, Prism.languages.javascript, "javascript");
   }
 
   get codeLeft(): string {
-    return this.intersection.leftFile.content;
+    return Prism.highlight(this.intersection.leftFile.content, Prism.languages.javascript, "javascript");
   }
 }
 </script>
