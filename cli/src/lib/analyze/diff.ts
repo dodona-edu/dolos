@@ -1,6 +1,6 @@
 import { Range } from "../util/range";
-import { Match } from "./match";
-import { Fragment } from "./fragment";
+import { PairedOccurrence } from "./pairedOccurrence";
+import { Hunk } from "./hunk";
 import { TokenizedFile } from "../file/tokenizedFile";
 import Identifiable from "../util/identifiable";
 
@@ -10,10 +10,10 @@ type LeftRight = string;
  * This class represents all the fragments between two files (i.e. the
  * intersection of their hashes).
  */
-export class Intersection extends Identifiable {
+export class Diff extends Identifiable {
 
-  private fragmentStart: Map<LeftRight, Fragment> = new Map();
-  private fragmentEnd: Map<LeftRight, Fragment> = new Map();
+  private fragmentStart: Map<LeftRight, Hunk> = new Map();
+  private fragmentEnd: Map<LeftRight, Hunk> = new Map();
 
   constructor(
     public readonly leftFile: TokenizedFile,
@@ -28,7 +28,7 @@ export class Intersection extends Identifiable {
    * Creates an array of fragments in this intersection, sorted by their
    * leftKmers range.
    */
-  public fragments(): Array<Fragment> {
+  public fragments(): Array<Hunk> {
     return Array.of(...this.fragmentStart.values())
       .sort((a , b) => Range.compare(a.leftKmers, b.leftKmers));
   }
@@ -38,7 +38,7 @@ export class Intersection extends Identifiable {
    *
    * Tries to extend existing fragments, or creates a new fragment.
    */
-  public addMatch(newMatch: Match): void {
+  public addMatch(newMatch: PairedOccurrence): void {
     const start = this.key(newMatch.left.index, newMatch.right.index);
     const end = this.key(newMatch.left.index + 1, newMatch.right.index + 1);
 
@@ -52,7 +52,7 @@ export class Intersection extends Identifiable {
     } else {
 
       // no fragment on our starting position, create a new one
-      fragment = new Fragment(newMatch);
+      fragment = new Hunk(newMatch);
       this.fragmentStart.set(start, fragment);
       this.fragmentEnd.set(end, fragment);
     }
@@ -109,7 +109,7 @@ export class Intersection extends Identifiable {
    * Remove each Fragment that is contained in a bigger Fragment.
    */
   public squash(): void {
-    const kandidates: Set<Fragment> = new Set();
+    const kandidates: Set<Hunk> = new Set();
     for (const match of this.fragments()) {
 
       const iter = kandidates.values();
@@ -135,7 +135,7 @@ export class Intersection extends Identifiable {
     }
   }
 
-  private removeFragment(fragment: Fragment): void {
+  private removeFragment(fragment: Hunk): void {
     this.fragmentStart.delete(
       this.key(fragment.leftKmers.from, fragment.rightKmers.from)
     );

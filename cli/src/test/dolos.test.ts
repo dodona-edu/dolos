@@ -2,7 +2,7 @@ import test from "ava";
 import { Dolos } from "../dolos";
 import { File } from "../lib/file/file";
 import { Range } from "../lib/util/range";
-import { Selection } from "../lib/util/selection";
+import { Region } from "../lib/util/region";
 
 test("equal content should be a full match", async t => {
   const dolos = new Dolos();
@@ -34,8 +34,8 @@ test("equal content should be a full match", async t => {
   t.is(fragments.length, 1);
   const match = fragments[0];
 
-  t.deepEqual(new Selection(2, 2, 11, 2), match.leftSelection);
-  t.deepEqual(new Selection(2, 2, 11, 2), match.rightSelection);
+  t.deepEqual(new Region(2, 2, 11, 2), match.leftSelection);
+  t.deepEqual(new Region(2, 2, 11, 2), match.rightSelection);
 
   t.deepEqual(new Range(0, 24), match.leftKmers);
   t.deepEqual(new Range(0, 24), match.rightKmers);
@@ -85,8 +85,8 @@ test("renamed variables should be a full match", async t => {
   t.is(fragments.length, 1);
   const match = fragments[0];
 
-  t.deepEqual(new Selection(2, 2, 11, 2), match.leftSelection);
-  t.deepEqual(new Selection(2, 2, 11, 2), match.rightSelection);
+  t.deepEqual(new Region(2, 2, 11, 2), match.leftSelection);
+  t.deepEqual(new Region(2, 2, 11, 2), match.rightSelection);
 
   t.deepEqual(new Range(0, 24), match.leftKmers);
   t.deepEqual(new Range(0, 24), match.rightKmers);

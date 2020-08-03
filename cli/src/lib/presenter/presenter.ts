@@ -1,8 +1,8 @@
 import { Options } from "../util/options";
-import { Analysis } from "../analyze/analysis";
+import { Report } from "../analyze/report";
 
 export abstract class Presenter {
-  constructor(protected analysis: Analysis, protected options: Options) {}
+  constructor(protected analysis: Report, protected options: Options) {}
   
   public abstract async present(): Promise<void>;
 }

@@ -1,9 +1,9 @@
 import assert from "assert";
-import { Intersection } from "./intersection";
+import { Diff } from "./diff";
 import { DefaultMap } from "../util/defaultMap";
 import { File } from "../file/file";
 import { TokenizedFile } from "../file/tokenizedFile";
-import { Match, Side } from "./match";
+import { PairedOccurrence, ASTRegion } from "./pairedOccurrence";
 import { Range } from "../util/range";
 import { Options } from "../util/options";
 import { SharedKmer } from "./sharedKmer";
@@ -11,23 +11,23 @@ import { closestMatch, info } from "../util/utils";
 
 type Hash = number;
 
-export interface ScoredIntersection {
-  intersection: Intersection;
+export interface ScoredDiff {
+  intersection: Diff;
   overlap: number;
   longest: number;
   similarity: number;
 }
 
-export interface FilePart {
+export interface Occurrence {
   file: TokenizedFile;
-  side: Side;
+  side: ASTRegion;
 }
 
-export class Analysis {
+export class Report {
 
   // computed list of scored intersections,
   // only defined after finished() is called
-  private scored?: Array<ScoredIntersection>;
+  private scored?: Array<ScoredDiff>;
 
   // collection of all shared kmers
   private kmers: Map<Hash, SharedKmer> = new Map();
@@ -41,7 +41,7 @@ export class Analysis {
     this.fileSet = new Set(files);
   }
 
-  public addMatches(hash: Hash, ...parts: Array<FilePart>): void {
+  public addMatches(hash: Hash, ...parts: Array<Occurrence>): void {
     assert(parts.length > 0);
     let kmer = this.kmers.get(hash);
     if(!kmer) {
@@ -57,7 +57,7 @@ export class Analysis {
   public finish(): void {
     assert(this.scored !== null, "this analysis is already finished");
 
-    type SortFn = (a: ScoredIntersection, b: ScoredIntersection) => number;
+    type SortFn = (a: ScoredDiff, b: ScoredDiff) => number;
     const sortfn = closestMatch<SortFn>(this.options.sortBy, {
       "total": (a, b) => b.overlap - a.overlap,
       "continuous": (a, b) => b.longest - a.longest,
@@ -101,7 +101,7 @@ export class Analysis {
     Object.freeze(this);
   }
 
-  public get scoredIntersections(): Array<ScoredIntersection> {
+  public get scoredIntersections(): Array<ScoredDiff> {
     if(this.scored) {
       return this.scored;
     } else {
@@ -117,9 +117,9 @@ export class Analysis {
   /**
    * Combining all shared kmers and build intersections
    */
-  private build(): Array<Intersection> {
+  private build(): Array<Diff> {
     const intersections:
-      DefaultMap<TokenizedFile, Map<TokenizedFile, Intersection>>
+      DefaultMap<TokenizedFile, Map<TokenizedFile, Diff>>
       = new DefaultMap(() => new Map());
 
     let maxFiles: number;
@@ -148,11 +148,11 @@ export class Analysis {
 
           let intersection = intersections.get(first.file).get(second.file);
           if (!intersection) {
-            intersection = new Intersection(first.file, second.file);
+            intersection = new Diff(first.file, second.file);
             intersections.get(first.file).set(second.file, intersection);
           }
 
-          const match = new Match(first.side, second.side, kmer);
+          const match = new PairedOccurrence(first.side, second.side, kmer);
           intersection.addMatch(match);
         }
       }
@@ -169,7 +169,7 @@ export class Analysis {
   }
 
 
-  private calculateScore(intersection: Intersection): ScoredIntersection {
+  private calculateScore(intersection: Diff): ScoredDiff {
     const fragments = intersection.fragments();
     const leftCovered = Range.totalCovered(fragments.map(f => f.leftKmers));
     const rightCovered = Range.totalCovered(fragments.map(f => f.rightKmers));

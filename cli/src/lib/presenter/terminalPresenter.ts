@@ -1,6 +1,6 @@
-import { Selection } from "../util/selection";
+import { Region } from "../util/region";
 import { Presenter } from "./presenter";
-import { Analysis, ScoredIntersection } from "../analyze/analysis";
+import { Report, ScoredDiff } from "../analyze/report";
 
 /// <reference types="../../../typings/cliui" />
 import UI from "cliui";
@@ -15,7 +15,7 @@ export class TerminalPresenter extends Presenter {
   private readonly c: chalk.Chalk;
 
   constructor(
-    analysis: Analysis,
+    analysis: Report,
     options: Options,
     private readonly compare?: boolean,
     private readonly output: Writable = process.stdout,
@@ -52,7 +52,7 @@ export class TerminalPresenter extends Presenter {
     this.ui.resetOutput();
   }
 
-  private writeIntersections(intersections: Array<ScoredIntersection>): void {
+  private writeIntersections(intersections: Array<ScoredDiff>): void {
     const maxOver = Math.max(...intersections.map(s => s.overlap));
     const overlapWidth = Math.max(15, Math.trunc(Math.log10(maxOver + 1)) + 2);
     const similarityWidth = 12;
@@ -118,7 +118,7 @@ export class TerminalPresenter extends Presenter {
   }
 
   private writeIntersectionWithComparison(
-    { intersection, overlap, similarity }: ScoredIntersection
+    { intersection, overlap, similarity }: ScoredDiff
   ): void {
     const leftLines = intersection.leftFile.lines;
     const rightLines = intersection.rightFile.lines;
@@ -184,7 +184,7 @@ export class TerminalPresenter extends Presenter {
   }
 
   private formatLines(
-    sel: Selection,
+    sel: Region,
     lines: Array<string>,
     nl: (i: number) => string
   ): Array<string>{

@@ -2,19 +2,19 @@ import assert from "assert";
 import { HashFilter } from "../hashing/hashFilter";
 import { Options } from "../util/options";
 import { Range } from "../util/range";
-import { Selection } from "../util/selection";
+import { Region } from "../util/region";
 import { Tokenizer } from "../tokenizer/tokenizer";
 import { WinnowFilter } from "../hashing/winnowFilter";
 import { File } from "../file/file";
-import { Analysis, FilePart } from "./analysis";
+import { Report, Occurrence } from "./report";
 import { info } from "../util/utils";
 
 type Hash = number;
 
-export class Comparison {
+export class Index {
   private readonly kmerLength: number;
   private readonly kmersInWindow: number;
-  private readonly index: Map<Hash, Array<FilePart>> = new Map();
+  private readonly index: Map<Hash, Array<Occurrence>> = new Map();
   private readonly tokenizer: Tokenizer;
   private readonly hashFilter: HashFilter;
 
@@ -60,11 +60,11 @@ export class Comparison {
   public async compareFiles(
     files: File[],
     hashFilter = this.hashFilter
-  ): Promise<Analysis> {
+  ): Promise<Report> {
 
     info(`Tokenizing ${ files.length} files`);
     const tokenizedFiles = files.map(f => this.tokenizer.tokenizeFile(f));
-    const analysis = new Analysis(this.options, tokenizedFiles);
+    const analysis = new Report(this.options, tokenizedFiles);
 
     for (const file of tokenizedFiles) {
       info(`Processing file ${file.path}`);
@@ -79,7 +79,7 @@ export class Comparison {
 
         // sanity check
         assert(
-          Selection.isInOrder(
+          Region.isInOrder(
             file.mapping[start],
             file.mapping[stop]
           ),
@@ -88,12 +88,12 @@ export class Comparison {
             to start be before the end of ${file.mapping[stop]}`
         );
 
-        const location = Selection.merge(
+        const location = Region.merge(
           file.mapping[start],
           file.mapping[stop]
         );
 
-        const part: FilePart = {
+        const part: Occurrence = {
           file,
           side: { index: kmer, start, stop, data, location }
         };
@@ -136,7 +136,7 @@ export class Comparison {
   public async compareFile(
     file: File,
     hashFilter = this.hashFilter
-  ): Promise<Analysis> {
+  ): Promise<Report> {
     return this.compareFiles([file], hashFilter);
   }
 }
