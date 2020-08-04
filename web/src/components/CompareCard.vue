@@ -27,7 +27,7 @@
 <script lang="ts">
 
 import { Component, Vue, Prop } from "vue-property-decorator";
-import { Intersection } from "@/api/api";
+import { Fragment, Intersection } from "@/api/api";
 import Prism from "prismjs";
 import "prismjs/themes/prism.css";
 import "prismjs/components/prism-javascript";
@@ -35,9 +35,9 @@ import "prismjs/plugins/line-numbers/prism-line-numbers.js";
 import "prismjs/plugins/line-numbers/prism-line-numbers.css";
 import "prismjs/plugins/line-highlight/prism-line-highlight";
 import "prismjs/plugins/line-highlight/prism-line-highlight.css";
-import { highlightLines } from "@/util/line-highlight/prism-line-highlight.ts";
+import { highlightLines, HighlightOptions } from "@/util/line-highlight/prism-line-highlight.ts";
 
-  @Component
+@Component
 export default class Compare extends Vue {
     @Prop({ default: false }) loaded!: boolean;
     @Prop() intersection!: Intersection;
@@ -68,8 +68,20 @@ export default class Compare extends Vue {
     }
 
     scrollTest(): void {
-      highlightLines(document.getElementById("codeLeft"), "51-60", "")();
-      highlightLines(document.getElementById("codeRight"), "41-50", "")();
+      const codeLeft: HTMLElement = document.getElementById("codeLeft") as HTMLElement;
+      const codeRight: HTMLElement = document.getElementById("codeRight") as HTMLElement;
+
+      for (const index in this.intersection.fragments) {
+        const block: Fragment = this.intersection.fragments[index];
+
+        const options: HighlightOptions = {
+          id: `code-highlight-${index}`,
+          classes: "code-highlight",
+          style: `filter: hue-rotate(${+index / this.intersection.fragments.length}turn)`
+        };
+        highlightLines(codeLeft, `${block.left.startRow}-${block.left.endRow}`, options)();
+        highlightLines(codeRight, `${block.right.startRow}-${block.right.endRow}`, options)();
+      }
     }
 }
 </script>
@@ -78,6 +90,14 @@ export default class Compare extends Vue {
   #codeRight, #codeLeft {
     height: 65vw;
     overflow-y: scroll;
+  }
+
+  .code-highlight {
+    pointer-events: all;
+  }
+
+  .code-highlight:hover {
+    filter: brightness(1.5);
   }
 
 </style>

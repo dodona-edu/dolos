@@ -33,6 +33,12 @@ const isLineHeightRounded = (function (): any {
   };
 }());
 
+export interface HighlightOptions {
+  classes?: string;
+  id?: string;
+  style?: string;
+}
+
 /**
  * Highlights the lines of the given pre.
  *
@@ -40,12 +46,12 @@ const isLineHeightRounded = (function (): any {
  * The returned function mutates the DOM when called.
  *
  * @param {HTMLElement} pre
- * @param {string} [lines2]
- * @param {string} [classes='']
+ * @param {string} linesString
+ * @param {HighlightOptions} [options]
  * @returns {() => void}
  */
-export function highlightLines(pre: any, lines2: string | null, classes: string): () => void {
-  const lines = typeof lines2 === "string" ? lines2 : pre.getAttribute("data-line");
+export function highlightLines(pre: HTMLElement, linesString?: string, options: HighlightOptions = {}): () => void {
+  const lines = typeof linesString === "string" ? linesString : (pre.getAttribute("data-line") as string);
 
   // @ts-ignore
   const ranges = lines.replace(/\s+/g, "").split(",");
@@ -64,13 +70,25 @@ export function highlightLines(pre: any, lines2: string | null, classes: string)
     const start = +range[0];
     const end = +range[1] || start;
 
-    const line = pre.querySelector(".line-highlight[data-range=\"" + currentRange + "\"]") ||
+    const line: HTMLElement = pre.querySelector(".line-highlight[data-range=\"" + currentRange + "\"]") ||
       document.createElement("div");
+
+    line.addEventListener("click", function (event: Event) {
+      console.log("huston we have liftoff");
+      // @ts-ignore
+      console.log(event?.target?.scrollIntoView({ behavior: "smooth" }));
+    });
 
     mutateActions.push(function () {
       line.setAttribute("aria-hidden", "true");
       line.setAttribute("data-range", currentRange);
-      line.className = (classes || "") + " line-highlight";
+      line.className = (options.classes || "") + " line-highlight";
+      if (options.id) {
+        line.id = options.id;
+      }
+      if (options.style) {
+        line.style.cssText += options.style;
+      }
     });
 
     // if the line-numbers plugin is enabled, then there is no reason for this plugin to display the line numbers
@@ -93,10 +111,10 @@ export function highlightLines(pre: any, lines2: string | null, classes: string)
       }
     } else {
       mutateActions.push(function () {
-        line.setAttribute("data-start", start);
+        line.setAttribute("data-start", start.toString());
 
         if (end > start) {
-          line.setAttribute("data-end", end);
+          line.setAttribute("data-end", end.toString());
         }
 
         line.style.top = (start - offset - 1) * lineHeight + "px";
