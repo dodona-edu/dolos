@@ -49,7 +49,7 @@ export interface Fragment {
   left: Selection;
   right: Selection;
   data: string;
-  matches: Match;
+  matches: Match[];
 }
 
 export interface Intersection {
