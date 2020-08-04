@@ -77,7 +77,7 @@ export default class Compare extends Vue {
 
         const options: HighlightOptions = {
           classes: "code-highlight",
-          style: `filter: hue-rotate(${+index / this.intersection.fragments.length}turn)`,
+          style: `--hue-rotate:${+index / this.intersection.fragments.length}turn`,
           callback: function (event: Event): void {
             if (event.target) {
               let id = (event.target as HTMLElement).id;
@@ -103,6 +103,10 @@ export default class Compare extends Vue {
 </script>
 
 <style>
+  :root {
+    --hue-rotate:0turn;
+    --brightness:1;
+  }
   #codeRight, #codeLeft {
     height: 70vh;
     overflow-y: scroll;
@@ -110,10 +114,11 @@ export default class Compare extends Vue {
 
   .code-highlight {
     pointer-events: all;
+    filter: brightness(var(--brightness)) hue-rotate(var(--hue-rotate));
   }
 
   .code-highlight:hover {
-    filter: brightness(1.5);
+    --brightness: 1.5;
   }
 
 </style>
