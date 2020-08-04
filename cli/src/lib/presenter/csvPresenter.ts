@@ -56,8 +56,8 @@ export class CsvPresenter extends Presenter {
                 stop: match.right.stop,
                 index: match.right.index,
               }
-            }})
-          }}))
+            };})
+          };}))
       });
   }
 
@@ -97,7 +97,7 @@ export class CsvPresenter extends Presenter {
   }
 
   async present(): Promise<void> {
-    const dirName = `dolos-analysis-${ new Date().toISOString() }`
+    const dirName = `dolos-analysis-${ new Date().toISOString() }`;
     await fs.mkdir(dirName);
 
     console.log(`Writing results to directory: ${dirName}`);
