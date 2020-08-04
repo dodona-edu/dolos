@@ -59,6 +59,11 @@ export default class Compare extends Vue {
     }
 
     highlight(): void {
+      this.codeHighLight();
+      this.lineHighlight();
+    }
+
+    codeHighLight(): void {
       if (this.$refs.codeRight) {
         Prism.highlightElement(this.$refs.codeRight as Element, false);
       }
@@ -67,7 +72,7 @@ export default class Compare extends Vue {
       }
     }
 
-    scrollTest(): void {
+    lineHighlight(): void {
       const codeLeft: HTMLElement = document.getElementById("codeLeft") as HTMLElement;
       const codeRight: HTMLElement = document.getElementById("codeRight") as HTMLElement;
 
@@ -82,6 +87,10 @@ export default class Compare extends Vue {
         highlightLines(codeLeft, `${block.left.startRow}-${block.left.endRow}`, options)();
         highlightLines(codeRight, `${block.right.startRow}-${block.right.endRow}`, options)();
       }
+    }
+
+    scrollTest(): void {
+      console.log("test");
     }
 }
 </script>
