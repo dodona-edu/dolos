@@ -15,6 +15,13 @@
         </v-col>
       </v-row>
     </v-container>
+    <v-card-actions>
+      <v-btn @click="scrollTest">
+        Hello
+      </v-btn>
+      <a href="#codeLeft.40">Test</a>
+    </v-card-actions>
+
   </v-card>
 </template>
 <script lang="ts">
@@ -28,6 +35,7 @@ import "prismjs/plugins/line-numbers/prism-line-numbers.js";
 import "prismjs/plugins/line-numbers/prism-line-numbers.css";
 import "prismjs/plugins/line-highlight/prism-line-highlight";
 import "prismjs/plugins/line-highlight/prism-line-highlight.css";
+import { highlightLines } from "@/util/line-highlight/prism-line-highlight.ts";
 
   @Component
 export default class Compare extends Vue {
@@ -57,6 +65,11 @@ export default class Compare extends Vue {
       if (this.$refs.codeLeft) {
         Prism.highlightElement(this.$refs.codeLeft as Element, false);
       }
+    }
+
+    scrollTest(): void {
+      highlightLines(document.getElementById("codeLeft"), "51-60", "")();
+      highlightLines(document.getElementById("codeRight"), "41-50", "")();
     }
 }
 </script>
