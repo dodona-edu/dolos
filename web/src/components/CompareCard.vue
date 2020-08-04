@@ -26,6 +26,8 @@ import "prismjs/themes/prism.css";
 import "prismjs/components/prism-javascript";
 import "prismjs/plugins/line-numbers/prism-line-numbers.js";
 import "prismjs/plugins/line-numbers/prism-line-numbers.css";
+import "prismjs/plugins/line-highlight/prism-line-highlight";
+import "prismjs/plugins/line-highlight/prism-line-highlight.css";
 
   @Component
 export default class Compare extends Vue {
@@ -49,8 +51,12 @@ export default class Compare extends Vue {
     }
 
     highlight(): void {
-      Prism.highlightElement(this.$refs.codeLeft as Element, false);
-      Prism.highlightElement(this.$refs.codeRight as Element, false);
+      if (this.$refs.codeRight) {
+        Prism.highlightElement(this.$refs.codeRight as Element, false);
+      }
+      if (this.$refs.codeLeft) {
+        Prism.highlightElement(this.$refs.codeLeft as Element, false);
+      }
     }
 }
 </script>
