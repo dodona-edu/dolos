@@ -106,6 +106,7 @@ export default class Compare extends Vue {
   :root {
     --hue-rotate:0turn;
     --brightness:1;
+    --transistion: 0.1s
   }
   #codeRight, #codeLeft {
     height: 70vh;
@@ -113,12 +114,15 @@ export default class Compare extends Vue {
   }
 
   .code-highlight {
+    background: linear-gradient(to right, hsla(23.5, 100%, 45.5%, 0.21) 70%, hsla(24, 20%, 50%,0));
     pointer-events: all;
     filter: brightness(var(--brightness)) hue-rotate(var(--hue-rotate));
+    transition: var(--transistion);
   }
 
   .code-highlight:hover {
     --brightness: 1.5;
+    transition: var(--transistion);
   }
 
 </style>
