@@ -62,52 +62,9 @@ export default class Compare extends Vue {
 </script>
 
 <style>
-
-/* TODO find a cleaner way to set the card height to the screen height */
-#app {
-  height: 100vh;
-}
-
-.v-main {
-  height: 100%;
-}
-
-div.container:nth-child(1) > div:nth-child(1) {
-  height: 100%;
-}
-
-.col-10 {
-  height: 100%;
-}
-
-.v-card {
-  height: 100%;
-}
-
-div.container:nth-child(2) {
-  height: 100%;
-}
-
-div.container:nth-child(2) > div:nth-child(1) {
-  height: 100%;
-}
-
-#codeLeft {
-  overflow-y: scroll;
-  height: 93%;
-}
-
-div.col-sm-6:nth-child(1) {
-  height: 100%;
-}
-
-div.col-sm-6:nth-child(2) {
-  height: 100%;
-}
-
-#codeRight {
-  overflow-y: scroll;
-  height: 93%;
-}
+  #codeRight, #codeLeft {
+    height: 65vw;
+    overflow-y: scroll;
+  }
 
 </style>

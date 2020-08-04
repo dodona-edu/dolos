@@ -1,7 +1,7 @@
 <template>
   <v-container fluid fill-height>
     <v-row justify="center">
-      <v-col cols="10">
+      <v-col cols="12">
         <CompareCard
           :loaded="dataLoaded"
           :intersection="intersection"/>
