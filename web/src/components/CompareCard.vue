@@ -80,11 +80,12 @@ export default class Compare extends Vue {
         const block: Fragment = this.intersection.fragments[index];
 
         const options: HighlightOptions = {
-          id: `code-highlight-${index}`,
           classes: "code-highlight",
           style: `filter: hue-rotate(${+index / this.intersection.fragments.length}turn)`
         };
+        options.id = `code-highlight-${index}-left`;
         highlightLines(codeLeft, `${block.left.startRow}-${block.left.endRow}`, options)();
+        options.id = `code-highlight-${index}-right`;
         highlightLines(codeRight, `${block.right.startRow}-${block.right.endRow}`, options)();
       }
     }
