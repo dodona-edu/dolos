@@ -88,7 +88,7 @@ export default class Compare extends Vue {
 
 <style>
   #codeRight, #codeLeft {
-    height: 65vw;
+    height: 70vh;
     overflow-y: scroll;
   }
 
