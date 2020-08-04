@@ -1,4 +1,4 @@
-name: Dolos-CLI
+name: Dolos-cli
 
 on: [push]
 
