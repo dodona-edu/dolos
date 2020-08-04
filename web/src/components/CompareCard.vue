@@ -15,13 +15,6 @@
         </v-col>
       </v-row>
     </v-container>
-    <v-card-actions>
-      <v-btn @click="scrollTest">
-        Hello
-      </v-btn>
-      <a href="#codeLeft.40">Test</a>
-    </v-card-actions>
-
   </v-card>
 </template>
 <script lang="ts">
@@ -78,20 +71,33 @@ export default class Compare extends Vue {
 
       for (const index in this.intersection.fragments) {
         const block: Fragment = this.intersection.fragments[index];
+        const baseID = `code-highlight-${index}`;
+        const idLeft = `${baseID}-left`;
+        const idRight = `${baseID}-right`;
 
         const options: HighlightOptions = {
           classes: "code-highlight",
-          style: `filter: hue-rotate(${+index / this.intersection.fragments.length}turn)`
+          style: `filter: hue-rotate(${+index / this.intersection.fragments.length}turn)`,
+          callback: function (event: Event): void {
+            if (event.target) {
+              let id = (event.target as HTMLElement).id;
+              if (id.includes("left")) {
+                id = id.replace("left", "right");
+              } else {
+                id = id.replace("right", "left");
+              }
+              const element = document.getElementById(id);
+              if (element) {
+                element.scrollIntoView({ behavior: "smooth" });
+              }
+            }
+          }
         };
-        options.id = `code-highlight-${index}-left`;
+        options.id = idLeft;
         highlightLines(codeLeft, `${block.left.startRow}-${block.left.endRow}`, options)();
-        options.id = `code-highlight-${index}-right`;
+        options.id = idRight;
         highlightLines(codeRight, `${block.right.startRow}-${block.right.endRow}`, options)();
       }
-    }
-
-    scrollTest(): void {
-      console.log("test");
     }
 }
 </script>

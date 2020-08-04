@@ -37,6 +37,7 @@ export interface HighlightOptions {
   classes?: string;
   id?: string;
   style?: string;
+  callback?: (event: Event) => void;
 }
 
 /**
@@ -73,11 +74,9 @@ export function highlightLines(pre: HTMLElement, linesString?: string, options: 
     const line: HTMLElement = pre.querySelector(".line-highlight[data-range=\"" + currentRange + "\"]") ||
       document.createElement("div");
 
-    line.addEventListener("click", function (event: Event) {
-      console.log("huston we have liftoff");
-      // @ts-ignore
-      console.log(event?.target?.scrollIntoView({ behavior: "smooth" }));
-    });
+    if (options.callback) {
+      line.addEventListener("click", options.callback);
+    }
 
     mutateActions.push(function () {
       line.setAttribute("aria-hidden", "true");
