@@ -4,7 +4,7 @@ import { Range } from "../lib/util/range";
 test("illegal range", t => {
   t.throws(() => new Range(1337, 42));
   t.throws(() => new Range(69, 69));
-})
+});
 
 test("range length", t => {
   t.is(1, new Range(10).length);
@@ -49,7 +49,7 @@ test("total cover", t => {
       new Range(7, 10),
     ])
   );
-})
+});
 
 test("compare", t => {
   const a1 = new Range(1);

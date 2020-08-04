@@ -24,7 +24,7 @@ test("fragment should reconstruct matched kmers", async t => {
   for await (const hash of filter.hashesFromString(f1.ast)) {
     f1Hashes.push(hash);
   }
-  const f2Hashes = []
+  const f2Hashes = [];
   for await (const hash of filter.hashesFromString(f2.ast)) {
     f2Hashes.push(hash);
   }

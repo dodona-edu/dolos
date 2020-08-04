@@ -130,15 +130,15 @@ export class TerminalPresenter extends Presenter {
     {
       text: chalk.bold(intersection.rightFile.path),
       padding: [1, 1, 1, 1],
-    })
+    });
     this.ui.div({
       text: chalk.bold("Absolute overlap: ") + overlap.toString() + " kmers",
       padding: [0, 1, 0, 1],
-    })
+    });
     this.ui.div({
       text: chalk.bold("Similarity score: ") + similarity.toString(),
       padding: [0, 1, 1, 1],
-    })
+    });
 
     const maxLines = Math.max(leftLines.length, rightLines.length);
     const lineNrWidth = Math.trunc(Math.log10(maxLines + 1)) + 2;
@@ -157,13 +157,13 @@ export class TerminalPresenter extends Presenter {
                          ` ${fragment.leftKmers.length} kmers`),
         align: "center",
         padding: [1, 0, 1, 0],
-      })
+      });
 
       this.ui.div({
         text: chalk.bold("Tokens: ") + "'" +
               chalk.red(fragment.mergedData) + "'",
         padding: [0, 0, 1, 0],
-      })
+      });
 
       const left = this.formatLines(fragment.leftSelection, leftLines, nl);
       const right = this.formatLines(fragment.rightSelection, rightLines, nl);
@@ -195,7 +195,7 @@ export class TerminalPresenter extends Presenter {
       if (i < 0) {
         column.push("");
       } else {
-        column.push(nl(i) + lines[i])
+        column.push(nl(i) + lines[i]);
       }
     }
 
@@ -229,7 +229,7 @@ export class TerminalPresenter extends Presenter {
       if (i >= lines.length) {
         column.push("");
       } else {
-        column.push(nl(i) + lines[i])
+        column.push(nl(i) + lines[i]);
       }
     }
     return column;

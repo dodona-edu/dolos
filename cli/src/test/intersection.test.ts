@@ -11,7 +11,7 @@ function createFakeFile(name: string): TokenizedFile {
     new File(name, "content"),
     "(program)",
     []
-  )
+  );
 }
 
 function createIntersection(): Intersection {
@@ -44,7 +44,7 @@ test("match merging & squashing", t => {
       },
       kmer
     );
-    int.addMatch(match)
+    int.addMatch(match);
     t.is(1, int.fragments().length);
     biggerTopLeft.push(match);
   }
@@ -181,9 +181,9 @@ test("match merging & squashing", t => {
   fragments = int.fragments();
 
   t.is(4, fragments.length, "squashed too many");
-  t.deepEqual(biggerTopLeft, fragments[0].matches)
-  t.deepEqual([notContained], fragments[1].matches)
-  t.deepEqual(biggerMiddle, fragments[2].matches)
-  t.deepEqual(biggerBottomLeft, fragments[3].matches)
+  t.deepEqual(biggerTopLeft, fragments[0].matches);
+  t.deepEqual([notContained], fragments[1].matches);
+  t.deepEqual(biggerMiddle, fragments[2].matches);
+  t.deepEqual(biggerBottomLeft, fragments[3].matches);
 
 });

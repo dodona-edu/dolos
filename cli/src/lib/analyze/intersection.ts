@@ -18,7 +18,7 @@ export class Intersection extends Identifiable {
   constructor(
     public readonly leftFile: TokenizedFile,
     public readonly rightFile: TokenizedFile
-  ) { super() }
+  ) { super(); }
 
   get fragmentCount(): number {
     return this.fragmentStart.size;
