@@ -8,10 +8,10 @@
     <v-container fluid>
       <v-row v-if="loaded && intersection" justify="center">
         <v-col sm="6">
-          <pre class="line-numbers language-javascript"><code ref="codeLeft">{{codeLeft}}</code></pre>
+          <pre id="codeLeft" class="line-numbers language-javascript"><code ref="codeLeft">{{codeLeft}}</code></pre>
         </v-col>
         <v-col sm="6">
-          <pre class="line-numbers language-javascript"><code ref="codeRight">{{codeRight}}</code></pre>
+          <pre id="codeRight" class="line-numbers language-javascript"><code ref="codeRight">{{codeRight}}</code></pre>
         </v-col>
       </v-row>
     </v-container>
@@ -56,9 +56,52 @@ export default class Compare extends Vue {
 </script>
 
 <style>
-  .reveal pre.line-numbers > code {
-    overflow: visible;
-    padding: 0;
-  }
+
+/* TODO find a cleaner way to set the card height to the screen height */
+#app {
+  height: 100vh;
+}
+
+.v-main {
+  height: 100%;
+}
+
+div.container:nth-child(1) > div:nth-child(1) {
+  height: 100%;
+}
+
+.col-10 {
+  height: 100%;
+}
+
+.v-card {
+  height: 100%;
+}
+
+div.container:nth-child(2) {
+  height: 100%;
+}
+
+div.container:nth-child(2) > div:nth-child(1) {
+  height: 100%;
+}
+
+#codeLeft {
+  overflow-y: scroll;
+  height: 93%;
+}
+
+div.col-sm-6:nth-child(1) {
+  height: 100%;
+}
+
+div.col-sm-6:nth-child(2) {
+  height: 100%;
+}
+
+#codeRight {
+  overflow-y: scroll;
+  height: 93%;
+}
 
 </style>
