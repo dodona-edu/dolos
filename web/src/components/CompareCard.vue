@@ -78,25 +78,27 @@ export default class Compare extends Vue {
         const options: HighlightOptions = {
           classes: "code-highlight",
           style: `--hue-rotate:${+index / this.intersection.fragments.length}turn`,
-          callback: function (event: Event): void {
-            if (event.target) {
-              let id = (event.target as HTMLElement).id;
-              if (id.includes("left")) {
-                id = id.replace("left", "right");
-              } else {
-                id = id.replace("right", "left");
-              }
-              const element = document.getElementById(id);
-              if (element) {
-                element.scrollIntoView({ behavior: "smooth" });
-              }
-            }
-          }
+          callback: this.scrollToCorrespondingBlock
         };
         options.id = idLeft;
         highlightLines(codeLeft, `${block.left.startRow}-${block.left.endRow}`, options)();
         options.id = idRight;
         highlightLines(codeRight, `${block.right.startRow}-${block.right.endRow}`, options)();
+      }
+    }
+
+    scrollToCorrespondingBlock(event: Event): void {
+      if (event.target) {
+        let id = (event.target as HTMLElement).id;
+        if (id.includes("left")) {
+          id = id.replace("left", "right");
+        } else {
+          id = id.replace("right", "left");
+        }
+        const element = document.getElementById(id);
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth" });
+        }
       }
     }
 }
