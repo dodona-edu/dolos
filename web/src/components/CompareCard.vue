@@ -71,12 +71,11 @@ export default class Compare extends Vue {
 
     lineClick(line: number, side: "left" | "right", event: Event): void {
       let id: string | undefined;
-      if (side === "left" && this.leftLines[line - 1]) {
-        id = this.leftLines[line - 1].shift();
-        this.leftLines[line - 1].push(id as string);
-      } else if (side === "right" && this.rightLines[line - 1]) {
-        id = this.rightLines[line - 1].shift();
-        this.rightLines[line - 1].push(id as string);
+      const lines: Array<Array<string>> = side === "left" ? this.leftLines : this.rightLines;
+
+      if (lines[line - 1]) {
+        id = lines[line - 1].shift();
+        lines[line - 1].push(id as string);
       }
 
       const visibleElements = document.querySelectorAll(".line-highlight[class~=visible]") as NodeListOf<HTMLElement>;
