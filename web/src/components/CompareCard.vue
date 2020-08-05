@@ -77,7 +77,7 @@ export default class Compare extends Vue {
 
         const options: HighlightOptions = {
           classes: "code-highlight",
-          style: `--hue-rotate:${+index / this.intersection.fragments.length}turn`,
+          // style: `--hue-rotate:${+index / this.intersection.fragments.length}turn`,
           callback: this.scrollToCorrespondingBlock
         };
         options.id = idLeft;
@@ -116,14 +116,13 @@ export default class Compare extends Vue {
   }
 
   .code-highlight {
-    background: linear-gradient(to right, hsla(23.5, 100%, 45.5%, 0.21) 70%, hsla(24, 20%, 50%,0));
+    background: hsla(5.6, 100%, 50%, 0.29);
     pointer-events: all;
-    filter: brightness(var(--brightness)) hue-rotate(var(--hue-rotate));
     transition: var(--transistion);
   }
 
   .code-highlight:hover {
-    --brightness: 1.5;
+    background: hsla(14.1, 100%, 50%, 0.31);
     transition: var(--transistion);
   }
 
