@@ -34,6 +34,8 @@ import { highlightLines, HighlightOptions } from "@/util/line-highlight/prism-li
 export default class Compare extends Vue {
     @Prop({ default: false }) loaded!: boolean;
     @Prop() intersection!: Intersection;
+    leftLines: Array<Array<string>> = [];
+    rightLines: Array<Array<string>> = [];
 
     get codeRight(): string {
       return this.intersection.rightFile.content;
@@ -53,7 +55,58 @@ export default class Compare extends Vue {
 
     highlight(): void {
       this.codeHighLight();
-      this.lineHighlight();
+      this.blockHighlight();
+      this.tempFunction();
+    }
+
+    lineClick(line: number, side: "left" | "right", event: Event): void {
+      let id: string | undefined;
+      if (side === "left" && this.leftLines[line - 1]) {
+        id = this.leftLines[line - 1][0];
+      } else if (side === "right" && this.rightLines[line - 1]) {
+        id = this.rightLines[line - 1][0];
+      }
+      if (!id) {
+        return;
+      }
+      const leftBlock = document.getElementById(`${id}-left`) as HTMLElement;
+      const rightBlock = document.getElementById(`${id}-right`) as HTMLElement;
+      console.log(id, leftBlock, rightBlock);
+      leftBlock.style.visibility = "visible";
+      rightBlock.style.visibility = "visible";
+      leftBlock.scrollIntoView({ behavior: "smooth" });
+      rightBlock.scrollIntoView({ behavior: "smooth" });
+    }
+
+    tempFunction(): void {
+      const codeLeft: HTMLElement = document.getElementById("codeLeft") as HTMLElement;
+      const codeRight: HTMLElement = document.getElementById("codeRight") as HTMLElement;
+      const linesLeft = this.intersection.leftFile.content.split("\n");
+      const linesRight = this.intersection.rightFile.content.split("\n");
+      // prismjs strips the last line of code if it is empty so we have to take that into account
+      const linesAmountLeft = linesLeft[linesLeft.length - 1].length === 0 ? linesLeft.length - 1 : linesLeft.length;
+      const linesAmountRight = linesRight[linesRight.length - 1].length === 0
+        ? linesRight.length - 1 : linesRight.length;
+
+      const options: HighlightOptions = {
+        classes: "line-marker",
+      };
+
+      for (let i = 1; i <= linesAmountLeft; i += 1) {
+        highlightLines(
+          codeLeft,
+          `${i}`,
+          { id: `line-left-${i}`, callback: event => this.lineClick(i, "left", event), ...options }
+        )();
+      }
+
+      for (let i = 1; i <= linesAmountRight; i += 1) {
+        highlightLines(
+          codeRight,
+          `${i}`,
+          { id: `line-right-${i}`, callback: event => this.lineClick(i, "right", event), ...options }
+        )();
+      }
     }
 
     codeHighLight(): void {
@@ -65,25 +118,49 @@ export default class Compare extends Vue {
       }
     }
 
-    lineHighlight(): void {
+    blockHighlight(): void {
       const codeLeft: HTMLElement = document.getElementById("codeLeft") as HTMLElement;
       const codeRight: HTMLElement = document.getElementById("codeRight") as HTMLElement;
+
+      const linesLeft = this.intersection.leftFile.content.split("\n");
+      const linesRight = this.intersection.rightFile.content.split("\n");
+      const linesAmountLeft = linesLeft[linesLeft.length - 1].length === 0 ? linesLeft.length - 1 : linesLeft.length;
+      const linesAmountRight = linesRight[linesRight.length - 1].length === 0
+        ? linesRight.length - 1 : linesRight.length;
+      this.leftLines = new Array(linesAmountLeft);
+      this.rightLines = new Array(linesAmountRight);
 
       for (const index in this.intersection.fragments) {
         const block: Fragment = this.intersection.fragments[index];
         const baseID = `code-highlight-${index}`;
+
+        // register the fragments to the lines they span over
+        for (let i = block.left.startRow; i <= block.left.endRow; i += 1) {
+          if (!this.leftLines[i]) {
+            this.leftLines[i] = [];
+          }
+          this.leftLines[i].push(baseID);
+        }
+        for (let i = block.right.startRow; i <= block.right.endRow; i += 1) {
+          if (!this.rightLines[i]) {
+            this.rightLines[i] = [];
+          }
+          this.rightLines[i].push(baseID);
+        }
+
         const idLeft = `${baseID}-left`;
         const idRight = `${baseID}-right`;
 
         const options: HighlightOptions = {
           classes: "code-highlight",
-          // style: `--hue-rotate:${+index / this.intersection.fragments.length}turn`,
           callback: this.scrollToCorrespondingBlock
         };
         options.id = idLeft;
-        highlightLines(codeLeft, `${block.left.startRow}-${block.left.endRow}`, options)();
+        console.log(idLeft, block.left.startRow + 1, block.left.endRow + 1);
+        highlightLines(codeLeft, `${block.left.startRow + 1}-${block.left.endRow + 1}`, options)();
         options.id = idRight;
-        highlightLines(codeRight, `${block.right.startRow}-${block.right.endRow}`, options)();
+        console.log(idRight, block.right.startRow + 1, block.right.endRow + 1);
+        highlightLines(codeRight, `${block.right.startRow + 1}-${block.right.endRow + 1}`, options)();
       }
     }
 
@@ -116,13 +193,20 @@ export default class Compare extends Vue {
   }
 
   .code-highlight {
-    background: hsla(5.6, 100%, 50%, 0.29);
+    visibility: hidden;
+    background: linear-gradient(to right, hsla(5.6, 100%, 50%, 0.29) 70%, hsla(24, 20%, 50%,0));
     pointer-events: all;
     transition: var(--transistion);
   }
 
+  .line-marker {
+    background: hsla(24, 20%, 50%, 0);
+    pointer-events: all;
+  }
+
   .code-highlight:hover {
-    background: hsla(14.1, 100%, 50%, 0.31);
+    filter: brightness(2);
+    /*background: hsla(14.1, 100%, 50%, 0.31);*/
     transition: var(--transistion);
   }
 

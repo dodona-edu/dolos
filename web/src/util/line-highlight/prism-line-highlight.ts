@@ -37,6 +37,9 @@ export interface HighlightOptions {
   classes?: string;
   id?: string;
   style?: string;
+  data?: {
+    [key: string]: string;
+  };
   callback?: (event: Event) => void;
 }
 
@@ -63,7 +66,7 @@ export function highlightLines(pre: HTMLElement, linesString?: string, options: 
   const lineHeight = parseMethod(getComputedStyle(pre).lineHeight);
   const hasLineNumbers = hasClass(pre, "line-numbers");
   const parentElement = hasLineNumbers ? pre : pre.querySelector("code") || pre;
-  const mutateActions: any = /** @type {(() => void)[]} */ ([]);
+  const mutateActions: (() => void)[] = []; /** @type {(() => void)[]} */
 
   ranges.forEach(function (currentRange: any) {
     const range = currentRange.split("-");
@@ -71,8 +74,7 @@ export function highlightLines(pre: HTMLElement, linesString?: string, options: 
     const start = +range[0];
     const end = +range[1] || start;
 
-    const line: HTMLElement = pre.querySelector(".line-highlight[data-range=\"" + currentRange + "\"]") ||
-      document.createElement("div");
+    const line: HTMLElement = document.createElement("div");
 
     if (options.callback) {
       line.addEventListener("click", options.callback);
@@ -87,6 +89,11 @@ export function highlightLines(pre: HTMLElement, linesString?: string, options: 
       }
       if (options.style) {
         line.style.cssText += options.style;
+      }
+      if (options.data) {
+        for (const key in options.data) {
+          line.dataset[key] = options.data[key];
+        }
       }
     });
 
