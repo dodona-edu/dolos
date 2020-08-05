@@ -8,10 +8,10 @@
     <v-container fluid>
       <v-row v-if="loaded && intersection" justify="center">
         <v-col sm="6">
-          <pre id="codeLeft" class="line-numbers language-javascript"><code ref="codeLeft">{{codeLeft}}</code></pre>
+          <pre id="codeLeft" class="line-numbers"><code ref="codeLeft" :class="language">{{codeLeft}}</code></pre>
         </v-col>
         <v-col sm="6">
-          <pre id="codeRight" class="line-numbers language-javascript"><code ref="codeRight">{{codeRight}}</code></pre>
+          <pre id="codeRight" class="line-numbers"><code ref="codeRight" :class="language">{{codeRight}}</code></pre>
         </v-col>
       </v-row>
     </v-container>
@@ -43,8 +43,8 @@ export default class Compare extends Vue {
       return this.intersection.leftFile.content;
     }
 
-    mounted(): void {
-      this.highlight();
+    get language(): string {
+      return `language-${this.$store.state.data.metadata.language}`;
     }
 
     updated(): void {
