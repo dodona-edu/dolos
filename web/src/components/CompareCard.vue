@@ -70,9 +70,11 @@ export default class Compare extends Vue {
     }
 
     highlight(): void {
-      this.codeHighLight();
-      this.blockHighlight();
-      this.drawLineMarkers();
+      if (this.diff) {
+        this.codeHighLight();
+        this.blockHighlight();
+        this.drawLineMarkers();
+      }
     }
 
     lineClick(line: number, side: "left" | "right", event: Event): void {
