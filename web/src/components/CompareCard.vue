@@ -71,9 +71,12 @@ export default class Compare extends Vue {
       }
       const leftBlock = document.getElementById(`${id}-left`) as HTMLElement;
       const rightBlock = document.getElementById(`${id}-right`) as HTMLElement;
-      console.log(id, leftBlock, rightBlock);
-      leftBlock.style.visibility = "visible";
-      rightBlock.style.visibility = "visible";
+      const visibleElements = document.querySelectorAll(".line-highlight[class~=visible]") as NodeListOf<HTMLElement>;
+      for (const visibleElement of visibleElements) {
+        visibleElement.classList.remove("visible");
+      }
+      leftBlock.classList.add("visible");
+      rightBlock.classList.add("visible");
       leftBlock.scrollIntoView({ behavior: "smooth" });
       rightBlock.scrollIntoView({ behavior: "smooth" });
     }
@@ -197,6 +200,10 @@ export default class Compare extends Vue {
     background: linear-gradient(to right, hsla(5.6, 100%, 50%, 0.29) 70%, hsla(24, 20%, 50%,0));
     pointer-events: all;
     transition: var(--transistion);
+  }
+
+  .visible {
+    visibility: visible;
   }
 
   .line-marker {
