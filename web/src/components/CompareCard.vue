@@ -59,6 +59,12 @@ export default class Compare extends Vue {
       return `language-${this.$store.state.data.metadata.language}`;
     }
 
+    mounted(): void {
+      this.$nextTick(() => {
+        this.highlight();
+      });
+    }
+
     updated(): void {
       this.highlight();
     }
@@ -133,8 +139,10 @@ export default class Compare extends Vue {
       const codeLeft: HTMLElement = document.getElementById("codeLeft") as HTMLElement;
       const codeRight: HTMLElement = document.getElementById("codeRight") as HTMLElement;
 
-      this.leftLines = new Array(this.linesAmount("left"));
-      this.rightLines = new Array(this.linesAmount("right"));
+      // this.leftLines = ;
+      // this.rightLines = new Array(this.linesAmount("right"));
+      const tempLeftLines: Array<Array<[number, string]>> = new Array(this.linesAmount("left"));
+      const tempRightLines: Array<Array<[number, string]>> = new Array(this.linesAmount("right"));
 
       for (const index in this.diff.fragments) {
         const block: Hunk = this.diff.fragments[index];
@@ -142,16 +150,17 @@ export default class Compare extends Vue {
 
         // register the fragments to the lines they span over
         for (let i = block.left.startRow; i <= block.left.endRow; i += 1) {
-          if (!this.leftLines[i]) {
-            this.leftLines[i] = [];
+          if (!tempLeftLines[i]) {
+            tempLeftLines[i] = [];
           }
-          this.leftLines[i].push(baseID);
+          tempLeftLines[i].push([block.right.startRow, baseID]);
         }
+
         for (let i = block.right.startRow; i <= block.right.endRow; i += 1) {
-          if (!this.rightLines[i]) {
-            this.rightLines[i] = [];
+          if (!tempRightLines[i]) {
+            tempRightLines[i] = [];
           }
-          this.rightLines[i].push(baseID);
+          tempRightLines[i].push([block.left.startRow, baseID]);
         }
 
         const idLeft = `${baseID}-left`;
@@ -161,17 +170,27 @@ export default class Compare extends Vue {
           classes: "code-highlight",
           callback: this.scrollToCorrespondingBlock
         };
+
         highlightLines(
           codeLeft,
           `${block.left.startRow + 1}-${block.left.endRow + 1}`,
           { id: idLeft, ...options }
         )();
+
         highlightLines(
           codeRight,
           `${block.right.startRow + 1}-${block.right.endRow + 1}`,
           { id: idRight, ...options }
         )();
       }
+      function process(arr: Array<[number, string]>): Array<string> {
+        console.log(arr);
+        console.log(arr.sort());
+        return arr.sort().map(([, id]) => id);
+      }
+
+      this.leftLines = tempLeftLines.map(process);
+      this.rightLines = tempRightLines.map(process);
     }
 
     scrollToCorrespondingBlock(event: Event): void {
