@@ -184,9 +184,7 @@ export default class Compare extends Vue {
         )();
       }
       function process(arr: Array<[number, string]>): Array<string> {
-        console.log(arr);
-        console.log(arr.sort());
-        return arr.sort().map(([, id]) => id);
+        return arr.sort(([row1], [row2]) => row1 - row2).map(([, id]) => id);
       }
 
       this.leftLines = tempLeftLines.map(process);
