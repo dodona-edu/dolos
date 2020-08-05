@@ -13,7 +13,7 @@ const routes: Array<RouteConfig> = [
   {
     path: "/compare/:id",
     name: "Compare",
-    props: route => ({ intersectionId: route.params.id }),
+    props: route => ({ diffId: route.params.id }),
     // route level code-splitting
     // this generates a separate chunk (compare.[hash].js) for this route
     // which is lazy-loaded when the route is visited.

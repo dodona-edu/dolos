@@ -6,7 +6,7 @@
       Other
     </v-card-title>
     <v-container fluid>
-      <v-row v-if="loaded && intersection" justify="center">
+      <v-row v-if="loaded && diff" justify="center">
         <v-col sm="6">
           <pre id="codeLeft" class="line-numbers"><code ref="codeLeft" :class="language">{{codeLeft}}</code></pre>
         </v-col>
@@ -20,7 +20,7 @@
 <script lang="ts">
 
 import { Component, Vue, Prop } from "vue-property-decorator";
-import { Fragment, Intersection } from "@/api/api";
+import { Hunk, Diff } from "@/api/api";
 import Prism from "prismjs";
 import "prismjs/themes/prism.css";
 import "prismjs/components/prism-javascript";
@@ -33,16 +33,16 @@ import { highlightLines, HighlightOptions } from "@/util/line-highlight/prism-li
 @Component
 export default class Compare extends Vue {
     @Prop({ default: false }) loaded!: boolean;
-    @Prop() intersection!: Intersection;
+    @Prop() diff!: Diff;
     leftLines: Array<Array<string>> = [];
     rightLines: Array<Array<string>> = [];
 
     get codeRight(): string {
-      return this.intersection.rightFile.content;
+      return this.diff.rightFile.content;
     }
 
     get codeLeft(): string {
-      return this.intersection.leftFile.content;
+      return this.diff.leftFile.content;
     }
 
     get language(): string {
@@ -86,8 +86,8 @@ export default class Compare extends Vue {
     tempFunction(): void {
       const codeLeft: HTMLElement = document.getElementById("codeLeft") as HTMLElement;
       const codeRight: HTMLElement = document.getElementById("codeRight") as HTMLElement;
-      const linesLeft = this.intersection.leftFile.content.split("\n");
-      const linesRight = this.intersection.rightFile.content.split("\n");
+      const linesLeft = this.diff.leftFile.content.split("\n");
+      const linesRight = this.diff.rightFile.content.split("\n");
       // prismjs strips the last line of code if it is empty so we have to take that into account
       const linesAmountLeft = linesLeft[linesLeft.length - 1].length === 0 ? linesLeft.length - 1 : linesLeft.length;
       const linesAmountRight = linesRight[linesRight.length - 1].length === 0
@@ -127,16 +127,16 @@ export default class Compare extends Vue {
       const codeLeft: HTMLElement = document.getElementById("codeLeft") as HTMLElement;
       const codeRight: HTMLElement = document.getElementById("codeRight") as HTMLElement;
 
-      const linesLeft = this.intersection.leftFile.content.split("\n");
-      const linesRight = this.intersection.rightFile.content.split("\n");
+      const linesLeft = this.diff.leftFile.content.split("\n");
+      const linesRight = this.diff.rightFile.content.split("\n");
       const linesAmountLeft = linesLeft[linesLeft.length - 1].length === 0 ? linesLeft.length - 1 : linesLeft.length;
       const linesAmountRight = linesRight[linesRight.length - 1].length === 0
         ? linesRight.length - 1 : linesRight.length;
       this.leftLines = new Array(linesAmountLeft);
       this.rightLines = new Array(linesAmountRight);
 
-      for (const index in this.intersection.fragments) {
-        const block: Fragment = this.intersection.fragments[index];
+      for (const index in this.diff.fragments) {
+        const block: Hunk = this.diff.fragments[index];
         const baseID = `code-highlight-${index}`;
 
         // register the fragments to the lines they span over

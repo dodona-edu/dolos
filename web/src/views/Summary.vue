@@ -3,7 +3,7 @@
     <v-row justify="center">
       <v-col cols="10">
         <IntersectionsTable
-          :intersections="intersections"
+          :diffs="diffs"
           loaded="dataLoaded"
         />
       </v-col>

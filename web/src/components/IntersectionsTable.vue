@@ -29,12 +29,12 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from "vue-property-decorator";
-import { Intersection } from "@/api/api";
+import { Diff } from "@/api/api";
 
 @Component
 export default class IntersectionsTable extends Vue {
   @Prop() loaded!: boolean;
-  @Prop() intersections!: Intersection[];
+  @Prop() diffs!: Diff[];
   @Prop({ default: "" }) search!: string;
 
   headers = [
@@ -46,7 +46,7 @@ export default class IntersectionsTable extends Vue {
   ];
 
   get items(): Array<{left: string; right: string; similarity: string}> {
-    return Object.values(this.intersections).map(intersection => ({
+    return Object.values(this.diffs).map(intersection => ({
       intersection,
       left: intersection.leftFile.path,
       right: intersection.rightFile.path,
@@ -56,7 +56,7 @@ export default class IntersectionsTable extends Vue {
     }));
   }
 
-  public rowClicked(item: {intersection: Intersection}): void {
+  public rowClicked(item: {intersection: Diff}): void {
     this.$router.push(`/compare/${item.intersection.id}`);
   }
 }
