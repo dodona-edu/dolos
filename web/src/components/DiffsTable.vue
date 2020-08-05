@@ -32,7 +32,7 @@ import { Component, Prop, Vue } from "vue-property-decorator";
 import { Diff } from "@/api/api";
 
 @Component
-export default class IntersectionsTable extends Vue {
+export default class DiffTable extends Vue {
   @Prop() loaded!: boolean;
   @Prop() diffs!: Diff[];
   @Prop({ default: "" }) search!: string;

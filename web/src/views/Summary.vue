@@ -2,7 +2,7 @@
   <v-container fluid>
     <v-row justify="center">
       <v-col cols="10">
-        <IntersectionsTable
+        <DiffsTable
           :diffs="diffs"
           loaded="dataLoaded"
         />
@@ -13,11 +13,11 @@
 
 <script lang="ts">
 import { Component } from "vue-property-decorator";
-import IntersectionsTable from "@/components/IntersectionsTable.vue";
+import DiffsTable from "@/components/DiffsTable.vue";
 import DataView from "@/views/DataView";
 
 @Component({
-  components: { IntersectionsTable }
+  components: { DiffsTable: DiffsTable }
 })
 export default class Home extends DataView {
   created(): Promise<void> {
