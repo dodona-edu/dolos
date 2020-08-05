@@ -37,6 +37,16 @@ export default class Compare extends Vue {
     leftLines: Array<Array<string>> = [];
     rightLines: Array<Array<string>> = [];
 
+    linesAmount(side: "left" | "right"): number {
+      let lines: Array<string>;
+      if (side === "left") {
+        lines = this.diff.leftFile.content.split("\n");
+      } else {
+        lines = this.diff.rightFile.content.split("\n");
+      }
+      return lines[lines.length - 1].length === 0 ? lines.length - 1 : lines.length;
+    }
+
     get codeRight(): string {
       return this.diff.rightFile.content;
     }
@@ -56,7 +66,7 @@ export default class Compare extends Vue {
     highlight(): void {
       this.codeHighLight();
       this.blockHighlight();
-      this.tempFunction();
+      this.drawLineMarkers();
     }
 
     lineClick(line: number, side: "left" | "right", event: Event): void {
@@ -68,36 +78,33 @@ export default class Compare extends Vue {
         id = this.rightLines[line - 1].shift();
         this.rightLines[line - 1].push(id as string);
       }
-      if (!id) {
-        return;
-      }
-      const leftBlock = document.getElementById(`${id}-left`) as HTMLElement;
-      const rightBlock = document.getElementById(`${id}-right`) as HTMLElement;
+
       const visibleElements = document.querySelectorAll(".line-highlight[class~=visible]") as NodeListOf<HTMLElement>;
       for (const visibleElement of visibleElements) {
         visibleElement.classList.remove("visible");
       }
+
+      if (!id) {
+        return;
+      }
+
+      const leftBlock = document.getElementById(`${id}-left`) as HTMLElement;
+      const rightBlock = document.getElementById(`${id}-right`) as HTMLElement;
       leftBlock.classList.add("visible");
       rightBlock.classList.add("visible");
       leftBlock.scrollIntoView({ behavior: "smooth" });
       rightBlock.scrollIntoView({ behavior: "smooth" });
     }
 
-    tempFunction(): void {
+    drawLineMarkers(): void {
       const codeLeft: HTMLElement = document.getElementById("codeLeft") as HTMLElement;
       const codeRight: HTMLElement = document.getElementById("codeRight") as HTMLElement;
-      const linesLeft = this.diff.leftFile.content.split("\n");
-      const linesRight = this.diff.rightFile.content.split("\n");
-      // prismjs strips the last line of code if it is empty so we have to take that into account
-      const linesAmountLeft = linesLeft[linesLeft.length - 1].length === 0 ? linesLeft.length - 1 : linesLeft.length;
-      const linesAmountRight = linesRight[linesRight.length - 1].length === 0
-        ? linesRight.length - 1 : linesRight.length;
 
       const options: HighlightOptions = {
         classes: "line-marker",
       };
 
-      for (let i = 1; i <= linesAmountLeft; i += 1) {
+      for (let i = 1; i <= this.linesAmount("left"); i += 1) {
         highlightLines(
           codeLeft,
           `${i}`,
@@ -105,7 +112,7 @@ export default class Compare extends Vue {
         )();
       }
 
-      for (let i = 1; i <= linesAmountRight; i += 1) {
+      for (let i = 1; i <= this.linesAmount("right"); i += 1) {
         highlightLines(
           codeRight,
           `${i}`,
@@ -127,13 +134,8 @@ export default class Compare extends Vue {
       const codeLeft: HTMLElement = document.getElementById("codeLeft") as HTMLElement;
       const codeRight: HTMLElement = document.getElementById("codeRight") as HTMLElement;
 
-      const linesLeft = this.diff.leftFile.content.split("\n");
-      const linesRight = this.diff.rightFile.content.split("\n");
-      const linesAmountLeft = linesLeft[linesLeft.length - 1].length === 0 ? linesLeft.length - 1 : linesLeft.length;
-      const linesAmountRight = linesRight[linesRight.length - 1].length === 0
-        ? linesRight.length - 1 : linesRight.length;
-      this.leftLines = new Array(linesAmountLeft);
-      this.rightLines = new Array(linesAmountRight);
+      this.leftLines = new Array(this.linesAmount("left"));
+      this.rightLines = new Array(this.linesAmount("right"));
 
       for (const index in this.diff.fragments) {
         const block: Hunk = this.diff.fragments[index];
