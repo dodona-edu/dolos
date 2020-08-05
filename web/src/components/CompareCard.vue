@@ -162,12 +162,16 @@ export default class Compare extends Vue {
           classes: "code-highlight",
           callback: this.scrollToCorrespondingBlock
         };
-        options.id = idLeft;
-        console.log(idLeft, block.left.startRow + 1, block.left.endRow + 1);
-        highlightLines(codeLeft, `${block.left.startRow + 1}-${block.left.endRow + 1}`, options)();
-        options.id = idRight;
-        console.log(idRight, block.right.startRow + 1, block.right.endRow + 1);
-        highlightLines(codeRight, `${block.right.startRow + 1}-${block.right.endRow + 1}`, options)();
+        highlightLines(
+          codeLeft,
+          `${block.left.startRow + 1}-${block.left.endRow + 1}`,
+          { id: idLeft, ...options }
+        )();
+        highlightLines(
+          codeRight,
+          `${block.right.startRow + 1}-${block.right.endRow + 1}`,
+          { id: idRight, ...options }
+        )();
       }
     }
 
