@@ -127,6 +127,23 @@ export function registerBlockHighlighting(diff: Diff): Map<string, Array<string>
     (map.get(rightId) as string[]).push(leftId);
   }
 
+  function extractRowCol(value: string): [number, number] {
+    const matches = /([0-9]*)-([0-9]*)$/m.exec(value) as RegExpExecArray;
+    return [+matches[1], +matches[2]];
+  }
+  for (const array of map.values()) {
+    array.sort((el1, el2) => {
+      const [start1, end1] = extractRowCol(el1);
+      const [start2, end2] = extractRowCol(el2);
+      const res = start1 - start2;
+      if (res === 0) {
+        return end1 - end2;
+      } else {
+        return res;
+      }
+    });
+  }
+
   Prism.hooks.add("before-tokenize", function (arg) {
     isLeftFile = diff.leftFile.content === arg.code;
   });
