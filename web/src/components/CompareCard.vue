@@ -37,6 +37,7 @@ export default class Compare extends Vue {
     @Prop() diff!: Diff;
     leftLines: Array<Array<string>> = [];
     rightLines: Array<Array<string>> = [];
+    map: Map<string, Array<string>> = new Map();
 
     linesAmount(side: "left" | "right"): number {
       let lines: Array<string>;
@@ -62,14 +63,13 @@ export default class Compare extends Vue {
 
     mounted(): void {
       if (this.diff) {
-        console.log("MOUNTED DIFF IS LOADED");
-        registerBlockHighlighting(this.diff);
+        this.map = registerBlockHighlighting(this.diff);
         this.highlight();
       }
     }
 
     updated(): void {
-      registerBlockHighlighting(this.diff);
+      this.map = registerBlockHighlighting(this.diff);
       this.highlight();
     }
 
@@ -81,56 +81,30 @@ export default class Compare extends Vue {
       }
     }
 
-    lineClick(line: number, side: "left" | "right", event: Event): void {
-      let id: string | undefined;
-      const lines: Array<Array<string>> = side === "left" ? this.leftLines : this.rightLines;
-
-      if (lines[line - 1]) {
-        id = lines[line - 1].shift();
-        lines[line - 1].push(id as string);
-      }
-
-      const visibleElements = document.querySelectorAll(".line-highlight[class~=visible]") as NodeListOf<HTMLElement>;
-      for (const visibleElement of visibleElements) {
-        visibleElement.classList.remove("visible");
-      }
-
-      if (!id) {
-        return;
-      }
-
-      const leftBlock = document.getElementById(`${id}-left`) as HTMLElement;
-      const rightBlock = document.getElementById(`${id}-right`) as HTMLElement;
-      leftBlock.classList.add("visible");
-      rightBlock.classList.add("visible");
-      leftBlock.scrollIntoView({ behavior: "smooth" });
-      rightBlock.scrollIntoView({ behavior: "smooth" });
-    }
-
-    drawLineMarkers(): void {
-      const codeLeft: HTMLElement = document.getElementById("codeLeft") as HTMLElement;
-      const codeRight: HTMLElement = document.getElementById("codeRight") as HTMLElement;
-
-      const options: HighlightOptions = {
-        classes: "line-marker",
-      };
-
-      for (let i = 1; i <= this.linesAmount("left"); i += 1) {
-        highlightLines(
-          codeLeft,
-          `${i}`,
-          { id: `line-left-${i}`, callback: event => this.lineClick(i, "left", event), ...options }
-        )();
-      }
-
-      for (let i = 1; i <= this.linesAmount("right"); i += 1) {
-        highlightLines(
-          codeRight,
-          `${i}`,
-          { id: `line-right-${i}`, callback: event => this.lineClick(i, "right", event), ...options }
-        )();
-      }
-    }
+    // drawLineMarkers(): void {
+    //   const codeLeft: HTMLElement = document.getElementById("codeLeft") as HTMLElement;
+    //   const codeRight: HTMLElement = document.getElementById("codeRight") as HTMLElement;
+    //
+    //   const options: HighlightOptions = {
+    //     classes: "line-marker",
+    //   };
+    //
+    //   for (let i = 1; i <= this.linesAmount("left"); i += 1) {
+    //     highlightLines(
+    //       codeLeft,
+    //       `${i}`,
+    //       { id: `line-left-${i}`, callback: event => this.lineClick(i, "left", event), ...options }
+    //     )();
+    //   }
+    //
+    //   for (let i = 1; i <= this.linesAmount("right"); i += 1) {
+    //     highlightLines(
+    //       codeRight,
+    //       `${i}`,
+    //       { id: `line-right-${i}`, callback: event => this.lineClick(i, "right", event), ...options }
+    //     )();
+    //   }
+    // }
 
     codeHighLight(): void {
       if (this.$refs.codeLeft) {
@@ -247,7 +221,7 @@ export default class Compare extends Vue {
     transition: var(--transistion);
   }
 
-  .highlighted-code {
+  .highlighted-code.visible {
     background: yellow !important;
   }
 

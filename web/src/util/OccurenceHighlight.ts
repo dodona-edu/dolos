@@ -1,151 +1,161 @@
 import Prism from "prismjs";
 import { Diff, Hunk } from "@/api/api";
 
-export function registerBlockHighlighting(diff: Diff): void {
-  // let tree: Array<Node>;
-  interface Token {
-    type: string;
-    content: string | Array<Token>;
-    length: number;
+type PairedTextArrayIndices = [[number, number], string, [number, number], string]
+
+function mapToken(token: Prism.Token | string): Prism.Token {
+  if (typeof token === "string") {
+    return new Prism.Token("unmarked-token", token);
+  } else if (Array.isArray(token.content)) {
+    token.content = token.content.map(mapToken);
+    return token;
+  } else {
+    return token;
   }
+}
 
-  interface Node {
-    content: string | Array<Node>;
-    highlighted: boolean;
+function flattenToken(token: Prism.Token): Prism.Token | Array<Prism.Token> {
+  if (typeof token.content === "string") {
+    return token;
+  } else if (token.content instanceof Prism.Token) {
+    return token.content;
+  } else {
+    return (token.content as Array<Prism.Token>).flatMap(flattenToken);
   }
+}
 
-  // function mapToken(token: Token | string): Node {
-  //   if (typeof token === "string") {
-  //     return {
-  //       content: token,
-  //       highlighted: false
-  //     };
-  //   } else if (Array.isArray(token.content)) {
-  //     return {
-  //       content: token.content.map(mapToken),
-  //       highlighted: false
-  //     };
-  //   } else {
-  //     return {
-  //       content: token.content as string,
-  //       highlighted: false
-  //     };
-  //   }
-  // }
+function mapLinesToCumulativeCount(lines: Array<string>): Array<number> {
+  let sum = 0;
+  const temp = lines
+    .map(line => line.length + 1)
+    .map((value: number) => {
+      sum += value;
+      return sum;
+    });
+  temp.splice(0, 0, 0);
+  return temp;
+}
+const ID_START = "marked-code-block";
 
-  function mapTokenToToken(token: Prism.Token | string): Prism.Token {
-    if (typeof token === "string") {
-      return new Prism.Token("whitespace", token);
-    } else if (Array.isArray(token.content)) {
-      token.content = token.content.map(mapTokenToToken);
-      return token;
-    } else {
-      return token;
+function constructID(isLeft: boolean, start: number, end: number): string {
+  return `${ID_START}-${isLeft ? "left" : "right"}-${start}-${end}`;
+}
+
+function returnRangeId(textArrayIndices: Array<PairedTextArrayIndices>, isLeft: boolean, index: number):
+  string | null {
+  for (const [left, leftId, right, rightId] of textArrayIndices) {
+    const [start, end] = isLeft ? left : right;
+    const id = isLeft ? leftId : rightId;
+    if (start <= index && index <= end) {
+      return id;
     }
   }
+  return null;
+}
 
-  // function flattenNode(node: Node): Node | Array<Node> {
-  //   if (typeof node.content === "string") {
-  //     return node;
-  //   } else {
-  //     return node.content.flatMap(flattenNode);
-  //   }
-  // }
-
-  function flattenToken(token: Prism.Token): Prism.Token | Array<Prism.Token> {
-    if (typeof token.content === "string") {
-      return token;
-    } else if (token.content instanceof Prism.Token) {
-      return token.content;
-    } else {
-      return (token.content as Array<Prism.Token>).flatMap(flattenToken);
+function blockClick(map: Map<string, Array<string>>, event: Event): void {
+  let id: string | undefined;
+  for (const entry of (event.target as HTMLElement).classList) {
+    if (entry.startsWith(ID_START)) {
+      id = entry;
+      break;
     }
   }
-  function mapLinesToCumulativeCount(lines: Array<string>): Array<number> {
-    let sum = 0;
-    const temp = lines
-      .map(line => line.length + 1)
-      .map((value: number) => {
-        sum += value;
-        return sum;
-      });
-    temp.splice(0, 0, 0);
-    return temp;
+  if (!id) {
+    return;
   }
+  const blocks = map.get(id) as Array<string>;
+
+  const other = blocks.shift() as string;
+  blocks.push(other);
+
+  const visibleElements = document.querySelectorAll(".highlighted-code[class~=visible]") as NodeListOf<HTMLElement>;
+  for (const visibleElement of visibleElements) {
+    visibleElement.classList.remove("visible");
+  }
+
+  const leftBlock = document.querySelectorAll("." + id) as NodeListOf<HTMLElement>;
+  const rightBlock = document.querySelectorAll("." + other) as NodeListOf<HTMLElement>;
+  leftBlock.forEach(val => val.classList.add("visible"));
+  rightBlock.forEach(val => val.classList.add("visible"));
+  leftBlock[0].scrollIntoView({ behavior: "smooth" }); // TODO scroll to middle
+  rightBlock[0].scrollIntoView({ behavior: "smooth" }); // TODO scroll to middle
+}
+
+export function registerBlockHighlighting(diff: Diff): Map<string, Array<string>> {
   const leftLines = mapLinesToCumulativeCount(diff.leftFile.content.split("\n"));
   const rightLines = mapLinesToCumulativeCount(diff.rightFile.content.split("\n"));
 
   function lineColToSerial(left: boolean, row: number, col: number): number {
     const lines = left ? leftLines : rightLines;
-    console.log(left, row, col, lines[row], lines[row] + col);
     return lines[row] + col;
   }
 
-  type PairedTextArrayIndices = [[number, number], [number, number]]
-
   function toTextArrayIndices(hunk: Hunk): PairedTextArrayIndices {
+    const leftStart = lineColToSerial(true, hunk.left.startRow, hunk.left.startCol);
+    const leftEnd = lineColToSerial(true, hunk.left.endRow, hunk.left.endCol);
+    const rightStart = lineColToSerial(false, hunk.right.startRow, hunk.right.startCol);
+    const rightEnd = lineColToSerial(false, hunk.right.endRow, hunk.right.endCol);
     return [
       [
-        lineColToSerial(true, hunk.left.startRow, hunk.left.startCol),
-        lineColToSerial(true, hunk.left.endRow, hunk.left.endCol),
+        leftStart,
+        leftEnd
       ],
+      constructID(true, leftStart, leftEnd),
       [
-        lineColToSerial(false, hunk.right.startRow, hunk.right.startCol),
-        lineColToSerial(false, hunk.right.endRow, hunk.right.endCol),
-      ]
+        rightStart,
+        rightEnd
+      ],
+      constructID(false, rightStart, rightEnd)
     ];
   }
 
-  function inAnyRange(textArrayIndices: Array<PairedTextArrayIndices>, isLeft: boolean, index: number): boolean {
-    for (const [left, right] of textArrayIndices) {
-      const [start, end] = isLeft ? left : right;
-      if (start <= index && index <= end) {
-        return true;
-      }
-    }
-    return false;
-  }
+  const textArrayIndices = diff.fragments.map(toTextArrayIndices);
 
   let isLeftFile = false;
+
+  const map = new Map<string, Array<string>>();
+  for (const [, leftId, , rightId] of textArrayIndices) {
+    if (!map.has(leftId)) {
+      map.set(leftId, []);
+    }
+    (map.get(leftId) as string[]).push(rightId);
+
+    if (!map.has(rightId)) {
+      map.set(rightId, []);
+    }
+    (map.get(rightId) as string[]).push(leftId);
+  }
 
   Prism.hooks.add("before-tokenize", function (arg) {
     isLeftFile = diff.leftFile.content === arg.code;
   });
 
   Prism.hooks.add("after-tokenize", function (arg) {
-    const rootToken = new Prism.Token("root", arg.tokens.map(mapTokenToToken));
+    const rootToken = new Prism.Token("root", arg.tokens.map(mapToken));
     arg.tokens.length = 0;
     arg.tokens.push(rootToken);
 
-    // tree = arg.tokens.slice().map(mapToken);
-    // const flatTree = tree.flatMap(flattenNode);
     const flatTree = arg.tokens.flatMap(flattenToken);
-    const textArrayIndices = diff.fragments.map(toTextArrayIndices);
     let count = 0;
-    console.log(textArrayIndices);
     for (const node of flatTree) {
-      if (inAnyRange(textArrayIndices, isLeftFile, count)) {
-        node.type += " highlighted-code";
+      const id = returnRangeId(textArrayIndices, isLeftFile, count);
+      if (id) {
+        node.type += " highlighted-code " + id;
       }
       count += node.content.length;
     }
   });
 
-  // function filterContent(content: string): string {
-  //   return content.replaceAll(/<span [^>]*>[^<]*<\/span>/g, "");
-  // }
-  // let tempArg: Prism.hooks.RequiredEnvironment<"type" | "content" | "tag" | "classes" | "attributes" | "language",
-  //   Prism.Environment>;
-  // let num = 0;
-  // Prism.hooks.add("wrap", function (arg) {
-  //   // this function needs all the ranges that need to be selected, which is not available at import time
-  //   // so this function will have to be imported as soon as the data is available but before the code is highlighted
-  //   // joy
-  //   if (arg.type === "punctuation") {
-  //     tempArg.classes.push("highlighted-code");
-  //   }
-  //   num += arg.content.length;
-  //   console.log("arg", num, arg.content, "::FILTERED::", filterContent(arg.content));
-  //   tempArg = arg;
-  // });
+  let temp = 0;
+  Prism.hooks.add("complete", env => {
+    temp += 1;
+    if (temp === 2) {
+      (document.querySelectorAll(".highlighted-code") as NodeListOf<HTMLElement>).forEach(value => {
+        value.addEventListener("click", ev => blockClick(map, ev));
+      });
+    }
+  });
+
+  return map; // TODO move map to Comparecard.vue
 }
