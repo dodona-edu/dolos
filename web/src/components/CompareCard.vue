@@ -28,6 +28,7 @@ import "prismjs/plugins/line-numbers/prism-line-numbers.js";
 import "prismjs/plugins/line-numbers/prism-line-numbers.css";
 import "prismjs/plugins/line-highlight/prism-line-highlight";
 import "prismjs/plugins/line-highlight/prism-line-highlight.css";
+import { registerBlockHighlighting } from "@/util/OccurenceHighlight";
 import { highlightLines, HighlightOptions } from "@/util/line-highlight/prism-line-highlight.ts";
 
 @Component
@@ -60,20 +61,23 @@ export default class Compare extends Vue {
     }
 
     mounted(): void {
-      this.$nextTick(() => {
+      if (this.diff) {
+        console.log("MOUNTED DIFF IS LOADED");
+        registerBlockHighlighting(this.diff);
         this.highlight();
-      });
+      }
     }
 
     updated(): void {
+      registerBlockHighlighting(this.diff);
       this.highlight();
     }
 
     highlight(): void {
       if (this.diff) {
         this.codeHighLight();
-        this.blockHighlight();
-        this.drawLineMarkers();
+        // this.blockHighlight();
+        // this.drawLineMarkers();
       }
     }
 
@@ -129,11 +133,11 @@ export default class Compare extends Vue {
     }
 
     codeHighLight(): void {
-      if (this.$refs.codeRight) {
-        Prism.highlightElement(this.$refs.codeRight as Element, false);
-      }
       if (this.$refs.codeLeft) {
         Prism.highlightElement(this.$refs.codeLeft as Element, false);
+      }
+      if (this.$refs.codeRight) {
+        Prism.highlightElement(this.$refs.codeRight as Element, false);
       }
     }
 
@@ -241,6 +245,10 @@ export default class Compare extends Vue {
     filter: brightness(2);
     /*background: hsla(14.1, 100%, 50%, 0.31);*/
     transition: var(--transistion);
+  }
+
+  .highlighted-code {
+    background: yellow !important;
   }
 
 </style>

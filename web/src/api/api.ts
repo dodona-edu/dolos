@@ -59,6 +59,7 @@ export interface Diff {
   similarity: number;
   continuousOverlap: number;
   totalOverlap: number;
+  // TODO rename to hunks
   fragments: Hunk[];
 }
 
@@ -86,6 +87,7 @@ async function fetchFiles(
   return await d3.csv(url);
 }
 
+// TODO rename to fetchHunks
 async function fetchIntersections(
   url = "/data/intersections.csv"
 ): Promise<d3.DSVRowArray> {
@@ -122,6 +124,7 @@ function parseFragments(fragmentsJson: string, kmers: ObjMap<Kmer>): Hunk[] {
   }));
 }
 
+// TODO rename to parseHunk
 function parseIntersections(
   intersectionData: d3.DSVRowArray,
   files: ObjMap<File>,
