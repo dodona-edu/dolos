@@ -32,7 +32,6 @@ function constructID(isLeft: boolean, sel: Selection): string {
 function returnRangeId(diff: Diff, isLeft: boolean, row: number, col: number): string | null {
   for (const { left, right } of diff.fragments) {
     const { startRow, startCol, endRow, endCol } = isLeft ? left : right;
-    console.log(row, col, startRow, startCol, endRow, endCol);
     const id = isLeft ? constructID(true, left) : constructID(false, right);
     if (startRow < row && row < endRow) {
       return id;
@@ -83,7 +82,6 @@ export interface BlockHighlightingOptions {
 }
 
 export function registerBlockHighlighting(diff: Diff, options: BlockHighlightingOptions): Map<string, Array<string>> {
-  diff.fragments = diff.fragments.filter(fr => fr.left.startRow === 2 && fr.left.startCol === 18); // TODO remove
   const map = new Map<string, Array<string>>();
   for (const fragment of diff.fragments) {
     const leftId = constructID(true, fragment.left);
@@ -101,7 +99,7 @@ export function registerBlockHighlighting(diff: Diff, options: BlockHighlighting
   }
 
   function extractRowCol(value: string): [number, number] {
-    const matches = /([0-9]*)-([0-9]*)-[0-9]*-[0-9]$/m.exec(value) as RegExpExecArray;
+    const matches = /([0-9]*)-([0-9]*)-[0-9]*-[0-9]*$/m.exec(value) as RegExpExecArray;
     return [+matches[1], +matches[2]];
   }
 
@@ -129,7 +127,6 @@ export function registerBlockHighlighting(diff: Diff, options: BlockHighlighting
     for (const node of flatTree) {
       const content: string = node.content;
       const id = returnRangeId(diff, options.isLeftFile, row, col);
-      console.log(id, content);
       if (id) {
         node.type += " highlighted-code " + id;
       }
