@@ -29,21 +29,22 @@ function constructID(isLeft: boolean, sel: Selection): string {
 }
 
 // TODO return all the ranges it belongs to since it can be more then one
-function returnRangeId(diff: Diff, isLeft: boolean, row: number, col: number): string | null {
+function returnRangeId(diff: Diff, isLeft: boolean, row: number, col: number): Array<string> {
+  const returnArray: Array<string> = [];
   for (const { left, right } of diff.fragments) {
     const { startRow, startCol, endRow, endCol } = isLeft ? left : right;
     const id = isLeft ? constructID(true, left) : constructID(false, right);
     if (startRow < row && row < endRow) {
-      return id;
+      returnArray.push(id);
     } else if (row === startRow && startCol <= col) {
       if (row < endRow || (row === endRow && col < endCol)) {
-        return id;
+        returnArray.push(id);
       }
     } else if (row === endRow && col < endCol) {
-      return id;
+      returnArray.push(id);
     }
   }
-  return null;
+  return returnArray;
 }
 
 function blockClick(map: Map<string, Array<string>>, event: Event): void {
@@ -126,9 +127,9 @@ export function registerBlockHighlighting(diff: Diff, options: BlockHighlighting
     let col = 0;
     for (const node of flatTree) {
       const content: string = node.content;
-      const id = returnRangeId(diff, options.isLeftFile, row, col);
-      if (id) {
-        node.type += " highlighted-code " + id;
+      const ids = returnRangeId(diff, options.isLeftFile, row, col);
+      if (ids.length > 0) {
+        node.type += " highlighted-code " + ids.join(" ");
       }
 
       if (content.includes("\n")) {
