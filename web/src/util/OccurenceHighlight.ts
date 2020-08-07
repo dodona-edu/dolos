@@ -28,7 +28,6 @@ function constructID(isLeft: boolean, sel: Selection): string {
   return `${ID_START}-${isLeft ? "left" : "right"}-${sel.startRow}-${sel.startCol}-${sel.endRow}-${sel.endCol}`;
 }
 
-// TODO return all the ranges it belongs to since it can be more then one
 function returnRangeId(diff: Diff, isLeft: boolean, row: number, col: number): Array<string> {
   const returnArray: Array<string> = [];
   for (const { left, right } of diff.fragments) {
@@ -118,9 +117,9 @@ export function registerBlockHighlighting(diff: Diff, options: BlockHighlighting
   }
 
   Prism.hooks.add("after-tokenize", function (arg) {
-    const rootToken = new Prism.Token("root", arg.tokens.map(mapToken));
+    const arr = arg.tokens.map(mapToken);
     arg.tokens.length = 0;
-    arg.tokens.push(rootToken);
+    arg.tokens.push(...arr);
 
     const flatTree = arg.tokens.flatMap(flattenToken);
     let row = 0;
