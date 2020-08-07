@@ -69,12 +69,10 @@ function blockClick(map: Map<string, Array<string>>, event: Event): void {
 
   const leftBlock = document.querySelectorAll("." + id) as NodeListOf<HTMLElement>;
   const rightBlock = document.querySelectorAll("." + other) as NodeListOf<HTMLElement>;
-  console.log("." + id);
-  console.log("." + other);
   leftBlock.forEach(val => val.classList.add("visible"));
   rightBlock.forEach(val => val.classList.add("visible"));
-  leftBlock[0].scrollIntoView({ behavior: "smooth" }); // TODO scroll to middle
-  rightBlock[0].scrollIntoView({ behavior: "smooth" }); // TODO scroll to middle
+  leftBlock[0].scrollIntoView({ behavior: "smooth", block: "center" });
+  rightBlock[0].scrollIntoView({ behavior: "smooth", block: "center" });
 }
 
 export interface BlockHighlightingOptions {
