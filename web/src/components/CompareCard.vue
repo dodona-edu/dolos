@@ -28,7 +28,7 @@ import "prismjs/plugins/line-numbers/prism-line-numbers.js";
 import "prismjs/plugins/line-numbers/prism-line-numbers.css";
 import "prismjs/plugins/line-highlight/prism-line-highlight";
 import "prismjs/plugins/line-highlight/prism-line-highlight.css";
-import { registerBlockHighlighting } from "@/util/OccurenceHighlight";
+import { BlockHighlightingOptions, registerBlockHighlighting } from "@/util/OccurenceHighlight";
 import { highlightLines, HighlightOptions } from "@/util/line-highlight/prism-line-highlight.ts";
 
 @Component
@@ -38,6 +38,9 @@ export default class Compare extends Vue {
     leftLines: Array<Array<string>> = [];
     rightLines: Array<Array<string>> = [];
     map: Map<string, Array<string>> = new Map();
+    blockHighlightOptions: BlockHighlightingOptions = {
+      isLeftFile: true
+    }
 
     linesAmount(side: "left" | "right"): number {
       let lines: Array<string>;
@@ -63,13 +66,13 @@ export default class Compare extends Vue {
 
     mounted(): void {
       if (this.diff) {
-        this.map = registerBlockHighlighting(this.diff);
+        this.map = registerBlockHighlighting(this.diff, this.blockHighlightOptions);
         this.highlight();
       }
     }
 
     updated(): void {
-      this.map = registerBlockHighlighting(this.diff);
+      this.map = registerBlockHighlighting(this.diff, this.blockHighlightOptions);
       this.highlight();
     }
 
@@ -108,9 +111,11 @@ export default class Compare extends Vue {
 
     codeHighLight(): void {
       if (this.$refs.codeLeft) {
+        this.blockHighlightOptions.isLeftFile = true;
         Prism.highlightElement(this.$refs.codeLeft as Element, false);
       }
       if (this.$refs.codeRight) {
+        this.blockHighlightOptions.isLeftFile = false;
         Prism.highlightElement(this.$refs.codeRight as Element, false);
       }
     }

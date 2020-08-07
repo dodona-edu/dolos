@@ -76,13 +76,19 @@ function blockClick(map: Map<string, Array<string>>, event: Event): void {
 
   const leftBlock = document.querySelectorAll("." + id) as NodeListOf<HTMLElement>;
   const rightBlock = document.querySelectorAll("." + other) as NodeListOf<HTMLElement>;
+  console.log("." + id);
+  console.log("." + other);
   leftBlock.forEach(val => val.classList.add("visible"));
   rightBlock.forEach(val => val.classList.add("visible"));
   leftBlock[0].scrollIntoView({ behavior: "smooth" }); // TODO scroll to middle
   rightBlock[0].scrollIntoView({ behavior: "smooth" }); // TODO scroll to middle
 }
 
-export function registerBlockHighlighting(diff: Diff): Map<string, Array<string>> {
+export interface BlockHighlightingOptions {
+  isLeftFile: boolean;
+}
+
+export function registerBlockHighlighting(diff: Diff, options: BlockHighlightingOptions): Map<string, Array<string>> {
   const leftLines = mapLinesToCumulativeCount(diff.leftFile.content.split("\n"));
   const rightLines = mapLinesToCumulativeCount(diff.rightFile.content.split("\n"));
 
@@ -112,10 +118,9 @@ export function registerBlockHighlighting(diff: Diff): Map<string, Array<string>
 
   const textArrayIndices = diff.fragments.map(toTextArrayIndices);
 
-  let isLeftFile = false;
-
   const map = new Map<string, Array<string>>();
   for (const [, leftId, , rightId] of textArrayIndices) {
+    console.log(leftId, rightId);
     if (!map.has(leftId)) {
       map.set(leftId, []);
     }
@@ -127,14 +132,15 @@ export function registerBlockHighlighting(diff: Diff): Map<string, Array<string>
     (map.get(rightId) as string[]).push(leftId);
   }
 
-  function extractRowCol(value: string): [number, number] {
+  function extractBeginEnd(value: string): [number, number] {
     const matches = /([0-9]*)-([0-9]*)$/m.exec(value) as RegExpExecArray;
     return [+matches[1], +matches[2]];
   }
+
   for (const array of map.values()) {
     array.sort((el1, el2) => {
-      const [start1, end1] = extractRowCol(el1);
-      const [start2, end2] = extractRowCol(el2);
+      const [start1, end1] = extractBeginEnd(el1);
+      const [start2, end2] = extractBeginEnd(el2);
       const res = start1 - start2;
       if (res === 0) {
         return end1 - end2;
@@ -144,9 +150,9 @@ export function registerBlockHighlighting(diff: Diff): Map<string, Array<string>
     });
   }
 
-  Prism.hooks.add("before-tokenize", function (arg) {
-    isLeftFile = diff.leftFile.content === arg.code;
-  });
+  // Prism.hooks.add("before-tokenize", function (arg) {
+  //   isLeftFile = diff.leftFile.content === arg.code;
+  // });
 
   Prism.hooks.add("after-tokenize", function (arg) {
     const rootToken = new Prism.Token("root", arg.tokens.map(mapToken));
@@ -156,7 +162,7 @@ export function registerBlockHighlighting(diff: Diff): Map<string, Array<string>
     const flatTree = arg.tokens.flatMap(flattenToken);
     let count = 0;
     for (const node of flatTree) {
-      const id = returnRangeId(textArrayIndices, isLeftFile, count);
+      const id = returnRangeId(textArrayIndices, options.isLeftFile, count);
       if (id) {
         node.type += " highlighted-code " + id;
       }
