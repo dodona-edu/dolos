@@ -227,7 +227,13 @@ export default class Compare extends Vue {
   }
 
   .highlighted-code.visible {
-    background: yellow !important;
+    background: #ffd54f !important;
+    text-shadow: none;
+  }
+
+  .highlighted-code {
+    background: #ffecb3 !important;
+    text-shadow: none;
   }
 
 </style>
