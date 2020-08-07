@@ -1,7 +1,5 @@
 import Prism from "prismjs";
-import { Diff, Hunk } from "@/api/api";
-
-type PairedTextArrayIndices = [[number, number], string, [number, number], string]
+import { Diff, Selection } from "@/api/api";
 
 function mapToken(token: Prism.Token | string): Prism.Token {
   if (typeof token === "string") {
@@ -24,29 +22,25 @@ function flattenToken(token: Prism.Token): Prism.Token | Array<Prism.Token> {
   }
 }
 
-function mapLinesToCumulativeCount(lines: Array<string>): Array<number> {
-  let sum = 0;
-  const temp = lines
-    .map(line => line.length + 1)
-    .map((value: number) => {
-      sum += value;
-      return sum;
-    });
-  temp.splice(0, 0, 0);
-  return temp;
-}
 const ID_START = "marked-code-block";
 
-function constructID(isLeft: boolean, start: number, end: number): string {
-  return `${ID_START}-${isLeft ? "left" : "right"}-${start}-${end}`;
+function constructID(isLeft: boolean, sel: Selection): string {
+  return `${ID_START}-${isLeft ? "left" : "right"}-${sel.startRow}-${sel.startCol}-${sel.endRow}-${sel.endCol}`;
 }
 
-function returnRangeId(textArrayIndices: Array<PairedTextArrayIndices>, isLeft: boolean, index: number):
-  string | null {
-  for (const [left, leftId, right, rightId] of textArrayIndices) {
-    const [start, end] = isLeft ? left : right;
-    const id = isLeft ? leftId : rightId;
-    if (start <= index && index <= end) {
+// TODO return all the ranges it belongs to since it can be more then one
+function returnRangeId(diff: Diff, isLeft: boolean, row: number, col: number): string | null {
+  for (const { left, right } of diff.fragments) {
+    const { startRow, startCol, endRow, endCol } = isLeft ? left : right;
+    console.log(row, col, startRow, startCol, endRow, endCol);
+    const id = isLeft ? constructID(true, left) : constructID(false, right);
+    if (startRow < row && row < endRow) {
+      return id;
+    } else if (row === startRow && startCol <= col) {
+      if (row < endRow || (row === endRow && col < endCol)) {
+        return id;
+      }
+    } else if (row === endRow && col < endCol) {
       return id;
     }
   }
@@ -89,38 +83,12 @@ export interface BlockHighlightingOptions {
 }
 
 export function registerBlockHighlighting(diff: Diff, options: BlockHighlightingOptions): Map<string, Array<string>> {
-  const leftLines = mapLinesToCumulativeCount(diff.leftFile.content.split("\n"));
-  const rightLines = mapLinesToCumulativeCount(diff.rightFile.content.split("\n"));
-
-  function lineColToSerial(left: boolean, row: number, col: number): number {
-    const lines = left ? leftLines : rightLines;
-    return lines[row] + col;
-  }
-
-  function toTextArrayIndices(hunk: Hunk): PairedTextArrayIndices {
-    const leftStart = lineColToSerial(true, hunk.left.startRow, hunk.left.startCol);
-    const leftEnd = lineColToSerial(true, hunk.left.endRow, hunk.left.endCol);
-    const rightStart = lineColToSerial(false, hunk.right.startRow, hunk.right.startCol);
-    const rightEnd = lineColToSerial(false, hunk.right.endRow, hunk.right.endCol);
-    return [
-      [
-        leftStart,
-        leftEnd
-      ],
-      constructID(true, leftStart, leftEnd),
-      [
-        rightStart,
-        rightEnd
-      ],
-      constructID(false, rightStart, rightEnd)
-    ];
-  }
-
-  const textArrayIndices = diff.fragments.map(toTextArrayIndices);
-
+  diff.fragments = diff.fragments.filter(fr => fr.left.startRow === 2 && fr.left.startCol === 18); // TODO remove
   const map = new Map<string, Array<string>>();
-  for (const [, leftId, , rightId] of textArrayIndices) {
-    console.log(leftId, rightId);
+  for (const fragment of diff.fragments) {
+    const leftId = constructID(true, fragment.left);
+    const rightId = constructID(false, fragment.right);
+
     if (!map.has(leftId)) {
       map.set(leftId, []);
     }
@@ -132,27 +100,23 @@ export function registerBlockHighlighting(diff: Diff, options: BlockHighlighting
     (map.get(rightId) as string[]).push(leftId);
   }
 
-  function extractBeginEnd(value: string): [number, number] {
-    const matches = /([0-9]*)-([0-9]*)$/m.exec(value) as RegExpExecArray;
+  function extractRowCol(value: string): [number, number] {
+    const matches = /([0-9]*)-([0-9]*)-[0-9]*-[0-9]$/m.exec(value) as RegExpExecArray;
     return [+matches[1], +matches[2]];
   }
 
   for (const array of map.values()) {
     array.sort((el1, el2) => {
-      const [start1, end1] = extractBeginEnd(el1);
-      const [start2, end2] = extractBeginEnd(el2);
-      const res = start1 - start2;
+      const [row1, col1] = extractRowCol(el1);
+      const [row2, col2] = extractRowCol(el2);
+      const res = row1 - row2;
       if (res === 0) {
-        return end1 - end2;
+        return col1 - col2;
       } else {
         return res;
       }
     });
   }
-
-  // Prism.hooks.add("before-tokenize", function (arg) {
-  //   isLeftFile = diff.leftFile.content === arg.code;
-  // });
 
   Prism.hooks.add("after-tokenize", function (arg) {
     const rootToken = new Prism.Token("root", arg.tokens.map(mapToken));
@@ -160,13 +124,22 @@ export function registerBlockHighlighting(diff: Diff, options: BlockHighlighting
     arg.tokens.push(rootToken);
 
     const flatTree = arg.tokens.flatMap(flattenToken);
-    let count = 0;
+    let row = 0;
+    let col = 0;
     for (const node of flatTree) {
-      const id = returnRangeId(textArrayIndices, options.isLeftFile, count);
+      const content: string = node.content;
+      const id = returnRangeId(diff, options.isLeftFile, row, col);
+      console.log(id, content);
       if (id) {
         node.type += " highlighted-code " + id;
       }
-      count += node.content.length;
+
+      if (content.includes("\n")) {
+        row += (content.match(/\n/g) || []).length;
+        col = content.length - content.lastIndexOf("\n") - 1;
+      } else {
+        col += content.length;
+      }
     }
   });
 
