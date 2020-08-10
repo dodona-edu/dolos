@@ -9,7 +9,7 @@
       <v-row v-if="loaded && diff" justify="center">
         <v-col sm="6">
           <compare-side
-            identifier="leftSide"
+            :identifier="leftIdentifier"
             :file="diff.leftFile"
             :selections="leftSelection"
             :selection-click-handler="selectionClickEventHandler">
@@ -17,7 +17,7 @@
         </v-col>
         <v-col sm="6">
           <compare-side
-            identifier="rightSide"
+            :identifier="rightIdentifier"
             :file="diff.rightFile"
             :selections="rightSelection"
             :selection-click-handler="selectionClickEventHandler">
@@ -32,40 +32,109 @@
 import { Component, Vue, Prop } from "vue-property-decorator";
 import { Diff, Selection } from "@/api/api";
 import CompareSide from "@/components/CompareSide.vue";
+import { constructID } from "@/util/OccurenceHighlight";
 
 @Component({
   components: { CompareSide: CompareSide }
 })
 export default class Compare extends Vue {
-    @Prop({ default: false }) loaded!: boolean;
-    @Prop() diff!: Diff;
-    // leftLines: Array<Array<string>> = [];
-    // rightLines: Array<Array<string>> = [];
-    // highlightsLoaded = false;
-    // map: Map<string, Array<string>> = new Map();
-    // blockHighlightOptions: BlockHighlightingOptions = {
-    //   isLeftFile: true
-    // }
+  @Prop({ default: false }) loaded!: boolean;
+  @Prop() diff!: Diff;
 
-    selectionClickEventHandler(sideId: string, blockId: string): void {
-      console.log(sideId, blockId);
+  lastClickSide: string;
+  lastClickedBlockId: id;
+  lastClickedBlockClasses: Array<string>;
+  index = 0;
+  leftMap: Map<string, Array<string>> = new Map();
+  rightMap: Map<string, Array<string>> = new Map();
+
+  get rightIdentifier(): string {
+    return "rightSide";
+  }
+
+  get leftIdentifier(): string {
+    return "leftSide";
+  }
+
+  selectionClickEventHandler(sideId: string, blockId: number, blockClasses: Array<string>): void {
+    if (!(sideId === this.lastClickSide && blockId === this.lastClickedBlockId)) {
+      // this.index = -1;
+      this.lastClickSide = sideId;
+      this.lastClickedBlockId = blockId;
+      this.lastClickedBlockClasses = blockClasses;
+    }
+    const map = sideId === this.rightIdentifier ? this.rightMap : this.leftMap;
+    const id = blockClasses[0];
+    console.log(sideId, blockId, blockClasses);
+    const blocks = map.get(id);
+    console.log(blocks);
+
+    const other = blocks.shift() as string;
+    blocks.push(other);
+
+    const visibleElements = document.querySelectorAll(".marked-code[class~=visible]") as NodeListOf<HTMLElement>;
+    for (const visibleElement of visibleElements) {
+      visibleElement.classList.remove("visible");
     }
 
-    get leftSelection(): Array<Selection> {
-      return this.diff.fragments.map(fragment => fragment.left);
-    }
+    const firstBlocks = document.querySelectorAll(`#${sideId} .${id}`) as NodeListOf<HTMLElement>;
+    const secondBlocks = document.querySelectorAll(`pre:not(#${sideId}) .${other}`) as NodeListOf<HTMLElement>;
+    firstBlocks.forEach(val => val.classList.add("visible"));
+    secondBlocks.forEach(val => val.classList.add("visible"));
+    firstBlocks[0].scrollIntoView({ behavior: "smooth", block: "center" });
+    secondBlocks[0].scrollIntoView({ behavior: "smooth", block: "center" });
+  }
 
-    get rightSelection(): Array<Selection> {
-      return this.diff.fragments.map(fragment => fragment.right);
-    }
+  get leftSelection(): Array<Selection> {
+    return this.diff.fragments.map(fragment => fragment.left);
+  }
 
-    mounted(): void {
-      // this.highlight();
-    }
+  get rightSelection(): Array<Selection> {
+    return this.diff.fragments.map(fragment => fragment.right);
+  }
 
-    updated(): void {
-      // this.highlight();
+  extractRowCol(value: string): [number, number] {
+    const matches = /([0-9]*)-([0-9]*)-[0-9]*-[0-9]*$/m.exec(value) as RegExpExecArray;
+    return [+matches[1], +matches[2]];
+  }
+
+  mounted(): void {
+    this.initializeMaps();
+  }
+
+  sortMap(map: Map<string, string>): void {
+    for (const array of map.values()) {
+      array.sort((el1, el2) => {
+        const [row1, col1] = this.extractRowCol(el1);
+        const [row2, col2] = this.extractRowCol(el2);
+        const res = row1 - row2;
+        if (res === 0) {
+          return col1 - col2;
+        } else {
+          return res;
+        }
+      });
     }
+  }
+
+  initializeMaps(): void {
+    for (const fragment of this.diff.fragments) {
+      const leftId = constructID(fragment.left);
+      const rightId = constructID(fragment.right);
+
+      if (!this.leftMap.has(leftId)) {
+        this.leftMap.set(leftId, []);
+      }
+      this.leftMap.get(leftId).push(rightId);
+
+      if (!this.rightMap.has(rightId)) {
+        this.rightMap.set(rightId, []);
+      }
+      this.rightMap.get(rightId).push(leftId);
+    }
+    this.sortMap(this.leftMap);
+    this.sortMap(this.rightMap);
+  }
 
   // scrollToCorrespondingBlock(event: Event): void {
   //   if (event.target) {
@@ -86,29 +155,29 @@ export default class Compare extends Vue {
 
 <style>
 
-  .code-highlight {
-    visibility: hidden;
-    background: linear-gradient(to right, hsla(5.6, 100%, 50%, 0.29) 70%, hsla(24, 20%, 50%,0));
-    pointer-events: all;
-  }
+.code-highlight {
+  visibility: hidden;
+  background: linear-gradient(to right, hsla(5.6, 100%, 50%, 0.29) 70%, hsla(24, 20%, 50%, 0));
+  pointer-events: all;
+}
 
-  .visible {
-    visibility: visible;
-  }
+.visible {
+  visibility: visible;
+}
 
-  .line-marker {
-    background: hsla(24, 20%, 50%, 0);
-    pointer-events: all;
-  }
+.line-marker {
+  background: hsla(24, 20%, 50%, 0);
+  pointer-events: all;
+}
 
-  .code-highlight:hover {
-    filter: brightness(2);
-    /*background: hsla(14.1, 100%, 50%, 0.31);*/
-  }
+.code-highlight:hover {
+  filter: brightness(2);
+  /*background: hsla(14.1, 100%, 50%, 0.31);*/
+}
 
-  .token {
-    margin: -3px 0 -3px 0;
-    padding: 3px 0 3px 0;
-  }
+.token {
+  margin: -3px 0 -3px 0;
+  padding: 3px 0 3px 0;
+}
 
 </style>

@@ -1,9 +1,15 @@
 <template>
-  <pre ref="pre" :id="identifier" class="line-numbers highlighted-code"><code
-    ref="code"
-    :class="language">{{content}}</code>
-  </pre>
-
+  <div>
+    <v-progress-linear
+      :active="!loaded"
+      position="absolute"
+      :indeterminate="!loaded">
+    </v-progress-linear>
+    <pre ref="pre" :id="identifier" class="line-numbers highlighted-code"><code
+      ref="code"
+      :class="language">{{content}}</code>
+    </pre>
+  </div>
 </template>
 
 <script lang="ts">
@@ -16,15 +22,16 @@ import "prismjs/components/prism-javascript";
 import "prismjs/components/prism-python";
 import "prismjs/plugins/line-numbers/prism-line-numbers.js";
 import "prismjs/plugins/line-numbers/prism-line-numbers.css";
-import { registerBlockHighlighting } from "@/util/OccurenceHighlight";
+import { ID_START, registerBlockHighlighting } from "@/util/OccurenceHighlight";
 
 @Component
 export default class CompareSide extends Vue {
   @Prop() identifier!: string;
-  @Prop() selectionClickHandler!: (sideId: string, blockId: string) => void;
+  @Prop() selectionClickHandler!: (sideId: string, blockId: number, blockClasses: Array<string>) => void;
   @Prop() file!: File;
   @Prop() selections!: Array<Selection>;
 
+  loaded = false;
   get content(): string {
     return this.file.content;
   }
@@ -51,8 +58,25 @@ export default class CompareSide extends Vue {
     }, 0);
   }
 
+  addEventListeners(): void {
+    let id = 0;
+    for (const value of document.querySelectorAll(`#${this.identifier} .marked-code`) as NodeListOf<HTMLElement>) {
+      value.addEventListener("click", () => {
+        return this.selectionClickHandler(
+          this.identifier,
+          id,
+          [...value.classList].filter(className => className.startsWith(ID_START))
+        );
+      });
+      id += 1;
+    }
+  }
+
   codeHighLight(): void {
-    Prism.highlightElement(this.$refs.code as Element, false);
+    Prism.highlightElement(this.$refs.code as Element, false, () => {
+      this.addEventListeners();
+      this.loaded = true;
+    });
   }
 }
 </script>
