@@ -16,7 +16,6 @@ export default new Vuex.Store({
   },
   mutations: {
     setData(state, data: ApiData) {
-      const start = Date.now();
       state.dataLoaded = true;
       state.data = data;
     },
