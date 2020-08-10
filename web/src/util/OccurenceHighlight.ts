@@ -1,5 +1,5 @@
 import Prism from "prismjs";
-import { Diff, Selection } from "@/api/api";
+import { Selection } from "@/api/api";
 
 function mapToken(token: Prism.Token | string): Prism.Token {
   if (typeof token === "string") {
@@ -24,26 +24,26 @@ function flattenToken(token: Prism.Token): Prism.Token | Array<Prism.Token> {
 
 const ID_START = "marked-code-block";
 
-function constructID(isLeft: boolean, sel: Selection): string {
-  return `${ID_START}-${isLeft ? "left" : "right"}-${sel.startRow}-${sel.startCol}-${sel.endRow}-${sel.endCol}`;
+function constructID(sel: Selection): string {
+  return `${ID_START}-${sel.startRow}-${sel.startCol}-${sel.endRow}-${sel.endCol}`;
 }
 
-function returnRangeId(diff: Diff, isLeft: boolean, row: number, col: number): Array<string> {
-  const returnArray: Array<string> = [];
-  for (const { left, right } of diff.fragments) {
-    const { startRow, startCol, endRow, endCol } = isLeft ? left : right;
-    const id = isLeft ? constructID(true, left) : constructID(false, right);
+function returnSelectionIds(selections: Array<Selection>, row: number, col: number): Array<string> {
+  const ids: Set<string> = new Set();
+  for (const selection of selections) {
+    const { startRow, startCol, endRow, endCol } = selection;
+    const id = constructID(selection);
     if (startRow < row && row < endRow) {
-      returnArray.push(id);
+      ids.add(id);
     } else if (row === startRow && startCol <= col) {
       if (row < endRow || (row === endRow && col < endCol)) {
-        returnArray.push(id);
+        ids.add(id);
       }
     } else if (row === endRow && col < endCol) {
-      returnArray.push(id);
+      ids.add(id);
     }
   }
-  return returnArray;
+  return [...ids];
 }
 
 function blockClick(map: Map<string, Array<string>>, event: Event): void {
@@ -62,7 +62,7 @@ function blockClick(map: Map<string, Array<string>>, event: Event): void {
   const other = blocks.shift() as string;
   blocks.push(other);
 
-  const visibleElements = document.querySelectorAll(".highlighted-code[class~=visible]") as NodeListOf<HTMLElement>;
+  const visibleElements = document.querySelectorAll(".marked-code[class~=visible]") as NodeListOf<HTMLElement>;
   for (const visibleElement of visibleElements) {
     visibleElement.classList.remove("visible");
   }
@@ -75,46 +75,43 @@ function blockClick(map: Map<string, Array<string>>, event: Event): void {
   rightBlock[0].scrollIntoView({ behavior: "smooth", block: "center" });
 }
 
-export interface BlockHighlightingOptions {
-  isLeftFile: boolean;
-}
+export function registerBlockHighlighting(selections: Array<Selection>): void {
+  // const map = new Map<string, Array<string>>();
+  // for (const fragment of diff.fragments) {
+  //   const leftId = constructID(true, fragment.left);
+  //   const rightId = constructID(false, fragment.right);
+  //
+  //   if (!map.has(leftId)) {
+  //     map.set(leftId, []);
+  //   }
+  //   (map.get(leftId) as string[]).push(rightId);
+  //
+  //   if (!map.has(rightId)) {
+  //     map.set(rightId, []);
+  //   }
+  //   (map.get(rightId) as string[]).push(leftId);
+  // }
 
-export function registerBlockHighlighting(diff: Diff, options: BlockHighlightingOptions): Map<string, Array<string>> {
-  const map = new Map<string, Array<string>>();
-  for (const fragment of diff.fragments) {
-    const leftId = constructID(true, fragment.left);
-    const rightId = constructID(false, fragment.right);
-
-    if (!map.has(leftId)) {
-      map.set(leftId, []);
-    }
-    (map.get(leftId) as string[]).push(rightId);
-
-    if (!map.has(rightId)) {
-      map.set(rightId, []);
-    }
-    (map.get(rightId) as string[]).push(leftId);
-  }
-
-  function extractRowCol(value: string): [number, number] {
-    const matches = /([0-9]*)-([0-9]*)-[0-9]*-[0-9]*$/m.exec(value) as RegExpExecArray;
-    return [+matches[1], +matches[2]];
-  }
-
-  for (const array of map.values()) {
-    array.sort((el1, el2) => {
-      const [row1, col1] = extractRowCol(el1);
-      const [row2, col2] = extractRowCol(el2);
-      const res = row1 - row2;
-      if (res === 0) {
-        return col1 - col2;
-      } else {
-        return res;
-      }
-    });
-  }
+  // function extractRowCol(value: string): [number, number] {
+  //   const matches = /([0-9]*)-([0-9]*)-[0-9]*-[0-9]*$/m.exec(value) as RegExpExecArray;
+  //   return [+matches[1], +matches[2]];
+  // }
+  //
+  // for (const array of map.values()) {
+  //   array.sort((el1, el2) => {
+  //     const [row1, col1] = extractRowCol(el1);
+  //     const [row2, col2] = extractRowCol(el2);
+  //     const res = row1 - row2;
+  //     if (res === 0) {
+  //       return col1 - col2;
+  //     } else {
+  //       return res;
+  //     }
+  //   });
+  // }
 
   Prism.hooks.add("after-tokenize", function (arg) {
+    console.log("here");
     const arr = arg.tokens.map(mapToken);
     arg.tokens.length = 0;
     arg.tokens.push(...arr);
@@ -124,9 +121,9 @@ export function registerBlockHighlighting(diff: Diff, options: BlockHighlighting
     let col = 0;
     for (const node of flatTree) {
       const content: string = node.content;
-      const ids = returnRangeId(diff, options.isLeftFile, row, col);
+      const ids = returnSelectionIds(selections, row, col);
       if (ids.length > 0) {
-        node.type += " highlighted-code " + ids.join(" ");
+        node.type += " marked-code " + ids.join(" ");
       }
 
       if (content.includes("\n")) {
@@ -140,13 +137,12 @@ export function registerBlockHighlighting(diff: Diff, options: BlockHighlighting
 
   let temp = 0;
   Prism.hooks.add("complete", env => {
+    console.log("here");
     temp += 1;
     if (temp === 2) {
-      (document.querySelectorAll(".highlighted-code") as NodeListOf<HTMLElement>).forEach(value => {
-        value.addEventListener("click", ev => blockClick(map, ev));
+      (document.querySelectorAll(".marked-code") as NodeListOf<HTMLElement>).forEach(value => {
+        value.addEventListener("click", ev => console.dir(ev));
       });
     }
   });
-
-  return map; // TODO move map to Comparecard.vue
 }
