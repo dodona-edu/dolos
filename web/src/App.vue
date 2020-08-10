@@ -6,7 +6,7 @@
       dark
       dense
     >
-      <v-toolbar-title>DOLOS</v-toolbar-title>
+      <v-toolbar-title @click="toHomeScreen">DOLOS</v-toolbar-title>
 
       <v-spacer></v-spacer>
 
@@ -29,5 +29,9 @@
 import { Vue, Component } from "vue-property-decorator";
 
 @Component({})
-export default class App extends Vue {}
+export default class App extends Vue {
+  toHomeScreen(): void {
+    this.$router.push("/");
+  }
+}
 </script>

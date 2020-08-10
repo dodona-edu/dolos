@@ -19,7 +19,7 @@
       :sort-desc="true"
       :items-per-page="15"
       :search="search"
-      :loading="!loaded"
+      :loading="!loaded || !itemsLoaded"
       class="elevation-1"
       @click:row="rowClicked"
     >
@@ -36,6 +36,7 @@ export default class DiffTable extends Vue {
   @Prop() loaded!: boolean;
   @Prop() diffs!: Diff[];
   @Prop({ default: "" }) search!: string;
+  itemsLoaded = false;
 
   headers = [
     { text: "Left file", value: "left", sortable: false },
@@ -46,7 +47,7 @@ export default class DiffTable extends Vue {
   ];
 
   get items(): Array<{left: string; right: string; similarity: string}> {
-    return Object.values(this.diffs).map(intersection => ({
+    const items = Object.values(this.diffs).map(intersection => ({
       intersection,
       left: intersection.leftFile.path,
       right: intersection.rightFile.path,
@@ -54,6 +55,8 @@ export default class DiffTable extends Vue {
       cont: intersection.continuousOverlap,
       total: intersection.totalOverlap,
     }));
+    this.itemsLoaded = items.length !== 0;
+    return items;
   }
 
   public rowClicked(item: {intersection: Diff}): void {

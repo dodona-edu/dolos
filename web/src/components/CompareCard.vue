@@ -1,5 +1,5 @@
 <template>
-  <v-card :loading="!loaded">
+  <v-card :loading="!loaded || !highlightsLoaded">
     <v-card-title>
       One
       <v-spacer/>
@@ -28,6 +28,7 @@ import "prismjs/plugins/line-numbers/prism-line-numbers.js";
 import "prismjs/plugins/line-numbers/prism-line-numbers.css";
 import "prismjs/plugins/line-highlight/prism-line-highlight";
 import "prismjs/plugins/line-highlight/prism-line-highlight.css";
+import "prismjs/components/prism-python";
 import { BlockHighlightingOptions, registerBlockHighlighting } from "@/util/OccurenceHighlight";
 import { highlightLines, HighlightOptions } from "@/util/line-highlight/prism-line-highlight.ts";
 
@@ -37,6 +38,7 @@ export default class Compare extends Vue {
     @Prop() diff!: Diff;
     leftLines: Array<Array<string>> = [];
     rightLines: Array<Array<string>> = [];
+    highlightsLoaded = false;
     map: Map<string, Array<string>> = new Map();
     blockHighlightOptions: BlockHighlightingOptions = {
       isLeftFile: true
@@ -65,23 +67,28 @@ export default class Compare extends Vue {
     }
 
     mounted(): void {
-      if (this.diff) {
-        this.map = registerBlockHighlighting(this.diff, this.blockHighlightOptions);
-        this.highlight();
-      }
-    }
-
-    updated(): void {
-      this.map = registerBlockHighlighting(this.diff, this.blockHighlightOptions);
       this.highlight();
     }
 
+    updated(): void {
+      // this.highlight();
+    }
+
     highlight(): void {
-      if (this.diff) {
-        this.codeHighLight();
-        // this.blockHighlight();
-        // this.drawLineMarkers();
-      }
+      this.highlightsLoaded = false;
+      setTimeout(() => {
+        new Promise(resolve => {
+          if (this.diff) {
+            this.map = registerBlockHighlighting(this.diff, this.blockHighlightOptions);
+            this.codeHighLight();
+            // this.blockHighlight();
+            // this.drawLineMarkers();
+          }
+          resolve();
+        }).then(() => {
+          this.highlightsLoaded = true;
+        });
+      }, 0);
     }
 
     // drawLineMarkers(): void {
