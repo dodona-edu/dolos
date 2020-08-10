@@ -42,14 +42,22 @@ export default class Compare extends Vue {
   @Prop() diff!: Diff;
 
   lastClickSide!: string;
-  lastClickedBlockId!: number;
   lastClickedBlockClasses!: Array<string>;
   blockClickCount = 0;
+  currentBlockClassIndex = 0;
   leftMap!: Map<string, Array<string>>;
   rightMap!: Map<string, Array<string>>;
   sideMap!: Map<string, Map<string, Array<string>>>;
 
   mounted(): void {
+    this.initialize();
+  }
+
+  updated(): void {
+    this.initialize();
+  }
+
+  initialize(): void {
     this.leftMap = new Map();
     this.rightMap = new Map();
     this.sideMap = new Map([
@@ -67,22 +75,24 @@ export default class Compare extends Vue {
     return "leftSide";
   }
 
-  selectionClickEventHandler(sideId: string, blockId: number, blockClasses: Array<string>): void {
-    console.log(sideId, blockId, blockClasses);
-    if (!(sideId === this.lastClickSide && blockId === this.lastClickedBlockId)) {
-      this.blockClickCount = 0;
+  selectionClickEventHandler(sideId: string, blockClasses: Array<string>): void {
+    if (!(sideId === this.lastClickSide &&
+      this.lastClickedBlockClasses.sort().toString() === blockClasses.sort().toString())) {
+      this.blockClickCount = 1;
       this.lastClickSide = sideId;
-      this.lastClickedBlockId = blockId;
       this.lastClickedBlockClasses = blockClasses;
     }
+
     const map = this.sideMap.get(sideId)!;
-    let id = this.lastClickedBlockClasses[0];
+    let id = this.lastClickedBlockClasses[this.currentBlockClassIndex];
     let blocks = map.get(id)!;
     if (this.blockClickCount === blocks.length) {
-      this.blockClickCount = 0;
-      this.lastClickedBlockClasses.push(this.lastClickedBlockClasses.shift()!);
-      id = this.lastClickedBlockClasses[0];
+      this.blockClickCount = 1;
+      this.currentBlockClassIndex = (this.currentBlockClassIndex + 1) % this.lastClickedBlockClasses.length;
+      id = this.lastClickedBlockClasses[this.currentBlockClassIndex];
       blocks = map.get(id)!;
+    } else {
+      this.blockClickCount += 1;
     }
 
     const other = blocks.shift() as string;
@@ -99,8 +109,6 @@ export default class Compare extends Vue {
     secondBlocks.forEach(val => val.classList.add("visible"));
     firstBlocks[0].scrollIntoView({ behavior: "smooth", block: "center" });
     secondBlocks[0].scrollIntoView({ behavior: "smooth", block: "center" });
-
-    this.blockClickCount += 1;
   }
 
   get leftSelection(): Array<Selection> {
@@ -152,24 +160,11 @@ export default class Compare extends Vue {
     }
     this.sortMap(this.leftMap);
     this.sortMap(this.rightMap);
-    console.log(this.leftMap.entries());
-    console.log(this.rightMap.entries());
+    // console.log("left");
+    // [...this.leftMap.entries()].forEach(console.log);
+    // console.log("right");
+    // [...this.rightMap.entries()].forEach(console.log);
   }
-
-  // scrollToCorrespondingBlock(event: Event): void {
-  //   if (event.target) {
-  //     let id = (event.target as HTMLElement).id;
-  //     if (id.includes("left")) {
-  //       id = id.replace("left", "right");
-  //     } else {
-  //       id = id.replace("right", "left");
-  //     }
-  //     const element = document.getElementById(id);
-  //     if (element) {
-  //       element.scrollIntoView({ behavior: "smooth" });
-  //     }
-  //   }
-  // }
 }
 </script>
 

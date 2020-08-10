@@ -27,7 +27,7 @@ import { ID_START, registerBlockHighlighting } from "@/util/OccurenceHighlight";
 @Component
 export default class CompareSide extends Vue {
   @Prop() identifier!: string;
-  @Prop() selectionClickHandler!: (sideId: string, blockId: number, blockClasses: Array<string>) => void;
+  @Prop() selectionClickHandler!: (sideId: string, blockClasses: Array<string>) => void;
   @Prop() file!: File;
   @Prop() selections!: Array<Selection>;
 
@@ -59,16 +59,13 @@ export default class CompareSide extends Vue {
   }
 
   addEventListeners(): void {
-    let id = 0;
     for (const value of document.querySelectorAll(`#${this.identifier} .marked-code`) as NodeListOf<HTMLElement>) {
       value.addEventListener("click", () => {
         return this.selectionClickHandler(
           this.identifier,
-          id,
           [...value.classList].filter(className => className.startsWith(ID_START))
         );
       });
-      id += 1;
     }
   }
 
