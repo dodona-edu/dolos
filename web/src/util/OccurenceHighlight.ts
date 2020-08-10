@@ -47,8 +47,14 @@ function returnSelectionIds(selections: Array<Selection>, row: number, col: numb
 }
 
 export function registerBlockHighlighting(selections: Array<Selection>): void {
-
+  let executed = false;
   Prism.hooks.add("after-tokenize", function (arg) {
+    // each hook instance can only run once otherwise a hook, once registered, will run for every page with it's
+    // corresponding selections. Selections that could be from another page altogether.
+    if (executed) {
+      return;
+    }
+    console.log("after-tokenize");
     const arr = arg.tokens.map(mapToken);
     arg.tokens.length = 0;
     arg.tokens.push(...arr);
@@ -70,5 +76,6 @@ export function registerBlockHighlighting(selections: Array<Selection>): void {
         col += content.length;
       }
     }
+    executed = true;
   });
 }

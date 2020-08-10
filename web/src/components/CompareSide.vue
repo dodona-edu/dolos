@@ -6,7 +6,7 @@
       :indeterminate="!loaded">
     </v-progress-linear>
     <pre ref="pre" :id="identifier" class="line-numbers highlighted-code"><code
-      ref="code"
+      :ref="tempIdentifier"
       :class="language">{{content}}</code>
     </pre>
   </div>
@@ -36,6 +36,10 @@ export default class CompareSide extends Vue {
     return this.file.content;
   }
 
+  get tempIdentifier(): string {
+    return this.identifier + "code-block";
+  }
+
   highlightLoaded = false;
   mounted(): void {
     this.highlight();
@@ -47,15 +51,17 @@ export default class CompareSide extends Vue {
 
   highlight(): void {
     this.highlightLoaded = false;
-    setTimeout(() => {
-      new Promise(resolve => {
-        registerBlockHighlighting(this.selections);
-        this.codeHighLight();
-        resolve();
-      }).then(() => {
-        this.highlightLoaded = true;
-      });
-    }, 0);
+
+    console.log("TESTTESTTEST");
+    registerBlockHighlighting(this.selections);
+    this.codeHighLight();
+    this.highlightLoaded = true;
+    // setTimeout(() => {
+    //   new Promise(resolve => {
+    //     resolve();
+    //   }).then(() => {
+    //   });
+    // }, 0);
   }
 
   addEventListeners(): void {
@@ -70,7 +76,10 @@ export default class CompareSide extends Vue {
   }
 
   codeHighLight(): void {
-    Prism.highlightElement(this.$refs.code as Element, false, () => {
+    console.log("HIGLIGHTING " + this.identifier);
+    // this.selections.forEach(({ startRow, startCol, endRow, endCol }) =>
+    //   console.log(startRow, startCol, endRow, endCol));
+    Prism.highlightElement(this.$refs[this.tempIdentifier] as Element, false, () => {
       this.addEventListeners();
       this.loaded = true;
     });

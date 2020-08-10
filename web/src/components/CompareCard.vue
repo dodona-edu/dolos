@@ -49,9 +49,9 @@ export default class Compare extends Vue {
   rightMap!: Map<string, Array<string>>;
   sideMap!: Map<string, Map<string, Array<string>>>;
 
-  mounted(): void {
-    this.initialize();
-  }
+  // mounted(): void {
+  //   this.initialize();
+  // }
 
   updated(): void {
     this.initialize();
@@ -146,7 +146,6 @@ export default class Compare extends Vue {
     for (const fragment of this.diff.fragments) {
       const leftId = constructID(fragment.left);
       const rightId = constructID(fragment.right);
-      console.log(leftId, rightId);
 
       if (!this.leftMap.has(leftId)) {
         this.leftMap.set(leftId, []);
