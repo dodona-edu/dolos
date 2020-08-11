@@ -3,8 +3,14 @@
     <v-row justify="center">
       <v-col cols="12">
         <CompareCard
+          v-if="diff"
           :loaded="dataLoaded"
           :diff="diff"/>
+        <v-card v-else>
+          <v-card-title>
+            Could not load comparison
+          </v-card-title>
+        </v-card>
       </v-col>
     </v-row>
   </v-container>
@@ -27,7 +33,8 @@ export default class Compare extends DataView {
   }
 
   get diff(): Diff | undefined {
-    return this.diffs[+this.diffId];
+    return undefined;
+    // return this.diffs[+this.diffId];
   }
 }
 </script>

@@ -35,7 +35,6 @@ export default class CompareSide extends Vue {
     return this.identifier + "code-block";
   }
 
-  highlightLoaded = false;
   mounted(): void {
     this.highlight();
   }
@@ -80,7 +79,6 @@ export default class CompareSide extends Vue {
   codeHighLight(): void {
     Prism.highlightElement(this.$refs[this.tempIdentifier] as Element, false, () => {
       this.addEventListeners();
-      this.loaded = true;
     });
   }
 }

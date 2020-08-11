@@ -6,7 +6,7 @@
       {{rightFilename}}
     </v-card-title>
     <v-container fluid>
-      <v-row v-if="loaded && diff" justify="center">
+      <v-row v-if="loaded" justify="center">
         <v-col sm="6">
           <compare-side
             :identifier="leftIdentifier"
@@ -66,11 +66,11 @@ export default class Compare extends Vue {
   } = { side: undefined, blockClasses: undefined };
 
   get rightFilename(): string {
-    return this.diff?.rightFile.path;
+    return this.diff.rightFile.path;
   }
 
   get leftFilename(): string {
-    return this.diff?.leftFile.path;
+    return this.diff.leftFile.path;
   }
 
   mounted(): void {
@@ -201,9 +201,6 @@ export default class Compare extends Vue {
    * on the other CompareSide. This is done by looping over all the hunks in the current diff.
    */
   initializeMaps(): void {
-    if (!this.diff) {
-      return;
-    }
     for (const fragment of this.diff.hunks) {
       const leftId = constructID(fragment.left);
       const rightId = constructID(fragment.right);
