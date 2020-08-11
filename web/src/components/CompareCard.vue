@@ -12,7 +12,10 @@
             :identifier="leftIdentifier"
             :file="diff.leftFile"
             :selections="leftSelection"
-            :selection-click-handler="selectionClickEventHandler">
+            :selection-click-handler="selectionClickEventHandler"
+            :on-hover-enter="onHoverEnterHandler"
+            :on-hover-exit="onHoverExitHandler"
+          >
           </compare-side>
         </v-col>
         <v-col sm="6">
@@ -20,7 +23,10 @@
             :identifier="rightIdentifier"
             :file="diff.rightFile"
             :selections="rightSelection"
-            :selection-click-handler="selectionClickEventHandler">
+            :selection-click-handler="selectionClickEventHandler"
+            :on-hover-enter="onHoverEnterHandler"
+            :on-hover-exit="onHoverExitHandler"
+          >
           </compare-side>
         </v-col>
       </v-row>
@@ -73,6 +79,14 @@ export default class Compare extends Vue {
 
   get leftIdentifier(): string {
     return "leftSide";
+  }
+
+  onHoverEnterHandler(sideId: string, blockClasses: Array<string>, element: HTMLElement): void {
+    console.log(sideId, blockClasses, element);
+  }
+
+  onHoverExitHandler(sideId: string, blockClasses: Array<string>, element: HTMLElement): void {
+    console.log(sideId, blockClasses, element);
   }
 
   selectionClickEventHandler(sideId: string, blockClasses: Array<string>): void {
@@ -184,7 +198,7 @@ export default class Compare extends Vue {
   pointer-events: all;
 }
 
-.code-highlight:hover {
+.code-highlight:hover, .code-highlight.hovering {
   filter: brightness(2);
   /*background: hsla(14.1, 100%, 50%, 0.31);*/
 }
@@ -193,5 +207,4 @@ export default class Compare extends Vue {
   margin: -3px 0 -3px 0;
   padding: 3px 0 3px 0;
 }
-
 </style>

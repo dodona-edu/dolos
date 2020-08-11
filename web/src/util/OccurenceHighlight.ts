@@ -54,7 +54,6 @@ export function registerBlockHighlighting(selections: Array<Selection>): void {
     if (executed) {
       return;
     }
-    console.log("after-tokenize");
     const arr = arg.tokens.map(mapToken);
     arg.tokens.length = 0;
     arg.tokens.push(...arr);

@@ -28,6 +28,8 @@ import { ID_START, registerBlockHighlighting } from "@/util/OccurenceHighlight";
 export default class CompareSide extends Vue {
   @Prop() identifier!: string;
   @Prop() selectionClickHandler!: (sideId: string, blockClasses: Array<string>) => void;
+  @Prop() onHoverEnter!: (sideId: string, blockClasses: Array<string>, element: HTMLElement) => void;
+  @Prop() onHoverExit!: (sideId: string, blockClasses: Array<string>, element: HTMLElement) => void;
   @Prop() file!: File;
   @Prop() selections!: Array<Selection>;
 
@@ -52,33 +54,46 @@ export default class CompareSide extends Vue {
   highlight(): void {
     this.highlightLoaded = false;
 
-    console.log("TESTTESTTEST");
-    registerBlockHighlighting(this.selections);
-    this.codeHighLight();
-    this.highlightLoaded = true;
-    // setTimeout(() => {
-    //   new Promise(resolve => {
-    //     resolve();
-    //   }).then(() => {
-    //   });
-    // }, 0);
+    setTimeout(() => {
+      new Promise(resolve => {
+        registerBlockHighlighting(this.selections);
+        this.codeHighLight();
+        resolve();
+      }).then(() => {
+        this.highlightLoaded = true;
+      });
+    }, 0);
   }
 
   addEventListeners(): void {
     for (const value of document.querySelectorAll(`#${this.identifier} .marked-code`) as NodeListOf<HTMLElement>) {
+      const filteredClassList = [...value.classList].filter(className => className.startsWith(ID_START));
       value.addEventListener("click", () => {
         return this.selectionClickHandler(
           this.identifier,
-          [...value.classList].filter(className => className.startsWith(ID_START))
+          filteredClassList
+        );
+      });
+
+      value.addEventListener("mouseout", () => {
+        return this.onHoverExit(
+          this.identifier,
+          filteredClassList,
+          value
+        );
+      });
+
+      value.addEventListener("mouseover", () => {
+        return this.onHoverEnter(
+          this.identifier,
+          filteredClassList,
+          value
         );
       });
     }
   }
 
   codeHighLight(): void {
-    console.log("HIGLIGHTING " + this.identifier);
-    // this.selections.forEach(({ startRow, startCol, endRow, endCol }) =>
-    //   console.log(startRow, startCol, endRow, endCol));
     Prism.highlightElement(this.$refs[this.tempIdentifier] as Element, false, () => {
       this.addEventListeners();
       this.loaded = true;
