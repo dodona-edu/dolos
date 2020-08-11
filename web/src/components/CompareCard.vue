@@ -133,6 +133,7 @@ export default class Compare extends Vue {
     // values
     if (this.lastClicked.blockClasses === undefined || !(sideId === this.lastClicked.side &&
       this.lastClicked.blockClasses.toString() === blockClasses.toString())) {
+      this.currentBlockClassIndex = 0;
       this.blockClickCount = 1;
       this.lastClicked.side = sideId;
       this.lastClicked.blockClasses = blockClasses;
