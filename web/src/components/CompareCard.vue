@@ -1,9 +1,9 @@
 <template>
   <v-card :loading="!loaded">
     <v-card-title>
-      One
+      {{leftFilename}}
       <v-spacer/>
-      Other
+      {{rightFilename}}
     </v-card-title>
     <v-container fluid>
       <v-row v-if="loaded && diff" justify="center">
@@ -55,9 +55,22 @@ export default class Compare extends Vue {
   rightMap!: Map<string, Array<string>>;
   sideMap!: Map<string, Map<string, Array<string>>>;
 
-  // mounted(): void {
-  //   this.initialize();
-  // }
+  lastHovered: {
+    side: string | undefined;
+    blockClasses: Array<string> | undefined;
+  } = { side: undefined, blockClasses: undefined };
+
+  get rightFilename(): string {
+    return this.diff?.rightFile.path;
+  }
+
+  get leftFilename(): string {
+    return this.diff?.leftFile.path;
+  }
+
+  mounted(): void {
+    this.initialize();
+  }
 
   updated(): void {
     this.initialize();
@@ -81,12 +94,25 @@ export default class Compare extends Vue {
     return "leftSide";
   }
 
+  private addClassesToSiblingsAndCausins(op: "add" | "remove", sideId: string, blockClass: string): void {
+    for (const siblings of document.querySelectorAll(`#${sideId} .marked-code.${blockClass}`)) {
+      siblings.classList[op]("hovering");
+    }
+
+    const other = this.sideMap.get(sideId)!.get(blockClass)![0];
+    for (const cousins of document.querySelectorAll(`pre:not(#${sideId}) .marked-code.${other}`)) {
+      cousins.classList[op]("hovering");
+    }
+  }
+
   onHoverEnterHandler(sideId: string, blockClasses: Array<string>, element: HTMLElement): void {
-    console.log(sideId, blockClasses, element);
+    this.lastHovered.side = sideId;
+    this.lastHovered.blockClasses = blockClasses;
+    this.addClassesToSiblingsAndCausins("add", sideId, blockClasses[0]);
   }
 
   onHoverExitHandler(sideId: string, blockClasses: Array<string>, element: HTMLElement): void {
-    console.log(sideId, blockClasses, element);
+    this.addClassesToSiblingsAndCausins("remove", sideId, blockClasses[0]);
   }
 
   selectionClickEventHandler(sideId: string, blockClasses: Array<string>): void {
@@ -196,11 +222,6 @@ export default class Compare extends Vue {
 .line-marker {
   background: hsla(24, 20%, 50%, 0);
   pointer-events: all;
-}
-
-.code-highlight:hover, .code-highlight.hovering {
-  filter: brightness(2);
-  /*background: hsla(14.1, 100%, 50%, 0.31);*/
 }
 
 .token {

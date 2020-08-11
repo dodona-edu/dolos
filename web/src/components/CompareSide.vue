@@ -109,6 +109,11 @@ export default class CompareSide extends Vue {
     overflow-y: scroll;
   }
 
+  .marked-code.hovering {
+    background: #ffe390 !important;
+    text-shadow: none;
+  }
+
   .marked-code.visible {
     background: #ffd54f !important;
     text-shadow: none;
@@ -118,5 +123,4 @@ export default class CompareSide extends Vue {
     background: #ffecb3 !important;
     text-shadow: none;
   }
-
 </style>
