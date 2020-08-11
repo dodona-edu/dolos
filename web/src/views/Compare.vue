@@ -33,8 +33,7 @@ export default class Compare extends DataView {
   }
 
   get diff(): Diff | undefined {
-    return undefined;
-    // return this.diffs[+this.diffId];
+    return this.diffs[+this.diffId];
   }
 }
 </script>

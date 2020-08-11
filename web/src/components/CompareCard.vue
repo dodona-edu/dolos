@@ -56,14 +56,14 @@ export default class Compare extends Vue {
   sideMap!: Map<string, Map<string, Array<string>>>;
 
   selected: {
-    side: string | undefined;
-    blockClasses: Array<string> | undefined;
-  } = { side: undefined, blockClasses: undefined };
+    side?: string;
+    blockClasses?: Array<string>;
+  } = {};
 
   lastHovered: {
-    side: string | undefined;
-    blockClasses: Array<string> | undefined;
-  } = { side: undefined, blockClasses: undefined };
+    side?: string;
+    blockClasses?: Array<string>;
+  } = {};
 
   get rightFilename(): string {
     return this.diff.rightFile.path;
