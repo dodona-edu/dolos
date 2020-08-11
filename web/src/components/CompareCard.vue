@@ -128,10 +128,11 @@ export default class Compare extends Vue {
   }
 
   selectionClickEventHandler(sideId: string, blockClasses: Array<string>): void {
+    blockClasses.sort();
     // if the there is nothing that was last clicked, or a different block from last time is clicked initialize the
     // values
     if (this.lastClicked.blockClasses === undefined || !(sideId === this.lastClicked.side &&
-      this.lastClicked.blockClasses.sort().toString() === blockClasses.sort().toString())) {
+      this.lastClicked.blockClasses.toString() === blockClasses.toString())) {
       this.blockClickCount = 1;
       this.lastClicked.side = sideId;
       this.lastClicked.blockClasses = blockClasses;
