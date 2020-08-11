@@ -47,13 +47,18 @@ export default class Compare extends Vue {
   @Prop({ default: false }) loaded!: boolean;
   @Prop() diff!: Diff;
 
-  lastClickSide!: string;
-  lastClickedBlockClasses!: Array<string>;
   blockClickCount = 0;
   currentBlockClassIndex = 0;
+  // this maps a selection id to all the other selection-ids that it corresponds with
   leftMap!: Map<string, Array<string>>;
   rightMap!: Map<string, Array<string>>;
+  // maps an id of a side to its map
   sideMap!: Map<string, Map<string, Array<string>>>;
+
+  lastClicked: {
+    side: string | undefined;
+    blockClasses: Array<string> | undefined;
+  } = { side: undefined, blockClasses: undefined };
 
   lastHovered: {
     side: string | undefined;
@@ -94,7 +99,14 @@ export default class Compare extends Vue {
     return "leftSide";
   }
 
-  private addClassesToSiblingsAndCausins(op: "add" | "remove", sideId: string, blockClass: string): void {
+  /**
+   * Adds or removes the hovering class to all the direct siblings and cousins ( the corresponding blocks in the other
+   * side)
+   * @param op the operation that is performed, is either "add" or "remove"
+   * @param sideId the id of the side where all the siblings are
+   * @param blockClass the class used for selecting siblings and the cousins
+   */
+  private addClassesToSiblingsAndCousins(op: "add" | "remove", sideId: string, blockClass: string): void {
     for (const siblings of document.querySelectorAll(`#${sideId} .marked-code.${blockClass}`)) {
       siblings.classList[op]("hovering");
     }
@@ -108,28 +120,31 @@ export default class Compare extends Vue {
   onHoverEnterHandler(sideId: string, blockClasses: Array<string>, element: HTMLElement): void {
     this.lastHovered.side = sideId;
     this.lastHovered.blockClasses = blockClasses;
-    this.addClassesToSiblingsAndCausins("add", sideId, blockClasses[0]);
+    this.addClassesToSiblingsAndCousins("add", sideId, blockClasses[0]);
   }
 
   onHoverExitHandler(sideId: string, blockClasses: Array<string>, element: HTMLElement): void {
-    this.addClassesToSiblingsAndCausins("remove", sideId, blockClasses[0]);
+    this.addClassesToSiblingsAndCousins("remove", sideId, blockClasses[0]);
   }
 
   selectionClickEventHandler(sideId: string, blockClasses: Array<string>): void {
-    if (!(sideId === this.lastClickSide &&
-      this.lastClickedBlockClasses.sort().toString() === blockClasses.sort().toString())) {
+    // if the there is nothing that was last clicked, or a different block from last time is clicked initialize the
+    // values
+    if (this.lastClicked.blockClasses === undefined || !(sideId === this.lastClicked.side &&
+      this.lastClicked.blockClasses.sort().toString() === blockClasses.sort().toString())) {
       this.blockClickCount = 1;
-      this.lastClickSide = sideId;
-      this.lastClickedBlockClasses = blockClasses;
+      this.lastClicked.side = sideId;
+      this.lastClicked.blockClasses = blockClasses;
     }
 
     const map = this.sideMap.get(sideId)!;
-    let id = this.lastClickedBlockClasses[this.currentBlockClassIndex];
+    let id = this.lastClicked.blockClasses[this.currentBlockClassIndex];
     let blocks = map.get(id)!;
+    // cycles through all the possible combination for the current block
     if (this.blockClickCount === blocks.length) {
       this.blockClickCount = 1;
-      this.currentBlockClassIndex = (this.currentBlockClassIndex + 1) % this.lastClickedBlockClasses.length;
-      id = this.lastClickedBlockClasses[this.currentBlockClassIndex];
+      this.currentBlockClassIndex = (this.currentBlockClassIndex + 1) % this.lastClicked.blockClasses.length;
+      id = this.lastClicked.blockClasses[this.currentBlockClassIndex];
       blocks = map.get(id)!;
     } else {
       this.blockClickCount += 1;
@@ -199,10 +214,6 @@ export default class Compare extends Vue {
     }
     this.sortMap(this.leftMap);
     this.sortMap(this.rightMap);
-    // console.log("left");
-    // [...this.leftMap.entries()].forEach(console.log);
-    // console.log("right");
-    // [...this.rightMap.entries()].forEach(console.log);
   }
 }
 </script>

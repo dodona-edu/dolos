@@ -1,6 +1,10 @@
 import Prism from "prismjs";
 import { Selection } from "@/api/api";
 
+/**
+ * Map all tokens to themselves and convert a string to a token of type "unmarked-token"
+ * @param token The token that will be converted
+ */
 function mapToken(token: Prism.Token | string): Prism.Token {
   if (typeof token === "string") {
     return new Prism.Token("unmarked-token", token);
@@ -12,6 +16,11 @@ function mapToken(token: Prism.Token | string): Prism.Token {
   }
 }
 
+/**
+ * Maps a token to itself if it has no children, to it's child if it has one child
+ * or to an array of its children if it has multiple.
+ * @param token the token that will be flattened
+ */
 function flattenToken(token: Prism.Token): Prism.Token | Array<Prism.Token> {
   if (typeof token.content === "string") {
     return token;
@@ -24,10 +33,20 @@ function flattenToken(token: Prism.Token): Prism.Token | Array<Prism.Token> {
 
 export const ID_START = "marked-code-block";
 
+/**
+ * Construct an ad for the given selection
+ * @param sel the selection that will be used to construct the id
+ */
 export function constructID(sel: Selection): string {
   return `${ID_START}-${sel.startRow}-${sel.startCol}-${sel.endRow}-${sel.endCol}`;
 }
 
+/**
+ * Return all the ids of the selection that contant that row or col
+ * @param selections All the possible selections
+ * @param row the row
+ * @param col the col
+ */
 function returnSelectionIds(selections: Array<Selection>, row: number, col: number): Array<string> {
   const ids: Set<string> = new Set();
   for (const selection of selections) {
@@ -46,6 +65,10 @@ function returnSelectionIds(selections: Array<Selection>, row: number, col: numb
   return [...ids];
 }
 
+/**
+ * registers the needed hooks to mark all the given selections
+ * @param selections the selection that need to be marked
+ */
 export function registerBlockHighlighting(selections: Array<Selection>): void {
   let executed = false;
   Prism.hooks.add("after-tokenize", function (arg) {
