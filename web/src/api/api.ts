@@ -59,8 +59,7 @@ export interface Diff {
   similarity: number;
   continuousOverlap: number;
   totalOverlap: number;
-  // TODO rename to hunks
-  fragments: Hunk[];
+  hunks: Hunk[];
 }
 
 export interface Kmer {
@@ -87,8 +86,7 @@ async function fetchFiles(
   return await d3.csv(url);
 }
 
-// TODO rename to fetchHunks
-async function fetchIntersections(
+async function fetchHunks(
   url = "/data/intersections.csv"
 ): Promise<d3.DSVRowArray> {
   return await d3.csv(url);
@@ -124,8 +122,7 @@ function parseFragments(fragmentsJson: string, kmers: ObjMap<Kmer>): Hunk[] {
   }));
 }
 
-// TODO rename to parseHunk
-function parseIntersections(
+function parseHunk(
   intersectionData: d3.DSVRowArray,
   files: ObjMap<File>,
   kmers: ObjMap<Kmer>,
@@ -137,13 +134,13 @@ function parseIntersections(
       const continuousOverlap = parseFloat(assertType(row.continuousOverlap));
       const totalOverlap = parseFloat(assertType(row.totalOverlap));
 
-      const fragments: Hunk[] = parseFragments(assertType(row.fragments), kmers);
+      const hunks: Hunk[] = parseFragments(assertType(row.fragments), kmers);
       const intersection = {
         id,
         similarity,
         continuousOverlap,
         totalOverlap,
-        fragments,
+        hunks: hunks,
         leftFile: files[parseInt(assertType(row.leftFileId))],
         rightFile: files[parseInt(assertType(row.rightFileId))],
       };
@@ -177,11 +174,11 @@ export async function fetchData(): Promise<ApiData> {
   const kmerPromise = fetchKmers();
   const filePromise = fetchFiles();
   const metadataPromise = fetchMetadata();
-  const intersectionPromise = fetchIntersections();
+  const intersectionPromise = fetchHunks();
 
   const files = parseFiles(await filePromise);
   const kmers = parseKmers(await kmerPromise, files);
-  const diffs = parseIntersections(await intersectionPromise, files, kmers);
+  const diffs = parseHunk(await intersectionPromise, files, kmers);
   const metadata = parseMetadata(await metadataPromise);
 
   return { files, kmers, diffs: diffs, metadata };

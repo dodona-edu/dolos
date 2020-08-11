@@ -167,11 +167,11 @@ export default class Compare extends Vue {
   }
 
   get leftSelection(): Array<Selection> {
-    return this.diff.fragments.map(fragment => fragment.left);
+    return this.diff.hunks.map(fragment => fragment.left);
   }
 
   get rightSelection(): Array<Selection> {
-    return this.diff.fragments.map(fragment => fragment.right);
+    return this.diff.hunks.map(fragment => fragment.right);
   }
 
   extractRowCol(value: string): [number, number] {
@@ -198,7 +198,7 @@ export default class Compare extends Vue {
     if (!this.diff) {
       return;
     }
-    for (const fragment of this.diff.fragments) {
+    for (const fragment of this.diff.hunks) {
       const leftId = constructID(fragment.left);
       const rightId = constructID(fragment.right);
 
