@@ -12,9 +12,9 @@
             :identifier="leftIdentifier"
             :file="diff.leftFile"
             :selections="leftSelection"
-            :selection-click-handler="selectionClickEventHandler"
-            :on-hover-enter="onHoverEnterHandler"
-            :on-hover-exit="onHoverExitHandler"
+            @selectionclick="selectionClickEventHandler"
+            @selectionhoverenter="onHoverEnterHandler"
+            @selectionhoverexit="onHoverExitHandler"
           >
           </compare-side>
         </v-col>
@@ -23,9 +23,9 @@
             :identifier="rightIdentifier"
             :file="diff.rightFile"
             :selections="rightSelection"
-            :selection-click-handler="selectionClickEventHandler"
-            :on-hover-enter="onHoverEnterHandler"
-            :on-hover-exit="onHoverExitHandler"
+            @selectionclick="selectionClickEventHandler"
+            @selectionhoverenter="onHoverEnterHandler"
+            @selectionhoverexit="onHoverExitHandler"
           >
           </compare-side>
         </v-col>
@@ -117,13 +117,13 @@ export default class Compare extends Vue {
     }
   }
 
-  onHoverEnterHandler(sideId: string, blockClasses: Array<string>, element: HTMLElement): void {
+  onHoverEnterHandler(sideId: string, blockClasses: Array<string>): void {
     this.lastHovered.side = sideId;
     this.lastHovered.blockClasses = blockClasses;
     this.addClassesToSiblingsAndCousins("add", sideId, blockClasses[0]);
   }
 
-  onHoverExitHandler(sideId: string, blockClasses: Array<string>, element: HTMLElement): void {
+  onHoverExitHandler(sideId: string, blockClasses: Array<string>): void {
     this.addClassesToSiblingsAndCousins("remove", sideId, blockClasses[0]);
   }
 

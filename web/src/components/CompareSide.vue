@@ -52,26 +52,15 @@ export default class CompareSide extends Vue {
     for (const value of document.querySelectorAll(`#${this.identifier} .marked-code`) as NodeListOf<HTMLElement>) {
       const filteredClassList = [...value.classList].filter(className => className.startsWith(ID_START));
       value.addEventListener("click", () => {
-        return this.selectionClickHandler(
-          this.identifier,
-          filteredClassList
-        );
+        this.$emit("selectionclick", this.identifier, filteredClassList);
       });
 
       value.addEventListener("mouseout", () => {
-        return this.onHoverExit(
-          this.identifier,
-          filteredClassList,
-          value
-        );
+        this.$emit("selectionhoverexit", this.identifier, filteredClassList);
       });
 
       value.addEventListener("mouseover", () => {
-        return this.onHoverEnter(
-          this.identifier,
-          filteredClassList,
-          value
-        );
+        this.$emit("selectionhoverenter", this.identifier, filteredClassList);
       });
     }
   }

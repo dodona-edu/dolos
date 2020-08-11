@@ -7,9 +7,9 @@
           :loaded="dataLoaded"
           :diff="diff"/>
         <v-card v-else>
-          <v-card-title>
+          <v-card-subtitle>
             Could not load comparison
-          </v-card-title>
+          </v-card-subtitle>
         </v-card>
       </v-col>
     </v-row>
