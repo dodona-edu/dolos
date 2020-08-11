@@ -196,6 +196,10 @@ export default class Compare extends Vue {
     }
   }
 
+  /**
+   * Initialized leftMap and rightMap. Either of these maps map a selection id to a list of corresponding selection ids
+   * on the other CompareSide. This is done by looping over all the hunks in the current diff.
+   */
   initializeMaps(): void {
     if (!this.diff) {
       return;

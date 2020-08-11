@@ -1,10 +1,5 @@
 <template>
   <div>
-    <v-progress-linear
-      :active="!loaded"
-      position="absolute"
-      :indeterminate="!loaded">
-    </v-progress-linear>
     <pre ref="pre" :id="identifier" class="line-numbers highlighted-code"><code
       :ref="tempIdentifier"
       :class="language">{{content}}</code>
@@ -32,8 +27,6 @@ export default class CompareSide extends Vue {
   @Prop() onHoverExit!: (sideId: string, blockClasses: Array<string>, element: HTMLElement) => void;
   @Prop() file!: File;
   @Prop() selections!: Array<Selection>;
-
-  loaded = false;
   get content(): string {
     return this.file.content;
   }
@@ -52,17 +45,8 @@ export default class CompareSide extends Vue {
   }
 
   highlight(): void {
-    this.highlightLoaded = false;
-
-    setTimeout(() => {
-      new Promise(resolve => {
-        registerBlockHighlighting(this.selections);
-        this.codeHighLight();
-        resolve();
-      }).then(() => {
-        this.highlightLoaded = true;
-      });
-    }, 0);
+    registerBlockHighlighting(this.selections);
+    this.codeHighLight();
   }
 
   addEventListeners(): void {
