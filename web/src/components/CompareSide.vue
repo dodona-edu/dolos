@@ -123,4 +123,9 @@ export default class CompareSide extends Vue {
     background: #ffecb3 !important;
     text-shadow: none;
   }
+
+  .token {
+    margin: -3px 0 -3px 0;
+    padding: 3px 0 3px 0;
+  }
 </style>

@@ -220,25 +220,6 @@ export default class Compare extends Vue {
 }
 </script>
 
-<style>
+<style scoped>
 
-.code-highlight {
-  visibility: hidden;
-  background: linear-gradient(to right, hsla(5.6, 100%, 50%, 0.29) 70%, hsla(24, 20%, 50%, 0));
-  pointer-events: all;
-}
-
-.visible {
-  visibility: visible;
-}
-
-.line-marker {
-  background: hsla(24, 20%, 50%, 0);
-  pointer-events: all;
-}
-
-.token {
-  margin: -3px 0 -3px 0;
-  padding: 3px 0 3px 0;
-}
 </style>
