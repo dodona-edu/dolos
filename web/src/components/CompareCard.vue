@@ -49,13 +49,13 @@ export default class Compare extends Vue {
 
   blockClickCount = 0;
   currentBlockClassIndex = 0;
-  // this maps a selection id to all the other selection-ids that it corresponds with
+  // this maps a selected id to all the other selected-ids that it corresponds with
   leftMap!: Map<string, Array<string>>;
   rightMap!: Map<string, Array<string>>;
   // maps an id of a side to its map
   sideMap!: Map<string, Map<string, Array<string>>>;
 
-  lastClicked: {
+  selected: {
     side: string | undefined;
     blockClasses: Array<string> | undefined;
   } = { side: undefined, blockClasses: undefined };
@@ -131,22 +131,22 @@ export default class Compare extends Vue {
     blockClasses.sort();
     // if the there is nothing that was last clicked, or a different block from last time is clicked initialize the
     // values
-    if (this.lastClicked.blockClasses === undefined || !(sideId === this.lastClicked.side &&
-      this.lastClicked.blockClasses.toString() === blockClasses.toString())) {
+    if (this.selected.blockClasses === undefined || !(sideId === this.selected.side &&
+      this.selected.blockClasses.toString() === blockClasses.toString())) {
       this.currentBlockClassIndex = 0;
       this.blockClickCount = 1;
-      this.lastClicked.side = sideId;
-      this.lastClicked.blockClasses = blockClasses;
+      this.selected.side = sideId;
+      this.selected.blockClasses = blockClasses;
     }
 
     const map = this.sideMap.get(sideId)!;
-    let id = this.lastClicked.blockClasses[this.currentBlockClassIndex];
+    let id = this.selected.blockClasses[this.currentBlockClassIndex];
     let blocks = map.get(id)!;
     // cycles through all the possible combination for the current block
     if (this.blockClickCount === blocks.length) {
       this.blockClickCount = 1;
-      this.currentBlockClassIndex = (this.currentBlockClassIndex + 1) % this.lastClicked.blockClasses.length;
-      id = this.lastClicked.blockClasses[this.currentBlockClassIndex];
+      this.currentBlockClassIndex = (this.currentBlockClassIndex + 1) % this.selected.blockClasses.length;
+      id = this.selected.blockClasses[this.currentBlockClassIndex];
       blocks = map.get(id)!;
     } else {
       this.blockClickCount += 1;
