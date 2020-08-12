@@ -1,5 +1,5 @@
 <template>
-  <v-card v-if="false" :loading="!loaded">
+  <v-card :loading="!loaded">
     <v-card-title>
       {{ leftFilename }}
       <v-spacer/>
@@ -7,7 +7,16 @@
     </v-card-title>
     <v-container fluid>
       <v-row v-if="loaded" justify="center">
-        <v-col sm="6">
+        <v-col sm="1">
+          <BarcodeChart
+            :selections="leftSelection"
+            :side-identifier="leftIdentifier"
+            @selectionclick="selectionClickEventHandler"
+            @selectionhoverenter="onHoverEnterHandler"
+            @selectionhoverexit="onHoverExitHandler"
+          ></BarcodeChart>
+        </v-col>
+        <v-col sm="5">
           <compare-side
             :identifier="leftIdentifier"
             :file="diff.leftFile"
@@ -18,7 +27,16 @@
           >
           </compare-side>
         </v-col>
-        <v-col sm="6">
+        <v-col sm="1">
+          <BarcodeChart
+            :selections="rightSelection"
+            :side-identifier="rightIdentifier"
+            @selectionclick="selectionClickEventHandler"
+            @selectionhoverenter="onHoverEnterHandler"
+            @selectionhoverexit="onHoverExitHandler"
+          ></BarcodeChart>
+        </v-col>
+        <v-col sm="5">
           <compare-side
             :identifier="rightIdentifier"
             :file="diff.rightFile"
@@ -31,16 +49,6 @@
         </v-col>
       </v-row>
     </v-container>
-  </v-card>
-  <v-card v-else>
-    <v-row justify="center">
-      <v-col>
-        <BarcodeChart :selections="leftSelection" :side-identifier="leftIdentifier"></BarcodeChart>
-      </v-col>
-      <v-col>
-        <BarcodeChart :selections="rightSelection" :side-identifier="rightIdentifier"></BarcodeChart>
-      </v-col>
-    </v-row>
   </v-card>
 </template>
 <script lang="ts">
