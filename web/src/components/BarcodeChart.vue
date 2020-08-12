@@ -73,7 +73,7 @@ export default class BarcodeChart extends Vue {
       .enter().append("g")
       // // @ts-expect-error
       // .attr("fill", function (d) { return color(d.key); })
-      .attr("class", function (d) { return "barcodeChartBar " + map[+d.key].join(" "); })
+      .attr("class", function (d) { return `barcodeChartBar line-${+d.key} ${map[+d.key].join(" ")}`; })
       .selectAll("rect")
       // enter a second time = loop subgroup per subgroup to add all rectangles
       .data(function (d) { return d; })
@@ -98,25 +98,28 @@ export default class BarcodeChart extends Vue {
 
   mouseover(map: {[key: number]: Array<string>}, a: any, b: any, rect: SVGRectElement[] | ArrayLike<SVGRectElement>):
     void {
-    const classes = map[this.getKey(rect)];
+    const key = this.getKey(rect);
+    const classes = map[key];
     if (classes.length) {
-      this.$emit("selectionhoverenter", this.sideIdentifier, classes);
+      this.$emit("selectionhoverenter", this.sideIdentifier, classes, key);
     }
   }
 
   mouseleave(map: {[key: number]: Array<string>}, a: any, b: any, rect: SVGRectElement[] | ArrayLike<SVGRectElement>):
     void {
-    const classes = map[this.getKey(rect)];
+    const key = this.getKey(rect);
+    const classes = map[key];
     if (classes.length) {
-      this.$emit("selectionhoverexit", this.sideIdentifier, classes);
+      this.$emit("selectionhoverexit", this.sideIdentifier, classes, key);
     }
   }
 
   mouseclick(map: {[key: number]: Array<string>}, a: any, b: any, rect: SVGRectElement[] | ArrayLike<SVGRectElement>):
     void {
-    const classes = map[this.getKey(rect)];
+    const key = this.getKey(rect);
+    const classes = map[key];
     if (classes.length) {
-      this.$emit("selectionclick", this.sideIdentifier, classes);
+      this.$emit("selectionclick", this.sideIdentifier, classes, key);
     }
   }
 }

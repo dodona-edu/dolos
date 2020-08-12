@@ -180,7 +180,7 @@ export default class Compare extends Vue {
     return blockClasses.flatMap(blockClass => map.get(blockClass)!);
   }
 
-  onHoverEnterHandler(sideId: string, blockClasses: Array<string>): void {
+  onHoverEnterHandler(sideId: string, blockClasses: Array<string>, line?: number): void {
     this.lastHovered.side = sideId;
     this.lastHovered.blockClasses = blockClasses;
     this.addClassesToSiblingsAndCousins(true, sideId, blockClasses);
@@ -196,24 +196,14 @@ export default class Compare extends Vue {
       .classed("hovering", true);
   }
 
-  onHoverExitHandler(sideId: string, blockClasses: Array<string>): void {
+  onHoverExitHandler(sideId: string, blockClasses: Array<string>, line?: number): void {
     this.addClassesToSiblingsAndCousins(false, sideId, blockClasses);
 
     d3.selectAll(".barcodeChartBar.hovering")
       .classed("hovering", false);
-    //   .style("opacity", 0.6);
-    //
-    // if (this.selected.side && this.selected.blockClasses) {
-    //   d3.selectAll(this.makeSelector(this.selected.side + "-chart", this.selected.blockClasses))
-    //     .style("opacity", 1);
-    //
-    //   const otherBlockClasses = this.getAllOtherBlockClasses(this.selected.side, this.selected.blockClasses);
-    //   d3.selectAll(this.makeSelector(this.selected.side + "-chart", otherBlockClasses, true))
-    //     .style("opacity", 1);
-    // }
   }
 
-  selectionClickEventHandler(sideId: string, blockClasses: Array<string>): void {
+  selectionClickEventHandler(sideId: string, blockClasses: Array<string>, line?: number): void {
     blockClasses.sort();
     // if the there is nothing that was last clicked, or a different block from last time is clicked initialize the
     // values
@@ -247,18 +237,38 @@ export default class Compare extends Vue {
     d3.selectAll(".barcodeChartBar.selected")
       .classed("selected", false);
 
-    d3.selectAll(this.makeSelector(sideId + "-chart", blockClasses))
-      .classed("selected", true);
+    if (line !== undefined) {
+      d3.select(`#${sideId}-chart .barcodeChartBar.line-${line}`)
+        .classed("selected", true);
 
-    d3.selectAll(this.makeSelector(sideId + "-chart", this.getAllOtherBlockClasses(sideId, blockClasses), true))
-      .classed("selected", true);
+      const [startLine, endLine] = this.extractLinesFromSelectionId(other);
+      const temp = [];
+      for (let i = startLine; i <= endLine; i += 1) {
+        temp.push(i);
+      }
+      const selector = temp.map(i => `:not(#${sideId}-chart) .barcodeChartBar.line-${i}`).join(", ");
 
-    const firstBlocks = document.querySelectorAll(`#${sideId} .${id}`) as NodeListOf<HTMLElement>;
-    const secondBlocks = document.querySelectorAll(`pre:not(#${sideId}) .${other}`) as NodeListOf<HTMLElement>;
-    firstBlocks.forEach(val => val.classList.add("visible"));
-    secondBlocks.forEach(val => val.classList.add("visible"));
-    firstBlocks[0].scrollIntoView({ behavior: "smooth", block: "center" });
-    secondBlocks[0].scrollIntoView({ behavior: "smooth", block: "center" });
+      d3.selectAll(selector)
+        .classed("selected", true);
+    } else {
+      d3.selectAll(this.makeSelector(sideId + "-chart", blockClasses))
+        .classed("selected", true);
+
+      d3.selectAll(this.makeSelector(sideId + "-chart", this.getAllOtherBlockClasses(sideId, blockClasses), true))
+        .classed("selected", true);
+    }
+
+    const firstSpans = document.querySelectorAll(`#${sideId} .${id}`) as NodeListOf<HTMLElement>;
+    const secondSpans = document.querySelectorAll(`pre:not(#${sideId}) .${other}`) as NodeListOf<HTMLElement>;
+    firstSpans.forEach(val => val.classList.add("visible"));
+    secondSpans.forEach(val => val.classList.add("visible"));
+    firstSpans[0].scrollIntoView({ behavior: "smooth", block: "center" });
+    secondSpans[0].scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
+  extractLinesFromSelectionId(id: string): [number, number] {
+    const values = id.split("-");
+    return [+values[3], +values[5]];
   }
 
   get leftSelection(): Array<Selection> {
