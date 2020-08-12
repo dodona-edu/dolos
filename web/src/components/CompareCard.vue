@@ -166,30 +166,32 @@ export default class Compare extends Vue {
     this.lastHovered.blockClasses = blockClasses;
     this.addClassesToSiblingsAndCousins(true, sideId, blockClasses);
 
-    d3.selectAll(".barcodeChartBar")
-      .style("opacity", 0.2);
+    // d3.selectAll(".barcodeChartBar")
+    //   .style("opacity", 0.2);
 
     d3.selectAll(this.makeSelector(sideId + "-chart", blockClasses))
-      .style("opacity", 1);
+      .classed("hovering", true);
 
     const otherBlockClasses = this.getAllOtherBlockClasses(sideId, blockClasses);
     d3.selectAll(this.makeSelector(sideId + "-chart", otherBlockClasses, true))
-      .style("opacity", 1);
+      .classed("hovering", true);
   }
 
   onHoverExitHandler(sideId: string, blockClasses: Array<string>): void {
     this.addClassesToSiblingsAndCousins(false, sideId, blockClasses);
-    d3.selectAll(".barcodeChartBar")
-      .style("opacity", 0.6);
 
-    if (this.selected.side && this.selected.blockClasses) {
-      d3.selectAll(this.makeSelector(this.selected.side + "-chart", this.selected.blockClasses))
-        .style("opacity", 1);
-
-      const otherBlockClasses = this.getAllOtherBlockClasses(this.selected.side, this.selected.blockClasses);
-      d3.selectAll(this.makeSelector(this.selected.side + "-chart", otherBlockClasses, true))
-        .style("opacity", 1);
-    }
+    d3.selectAll(".barcodeChartBar.hovering")
+      .classed("hovering", false);
+    //   .style("opacity", 0.6);
+    //
+    // if (this.selected.side && this.selected.blockClasses) {
+    //   d3.selectAll(this.makeSelector(this.selected.side + "-chart", this.selected.blockClasses))
+    //     .style("opacity", 1);
+    //
+    //   const otherBlockClasses = this.getAllOtherBlockClasses(this.selected.side, this.selected.blockClasses);
+    //   d3.selectAll(this.makeSelector(this.selected.side + "-chart", otherBlockClasses, true))
+    //     .style("opacity", 1);
+    // }
   }
 
   selectionClickEventHandler(sideId: string, blockClasses: Array<string>): void {
@@ -220,10 +222,17 @@ export default class Compare extends Vue {
     const other = blocks.shift() as string;
     blocks.push(other);
 
-    const visibleElements = document.querySelectorAll(".marked-code[class~=visible]") as NodeListOf<HTMLElement>;
-    for (const visibleElement of visibleElements) {
-      visibleElement.classList.remove("visible");
-    }
+    d3.selectAll(".marked-code.visible")
+      .classed("visible", false);
+
+    d3.selectAll(".barcodeChartBar.selected")
+      .classed("selected", false);
+
+    d3.selectAll(this.makeSelector(sideId + "-chart", blockClasses))
+      .classed("selected", true);
+
+    d3.selectAll(this.makeSelector(sideId + "-chart", this.getAllOtherBlockClasses(sideId, blockClasses), true))
+      .classed("selected", true);
 
     const firstBlocks = document.querySelectorAll(`#${sideId} .${id}`) as NodeListOf<HTMLElement>;
     const secondBlocks = document.querySelectorAll(`pre:not(#${sideId}) .${other}`) as NodeListOf<HTMLElement>;
@@ -287,7 +296,41 @@ export default class Compare extends Vue {
 </script>
 
 <style>
+  :root {
+    --normalbg: #ffe390;
+    --selectedbg: #ffd54f;
+    --hoveringb: #ffecb3;
+  }
+
+  .barcodeChartBar {
+    fill: var(--normalbg);
+  }
+
+  .barcodeChartBar.hovering {
+    fill: var(--hoveringb);
+  }
+
+  .barcodeChartBar.selected {
+    fill: var(--selectedbg);
+  }
+
+  .marked-code.hovering {
+    background: var(--hoveringb) !important;
+    text-shadow: none;
+  }
+
+  /* this style is applied when selected */
+  .marked-code.visible,  .barcodeChartBar.selected {
+    background: var(--selectedbg) !important;
+    text-shadow: none;
+  }
+
+  .marked-code, .barcodeChartBar {
+    background: var(--normalbg) !important;
+    text-shadow: none;
+  }
+
   pre.highlighted-code {
-    margin-top: 0;
+      margin-top: 0;
   }
 </style>

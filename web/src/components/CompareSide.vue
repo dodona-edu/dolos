@@ -80,21 +80,6 @@ export default class CompareSide extends Vue {
     overflow-y: scroll;
   }
 
-  .marked-code.hovering {
-    background: #ffe390 !important;
-    text-shadow: none;
-  }
-
-  .marked-code.visible {
-    background: #ffd54f !important;
-    text-shadow: none;
-  }
-
-  .marked-code {
-    background: #ffecb3 !important;
-    text-shadow: none;
-  }
-
   .token {
     margin: -3px 0 -3px 0;
     padding: 3px 0 3px 0;
