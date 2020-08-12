@@ -73,30 +73,31 @@ export default class CompareSide extends Vue {
 }
 </script>
 
-<style>
+<style lang="scss">
 
   .highlighted-code {
     height: 70vh;
     overflow-y: scroll;
+
+    .marked-code.hovering {
+      background: #ffe390 !important;
+      text-shadow: none;
+    }
+
+    .marked-code.visible {
+      background: #ffd54f !important;
+      text-shadow: none;
+    }
+
+    .marked-code {
+      background: #ffecb3 !important;
+      text-shadow: none;
+    }
+
+    .token {
+      margin: -4px 0 -4px 0;
+      padding: 4px 0 4px 0;
+    }
   }
 
-  .marked-code.hovering {
-    background: #ffe390 !important;
-    text-shadow: none;
-  }
-
-  .marked-code.visible {
-    background: #ffd54f !important;
-    text-shadow: none;
-  }
-
-  .marked-code {
-    background: #ffecb3 !important;
-    text-shadow: none;
-  }
-
-  .token {
-    margin: -3px 0 -3px 0;
-    padding: 3px 0 3px 0;
-  }
 </style>
