@@ -180,7 +180,16 @@ export default class Compare extends Vue {
   onHoverExitHandler(sideId: string, blockClasses: Array<string>): void {
     this.addClassesToSiblingsAndCousins(false, sideId, blockClasses);
     d3.selectAll(".barcodeChartBar")
-      .style("opacity", 0.8);
+      .style("opacity", 0.6);
+
+    if (this.selected.side && this.selected.blockClasses) {
+      d3.selectAll(this.makeSelector(this.selected.side + "-chart", this.selected.blockClasses))
+        .style("opacity", 1);
+
+      const otherBlockClasses = this.getAllOtherBlockClasses(this.selected.side, this.selected.blockClasses);
+      d3.selectAll(this.makeSelector(this.selected.side + "-chart", otherBlockClasses, true))
+        .style("opacity", 1);
+    }
   }
 
   selectionClickEventHandler(sideId: string, blockClasses: Array<string>): void {
