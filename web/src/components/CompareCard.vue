@@ -177,8 +177,8 @@ export default class Compare extends Vue {
   }
 
   extractRowCol(value: string): [number, number] {
-    const matches = /([0-9]*)-([0-9]*)-[0-9]*-[0-9]*$/m.exec(value) as RegExpExecArray;
-    return [+matches[1], +matches[2]];
+    const [row, col] = value.split("-").slice(3, 5);
+    return [+row, +col];
   }
 
   sortMap(map: Map<string, Array<string>>): void {
