@@ -1,5 +1,5 @@
-<template>
-  <div :id="identifier"/>
+<template >
+  <svg :id="identifier"></svg>
 </template>
 
 <script lang="ts">
@@ -26,7 +26,7 @@ export default class BarcodeChart extends Vue {
     const height = 700 - margin.top - margin.bottom;
 
     const svg = d3.select(`#${this.identifier}`)
-      .append("svg")
+      // .append("svg")
       .attr("width", width + margin.left + margin.right)
       .attr("height", height + margin.top + margin.bottom)
       .append("g")

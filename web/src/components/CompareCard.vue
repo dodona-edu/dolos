@@ -6,46 +6,54 @@
       {{ rightFilename }}
     </v-card-title>
     <v-container fluid>
-      <v-row v-if="loaded" justify="center">
-        <v-col sm="1">
-          <BarcodeChart
-            :selections="leftSelection"
-            :side-identifier="leftIdentifier"
-            @selectionclick="selectionClickEventHandler"
-            @selectionhoverenter="onHoverEnterHandler"
-            @selectionhoverexit="onHoverExitHandler"
-          ></BarcodeChart>
+      <v-row v-if="loaded" justify="center" no-gutters>
+        <v-col sm="6">
+          <v-row no-gutters>
+            <v-col cols="auto">
+              <BarcodeChart
+                :selections="leftSelection"
+                :side-identifier="leftIdentifier"
+                @selectionclick="selectionClickEventHandler"
+                @selectionhoverenter="onHoverEnterHandler"
+                @selectionhoverexit="onHoverExitHandler"
+              ></BarcodeChart>
+            </v-col>
+            <v-col cols="11">
+              <compare-side
+                :identifier="leftIdentifier"
+                :file="diff.leftFile"
+                :selections="leftSelection"
+                @selectionclick="selectionClickEventHandler"
+                @selectionhoverenter="onHoverEnterHandler"
+                @selectionhoverexit="onHoverExitHandler"
+              >
+              </compare-side>
+            </v-col>
+          </v-row>
         </v-col>
-        <v-col sm="5">
-          <compare-side
-            :identifier="leftIdentifier"
-            :file="diff.leftFile"
-            :selections="leftSelection"
-            @selectionclick="selectionClickEventHandler"
-            @selectionhoverenter="onHoverEnterHandler"
-            @selectionhoverexit="onHoverExitHandler"
-          >
-          </compare-side>
-        </v-col>
-        <v-col sm="1">
-          <BarcodeChart
-            :selections="rightSelection"
-            :side-identifier="rightIdentifier"
-            @selectionclick="selectionClickEventHandler"
-            @selectionhoverenter="onHoverEnterHandler"
-            @selectionhoverexit="onHoverExitHandler"
-          ></BarcodeChart>
-        </v-col>
-        <v-col sm="5">
-          <compare-side
-            :identifier="rightIdentifier"
-            :file="diff.rightFile"
-            :selections="rightSelection"
-            @selectionclick="selectionClickEventHandler"
-            @selectionhoverenter="onHoverEnterHandler"
-            @selectionhoverexit="onHoverExitHandler"
-          >
-          </compare-side>
+        <v-col sm="6">
+          <v-row no-gutters>
+            <v-col cols="auto">
+              <BarcodeChart
+                :selections="rightSelection"
+                :side-identifier="rightIdentifier"
+                @selectionclick="selectionClickEventHandler"
+                @selectionhoverenter="onHoverEnterHandler"
+                @selectionhoverexit="onHoverExitHandler"
+              ></BarcodeChart>
+            </v-col>
+            <v-col cols="11">
+              <compare-side
+                :identifier="rightIdentifier"
+                :file="diff.rightFile"
+                :selections="rightSelection"
+                @selectionclick="selectionClickEventHandler"
+                @selectionhoverenter="onHoverEnterHandler"
+                @selectionhoverexit="onHoverExitHandler"
+              >
+              </compare-side>
+            </v-col>
+          </v-row>
         </v-col>
       </v-row>
     </v-container>
@@ -269,6 +277,8 @@ export default class Compare extends Vue {
 }
 </script>
 
-<style scoped>
-
+<style>
+  pre.highlighted-code {
+    margin-top: 0;
+  }
 </style>
