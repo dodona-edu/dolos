@@ -251,8 +251,8 @@ export default class Compare extends Vue {
   }
 
   extractRowCol(value: string): [number, number] {
-    const matches = /([0-9]*)-([0-9]*)-[0-9]*-[0-9]*$/m.exec(value) as RegExpExecArray;
-    return [+matches[1], +matches[2]];
+    const [row, col] = value.split("-").slice(3, 5);
+    return [+row, +col];
   }
 
   sortMap(map: Map<string, Array<string>>): void {
@@ -295,39 +295,45 @@ export default class Compare extends Vue {
 }
 </script>
 
-<style>
+<style lang="scss">
   :root {
     --normalbg: #ffe390;
     --selectedbg: #ffd54f;
     --hoveringb: #ffecb3;
   }
 
-  .barcodeChartBar {
-    fill: var(--normalbg);
+  .highlighted-code {
+
+    .marked-code.hovering {
+      background: var(--hoveringb) !important;
+      text-shadow: none;
+    }
+
+    /* this style is applied when selected */
+    .marked-code.visible,  .barcodeChartBar.selected {
+      background: var(--selectedbg) !important;
+      text-shadow: none;
+    }
+
+    .marked-code, .barcodeChartBar {
+      background: var(--normalbg) !important;
+      text-shadow: none;
+    }
   }
 
-  .barcodeChartBar.hovering {
-    fill: var(--hoveringb);
-  }
+  .barcodeChart {
 
-  .barcodeChartBar.selected {
-    fill: var(--selectedbg);
-  }
+    .barcodeChartBar {
+      fill: var(--normalbg);
+    }
 
-  .marked-code.hovering {
-    background: var(--hoveringb) !important;
-    text-shadow: none;
-  }
+    .barcodeChartBar.hovering {
+      fill: var(--hoveringb);
+    }
 
-  /* this style is applied when selected */
-  .marked-code.visible,  .barcodeChartBar.selected {
-    background: var(--selectedbg) !important;
-    text-shadow: none;
-  }
-
-  .marked-code, .barcodeChartBar {
-    background: var(--normalbg) !important;
-    text-shadow: none;
+    .barcodeChartBar.selected {
+      fill: var(--selectedbg);
+    }
   }
 
   pre.highlighted-code {

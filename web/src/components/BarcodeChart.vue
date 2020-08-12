@@ -1,5 +1,5 @@
 <template >
-  <svg :id="identifier"></svg>
+  <svg :id="identifier" class="barcodeChart"></svg>
 </template>
 
 <script lang="ts">
@@ -45,10 +45,6 @@ export default class BarcodeChart extends Vue {
     subgroups.reverse();
 
     const data = [temp];
-    // // color palette = one color per subgroup
-    // const color = d3.scaleOrdinal()
-    //   .domain(subgroups)
-    //   .range(d3.schemeSet2);
     const stackedData = d3.stack().keys(subgroups)(data);
     const max = stackedData[stackedData.length - 1][0][1];
 

@@ -73,15 +73,16 @@ export default class CompareSide extends Vue {
 }
 </script>
 
-<style>
+<style lang="scss">
 
   .highlighted-code {
     height: 70vh;
     overflow-y: scroll;
+
+    .token {
+      margin: -4px 0 -4px 0;
+      padding: 4px 0 4px 0;
+    }
   }
 
-  .token {
-    margin: -3px 0 -3px 0;
-    padding: 3px 0 3px 0;
-  }
 </style>
