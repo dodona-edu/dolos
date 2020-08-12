@@ -34,7 +34,12 @@
   </v-card>
   <v-card v-else>
     <v-row justify="center">
-      <BarcodeChart :selections="leftSelection" :side-identifier="leftIdentifier"></BarcodeChart>
+      <v-col>
+        <BarcodeChart :selections="leftSelection" :side-identifier="leftIdentifier"></BarcodeChart>
+      </v-col>
+      <v-col>
+        <BarcodeChart :selections="rightSelection" :side-identifier="rightIdentifier"></BarcodeChart>
+      </v-col>
     </v-row>
   </v-card>
 </template>

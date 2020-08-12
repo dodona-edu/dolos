@@ -6,6 +6,7 @@
 
 import { Component, Vue, Prop } from "vue-property-decorator";
 import { Selection } from "@/api/api";
+import { constructID } from "@/util/OccurenceHighlight";
 import * as d3 from "d3";
 
 @Component
@@ -33,14 +34,21 @@ export default class BarcodeChart extends Vue {
       .attr("transform",
         "translate(" + margin.left + "," + margin.top + ")");
 
-    const tempData = [{}];
+    const temp: {[key: string]: number} = {};
+
+    this.selections.forEach(selection => {
+      temp[constructID(selection)] = (selection.endRow - selection.startRow + 1);
+    });
+
+    const subgroups = [...new Set(this.selections.map(constructID))];
+    subgroups.sort();
+    subgroups.reverse();
+
     // Parse the Data
-    const data = await d3
-      .csv("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/data_stackedXL.csv");
-    data.length = 1;
-    console.log(data);
+    // const data = await d3
+    //   .csv("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/data_stackedXL.csv");
+    const data = [temp];
     // List of subgroups = header of the csv files = soil condition here
-    const subgroups = data.columns!.slice(1);
     //
     // // List of groups = species here = value of the first column called group -> I show them on the X axis
     // // @ts-expect-error
@@ -76,27 +84,6 @@ export default class BarcodeChart extends Vue {
     // Highlight a specific subgroup when hovered
     // ----------------
 
-    // What happens when user hover a bar
-    const mouseover = function (d: any): void {
-      // what subgroup are we hovering?
-      // @ts-expect-error
-      const subgroupName = d3.select((d3.event.target as HTMLElement).parentNode).datum().key;
-      // const subgroupValue = d.data[subgroupName];
-      // Reduce opacity of all rect to 0.2
-      d3.selectAll(".myRect").style("opacity", 0.2);
-      // Highlight all rects of this subgroup with opacity 0.8. It is possible to select them since they
-      // have a specific class = their name.
-      d3.selectAll("." + subgroupName)
-        .style("opacity", 1);
-    };
-
-    // When user do not hover anymore
-    const mouseleave = function (d: Element): void {
-      // Back to normal opacity: 0.8
-      d3.selectAll(".myRect")
-        .style("opacity", 0.8);
-    };
-
     // Show the bars
     svg.append("g")
       .selectAll("g")
@@ -116,13 +103,46 @@ export default class BarcodeChart extends Vue {
       .attr("height", function (d) { return y(d[0]) - y(d[1]); })
       .attr("width", width)
       .attr("stroke", "grey")
-      // @ts-expect-error
-      .on("mouseover", mouseover).on("mouseleave", mouseleave);
+      .on("mouseover", this.mouseover)
+      .on("mouseleave", this.mouseleave)
+      .on("click", this.mouseclick);
     // Prep the tooltip bits, initial display is hidden
+  }
+
+  getClassNameFromEvent(rect: SVGRectElement[] | ArrayLike<SVGRectElement>): string {
+    // @ts-expect-error
+    return d3.select(rect[0].parentNode).datum().key;
   }
 
   mounted(): void {
     this.drawBar();
+  }
+
+  // What happens when user hover a bar
+  mouseover(a: any, b: any, rect: SVGRectElement[] | ArrayLike<SVGRectElement>): void {
+    this.$emit("selectionhoverenter", this.sideIdentifier, [this.getClassNameFromEvent(rect)]);
+    // what subgroup are we hovering?
+    // // @ts-expect-error
+    // const subgroupName = d3.select((d3.event.target as HTMLElement).parentNode).datum().key;
+    // // const subgroupValue = d.data[subgroupName];
+    // // Reduce opacity of all rect to 0.2
+    // d3.selectAll(".myRect").style("opacity", 0.2);
+    // // Highlight all rects of this subgroup with opacity 0.8. It is possible to select them since they
+    // // have a specific class = their name.
+    // d3.selectAll("." + subgroupName)
+    //   .style("opacity", 1);
+  }
+
+  // When user do not hover anymore
+  mouseleave(a: any, b: any, rect: SVGRectElement[] | ArrayLike<SVGRectElement>): void {
+    this.$emit("selectionhoverexit", this.sideIdentifier, [this.getClassNameFromEvent(rect)]);
+    // Back to normal opacity: 0.8
+    // d3.selectAll(".myRect")
+    //   .style("opacity", 0.8);
+  }
+
+  mouseclick(a: any, b: any, rect: SVGRectElement[] | ArrayLike<SVGRectElement>): void {
+    this.$emit("selectionclick", this.sideIdentifier, [this.getClassNameFromEvent(rect)]);
   }
 }
 </script>
