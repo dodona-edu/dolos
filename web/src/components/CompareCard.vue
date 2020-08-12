@@ -122,53 +122,55 @@ export default class Compare extends Vue {
   /**
    * Adds or removes the hovering class to all the direct siblings and cousins ( the corresponding blocks in the other
    * side)
-   * @param op the operation that is performed, is either "add" or "remove"
+   * @param addClass true if the classes are to be added, false if they have to be removed
    * @param sideId the id of the side where all the siblings are
-   * @param blockClass the class used for selecting siblings and the cousins
+   * @param blockClasses the classes used for selecting siblings and the cousins
    */
-  private addClassesToSiblingsAndCousins(op: "add" | "remove", sideId: string, blockClass: string): void {
-    for (const siblings of document.querySelectorAll(`#${sideId} .marked-code.${blockClass}`)) {
-      siblings.classList[op]("hovering");
-    }
+  private addClassesToSiblingsAndCousins(addClass: boolean, sideId: string, blockClasses: Array<string>): void {
+    d3.selectAll(this.makeSelector(sideId, blockClasses))
+      .classed("hovering", addClass);
 
-    const other = this.sideMap.get(sideId)!.get(blockClass)![0];
-    for (const cousins of document.querySelectorAll(`pre:not(#${sideId}) .marked-code.${other}`)) {
-      cousins.classList[op]("hovering");
-    }
+    const otherClasses = this.getAllOtherBlockClasses(sideId, blockClasses);
+
+    d3.selectAll(this.makeSelector(sideId, otherClasses, true))
+      .classed("hovering", addClass);
   }
 
-  makeBarSelector(sideId: string, blockClasses: Array<string>, otherSide = false): string {
+  makeSelector(sideId: string, blockClasses: Array<string>, otherSide = false): string {
     if (otherSide) {
       return blockClasses
-        .map(blockClass => `:not(#${sideId}-chart) .${blockClass}`)
+        .map(blockClass => `:not(#${sideId}) .${blockClass}`)
         .join(", ");
     } else {
       return blockClasses
-        .map(blockClass => `#${sideId}-chart .${blockClass}`)
+        .map(blockClass => `#${sideId} .${blockClass}`)
         .join(", ");
     }
+  }
+
+  getAllOtherBlockClasses(sideId: string, blockClasses: Array<string>): Array<string> {
+    const map = this.sideMap.get(sideId)!;
+    return blockClasses.flatMap(blockClass => map.get(blockClass)!);
   }
 
   onHoverEnterHandler(sideId: string, blockClasses: Array<string>): void {
     this.lastHovered.side = sideId;
     this.lastHovered.blockClasses = blockClasses;
-    this.addClassesToSiblingsAndCousins("add", sideId, blockClasses[0]);
+    this.addClassesToSiblingsAndCousins(true, sideId, blockClasses);
 
     d3.selectAll(".barcodeChartBar")
       .style("opacity", 0.2);
 
-    d3.selectAll(this.makeBarSelector(sideId, blockClasses))
+    d3.selectAll(this.makeSelector(sideId + "-chart", blockClasses))
       .style("opacity", 1);
 
-    const map = this.sideMap.get(sideId)!;
-    const otherBlockClasses = blockClasses.flatMap(blockClass => map.get(blockClass)!);
-
-    d3.selectAll(this.makeBarSelector(sideId, otherBlockClasses, true))
+    const otherBlockClasses = this.getAllOtherBlockClasses(sideId, blockClasses);
+    d3.selectAll(this.makeSelector(sideId + "-chart", otherBlockClasses, true))
       .style("opacity", 1);
   }
 
   onHoverExitHandler(sideId: string, blockClasses: Array<string>): void {
-    this.addClassesToSiblingsAndCousins("remove", sideId, blockClasses[0]);
+    this.addClassesToSiblingsAndCousins(false, sideId, blockClasses);
     d3.selectAll(".barcodeChartBar")
       .style("opacity", 0.8);
   }

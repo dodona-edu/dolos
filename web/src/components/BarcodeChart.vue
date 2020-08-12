@@ -55,7 +55,6 @@ export default class BarcodeChart extends Vue {
       .domain([0, max])
       .range([height, 0]);
 
-
     // Show the bars
     svg.append("g")
       .selectAll("g")
