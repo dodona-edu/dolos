@@ -58,6 +58,7 @@ import { Diff, Selection } from "@/api/api";
 import CompareSide from "@/components/CompareSide.vue";
 import BarcodeChart from "@/components/BarcodeChart.vue";
 import { constructID } from "@/util/OccurenceHighlight";
+import * as d3 from "d3";
 
 @Component({
   components: { CompareSide, BarcodeChart }
@@ -140,10 +141,18 @@ export default class Compare extends Vue {
     this.lastHovered.side = sideId;
     this.lastHovered.blockClasses = blockClasses;
     this.addClassesToSiblingsAndCousins("add", sideId, blockClasses[0]);
+
+    d3.selectAll(`#${sideId}-chart .barcodeChartBar`)
+      .style("opacity", 0.2);
+
+    d3.selectAll(`#${sideId}-chart .${blockClasses[0]}`)
+      .style("opacity", 1);
   }
 
   onHoverExitHandler(sideId: string, blockClasses: Array<string>): void {
     this.addClassesToSiblingsAndCousins("remove", sideId, blockClasses[0]);
+    d3.selectAll(".barcodeChartBar")
+      .style("opacity", 0.8);
   }
 
   selectionClickEventHandler(sideId: string, blockClasses: Array<string>): void {

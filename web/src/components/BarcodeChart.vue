@@ -70,7 +70,6 @@ export default class BarcodeChart extends Vue {
       .range(d3.schemeSet2);
     //
     // // stack the data? --> stack per subgroup
-    // @ts-expect-error
     const stackedData = d3.stack().keys(subgroups)(data);
     const max = stackedData[stackedData.length - 1][0][1];
 
@@ -92,7 +91,7 @@ export default class BarcodeChart extends Vue {
       .enter().append("g")
       // @ts-expect-error
       .attr("fill", function (d) { return color(d.key); })
-      .attr("class", function (d) { return "myRect " + d.key; }) // Add a class to each subgroup: their name
+      .attr("class", function (d) { return "barcodeChartBar " + d.key; }) // Add a class to each subgroup: their name
       .selectAll("rect")
       // enter a second time = loop subgroup per subgroup to add all rectangles
       .data(function (d) { return d; })
