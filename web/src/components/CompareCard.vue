@@ -137,15 +137,34 @@ export default class Compare extends Vue {
     }
   }
 
+  makeBarSelector(sideId: string, blockClasses: Array<string>, otherSide = false): string {
+    if (otherSide) {
+      return blockClasses
+        .map(blockClass => `:not(#${sideId}-chart) .${blockClass}`)
+        .join(", ");
+    } else {
+      return blockClasses
+        .map(blockClass => `#${sideId}-chart .${blockClass}`)
+        .join(", ");
+    }
+  }
+
   onHoverEnterHandler(sideId: string, blockClasses: Array<string>): void {
     this.lastHovered.side = sideId;
     this.lastHovered.blockClasses = blockClasses;
     this.addClassesToSiblingsAndCousins("add", sideId, blockClasses[0]);
 
-    d3.selectAll(`#${sideId}-chart .barcodeChartBar`)
+    d3.selectAll(".barcodeChartBar")
       .style("opacity", 0.2);
 
-    d3.selectAll(`#${sideId}-chart .${blockClasses[0]}`)
+    d3.selectAll(this.makeBarSelector(sideId, blockClasses))
+      .style("opacity", 1);
+
+    const map = this.sideMap.get(sideId)!;
+    const otherBlockClasses = blockClasses.flatMap(blockClass => map.get(blockClass)!);
+
+    console.log(this.makeBarSelector(sideId, otherBlockClasses, true));
+    d3.selectAll(this.makeBarSelector(sideId, otherBlockClasses, true))
       .style("opacity", 1);
   }
 
