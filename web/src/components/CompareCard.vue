@@ -9,15 +9,6 @@
       <v-row v-if="loaded" justify="center" no-gutters>
         <v-col sm="6">
           <v-row no-gutters>
-            <v-col cols="auto">
-              <BarcodeChart
-                :selections="leftSelection"
-                :side-identifier="leftIdentifier"
-                @selectionclick="selectionClickEventHandler"
-                @selectionhoverenter="onHoverEnterHandler"
-                @selectionhoverexit="onHoverExitHandler"
-              ></BarcodeChart>
-            </v-col>
             <v-col cols="11">
               <compare-side
                 :identifier="leftIdentifier"
@@ -29,19 +20,19 @@
               >
               </compare-side>
             </v-col>
-          </v-row>
-        </v-col>
-        <v-col sm="6">
-          <v-row no-gutters>
             <v-col cols="auto">
               <BarcodeChart
-                :selections="rightSelection"
-                :side-identifier="rightIdentifier"
+                :selections="leftSelection"
+                :side-identifier="leftIdentifier"
                 @selectionclick="selectionClickEventHandler"
                 @selectionhoverenter="onHoverEnterHandler"
                 @selectionhoverexit="onHoverExitHandler"
               ></BarcodeChart>
             </v-col>
+          </v-row>
+        </v-col>
+        <v-col sm="6">
+          <v-row no-gutters>
             <v-col cols="11">
               <compare-side
                 :identifier="rightIdentifier"
@@ -52,6 +43,15 @@
                 @selectionhoverexit="onHoverExitHandler"
               >
               </compare-side>
+            </v-col>
+            <v-col cols="auto">
+              <BarcodeChart
+                :selections="rightSelection"
+                :side-identifier="rightIdentifier"
+                @selectionclick="selectionClickEventHandler"
+                @selectionhoverenter="onHoverEnterHandler"
+                @selectionhoverexit="onHoverExitHandler"
+              ></BarcodeChart>
             </v-col>
           </v-row>
         </v-col>
