@@ -13,12 +13,14 @@ import * as d3 from "d3";
 export default class BarcodeChart extends Vue {
   @Prop() selections!: Array<Selection>;
   @Prop() sideIdentifier!: string;
+  @Prop() maxLines!: number;
+  @Prop() lines!: number;
 
   get identifier(): string {
     return `${this.sideIdentifier}-chart`;
   }
 
-  async drawBar(): Promise<void> {
+  drawBar(): void {
     // set the dimensions and margins of the graph
     // const margin = { top: 10, right: 30, bottom: 20, left: 50 };
     const margin = { top: 0, right: 0, bottom: 0, left: 0 };
@@ -34,22 +36,33 @@ export default class BarcodeChart extends Vue {
       .attr("transform",
         "translate(" + margin.left + "," + margin.top + ")");
 
-    const temp: {[key: string]: number} = {};
+    const temp: {[key: number]: number} = {};
+    const subgroups = [];
+    const map: {[key: number]: Array<string>} = {};
+    for (let i = 0; i < this.lines; i += 1) {
+      subgroups.unshift(i.toString());
+      temp[i] = 1;
+      map[i] = [];
+    }
 
-    this.selections.forEach(selection => {
-      temp[constructID(selection)] = (selection.endRow - selection.startRow + 1);
-    });
+    for (const selection of this.selections) {
+      for (let i = selection.startRow; i <= selection.endRow; i += 1) {
+        const id = constructID(selection);
+        if (!map[i].includes(id)) {
+          map[i].push(id);
+        }
+      }
+    }
 
-    const subgroups = [...new Set(this.selections.map(constructID))];
-    subgroups.sort();
-    subgroups.reverse();
+    // const subgroups = [...new Set(this.selections.map(constructID))];
+    // subgroups.sort();
+    // subgroups.reverse();
 
     const data = [temp];
     const stackedData = d3.stack().keys(subgroups)(data);
-    const max = stackedData[stackedData.length - 1][0][1];
 
     const y = d3.scaleLinear()
-      .domain([0, max])
+      .domain([0, this.maxLines])
       .range([height, 0]);
 
     // Show the bars
@@ -60,7 +73,7 @@ export default class BarcodeChart extends Vue {
       .enter().append("g")
       // // @ts-expect-error
       // .attr("fill", function (d) { return color(d.key); })
-      .attr("class", function (d) { return "barcodeChartBar " + d.key; }) // Add a class to each subgroup: their name
+      .attr("class", function (d) { return "barcodeChartBar " + map[+d.key].join(" "); })
       .selectAll("rect")
       // enter a second time = loop subgroup per subgroup to add all rectangles
       .data(function (d) { return d; })
@@ -68,13 +81,13 @@ export default class BarcodeChart extends Vue {
       .attr("y", function (d) { return y(d[1]); })
       .attr("height", function (d) { return y(d[0]) - y(d[1]); })
       .attr("width", width)
-      .attr("stroke", "grey")
-      .on("mouseover", this.mouseover)
-      .on("mouseleave", this.mouseleave)
-      .on("click", this.mouseclick);
+      // .attr("stroke", "grey")
+      .on("mouseover", (a, b, rect) => this.mouseover(map, a, b, rect))
+      .on("mouseleave", (a, b, rect) => this.mouseleave(map, a, b, rect))
+      .on("click", (a, b, rect) => this.mouseclick(map, a, b, rect));
   }
 
-  getClassNameFromEvent(rect: SVGRectElement[] | ArrayLike<SVGRectElement>): string {
+  getKey(rect: SVGRectElement[] | ArrayLike<SVGRectElement>): number {
     // @ts-expect-error
     return d3.select(rect[0].parentNode).datum().key;
   }
@@ -83,16 +96,28 @@ export default class BarcodeChart extends Vue {
     this.drawBar();
   }
 
-  mouseover(a: any, b: any, rect: SVGRectElement[] | ArrayLike<SVGRectElement>): void {
-    this.$emit("selectionhoverenter", this.sideIdentifier, [this.getClassNameFromEvent(rect)]);
+  mouseover(map: {[key: number]: Array<string>}, a: any, b: any, rect: SVGRectElement[] | ArrayLike<SVGRectElement>):
+    void {
+    const classes = map[this.getKey(rect)];
+    if (classes.length) {
+      this.$emit("selectionhoverenter", this.sideIdentifier, classes);
+    }
   }
 
-  mouseleave(a: any, b: any, rect: SVGRectElement[] | ArrayLike<SVGRectElement>): void {
-    this.$emit("selectionhoverexit", this.sideIdentifier, [this.getClassNameFromEvent(rect)]);
+  mouseleave(map: {[key: number]: Array<string>}, a: any, b: any, rect: SVGRectElement[] | ArrayLike<SVGRectElement>):
+    void {
+    const classes = map[this.getKey(rect)];
+    if (classes.length) {
+      this.$emit("selectionhoverexit", this.sideIdentifier, classes);
+    }
   }
 
-  mouseclick(a: any, b: any, rect: SVGRectElement[] | ArrayLike<SVGRectElement>): void {
-    this.$emit("selectionclick", this.sideIdentifier, [this.getClassNameFromEvent(rect)]);
+  mouseclick(map: {[key: number]: Array<string>}, a: any, b: any, rect: SVGRectElement[] | ArrayLike<SVGRectElement>):
+    void {
+    const classes = map[this.getKey(rect)];
+    if (classes.length) {
+      this.$emit("selectionclick", this.sideIdentifier, classes);
+    }
   }
 }
 </script>

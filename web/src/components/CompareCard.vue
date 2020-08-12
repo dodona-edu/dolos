@@ -24,6 +24,8 @@
               <BarcodeChart
                 :selections="leftSelection"
                 :side-identifier="leftIdentifier"
+                :maxLines="maxLines"
+                :lines="leftLines"
                 @selectionclick="selectionClickEventHandler"
                 @selectionhoverenter="onHoverEnterHandler"
                 @selectionhoverexit="onHoverExitHandler"
@@ -48,6 +50,8 @@
               <BarcodeChart
                 :selections="rightSelection"
                 :side-identifier="rightIdentifier"
+                :maxLines="maxLines"
+                :lines="rightLines"
                 @selectionclick="selectionClickEventHandler"
                 @selectionhoverenter="onHoverEnterHandler"
                 @selectionhoverexit="onHoverExitHandler"
@@ -92,6 +96,21 @@ export default class Compare extends Vue {
     side?: string;
     blockClasses?: Array<string>;
   } = {};
+
+  get leftLines(): number {
+    return this.diff.leftFile.content.split("\n").length;
+  }
+
+  get rightLines(): number {
+    return this.diff.rightFile.content.split("\n").length;
+  }
+
+  get maxLines(): number {
+    return Math.max(
+      this.leftLines,
+      this.rightLines
+    );
+  }
 
   get rightFilename(): string {
     return this.diff.rightFile.path;
