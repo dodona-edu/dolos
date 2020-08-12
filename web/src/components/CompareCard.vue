@@ -163,7 +163,6 @@ export default class Compare extends Vue {
     const map = this.sideMap.get(sideId)!;
     const otherBlockClasses = blockClasses.flatMap(blockClass => map.get(blockClass)!);
 
-    console.log(this.makeBarSelector(sideId, otherBlockClasses, true));
     d3.selectAll(this.makeBarSelector(sideId, otherBlockClasses, true))
       .style("opacity", 1);
   }
