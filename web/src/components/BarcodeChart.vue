@@ -17,14 +17,14 @@ export default class BarcodeChart extends Vue {
     return `${this.sideIdentifier}-chart`;
   }
 
-  async mounted(): Promise<void> {
+  async drawBar(): Promise<void> {
     // set the dimensions and margins of the graph
-    const margin = { top: 10, right: 30, bottom: 20, left: 50 };
-    const width = 460 - margin.left - margin.right;
+    // const margin = { top: 10, right: 30, bottom: 20, left: 50 };
+    const margin = { top: 0, right: 0, bottom: 0, left: 0 };
+    const width = 40 - margin.left - margin.right;
     const height = 400 - margin.top - margin.bottom;
 
     // append the svg object to the body of the page
-    // eslint-disable-next-line no-unused-vars
     const svg = d3.select(`#${this.identifier}`)
       .append("svg")
       .attr("width", width + margin.left + margin.right)
@@ -33,31 +33,28 @@ export default class BarcodeChart extends Vue {
       .attr("transform",
         "translate(" + margin.left + "," + margin.top + ")");
 
+    const tempData = [{}];
     // Parse the Data
     const data = await d3
       .csv("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/data_stackedXL.csv");
+    data.length = 1;
+    console.log(data);
     // List of subgroups = header of the csv files = soil condition here
     const subgroups = data.columns!.slice(1);
     //
     // // List of groups = species here = value of the first column called group -> I show them on the X axis
-    // @ts-expect-error
-    const groups = d3.map(data, function (d) { return (d.group); }).keys();
+    // // @ts-expect-error
+    // const groups = d3.map(data, function (d) { return (d.group); }).keys();
     //
     // // Add X axis
-    const x = d3.scaleBand()
-      .domain(groups)
-      .range([0, width])
-      .padding(0.2);
-    svg.append("g")
-      .attr("transform", "translate(0," + height + ")")
-      .call(d3.axisBottom(x).tickSizeOuter(0));
+    // const x = d3.scaleBand()
+    //   .domain(groups)
+    //   .range([0, width]);
+    // svg.append("g")
+    //   .attr("transform", "translate(0," + height + ")")
+    //   .call(d3.axisBottom(x).tickSizeOuter(0));
     //
     // // Add Y axis
-    const y = d3.scaleLinear()
-      .domain([0, 120])
-      .range([height, 0]);
-    svg.append("g")
-      .call(d3.axisLeft(y));
     //
     // // color palette = one color per subgroup
     const color = d3.scaleOrdinal()
@@ -67,17 +64,23 @@ export default class BarcodeChart extends Vue {
     // // stack the data? --> stack per subgroup
     // @ts-expect-error
     const stackedData = d3.stack().keys(subgroups)(data);
+    const max = stackedData[stackedData.length - 1][0][1];
+
+    const y = d3.scaleLinear()
+      .domain([0, max])
+      .range([height, 0]);
+    // svg.append("g")
+    //   .call(d3.axisLeft(y));
 
     // ----------------
     // Highlight a specific subgroup when hovered
     // ----------------
 
     // What happens when user hover a bar
-    const mouseover = function (d: Element): void {
+    const mouseover = function (d: any): void {
       // what subgroup are we hovering?
       // @ts-expect-error
-      // eslint-disable-next-line no-invalid-this
-      const subgroupName = d3.select(this.parentNode).datum().key; // This was the tricky part
+      const subgroupName = d3.select((d3.event.target as HTMLElement).parentNode).datum().key;
       // const subgroupValue = d.data[subgroupName];
       // Reduce opacity of all rect to 0.2
       d3.selectAll(".myRect").style("opacity", 0.2);
@@ -107,15 +110,19 @@ export default class BarcodeChart extends Vue {
       // enter a second time = loop subgroup per subgroup to add all rectangles
       .data(function (d) { return d; })
       .enter().append("rect")
-      // @ts-expect-error
-      .attr("x", function (d) { return x(d.data.group); })
+      // // @ts-expect-error
+      // .attr("x", function (d) { return x(d.data.group); })
       .attr("y", function (d) { return y(d[1]); })
       .attr("height", function (d) { return y(d[0]) - y(d[1]); })
-      .attr("width", x.bandwidth())
+      .attr("width", width)
       .attr("stroke", "grey")
       // @ts-expect-error
       .on("mouseover", mouseover).on("mouseleave", mouseleave);
     // Prep the tooltip bits, initial display is hidden
+  }
+
+  mounted(): void {
+    this.drawBar();
   }
 }
 </script>

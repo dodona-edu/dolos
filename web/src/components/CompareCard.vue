@@ -1,39 +1,41 @@
 <template>
   <v-card v-if="false" :loading="!loaded">
-                                       <v-card-title>
-                                       {{leftFilename}}
-                                       <v-spacer/>
-                                       {{rightFilename}}
-                                       </v-card-title>
-                                       <v-container fluid>
-                                       <v-row v-if="loaded" justify="center">
-                                       <v-col sm="6">
-                                       <compare-side
-                                       :identifier="leftIdentifier"
-                                       :file="diff.leftFile"
-                                       :selections="leftSelection"
-                                       @selectionclick="selectionClickEventHandler"
-                                       @selectionhoverenter="onHoverEnterHandler"
-                                       @selectionhoverexit="onHoverExitHandler"
-                                       >
-                                       </compare-side>
-                                       </v-col>
-                                       <v-col sm="6">
-                                       <compare-side
-                                       :identifier="rightIdentifier"
-                                       :file="diff.rightFile"
-                                       :selections="rightSelection"
-                                       @selectionclick="selectionClickEventHandler"
-                                       @selectionhoverenter="onHoverEnterHandler"
-                                       @selectionhoverexit="onHoverExitHandler"
-                                       >
-                                       </compare-side>
-                                       </v-col>
-                                       </v-row>
-                                       </v-container>
-                                       </v-card>
+    <v-card-title>
+      {{ leftFilename }}
+      <v-spacer/>
+      {{ rightFilename }}
+    </v-card-title>
+    <v-container fluid>
+      <v-row v-if="loaded" justify="center">
+        <v-col sm="6">
+          <compare-side
+            :identifier="leftIdentifier"
+            :file="diff.leftFile"
+            :selections="leftSelection"
+            @selectionclick="selectionClickEventHandler"
+            @selectionhoverenter="onHoverEnterHandler"
+            @selectionhoverexit="onHoverExitHandler"
+          >
+          </compare-side>
+        </v-col>
+        <v-col sm="6">
+          <compare-side
+            :identifier="rightIdentifier"
+            :file="diff.rightFile"
+            :selections="rightSelection"
+            @selectionclick="selectionClickEventHandler"
+            @selectionhoverenter="onHoverEnterHandler"
+            @selectionhoverexit="onHoverExitHandler"
+          >
+          </compare-side>
+        </v-col>
+      </v-row>
+    </v-container>
+  </v-card>
   <v-card v-else>
-    <BarcodeChart :selections="leftSelection" :side-identifier="leftIdentifier"></BarcodeChart>
+    <v-row justify="center">
+      <BarcodeChart :selections="leftSelection" :side-identifier="leftIdentifier"></BarcodeChart>
+    </v-row>
   </v-card>
 </template>
 <script lang="ts">
