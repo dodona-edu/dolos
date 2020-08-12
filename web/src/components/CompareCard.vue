@@ -240,23 +240,21 @@ export default class Compare extends Vue {
     if (line !== undefined) {
       d3.select(`#${sideId}-chart .barcodeChartBar.line-${line}`)
         .classed("selected", true);
-
-      const [startLine, endLine] = this.extractLinesFromSelectionId(other);
-      const temp = [];
-      for (let i = startLine; i <= endLine; i += 1) {
-        temp.push(i);
-      }
-      const selector = temp.map(i => `:not(#${sideId}-chart) .barcodeChartBar.line-${i}`).join(", ");
-
-      d3.selectAll(selector)
-        .classed("selected", true);
     } else {
       d3.selectAll(this.makeSelector(sideId + "-chart", blockClasses))
         .classed("selected", true);
-
-      d3.selectAll(this.makeSelector(sideId + "-chart", this.getAllOtherBlockClasses(sideId, blockClasses), true))
-        .classed("selected", true);
     }
+
+    const [startLine, endLine] = this.extractLinesFromSelectionId(other);
+    const temp = [];
+    for (let i = startLine; i <= endLine; i += 1) {
+      temp.push(i);
+    }
+
+    const selector = temp.map(i => `:not(#${sideId}-chart) .barcodeChartBar.line-${i}`).join(", ");
+
+    d3.selectAll(selector)
+      .classed("selected", true);
 
     const firstSpans = document.querySelectorAll(`#${sideId} .${id}`) as NodeListOf<HTMLElement>;
     const secondSpans = document.querySelectorAll(`pre:not(#${sideId}) .${other}`) as NodeListOf<HTMLElement>;
