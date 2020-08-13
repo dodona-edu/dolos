@@ -13,8 +13,6 @@ import { Selection, File } from "@/api/api";
 
 import Prism from "prismjs";
 import "prismjs/themes/prism.css";
-import "prismjs/components/prism-javascript";
-import "prismjs/components/prism-python";
 import "prismjs/plugins/line-numbers/prism-line-numbers.js";
 import "prismjs/plugins/line-numbers/prism-line-numbers.css";
 import { ID_START, registerBlockHighlighting } from "@/util/OccurenceHighlight";
@@ -27,8 +25,13 @@ export default class CompareSide extends Vue {
   @Prop() onHoverExit!: (sideId: string, blockClasses: Array<string>, element: HTMLElement) => void;
   @Prop() file!: File;
   @Prop() selections!: Array<Selection>;
+
   get content(): string {
     return this.file.content;
+  }
+
+  get language(): string {
+    return `language-${this.$store.state.data.metadata.language}`;
   }
 
   onScroll(e: Event): void {
@@ -58,11 +61,16 @@ export default class CompareSide extends Vue {
     });
   }
 
-  get language(): string {
-    return `language-${this.$store.state.data.metadata.language}`;
+  async installLanguage(): Promise<void> {
+    const currentLanguage: string = this.$store.state.data.metadata.language.toLowerCase();
+    if (Prism.languages[currentLanguage]) {
+      return;
+    }
+    await require("prismjs/components/prism-" + currentLanguage);
   }
 
-  highlight(): void {
+  async highlight(): Promise<void> {
+    await this.installLanguage();
     registerBlockHighlighting(this.selections);
     this.codeHighLight();
   }

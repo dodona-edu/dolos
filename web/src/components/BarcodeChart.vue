@@ -45,7 +45,6 @@ export default class BarcodeChart extends Vue {
   }
 
   get scrollOffset(): number {
-    console.log(this.documentScrollFraction, this.documentScrollFraction * this.chart.height);
     return Math.min(
       this.documentScrollFraction * (this.chart.height - this.scrollHighlighterHeight()),
       this.chart.height - this.scrollHighlighterHeight()
