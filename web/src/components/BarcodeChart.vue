@@ -6,8 +6,8 @@
         id="page-scroll-highlighter"
         :y="scrollOffset"
         width="40"
-        fill="white"
-        fill-opacity="0.3"
+        fill="gray"
+        fill-opacity="0.2"
         pointer-events="none"
         :style="'height: ' + this.scrollHighlighterHeight()"
       >

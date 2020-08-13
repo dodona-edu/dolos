@@ -53,8 +53,8 @@ export default class CompareSide extends Vue {
     return height / lineNumber.getBoundingClientRect().height;
   }
 
-  mounted(): void {
-    this.highlight();
+  async mounted(): Promise<void> {
+    await this.highlight();
     this.$emit("linesvisibleamount", this.getLinesVisibleAmount());
     window.addEventListener("resize", () => {
       this.$emit("linesvisibleamount", this.getLinesVisibleAmount());
