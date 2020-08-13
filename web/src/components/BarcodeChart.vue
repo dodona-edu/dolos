@@ -1,5 +1,5 @@
 <template >
-  <svg :id="identifier" class="barcodeChart"></svg>
+  <div :id="identifier" class="barcodeChart"></div>
 </template>
 
 <script lang="ts">
@@ -25,22 +25,27 @@ export default class BarcodeChart extends Vue {
     // const margin = { top: 10, right: 30, bottom: 20, left: 50 };
     const margin = { top: 0, right: 0, bottom: 0, left: 0 };
     const width = 40 - margin.left - margin.right;
-    const height = 700 - margin.top - margin.bottom;
+    const height = 70 - margin.top - margin.bottom;
 
     const svg = d3.select(`#${this.identifier}`)
-      // .append("svg")
-      .attr("width", width + margin.left + margin.right)
-      .attr("height", height + margin.top + margin.bottom)
-      // .attr("height", "70vh")
-      .append("g")
-      .attr("transform",
-        "translate(" + margin.left + "," + margin.top + ")");
+      .append("div")
+      .classed("svg-container", true)
+      .append("svg")
+      // .attr("preserveAspectRatio", "xMinYMin meet")
+      .attr("viewBox", [0, 0, width, height].join(" "))
+      .classed("svg-content-responsive", true);
+      // .attr("width", width + margin.left + margin.right)
+      // .attr("height", height + margin.top + margin.bottom)
+      // // .attr("height", "70vh")
+      // .append("g");
+      // .attr("transform",
+      //   "translate(" + margin.left + "," + margin.top + ")");
 
     const temp: {[key: number]: number} = {};
     const subgroups = [];
     const map: {[key: number]: Array<string>} = {};
     for (let i = 0; i < this.lines; i += 1) {
-      subgroups.unshift(i.toString());
+      subgroups.push(i);
       temp[i] = 1;
       map[i] = [];
     }
@@ -78,7 +83,7 @@ export default class BarcodeChart extends Vue {
       // enter a second time = loop subgroup per subgroup to add all rectangles
       .data(function (d) { return d; })
       .enter().append("rect")
-      .attr("y", function (d) { return y(d[1]); })
+      .attr("y", function (d) { return height - y(d[0]); })
       .attr("height", function (d) { return y(d[0]) - y(d[1]); })
       .attr("width", width)
       // .attr("stroke", "grey")
@@ -125,6 +130,25 @@ export default class BarcodeChart extends Vue {
 }
 </script>
 
-<style scoped>
-
+<style>
+  .svg-container {
+    display: inline-block;
+    position: relative;
+    /*width: 30px;*/
+    width: 3vw;
+    height: 70vh;
+    padding-bottom: 100%; /* aspect ratio */
+    vertical-align: top;
+    overflow: hidden;
+  }
+  .svg-content-responsive {
+    height: 100%;
+    display: inline-block;
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+  .barcodeChartBar {
+    fill: black;
+  }
 </style>
