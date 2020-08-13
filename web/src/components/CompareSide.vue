@@ -1,7 +1,7 @@
 <template>
   <div>
     <pre v-scroll.self="onScroll" ref="pre" :id="identifier" class="line-numbers highlighted-code"><code
-      :ref="tempIdentifier"
+      ref="codeblock"
       :class="language">{{content}}</code>
     </pre>
   </div>
@@ -32,12 +32,15 @@ export default class CompareSide extends Vue {
   }
 
   onScroll(e: Event): void {
-    this.$emit("codescroll", this.identifier, (e.target as HTMLElement)?.scrollTop);
+    const scrollTop = (e.target as HTMLElement)?.scrollTop;
+    const maxScroll = (this.$refs.codeblock as HTMLElement).getBoundingClientRect().height;
+    const temp = (this.$refs.pre as HTMLElement).clientHeight;
+    this.$emit("codescroll", this.identifier, Math.min(1, scrollTop / (maxScroll - temp)));
   }
 
-  get tempIdentifier(): string {
-    return this.identifier + "code-block";
-  }
+  // get codeBlockIdentifier(): string {
+  //   return this.identifier + "code-block";
+  // }
 
   mounted(): void {
     this.highlight();
@@ -70,7 +73,7 @@ export default class CompareSide extends Vue {
   }
 
   codeHighLight(): void {
-    Prism.highlightElement(this.$refs[this.tempIdentifier] as Element, false, () => {
+    Prism.highlightElement(this.$refs.codeblock as Element, false, () => {
       this.addEventListeners();
     });
   }

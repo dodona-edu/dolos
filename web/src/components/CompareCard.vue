@@ -26,7 +26,7 @@
                 :side-identifier="leftIdentifier"
                 :maxLines="maxLines"
                 :lines="leftLines"
-                :scroll-from-top="leftScroll"
+                :document-scroll-fraction="leftScrollFraction"
                 @selectionclick="selectionClickEventHandler"
                 @selectionhoverenter="onHoverEnterHandler"
                 @selectionhoverexit="onHoverExitHandler"
@@ -54,7 +54,7 @@
                 :side-identifier="rightIdentifier"
                 :maxLines="maxLines"
                 :lines="rightLines"
-                :scroll-from-top="rightScroll"
+                :document-scroll-fraction="rightScrollFraction"
                 @selectionclick="selectionClickEventHandler"
                 @selectionhoverenter="onHoverEnterHandler"
                 @selectionhoverexit="onHoverExitHandler"
@@ -101,14 +101,15 @@ export default class Compare extends Vue {
     blockClasses?: Array<string>;
   } = {};
 
-  leftScroll = 0;
-  rightScroll = 0;
+  leftScrollFraction = 0;
+  rightScrollFraction = 0;
 
-  onScrollHandler(sideId: string, offsetFromTop: number): void {
+  onScrollHandler(sideId: string, scrollFraction: number): void {
+    console.log(sideId, scrollFraction);
     if (sideId === this.rightIdentifier) {
-      this.rightScroll = offsetFromTop;
+      this.rightScrollFraction = scrollFraction;
     } else {
-      this.leftScroll = offsetFromTop;
+      this.leftScrollFraction = scrollFraction;
     }
   }
 

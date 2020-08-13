@@ -3,7 +3,7 @@
     <svg class="svg-content-responsive">
       <rect
         id="page-scroll-higlighter"
-        :y="scrollFromTop"
+        :y="testScroll"
         width="40"
         height="10"
         fill="white"
@@ -28,7 +28,11 @@ export default class BarcodeChart extends Vue {
   @Prop() sideIdentifier!: string;
   @Prop() maxLines!: number;
   @Prop() lines!: number;
-  @Prop() scrollFromTop!: number;
+  @Prop() documentScrollFraction!: number;
+
+  get testScroll(): number {
+    return Math.min(this.documentScrollFraction * 70 , 60);
+  }
 
   get identifier(): string {
     return `${this.sideIdentifier}-chart`;
