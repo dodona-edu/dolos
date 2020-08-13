@@ -97,6 +97,9 @@ export default class Compare extends Vue {
     blockClasses?: Array<string>;
   } = {};
 
+  /**
+   * Prismjs trims the last line of code if that line is empty so we have to take that into account.
+   */
   trimLastEmptyLine(lines: Array<string>): number {
     if (lines[lines.length - 1].length === 0) {
       return lines.length - 1;
