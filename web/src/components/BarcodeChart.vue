@@ -89,7 +89,14 @@ export default class BarcodeChart extends Vue {
       .selectAll("g")
       .data(stackedData)
       .enter().append("g")
-      .attr("class", function (d) { return `barcodeChartBar line-${+d.key} ${map[+d.key].join(" ")}`; })
+      .attr("class", function (d) {
+        const blocks = map[+d.key];
+        let classes = `barcodeChartBar line-${+d.key} ${blocks.join(" ")}`;
+        if (blocks.length > 0) {
+          classes += " " + "marked";
+        }
+        return classes;
+      })
       .selectAll("rect")
       // enter a second time = loop subgroup per subgroup to add all rectangles
       .data(function (d) { return d; })

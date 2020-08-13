@@ -386,14 +386,18 @@ export default class Compare extends Vue {
   .barcodeChart {
 
     .barcodeChartBar {
+      fill: #f5f2f0;
+    }
+
+    .barcodeChartBar.marked {
       fill: var(--normalbg);
     }
 
-    .barcodeChartBar.hovering {
+    .barcodeChartBar.marked.hovering {
       fill: var(--hoveringb);
     }
 
-    .barcodeChartBar.selected {
+    .barcodeChartBar.marked.selected {
       fill: var(--selectedbg);
     }
   }
