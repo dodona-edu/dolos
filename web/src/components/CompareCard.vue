@@ -97,12 +97,20 @@ export default class Compare extends Vue {
     blockClasses?: Array<string>;
   } = {};
 
+  trimLastEmptyLine(lines: Array<string>): number {
+    if (lines[lines.length - 1].length === 0) {
+      return lines.length - 1;
+    } else {
+      return lines.length;
+    }
+  }
+
   get leftLines(): number {
-    return this.diff.leftFile.content.split("\n").length;
+    return this.trimLastEmptyLine(this.diff.leftFile.content.split("\n"));
   }
 
   get rightLines(): number {
-    return this.diff.rightFile.content.split("\n").length;
+    return this.trimLastEmptyLine(this.diff.rightFile.content.split("\n"));
   }
 
   get maxLines(): number {

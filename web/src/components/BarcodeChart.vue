@@ -21,8 +21,6 @@ export default class BarcodeChart extends Vue {
   }
 
   drawBar(): void {
-    // set the dimensions and margins of the graph
-    // const margin = { top: 10, right: 30, bottom: 20, left: 50 };
     const margin = { top: 0, right: 0, bottom: 0, left: 0 };
     const width = 40 - margin.left - margin.right;
     const height = 70 - margin.top - margin.bottom;
@@ -31,21 +29,14 @@ export default class BarcodeChart extends Vue {
       .append("div")
       .classed("svg-container", true)
       .append("svg")
-      // .attr("preserveAspectRatio", "xMinYMin meet")
       .attr("viewBox", [0, 0, width, height].join(" "))
       .classed("svg-content-responsive", true);
-      // .attr("width", width + margin.left + margin.right)
-      // .attr("height", height + margin.top + margin.bottom)
-      // // .attr("height", "70vh")
-      // .append("g");
-      // .attr("transform",
-      //   "translate(" + margin.left + "," + margin.top + ")");
 
     const temp: {[key: number]: number} = {};
     const subgroups = [];
     const map: {[key: number]: Array<string>} = {};
     for (let i = 0; i < this.lines; i += 1) {
-      subgroups.push(i);
+      subgroups.push(i.toString());
       temp[i] = 1;
       map[i] = [];
     }
@@ -59,10 +50,6 @@ export default class BarcodeChart extends Vue {
       }
     }
 
-    // const subgroups = [...new Set(this.selections.map(constructID))];
-    // subgroups.sort();
-    // subgroups.reverse();
-
     const data = [temp];
     const stackedData = d3.stack().keys(subgroups)(data);
 
@@ -70,14 +57,10 @@ export default class BarcodeChart extends Vue {
       .domain([0, this.maxLines])
       .range([height, 0]);
 
-    // Show the bars
     svg.append("g")
       .selectAll("g")
-      // Enter in the stack data = loop key per key = group per group
       .data(stackedData)
       .enter().append("g")
-      // // @ts-expect-error
-      // .attr("fill", function (d) { return color(d.key); })
       .attr("class", function (d) { return `barcodeChartBar line-${+d.key} ${map[+d.key].join(" ")}`; })
       .selectAll("rect")
       // enter a second time = loop subgroup per subgroup to add all rectangles
@@ -86,7 +69,6 @@ export default class BarcodeChart extends Vue {
       .attr("y", function (d) { return height - y(d[0]); })
       .attr("height", function (d) { return y(d[0]) - y(d[1]); })
       .attr("width", width)
-      // .attr("stroke", "grey")
       .on("mouseover", (a, b, rect) => this.mouseover(map, a, b, rect))
       .on("mouseleave", (a, b, rect) => this.mouseleave(map, a, b, rect))
       .on("click", (a, b, rect) => this.mouseclick(map, a, b, rect));
