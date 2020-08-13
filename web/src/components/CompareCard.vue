@@ -26,6 +26,7 @@
                 :side-identifier="leftIdentifier"
                 :maxLines="maxLines"
                 :lines="leftLines"
+                :scroll-from-top="leftScroll"
                 @selectionclick="selectionClickEventHandler"
                 @selectionhoverenter="onHoverEnterHandler"
                 @selectionhoverexit="onHoverExitHandler"
@@ -43,6 +44,7 @@
                 @selectionclick="selectionClickEventHandler"
                 @selectionhoverenter="onHoverEnterHandler"
                 @selectionhoverexit="onHoverExitHandler"
+                @codescroll="onScrollHandler"
               >
               </compare-side>
             </v-col>
@@ -52,9 +54,11 @@
                 :side-identifier="rightIdentifier"
                 :maxLines="maxLines"
                 :lines="rightLines"
+                :scroll-from-top="rightScroll"
                 @selectionclick="selectionClickEventHandler"
                 @selectionhoverenter="onHoverEnterHandler"
                 @selectionhoverexit="onHoverExitHandler"
+                @codescroll="onScrollHandler"
               ></BarcodeChart>
             </v-col>
           </v-row>
@@ -96,6 +100,17 @@ export default class Compare extends Vue {
     side?: string;
     blockClasses?: Array<string>;
   } = {};
+
+  leftScroll = 0;
+  rightScroll = 0;
+
+  onScrollHandler(sideId: string, offsetFromTop: number): void {
+    if (sideId === this.rightIdentifier) {
+      this.rightScroll = offsetFromTop;
+    } else {
+      this.leftScroll = offsetFromTop;
+    }
+  }
 
   /**
    * Prismjs trims the last line of code if that line is empty so we have to take that into account.

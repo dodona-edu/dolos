@@ -1,5 +1,18 @@
 <template >
-  <div :id="identifier" class="barcodeChart"></div>
+  <div :id="identifier" class="barcodeChart svg-container">
+    <svg class="svg-content-responsive">
+      <rect
+        id="page-scroll-higlighter"
+        :y="scrollFromTop"
+        width="40"
+        height="10"
+        fill="white"
+        fill-opacity="0.3"
+        pointer-events="none"
+      >
+      </rect>
+    </svg>
+  </div>
 </template>
 
 <script lang="ts">
@@ -15,6 +28,7 @@ export default class BarcodeChart extends Vue {
   @Prop() sideIdentifier!: string;
   @Prop() maxLines!: number;
   @Prop() lines!: number;
+  @Prop() scrollFromTop!: number;
 
   get identifier(): string {
     return `${this.sideIdentifier}-chart`;
@@ -25,12 +39,8 @@ export default class BarcodeChart extends Vue {
     const width = 40 - margin.left - margin.right;
     const height = 70 - margin.top - margin.bottom;
 
-    const svg = d3.select(`#${this.identifier}`)
-      .append("div")
-      .classed("svg-container", true)
-      .append("svg")
-      .attr("viewBox", [0, 0, width, height].join(" "))
-      .classed("svg-content-responsive", true);
+    const svg = d3.select(`#${this.identifier} .svg-content-responsive`)
+      .attr("viewBox", [0, 0, width, height].join(" "));
 
     const temp: {[key: number]: number} = {};
     const subgroups = [];
@@ -57,7 +67,8 @@ export default class BarcodeChart extends Vue {
       .domain([0, this.maxLines])
       .range([height, 0]);
 
-    svg.append("g")
+    svg
+      .insert("g", ":first-child")
       .selectAll("g")
       .data(stackedData)
       .enter().append("g")
@@ -129,8 +140,5 @@ export default class BarcodeChart extends Vue {
     position: absolute;
     top: 0;
     left: 0;
-  }
-  .barcodeChartBar {
-    fill: black;
   }
 </style>

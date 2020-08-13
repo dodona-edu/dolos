@@ -1,6 +1,6 @@
 <template>
   <div>
-    <pre ref="pre" :id="identifier" class="line-numbers highlighted-code"><code
+    <pre v-scroll.self="onScroll" ref="pre" :id="identifier" class="line-numbers highlighted-code"><code
       :ref="tempIdentifier"
       :class="language">{{content}}</code>
     </pre>
@@ -29,6 +29,10 @@ export default class CompareSide extends Vue {
   @Prop() selections!: Array<Selection>;
   get content(): string {
     return this.file.content;
+  }
+
+  onScroll(e: Event): void {
+    this.$emit("codescroll", this.identifier, (e.target as HTMLElement)?.scrollTop);
   }
 
   get tempIdentifier(): string {
