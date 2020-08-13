@@ -173,6 +173,10 @@ export default class Compare extends Vue {
     this.initializeMaps();
   }
 
+  getOtherSide(sideId: string): string {
+    return sideId === this.rightIdentifier ? this.leftIdentifier : this.rightIdentifier;
+  }
+
   get rightIdentifier(): string {
     return "rightSide";
   }
@@ -198,14 +202,22 @@ export default class Compare extends Vue {
       .classed("hovering", addClass);
   }
 
-  makeSelector(sideId: string, blockClasses: Array<string>, otherSide = false): string {
+  makeSelector(sideId: string, blockClasses: Array<string>, otherSide = false, chart = false): string {
     if (otherSide) {
+      let otherSideId = this.getOtherSide(sideId);
+      if (chart) {
+        otherSideId += "-chart";
+      }
       return blockClasses
-        .map(blockClass => `:not(#${sideId}) .${blockClass}`)
+        .map(blockClass => `#${otherSideId} .${blockClass}`)
         .join(", ");
     } else {
+      let id = sideId;
+      if (chart) {
+        id += "-chart";
+      }
       return blockClasses
-        .map(blockClass => `#${sideId} .${blockClass}`)
+        .map(blockClass => `#${id} .${blockClass}`)
         .join(", ");
     }
   }
@@ -220,14 +232,11 @@ export default class Compare extends Vue {
     this.lastHovered.blockClasses = blockClasses;
     this.addClassesToSiblingsAndCousins(true, sideId, blockClasses);
 
-    // d3.selectAll(".barcodeChartBar")
-    //   .style("opacity", 0.2);
-
-    d3.selectAll(this.makeSelector(sideId + "-chart", blockClasses))
+    d3.selectAll(this.makeSelector(sideId, blockClasses, false, true))
       .classed("hovering", true);
 
     const otherBlockClasses = this.getAllOtherBlockClasses(sideId, blockClasses);
-    d3.selectAll(this.makeSelector(sideId + "-chart", otherBlockClasses, true))
+    d3.selectAll(this.makeSelector(sideId, otherBlockClasses, true, true))
       .classed("hovering", true);
   }
 
@@ -238,6 +247,8 @@ export default class Compare extends Vue {
       .classed("hovering", false);
   }
 
+  otherSideIndex = 0;
+
   selectionClickEventHandler(sideId: string, blockClasses: Array<string>, line?: number): void {
     blockClasses.sort();
     // if the there is nothing that was last clicked, or a different block from last time is clicked initialize the
@@ -247,7 +258,7 @@ export default class Compare extends Vue {
       this.currentBlockClassIndex = 0;
       this.blockClickCount = 1;
       this.selected.side = sideId;
-      this.selected.blockClasses = blockClasses;
+      this.selected.blockClasses = blockClasses.slice();
     }
 
     const map = this.sideMap.get(sideId)!;
@@ -259,12 +270,13 @@ export default class Compare extends Vue {
       this.currentBlockClassIndex = (this.currentBlockClassIndex + 1) % this.selected.blockClasses.length;
       id = this.selected.blockClasses[this.currentBlockClassIndex];
       blocks = map.get(id)!;
+      this.otherSideIndex = 0;
     } else {
       this.blockClickCount += 1;
     }
 
-    const other = blocks.shift() as string;
-    blocks.push(other);
+    const other = blocks[this.otherSideIndex] as string;
+    this.otherSideIndex += 1;
 
     d3.selectAll(".marked-code.visible")
       .classed("visible", false);
@@ -276,7 +288,7 @@ export default class Compare extends Vue {
       d3.select(`#${sideId}-chart .barcodeChartBar.line-${line}`)
         .classed("selected", true);
     } else {
-      d3.selectAll(this.makeSelector(sideId + "-chart", blockClasses))
+      d3.selectAll(this.makeSelector(sideId, blockClasses, false, true))
         .classed("selected", true);
     }
 
@@ -286,13 +298,14 @@ export default class Compare extends Vue {
       temp.push(i);
     }
 
-    const selector = temp.map(i => `:not(#${sideId}-chart) .barcodeChartBar.line-${i}`).join(", ");
+    const otherSideId = this.getOtherSide(sideId);
+    const selector = temp.map(i => `#${otherSideId}-chart .barcodeChartBar.line-${i}`).join(", ");
 
     d3.selectAll(selector)
       .classed("selected", true);
 
     const firstSpans = document.querySelectorAll(`#${sideId} .${id}`) as NodeListOf<HTMLElement>;
-    const secondSpans = document.querySelectorAll(`pre:not(#${sideId}) .${other}`) as NodeListOf<HTMLElement>;
+    const secondSpans = document.querySelectorAll(`#${otherSideId} .${other}`) as NodeListOf<HTMLElement>;
     firstSpans.forEach(val => val.classList.add("visible"));
     secondSpans.forEach(val => val.classList.add("visible"));
     firstSpans[0].scrollIntoView({ behavior: "smooth", block: "center" });
