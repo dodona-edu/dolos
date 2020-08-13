@@ -247,8 +247,6 @@ export default class Compare extends Vue {
       .classed("hovering", false);
   }
 
-  otherSideIndex = 0;
-
   selectionClickEventHandler(sideId: string, blockClasses: Array<string>, line?: number): void {
     blockClasses.sort();
     // if the there is nothing that was last clicked, or a different block from last time is clicked initialize the
@@ -264,19 +262,18 @@ export default class Compare extends Vue {
     const map = this.sideMap.get(sideId)!;
     let id = this.selected.blockClasses[this.currentBlockClassIndex];
     let blocks = map.get(id)!;
-    // cycles through all the possible combination for the current block
+    // cycles through all the blocks on the other side and if all the blocks have been cycled through, go to the next
+    // set of blocks
     if (this.blockClickCount === blocks.length) {
       this.blockClickCount = 1;
       this.currentBlockClassIndex = (this.currentBlockClassIndex + 1) % this.selected.blockClasses.length;
       id = this.selected.blockClasses[this.currentBlockClassIndex];
       blocks = map.get(id)!;
-      this.otherSideIndex = 0;
     } else {
       this.blockClickCount += 1;
     }
 
-    const other = blocks[this.otherSideIndex] as string;
-    this.otherSideIndex += 1;
+    const other = blocks[this.blockClickCount - 1] as string;
 
     d3.selectAll(".marked-code.visible")
       .classed("visible", false);
