@@ -38,12 +38,24 @@ export default class CompareSide extends Vue {
     this.$emit("codescroll", this.identifier, Math.min(1, scrollTop / (maxScroll - temp)));
   }
 
-  // get codeBlockIdentifier(): string {
-  //   return this.identifier + "code-block";
-  // }
+  /**
+   * Returns an approximation of the amount of visible lines if all lines where filled in.
+   */
+  getLinesVisibleAmount(): number {
+    const lineNumber = document.querySelector(".line-numbers-rows :first-child");
+    if (!lineNumber) {
+      return 0;
+    }
+    const height = (this.$refs.pre as HTMLElement).getBoundingClientRect().height;
+    return height / lineNumber.getBoundingClientRect().height;
+  }
 
   mounted(): void {
     this.highlight();
+    this.$emit("linesvisibleamount", this.getLinesVisibleAmount());
+    window.addEventListener("resize", () => {
+      this.$emit("linesvisibleamount", this.getLinesVisibleAmount());
+    });
   }
 
   get language(): string {
@@ -85,6 +97,7 @@ export default class CompareSide extends Vue {
   .highlighted-code {
     height: 70vh;
     overflow-y: scroll;
+    padding-top: 0 !important;
 
     .token {
       margin: -4px 0 -4px 0;

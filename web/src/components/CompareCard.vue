@@ -11,12 +11,14 @@
           <v-row no-gutters>
             <v-col cols="11">
               <compare-side
+                ref="leftCompareSide"
                 :identifier="leftIdentifier"
                 :file="diff.leftFile"
                 :selections="leftSelection"
                 @selectionclick="selectionClickEventHandler"
                 @selectionhoverenter="onHoverEnterHandler"
                 @selectionhoverexit="onHoverExitHandler"
+                @linesvisibleamount="setLinesVisible"
               >
               </compare-side>
             </v-col>
@@ -26,6 +28,7 @@
                 :side-identifier="leftIdentifier"
                 :maxLines="maxLines"
                 :lines="leftLines"
+                :amount-of-lines-visible="linesVisible"
                 :document-scroll-fraction="leftScrollFraction"
                 @selectionclick="selectionClickEventHandler"
                 @selectionhoverenter="onHoverEnterHandler"
@@ -55,6 +58,7 @@
                 :maxLines="maxLines"
                 :lines="rightLines"
                 :document-scroll-fraction="rightScrollFraction"
+                :amount-of-lines-visible="linesVisible"
                 @selectionclick="selectionClickEventHandler"
                 @selectionhoverenter="onHoverEnterHandler"
                 @selectionhoverexit="onHoverExitHandler"
@@ -103,14 +107,18 @@ export default class Compare extends Vue {
 
   leftScrollFraction = 0;
   rightScrollFraction = 0;
+  linesVisible = 0;
 
   onScrollHandler(sideId: string, scrollFraction: number): void {
-    console.log(sideId, scrollFraction);
     if (sideId === this.rightIdentifier) {
       this.rightScrollFraction = scrollFraction;
     } else {
       this.leftScrollFraction = scrollFraction;
     }
+  }
+
+  setLinesVisible(lines: number): void {
+    this.linesVisible = lines;
   }
 
   /**
