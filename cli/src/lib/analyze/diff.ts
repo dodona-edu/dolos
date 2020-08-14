@@ -93,15 +93,15 @@ export class Diff extends Identifiable {
    * Returns the length (in kmers) of the largest fragment in this intersecion.
    */
   public largestFragmentLength(): number {
-    return Math.max(...this.fragments().map(f => f.matches.length));
+    return Math.max(...this.fragments().map(f => f.pairedOccurrences.length));
   }
 
   /**
-   * Remove fragments which have fewer than the given minimum of matches.
+   * Remove fragments which have fewer than the given minimum of pairedOccurrences.
    */
   public removeSmallerThan(minimum: number): void {
     this.fragments()
-      .filter(f => f.matches.length < minimum)
+      .filter(f => f.pairedOccurrences.length < minimum)
       .forEach(f => this.removeFragment(f));
   }
 

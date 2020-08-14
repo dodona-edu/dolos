@@ -169,21 +169,21 @@ test("match merging & squashing", t => {
   let fragments = int.fragments();
   t.is(6, fragments.length);
 
-  t.deepEqual(biggerTopLeft, fragments[0].matches);
-  t.deepEqual([topLeftContained], fragments[1].matches);
-  t.deepEqual([notContained], fragments[2].matches);
-  t.deepEqual(biggerMiddle, fragments[3].matches);
-  t.deepEqual(biggerBottomLeft, fragments[4].matches);
-  t.deepEqual([bottomLeftContained], fragments[5].matches);
+  t.deepEqual(biggerTopLeft, fragments[0].pairedOccurrences);
+  t.deepEqual([topLeftContained], fragments[1].pairedOccurrences);
+  t.deepEqual([notContained], fragments[2].pairedOccurrences);
+  t.deepEqual(biggerMiddle, fragments[3].pairedOccurrences);
+  t.deepEqual(biggerBottomLeft, fragments[4].pairedOccurrences);
+  t.deepEqual([bottomLeftContained], fragments[5].pairedOccurrences);
 
   int.squash();
 
   fragments = int.fragments();
 
   t.is(4, fragments.length, "squashed too many");
-  t.deepEqual(biggerTopLeft, fragments[0].matches)
-  t.deepEqual([notContained], fragments[1].matches)
-  t.deepEqual(biggerMiddle, fragments[2].matches)
-  t.deepEqual(biggerBottomLeft, fragments[3].matches)
+  t.deepEqual(biggerTopLeft, fragments[0].pairedOccurrences)
+  t.deepEqual([notContained], fragments[1].pairedOccurrences)
+  t.deepEqual(biggerMiddle, fragments[2].pairedOccurrences)
+  t.deepEqual(biggerBottomLeft, fragments[3].pairedOccurrences)
 
 });

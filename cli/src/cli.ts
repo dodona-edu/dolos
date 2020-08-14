@@ -74,7 +74,7 @@ program
   .option(
     "-c --compare",
     Utils.indent(
-      "Print a comparison of the matches even if analysing more than two " +
+      "Print a comparison of the pairedOccurrences even if analysing more than two " +
       "files. Only valid when the output is set to 'terminal'."
     )
   )

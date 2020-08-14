@@ -55,7 +55,7 @@ export class Index {
    * @param hashFilter: an optional HashFilter. By default the HashFilter of the
    * Comparison object will be used.
    * @return an Analysis object, which is a list of Intersections
-   * (containing all the matches between two files).
+   * (containing all the pairedOccurrences between two files).
    */
   public async compareFiles(
     files: File[],
@@ -131,7 +131,7 @@ export class Index {
    * @param hashFilter An optional HashFilter. By default the HashFilter of the
    * Comparison object will be used.
    * @return a promise of a list of Intersection objects. An Intersection object
-   * represents the common hashes (matches) between two files.
+   * represents the common hashes (pairedOccurrences) between two files.
    */
   public async compareFile(
     file: File,

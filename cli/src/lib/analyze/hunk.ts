@@ -4,14 +4,14 @@ import { Region } from "../util/region";
 import { Range } from "../util/range";
 
 /**
- * A fragment is a collection of one or more consequent matches (kmers).
+ * A fragment is a collection of one or more consequent pairedOccurrences (kmers).
  *
  * A fragment can be extended with a new match if its kmer indices in both
  * files are directly after that of the fragment.
  */
 export class Hunk {
 
-  public matches: Array<PairedOccurrence>;
+  public pairedOccurrences: Array<PairedOccurrence>;
   public leftKmers: Range;
   public rightKmers: Range;
   public leftSelection: Region;
@@ -21,7 +21,7 @@ export class Hunk {
   private mergedStop: number;
 
   constructor(initial: PairedOccurrence) {
-    this.matches = [initial];
+    this.pairedOccurrences = [initial];
     this.leftKmers = new Range(initial.left.index);
     this.rightKmers = new Range(initial.right.index);
     this.leftSelection = initial.left.location;
@@ -37,7 +37,7 @@ export class Hunk {
 
   public extendWithMatch(other: PairedOccurrence): void {
     assert(this.extendable(other), "match does not extend this fragment");
-    this.matches.push(other);
+    this.pairedOccurrences.push(other);
 
     if (this.mergedStop < other.left.start) {
       this.mergedData += "|" + other.left.data;
@@ -66,10 +66,10 @@ export class Hunk {
   }
 
   public extendWithFragment(other: Hunk): void {
-    const otherFirst = other.matches[0];
+    const otherFirst = other.pairedOccurrences[0];
     assert(this.extendable(otherFirst));
 
-    this.matches = this.matches.concat(other.matches);
+    this.pairedOccurrences = this.pairedOccurrences.concat(other.pairedOccurrences);
 
     if (this.mergedStop < other.leftKmers.from) {
       this.mergedData += "|" + other.mergedData;

@@ -142,7 +142,7 @@ export class Report {
         for (let j = i + 1; j < parts.length; j += 1) {
           const second = parts[j];
           if (first.file === second.file) {
-            // ignore matches within the same file (internal duplication)
+            // ignore pairedOccurrences within the same file (internal duplication)
             continue;
           }
 
