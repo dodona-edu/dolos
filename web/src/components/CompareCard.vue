@@ -128,8 +128,6 @@ export default class Compare extends Vue {
   }
 
   lastHovered: {
-    // side?: string;
-    // blockClasses?: Array<string>;
     [key in SideID]: {
       blockClasses: Array<string>;
     };
@@ -233,7 +231,7 @@ export default class Compare extends Vue {
     this.lastHovered[otherSideId].blockClasses = [];
   }
 
-  selectionClickEventHandler(sideId: SideID, blockClasses: Array<string>): void {
+  cycle(sideId: SideID, blockClasses: Array<string>): [string, string] {
     blockClasses.sort(this.sortSelectionId);
     // if the there is nothing that was last clicked, or a different block from last time is clicked initialize the
     // values
@@ -260,6 +258,11 @@ export default class Compare extends Vue {
     }
 
     const other = blocks[this.blockClickCount - 1] as string;
+    return [id, other];
+  }
+
+  selectionClickEventHandler(sideId: SideID, blockClasses: Array<string>): void {
+    const [id, other] = this.cycle(sideId, blockClasses);
 
     this.selected.sides[sideId].blockClasses = [id];
     this.selected.sides[this.getOtherSide(sideId)].blockClasses = [other];
@@ -322,51 +325,6 @@ export default class Compare extends Vue {
 </script>
 
 <style lang="scss">
-:root {
-  --normalbg: #ffe390;
-  --selectedbg: #ffd54f;
-  --hoveringb: #ffecb3;
-}
+@use 'codeHighlightsColours';
 
-.highlighted-code {
-
-  .marked-code.hovering {
-    background: var(--hoveringb) !important;
-    text-shadow: none;
-  }
-
-  /* this style is applied when selected */
-  .marked-code.selected {
-    background: var(--selectedbg) !important;
-    text-shadow: none;
-  }
-
-  .marked-code {
-    background: var(--normalbg) !important;
-    text-shadow: none;
-  }
-}
-
-.barcodeChart {
-
-  .barcodeChartBar {
-    fill: #f5f2f0;
-  }
-
-  .barcodeChartBar.marked {
-    fill: var(--normalbg);
-  }
-
-  .barcodeChartBar.marked.hovering {
-    fill: var(--hoveringb);
-  }
-
-  .barcodeChartBar.marked.selected {
-    fill: var(--selectedbg);
-  }
-}
-
-pre.highlighted-code {
-  margin-top: 0;
-}
 </style>

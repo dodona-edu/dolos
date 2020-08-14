@@ -136,16 +136,36 @@ export default class CompareSide extends Vue {
 </script>
 
 <style lang="scss">
+@use 'codeHighlightsColours';
 
-  .highlighted-code {
+.highlighted-code {
     height: 70vh;
     overflow-y: scroll;
     padding-top: 0 !important;
+
+    .marked-code.hovering {
+      background: var(--hoveringb) !important;
+      text-shadow: none;
+    }
+
+    .marked-code.selected {
+      background: var(--selectedbg) !important;
+      text-shadow: none;
+    }
+
+    .marked-code {
+      background: var(--markedbg) !important;
+      text-shadow: none;
+    }
 
     .token {
       margin: -4px 0 -4px 0;
       padding: 4px 0 4px 0;
     }
-  }
+}
+
+pre.highlighted-code {
+  margin-top: 0;
+}
 
 </style>

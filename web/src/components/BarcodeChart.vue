@@ -1,5 +1,5 @@
 <template >
-  <div :id="identifier" class="barcodeChart svg-container">
+  <div :id="identifier" class="barcodeChart">
     <svg class="svg-content-responsive">
       <rect
         ref="scroll-highlighter"
@@ -171,22 +171,38 @@ export default class BarcodeChart extends Vue {
 </script>
 
 <style lang="scss">
-  .svg-container {
-    display: inline-block;
-    position: relative;
-    /*width: 30px;*/
-    width: 3vw;
-    height: 70vh;
-    padding-bottom: 100%; /* aspect ratio */
-    vertical-align: top;
-    overflow: hidden;
+@use 'codeHighlightsColours';
 
-    .svg-content-responsive {
-      height: 100%;
-      display: inline-block;
-      position: absolute;
-      top: 0;
-      left: 0;
+.barcodeChart {
+  display: inline-block;
+  position: relative;
+  width: 3vw;
+  height: 70vh;
+  padding-bottom: 100%;
+  vertical-align: top;
+  overflow: hidden;
+
+  .svg-content-responsive {
+    height: 100%;
+    display: inline-block;
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    .barcodeChartBar {
+      fill: #f5f2f0;
+    }
+
+    .barcodeChartBar.marked {
+      fill: var(--markedbg);
+    }
+
+    .barcodeChartBar.marked.hovering {
+      fill: var(--hoveringb);
+    }
+
+    .barcodeChartBar.marked.selected {
+      fill: var(--selectedbg);
     }
 
     #page-scroll-highlighter {
@@ -196,5 +212,6 @@ export default class BarcodeChart extends Vue {
       pointer-events: none;
     }
   }
+}
 
 </style>
