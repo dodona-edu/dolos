@@ -59,6 +59,18 @@ export default class BarcodeChart extends Vue {
     }
   }
 
+  @Watch("selectedSelections")
+  onSelectionChange(newValue: Array<string>): void {
+    console.log(this.makeSelector(newValue));
+    d3.selectAll(`#${this.identifier} .barcodeChartBar.selected`)
+      .classed("selected", false);
+
+    if (newValue.length > 0) {
+      d3.selectAll(this.makeSelector(newValue))
+        .classed("selected", true);
+    }
+  }
+
   scrollHighlighterHeight(): number {
     return (this.chart.height / this.maxLines) * this.amountOfLinesVisible;
   }

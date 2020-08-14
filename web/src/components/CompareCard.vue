@@ -33,6 +33,7 @@
                 :amount-of-lines-visible="linesVisible"
                 :document-scroll-fraction="leftScrollFraction"
                 :hovering-selections="lastHovered.leftSideId.blockClasses"
+                :selected-selections="selected.sides.leftSideId.blockClasses"
                 @selectionclick="selectionClickEventHandler"
                 @selectionhoverenter="onHoverEnterHandler"
                 @selectionhoverexit="onHoverExitHandler"
@@ -65,6 +66,7 @@
                 :document-scroll-fraction="rightScrollFraction"
                 :amount-of-lines-visible="linesVisible"
                 :hovering-selections="lastHovered.rightSideId.blockClasses"
+                :selected-selections="selected.sides.rightSideId.blockClasses"
                 @selectionclick="selectionClickEventHandler"
                 @selectionhoverenter="onHoverEnterHandler"
                 @selectionhoverexit="onHoverExitHandler"
@@ -279,40 +281,9 @@ export default class Compare extends Vue {
 
     const other = blocks[this.blockClickCount - 1] as string;
 
+    console.log(sideId, id, this.getOtherSide(sideId), other);
     this.selected.sides[sideId].blockClasses = [id];
     this.selected.sides[this.getOtherSide(sideId)].blockClasses = [other];
-
-    // this.selected.sides[sideId].blockClasses =
-    //
-    // d3.selectAll(".barcodeChartBar.selected")
-    //   .classed("selected", false);
-    //
-    // if (line !== undefined) {
-    //   d3.select(`#${sideId}-chart .barcodeChartBar.line-${line}`)
-    //     .classed("selected", true);
-    // } else {
-    //   d3.selectAll(this.makeSelector(sideId, blockClasses, false, true))
-    //     .classed("selected", true);
-    // }
-    //
-    // const [startLine, endLine] = this.extractLinesFromSelectionId(other);
-    // const temp = [];
-    // for (let i = startLine; i <= endLine; i += 1) {
-    //   temp.push(i);
-    // }
-    //
-    // const otherSideId = this.getOtherSide(sideId);
-    // const selector = temp.map(i => `#${otherSideId}-chart .barcodeChartBar.line-${i}`).join(", ");
-    //
-    // d3.selectAll(selector)
-    //   .classed("selected", true);
-    //
-    // const firstSpans = document.querySelectorAll(`#${sideId} .${id}`) as NodeListOf<HTMLElement>;
-    // const secondSpans = document.querySelectorAll(`#${otherSideId} .${other}`) as NodeListOf<HTMLElement>;
-    // firstSpans.forEach(val => val.classList.add("visible"));
-    // secondSpans.forEach(val => val.classList.add("visible"));
-    // firstSpans[0].scrollIntoView({ behavior: "smooth", block: "center" });
-    // secondSpans[0].scrollIntoView({ behavior: "smooth", block: "center" });
   }
 
   extractLinesFromSelectionId(id: string): [number, number] {
@@ -389,12 +360,12 @@ export default class Compare extends Vue {
   }
 
   /* this style is applied when selected */
-  .marked-code.selected{
+  .marked-code.selected {
     background: var(--selectedbg) !important;
     text-shadow: none;
   }
 
-  .marked-code, .barcodeChartBar {
+  .marked-code {
     background: var(--normalbg) !important;
     text-shadow: none;
   }
