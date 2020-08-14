@@ -19,7 +19,7 @@ export class Index {
   private readonly hashFilter: HashFilter;
 
   /**
-   * Creates a Comparison object with a given Tokenizer , an optional Options
+   * Creates a Index object with a given Tokenizer , an optional Options
    * object, and an optional HashFilter.
    *
    * If no HashFilter is given, a new WinnowFilter is created with values geven
@@ -53,7 +53,7 @@ export class Index {
    * @param files: the file objects which need to be compared to the index
    * and each other. The file hashes will be added to the index.
    * @param hashFilter: an optional HashFilter. By default the HashFilter of the
-   * Comparison object will be used.
+   * Index object will be used.
    * @return an Analysis object, which is a list of Diffs
    * (containing all the pairedOccurrences between two files).
    */
@@ -129,7 +129,7 @@ export class Index {
    *
    * @param file The file to query
    * @param hashFilter An optional HashFilter. By default the HashFilter of the
-   * Comparison object will be used.
+   * Index object will be used.
    * @return a promise of a list of Diff objects. An Diff object
    * represents the common hashes (pairedOccurrences) between two files.
    */
