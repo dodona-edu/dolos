@@ -5,10 +5,6 @@
         ref="scroll-highlighter"
         id="page-scroll-highlighter"
         :y="scrollOffset"
-        width="40"
-        fill="gray"
-        fill-opacity="0.2"
-        pointer-events="none"
         :style="'height: ' + this.scrollHighlighterHeight()"
       >
       </rect>
@@ -38,6 +34,10 @@ export default class BarcodeChart extends Vue {
   } = {
     width: 40,
     height: 58,
+  }
+
+  mounted(): void {
+    this.drawBar();
   }
 
   scrollHighlighterHeight(): number {
@@ -114,10 +114,6 @@ export default class BarcodeChart extends Vue {
     return d3.select(rect[0].parentNode).datum().key;
   }
 
-  mounted(): void {
-    this.drawBar();
-  }
-
   mouseover(map: {[key: number]: Array<string>}, a: any, b: any, rect: SVGRectElement[] | ArrayLike<SVGRectElement>):
     void {
     const key = this.getKey(rect);
@@ -147,7 +143,7 @@ export default class BarcodeChart extends Vue {
 }
 </script>
 
-<style>
+<style lang="scss">
   .svg-container {
     display: inline-block;
     position: relative;
@@ -157,12 +153,21 @@ export default class BarcodeChart extends Vue {
     padding-bottom: 100%; /* aspect ratio */
     vertical-align: top;
     overflow: hidden;
+
+    .svg-content-responsive {
+      height: 100%;
+      display: inline-block;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    #page-scroll-highlighter {
+      width: 40px;
+      fill: gray;
+      fill-opacity: 0.2;
+      pointer-events: none;
+    }
   }
-  .svg-content-responsive {
-    height: 100%;
-    display: inline-block;
-    position: absolute;
-    top: 0;
-    left: 0;
-  }
+
 </style>
