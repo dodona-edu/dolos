@@ -2,10 +2,9 @@
   <div :id="identifier" class="barcodeChart">
     <svg class="svg-content-responsive">
       <rect
-        ref="scroll-highlighter"
+        ref="scrollHighlighter"
         id="page-scroll-highlighter"
         :y="scrollOffset"
-        :style="'height: ' + this.scrollHighlighterHeight()"
       >
       </rect>
     </svg>
@@ -46,6 +45,12 @@ export default class BarcodeChart extends Vue {
     return blockClasses
       .map(blockClass => `#${this.identifier} .${blockClass}`)
       .join(", ");
+  }
+
+  @Watch("amountOfLinesVisible")
+  onAmountOfLinesVisibleChange(newValue: number): void {
+    d3.select(this.$refs.scrollHighlighter as HTMLElement)
+      .attr("height", newValue);
   }
 
   @Watch("hoveringSelections", { deep: true })

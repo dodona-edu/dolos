@@ -168,4 +168,14 @@ pre.highlighted-code {
   margin-top: 0;
 }
 
+// /* hides the scrollbar */
+//pre {
+//  scrollbar-width: none; /* For Firefox */
+//  -ms-overflow-style: none; /* For Internet Explorer and Edge */
+//}
+//
+//pre::-webkit-scrollbar {
+//  width: 0; /* For Chrome, Safari, and Opera */
+//}
+
 </style>
