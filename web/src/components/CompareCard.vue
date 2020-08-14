@@ -85,7 +85,7 @@ import { Component, Vue, Prop } from "vue-property-decorator";
 import { Diff, Selection } from "@/api/api";
 import CompareSide from "@/components/CompareSide.vue";
 import BarcodeChart from "@/components/BarcodeChart.vue";
-import { constructID } from "@/util/OccurenceHighlight";
+import { constructID, SelectionId } from "@/util/OccurenceHighlight";
 // import * as d3 from "d3";
 
 export enum SideID {
@@ -103,19 +103,19 @@ export default class Compare extends Vue {
   blockClickCount = 0;
   currentBlockClassIndex = 0;
   // this maps a selected id to all the other selected-ids that it corresponds with
-  leftMap!: Map<string, Array<string>>;
-  rightMap!: Map<string, Array<string>>;
+  leftMap!: Map<SelectionId, Array<SelectionId>>;
+  rightMap!: Map<SelectionId, Array<SelectionId>>;
   // maps an id of a side to its map
-  sideMap!: Map<string, Map<string, Array<string>>>;
+  sideMap!: Map<SideID, Map<SelectionId, Array<SelectionId>>>;
 
   selected: {
     sides: {
       [key in SideID]: {
-        blockClasses: Array<string>;
+        blockClasses: Array<SelectionId>;
       };
     };
     side?: string;
-    blockClasses?: Array<string>;
+    blockClasses?: Array<SelectionId>;
   } = {
     sides: {
       [SideID.leftSideId]: { blockClasses: [] },
@@ -129,7 +129,7 @@ export default class Compare extends Vue {
 
   lastHovered: {
     [key in SideID]: {
-      blockClasses: Array<string>;
+      blockClasses: Array<SelectionId>;
     };
   } = {
     [SideID.leftSideId]: { blockClasses: [] },
@@ -212,7 +212,7 @@ export default class Compare extends Vue {
     return sideId === SideID.rightSideId ? SideID.leftSideId : SideID.rightSideId;
   }
 
-  getAllOtherBlockClasses(sideId: string, blockClasses: Array<string>): Array<string> {
+  getAllOtherBlockClasses(sideId: SideID, blockClasses: Array<string>): Array<string> {
     const map = this.sideMap.get(sideId)!;
     return blockClasses.flatMap(blockClass => map.get(blockClass)!);
   }

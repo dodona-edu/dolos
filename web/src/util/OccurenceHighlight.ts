@@ -33,11 +33,15 @@ function flattenToken(token: Prism.Token): Prism.Token | Array<Prism.Token> {
 
 export const ID_START = "marked-code-block";
 
+// all selection id have the following structure: marked-code-block-STARTROW-STARTCOL-ENDROW-ENDCOL where the rows
+// and cols have been replace by their values
+export type SelectionId = string;
+
 /**
  * Construct an ad for the given selection
  * @param sel the selection that will be used to construct the id
  */
-export function constructID(sel: Selection): string {
+export function constructID(sel: Selection): SelectionId {
   return `${ID_START}-${sel.startRow}-${sel.startCol}-${sel.endRow}-${sel.endCol}`;
 }
 
@@ -47,7 +51,7 @@ export function constructID(sel: Selection): string {
  * @param row the row
  * @param col the col
  */
-function returnSelectionIds(selections: Array<Selection>, row: number, col: number): Array<string> {
+function returnSelectionIds(selections: Array<Selection>, row: number, col: number): Array<SelectionId> {
   const ids: Set<string> = new Set();
   for (const selection of selections) {
     const { startRow, startCol, endRow, endCol } = selection;
