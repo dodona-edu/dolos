@@ -28,6 +28,7 @@ export default class CompareSide extends Vue {
   @Prop() file!: File;
   @Prop() selections!: Array<Selection>;
   @Prop() hoveringSelections!: Array<string>;
+  @Prop() selectedSelections!: Array<string>;
 
   get content(): string {
     return this.file.content;
@@ -51,6 +52,20 @@ export default class CompareSide extends Vue {
     if (newValue.length > 0) {
       d3.selectAll(this.makeSelector(newValue))
         .classed("hovering", true);
+    }
+  }
+
+  @Watch("selectedSelections")
+  onSelectionChange(newValue: Array<string>): void {
+    d3.selectAll(`#${this.identifier} .marked-code.selected`)
+      .classed("selected", false);
+
+    if (newValue.length > 0) {
+      const element = d3.selectAll(this.makeSelector(newValue))
+        .classed("selected", true)
+        .node();
+
+      (element as HTMLElement).scrollIntoView({ behavior: "smooth", block: "center" });
     }
   }
 

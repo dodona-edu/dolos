@@ -15,6 +15,7 @@
                 :identifier="SideId.leftSideId"
                 :file="diff.leftFile"
                 :selections="leftSelection"
+                :selected-selections="selected.sides.leftSideId.blockClasses"
                 :hovering-selections="lastHovered.leftSideId.blockClasses"
                 @selectionclick="selectionClickEventHandler"
                 @selectionhoverenter="onHoverEnterHandler"
@@ -47,6 +48,7 @@
                 :file="diff.rightFile"
                 :selections="rightSelection"
                 :hovering-selections="lastHovered.rightSideId.blockClasses"
+                :selected-selections="selected.sides.rightSideId.blockClasses"
                 @selectionclick="selectionClickEventHandler"
                 @selectionhoverenter="onHoverEnterHandler"
                 @selectionhoverexit="onHoverExitHandler"
@@ -82,7 +84,7 @@ import { Diff, Selection } from "@/api/api";
 import CompareSide from "@/components/CompareSide.vue";
 import BarcodeChart from "@/components/BarcodeChart.vue";
 import { constructID } from "@/util/OccurenceHighlight";
-import * as d3 from "d3";
+// import * as d3 from "d3";
 
 export enum SideID {
   leftSideId = "leftSideId",
@@ -105,15 +107,19 @@ export default class Compare extends Vue {
   sideMap!: Map<string, Map<string, Array<string>>>;
 
   selected: {
+    sides: {
+      [key in SideID]: {
+        blockClasses: Array<string>;
+      };
+    };
     side?: string;
     blockClasses?: Array<string>;
-    rightSide?: {
-      blockClasses: Array<string>;
-    };
-    leftSide?: {
-      blockClasses: Array<string>;
-    };
-  } = {};
+  } = {
+    sides: {
+      [SideID.leftSideId]: { blockClasses: [] },
+      [SideID.rightSideId]: { blockClasses: [] },
+    }
+  };
 
   get SideId(): typeof SideID {
     return SideID;
@@ -237,17 +243,9 @@ export default class Compare extends Vue {
 
     this.lastHovered[sideId].blockClasses = blockClasses;
     this.lastHovered[otherSideId].blockClasses = otherBlockClasses;
-
-    // this.addClassesToSiblingsAndCousins(true, sideId, blockClasses);
-
-    //
-    // d3.selectAll(this.makeSelector(sideId, otherBlockClasses, true, true))
-    //   .classed("hovering", true);
   }
 
   onHoverExitHandler(sideId: SideID, blockClasses: Array<string>, line?: number): void {
-    // this.addClassesToSiblingsAndCousins(false, sideId, blockClasses);
-
     const otherSideId = this.getOtherSide(sideId);
     this.lastHovered[sideId].blockClasses = [];
     this.lastHovered[otherSideId].blockClasses = [];
@@ -281,38 +279,40 @@ export default class Compare extends Vue {
 
     const other = blocks[this.blockClickCount - 1] as string;
 
-    d3.selectAll(".marked-code.visible")
-      .classed("visible", false);
+    this.selected.sides[sideId].blockClasses = [id];
+    this.selected.sides[this.getOtherSide(sideId)].blockClasses = [other];
 
-    d3.selectAll(".barcodeChartBar.selected")
-      .classed("selected", false);
-
-    if (line !== undefined) {
-      d3.select(`#${sideId}-chart .barcodeChartBar.line-${line}`)
-        .classed("selected", true);
-    } else {
-      d3.selectAll(this.makeSelector(sideId, blockClasses, false, true))
-        .classed("selected", true);
-    }
-
-    const [startLine, endLine] = this.extractLinesFromSelectionId(other);
-    const temp = [];
-    for (let i = startLine; i <= endLine; i += 1) {
-      temp.push(i);
-    }
-
-    const otherSideId = this.getOtherSide(sideId);
-    const selector = temp.map(i => `#${otherSideId}-chart .barcodeChartBar.line-${i}`).join(", ");
-
-    d3.selectAll(selector)
-      .classed("selected", true);
-
-    const firstSpans = document.querySelectorAll(`#${sideId} .${id}`) as NodeListOf<HTMLElement>;
-    const secondSpans = document.querySelectorAll(`#${otherSideId} .${other}`) as NodeListOf<HTMLElement>;
-    firstSpans.forEach(val => val.classList.add("visible"));
-    secondSpans.forEach(val => val.classList.add("visible"));
-    firstSpans[0].scrollIntoView({ behavior: "smooth", block: "center" });
-    secondSpans[0].scrollIntoView({ behavior: "smooth", block: "center" });
+    // this.selected.sides[sideId].blockClasses =
+    //
+    // d3.selectAll(".barcodeChartBar.selected")
+    //   .classed("selected", false);
+    //
+    // if (line !== undefined) {
+    //   d3.select(`#${sideId}-chart .barcodeChartBar.line-${line}`)
+    //     .classed("selected", true);
+    // } else {
+    //   d3.selectAll(this.makeSelector(sideId, blockClasses, false, true))
+    //     .classed("selected", true);
+    // }
+    //
+    // const [startLine, endLine] = this.extractLinesFromSelectionId(other);
+    // const temp = [];
+    // for (let i = startLine; i <= endLine; i += 1) {
+    //   temp.push(i);
+    // }
+    //
+    // const otherSideId = this.getOtherSide(sideId);
+    // const selector = temp.map(i => `#${otherSideId}-chart .barcodeChartBar.line-${i}`).join(", ");
+    //
+    // d3.selectAll(selector)
+    //   .classed("selected", true);
+    //
+    // const firstSpans = document.querySelectorAll(`#${sideId} .${id}`) as NodeListOf<HTMLElement>;
+    // const secondSpans = document.querySelectorAll(`#${otherSideId} .${other}`) as NodeListOf<HTMLElement>;
+    // firstSpans.forEach(val => val.classList.add("visible"));
+    // secondSpans.forEach(val => val.classList.add("visible"));
+    // firstSpans[0].scrollIntoView({ behavior: "smooth", block: "center" });
+    // secondSpans[0].scrollIntoView({ behavior: "smooth", block: "center" });
   }
 
   extractLinesFromSelectionId(id: string): [number, number] {
@@ -389,7 +389,7 @@ export default class Compare extends Vue {
   }
 
   /* this style is applied when selected */
-  .marked-code.visible, .barcodeChartBar.selected {
+  .marked-code.selected{
     background: var(--selectedbg) !important;
     text-shadow: none;
   }
