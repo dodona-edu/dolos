@@ -97,7 +97,7 @@ program
       "filtered out."
     ),
     x => parseFloat(x),
-    Options.defaultMinFragmentLength
+    Options.defaultMinBlockLength
   )
   .option(
     "-S, --minimum-similarity <fraction>",
@@ -184,7 +184,7 @@ program
         maxHashCount: program.maximumHashCount,
         maxHashPercentage: program.maxHashPercentage,
         maxMatches: program.filePairOutputLimit,
-        minFragmentLength: program.minimumFragmentLength,
+        minBlockLength: program.minimumFragmentLength,
         minSimilarity: program.minimumSimilarity,
         limitResults: program.limit,
         sortBy: program.sort,

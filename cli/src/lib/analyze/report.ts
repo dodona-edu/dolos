@@ -73,7 +73,7 @@ export class Report {
 
     info(`Cleaning ${ ints.length} intersections.`);
     ints = ints.map(intersection => {
-      intersection.removeSmallerThan(this.options.minFragmentLength);
+      intersection.removeSmallerThan(this.options.minBlockLength);
       intersection.squash();
       return intersection;
     });

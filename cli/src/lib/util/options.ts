@@ -11,7 +11,7 @@ export interface DolosOptions {
   maxHashCount: number | null;
   maxHashPercentage: number | null;
   maxMatches: number | null;
-  minFragmentLength: number;
+  minBlockLength: number;
   minSimilarity: number;
   localPort: number;
   sortBy: string | null;
@@ -55,7 +55,7 @@ export class Options implements DolosOptions {
   public static defaultKmerLength = 50;
   public static defaultKmersInWindow = 40;
   public static defaultLanguage = "javascript";
-  public static defaultMinFragmentLength = 0;
+  public static defaultMinBlockLength = 0;
   public static defaultMinSimilarity = 0;
   public static defaultMaxGapSize = 0;
   public static defaultClusterMinMatches = 15;
@@ -73,7 +73,7 @@ export class Options implements DolosOptions {
       validatePercentage("minSimilarity", this.minSimilarity),
       validatePercentage("maxHashPercentage", this.maxHashPercentage),
       validatePositiveInteger("maxGapSize", this.maxGapSize),
-      validatePositiveInteger("minFragmentLength", this.minFragmentLength),
+      validatePositiveInteger("minBlockLength", this.minBlockLength),
       validatePositiveInteger("maxHashCount", this.maxHashCount),
       validatePositiveInteger("limitResults", this.limitResults),
       validatePositiveInteger("kmerLength", this.kmerLength),
@@ -131,10 +131,10 @@ export class Options implements DolosOptions {
     return definedOrNull(this.custom.comment);
   }
 
-  get minFragmentLength(): number {
+  get minBlockLength(): number {
     return definedOrDefault(
-      this.custom.minFragmentLength,
-      Options.defaultMinFragmentLength
+      this.custom.minBlockLength,
+      Options.defaultMinBlockLength
     );
   }
 
@@ -181,7 +181,7 @@ export class Options implements DolosOptions {
       maxHashCount: this.custom.maxHashCount || null,
       maxHashPercentage: this.maxHashPercentage,
       maxMatches: this.maxMatches,
-      minFragmentLength: this.minFragmentLength,
+      minBlockLength: this.minBlockLength,
       limitResults: this.limitResults,
       localPort: this.localPort,
       minSimilarity: this.minSimilarity,
