@@ -42,18 +42,18 @@ export class TerminalPresenter extends Presenter {
   }
 
   public async present(): Promise<void> {
-    const intersections = this.analysis.scoredDiffs;
-    if (this.compare || (this.compare == null && intersections.length == 1)) {
-      intersections.map(int => this.writeIntersectionWithComparison(int));
+    const diffs = this.analysis.scoredDiffs;
+    if (this.compare || (this.compare == null && diffs.length == 1)) {
+      diffs.map(int => this.writeDiffWithComparison(int));
     } else {
-      this.writeIntersections(intersections);
+      this.writeDiffs(diffs);
     }
     this.output.write(this.ui.toString() + "\n");
     this.ui.resetOutput();
   }
 
-  private writeIntersections(intersections: Array<ScoredDiff>): void {
-    const maxOver = Math.max(...intersections.map(s => s.overlap));
+  private writeDiffs(diffs: Array<ScoredDiff>): void {
+    const maxOver = Math.max(...diffs.map(s => s.overlap));
     const overlapWidth = Math.max(15, Math.trunc(Math.log10(maxOver + 1)) + 2);
     const similarityWidth = 12;
     const pathWidth = (this.width - similarityWidth - 2*overlapWidth) / 2;
@@ -87,7 +87,7 @@ export class TerminalPresenter extends Presenter {
 
     for (
       const { diff, overlap, similarity, longest }
-      of intersections
+      of diffs
     ) {
       this.ui.div({
         text: diff.leftFile.path,
@@ -117,7 +117,7 @@ export class TerminalPresenter extends Presenter {
     }
   }
 
-  private writeIntersectionWithComparison(
+  private writeDiffWithComparison(
     { diff, overlap, similarity }: ScoredDiff
   ): void {
     const leftLines = diff.leftFile.lines;

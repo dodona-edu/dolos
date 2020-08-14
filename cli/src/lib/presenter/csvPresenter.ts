@@ -28,7 +28,7 @@ export function writeCSVto<T>(
 
 export class CsvPresenter extends Presenter {
 
-  public writeIntersections(out: Writable): void {
+  public writeDiffs(out: Writable): void {
     writeCSVto(
       out,
       this.analysis.scoredDiffs,
@@ -97,14 +97,14 @@ export class CsvPresenter extends Presenter {
   }
 
   async present(): Promise<void> {
-    const dirName = `dolos-analysis-${ new Date().toISOString() }`
+    const dirName = `dolos-analysis-${ new Date().toISOString() }`;
     await fs.mkdir(dirName);
 
     console.log(`Writing results to directory: ${dirName}`);
     this.writeMetadata(createWriteStream(`${dirName}/metadata.csv`));
     console.log("Metadata written.");
-    this.writeIntersections(createWriteStream(`${dirName}/intersections.csv`));
-    console.log("Intersections written.");
+    this.writeDiffs(createWriteStream(`${dirName}/diffs.csv`));
+    console.log("Diffs written.");
     this.writeKmers(createWriteStream(`${dirName}/sharedKmers.csv`));
     console.log("SharedKmers written.");
     this.writeFiles(createWriteStream(`${dirName}/files.csv`));

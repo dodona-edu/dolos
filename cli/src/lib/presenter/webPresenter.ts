@@ -8,7 +8,7 @@ import path from "path";
 function respondwithCSV(write: (out: Writable) => void): RequestHandler {
   return ((_req, res) => {
     res.contentType("text/csv");
-    res.setHeader("Content-Disposition", "attachment;filename=intersections.csv");
+    res.setHeader("Content-Disposition", "attachment;filename=diffs.csv");
     write(res);
   });
 }
@@ -21,7 +21,7 @@ export class WebPresenter extends CsvPresenter {
 
     app.get("/data/metadata.csv", respondwithCSV(o => this.writeMetadata(o)));
     app.get("/data/files.csv", respondwithCSV(o => this.writeFiles(o)));
-    app.get("/data/intersections.csv", respondwithCSV(o => this.writeIntersections(o)));
+    app.get("/data/diffs.csv", respondwithCSV(o => this.writeDiffs(o)));
     app.get("/data/kmers.csv", respondwithCSV(o => this.writeKmers(o)));
 
     app.use(express.static(path.join(__dirname, "..", "..", "..", "..", "web", "dist")));

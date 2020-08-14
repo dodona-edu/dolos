@@ -25,7 +25,7 @@ export interface Occurrence {
 
 export class Report {
 
-  // computed list of scored intersections,
+  // computed list of scored diffs,
   // only defined after finished() is called
   private scored?: Array<ScoredDiff>;
 
@@ -68,28 +68,28 @@ export class Report {
       throw new Error(`${this.options.sortBy} is not a valid field to sort on`);
     }
 
-    info(`Combining ${ this.kmers.size } shared kmers into intersections.`);
+    info(`Combining ${ this.kmers.size } shared kmers into diffs.`);
     let ints = this.build();
 
-    info(`Cleaning ${ ints.length} intersections.`);
-    ints = ints.map(intersection => {
-      intersection.removeSmallerThan(this.options.minBlockLength);
-      intersection.squash();
-      return intersection;
+    info(`Cleaning ${ ints.length} diffs.`);
+    ints = ints.map(diff => {
+      diff.removeSmallerThan(this.options.minBlockLength);
+      diff.squash();
+      return diff;
     });
 
-    info("Filtering intersections.");
+    info("Filtering diffs.");
     ints = ints.filter(i => i.blockCount > 0);
 
-    info(`Calculating the score of ${ ints.length } intersections.`);
+    info(`Calculating the score of ${ ints.length } diffs.`);
     this.scored = ints.map(i => this.calculateScore(i));
 
-    info(`Keeping intersections with similarity >= ${ this.options.minSimilarity }`);
+    info(`Keeping diffs with similarity >= ${ this.options.minSimilarity }`);
     this.scored = this.scored.filter(s =>
       s.similarity >= this.options.minSimilarity
     );
 
-    info(`Sorting ${ this.scored.length } intersections.`);
+    info(`Sorting ${ this.scored.length } diffs.`);
     this.scored.sort(sortfn);
 
     if(this.options.limitResults) {
@@ -115,10 +115,10 @@ export class Report {
   }
 
   /**
-   * Combining all shared kmers and build intersections
+   * Combining all shared kmers and build diff
    */
   private build(): Array<Diff> {
-    const intersections:
+    const diffs:
       DefaultMap<TokenizedFile, Map<TokenizedFile, Diff>>
       = new DefaultMap(() => new Map());
 
@@ -134,7 +134,7 @@ export class Report {
     const filteredKmers = Array.of(...this.kmers.values())
       .filter(k => k.files().length <= maxFiles);
 
-    // create intersections
+    // create diffs
     for (const kmer of filteredKmers) {
       const parts = kmer.parts().sort((a, b) => File.compare(a.file, b.file));
       for (let i = 0; i < parts.length; i += 1) {
@@ -146,20 +146,20 @@ export class Report {
             continue;
           }
 
-          let intersection = intersections.get(first.file).get(second.file);
-          if (!intersection) {
-            intersection = new Diff(first.file, second.file);
-            intersections.get(first.file).set(second.file, intersection);
+          let diff = diffs.get(first.file).get(second.file);
+          if (!diff) {
+            diff = new Diff(first.file, second.file);
+            diffs.get(first.file).set(second.file, diff);
           }
 
           const match = new PairedOccurrence(first.side, second.side, kmer);
-          intersection.addPairedOccurrence(match);
+          diff.addPairedOccurrence(match);
         }
       }
     }
 
     // flatten nested map
-    return Array.of(...intersections.values())
+    return Array.of(...diffs.values())
       .map(m => Array.of(...m.values()))
       .flat();
   }
@@ -169,16 +169,16 @@ export class Report {
   }
 
 
-  private calculateScore(intersection: Diff): ScoredDiff {
-    const blocks = intersection.blocks();
+  private calculateScore(diff: Diff): ScoredDiff {
+    const blocks = diff.blocks();
     const leftCovered = Range.totalCovered(blocks.map(f => f.leftKmers));
     const rightCovered = Range.totalCovered(blocks.map(f => f.rightKmers));
-    const leftTotal = intersection.leftFile.kmers.length;
-    const rightTotal = intersection.rightFile.kmers.length;
+    const leftTotal = diff.leftFile.kmers.length;
+    const rightTotal = diff.rightFile.kmers.length;
     return {
-      diff: intersection,
+      diff: diff,
       overlap: leftCovered,
-      longest: intersection.largestBlockLength(),
+      longest: diff.largestBlockLength(),
       similarity: (leftCovered + rightCovered) / (leftTotal + rightTotal)
     };
   }
