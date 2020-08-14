@@ -14,7 +14,7 @@
 
 <script lang="ts">
 
-import { Component, Vue, Prop } from "vue-property-decorator";
+import { Component, Vue, Prop, Watch } from "vue-property-decorator";
 import { Selection } from "@/api/api";
 import { constructID } from "@/util/OccurenceHighlight";
 import * as d3 from "d3";
@@ -27,6 +27,8 @@ export default class BarcodeChart extends Vue {
   @Prop() lines!: number;
   @Prop() documentScrollFraction!: number;
   @Prop() amountOfLinesVisible!: number;
+  @Prop() selectedSelections!: Array<string>;
+  @Prop() hoveringSelections!: Array<string>;
 
   chart: {
     width: number;
@@ -38,6 +40,24 @@ export default class BarcodeChart extends Vue {
 
   mounted(): void {
     this.drawBar();
+  }
+
+  makeSelector(blockClasses: Array<string>): string {
+    return blockClasses
+      .map(blockClass => `#${this.identifier} .${blockClass}`)
+      .join(", ");
+  }
+
+  @Watch("hoveringSelections", { deep: true })
+  onHoverSelectionsChange(newValue: Array<string>): void {
+    d3.selectAll(".barcodeChartBar.hovering")
+      .classed("hovering", false);
+
+    if (newValue.length > 0) {
+      console.log(this.makeSelector(newValue));
+      d3.selectAll(this.makeSelector(newValue))
+        .classed("hovering", true);
+    }
   }
 
   scrollHighlighterHeight(): number {

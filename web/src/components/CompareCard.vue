@@ -12,7 +12,7 @@
             <v-col cols="11">
               <compare-side
                 ref="leftCompareSide"
-                :identifier="leftIdentifier"
+                :side-identifier="SideId.leftSideId"
                 :file="diff.leftFile"
                 :selections="leftSelection"
                 @selectionclick="selectionClickEventHandler"
@@ -25,11 +25,12 @@
             <v-col cols="auto">
               <BarcodeChart
                 :selections="leftSelection"
-                :side-identifier="leftIdentifier"
+                :side-identifier="SideId.leftSideId"
                 :maxLines="maxLines"
                 :lines="leftLines"
                 :amount-of-lines-visible="linesVisible"
                 :document-scroll-fraction="leftScrollFraction"
+                :hovering-selections="lastHovered.leftSideId.blockClasses"
                 @selectionclick="selectionClickEventHandler"
                 @selectionhoverenter="onHoverEnterHandler"
                 @selectionhoverexit="onHoverExitHandler"
@@ -41,7 +42,7 @@
           <v-row no-gutters>
             <v-col cols="11">
               <compare-side
-                :identifier="rightIdentifier"
+                :side-identifier="SideId.leftSideId"
                 :file="diff.rightFile"
                 :selections="rightSelection"
                 @selectionclick="selectionClickEventHandler"
@@ -54,11 +55,12 @@
             <v-col cols="auto">
               <BarcodeChart
                 :selections="rightSelection"
-                :side-identifier="rightIdentifier"
+                :side-identifier="SideId.rightSideId"
                 :maxLines="maxLines"
                 :lines="rightLines"
                 :document-scroll-fraction="rightScrollFraction"
                 :amount-of-lines-visible="linesVisible"
+                :hovering-selections="lastHovered.rightSideId.blockClasses"
                 @selectionclick="selectionClickEventHandler"
                 @selectionhoverenter="onHoverEnterHandler"
                 @selectionhoverexit="onHoverExitHandler"
@@ -80,6 +82,11 @@ import BarcodeChart from "@/components/BarcodeChart.vue";
 import { constructID } from "@/util/OccurenceHighlight";
 import * as d3 from "d3";
 
+export enum SideID {
+  leftSideId = "leftSideId",
+  rightSideId = "rightSideId"
+}
+
 @Component({
   components: { CompareSide, BarcodeChart }
 })
@@ -98,19 +105,35 @@ export default class Compare extends Vue {
   selected: {
     side?: string;
     blockClasses?: Array<string>;
+    rightSide?: {
+      blockClasses: Array<string>;
+    };
+    leftSide?: {
+      blockClasses: Array<string>;
+    };
   } = {};
 
+  get SideId(): typeof SideID {
+    return SideID;
+  }
+
   lastHovered: {
-    side?: string;
-    blockClasses?: Array<string>;
-  } = {};
+    // side?: string;
+    // blockClasses?: Array<string>;
+    [key in SideID]: {
+      blockClasses: Array<string>;
+    };
+  } = {
+    [SideID.leftSideId]: { blockClasses: [] },
+    [SideID.rightSideId]: { blockClasses: [] },
+  };
 
   leftScrollFraction = 0;
   rightScrollFraction = 0;
   linesVisible = 0;
 
   onScrollHandler(sideId: string, scrollFraction: number): void {
-    if (sideId === this.rightIdentifier) {
+    if (sideId === SideID.rightSideId) {
       this.rightScrollFraction = scrollFraction;
     } else {
       this.leftScrollFraction = scrollFraction;
@@ -167,22 +190,14 @@ export default class Compare extends Vue {
     this.leftMap = new Map();
     this.rightMap = new Map();
     this.sideMap = new Map([
-      [this.rightIdentifier, this.rightMap],
-      [this.leftIdentifier, this.leftMap]
+      [SideID.rightSideId, this.rightMap],
+      [SideID.leftSideId, this.leftMap]
     ]);
     this.initializeMaps();
   }
 
-  getOtherSide(sideId: string): string {
-    return sideId === this.rightIdentifier ? this.leftIdentifier : this.rightIdentifier;
-  }
-
-  get rightIdentifier(): string {
-    return "rightSide";
-  }
-
-  get leftIdentifier(): string {
-    return "leftSide";
+  getOtherSide(sideId: SideID): SideID {
+    return sideId === SideID.rightSideId ? SideID.leftSideId : SideID.rightSideId;
   }
 
   /**
@@ -192,7 +207,7 @@ export default class Compare extends Vue {
    * @param sideId the id of the side where all the siblings are
    * @param blockClasses the classes used for selecting siblings and the cousins
    */
-  private addClassesToSiblingsAndCousins(addClass: boolean, sideId: string, blockClasses: Array<string>): void {
+  private addClassesToSiblingsAndCousins(addClass: boolean, sideId: SideID, blockClasses: Array<string>): void {
     d3.selectAll(this.makeSelector(sideId, blockClasses))
       .classed("hovering", addClass);
 
@@ -202,9 +217,9 @@ export default class Compare extends Vue {
       .classed("hovering", addClass);
   }
 
-  makeSelector(sideId: string, blockClasses: Array<string>, otherSide = false, chart = false): string {
+  makeSelector(sideId: SideID, blockClasses: Array<string>, otherSide = false, chart = false): string {
     if (otherSide) {
-      let otherSideId = this.getOtherSide(sideId);
+      let otherSideId = this.getOtherSide(sideId).toString();
       if (chart) {
         otherSideId += "-chart";
       }
@@ -212,7 +227,7 @@ export default class Compare extends Vue {
         .map(blockClass => `#${otherSideId} .${blockClass}`)
         .join(", ");
     } else {
-      let id = sideId;
+      let id = sideId.toString();
       if (chart) {
         id += "-chart";
       }
@@ -227,27 +242,32 @@ export default class Compare extends Vue {
     return blockClasses.flatMap(blockClass => map.get(blockClass)!);
   }
 
-  onHoverEnterHandler(sideId: string, blockClasses: Array<string>, line?: number): void {
-    this.lastHovered.side = sideId;
-    this.lastHovered.blockClasses = blockClasses;
+  onHoverEnterHandler(sideId: SideID, blockClasses: Array<string>, line?: number): void {
+    const otherSideId = this.getOtherSide(sideId);
+    const otherBlockClasses = this.getAllOtherBlockClasses(sideId, blockClasses);
+
+    console.log(sideId, blockClasses);
+    console.log(otherSideId, otherBlockClasses);
+
+    this.lastHovered[sideId].blockClasses = blockClasses;
+    this.lastHovered[otherSideId].blockClasses = otherBlockClasses;
+
     this.addClassesToSiblingsAndCousins(true, sideId, blockClasses);
 
-    d3.selectAll(this.makeSelector(sideId, blockClasses, false, true))
-      .classed("hovering", true);
-
-    const otherBlockClasses = this.getAllOtherBlockClasses(sideId, blockClasses);
-    d3.selectAll(this.makeSelector(sideId, otherBlockClasses, true, true))
-      .classed("hovering", true);
+    //
+    // d3.selectAll(this.makeSelector(sideId, otherBlockClasses, true, true))
+    //   .classed("hovering", true);
   }
 
-  onHoverExitHandler(sideId: string, blockClasses: Array<string>, line?: number): void {
+  onHoverExitHandler(sideId: SideID, blockClasses: Array<string>, line?: number): void {
     this.addClassesToSiblingsAndCousins(false, sideId, blockClasses);
 
-    d3.selectAll(".barcodeChartBar.hovering")
-      .classed("hovering", false);
+    const otherSideId = this.getOtherSide(sideId);
+    this.lastHovered[sideId].blockClasses = [];
+    this.lastHovered[otherSideId].blockClasses = [];
   }
 
-  selectionClickEventHandler(sideId: string, blockClasses: Array<string>, line?: number): void {
+  selectionClickEventHandler(sideId: SideID, blockClasses: Array<string>, line?: number): void {
     blockClasses.sort();
     // if the there is nothing that was last clicked, or a different block from last time is clicked initialize the
     // values
@@ -365,6 +385,7 @@ export default class Compare extends Vue {
     this.sortMap(this.rightMap);
   }
 }
+
 </script>
 
 <style lang="scss">
