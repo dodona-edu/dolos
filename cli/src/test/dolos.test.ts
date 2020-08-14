@@ -30,9 +30,9 @@ test("equal content should be a full match", async t => {
   const { intersection, similarity } = analysis.scoredIntersections[0];
   t.is(similarity, 1.0);
 
-  const fragments = intersection.fragments();
-  t.is(fragments.length, 1);
-  const match = fragments[0];
+  const blocks = intersection.blocks();
+  t.is(blocks.length, 1);
+  const match = blocks[0];
 
   t.deepEqual(new Region(2, 2, 11, 2), match.leftSelection);
   t.deepEqual(new Region(2, 2, 11, 2), match.rightSelection);
@@ -81,9 +81,9 @@ test("renamed variables should be a full match", async t => {
   const { intersection, similarity } = analysis.scoredIntersections[0];
   t.is(similarity, 1.0);
 
-  const fragments = intersection.fragments();
-  t.is(fragments.length, 1);
-  const match = fragments[0];
+  const blocks = intersection.blocks();
+  t.is(blocks.length, 1);
+  const match = blocks[0];
 
   t.deepEqual(new Region(2, 2, 11, 2), match.leftSelection);
   t.deepEqual(new Region(2, 2, 11, 2), match.rightSelection);
@@ -134,9 +134,9 @@ test("changed whitespace and semicolons should be a full match", async t => {
   const { intersection, similarity } = analysis.scoredIntersections[0];
   t.is(similarity, 1.0);
 
-  const fragments = intersection.fragments();
-  t.is(fragments.length, 1);
-  const match = fragments[0];
+  const blocks = intersection.blocks();
+  t.is(blocks.length, 1);
+  const match = blocks[0];
 
   t.deepEqual(new Range(0, 24), match.leftKmers);
   t.deepEqual(new Range(0, 24), match.rightKmers);
@@ -181,7 +181,7 @@ test("changed order should be a good match", async t => {
   const { intersection, similarity } = analysis.scoredIntersections[0];
   t.true(similarity > 0.75);
 
-  // four fragments: program declaration, hello(), world() and helloWorld()
-  t.is(4, intersection.fragments().length);
+  // four blocks: program declaration, hello(), world() and helloWorld()
+  t.is(4, intersection.blocks().length);
 
 });

@@ -148,7 +148,7 @@ export class TerminalPresenter extends Presenter {
     const nl = (i: number): string =>
       this.c.grey((i + 1).toString().padEnd(lineNrWidth));
 
-    const fragments = intersection.fragments();
+    const fragments = intersection.blocks();
     for (let i = 0; i < fragments.length; i += 1) {
       const fragment = fragments[i];
 

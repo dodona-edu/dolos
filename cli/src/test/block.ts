@@ -9,7 +9,7 @@ import { CodeTokenizer } from "../lib/tokenizer/codeTokenizer";
 import { WinnowFilter } from "../lib/hashing/winnowFilter";
 
 
-test("fragment should reconstruct matched kmers", async t => {
+test("block should reconstruct matched kmers", async t => {
   const tokenizer = new CodeTokenizer("javascript");
   const f1 = tokenizer.tokenizeFile(
     (await File.fromPath("samples/javascript/sample.js")).ok()
@@ -49,10 +49,10 @@ test("fragment should reconstruct matched kmers", async t => {
       new SharedKmer(h1.hash, h1.data),
     );
 
-  const fragment = new Hunk(createPairedOccurrence(0, f1Hashes[0], f2Hashes[0]));
+  const block = new Hunk(createPairedOccurrence(0, f1Hashes[0], f2Hashes[0]));
   for (let i = 1; i < f1Hashes.length; i += 1) {
-    fragment.extendWithPairedOccurrence(createPairedOccurrence(i, f1Hashes[i], f2Hashes[i]));
+    block.extendWithPairedOccurrence(createPairedOccurrence(i, f1Hashes[i], f2Hashes[i]));
   }
 
-  t.is(f1.ast.slice(0, -9), fragment.mergedData);
+  t.is(f1.ast.slice(0, -9), block.mergedData);
 });

@@ -39,7 +39,7 @@ export class CsvPresenter extends Presenter {
         "similarity": s => s.similarity,
         "totalOverlap": s => s.overlap,
         "continuousOverlap": s => s.longest,
-        "fragments": s => JSON.stringify(s.intersection.fragments().map(
+        "fragments": s => JSON.stringify(s.intersection.blocks().map(
           fragment => { return {
             leftSelection: fragment.leftSelection,
             rightSelection: fragment.rightSelection,

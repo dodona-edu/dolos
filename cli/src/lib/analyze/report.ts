@@ -170,7 +170,7 @@ export class Report {
 
 
   private calculateScore(intersection: Diff): ScoredDiff {
-    const fragments = intersection.fragments();
+    const fragments = intersection.blocks();
     const leftCovered = Range.totalCovered(fragments.map(f => f.leftKmers));
     const rightCovered = Range.totalCovered(fragments.map(f => f.rightKmers));
     const leftTotal = intersection.leftFile.kmers.length;

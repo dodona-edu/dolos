@@ -111,7 +111,7 @@ program
   .option(
     "-g, --maximum-gap-size <integer>",
     Utils.indent(
-      "If two fragments are close to each other, they will be merged into a " +
+      "If two blocks are close to each other, they will be merged into a " +
       "single fragment if the gap between them is smaller than the given " +
       "number of lines.",
       Options.defaultMaxGapSize

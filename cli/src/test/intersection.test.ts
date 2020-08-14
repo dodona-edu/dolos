@@ -45,7 +45,7 @@ test("paired occurrence merging & squashing", t => {
       kmer
     );
     int.addPairedOccurrence(pairedOccurrence);
-    t.is(1, int.fragments().length);
+    t.is(1, int.blocks().length);
     biggerTopLeft.push(pairedOccurrence);
   }
 
@@ -69,7 +69,7 @@ test("paired occurrence merging & squashing", t => {
     kmer
   );
   int.addPairedOccurrence(topLeftContained);
-  t.is(2, int.fragments().length);
+  t.is(2, int.blocks().length);
 
   // bigger match, same location
   const biggerMiddle = [];
@@ -94,7 +94,7 @@ test("paired occurrence merging & squashing", t => {
     );
     biggerMiddle.push(match);
     int.addPairedOccurrence(match);
-    t.is(3, int.fragments().length);
+    t.is(3, int.blocks().length);
   }
 
   // bigger match
@@ -120,7 +120,7 @@ test("paired occurrence merging & squashing", t => {
     );
     biggerBottomLeft.push(match);
     int.addPairedOccurrence(match);
-    t.is(4, int.fragments().length);
+    t.is(4, int.blocks().length);
   }
 
   // contained match
@@ -143,7 +143,7 @@ test("paired occurrence merging & squashing", t => {
     kmer
   );
   int.addPairedOccurrence(bottomLeftContained);
-  t.is(5, int.fragments().length);
+  t.is(5, int.blocks().length);
 
   // match not contained
   kmer = new SharedKmer(6, "kmer 6");
@@ -166,24 +166,24 @@ test("paired occurrence merging & squashing", t => {
   );
   int.addPairedOccurrence(notContained);
 
-  let fragments = int.fragments();
-  t.is(6, fragments.length);
+  let blocks = int.blocks();
+  t.is(6, blocks.length);
 
-  t.deepEqual(biggerTopLeft, fragments[0].pairedOccurrences);
-  t.deepEqual([topLeftContained], fragments[1].pairedOccurrences);
-  t.deepEqual([notContained], fragments[2].pairedOccurrences);
-  t.deepEqual(biggerMiddle, fragments[3].pairedOccurrences);
-  t.deepEqual(biggerBottomLeft, fragments[4].pairedOccurrences);
-  t.deepEqual([bottomLeftContained], fragments[5].pairedOccurrences);
+  t.deepEqual(biggerTopLeft, blocks[0].pairedOccurrences);
+  t.deepEqual([topLeftContained], blocks[1].pairedOccurrences);
+  t.deepEqual([notContained], blocks[2].pairedOccurrences);
+  t.deepEqual(biggerMiddle, blocks[3].pairedOccurrences);
+  t.deepEqual(biggerBottomLeft, blocks[4].pairedOccurrences);
+  t.deepEqual([bottomLeftContained], blocks[5].pairedOccurrences);
 
   int.squash();
 
-  fragments = int.fragments();
+  blocks = int.blocks();
 
-  t.is(4, fragments.length, "squashed too many");
-  t.deepEqual(biggerTopLeft, fragments[0].pairedOccurrences);
-  t.deepEqual([notContained], fragments[1].pairedOccurrences);
-  t.deepEqual(biggerMiddle, fragments[2].pairedOccurrences);
-  t.deepEqual(biggerBottomLeft, fragments[3].pairedOccurrences);
+  t.is(4, blocks.length, "squashed too many");
+  t.deepEqual(biggerTopLeft, blocks[0].pairedOccurrences);
+  t.deepEqual([notContained], blocks[1].pairedOccurrences);
+  t.deepEqual(biggerMiddle, blocks[2].pairedOccurrences);
+  t.deepEqual(biggerBottomLeft, blocks[3].pairedOccurrences);
 
 });

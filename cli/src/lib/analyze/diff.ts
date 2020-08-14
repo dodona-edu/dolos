@@ -7,7 +7,7 @@ import Identifiable from "../util/identifiable";
 type LeftRight = string;
 
 /**
- * This class represents all the fragments between two files (i.e. the
+ * This class represents all the blocks between two files (i.e. the
  * intersection of their hashes).
  */
 export class Diff extends Identifiable {
@@ -25,10 +25,10 @@ export class Diff extends Identifiable {
   }
 
   /**
-   * Creates an array of fragments in this intersection, sorted by their
+   * Creates an array of blocks in this intersection, sorted by their
    * leftKmers range.
    */
-  public fragments(): Array<Hunk> {
+  public blocks(): Array<Hunk> {
     return Array.of(...this.fragmentStart.values())
       .sort((a , b) => Range.compare(a.leftKmers, b.leftKmers));
   }
@@ -36,7 +36,7 @@ export class Diff extends Identifiable {
   /**
    * Add a new paired occurrence to the intersection.
    *
-   * Tries to extend existing fragments, or creates a new fragment.
+   * Tries to extend existing blocks, or creates a new fragment.
    */
   public addPairedOccurrence(newPairedOccurrence: PairedOccurrence): void {
     const start = this.key(newPairedOccurrence.left.index, newPairedOccurrence.right.index);
@@ -85,7 +85,7 @@ export class Diff extends Identifiable {
    */
   public totalOverlapKmers(): number {
     return Range.totalCovered(
-      this.fragments().map(m => m.leftKmers).sort(Range.compare)
+      this.blocks().map(m => m.leftKmers).sort(Range.compare)
     );
   }
 
@@ -93,14 +93,14 @@ export class Diff extends Identifiable {
    * Returns the length (in kmers) of the largest fragment in this intersecion.
    */
   public largestFragmentLength(): number {
-    return Math.max(...this.fragments().map(f => f.pairedOccurrences.length));
+    return Math.max(...this.blocks().map(f => f.pairedOccurrences.length));
   }
 
   /**
-   * Remove fragments which have fewer than the given minimum of pairedOccurrences.
+   * Remove blocks which have fewer than the given minimum of pairedOccurrences.
    */
   public removeSmallerThan(minimum: number): void {
-    this.fragments()
+    this.blocks()
       .filter(f => f.pairedOccurrences.length < minimum)
       .forEach(f => this.removeFragment(f));
   }
@@ -110,7 +110,7 @@ export class Diff extends Identifiable {
    */
   public squash(): void {
     const kandidates: Set<Hunk> = new Set();
-    for (const match of this.fragments()) {
+    for (const match of this.blocks()) {
 
       const iter = kandidates.values();
       let next = iter.next();
