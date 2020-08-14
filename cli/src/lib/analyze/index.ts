@@ -103,7 +103,7 @@ export class Index {
 
 
         if (matches) {
-          analysis.addMatches(hash, part, ...matches);
+          analysis.addOccurrences(hash, part, ...matches);
 
           // add our matching part to the index
           matches.push(part);

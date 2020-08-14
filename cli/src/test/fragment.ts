@@ -24,13 +24,13 @@ test("fragment should reconstruct matched kmers", async t => {
   for await (const hash of filter.hashesFromString(f1.ast)) {
     f1Hashes.push(hash);
   }
-  const f2Hashes = []
+  const f2Hashes = [];
   for await (const hash of filter.hashesFromString(f2.ast)) {
     f2Hashes.push(hash);
   }
   t.is(f1Hashes.length, f2Hashes.length);
 
-  const createMatch = (i: number, h1: Hash, h2: Hash): PairedOccurrence =>
+  const createPairedOccurrence = (i: number, h1: Hash, h2: Hash): PairedOccurrence =>
     new PairedOccurrence(
       {
         index: i,
@@ -49,9 +49,9 @@ test("fragment should reconstruct matched kmers", async t => {
       new SharedKmer(h1.hash, h1.data),
     );
 
-  const fragment = new Hunk(createMatch(0, f1Hashes[0], f2Hashes[0]));
+  const fragment = new Hunk(createPairedOccurrence(0, f1Hashes[0], f2Hashes[0]));
   for (let i = 1; i < f1Hashes.length; i += 1) {
-    fragment.extendWithPairedOccurrence(createMatch(i, f1Hashes[i], f2Hashes[i]));
+    fragment.extendWithPairedOccurrence(createPairedOccurrence(i, f1Hashes[i], f2Hashes[i]));
   }
 
   t.is(f1.ast.slice(0, -9), fragment.mergedData);

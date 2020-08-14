@@ -41,7 +41,7 @@ export class Report {
     this.fileSet = new Set(files);
   }
 
-  public addMatches(hash: Hash, ...parts: Array<Occurrence>): void {
+  public addOccurrences(hash: Hash, ...parts: Array<Occurrence>): void {
     assert(parts.length > 0);
     let kmer = this.kmers.get(hash);
     if(!kmer) {

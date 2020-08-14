@@ -2,7 +2,7 @@ import { SharedKmer } from "./sharedKmer";
 import { Region } from "../util/region";
 
 /**
- * The information that is needed for one side of a match.
+ * The information that is needed for one side of a paired occurrence.
  */
 export interface ASTRegion {
   /**
@@ -29,7 +29,7 @@ export interface ASTRegion {
 }
 
 /**
- * A match represents a common kmer between two files.
+ * A paired occurrence represents a common kmer between two files.
  *
  * It keeps track of the kmer index in both files, the hashing of the kmer, and
  * the location with its data it represents.

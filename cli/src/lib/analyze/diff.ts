@@ -34,7 +34,7 @@ export class Diff extends Identifiable {
   }
 
   /**
-   * Add a new match to the intersection.
+   * Add a new paired occurrence to the intersection.
    *
    * Tries to extend existing fragments, or creates a new fragment.
    */

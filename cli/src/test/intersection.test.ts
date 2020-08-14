@@ -11,7 +11,7 @@ function createFakeFile(name: string): TokenizedFile {
     new File(name, "content"),
     "(program)",
     []
-  )
+  );
 }
 
 function createIntersection(): Diff {
@@ -20,14 +20,14 @@ function createIntersection(): Diff {
   return new Diff(f1, f2);
 }
 
-test("match merging & squashing", t => {
+test("paired occurrence merging & squashing", t => {
   const int = createIntersection();
 
   let kmer = new SharedKmer(1, "kmer 1");
   const biggerTopLeft = [];
   // bigger match
   for(let i = 0; i < 10; i++) {
-    const match = new PairedOccurrence(
+    const pairedOccurrence = new PairedOccurrence(
       {
         index: i,
         start: i,
@@ -44,9 +44,9 @@ test("match merging & squashing", t => {
       },
       kmer
     );
-    int.addPairedOccurrence(match)
+    int.addPairedOccurrence(pairedOccurrence);
     t.is(1, int.fragments().length);
-    biggerTopLeft.push(match);
+    biggerTopLeft.push(pairedOccurrence);
   }
 
   // contained match
@@ -181,9 +181,9 @@ test("match merging & squashing", t => {
   fragments = int.fragments();
 
   t.is(4, fragments.length, "squashed too many");
-  t.deepEqual(biggerTopLeft, fragments[0].pairedOccurrences)
-  t.deepEqual([notContained], fragments[1].pairedOccurrences)
-  t.deepEqual(biggerMiddle, fragments[2].pairedOccurrences)
-  t.deepEqual(biggerBottomLeft, fragments[3].pairedOccurrences)
+  t.deepEqual(biggerTopLeft, fragments[0].pairedOccurrences);
+  t.deepEqual([notContained], fragments[1].pairedOccurrences);
+  t.deepEqual(biggerMiddle, fragments[2].pairedOccurrences);
+  t.deepEqual(biggerBottomLeft, fragments[3].pairedOccurrences);
 
 });
