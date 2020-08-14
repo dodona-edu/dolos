@@ -31,7 +31,7 @@ export class CsvPresenter extends Presenter {
   public writeDiffs(out: Writable): void {
     writeCSVto(
       out,
-      this.analysis.scoredDiffs,
+      this.report.scoredDiffs,
       {
         "id": s => s.diff.id,
         "leftFileId": s => s.diff.leftFile.id,
@@ -64,7 +64,7 @@ export class CsvPresenter extends Presenter {
   public writeKmers(out: Writable): void {
     writeCSVto(
       out,
-      this.analysis.sharedKmers(),
+      this.report.sharedKmers(),
       {
         "id": s => s.id,
         "hash": s => s.hash,
@@ -76,7 +76,7 @@ export class CsvPresenter extends Presenter {
   public writeFiles(out: Writable): void {
     writeCSVto(
       out,
-      this.analysis.files(),
+      this.report.files(),
       {
         "id": f => f.id,
         "path": f => f.path,
@@ -86,7 +86,7 @@ export class CsvPresenter extends Presenter {
   }
 
   public writeMetadata(out: Writable): void {
-    const metaData = this.analysis.options.asObject();
+    const metaData = this.report.options.asObject();
     writeCSVto(
       out,
       Object.entries(metaData),
@@ -97,7 +97,7 @@ export class CsvPresenter extends Presenter {
   }
 
   async present(): Promise<void> {
-    const dirName = `dolos-analysis-${ new Date().toISOString() }`;
+    const dirName = `dolos-report-${ new Date().toISOString() }`;
     await fs.mkdir(dirName);
 
     console.log(`Writing results to directory: ${dirName}`);

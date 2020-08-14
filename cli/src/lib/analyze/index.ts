@@ -54,7 +54,7 @@ export class Index {
    * and each other. The file hashes will be added to the index.
    * @param hashFilter: an optional HashFilter. By default the HashFilter of the
    * Index object will be used.
-   * @return an Analysis object, which is a list of Diffs
+   * @return an Report object, which is a list of Diffs
    * (containing all the pairedOccurrences between two files).
    */
   public async compareFiles(
@@ -64,7 +64,7 @@ export class Index {
 
     info(`Tokenizing ${ files.length} files`);
     const tokenizedFiles = files.map(f => this.tokenizer.tokenizeFile(f));
-    const analysis = new Report(this.options, tokenizedFiles);
+    const report = new Report(this.options, tokenizedFiles);
 
     for (const file of tokenizedFiles) {
       info(`Processing file ${file.path}`);
@@ -103,7 +103,7 @@ export class Index {
 
 
         if (matches) {
-          analysis.addOccurrences(hash, part, ...matches);
+          report.addOccurrences(hash, part, ...matches);
 
           // add our matching part to the index
           matches.push(part);
@@ -116,10 +116,10 @@ export class Index {
         kmer += 1;
       }
     }
-    info("Finishing analysis.");
-    analysis.finish();
+    info("Finishing report.");
+    report.finish();
     info("Done.");
-    return analysis;
+    return report;
   }
 
   /**

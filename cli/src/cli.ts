@@ -189,14 +189,14 @@ program
         limitResults: program.limit,
         sortBy: program.sort,
       });
-      const analysis = await dolos.analyzePaths(locations);
+      const report = await dolos.analyzePaths(locations);
 
       const presenter = closestMatch(program.outputFormat, {
-        "terminal": () => new TerminalPresenter(analysis, dolos.options, program.compare),
-        "console" : () => new TerminalPresenter(analysis, dolos.options, program.compare),
-        "csv" : () => new CsvPresenter(analysis, dolos.options),
-        "html": () => new WebPresenter(analysis, dolos.options),
-        "web": () => new WebPresenter(analysis, dolos.options),
+        "terminal": () => new TerminalPresenter(report, dolos.options, program.compare),
+        "console" : () => new TerminalPresenter(report, dolos.options, program.compare),
+        "csv" : () => new CsvPresenter(report, dolos.options),
+        "html": () => new WebPresenter(report, dolos.options),
+        "web": () => new WebPresenter(report, dolos.options),
       });
 
       if(presenter == null) {

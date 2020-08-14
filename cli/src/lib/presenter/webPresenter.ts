@@ -16,7 +16,7 @@ function respondwithCSV(write: (out: Writable) => void): RequestHandler {
 export class WebPresenter extends CsvPresenter {
 
   async present(): Promise<void> {
-    assert(this.analysis.scoredDiffs);
+    assert(this.report.scoredDiffs);
     const app: Express = express();
 
     app.get("/data/metadata.csv", respondwithCSV(o => this.writeMetadata(o)));

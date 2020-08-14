@@ -19,7 +19,7 @@ export class Dolos {
   }
 
   public async analyzePaths(paths: string[]): Promise<Report> {
-    info("=== Starting analysis ===");
+    info("=== Starting report ===");
     info(`Reading ${ paths.length} files`);
     const files = await Result.all(paths.map(File.fromPath));
     return this.analyze(files.ok());

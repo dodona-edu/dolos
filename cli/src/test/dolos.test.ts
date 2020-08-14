@@ -19,15 +19,15 @@ test("equal content should be a full match", async t => {
   }
   `;
 
-  const analysis = await dolos.analyze(
+  const report = await dolos.analyze(
     [
       new File("file1", content),
       new File("file2", content),
     ]
   );
 
-  t.is(1, analysis.scoredDiffs.length);
-  const { diff, similarity } = analysis.scoredDiffs[0];
+  t.is(1, report.scoredDiffs.length);
+  const { diff, similarity } = report.scoredDiffs[0];
   t.is(similarity, 1.0);
 
   const blocks = diff.blocks();
@@ -70,15 +70,15 @@ test("renamed variables should be a full match", async t => {
   }
   `;
 
-  const analysis = await dolos.analyze(
+  const report = await dolos.analyze(
     [
       new File("file1", original),
       new File("file2", changed),
     ]
   );
 
-  t.is(1, analysis.scoredDiffs.length);
-  const { diff, similarity } = analysis.scoredDiffs[0];
+  t.is(1, report.scoredDiffs.length);
+  const { diff, similarity } = report.scoredDiffs[0];
   t.is(similarity, 1.0);
 
   const blocks = diff.blocks();
@@ -123,15 +123,15 @@ test("changed whitespace and semicolons should be a full match", async t => {
   }
   `;
 
-  const analysis = await dolos.analyze(
+  const report = await dolos.analyze(
     [
       new File("file1", original),
       new File("file2", changed),
     ]
   );
 
-  t.is(1, analysis.scoredDiffs.length);
-  const { diff: diff, similarity } = analysis.scoredDiffs[0];
+  t.is(1, report.scoredDiffs.length);
+  const { diff: diff, similarity } = report.scoredDiffs[0];
   t.is(similarity, 1.0);
 
   const blocks = diff.blocks();
@@ -170,15 +170,15 @@ test("changed order should be a good match", async t => {
   const world = () => "world";
   `;
 
-  const analysis = await dolos.analyze(
+  const report = await dolos.analyze(
     [
       new File("file1", original),
       new File("file2", changed),
     ]
   );
 
-  t.is(1, analysis.scoredDiffs.length);
-  const { diff, similarity } = analysis.scoredDiffs[0];
+  t.is(1, report.scoredDiffs.length);
+  const { diff, similarity } = report.scoredDiffs[0];
   t.true(similarity > 0.75);
 
   // four blocks: program declaration, hello(), world() and helloWorld()

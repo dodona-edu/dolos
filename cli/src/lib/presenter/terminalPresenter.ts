@@ -15,14 +15,14 @@ export class TerminalPresenter extends Presenter {
   private readonly c: chalk.Chalk;
 
   constructor(
-    analysis: Report,
+    report: Report,
     options: Options,
     private readonly compare?: boolean,
     private readonly output: Writable = process.stdout,
     width?: number,
     private readonly context: number = 3,
   ) {
-    super(analysis, options);
+    super(report, options);
     let colorLevel = 0;
     if (output == process.stdout) {
       this.width = width || process.stdout.columns;
@@ -42,7 +42,7 @@ export class TerminalPresenter extends Presenter {
   }
 
   public async present(): Promise<void> {
-    const diffs = this.analysis.scoredDiffs;
+    const diffs = this.report.scoredDiffs;
     if (this.compare || (this.compare == null && diffs.length == 1)) {
       diffs.map(int => this.writeDiffWithComparison(int));
     } else {

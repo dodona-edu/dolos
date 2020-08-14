@@ -52,10 +52,10 @@ export class Report {
   }
 
   /**
-   * Finish the analysis and apply postprocessing steps.
+   * Finish the report and apply postprocessing steps.
    */
   public finish(): void {
-    assert(this.scored !== null, "this analysis is already finished");
+    assert(this.scored !== null, "this report is already finished");
 
     type SortFn = (a: ScoredDiff, b: ScoredDiff) => number;
     const sortfn = closestMatch<SortFn>(this.options.sortBy, {
@@ -97,7 +97,7 @@ export class Report {
       this.scored = this.scored.slice(0, this.options.limitResults);
     }
 
-    info("Freezing analysis object.");
+    info("Freezing report object.");
     Object.freeze(this);
   }
 
@@ -105,7 +105,7 @@ export class Report {
     if(this.scored) {
       return this.scored;
     } else {
-      throw new Error("This analysis is not finished yet, " +
+      throw new Error("This report is not finished yet, " +
                       "but scoredDiffs() was called");
     }
   }
