@@ -91,9 +91,9 @@ program
     x => parseFloat(x)
   )
   .option(
-    "-s, --minimum-fragment-length <integer>",
+    "-s, --minimum-block-length <integer>",
     Utils.indent(
-      "The minimum length of a fragment. Every fragment shorter than this is " +
+      "The minimum length of a block. Every block shorter than this is " +
       "filtered out."
     ),
     x => parseFloat(x),
@@ -112,7 +112,7 @@ program
     "-g, --maximum-gap-size <integer>",
     Utils.indent(
       "If two blocks are close to each other, they will be merged into a " +
-      "single fragment if the gap between them is smaller than the given " +
+      "single block if the gap between them is smaller than the given " +
       "number of lines.",
       Options.defaultMaxGapSize
     ),
@@ -184,7 +184,7 @@ program
         maxHashCount: program.maximumHashCount,
         maxHashPercentage: program.maxHashPercentage,
         maxMatches: program.filePairOutputLimit,
-        minBlockLength: program.minimumFragmentLength,
+        minBlockLength: program.minimumBlockLength,
         minSimilarity: program.minimumSimilarity,
         limitResults: program.limit,
         sortBy: program.sort,

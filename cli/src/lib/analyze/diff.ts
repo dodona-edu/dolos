@@ -12,16 +12,16 @@ type LeftRight = string;
  */
 export class Diff extends Identifiable {
 
-  private fragmentStart: Map<LeftRight, Block> = new Map();
-  private fragmentEnd: Map<LeftRight, Block> = new Map();
+  private blockStart: Map<LeftRight, Block> = new Map();
+  private blockEnd: Map<LeftRight, Block> = new Map();
 
   constructor(
     public readonly leftFile: TokenizedFile,
     public readonly rightFile: TokenizedFile
-  ) { super() }
+  ) { super(); }
 
   get blockCount(): number {
-    return this.fragmentStart.size;
+    return this.blockStart.size;
   }
 
   /**
@@ -29,54 +29,54 @@ export class Diff extends Identifiable {
    * leftKmers range.
    */
   public blocks(): Array<Block> {
-    return Array.of(...this.fragmentStart.values())
+    return Array.of(...this.blockStart.values())
       .sort((a , b) => Range.compare(a.leftKmers, b.leftKmers));
   }
 
   /**
    * Add a new paired occurrence to the intersection.
    *
-   * Tries to extend existing blocks, or creates a new fragment.
+   * Tries to extend existing blocks, or creates a new block.
    */
   public addPairedOccurrence(newPairedOccurrence: PairedOccurrence): void {
     const start = this.key(newPairedOccurrence.left.index, newPairedOccurrence.right.index);
     const end = this.key(newPairedOccurrence.left.index + 1, newPairedOccurrence.right.index + 1);
 
-    let fragment = this.fragmentEnd.get(start);
-    if (fragment) {
+    let block = this.blockEnd.get(start);
+    if (block) {
 
-      // extend fragment at starting position
-      this.fragmentEnd.delete(start);
-      fragment.extendWithPairedOccurrence(newPairedOccurrence);
+      // extend block at starting position
+      this.blockEnd.delete(start);
+      block.extendWithPairedOccurrence(newPairedOccurrence);
 
     } else {
 
-      // no fragment on our starting position, create a new one
-      fragment = new Block(newPairedOccurrence);
-      this.fragmentStart.set(start, fragment);
-      this.fragmentEnd.set(end, fragment);
+      // no block on our starting position, create a new one
+      block = new Block(newPairedOccurrence);
+      this.blockStart.set(start, block);
+      this.blockEnd.set(end, block);
     }
 
-    const nextFragment = this.fragmentStart.get(end);
+    const nextBlock = this.blockStart.get(end);
 
-    if (nextFragment) {
-      // there is a fragment directly after us we can extend
+    if (nextBlock) {
+      // there is a block directly after us we can extend
 
-      // remove next fragment's start position
-      this.fragmentStart.delete(end);
+      // remove next block's start position
+      this.blockStart.delete(end);
 
       // extend ourselves
-      fragment.extendWithFragment(nextFragment);
+      block.extendWithBlock(nextBlock);
 
-      // overwrite the end position of the next fragment with ours
-      this.fragmentEnd.set(
-        this.key(nextFragment.leftKmers.to, nextFragment.rightKmers.to),
-        fragment
+      // overwrite the end position of the next block with ours
+      this.blockEnd.set(
+        this.key(nextBlock.leftKmers.to, nextBlock.rightKmers.to),
+        block
       );
     } else {
 
-      // no fragment after us, just set our end position
-      this.fragmentEnd.set(end, fragment);
+      // no block after us, just set our end position
+      this.blockEnd.set(end, block);
     }
   }
 
@@ -90,7 +90,7 @@ export class Diff extends Identifiable {
   }
 
   /**
-   * Returns the length (in kmers) of the largest fragment in this intersecion.
+   * Returns the length (in kmers) of the largest block in this diff.
    */
   public largestBlockLength(): number {
     return Math.max(...this.blocks().map(f => f.pairedOccurrences.length));
@@ -102,11 +102,11 @@ export class Diff extends Identifiable {
   public removeSmallerThan(minimum: number): void {
     this.blocks()
       .filter(f => f.pairedOccurrences.length < minimum)
-      .forEach(f => this.removeFragment(f));
+      .forEach(f => this.removeBlock(f));
   }
 
   /**
-   * Remove each Fragment that is contained in a bigger Fragment.
+   * Remove each Block that is contained in a bigger Block.
    */
   public squash(): void {
     const kandidates: Set<Block> = new Set();
@@ -123,7 +123,7 @@ export class Diff extends Identifiable {
           kandidate.leftKmers.contains(match.leftKmers) &&
           kandidate.rightKmers.contains(match.rightKmers)
         ){
-          this.removeFragment(match);
+          this.removeBlock(match);
           removed = true;
         }
         next = iter.next();
@@ -135,12 +135,12 @@ export class Diff extends Identifiable {
     }
   }
 
-  private removeFragment(fragment: Block): void {
-    this.fragmentStart.delete(
-      this.key(fragment.leftKmers.from, fragment.rightKmers.from)
+  private removeBlock(block: Block): void {
+    this.blockStart.delete(
+      this.key(block.leftKmers.from, block.rightKmers.from)
     );
-    this.fragmentEnd.delete(
-      this.key(fragment.leftKmers.to, fragment.rightKmers.to)
+    this.blockEnd.delete(
+      this.key(block.leftKmers.to, block.rightKmers.to)
     );
   }
 

@@ -4,10 +4,10 @@ import { Region } from "../util/region";
 import { Range } from "../util/range";
 
 /**
- * A fragment is a collection of one or more consequent pairedOccurrences (kmers).
+ * A block is a collection of one or more consequent pairedOccurrences (kmers).
  *
- * A fragment can be extended with a new match if its kmer indices in both
- * files are directly after that of the fragment.
+ * A block can be extended with a new match if its kmer indices in both
+ * files are directly after that of the block.
  */
 export class Block {
 
@@ -36,7 +36,7 @@ export class Block {
   }
 
   public extendWithPairedOccurrence(other: PairedOccurrence): void {
-    assert(this.extendable(other), "match does not extend this fragment");
+    assert(this.extendable(other), "match does not extend this block");
     this.pairedOccurrences.push(other);
 
     if (this.mergedStop < other.left.start) {
@@ -65,7 +65,7 @@ export class Block {
 
   }
 
-  public extendWithFragment(other: Block): void {
+  public extendWithBlock(other: Block): void {
     const otherFirst = other.pairedOccurrences[0];
     assert(this.extendable(otherFirst));
 
