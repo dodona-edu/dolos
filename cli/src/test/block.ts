@@ -2,7 +2,7 @@ import test from "ava";
 import { File } from "../lib/file/file";
 import { Hash } from "../lib/hashing/hashFilter";
 import { PairedOccurrence } from "../lib/analyze/pairedOccurrence";
-import { Hunk } from "../lib/analyze/hunk";
+import { Block } from "../lib/analyze/block";
 import { Region } from "../lib/util/region";
 import { SharedKmer } from "../lib/analyze/sharedKmer";
 import { CodeTokenizer } from "../lib/tokenizer/codeTokenizer";
@@ -49,7 +49,7 @@ test("block should reconstruct matched kmers", async t => {
       new SharedKmer(h1.hash, h1.data),
     );
 
-  const block = new Hunk(createPairedOccurrence(0, f1Hashes[0], f2Hashes[0]));
+  const block = new Block(createPairedOccurrence(0, f1Hashes[0], f2Hashes[0]));
   for (let i = 1; i < f1Hashes.length; i += 1) {
     block.extendWithPairedOccurrence(createPairedOccurrence(i, f1Hashes[i], f2Hashes[i]));
   }

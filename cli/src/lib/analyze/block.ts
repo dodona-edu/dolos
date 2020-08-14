@@ -9,7 +9,7 @@ import { Range } from "../util/range";
  * A fragment can be extended with a new match if its kmer indices in both
  * files are directly after that of the fragment.
  */
-export class Hunk {
+export class Block {
 
   public pairedOccurrences: Array<PairedOccurrence>;
   public leftKmers: Range;
@@ -65,7 +65,7 @@ export class Hunk {
 
   }
 
-  public extendWithFragment(other: Hunk): void {
+  public extendWithFragment(other: Block): void {
     const otherFirst = other.pairedOccurrences[0];
     assert(this.extendable(otherFirst));
 

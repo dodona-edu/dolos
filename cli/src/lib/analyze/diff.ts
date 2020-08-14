@@ -1,6 +1,6 @@
 import { Range } from "../util/range";
 import { PairedOccurrence } from "./pairedOccurrence";
-import { Hunk } from "./hunk";
+import { Block } from "./block";
 import { TokenizedFile } from "../file/tokenizedFile";
 import Identifiable from "../util/identifiable";
 
@@ -12,8 +12,8 @@ type LeftRight = string;
  */
 export class Diff extends Identifiable {
 
-  private fragmentStart: Map<LeftRight, Hunk> = new Map();
-  private fragmentEnd: Map<LeftRight, Hunk> = new Map();
+  private fragmentStart: Map<LeftRight, Block> = new Map();
+  private fragmentEnd: Map<LeftRight, Block> = new Map();
 
   constructor(
     public readonly leftFile: TokenizedFile,
@@ -28,7 +28,7 @@ export class Diff extends Identifiable {
    * Creates an array of blocks in this intersection, sorted by their
    * leftKmers range.
    */
-  public blocks(): Array<Hunk> {
+  public blocks(): Array<Block> {
     return Array.of(...this.fragmentStart.values())
       .sort((a , b) => Range.compare(a.leftKmers, b.leftKmers));
   }
@@ -52,7 +52,7 @@ export class Diff extends Identifiable {
     } else {
 
       // no fragment on our starting position, create a new one
-      fragment = new Hunk(newPairedOccurrence);
+      fragment = new Block(newPairedOccurrence);
       this.fragmentStart.set(start, fragment);
       this.fragmentEnd.set(end, fragment);
     }
@@ -109,7 +109,7 @@ export class Diff extends Identifiable {
    * Remove each Fragment that is contained in a bigger Fragment.
    */
   public squash(): void {
-    const kandidates: Set<Hunk> = new Set();
+    const kandidates: Set<Block> = new Set();
     for (const match of this.blocks()) {
 
       const iter = kandidates.values();
@@ -135,7 +135,7 @@ export class Diff extends Identifiable {
     }
   }
 
-  private removeFragment(fragment: Hunk): void {
+  private removeFragment(fragment: Block): void {
     this.fragmentStart.delete(
       this.key(fragment.leftKmers.from, fragment.rightKmers.from)
     );
