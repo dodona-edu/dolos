@@ -14,7 +14,7 @@
 
 <script lang="ts">
 
-import { Component, Vue, Prop, Watch } from "vue-property-decorator";
+import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import { Selection } from "@/api/api";
 import { constructID } from "@/util/OccurenceHighlight";
 import * as d3 from "d3";
@@ -61,7 +61,6 @@ export default class BarcodeChart extends Vue {
 
   @Watch("selectedSelections")
   onSelectionChange(newValue: Array<string>): void {
-    console.log(this.makeSelector(newValue));
     d3.selectAll(`#${this.identifier} .barcodeChartBar.selected`)
       .classed("selected", false);
 
@@ -122,7 +121,7 @@ export default class BarcodeChart extends Vue {
       .enter().append("g")
       .attr("class", function (d) {
         const blocks = map[+d.key];
-        let classes = `barcodeChartBar line-${+d.key} ${blocks.join(" ")}`;
+        let classes = `barcodeChartBar ${blocks.join(" ")}`;
         if (blocks.length > 0) {
           classes += " " + "marked";
         }
@@ -147,28 +146,25 @@ export default class BarcodeChart extends Vue {
 
   mouseover(map: {[key: number]: Array<string>}, a: any, b: any, rect: SVGRectElement[] | ArrayLike<SVGRectElement>):
     void {
-    const key = this.getKey(rect);
-    const classes = map[key];
+    const classes = map[this.getKey(rect)];
     if (classes.length) {
-      this.$emit("selectionhoverenter", this.sideIdentifier, classes, key);
+      this.$emit("selectionhoverenter", this.sideIdentifier, classes);
     }
   }
 
   mouseleave(map: {[key: number]: Array<string>}, a: any, b: any, rect: SVGRectElement[] | ArrayLike<SVGRectElement>):
     void {
-    const key = this.getKey(rect);
-    const classes = map[key];
+    const classes = map[this.getKey(rect)];
     if (classes.length) {
-      this.$emit("selectionhoverexit", this.sideIdentifier, classes, key);
+      this.$emit("selectionhoverexit", this.sideIdentifier, classes);
     }
   }
 
   mouseclick(map: {[key: number]: Array<string>}, a: any, b: any, rect: SVGRectElement[] | ArrayLike<SVGRectElement>):
     void {
-    const key = this.getKey(rect);
-    const classes = map[key];
+    const classes = map[this.getKey(rect)];
     if (classes.length) {
-      this.$emit("selectionclick", this.sideIdentifier, classes, key);
+      this.$emit("selectionclick", this.sideIdentifier, classes);
     }
   }
 }

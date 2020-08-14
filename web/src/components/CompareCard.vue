@@ -214,32 +214,12 @@ export default class Compare extends Vue {
     return sideId === SideID.rightSideId ? SideID.leftSideId : SideID.rightSideId;
   }
 
-  makeSelector(sideId: SideID, blockClasses: Array<string>, otherSide = false, chart = false): string {
-    if (otherSide) {
-      let otherSideId = this.getOtherSide(sideId).toString();
-      if (chart) {
-        otherSideId += "-chart";
-      }
-      return blockClasses
-        .map(blockClass => `#${otherSideId} .${blockClass}`)
-        .join(", ");
-    } else {
-      let id = sideId.toString();
-      if (chart) {
-        id += "-chart";
-      }
-      return blockClasses
-        .map(blockClass => `#${id} .${blockClass}`)
-        .join(", ");
-    }
-  }
-
   getAllOtherBlockClasses(sideId: string, blockClasses: Array<string>): Array<string> {
     const map = this.sideMap.get(sideId)!;
     return blockClasses.flatMap(blockClass => map.get(blockClass)!);
   }
 
-  onHoverEnterHandler(sideId: SideID, blockClasses: Array<string>, line?: number): void {
+  onHoverEnterHandler(sideId: SideID, blockClasses: Array<string>): void {
     const otherSideId = this.getOtherSide(sideId);
     const otherBlockClasses = this.getAllOtherBlockClasses(sideId, blockClasses);
 
@@ -247,14 +227,14 @@ export default class Compare extends Vue {
     this.lastHovered[otherSideId].blockClasses = otherBlockClasses;
   }
 
-  onHoverExitHandler(sideId: SideID, blockClasses: Array<string>, line?: number): void {
+  onHoverExitHandler(sideId: SideID, blockClasses: Array<string>): void {
     const otherSideId = this.getOtherSide(sideId);
     this.lastHovered[sideId].blockClasses = [];
     this.lastHovered[otherSideId].blockClasses = [];
   }
 
-  selectionClickEventHandler(sideId: SideID, blockClasses: Array<string>, line?: number): void {
-    blockClasses.sort();
+  selectionClickEventHandler(sideId: SideID, blockClasses: Array<string>): void {
+    blockClasses.sort(this.sortSelectionId);
     // if the there is nothing that was last clicked, or a different block from last time is clicked initialize the
     // values
     if (this.selected.blockClasses === undefined || !(sideId === this.selected.side &&
@@ -281,14 +261,8 @@ export default class Compare extends Vue {
 
     const other = blocks[this.blockClickCount - 1] as string;
 
-    console.log(sideId, id, this.getOtherSide(sideId), other);
     this.selected.sides[sideId].blockClasses = [id];
     this.selected.sides[this.getOtherSide(sideId)].blockClasses = [other];
-  }
-
-  extractLinesFromSelectionId(id: string): [number, number] {
-    const values = id.split("-");
-    return [+values[3], +values[5]];
   }
 
   get leftSelection(): Array<Selection> {
@@ -304,18 +278,20 @@ export default class Compare extends Vue {
     return [+row, +col];
   }
 
+  sortSelectionId(el1: string, el2: string): number {
+    const [row1, col1] = this.extractRowCol(el1);
+    const [row2, col2] = this.extractRowCol(el2);
+    const res = row1 - row2;
+    if (res === 0) {
+      return col1 - col2;
+    } else {
+      return res;
+    }
+  }
+
   sortMap(map: Map<string, Array<string>>): void {
     for (const array of map.values()) {
-      array.sort((el1, el2) => {
-        const [row1, col1] = this.extractRowCol(el1);
-        const [row2, col2] = this.extractRowCol(el2);
-        const res = row1 - row2;
-        if (res === 0) {
-          return col1 - col2;
-        } else {
-          return res;
-        }
-      });
+      array.sort(this.sortSelectionId);
     }
   }
 
