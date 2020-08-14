@@ -20,7 +20,7 @@ export class Diff extends Identifiable {
     public readonly rightFile: TokenizedFile
   ) { super() }
 
-  get fragmentCount(): number {
+  get blockCount(): number {
     return this.fragmentStart.size;
   }
 
@@ -92,7 +92,7 @@ export class Diff extends Identifiable {
   /**
    * Returns the length (in kmers) of the largest fragment in this intersecion.
    */
-  public largestFragmentLength(): number {
+  public largestBlockLength(): number {
     return Math.max(...this.blocks().map(f => f.pairedOccurrences.length));
   }
 

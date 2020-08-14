@@ -79,7 +79,7 @@ export class Report {
     });
 
     info("Filtering intersections.");
-    ints = ints.filter(i => i.fragmentCount > 0);
+    ints = ints.filter(i => i.blockCount > 0);
 
     info(`Calculating the score of ${ ints.length } intersections.`);
     this.scored = ints.map(i => this.calculateScore(i));
@@ -170,15 +170,15 @@ export class Report {
 
 
   private calculateScore(intersection: Diff): ScoredDiff {
-    const fragments = intersection.blocks();
-    const leftCovered = Range.totalCovered(fragments.map(f => f.leftKmers));
-    const rightCovered = Range.totalCovered(fragments.map(f => f.rightKmers));
+    const blocks = intersection.blocks();
+    const leftCovered = Range.totalCovered(blocks.map(f => f.leftKmers));
+    const rightCovered = Range.totalCovered(blocks.map(f => f.rightKmers));
     const leftTotal = intersection.leftFile.kmers.length;
     const rightTotal = intersection.rightFile.kmers.length;
     return {
       intersection,
       overlap: leftCovered,
-      longest: intersection.largestFragmentLength(),
+      longest: intersection.largestBlockLength(),
       similarity: (leftCovered + rightCovered) / (leftTotal + rightTotal)
     };
   }

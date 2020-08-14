@@ -148,25 +148,25 @@ export class TerminalPresenter extends Presenter {
     const nl = (i: number): string =>
       this.c.grey((i + 1).toString().padEnd(lineNrWidth));
 
-    const fragments = intersection.blocks();
-    for (let i = 0; i < fragments.length; i += 1) {
-      const fragment = fragments[i];
+    const blocks = intersection.blocks();
+    for (let i = 0; i < blocks.length; i += 1) {
+      const block = blocks[i];
 
       this.ui.div({
-        text: chalk.bold(`Fragment ${i+1}/${fragments.length}:` +
-                         ` ${fragment.leftKmers.length} kmers`),
+        text: chalk.bold(`Block ${i+1}/${blocks.length}:` +
+                         ` ${block.leftKmers.length} kmers`),
         align: "center",
         padding: [1, 0, 1, 0],
       })
 
       this.ui.div({
         text: chalk.bold("Tokens: ") + "'" +
-              chalk.red(fragment.mergedData) + "'",
+              chalk.red(block.mergedData) + "'",
         padding: [0, 0, 1, 0],
       })
 
-      const left = this.formatLines(fragment.leftSelection, leftLines, nl);
-      const right = this.formatLines(fragment.rightSelection, rightLines, nl);
+      const left = this.formatLines(block.leftSelection, leftLines, nl);
+      const right = this.formatLines(block.rightSelection, rightLines, nl);
 
       for(let j = 0; j < Math.max(left.length, right.length); j += 1) {
         this.ui.div(
