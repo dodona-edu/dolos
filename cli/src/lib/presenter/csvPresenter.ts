@@ -31,15 +31,15 @@ export class CsvPresenter extends Presenter {
   public writeIntersections(out: Writable): void {
     writeCSVto(
       out,
-      this.analysis.scoredIntersections,
+      this.analysis.scoredDiffs,
       {
-        "id": s => s.intersection.id,
-        "leftFileId": s => s.intersection.leftFile.id,
-        "rightFileId": s => s.intersection.rightFile.id,
+        "id": s => s.diff.id,
+        "leftFileId": s => s.diff.leftFile.id,
+        "rightFileId": s => s.diff.rightFile.id,
         "similarity": s => s.similarity,
         "totalOverlap": s => s.overlap,
         "continuousOverlap": s => s.longest,
-        "blocks": s => JSON.stringify(s.intersection.blocks().map(
+        "blocks": s => JSON.stringify(s.diff.blocks().map(
           block => { return {
             leftSelection: block.leftSelection,
             rightSelection: block.rightSelection,

@@ -42,7 +42,7 @@ export class TerminalPresenter extends Presenter {
   }
 
   public async present(): Promise<void> {
-    const intersections = this.analysis.scoredIntersections;
+    const intersections = this.analysis.scoredDiffs;
     if (this.compare || (this.compare == null && intersections.length == 1)) {
       intersections.map(int => this.writeIntersectionWithComparison(int));
     } else {
@@ -86,16 +86,16 @@ export class TerminalPresenter extends Presenter {
     });
 
     for (
-      const { intersection, overlap, similarity, longest }
+      const { diff, overlap, similarity, longest }
       of intersections
     ) {
       this.ui.div({
-        text: intersection.leftFile.path,
+        text: diff.leftFile.path,
         width: pathWidth,
         padding: [0, 1, 0, 1]
       },
       {
-        text: intersection.rightFile.path,
+        text: diff.rightFile.path,
         width: pathWidth,
         padding: [0, 1, 0, 1]
       },
@@ -118,17 +118,17 @@ export class TerminalPresenter extends Presenter {
   }
 
   private writeIntersectionWithComparison(
-    { intersection, overlap, similarity }: ScoredDiff
+    { diff, overlap, similarity }: ScoredDiff
   ): void {
-    const leftLines = intersection.leftFile.lines;
-    const rightLines = intersection.rightFile.lines;
+    const leftLines = diff.leftFile.lines;
+    const rightLines = diff.rightFile.lines;
 
     this.ui.div({
-      text: chalk.bold(intersection.leftFile.path),
+      text: chalk.bold(diff.leftFile.path),
       padding: [1, 1, 1, 1],
     },
     {
-      text: chalk.bold(intersection.rightFile.path),
+      text: chalk.bold(diff.rightFile.path),
       padding: [1, 1, 1, 1],
     })
     this.ui.div({
@@ -148,7 +148,7 @@ export class TerminalPresenter extends Presenter {
     const nl = (i: number): string =>
       this.c.grey((i + 1).toString().padEnd(lineNrWidth));
 
-    const blocks = intersection.blocks();
+    const blocks = diff.blocks();
     for (let i = 0; i < blocks.length; i += 1) {
       const block = blocks[i];
 

@@ -14,14 +14,14 @@ function createFakeFile(name: string): TokenizedFile {
   );
 }
 
-function createIntersection(): Diff {
+function createDiff(): Diff {
   const f1 = createFakeFile("file1");
   const f2 = createFakeFile("file2");
   return new Diff(f1, f2);
 }
 
 test("paired occurrence merging & squashing", t => {
-  const int = createIntersection();
+  const int = createDiff();
 
   let kmer = new SharedKmer(1, "kmer 1");
   const biggerTopLeft = [];

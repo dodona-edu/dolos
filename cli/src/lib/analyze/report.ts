@@ -12,7 +12,7 @@ import { closestMatch, info } from "../util/utils";
 type Hash = number;
 
 export interface ScoredDiff {
-  intersection: Diff;
+  diff: Diff;
   overlap: number;
   longest: number;
   similarity: number;
@@ -101,12 +101,12 @@ export class Report {
     Object.freeze(this);
   }
 
-  public get scoredIntersections(): Array<ScoredDiff> {
+  public get scoredDiffs(): Array<ScoredDiff> {
     if(this.scored) {
       return this.scored;
     } else {
       throw new Error("This analysis is not finished yet, " +
-                      "but scoredIntersections() was called");
+                      "but scoredDiffs() was called");
     }
   }
 
@@ -176,7 +176,7 @@ export class Report {
     const leftTotal = intersection.leftFile.kmers.length;
     const rightTotal = intersection.rightFile.kmers.length;
     return {
-      intersection,
+      diff: intersection,
       overlap: leftCovered,
       longest: intersection.largestBlockLength(),
       similarity: (leftCovered + rightCovered) / (leftTotal + rightTotal)

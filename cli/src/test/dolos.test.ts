@@ -26,11 +26,11 @@ test("equal content should be a full match", async t => {
     ]
   );
 
-  t.is(1, analysis.scoredIntersections.length);
-  const { intersection, similarity } = analysis.scoredIntersections[0];
+  t.is(1, analysis.scoredDiffs.length);
+  const { diff, similarity } = analysis.scoredDiffs[0];
   t.is(similarity, 1.0);
 
-  const blocks = intersection.blocks();
+  const blocks = diff.blocks();
   t.is(blocks.length, 1);
   const match = blocks[0];
 
@@ -77,11 +77,11 @@ test("renamed variables should be a full match", async t => {
     ]
   );
 
-  t.is(1, analysis.scoredIntersections.length);
-  const { intersection, similarity } = analysis.scoredIntersections[0];
+  t.is(1, analysis.scoredDiffs.length);
+  const { diff, similarity } = analysis.scoredDiffs[0];
   t.is(similarity, 1.0);
 
-  const blocks = intersection.blocks();
+  const blocks = diff.blocks();
   t.is(blocks.length, 1);
   const match = blocks[0];
 
@@ -130,11 +130,11 @@ test("changed whitespace and semicolons should be a full match", async t => {
     ]
   );
 
-  t.is(1, analysis.scoredIntersections.length);
-  const { intersection, similarity } = analysis.scoredIntersections[0];
+  t.is(1, analysis.scoredDiffs.length);
+  const { diff: diff, similarity } = analysis.scoredDiffs[0];
   t.is(similarity, 1.0);
 
-  const blocks = intersection.blocks();
+  const blocks = diff.blocks();
   t.is(blocks.length, 1);
   const match = blocks[0];
 
@@ -177,11 +177,11 @@ test("changed order should be a good match", async t => {
     ]
   );
 
-  t.is(1, analysis.scoredIntersections.length);
-  const { intersection, similarity } = analysis.scoredIntersections[0];
+  t.is(1, analysis.scoredDiffs.length);
+  const { diff, similarity } = analysis.scoredDiffs[0];
   t.true(similarity > 0.75);
 
   // four blocks: program declaration, hello(), world() and helloWorld()
-  t.is(4, intersection.blocks().length);
+  t.is(4, diff.blocks().length);
 
 });

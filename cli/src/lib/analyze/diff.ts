@@ -8,7 +8,7 @@ type LeftRight = string;
 
 /**
  * This class represents all the blocks between two files (i.e. the
- * intersection of their hashes).
+ * diff of their hashes).
  */
 export class Diff extends Identifiable {
 
@@ -25,7 +25,7 @@ export class Diff extends Identifiable {
   }
 
   /**
-   * Creates an array of blocks in this intersection, sorted by their
+   * Creates an array of blocks in this diff, sorted by their
    * leftKmers range.
    */
   public blocks(): Array<Block> {
@@ -34,7 +34,7 @@ export class Diff extends Identifiable {
   }
 
   /**
-   * Add a new paired occurrence to the intersection.
+   * Add a new paired occurrence to the diff.
    *
    * Tries to extend existing blocks, or creates a new block.
    */
