@@ -12,7 +12,7 @@
             <v-col cols="11">
               <compare-side
                 ref="leftCompareSide"
-                :side-identifier="SideId.leftSideId"
+                :identifier="SideId.leftSideId"
                 :file="diff.leftFile"
                 :selections="leftSelection"
                 @selectionclick="selectionClickEventHandler"
@@ -42,7 +42,7 @@
           <v-row no-gutters>
             <v-col cols="11">
               <compare-side
-                :side-identifier="SideId.leftSideId"
+                :identifier="SideId.rightSideId"
                 :file="diff.rightFile"
                 :selections="rightSelection"
                 @selectionclick="selectionClickEventHandler"
@@ -132,7 +132,7 @@ export default class Compare extends Vue {
   rightScrollFraction = 0;
   linesVisible = 0;
 
-  onScrollHandler(sideId: string, scrollFraction: number): void {
+  onScrollHandler(sideId: SideID, scrollFraction: number): void {
     if (sideId === SideID.rightSideId) {
       this.rightScrollFraction = scrollFraction;
     } else {
@@ -153,6 +153,10 @@ export default class Compare extends Vue {
     } else {
       return lines.length;
     }
+  }
+
+  get leftIdentifier(): string {
+    return SideID.leftSideId.toString();
   }
 
   get leftLines(): number {
