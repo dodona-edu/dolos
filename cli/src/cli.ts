@@ -44,7 +44,7 @@ program
   )
   .option(
     "-d, --directory",
-    Utils.indent("Specifies that submision are per directory, not by file. ")
+    Utils.indent("Specifies that submission are per directory, not by file. ")
   )
   .option(
     "-m, --maximum-hashing-count <integer>",

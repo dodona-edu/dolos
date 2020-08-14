@@ -44,7 +44,7 @@ export class CsvPresenter extends Presenter {
             leftSelection: fragment.leftSelection,
             rightSelection: fragment.rightSelection,
             data: fragment.mergedData,
-            matches: fragment.pairedOccurrences.map(pairedOccurrence => { return {
+            pairedOccurrences: fragment.pairedOccurrences.map(pairedOccurrence => { return {
               sharedKmer: pairedOccurrence.kmer.id,
               left: {
                 start: pairedOccurrence.left.start,
