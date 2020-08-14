@@ -8,7 +8,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import { Selection, File } from "@/api/api";
 
 import Prism from "prismjs";
@@ -16,6 +16,8 @@ import "prismjs/themes/prism.css";
 import "prismjs/plugins/line-numbers/prism-line-numbers.js";
 import "prismjs/plugins/line-numbers/prism-line-numbers.css";
 import { ID_START, registerBlockHighlighting } from "@/util/OccurenceHighlight";
+import * as d3 from "d3";
+// import {SideID} from "@/components/CompareCard.vue";
 
 @Component
 export default class CompareSide extends Vue {
@@ -25,6 +27,7 @@ export default class CompareSide extends Vue {
   @Prop() onHoverExit!: (sideId: string, blockClasses: Array<string>, element: HTMLElement) => void;
   @Prop() file!: File;
   @Prop() selections!: Array<Selection>;
+  @Prop() hoveringSelections!: Array<string>;
 
   get content(): string {
     return this.file.content;
@@ -32,6 +35,23 @@ export default class CompareSide extends Vue {
 
   get language(): string {
     return `language-${this.$store.state.data.metadata.language}`;
+  }
+
+  makeSelector(blockClasses: Array<string>): string {
+    return blockClasses
+      .map(blockClass => `#${this.identifier} .${blockClass}`)
+      .join(", ");
+  }
+
+  @Watch("hoveringSelections", { deep: true })
+  onHoverSelectionsChange(newValue: Array<string>): void {
+    d3.selectAll(`#${this.identifier} .marked-code.hovering`)
+      .classed("hovering", false);
+
+    if (newValue.length > 0) {
+      d3.selectAll(this.makeSelector(newValue))
+        .classed("hovering", true);
+    }
   }
 
   onScroll(e: Event): void {

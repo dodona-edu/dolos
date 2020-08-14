@@ -15,6 +15,7 @@
                 :identifier="SideId.leftSideId"
                 :file="diff.leftFile"
                 :selections="leftSelection"
+                :hovering-selections="lastHovered.leftSideId.blockClasses"
                 @selectionclick="selectionClickEventHandler"
                 @selectionhoverenter="onHoverEnterHandler"
                 @selectionhoverexit="onHoverExitHandler"
@@ -45,6 +46,7 @@
                 :identifier="SideId.rightSideId"
                 :file="diff.rightFile"
                 :selections="rightSelection"
+                :hovering-selections="lastHovered.rightSideId.blockClasses"
                 @selectionclick="selectionClickEventHandler"
                 @selectionhoverenter="onHoverEnterHandler"
                 @selectionhoverexit="onHoverExitHandler"
@@ -204,23 +206,6 @@ export default class Compare extends Vue {
     return sideId === SideID.rightSideId ? SideID.leftSideId : SideID.rightSideId;
   }
 
-  /**
-   * Adds or removes the hovering class to all the direct siblings and cousins ( the corresponding blocks in the other
-   * side)
-   * @param addClass true if the classes are to be added, false if they have to be removed
-   * @param sideId the id of the side where all the siblings are
-   * @param blockClasses the classes used for selecting siblings and the cousins
-   */
-  private addClassesToSiblingsAndCousins(addClass: boolean, sideId: SideID, blockClasses: Array<string>): void {
-    d3.selectAll(this.makeSelector(sideId, blockClasses))
-      .classed("hovering", addClass);
-
-    const otherClasses = this.getAllOtherBlockClasses(sideId, blockClasses);
-
-    d3.selectAll(this.makeSelector(sideId, otherClasses, true))
-      .classed("hovering", addClass);
-  }
-
   makeSelector(sideId: SideID, blockClasses: Array<string>, otherSide = false, chart = false): string {
     if (otherSide) {
       let otherSideId = this.getOtherSide(sideId).toString();
@@ -250,13 +235,10 @@ export default class Compare extends Vue {
     const otherSideId = this.getOtherSide(sideId);
     const otherBlockClasses = this.getAllOtherBlockClasses(sideId, blockClasses);
 
-    console.log(sideId, blockClasses);
-    console.log(otherSideId, otherBlockClasses);
-
     this.lastHovered[sideId].blockClasses = blockClasses;
     this.lastHovered[otherSideId].blockClasses = otherBlockClasses;
 
-    this.addClassesToSiblingsAndCousins(true, sideId, blockClasses);
+    // this.addClassesToSiblingsAndCousins(true, sideId, blockClasses);
 
     //
     // d3.selectAll(this.makeSelector(sideId, otherBlockClasses, true, true))
@@ -264,7 +246,7 @@ export default class Compare extends Vue {
   }
 
   onHoverExitHandler(sideId: SideID, blockClasses: Array<string>, line?: number): void {
-    this.addClassesToSiblingsAndCousins(false, sideId, blockClasses);
+    // this.addClassesToSiblingsAndCousins(false, sideId, blockClasses);
 
     const otherSideId = this.getOtherSide(sideId);
     this.lastHovered[sideId].blockClasses = [];
