@@ -50,11 +50,10 @@ export default class BarcodeChart extends Vue {
 
   @Watch("hoveringSelections", { deep: true })
   onHoverSelectionsChange(newValue: Array<string>): void {
-    d3.selectAll(".barcodeChartBar.hovering")
+    d3.selectAll(`#${this.identifier} .barcodeChartBar.hovering`)
       .classed("hovering", false);
 
     if (newValue.length > 0) {
-      console.log(this.makeSelector(newValue));
       d3.selectAll(this.makeSelector(newValue))
         .classed("hovering", true);
     }
