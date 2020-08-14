@@ -368,51 +368,51 @@ export default class Compare extends Vue {
 </script>
 
 <style lang="scss">
-  :root {
-    --normalbg: #ffe390;
-    --selectedbg: #ffd54f;
-    --hoveringb: #ffecb3;
+:root {
+  --normalbg: #ffe390;
+  --selectedbg: #ffd54f;
+  --hoveringb: #ffecb3;
+}
+
+.highlighted-code {
+
+  .marked-code.hovering {
+    background: var(--hoveringb) !important;
+    text-shadow: none;
   }
 
-  .highlighted-code {
-
-    .marked-code.hovering {
-      background: var(--hoveringb) !important;
-      text-shadow: none;
-    }
-
-    /* this style is applied when selected */
-    .marked-code.visible,  .barcodeChartBar.selected {
-      background: var(--selectedbg) !important;
-      text-shadow: none;
-    }
-
-    .marked-code, .barcodeChartBar {
-      background: var(--normalbg) !important;
-      text-shadow: none;
-    }
+  /* this style is applied when selected */
+  .marked-code.visible, .barcodeChartBar.selected {
+    background: var(--selectedbg) !important;
+    text-shadow: none;
   }
 
-  .barcodeChart {
+  .marked-code, .barcodeChartBar {
+    background: var(--normalbg) !important;
+    text-shadow: none;
+  }
+}
 
-    .barcodeChartBar {
-      fill: #f5f2f0;
-    }
+.barcodeChart {
 
-    .barcodeChartBar.marked {
-      fill: var(--normalbg);
-    }
-
-    .barcodeChartBar.marked.hovering {
-      fill: var(--hoveringb);
-    }
-
-    .barcodeChartBar.marked.selected {
-      fill: var(--selectedbg);
-    }
+  .barcodeChartBar {
+    fill: #f5f2f0;
   }
 
-  pre.highlighted-code {
-      margin-top: 0;
+  .barcodeChartBar.marked {
+    fill: var(--normalbg);
   }
+
+  .barcodeChartBar.marked.hovering {
+    fill: var(--hoveringb);
+  }
+
+  .barcodeChartBar.marked.selected {
+    fill: var(--selectedbg);
+  }
+}
+
+pre.highlighted-code {
+  margin-top: 0;
+}
 </style>
