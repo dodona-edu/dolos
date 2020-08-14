@@ -153,7 +153,7 @@ export class Report {
           }
 
           const match = new PairedOccurrence(first.side, second.side, kmer);
-          intersection.addMatch(match);
+          intersection.addPairedOccurrence(match);
         }
       }
     }

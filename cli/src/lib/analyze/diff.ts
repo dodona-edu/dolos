@@ -38,21 +38,21 @@ export class Diff extends Identifiable {
    *
    * Tries to extend existing fragments, or creates a new fragment.
    */
-  public addMatch(newMatch: PairedOccurrence): void {
-    const start = this.key(newMatch.left.index, newMatch.right.index);
-    const end = this.key(newMatch.left.index + 1, newMatch.right.index + 1);
+  public addPairedOccurrence(newPairedOccurrence: PairedOccurrence): void {
+    const start = this.key(newPairedOccurrence.left.index, newPairedOccurrence.right.index);
+    const end = this.key(newPairedOccurrence.left.index + 1, newPairedOccurrence.right.index + 1);
 
     let fragment = this.fragmentEnd.get(start);
     if (fragment) {
 
       // extend fragment at starting position
       this.fragmentEnd.delete(start);
-      fragment.extendWithPairedOccurrence(newMatch);
+      fragment.extendWithPairedOccurrence(newPairedOccurrence);
 
     } else {
 
       // no fragment on our starting position, create a new one
-      fragment = new Hunk(newMatch);
+      fragment = new Hunk(newPairedOccurrence);
       this.fragmentStart.set(start, fragment);
       this.fragmentEnd.set(end, fragment);
     }

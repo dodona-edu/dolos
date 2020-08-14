@@ -44,7 +44,7 @@ test("match merging & squashing", t => {
       },
       kmer
     );
-    int.addMatch(match)
+    int.addPairedOccurrence(match)
     t.is(1, int.fragments().length);
     biggerTopLeft.push(match);
   }
@@ -68,7 +68,7 @@ test("match merging & squashing", t => {
     },
     kmer
   );
-  int.addMatch(topLeftContained);
+  int.addPairedOccurrence(topLeftContained);
   t.is(2, int.fragments().length);
 
   // bigger match, same location
@@ -93,7 +93,7 @@ test("match merging & squashing", t => {
       kmer
     );
     biggerMiddle.push(match);
-    int.addMatch(match);
+    int.addPairedOccurrence(match);
     t.is(3, int.fragments().length);
   }
 
@@ -119,7 +119,7 @@ test("match merging & squashing", t => {
       kmer
     );
     biggerBottomLeft.push(match);
-    int.addMatch(match);
+    int.addPairedOccurrence(match);
     t.is(4, int.fragments().length);
   }
 
@@ -142,7 +142,7 @@ test("match merging & squashing", t => {
     },
     kmer
   );
-  int.addMatch(bottomLeftContained);
+  int.addPairedOccurrence(bottomLeftContained);
   t.is(5, int.fragments().length);
 
   // match not contained
@@ -164,7 +164,7 @@ test("match merging & squashing", t => {
     },
     kmer
   );
-  int.addMatch(notContained);
+  int.addPairedOccurrence(notContained);
 
   let fragments = int.fragments();
   t.is(6, fragments.length);
