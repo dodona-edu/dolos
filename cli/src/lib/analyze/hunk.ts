@@ -35,7 +35,7 @@ export class Hunk {
       this.rightKmers.to == other.right.index;
   }
 
-  public extendWithMatch(other: PairedOccurrence): void {
+  public extendWithPairedOccurrence(other: PairedOccurrence): void {
     assert(this.extendable(other), "match does not extend this fragment");
     this.pairedOccurrences.push(other);
 

@@ -47,7 +47,7 @@ export class Diff extends Identifiable {
 
       // extend fragment at starting position
       this.fragmentEnd.delete(start);
-      fragment.extendWithMatch(newMatch);
+      fragment.extendWithPairedOccurrence(newMatch);
 
     } else {
 

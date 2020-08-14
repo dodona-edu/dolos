@@ -51,7 +51,7 @@ test("fragment should reconstruct matched kmers", async t => {
 
   const fragment = new Hunk(createMatch(0, f1Hashes[0], f2Hashes[0]));
   for (let i = 1; i < f1Hashes.length; i += 1) {
-    fragment.extendWithMatch(createMatch(i, f1Hashes[i], f2Hashes[i]));
+    fragment.extendWithPairedOccurrence(createMatch(i, f1Hashes[i], f2Hashes[i]));
   }
 
   t.is(f1.ast.slice(0, -9), fragment.mergedData);
