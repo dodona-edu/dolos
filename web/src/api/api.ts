@@ -14,7 +14,7 @@ function assertType<T>(item: T | undefined | null): T {
  * Simple interface for plain javascript objects with numeric keys.
  */
 export interface ObjMap<T> {
- [id: number]: T;
+  [id: number]: T;
 }
 
 export interface File {
@@ -59,7 +59,6 @@ export interface Diff {
   similarity: number;
   continuousOverlap: number;
   totalOverlap: number;
-  blocks: Block[];
 }
 
 export interface Kmer {
@@ -104,22 +103,33 @@ async function fetchMetadata(
   return await d3.csv(url);
 }
 
+async function _fetchBlocks(
+  diffId: number,
+  url = "/data/blocks/"
+): Promise<string> {
+  return await d3.text(url + diffId + ".json");
+}
+
 function parseFiles(fileData: d3.DSVRowArray): ObjMap<File> {
   return Object.fromEntries(fileData.map(row => [row.id, row]));
 }
 
 function parseBlocks(blocksJson: string, kmers: ObjMap<Kmer>): Block[] {
   const parsed = JSON.parse(blocksJson);
-  return parsed.map((blockData: any): Block => ({
-    left: blockData.leftSelection,
-    right: blockData.rightSelection,
-    data: blockData.data,
-    pairs: blockData.pairedOccurrences.map((pair: any): PairedOccurrence => ({
-      kmer: kmers[pair.sharedKmer],
-      left: pair.left,
-      right: pair.right
-    }))
-  }));
+  return parsed.map((blockData: any): Block => {
+    return {
+      left: blockData.leftSelection,
+      right: blockData.rightSelection,
+      data: blockData.data,
+      pairs: blockData.pairedOccurrences.map((pair: any): PairedOccurrence => {
+        return {
+          kmer: kmers[pair.sharedKmer],
+          left: pair.left,
+          right: pair.right
+        };
+      })
+    };
+  });
 }
 
 function parseDiffs(
@@ -134,13 +144,12 @@ function parseDiffs(
       const continuousOverlap = parseFloat(assertType(row.continuousOverlap));
       const totalOverlap = parseFloat(assertType(row.totalOverlap));
 
-      const blocks: Block[] = parseBlocks(assertType(row.blocks), kmers);
       const diff = {
         id,
         similarity,
         continuousOverlap,
         totalOverlap,
-        blocks: blocks,
+        // blocks: blocks,
         leftFile: files[parseInt(assertType(row.leftFileId))],
         rightFile: files[parseInt(assertType(row.rightFileId))],
       };
@@ -168,6 +177,11 @@ function parseMetadata(data: d3.DSVRowArray): Metadata {
   return Object.fromEntries(
     data.map(row => [row.property, row.value])
   );
+}
+
+export async function fetchBlocks(diffId: number, kmers: ObjMap<Kmer>): Promise<Array<Block>> {
+  const blocksPromise = _fetchBlocks(diffId);
+  return parseBlocks(await blocksPromise, kmers);
 }
 
 export async function fetchData(): Promise<ApiData> {

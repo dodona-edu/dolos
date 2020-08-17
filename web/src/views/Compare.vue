@@ -28,8 +28,15 @@ import { Diff } from "@/api/api";
 export default class Compare extends DataView {
   @Prop({ required: true }) diffId!: number;
 
+  async ensureBlocks(): Promise<void> {
+    if (!this.$store.getters.isBlocksLoaded(this.diffId)) {
+      await this.$store.dispatch("loadBlocks", { diffId: this.diffId });
+    }
+  }
+
   created(): void {
     super.ensureData();
+    this.ensureBlocks();
   }
 
   get diff(): Diff | undefined {
