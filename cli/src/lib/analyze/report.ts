@@ -1,9 +1,9 @@
 import assert from "assert";
-import { Intersection } from "./intersection";
+import { Diff } from "./diff";
 import { DefaultMap } from "../util/defaultMap";
 import { File } from "../file/file";
 import { TokenizedFile } from "../file/tokenizedFile";
-import { Match, Side } from "./match";
+import { PairedOccurrence, ASTRegion } from "./pairedOccurrence";
 import { Range } from "../util/range";
 import { Options } from "../util/options";
 import { SharedKmer } from "./sharedKmer";
@@ -11,23 +11,23 @@ import { closestMatch, info } from "../util/utils";
 
 type Hash = number;
 
-export interface ScoredIntersection {
-  intersection: Intersection;
+export interface ScoredDiff {
+  diff: Diff;
   overlap: number;
   longest: number;
   similarity: number;
 }
 
-export interface FilePart {
+export interface Occurrence {
   file: TokenizedFile;
-  side: Side;
+  side: ASTRegion;
 }
 
-export class Analysis {
+export class Report {
 
-  // computed list of scored intersections,
+  // computed list of scored diffs,
   // only defined after finished() is called
-  private scored?: Array<ScoredIntersection>;
+  private scored?: Array<ScoredDiff>;
 
   // collection of all shared kmers
   private kmers: Map<Hash, SharedKmer> = new Map();
@@ -41,7 +41,7 @@ export class Analysis {
     this.fileSet = new Set(files);
   }
 
-  public addMatches(hash: Hash, ...parts: Array<FilePart>): void {
+  public addOccurrences(hash: Hash, ...parts: Array<Occurrence>): void {
     assert(parts.length > 0);
     let kmer = this.kmers.get(hash);
     if(!kmer) {
@@ -52,12 +52,12 @@ export class Analysis {
   }
 
   /**
-   * Finish the analysis and apply postprocessing steps.
+   * Finish the report and apply postprocessing steps.
    */
   public finish(): void {
-    assert(this.scored !== null, "this analysis is already finished");
+    assert(this.scored !== null, "this report is already finished");
 
-    type SortFn = (a: ScoredIntersection, b: ScoredIntersection) => number;
+    type SortFn = (a: ScoredDiff, b: ScoredDiff) => number;
     const sortfn = closestMatch<SortFn>(this.options.sortBy, {
       "total": (a, b) => b.overlap - a.overlap,
       "continuous": (a, b) => b.longest - a.longest,
@@ -68,28 +68,28 @@ export class Analysis {
       throw new Error(`${this.options.sortBy} is not a valid field to sort on`);
     }
 
-    info(`Combining ${ this.kmers.size } shared kmers into intersections.`);
+    info(`Combining ${ this.kmers.size } shared kmers into diffs.`);
     let ints = this.build();
 
-    info(`Cleaning ${ ints.length} intersections.`);
-    ints = ints.map(intersection => {
-      intersection.removeSmallerThan(this.options.minFragmentLength);
-      intersection.squash();
-      return intersection;
+    info(`Cleaning ${ ints.length} diffs.`);
+    ints = ints.map(diff => {
+      diff.removeSmallerThan(this.options.minBlockLength);
+      diff.squash();
+      return diff;
     });
 
-    info("Filtering intersections.");
-    ints = ints.filter(i => i.fragmentCount > 0);
+    info("Filtering diffs.");
+    ints = ints.filter(i => i.blockCount > 0);
 
-    info(`Calculating the score of ${ ints.length } intersections.`);
+    info(`Calculating the score of ${ ints.length } diffs.`);
     this.scored = ints.map(i => this.calculateScore(i));
 
-    info(`Keeping intersections with similarity >= ${ this.options.minSimilarity }`);
+    info(`Keeping diffs with similarity >= ${ this.options.minSimilarity }`);
     this.scored = this.scored.filter(s =>
       s.similarity >= this.options.minSimilarity
     );
 
-    info(`Sorting ${ this.scored.length } intersections.`);
+    info(`Sorting ${ this.scored.length } diffs.`);
     this.scored.sort(sortfn);
 
     if(this.options.limitResults) {
@@ -97,16 +97,16 @@ export class Analysis {
       this.scored = this.scored.slice(0, this.options.limitResults);
     }
 
-    info("Freezing analysis object.");
+    info("Freezing report object.");
     Object.freeze(this);
   }
 
-  public get scoredIntersections(): Array<ScoredIntersection> {
+  public get scoredDiffs(): Array<ScoredDiff> {
     if(this.scored) {
       return this.scored;
     } else {
-      throw new Error("This analysis is not finished yet, " +
-                      "but scoredIntersections() was called");
+      throw new Error("This report is not finished yet, " +
+                      "but scoredDiffs() was called");
     }
   }
 
@@ -115,11 +115,11 @@ export class Analysis {
   }
 
   /**
-   * Combining all shared kmers and build intersections
+   * Combining all shared kmers and build diff
    */
-  private build(): Array<Intersection> {
-    const intersections:
-      DefaultMap<TokenizedFile, Map<TokenizedFile, Intersection>>
+  private build(): Array<Diff> {
+    const diffs:
+      DefaultMap<TokenizedFile, Map<TokenizedFile, Diff>>
       = new DefaultMap(() => new Map());
 
     let maxFiles: number;
@@ -134,7 +134,7 @@ export class Analysis {
     const filteredKmers = Array.of(...this.kmers.values())
       .filter(k => k.files().length <= maxFiles);
 
-    // create intersections
+    // create diffs
     for (const kmer of filteredKmers) {
       const parts = kmer.parts().sort((a, b) => File.compare(a.file, b.file));
       for (let i = 0; i < parts.length; i += 1) {
@@ -142,24 +142,24 @@ export class Analysis {
         for (let j = i + 1; j < parts.length; j += 1) {
           const second = parts[j];
           if (first.file === second.file) {
-            // ignore matches within the same file (internal duplication)
+            // ignore pairedOccurrences within the same file (internal duplication)
             continue;
           }
 
-          let intersection = intersections.get(first.file).get(second.file);
-          if (!intersection) {
-            intersection = new Intersection(first.file, second.file);
-            intersections.get(first.file).set(second.file, intersection);
+          let diff = diffs.get(first.file).get(second.file);
+          if (!diff) {
+            diff = new Diff(first.file, second.file);
+            diffs.get(first.file).set(second.file, diff);
           }
 
-          const match = new Match(first.side, second.side, kmer);
-          intersection.addMatch(match);
+          const match = new PairedOccurrence(first.side, second.side, kmer);
+          diff.addPair(match);
         }
       }
     }
 
     // flatten nested map
-    return Array.of(...intersections.values())
+    return Array.of(...diffs.values())
       .map(m => Array.of(...m.values()))
       .flat();
   }
@@ -169,16 +169,16 @@ export class Analysis {
   }
 
 
-  private calculateScore(intersection: Intersection): ScoredIntersection {
-    const fragments = intersection.fragments();
-    const leftCovered = Range.totalCovered(fragments.map(f => f.leftKmers));
-    const rightCovered = Range.totalCovered(fragments.map(f => f.rightKmers));
-    const leftTotal = intersection.leftFile.kmers.length;
-    const rightTotal = intersection.rightFile.kmers.length;
+  private calculateScore(diff: Diff): ScoredDiff {
+    const blocks = diff.blocks();
+    const leftCovered = Range.totalCovered(blocks.map(f => f.leftKmers));
+    const rightCovered = Range.totalCovered(blocks.map(f => f.rightKmers));
+    const leftTotal = diff.leftFile.kmers.length;
+    const rightTotal = diff.rightFile.kmers.length;
     return {
-      intersection,
+      diff: diff,
       overlap: leftCovered,
-      longest: intersection.largestFragmentLength(),
+      longest: diff.largestBlockLength(),
       similarity: (leftCovered + rightCovered) / (leftTotal + rightTotal)
     };
   }

@@ -1,10 +1,10 @@
 import { File } from "../file/file";
-import { Selection } from "../util/selection";
+import { Region } from "../util/region";
 import { TokenizedFile } from "../file/tokenizedFile";
 
 export interface Token {
   token: string;
-  location: Selection;
+  location: Region;
 }
 
 export abstract class Tokenizer {
@@ -44,9 +44,9 @@ export abstract class Tokenizer {
    *
    * @param text The text buffer to stringify
    */
-  public tokenizeWithMapping(text: string): [string, Selection[]] {
+  public tokenizeWithMapping(text: string): [string, Region[]] {
     let resultString = "";
-    const positionMapping: Array<Selection> = [];
+    const positionMapping: Array<Region> = [];
     for (const { token, location } of this.generateTokens(text)) {
       resultString += token;
       positionMapping.push(...new Array(token.length).fill(location));
@@ -61,7 +61,7 @@ export abstract class Tokenizer {
    * @param token the text of the token
    * @param location the location of the token
    */
-  protected newToken(token: string, location: Selection): Token {
+  protected newToken(token: string, location: Region): Token {
     return { token, location };
   }
 }

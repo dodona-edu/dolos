@@ -1,6 +1,6 @@
 import Vue from "vue";
 import Vuex from "vuex";
-import { ApiData, fetchData, Intersection, Kmer, Metadata, File, ObjMap } from "@/api/api";
+import { ApiData, fetchData, Diff, Kmer, Metadata, File, ObjMap } from "@/api/api";
 
 Vue.use(Vuex);
 
@@ -10,7 +10,7 @@ export default new Vuex.Store({
     data: {
       kmers: Object() as ObjMap<Kmer>,
       files: Object() as ObjMap<File>,
-      intersections: Object() as ObjMap<Intersection>,
+      diffs: Object() as ObjMap<Diff>,
       metadata: Object() as Metadata
     }
   },

@@ -6,7 +6,7 @@
         Other
       </v-card-title>
       <v-container fluid>
-        <v-row v-if="loaded && intersection" justify="center">
+        <v-row v-if="loaded && diff" justify="center">
           <v-col sm="6">
             <code>
               {{ codeLeft }}
@@ -24,19 +24,19 @@
 
 <script lang="ts">
 import { Component, Vue, Prop } from "vue-property-decorator";
-import { Intersection } from "@/api/api";
+import { Diff } from "@/api/api";
 
 @Component
 export default class Compare extends Vue {
   @Prop({ default: false }) loaded!: boolean;
-  @Prop() intersection!: Intersection;
+  @Prop() diff!: Diff;
 
   get codeRight(): string {
-    return this.intersection.rightFile.content;
+    return this.diff.rightFile.content;
   }
 
   get codeLeft(): string {
-    return this.intersection.leftFile.content;
+    return this.diff.leftFile.content;
   }
 }
 </script>

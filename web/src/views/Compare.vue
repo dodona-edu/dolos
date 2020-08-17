@@ -4,7 +4,7 @@
       <v-col cols="10">
         <CompareCard
           :loaded="dataLoaded"
-          :intersection="intersection"/>
+          :diff="diff"/>
       </v-col>
     </v-row>
   </v-container>
@@ -14,20 +14,20 @@
 import DataView from "@/views/DataView";
 import { Component, Prop } from "vue-property-decorator";
 import CompareCard from "@/components/CompareCard.vue";
-import { Intersection } from "@/api/api";
+import { Diff } from "@/api/api";
 
 @Component({
   components: { CompareCard }
 })
 export default class Compare extends DataView {
-  @Prop({ required: true }) intersectionId!: number;
+  @Prop({ required: true }) diffId!: number;
 
   created(): void {
     super.ensureData();
   }
 
-  get intersection(): Intersection | undefined {
-    return this.intersections[+this.intersectionId];
+  get diff(): Diff | undefined {
+    return this.diffs[+this.diffId];
   }
 }
 </script>

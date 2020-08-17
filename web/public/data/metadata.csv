@@ -2,7 +2,7 @@ property,value
 base,
 clusterMinMatches,15
 comment,
-directory,false
+directory,
 kmerLength,50
 kmersInWindow,50
 language,javascript
@@ -10,7 +10,7 @@ maxGapSize,0
 maxHashCount,
 maxHashPercentage,
 maxMatches,
-minFragmentLength,0
+minBlockLength,0
 limitResults,
 localPort,3000
 minSimilarity,0

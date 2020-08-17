@@ -44,7 +44,7 @@ program
   )
   .option(
     "-d, --directory",
-    Utils.indent("Specifies that submision are per directory, not by file. ")
+    Utils.indent("Specifies that submissions are per directory, not by file. ")
   )
   .option(
     "-m, --maximum-hashing-count <integer>",
@@ -74,7 +74,7 @@ program
   .option(
     "-c --compare",
     Utils.indent(
-      "Print a comparison of the matches even if analysing more than two " +
+      "Print a comparison of the matching blocks even if analysing more than two " +
       "files. Only valid when the output is set to 'terminal'."
     )
   )
@@ -91,13 +91,13 @@ program
     x => parseFloat(x)
   )
   .option(
-    "-s, --minimum-fragment-length <integer>",
+    "-s, --minimum-block-length <integer>",
     Utils.indent(
-      "The minimum length of a fragment. Every fragment shorter than this is " +
+      "The minimum length of a matching block. Every block shorter than this is " +
       "filtered out."
     ),
     x => parseFloat(x),
-    Options.defaultMinFragmentLength
+    Options.defaultMinBlockLength
   )
   .option(
     "-S, --minimum-similarity <fraction>",
@@ -111,8 +111,8 @@ program
   .option(
     "-g, --maximum-gap-size <integer>",
     Utils.indent(
-      "If two fragments are close to each other, they will be merged into a " +
-      "single fragment if the gap between them is smaller than the given " +
+      "If two blocks are close to each other, they will be merged into a " +
+      "single block if the gap between them is smaller than the given " +
       "number of lines.",
       Options.defaultMaxGapSize
     ),
@@ -184,19 +184,19 @@ program
         maxHashCount: program.maximumHashCount,
         maxHashPercentage: program.maxHashPercentage,
         maxMatches: program.filePairOutputLimit,
-        minFragmentLength: program.minimumFragmentLength,
+        minBlockLength: program.minimumBlockLength,
         minSimilarity: program.minimumSimilarity,
         limitResults: program.limit,
         sortBy: program.sort,
       });
-      const analysis = await dolos.analyzePaths(locations);
+      const report = await dolos.analyzePaths(locations);
 
       const presenter = closestMatch(program.outputFormat, {
-        "terminal": () => new TerminalPresenter(analysis, dolos.options, program.compare),
-        "console" : () => new TerminalPresenter(analysis, dolos.options, program.compare),
-        "csv" : () => new CsvPresenter(analysis, dolos.options),
-        "html": () => new WebPresenter(analysis, dolos.options),
-        "web": () => new WebPresenter(analysis, dolos.options),
+        "terminal": () => new TerminalPresenter(report, dolos.options, program.compare),
+        "console" : () => new TerminalPresenter(report, dolos.options, program.compare),
+        "csv" : () => new CsvPresenter(report, dolos.options),
+        "html": () => new WebPresenter(report, dolos.options),
+        "web": () => new WebPresenter(report, dolos.options),
       });
 
       if(presenter == null) {
