@@ -109,17 +109,6 @@ program
     x => parseFloat(x),
   )
   .option(
-    "-g, --maximum-gap-size <integer>",
-    Utils.indent(
-      "If two blocks are close to each other, they will be merged into a " +
-      "single block if the gap between them is smaller than the given " +
-      "number of lines.",
-      Options.defaultMaxGapSize
-    ),
-    x => parseFloat(x),
-    Options.defaultMaxGapSize
-  )
-  .option(
     "-f, --output-format <format>",
     Utils.indent(
       "Specifies what format the output should be in, current options are: " +
@@ -133,16 +122,6 @@ program
       "Which field to sort the results by. Options are: similarity, continuous and total", "total"
     ),
     "total"
-  )
-  .option(
-    "-v, --cluster-cut-off-value <integer>",
-    Utils.indent(
-      "The minimum amount of lines needed before two files will be clustered " +
-      "together",
-      Options.defaultClusterMinMatches
-    ),
-    x => parseFloat(x),
-    Options.defaultClusterMinMatches
   )
   .option(
     "-k, --kmer-length <integer>",
@@ -173,17 +152,11 @@ program
 
     try {
       const dolos = new Dolos({
-        base: program.base,
-        clusterMinMatches: program.clusterCutOffValue,
-        comment: program.comment,
-        directory: program.directory,
         kmerLength: program.kmerLength,
         kmersInWindow: program.kmersInWindow,
         language: program.language,
-        maxGapSize: program.maxGapSize,
         maxHashCount: program.maximumHashCount,
         maxHashPercentage: program.maxHashPercentage,
-        maxMatches: program.filePairOutputLimit,
         minBlockLength: program.minimumBlockLength,
         minSimilarity: program.minimumSimilarity,
         limitResults: program.limit,
