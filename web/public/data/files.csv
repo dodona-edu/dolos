@@ -1,0 +1,138 @@
+id,path,content,ast
+4,samples/javascript/another_copied_function.js,"this.combineer = combineer || ((h, v) => (h + v) % 256);
+
+function is_geldig() {
+    return (
+        (!this.parent || this.parent.is_geldig()) &&
+        this.hash === this.hasher.hash(`${this.index}${this.datum}${this.vorige_hash}`)
+    );
+}",(program (expression_statement (assignment_expression (member_expression (this) (property_identifier)) (binary_expression (identifier) (parenthesized_expression (arrow_function (formal_parameters (identifier) (identifier)) (binary_expression (parenthesized_expression (binary_expression (identifier) (identifier))) (number))))))) (function_declaration (identifier) (formal_parameters) (statement_block (return_statement (parenthesized_expression (binary_expression (parenthesized_expression (binary_expression (unary_expression (member_expression (this) (property_identifier))) (call_expression (member_expression (member_expression (this) (property_identifier)) (property_identifier)) (arguments)))) (binary_expression (member_expression (this) (property_identifier)) (call_expression (member_expression (member_expression (this) (property_identifier)) (property_identifier)) (arguments (template_string (template_substitution (member_expression (this) (property_identifier))) (template_substitution (member_expression (this) (property_identifier))) (template_substitution (member_expression (this) (property_identifier)))))))))))))
+5,samples/javascript/copied_function.js,"/**
+ * This is a function copied from sample.js
+ */
+function hash(s) {
+  let h = 0;
+  for (let c of s) {
+    h = this.tabel[this.combineer(h, c.charCodeAt(0))];
+  }
+  return h;
+}
+",(program (comment) (function_declaration (identifier) (formal_parameters (identifier)) (statement_block (lexical_declaration (variable_declarator (identifier) (number))) (for_in_statement (identifier) (identifier) (statement_block (expression_statement (assignment_expression (identifier) (subscript_expression (member_expression (this) (property_identifier)) (call_expression (member_expression (this) (property_identifier)) (arguments (identifier) (call_expression (member_expression (identifier) (property_identifier)) (arguments (number)))))))))) (return_statement (identifier)))))
+6,samples/javascript/copy_of_sample.js,"class Pearson {
+  constructor(tabel, combineer) {
+    this.tabel = tabel || [...new Array(256).keys()];
+    if (this.tabel.length !== 256) {
+      throw ""AssertionError: ongeldige tabel"";
+    }
+    for (let i = 0; i < 256; i++) {
+      if (!this.tabel.includes(i)) {
+        throw ""AssertionError: ongeldige tabel"";
+      }
+    }
+    this.combineer = combineer || ((h, v) => (h + v) % 256);
+  }
+
+  hash(s) {
+    let h = 0;
+    for (let c of s) {
+      h = this.tabel[this.combineer(h, c.charCodeAt(0))];
+    }
+    return h;
+  }
+}
+
+class Blok {
+  constructor(hasher, parent, datum) {
+    this.hasher = hasher || new Pearson();
+    this.parent = parent || null;
+    this.datum = datum || ""Genesis Block"";
+    this.hash = this.hasher.hash(`${this.index}${this.datum}${this.vorige_hash}`);
+  }
+
+  set index(_v) {
+    throw ""AssertionError: can't set attribute"";
+  }
+
+  get index() {
+    return this.parent ? this.parent.index + 1 : 0;
+  }
+
+  set vorige_hash(_v) {
+    throw ""AssertionError: can't set attribute"";
+  }
+
+  get vorige_hash() {
+    return this.parent ? this.parent.hash : 0;
+  }
+
+  toevoegen(s) {
+    return new Blok(this.hasher, this, s);
+  }
+
+  is_geldig() {
+    return (
+      (!this.parent || this.parent.is_geldig()) &&
+      this.hash === this.hasher.hash(`${this.index}${this.datum}${this.vorige_hash}`)
+    );
+  }
+}
+",(program (class_declaration (identifier) (class_body (method_definition (property_identifier) (formal_parameters (identifier) (identifier)) (statement_block (expression_statement (assignment_expression (member_expression (this) (property_identifier)) (binary_expression (identifier) (array (spread_element (call_expression (member_expression (new_expression (identifier) (arguments (number))) (property_identifier)) (arguments))))))) (if_statement (parenthesized_expression (binary_expression (member_expression (member_expression (this) (property_identifier)) (property_identifier)) (number))) (statement_block (throw_statement (string)))) (for_statement (lexical_declaration (variable_declarator (identifier) (number))) (expression_statement (binary_expression (identifier) (number))) (update_expression (identifier)) (statement_block (if_statement (parenthesized_expression (unary_expression (call_expression (member_expression (member_expression (this) (property_identifier)) (property_identifier)) (arguments (identifier))))) (statement_block (throw_statement (string)))))) (expression_statement (assignment_expression (member_expression (this) (property_identifier)) (binary_expression (identifier) (parenthesized_expression (arrow_function (formal_parameters (identifier) (identifier)) (binary_expression (parenthesized_expression (binary_expression (identifier) (identifier))) (number))))))))) (method_definition (property_identifier) (formal_parameters (identifier)) (statement_block (lexical_declaration (variable_declarator (identifier) (number))) (for_in_statement (identifier) (identifier) (statement_block (expression_statement (assignment_expression (identifier) (subscript_expression (member_expression (this) (property_identifier)) (call_expression (member_expression (this) (property_identifier)) (arguments (identifier) (call_expression (member_expression (identifier) (property_identifier)) (arguments (number)))))))))) (return_statement (identifier)))))) (class_declaration (identifier) (class_body (method_definition (property_identifier) (formal_parameters (identifier) (identifier) (identifier)) (statement_block (expression_statement (assignment_expression (member_expression (this) (property_identifier)) (binary_expression (identifier) (new_expression (identifier) (arguments))))) (expression_statement (assignment_expression (member_expression (this) (property_identifier)) (binary_expression (identifier) (null)))) (expression_statement (assignment_expression (member_expression (this) (property_identifier)) (binary_expression (identifier) (string)))) (expression_statement (assignment_expression (member_expression (this) (property_identifier)) (call_expression (member_expression (member_expression (this) (property_identifier)) (property_identifier)) (arguments (template_string (template_substitution (member_expression (this) (property_identifier))) (template_substitution (member_expression (this) (property_identifier))) (template_substitution (member_expression (this) (property_identifier)))))))))) (method_definition (property_identifier) (formal_parameters (identifier)) (statement_block (throw_statement (string)))) (method_definition (property_identifier) (formal_parameters) (statement_block (return_statement (ternary_expression (member_expression (this) (property_identifier)) (binary_expression (member_expression (member_expression (this) (property_identifier)) (property_identifier)) (number)) (number))))) (method_definition (property_identifier) (formal_parameters (identifier)) (statement_block (throw_statement (string)))) (method_definition (property_identifier) (formal_parameters) (statement_block (return_statement (ternary_expression (member_expression (this) (property_identifier)) (member_expression (member_expression (this) (property_identifier)) (property_identifier)) (number))))) (method_definition (property_identifier) (formal_parameters (identifier)) (statement_block (return_statement (new_expression (identifier) (arguments (member_expression (this) (property_identifier)) (this) (identifier)))))) (method_definition (property_identifier) (formal_parameters) (statement_block (return_statement (parenthesized_expression (binary_expression (parenthesized_expression (binary_expression (unary_expression (member_expression (this) (property_identifier))) (call_expression (member_expression (member_expression (this) (property_identifier)) (property_identifier)) (arguments)))) (binary_expression (member_expression (this) (property_identifier)) (call_expression (member_expression (member_expression (this) (property_identifier)) (property_identifier)) (arguments (template_string (template_substitution (member_expression (this) (property_identifier))) (template_substitution (member_expression (this) (property_identifier))) (template_substitution (member_expression (this) (property_identifier)))))))))))))))
+7,samples/javascript/sample.js,"class Pearson {
+  constructor(tabel, combineer) {
+    this.tabel = tabel || [...new Array(256).keys()];
+    if (this.tabel.length !== 256) {
+      throw ""AssertionError: ongeldige tabel"";
+    }
+    for (let i = 0; i < 256; i++) {
+      if (!this.tabel.includes(i)) {
+        throw ""AssertionError: ongeldige tabel"";
+      }
+    }
+    this.combineer = combineer || ((h, v) => (h + v) % 256);
+  }
+
+  hash(s) {
+    let h = 0;
+    for (let c of s) {
+      h = this.tabel[this.combineer(h, c.charCodeAt(0))];
+    }
+    return h;
+  }
+}
+
+class Blok {
+  constructor(hasher, parent, datum) {
+    this.hasher = hasher || new Pearson();
+    this.parent = parent || null;
+    this.datum = datum || ""Genesis Block"";
+    this.hash = this.hasher.hash(`${this.index}${this.datum}${this.vorige_hash}`);
+  }
+
+  set index(_v) {
+    throw ""AssertionError: can't set attribute"";
+  }
+
+  get index() {
+    return this.parent ? this.parent.index + 1 : 0;
+  }
+
+  set vorige_hash(_v) {
+    throw ""AssertionError: can't set attribute"";
+  }
+
+  get vorige_hash() {
+    return this.parent ? this.parent.hash : 0;
+  }
+
+  toevoegen(s) {
+    return new Blok(this.hasher, this, s);
+  }
+
+  is_geldig() {
+    return (
+      (!this.parent || this.parent.is_geldig()) &&
+      this.hash === this.hasher.hash(`${this.index}${this.datum}${this.vorige_hash}`)
+    );
+  }
+}
+",(program (class_declaration (identifier) (class_body (method_definition (property_identifier) (formal_parameters (identifier) (identifier)) (statement_block (expression_statement (assignment_expression (member_expression (this) (property_identifier)) (binary_expression (identifier) (array (spread_element (call_expression (member_expression (new_expression (identifier) (arguments (number))) (property_identifier)) (arguments))))))) (if_statement (parenthesized_expression (binary_expression (member_expression (member_expression (this) (property_identifier)) (property_identifier)) (number))) (statement_block (throw_statement (string)))) (for_statement (lexical_declaration (variable_declarator (identifier) (number))) (expression_statement (binary_expression (identifier) (number))) (update_expression (identifier)) (statement_block (if_statement (parenthesized_expression (unary_expression (call_expression (member_expression (member_expression (this) (property_identifier)) (property_identifier)) (arguments (identifier))))) (statement_block (throw_statement (string)))))) (expression_statement (assignment_expression (member_expression (this) (property_identifier)) (binary_expression (identifier) (parenthesized_expression (arrow_function (formal_parameters (identifier) (identifier)) (binary_expression (parenthesized_expression (binary_expression (identifier) (identifier))) (number))))))))) (method_definition (property_identifier) (formal_parameters (identifier)) (statement_block (lexical_declaration (variable_declarator (identifier) (number))) (for_in_statement (identifier) (identifier) (statement_block (expression_statement (assignment_expression (identifier) (subscript_expression (member_expression (this) (property_identifier)) (call_expression (member_expression (this) (property_identifier)) (arguments (identifier) (call_expression (member_expression (identifier) (property_identifier)) (arguments (number)))))))))) (return_statement (identifier)))))) (class_declaration (identifier) (class_body (method_definition (property_identifier) (formal_parameters (identifier) (identifier) (identifier)) (statement_block (expression_statement (assignment_expression (member_expression (this) (property_identifier)) (binary_expression (identifier) (new_expression (identifier) (arguments))))) (expression_statement (assignment_expression (member_expression (this) (property_identifier)) (binary_expression (identifier) (null)))) (expression_statement (assignment_expression (member_expression (this) (property_identifier)) (binary_expression (identifier) (string)))) (expression_statement (assignment_expression (member_expression (this) (property_identifier)) (call_expression (member_expression (member_expression (this) (property_identifier)) (property_identifier)) (arguments (template_string (template_substitution (member_expression (this) (property_identifier))) (template_substitution (member_expression (this) (property_identifier))) (template_substitution (member_expression (this) (property_identifier)))))))))) (method_definition (property_identifier) (formal_parameters (identifier)) (statement_block (throw_statement (string)))) (method_definition (property_identifier) (formal_parameters) (statement_block (return_statement (ternary_expression (member_expression (this) (property_identifier)) (binary_expression (member_expression (member_expression (this) (property_identifier)) (property_identifier)) (number)) (number))))) (method_definition (property_identifier) (formal_parameters (identifier)) (statement_block (throw_statement (string)))) (method_definition (property_identifier) (formal_parameters) (statement_block (return_statement (ternary_expression (member_expression (this) (property_identifier)) (member_expression (member_expression (this) (property_identifier)) (property_identifier)) (number))))) (method_definition (property_identifier) (formal_parameters (identifier)) (statement_block (return_statement (new_expression (identifier) (arguments (member_expression (this) (property_identifier)) (this) (identifier)))))) (method_definition (property_identifier) (formal_parameters) (statement_block (return_statement (parenthesized_expression (binary_expression (parenthesized_expression (binary_expression (unary_expression (member_expression (this) (property_identifier))) (call_expression (member_expression (member_expression (this) (property_identifier)) (property_identifier)) (arguments)))) (binary_expression (member_expression (this) (property_identifier)) (call_expression (member_expression (member_expression (this) (property_identifier)) (property_identifier)) (arguments (template_string (template_substitution (member_expression (this) (property_identifier))) (template_substitution (member_expression (this) (property_identifier))) (template_substitution (member_expression (this) (property_identifier)))))))))))))))
