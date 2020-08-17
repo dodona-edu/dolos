@@ -31,22 +31,6 @@ program
     Options.defaultLanguage
   )
   .option(
-    "-b, --base <base>",
-    Utils.indent(
-      "Specifies a base file. Matches with code from this file will never be " +
-      "reported in the output. A typical base file is the supplied code for " +
-      "an exercise. When this option is used in conjunction with the -d flag " +
-      "then the location given is interpreted as a directory and all files " +
-      "that are a child of that directory will be used as a base file. When " +
-      "this is the case, a path to the directory is needed from the current " +
-      "working directory. The name of the directory won't be enough."
-    )
-  )
-  .option(
-    "-d, --directory",
-    Utils.indent("Specifies that submissions are per directory, not by file. ")
-  )
-  .option(
     "-m, --maximum-hashing-count <integer>",
     Utils.indent(
       "The -m option sets the maximum number of times a given hashing may " +
@@ -70,17 +54,6 @@ program
       "files",
     ),
     x => parseFloat(x),
-  )
-  .option(
-    "-c --compare",
-    Utils.indent(
-      "Print a comparison of the matching blocks even if analysing more than two " +
-      "files. Only valid when the output is set to 'terminal'."
-    )
-  )
-  .option(
-    "-C, --comment <string>",
-    Utils.indent("Comment string that is attached to the generated report")
   )
   .option(
     "-L, --limit <integer>",
