@@ -169,11 +169,11 @@ export default class Compare extends Vue {
   }
 
   get leftSelection(): Array<Selection> {
-    return this.diff.hunks.map(fragment => fragment.left);
+    return this.diff.blocks.map(block => block.left);
   }
 
   get rightSelection(): Array<Selection> {
-    return this.diff.hunks.map(fragment => fragment.right);
+    return this.diff.blocks.map(block => block.right);
   }
 
   extractRowCol(value: string): [number, number] {
@@ -201,9 +201,9 @@ export default class Compare extends Vue {
    * on the other CompareSide. This is done by looping over all the hunks in the current diff.
    */
   initializeMaps(): void {
-    for (const fragment of this.diff.hunks) {
-      const leftId = constructID(fragment.left);
-      const rightId = constructID(fragment.right);
+    for (const block of this.diff.blocks) {
+      const leftId = constructID(block.left);
+      const rightId = constructID(block.right);
 
       if (!this.leftMap.has(leftId)) {
         this.leftMap.set(leftId, []);

@@ -32,7 +32,7 @@ import { Component, Prop, Vue } from "vue-property-decorator";
 import { Diff } from "@/api/api";
 
 @Component
-export default class DiffTable extends Vue {
+export default class DiffsTable extends Vue {
   @Prop() loaded!: boolean;
   @Prop() diffs!: Diff[];
   @Prop({ default: "" }) search!: string;
@@ -47,20 +47,20 @@ export default class DiffTable extends Vue {
   ];
 
   get items(): Array<{left: string; right: string; similarity: string}> {
-    const items = Object.values(this.diffs).map(intersection => ({
-      intersection,
-      left: intersection.leftFile.path,
-      right: intersection.rightFile.path,
-      similarity: intersection.similarity.toFixed(2),
-      cont: intersection.continuousOverlap,
-      total: intersection.totalOverlap,
+    const items = Object.values(this.diffs).map(diff => ({
+      diff: diff,
+      left: diff.leftFile.path,
+      right: diff.rightFile.path,
+      similarity: diff.similarity.toFixed(2),
+      cont: diff.continuousOverlap,
+      total: diff.totalOverlap,
     }));
     this.itemsLoaded = items.length !== 0;
     return items;
   }
 
-  public rowClicked(item: {intersection: Diff}): void {
-    this.$router.push(`/compare/${item.intersection.id}`);
+  public rowClicked(item: {diff: Diff}): void {
+    this.$router.push(`/compare/${item.diff.id}`);
   }
 }
 </script>

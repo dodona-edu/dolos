@@ -4,7 +4,7 @@
       <v-col cols="10">
         <DiffsTable
           :diffs="diffs"
-          loaded="dataLoaded"
+          :loaded="dataLoaded"
         />
       </v-col>
     </v-row>

@@ -45,11 +45,11 @@ export interface PairedOccurrence {
   };
 }
 
-export interface Hunk {
+export interface Block {
   left: Selection;
   right: Selection;
   data: string;
-  matches: PairedOccurrence[];
+  pairs: PairedOccurrence[];
 }
 
 export interface Diff {
@@ -59,7 +59,7 @@ export interface Diff {
   similarity: number;
   continuousOverlap: number;
   totalOverlap: number;
-  hunks: Hunk[];
+  blocks: Block[];
 }
 
 export interface Kmer {
@@ -86,8 +86,8 @@ async function fetchFiles(
   return await d3.csv(url);
 }
 
-async function fetchHunks(
-  url = "/data/intersections.csv"
+async function fetchDiffs(
+  url = "/data/diffs.csv"
 ): Promise<d3.DSVRowArray> {
   return await d3.csv(url);
 }
@@ -108,43 +108,43 @@ function parseFiles(fileData: d3.DSVRowArray): ObjMap<File> {
   return Object.fromEntries(fileData.map(row => [row.id, row]));
 }
 
-function parseFragments(fragmentsJson: string, kmers: ObjMap<Kmer>): Hunk[] {
-  const parsed = JSON.parse(fragmentsJson);
-  return parsed.map((fragmentData: any): Hunk => ({
-    left: fragmentData.leftSelection,
-    right: fragmentData.rightSelection,
-    data: fragmentData.data,
-    matches: fragmentData.matches.map((matchData: any): PairedOccurrence => ({
-      kmer: kmers[matchData.sharedKmer],
-      left: matchData.left,
-      right: matchData.rid
+function parseBlocks(blocksJson: string, kmers: ObjMap<Kmer>): Block[] {
+  const parsed = JSON.parse(blocksJson);
+  return parsed.map((blockData: any): Block => ({
+    left: blockData.leftSelection,
+    right: blockData.rightSelection,
+    data: blockData.data,
+    pairs: blockData.pairs.map((pair: any): PairedOccurrence => ({
+      kmer: kmers[pair.sharedKmer],
+      left: pair.left,
+      right: pair.right
     }))
   }));
 }
 
-function parseHunk(
-  intersectionData: d3.DSVRowArray,
+function parseDiffs(
+  diffData: d3.DSVRowArray,
   files: ObjMap<File>,
   kmers: ObjMap<Kmer>,
 ): ObjMap<Diff> {
   return Object.fromEntries(
-    intersectionData.map(row => {
+    diffData.map(row => {
       const id = parseInt(assertType(row.id));
       const similarity = parseFloat(assertType(row.similarity));
       const continuousOverlap = parseFloat(assertType(row.continuousOverlap));
       const totalOverlap = parseFloat(assertType(row.totalOverlap));
 
-      const hunks: Hunk[] = parseFragments(assertType(row.fragments), kmers);
-      const intersection = {
+      const blocks: Block[] = parseBlocks(assertType(row.blocks), kmers);
+      const diff = {
         id,
         similarity,
         continuousOverlap,
         totalOverlap,
-        hunks: hunks,
+        blocks: blocks,
         leftFile: files[parseInt(assertType(row.leftFileId))],
         rightFile: files[parseInt(assertType(row.rightFileId))],
       };
-      return [id, intersection];
+      return [id, diff];
     })
   );
 }
@@ -174,11 +174,11 @@ export async function fetchData(): Promise<ApiData> {
   const kmerPromise = fetchKmers();
   const filePromise = fetchFiles();
   const metadataPromise = fetchMetadata();
-  const intersectionPromise = fetchHunks();
+  const diffPromise = fetchDiffs();
 
   const files = parseFiles(await filePromise);
   const kmers = parseKmers(await kmerPromise, files);
-  const diffs = parseHunk(await intersectionPromise, files, kmers);
+  const diffs = parseDiffs(await diffPromise, files, kmers);
   const metadata = parseMetadata(await metadataPromise);
 
   return { files, kmers, diffs: diffs, metadata };

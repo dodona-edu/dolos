@@ -1,5 +1,5 @@
-import { Comparison } from "./lib/analyze/comparison";
-import { Analysis } from "./lib/analyze/analysis";
+import { Index } from "./lib/analyze";
+import { Report } from "./lib/analyze/report";
 import { CustomOptions, Options } from "./lib/util/options";
 import { CodeTokenizer } from "./lib/tokenizer/codeTokenizer";
 import { File } from "./lib/file/file";
@@ -10,16 +10,16 @@ export class Dolos {
 
   readonly options: Options;
   private readonly tokenizer: CodeTokenizer;
-  private readonly comparison: Comparison;
+  private readonly index: Index;
 
   constructor(customOptions?: CustomOptions) {
     this.options = new Options(customOptions);
     this.tokenizer = new CodeTokenizer(this.options.language);
-    this.comparison = new Comparison(this.tokenizer, this.options);
+    this.index = new Index(this.tokenizer, this.options);
   }
 
-  public async analyzePaths(paths: string[]): Promise<Analysis> {
-    info("=== Starting analysis ===");
+  public async analyzePaths(paths: string[]): Promise<Report> {
+    info("=== Starting report ===");
     info(`Reading ${ paths.length} files`);
     const files = await Result.all(paths.map(File.fromPath));
     return this.analyze(files.ok());
@@ -27,7 +27,7 @@ export class Dolos {
 
   public async analyze(
     files: Array<File>
-  ): Promise<Analysis> {
+  ): Promise<Report> {
 
     if (files.length < 2) {
       throw new Error("You need to supply at least two files");
@@ -38,7 +38,7 @@ export class Dolos {
                       "make sense when comparing more than two files.");
     }
 
-    return this.comparison.compareFiles(files);
+    return this.index.compareFiles(files);
   }
 
 }

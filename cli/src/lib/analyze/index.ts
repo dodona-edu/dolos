@@ -2,24 +2,24 @@ import assert from "assert";
 import { HashFilter } from "../hashing/hashFilter";
 import { Options } from "../util/options";
 import { Range } from "../util/range";
-import { Selection } from "../util/selection";
+import { Region } from "../util/region";
 import { Tokenizer } from "../tokenizer/tokenizer";
 import { WinnowFilter } from "../hashing/winnowFilter";
 import { File } from "../file/file";
-import { Analysis, FilePart } from "./analysis";
+import { Report, Occurrence } from "./report";
 import { info } from "../util/utils";
 
 type Hash = number;
 
-export class Comparison {
+export class Index {
   private readonly kmerLength: number;
   private readonly kmersInWindow: number;
-  private readonly index: Map<Hash, Array<FilePart>> = new Map();
+  private readonly index: Map<Hash, Array<Occurrence>> = new Map();
   private readonly tokenizer: Tokenizer;
   private readonly hashFilter: HashFilter;
 
   /**
-   * Creates a Comparison object with a given Tokenizer , an optional Options
+   * Creates a Index object with a given Tokenizer , an optional Options
    * object, and an optional HashFilter.
    *
    * If no HashFilter is given, a new WinnowFilter is created with values geven
@@ -53,18 +53,18 @@ export class Comparison {
    * @param files: the file objects which need to be compared to the index
    * and each other. The file hashes will be added to the index.
    * @param hashFilter: an optional HashFilter. By default the HashFilter of the
-   * Comparison object will be used.
-   * @return an Analysis object, which is a list of Intersections
-   * (containing all the matches between two files).
+   * Index object will be used.
+   * @return an Report object, which is a list of Diffs
+   * (containing all the pairedOccurrences between two files).
    */
   public async compareFiles(
     files: File[],
     hashFilter = this.hashFilter
-  ): Promise<Analysis> {
+  ): Promise<Report> {
 
     info(`Tokenizing ${ files.length} files`);
     const tokenizedFiles = files.map(f => this.tokenizer.tokenizeFile(f));
-    const analysis = new Analysis(this.options, tokenizedFiles);
+    const report = new Report(this.options, tokenizedFiles);
 
     for (const file of tokenizedFiles) {
       info(`Processing file ${file.path}`);
@@ -79,7 +79,7 @@ export class Comparison {
 
         // sanity check
         assert(
-          Selection.isInOrder(
+          Region.isInOrder(
             file.mapping[start],
             file.mapping[stop]
           ),
@@ -88,12 +88,12 @@ export class Comparison {
             to start be before the end of ${file.mapping[stop]}`
         );
 
-        const location = Selection.merge(
+        const location = Region.merge(
           file.mapping[start],
           file.mapping[stop]
         );
 
-        const part: FilePart = {
+        const part: Occurrence = {
           file,
           side: { index: kmer, start, stop, data, location }
         };
@@ -103,7 +103,7 @@ export class Comparison {
 
 
         if (matches) {
-          analysis.addMatches(hash, part, ...matches);
+          report.addOccurrences(hash, part, ...matches);
 
           // add our matching part to the index
           matches.push(part);
@@ -116,10 +116,10 @@ export class Comparison {
         kmer += 1;
       }
     }
-    info("Finishing analysis.");
-    analysis.finish();
+    info("Finishing report.");
+    report.finish();
     info("Done.");
-    return analysis;
+    return report;
   }
 
   /**
@@ -129,14 +129,14 @@ export class Comparison {
    *
    * @param file The file to query
    * @param hashFilter An optional HashFilter. By default the HashFilter of the
-   * Comparison object will be used.
-   * @return a promise of a list of Intersection objects. An Intersection object
-   * represents the common hashes (matches) between two files.
+   * Index object will be used.
+   * @return a promise of a list of Diff objects. A Diff object
+   * contains the common hashes (occurrences) between two files.
    */
   public async compareFile(
     file: File,
     hashFilter = this.hashFilter
-  ): Promise<Analysis> {
+  ): Promise<Report> {
     return this.compareFiles([file], hashFilter);
   }
 }

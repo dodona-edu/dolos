@@ -1,5 +1,5 @@
 import { default as Parser, SyntaxNode } from "tree-sitter";
-import { Selection } from "../util/selection";
+import { Region } from "../util/region";
 import { Token, Tokenizer } from "./tokenizer";
 
 export class CodeTokenizer extends Tokenizer {
@@ -82,7 +82,7 @@ export class CodeTokenizer extends Tokenizer {
   }
 
   private *tokenizeNode(node: SyntaxNode): IterableIterator<Token> {
-    const location = new Selection(
+    const location = new Region(
       node.startPosition.row,
       node.startPosition.column,
       node.endPosition.row,

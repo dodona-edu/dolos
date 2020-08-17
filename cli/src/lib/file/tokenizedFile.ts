@@ -1,5 +1,5 @@
 import { File } from "./file";
-import { Selection } from "../util/selection";
+import { Region } from "../util/region";
 import { Range } from "../util/range";
 
 export class TokenizedFile extends File {
@@ -9,7 +9,7 @@ export class TokenizedFile extends File {
   constructor(
     public file: File,
     public readonly ast: string,
-    public readonly mapping: Array<Selection>
+    public readonly mapping: Array<Region>
   ) {
     super(file.path, file.content);
     this.kmers = [];
