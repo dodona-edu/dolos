@@ -105,8 +105,8 @@ export class CsvPresenter extends Presenter {
     console.log("Metadata written.");
     this.writeDiffs(createWriteStream(`${dirName}/diffs.csv`));
     console.log("Diffs written.");
-    this.writeKmers(createWriteStream(`${dirName}/sharedKmers.csv`));
-    console.log("SharedKmers written.");
+    this.writeKmers(createWriteStream(`${dirName}/kmers.csv`));
+    console.log("Kmers written.");
     this.writeFiles(createWriteStream(`${dirName}/files.csv`));
     console.log("Files written.");
     console.log("Completed");
