@@ -52,7 +52,7 @@ export interface Block {
   pairedOccurrences: PairedOccurrence[];
 }
 
-export interface Intersection {
+export interface Diff {
   id: number;
   leftFile: File;
   rightFile: File;
@@ -75,7 +75,7 @@ export interface Metadata {
 
 export interface ApiData {
   files: ObjMap<File>;
-  intersections: ObjMap<Intersection>;
+  diffs: ObjMap<Diff>;
   kmers: ObjMap<Kmer>;
   metadata: Metadata;
 }
@@ -86,7 +86,7 @@ async function fetchFiles(
   return await d3.csv(url);
 }
 
-async function fetchIntersections(
+async function fetchDiffs(
   url = "/data/diffs.csv"
 ): Promise<d3.DSVRowArray> {
   return await d3.csv(url);
@@ -122,20 +122,20 @@ function parseBlocks(blocksJson: string, kmers: ObjMap<Kmer>): Block[] {
   }));
 }
 
-function parseIntersections(
-  intersectionData: d3.DSVRowArray,
+function parseDiffs(
+  diffData: d3.DSVRowArray,
   files: ObjMap<File>,
   kmers: ObjMap<Kmer>,
-): ObjMap<Intersection> {
+): ObjMap<Diff> {
   return Object.fromEntries(
-    intersectionData.map(row => {
+    diffData.map(row => {
       const id = parseInt(assertType(row.id));
       const similarity = parseFloat(assertType(row.similarity));
       const continuousOverlap = parseFloat(assertType(row.continuousOverlap));
       const totalOverlap = parseFloat(assertType(row.totalOverlap));
 
       const blocks: Block[] = parseBlocks(assertType(row.blocks), kmers);
-      const intersection = {
+      const diff = {
         id,
         similarity,
         continuousOverlap,
@@ -144,7 +144,7 @@ function parseIntersections(
         leftFile: files[parseInt(assertType(row.leftFileId))],
         rightFile: files[parseInt(assertType(row.rightFileId))],
       };
-      return [id, intersection];
+      return [id, diff];
     })
   );
 }
@@ -174,12 +174,12 @@ export async function fetchData(): Promise<ApiData> {
   const kmerPromise = fetchKmers();
   const filePromise = fetchFiles();
   const metadataPromise = fetchMetadata();
-  const intersectionPromise = fetchIntersections();
+  const diffPromise = fetchDiffs();
 
   const files = parseFiles(await filePromise);
   const kmers = parseKmers(await kmerPromise, files);
-  const intersections = parseIntersections(await intersectionPromise, files, kmers);
+  const diffs = parseDiffs(await diffPromise, files, kmers);
   const metadata = parseMetadata(await metadataPromise);
 
-  return { files, kmers, intersections, metadata };
+  return { files, kmers, diffs: diffs, metadata };
 }

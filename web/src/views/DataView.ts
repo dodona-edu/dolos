@@ -1,4 +1,4 @@
-import { Intersection, ObjMap } from "@/api/api";
+import { Diff, ObjMap } from "@/api/api";
 import { Vue } from "vue-property-decorator";
 
 export default abstract class DataView extends Vue {
@@ -8,8 +8,8 @@ export default abstract class DataView extends Vue {
     }
   }
 
-  get intersections(): ObjMap<Intersection> {
-    return this.$store.state.data.intersections;
+  get diffs(): ObjMap<Diff> {
+    return this.$store.state.data.diffs;
   }
 
   get dataLoaded(): boolean {
