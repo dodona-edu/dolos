@@ -130,8 +130,8 @@ export class Index {
    * @param file The file to query
    * @param hashFilter An optional HashFilter. By default the HashFilter of the
    * Index object will be used.
-   * @return a promise of a list of Diff objects. An Diff object
-   * represents the common hashes (pairedOccurrences) between two files.
+   * @return a promise of a list of Diff objects. A Diff object
+   * contains the common hashes (occurrences) between two files.
    */
   public async compareFile(
     file: File,

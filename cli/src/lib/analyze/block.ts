@@ -6,7 +6,7 @@ import { Range } from "../util/range";
 /**
  * A block is a collection of one or more consequent pairedOccurrences (kmers).
  *
- * A block can be extended with a new match if its kmer indices in both
+ * A block can be extended with a new PairedOccurence if its kmer indices in both
  * files are directly after that of the block.
  */
 export class Block {
