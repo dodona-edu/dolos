@@ -44,7 +44,7 @@ program
   )
   .option(
     "-d, --directory",
-    Utils.indent("Specifies that submission are per directory, not by file. ")
+    Utils.indent("Specifies that submissions are per directory, not by file. ")
   )
   .option(
     "-m, --maximum-hashing-count <integer>",
@@ -74,7 +74,7 @@ program
   .option(
     "-c --compare",
     Utils.indent(
-      "Print a comparison of the pairedOccurrences even if analysing more than two " +
+      "Print a comparison of the matching blocks even if analysing more than two " +
       "files. Only valid when the output is set to 'terminal'."
     )
   )
@@ -93,7 +93,7 @@ program
   .option(
     "-s, --minimum-block-length <integer>",
     Utils.indent(
-      "The minimum length of a block. Every block shorter than this is " +
+      "The minimum length of a matching block. Every block shorter than this is " +
       "filtered out."
     ),
     x => parseFloat(x),
