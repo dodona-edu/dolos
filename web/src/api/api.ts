@@ -14,7 +14,7 @@ function assertType<T>(item: T | undefined | null): T {
  * Simple interface for plain javascript objects with numeric keys.
  */
 export interface ObjMap<T> {
- [id: number]: T;
+  [id: number]: T;
 }
 
 export interface File {
@@ -117,16 +117,20 @@ function parseFiles(fileData: d3.DSVRowArray): ObjMap<File> {
 
 function parseBlocks(blocksJson: string, kmers: ObjMap<Kmer>): Block[] {
   const parsed = JSON.parse(blocksJson);
-  return parsed.map((blockData: any): Block => ({
-    left: blockData.leftSelection,
-    right: blockData.rightSelection,
-    data: blockData.data,
-    pairs: blockData.pairs.map((pair: any): PairedOccurrence => ({
-      kmer: kmers[pair.sharedKmer],
-      left: pair.left,
-      right: pair.right
-    }))
-  }));
+  return parsed.map((blockData: any): Block => {
+    return {
+      left: blockData.leftSelection,
+      right: blockData.rightSelection,
+      data: blockData.data,
+      pairs: blockData.pairedOccurrences.map((pair: any): PairedOccurrence => {
+        return {
+          kmer: kmers[pair.sharedKmer],
+          left: pair.left,
+          right: pair.right
+        };
+      })
+    };
+  });
 }
 
 function parseDiffs(
@@ -175,6 +179,7 @@ function parseMetadata(data: d3.DSVRowArray): Metadata {
     data.map(row => [row.property, row.value])
   );
 }
+
 export async function fetchBlocks(diffId: number, kmers: ObjMap<Kmer>): Promise<Array<Block>> {
   const blocksPromise = _fetchBlocks(diffId);
   return parseBlocks(await blocksPromise, kmers);
