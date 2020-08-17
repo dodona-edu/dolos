@@ -56,8 +56,8 @@ export class CsvPresenter extends Presenter {
                 stop: pairedOccurrence.right.stop,
                 index: pairedOccurrence.right.index,
               }
-            }})
-          }}))
+            };})
+          };}))
       });
   }
 

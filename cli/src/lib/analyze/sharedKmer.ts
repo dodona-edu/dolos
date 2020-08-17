@@ -11,7 +11,7 @@ export class SharedKmer extends Identifiable {
   constructor(
     public readonly hash: number,
     public readonly kmer: string,
-  ) { super() }
+  ) { super(); }
 
   public add(part: Occurrence): void {
     this.partMap.get(part.file).add(part);

@@ -85,7 +85,7 @@ export class WinnowFilter extends HashFilter {
         if (buffer[bufferPos] <= buffer[minPos]) {
           minPos = bufferPos;
           const start =
-            filePos + ((minPos - bufferPos - this.windowSize) % this.windowSize)
+            filePos + ((minPos - bufferPos - this.windowSize) % this.windowSize);
           yield {
             data: window.slice(-this.k),
             hash: buffer[minPos],

@@ -26,7 +26,7 @@ export class Range {
     let last = 0;
     for (const range of ranges.sort(Range.compare)) {
       if(last < range.to) {
-        total += range.to - Math.max(last, range.from)
+        total += range.to - Math.max(last, range.from);
         last = range.to;
       }
     }
@@ -53,7 +53,7 @@ export class Range {
 
   public overlapsWith(other: Range): boolean {
     if (this.from < other.from) {
-      return this.to > other.from
+      return this.to > other.from;
     } else if (this.from > other.from) {
       return other.to > this.from;
     } else { // 'from' overlaps

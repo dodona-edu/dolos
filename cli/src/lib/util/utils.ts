@@ -92,13 +92,13 @@ const logLevel = {
   "info": 3,
   "warning": 2,
   "error": 1,
-}
+};
 
 const logColor: {[level: string]: Colour} = {
   "info": "blue",
   "warning": "yellow",
   "error": "red",
-}
+};
 
 let currentLogLevel: number = logLevel["warning"];
 
