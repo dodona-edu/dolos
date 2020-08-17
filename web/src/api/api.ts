@@ -59,7 +59,6 @@ export interface Diff {
   similarity: number;
   continuousOverlap: number;
   totalOverlap: number;
-  // blocks: Block[];
 }
 
 export interface Kmer {

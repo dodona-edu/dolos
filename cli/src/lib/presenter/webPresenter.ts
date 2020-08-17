@@ -27,7 +27,6 @@ export class WebPresenter extends CsvPresenter {
       res.contentType("text/json");
       res.setHeader("Content-Disposition", "attachment;filename=blocks.csv");
       this.writeBlocks(res, +req.params.id);
-      // write(res);
     }));
 
     app.use(express.static(path.join(__dirname, "..", "..", "..", "..", "web", "dist")));
