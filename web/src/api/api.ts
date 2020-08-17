@@ -59,7 +59,7 @@ export interface Diff {
   similarity: number;
   continuousOverlap: number;
   totalOverlap: number;
-  blocks: Block[];
+  // blocks: Block[];
 }
 
 export interface Kmer {
@@ -104,6 +104,13 @@ async function fetchMetadata(
   return await d3.csv(url);
 }
 
+async function _fetchBlocks(
+  diffId: number,
+  url = "/data/blocks/"
+): Promise<string> {
+  return await d3.text(url + diffId + ".json");
+}
+
 function parseFiles(fileData: d3.DSVRowArray): ObjMap<File> {
   return Object.fromEntries(fileData.map(row => [row.id, row]));
 }
@@ -134,13 +141,12 @@ function parseDiffs(
       const continuousOverlap = parseFloat(assertType(row.continuousOverlap));
       const totalOverlap = parseFloat(assertType(row.totalOverlap));
 
-      const blocks: Block[] = parseBlocks(assertType(row.blocks), kmers);
       const diff = {
         id,
         similarity,
         continuousOverlap,
         totalOverlap,
-        blocks: blocks,
+        // blocks: blocks,
         leftFile: files[parseInt(assertType(row.leftFileId))],
         rightFile: files[parseInt(assertType(row.rightFileId))],
       };
@@ -168,6 +174,10 @@ function parseMetadata(data: d3.DSVRowArray): Metadata {
   return Object.fromEntries(
     data.map(row => [row.property, row.value])
   );
+}
+export async function fetchBlocks(diffId: number, kmers: ObjMap<Kmer>): Promise<Array<Block>> {
+  const blocksPromise = _fetchBlocks(diffId);
+  return parseBlocks(await blocksPromise, kmers);
 }
 
 export async function fetchData(): Promise<ApiData> {
