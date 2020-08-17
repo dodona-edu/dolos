@@ -33,7 +33,7 @@ program
   .option(
     "-m, --maximum-hashing-count <integer>",
     Utils.indent(
-      "The -m option sets the maximum number of times a given hashing may " +
+      "The -m option sets the maximum number of times a given hash may " +
       "appear before it is ignored. A code fragment that appears in many " +
       "programs is probably legitimate sharing and not the result of " +
       "plagiarism. With -m N any hashing appearing in more than N programs is " +
@@ -45,9 +45,9 @@ program
   .option(
     "-M --maximum-hashing-percentage <fraction>",
     Utils.indent(
-      "The -M option sets how many percent of the files the hashing may appear " +
-      "before it is ignored. A hashing that appears in many programs is " +
-      "probably legitimate sharing and not the result of plagiarism. With -M " +
+      "The -M option sets how many percent of the files the hash may appear " +
+      "before it is ignored. A hash that appears in many programs is " +
+      "probably legitimate hash and not the result of plagiarism. With -M " +
       "N any hashing appearing in more than N percent of the files is filtered " +
       "out. Must be a value between 0 and 1. This option is ignored when " +
       "comparing only two files, because each match appear in 100% of the " +
@@ -85,7 +85,7 @@ program
     "-f, --output-format <format>",
     Utils.indent(
       "Specifies what format the output should be in, current options are: " +
-      "terminal/console, csv, html.", "terminal"
+      "terminal/console, csv, html/web.", "terminal"
     ),
     "terminal"
   )
