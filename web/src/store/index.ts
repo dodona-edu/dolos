@@ -4,6 +4,7 @@ import { ApiData, fetchData, Diff, Kmer, Metadata, File, ObjMap, Block, fetchBlo
 
 Vue.use(Vuex);
 
+// noinspection SillyAssignmentJS
 export default new Vuex.Store({
   state: {
     dataLoaded: false,
@@ -28,6 +29,7 @@ export default new Vuex.Store({
     },
     setBlocks(state, data: { diffId: number; blocks: Array<Block> }) {
       state.blocks[data.diffId] = data.blocks;
+      state.blocks = { ...state.blocks };
     }
   },
   actions: {

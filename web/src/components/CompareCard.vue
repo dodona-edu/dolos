@@ -1,12 +1,12 @@
 <template>
-  <v-card :loading="!loaded">
+  <v-card :loading="!loaded || !blocks">
     <v-card-title>
       {{leftFilename}}
       <v-spacer/>
       {{rightFilename}}
     </v-card-title>
     <v-container fluid>
-      <v-row v-if="loaded" justify="center">
+      <v-row v-if="loaded && blocks" justify="center">
         <v-col sm="6">
           <compare-side
             :identifier="leftIdentifier"
@@ -36,7 +36,7 @@
 <script lang="ts">
 
 import { Component, Vue, Prop } from "vue-property-decorator";
-import { Diff, Selection } from "@/api/api";
+import { Block, Diff, Selection } from "@/api/api";
 import CompareSide from "@/components/CompareSide.vue";
 import { constructID } from "@/util/OccurenceHighlight";
 
@@ -46,6 +46,7 @@ import { constructID } from "@/util/OccurenceHighlight";
 export default class Compare extends Vue {
   @Prop({ default: false }) loaded!: boolean;
   @Prop() diff!: Diff;
+  @Prop() blocks!: Array<Block>
 
   blockClickCount = 0;
   currentBlockClassIndex = 0;
@@ -71,10 +72,6 @@ export default class Compare extends Vue {
 
   get leftFilename(): string {
     return this.diff.leftFile.path;
-  }
-
-  mounted(): void {
-    this.initialize();
   }
 
   updated(): void {
@@ -169,11 +166,13 @@ export default class Compare extends Vue {
   }
 
   get leftSelection(): Array<Selection> {
-    return this.diff.blocks.map(block => block.left);
+    console.log("here1");
+    return this.blocks.map(block => block.left);
   }
 
   get rightSelection(): Array<Selection> {
-    return this.diff.blocks.map(block => block.right);
+    console.log("here2");
+    return this.blocks.map(block => block.right);
   }
 
   extractRowCol(value: string): [number, number] {
@@ -201,7 +200,8 @@ export default class Compare extends Vue {
    * on the other CompareSide. This is done by looping over all the hunks in the current diff.
    */
   initializeMaps(): void {
-    for (const block of this.diff.blocks) {
+    console.log("here3");
+    for (const block of this.blocks) {
       const leftId = constructID(block.left);
       const rightId = constructID(block.right);
 
