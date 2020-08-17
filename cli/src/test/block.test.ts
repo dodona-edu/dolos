@@ -30,7 +30,7 @@ test("block should reconstruct matched kmers", async t => {
   }
   t.is(f1Hashes.length, f2Hashes.length);
 
-  const createPairedOccurrence = (i: number, h1: Hash, h2: Hash): PairedOccurrence =>
+  const createPair = (i: number, h1: Hash, h2: Hash): PairedOccurrence =>
     new PairedOccurrence(
       {
         index: i,
@@ -49,9 +49,9 @@ test("block should reconstruct matched kmers", async t => {
       new SharedKmer(h1.hash, h1.data),
     );
 
-  const block = new Block(createPairedOccurrence(0, f1Hashes[0], f2Hashes[0]));
+  const block = new Block(createPair(0, f1Hashes[0], f2Hashes[0]));
   for (let i = 1; i < f1Hashes.length; i += 1) {
-    block.extendWithPairedOccurrence(createPairedOccurrence(i, f1Hashes[i], f2Hashes[i]));
+    block.extendWithPair(createPair(i, f1Hashes[i], f2Hashes[i]));
   }
 
   t.is(f1.ast.slice(0, -9), block.mergedData);

@@ -11,7 +11,7 @@ import { Range } from "../util/range";
  */
 export class Block {
 
-  public pairedOccurrences: Array<PairedOccurrence>;
+  public pairs: Array<PairedOccurrence>;
   public leftKmers: Range;
   public rightKmers: Range;
   public leftSelection: Region;
@@ -21,7 +21,7 @@ export class Block {
   private mergedStop: number;
 
   constructor(initial: PairedOccurrence) {
-    this.pairedOccurrences = [initial];
+    this.pairs = [initial];
     this.leftKmers = new Range(initial.left.index);
     this.rightKmers = new Range(initial.right.index);
     this.leftSelection = initial.left.location;
@@ -35,9 +35,9 @@ export class Block {
       this.rightKmers.to == other.right.index;
   }
 
-  public extendWithPairedOccurrence(other: PairedOccurrence): void {
+  public extendWithPair(other: PairedOccurrence): void {
     assert(this.extendable(other), "match does not extend this block");
-    this.pairedOccurrences.push(other);
+    this.pairs.push(other);
 
     if (this.mergedStop < other.left.start) {
       this.mergedData += "|" + other.left.data;
@@ -66,10 +66,10 @@ export class Block {
   }
 
   public extendWithBlock(other: Block): void {
-    const otherFirst = other.pairedOccurrences[0];
+    const otherFirst = other.pairs[0];
     assert(this.extendable(otherFirst));
 
-    this.pairedOccurrences = this.pairedOccurrences.concat(other.pairedOccurrences);
+    this.pairs = this.pairs.concat(other.pairs);
 
     if (this.mergedStop < other.leftKmers.from) {
       this.mergedData += "|" + other.mergedData;

@@ -38,21 +38,21 @@ export class Diff extends Identifiable {
    *
    * Tries to extend existing blocks, or creates a new block.
    */
-  public addPairedOccurrence(newPairedOccurrence: PairedOccurrence): void {
-    const start = this.key(newPairedOccurrence.left.index, newPairedOccurrence.right.index);
-    const end = this.key(newPairedOccurrence.left.index + 1, newPairedOccurrence.right.index + 1);
+  public addPair(newPair: PairedOccurrence): void {
+    const start = this.key(newPair.left.index, newPair.right.index);
+    const end = this.key(newPair.left.index + 1, newPair.right.index + 1);
 
     let block = this.blockEnd.get(start);
     if (block) {
 
       // extend block at starting position
       this.blockEnd.delete(start);
-      block.extendWithPairedOccurrence(newPairedOccurrence);
+      block.extendWithPair(newPair);
 
     } else {
 
       // no block on our starting position, create a new one
-      block = new Block(newPairedOccurrence);
+      block = new Block(newPair);
       this.blockStart.set(start, block);
       this.blockEnd.set(end, block);
     }
@@ -93,7 +93,7 @@ export class Diff extends Identifiable {
    * Returns the length (in kmers) of the largest block in this diff.
    */
   public largestBlockLength(): number {
-    return Math.max(...this.blocks().map(f => f.pairedOccurrences.length));
+    return Math.max(...this.blocks().map(f => f.pairs.length));
   }
 
   /**
@@ -101,7 +101,7 @@ export class Diff extends Identifiable {
    */
   public removeSmallerThan(minimum: number): void {
     this.blocks()
-      .filter(f => f.pairedOccurrences.length < minimum)
+      .filter(f => f.pairs.length < minimum)
       .forEach(f => this.removeBlock(f));
   }
 
