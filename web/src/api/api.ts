@@ -49,7 +49,7 @@ export interface Block {
   left: Selection;
   right: Selection;
   data: string;
-  pairedOccurrences: PairedOccurrence[];
+  pairs: PairedOccurrence[];
 }
 
 export interface Diff {
@@ -114,10 +114,10 @@ function parseBlocks(blocksJson: string, kmers: ObjMap<Kmer>): Block[] {
     left: blockData.leftSelection,
     right: blockData.rightSelection,
     data: blockData.data,
-    pairedOccurrences: blockData.pairedOccurrences.map((pairedOccurrenceData: any): PairedOccurrence => ({
-      kmer: kmers[pairedOccurrenceData.sharedKmer],
-      left: pairedOccurrenceData.left,
-      right: pairedOccurrenceData.rid
+    pairs: blockData.pairs.map((pair: any): PairedOccurrence => ({
+      kmer: kmers[pair.sharedKmer],
+      left: pair.left,
+      right: pair.right
     }))
   }));
 }
