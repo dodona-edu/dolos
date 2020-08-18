@@ -1,5 +1,25 @@
 <template>
   <div>
+    <component :is="'style'" type="text/css">
+      .marked-code, .token.marked-code {
+        background: var(--markedbg);
+        text-shadow: none;
+      }
+      <template v-for="item in hoveringSelections">
+        .token.operator.{{ item }}, .token.entity.{{ item }}, .token.url.{{ item }},
+        .language-css .token.string.{{ item }}, .style .token.string.{{ item }}, .token.marked-code.{{ item }} {
+          background: var(--hoveringbg);
+          text-shadow: none;
+        }
+      </template>
+      <template v-for="item in selectedSelections">
+        .token.operator.{{ item }}, .token.entity.{{ item }}, .token.url.{{ item }},
+        .language-css .token.string.{{ item }}, .style .token.string.{{ item }}, .token.marked-code.{{ item }} {
+          background: var(--selectedbg);
+          text-shadow: none;
+        }
+      </template>
+    </component>
     <pre v-scroll.self="onScroll" ref="pre" :id="identifier" class="line-numbers highlighted-code"><code
       ref="codeblock"
       :class="language">{{content}}</code>
@@ -17,7 +37,6 @@ import "prismjs/plugins/line-numbers/prism-line-numbers.js";
 import "prismjs/plugins/line-numbers/prism-line-numbers.css";
 import { ID_START, registerBlockHighlighting } from "@/util/OccurenceHighlight";
 import * as d3 from "d3";
-// import {SideID} from "@/components/CompareCard.vue";
 
 @Component
 export default class CompareSide extends Vue {
@@ -29,10 +48,6 @@ export default class CompareSide extends Vue {
   @Prop() selections!: Array<Selection>;
   @Prop() hoveringSelections!: Array<string>;
   @Prop() selectedSelections!: Array<string>;
-
-  get cssContent(): string {
-    return "";
-  }
 
   get content(): string {
     return this.file.content;
@@ -48,27 +63,10 @@ export default class CompareSide extends Vue {
       .join(", ");
   }
 
-  @Watch("hoveringSelections", { deep: true })
-  onHoverSelectionsChange(newValue: Array<string>): void {
-    d3.selectAll(`#${this.identifier} .marked-code.hovering`)
-      .classed("hovering", false);
-
-    if (newValue.length > 0) {
-      d3.selectAll(this.makeSelector(newValue))
-        .classed("hovering", true);
-    }
-  }
-
   @Watch("selectedSelections")
   onSelectionChange(newValue: Array<string>): void {
-    d3.selectAll(`#${this.identifier} .marked-code.selected`)
-      .classed("selected", false);
-
     if (newValue.length > 0) {
-      const element = d3.selectAll(this.makeSelector(newValue))
-        .classed("selected", true)
-        .node();
-
+      const element = d3.select(this.makeSelector(newValue)).node();
       (element as HTMLElement).scrollIntoView({ behavior: "smooth", block: "center" });
     }
   }
@@ -146,21 +144,6 @@ export default class CompareSide extends Vue {
     height: 70vh;
     overflow-y: scroll;
     padding-top: 0 !important;
-
-    .marked-code.hovering {
-      background: var(--hoveringbg) !important;
-      text-shadow: none;
-    }
-
-    .marked-code.selected {
-      background: var(--selectedbg) !important;
-      text-shadow: none;
-    }
-
-    .marked-code {
-      background: var(--markedbg) !important;
-      text-shadow: none;
-    }
 
     .token {
       margin: -4px 0 -4px 0;
