@@ -1,10 +1,16 @@
 <template>
-  <v-container fluid>
+  <v-container fluid fill-height>
     <v-row justify="center">
-      <v-col cols="10">
+      <v-col cols="12">
         <CompareCard
+          v-if="diff"
           :loaded="dataLoaded"
           :diff="diff"/>
+        <v-card v-else>
+          <v-card-subtitle>
+            Could not load comparison
+          </v-card-subtitle>
+        </v-card>
       </v-col>
     </v-row>
   </v-container>

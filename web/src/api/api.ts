@@ -114,7 +114,7 @@ function parseBlocks(blocksJson: string, kmers: ObjMap<Kmer>): Block[] {
     left: blockData.leftSelection,
     right: blockData.rightSelection,
     data: blockData.data,
-    pairs: blockData.pairs.map((pair: any): PairedOccurrence => ({
+    pairs: blockData.pairedOccurrences.map((pair: any): PairedOccurrence => ({
       kmer: kmers[pair.sharedKmer],
       left: pair.left,
       right: pair.right
