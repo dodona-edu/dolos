@@ -21,6 +21,7 @@
                 @selectionhoverenter="onHoverEnterHandler"
                 @selectionhoverexit="onHoverExitHandler"
                 @linesvisibleamount="setLinesVisible"
+                @codescroll="onScrollHandler"
               >
               </compare-side>
             </v-col>
@@ -70,7 +71,6 @@
                 @selectionclick="selectionClickEventHandler"
                 @selectionhoverenter="onHoverEnterHandler"
                 @selectionhoverexit="onHoverExitHandler"
-                @codescroll="onScrollHandler"
               ></BarcodeChart>
             </v-col>
           </v-row>
@@ -261,17 +261,18 @@ export default class Compare extends Vue {
   selectionClickEventHandler(sideId: SideID, blockClasses: Array<string>): void {
     const [id, other] = this.cycle(sideId, blockClasses);
 
+    // console.log("ID", blockClasses.join("\n"));
+    // console.log("OTHER", other);
+
     this.selected.sides[sideId].blockClasses = [id];
     this.selected.sides[this.getOtherSide(sideId)].blockClasses = [other];
   }
 
   get leftSelection(): Array<Selection> {
-    console.log("here1");
     return this.blocks.map(block => block.left);
   }
 
   get rightSelection(): Array<Selection> {
-    console.log("here2");
     return this.blocks.map(block => block.right);
   }
 
@@ -302,7 +303,6 @@ export default class Compare extends Vue {
    * on the other CompareSide. This is done by looping over all the hunks in the current diff.
    */
   initializeMaps(): void {
-    console.log("here3");
     for (const block of this.blocks) {
       const leftId = constructID(block.left);
       const rightId = constructID(block.right);

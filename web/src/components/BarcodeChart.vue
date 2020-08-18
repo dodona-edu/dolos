@@ -34,7 +34,7 @@ export default class BarcodeChart extends Vue {
     height: number;
   } = {
     width: 40,
-    height: 58,
+    height: 1000,
   }
 
   mounted(): void {
@@ -50,7 +50,7 @@ export default class BarcodeChart extends Vue {
   @Watch("amountOfLinesVisible")
   onAmountOfLinesVisibleChange(newValue: number): void {
     d3.select(this.$refs.scrollHighlighter as HTMLElement)
-      .attr("height", newValue);
+      .attr("height", this.scrollHighlighterHeight());
   }
 
   @Watch("hoveringSelections", { deep: true })
@@ -76,12 +76,12 @@ export default class BarcodeChart extends Vue {
   }
 
   scrollHighlighterHeight(): number {
-    return (this.chart.height / this.maxLines) * this.amountOfLinesVisible;
+    return (this.chart.height / this.maxLines) * Math.floor(this.amountOfLinesVisible);
   }
 
   get scrollOffset(): number {
     return Math.min(
-      this.documentScrollFraction * (this.chart.height - this.scrollHighlighterHeight()),
+      this.documentScrollFraction * (this.chart.height - this.scrollHighlighterHeight()) * this.lines / this.maxLines,
       this.chart.height - this.scrollHighlighterHeight()
     );
   }
@@ -97,7 +97,7 @@ export default class BarcodeChart extends Vue {
     const temp: {[key: number]: number} = {};
     const subgroups = [];
     const map: {[key: number]: Array<string>} = {};
-    for (let i = 0; i < this.lines; i += 1) {
+    for (let i = 0; i <= this.lines; i += 1) {
       subgroups.push(i.toString());
       temp[i] = 1;
       map[i] = [];
