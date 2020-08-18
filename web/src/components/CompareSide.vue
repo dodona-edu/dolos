@@ -37,6 +37,7 @@ import "prismjs/plugins/line-numbers/prism-line-numbers.js";
 import "prismjs/plugins/line-numbers/prism-line-numbers.css";
 import { ID_START, registerBlockHighlighting } from "@/util/OccurenceHighlight";
 import * as d3 from "d3";
+import { SideID } from "@/components/CompareCard.vue";
 
 @Component
 export default class CompareSide extends Vue {
@@ -55,21 +56,6 @@ export default class CompareSide extends Vue {
 
   get language(): string {
     return `language-${this.$store.state.data.metadata.language}`;
-  }
-
-  makeSelector(blockClasses: Array<string>): string {
-    return blockClasses
-      .map(blockClass => `#${this.identifier} .${blockClass}`)
-      .join(", ");
-  }
-
-  @Watch("selectedSelections")
-  onSelectionChange(newValue: Array<string>): void {
-    if (newValue.length > 0) {
-      const element = d3.select(this.makeSelector(newValue)).node();
-      console.log(element);
-      (element as HTMLElement).scrollIntoView({ behavior: "smooth", block: "center" });
-    }
   }
 
   onScroll(e: Event): void {

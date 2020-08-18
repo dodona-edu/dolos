@@ -86,6 +86,7 @@ import { Block, Diff, Selection } from "@/api/api";
 import CompareSide from "@/components/CompareSide.vue";
 import BarcodeChart from "@/components/BarcodeChart.vue";
 import { constructID, SelectionId } from "@/util/OccurenceHighlight";
+import * as d3 from "d3";
 // import * as d3 from "d3";
 
 export enum SideID {
@@ -258,11 +259,23 @@ export default class Compare extends Vue {
     return [id, other];
   }
 
+  makeSelector(sideId: SideID, blockClasses: Array<string>): string {
+    return blockClasses
+      .map(blockClass => `#${sideId} .${blockClass}`)
+      .join(", ");
+  }
+
   selectionClickEventHandler(sideId: SideID, blockClasses: Array<string>): void {
     const [id, other] = this.cycle(sideId, blockClasses);
 
     this.selected.sides[sideId].blockClasses = [id];
     this.selected.sides[this.getOtherSide(sideId)].blockClasses = [other];
+
+    // for some reason scrolling will not always work when it is done in each CompareSide separately
+    const element = d3.select(this.makeSelector(sideId, blockClasses)).node();
+    const otherElement = d3.select(this.makeSelector(this.getOtherSide(sideId), [other])).node();
+    (element as HTMLElement).scrollIntoView({ behavior: "smooth", block: "center" });
+    (otherElement as HTMLElement).scrollIntoView({ behavior: "smooth", block: "center" });
   }
 
   get leftSelection(): Array<Selection> {
