@@ -260,6 +260,10 @@ export default class Compare extends Vue {
     this.$store.commit("setReviewStatus", { diffId: this.diff.id, reviewStatus });
   }
 
+  updateReviewStatus(reviewStatus: ReviewStatus): void {
+    this.$store.commit("setReviewStatus", { diffId: this.diff.id, reviewStatus });
+  }
+
   get ReviewStatus(): typeof ReviewStatus {
     return ReviewStatus;
   }
