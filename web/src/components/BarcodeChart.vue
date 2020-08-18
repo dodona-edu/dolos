@@ -1,5 +1,20 @@
 <template >
   <div :id="identifier" class="barcodeChart">
+    <component :is="'style'" type="text/css">
+      .marked {
+      fill: var(--markedbg);
+      }
+      <template v-for="item in hoveringSelections">
+        .marked.{{ item }} {
+        fill: var(--hoveringbg);
+        }
+      </template>
+      <template v-for="item in selectedSelections">
+        .marked.{{ item }} {
+          fill: var(--selectedbg);
+        }
+      </template>
+    </component>
     <svg class="svg-content-responsive">
       <rect
         ref="scrollHighlighter"
@@ -51,28 +66,6 @@ export default class BarcodeChart extends Vue {
   onAmountOfLinesVisibleChange(newValue: number): void {
     d3.select(this.$refs.scrollHighlighter as HTMLElement)
       .attr("height", this.scrollHighlighterHeight());
-  }
-
-  @Watch("hoveringSelections", { deep: true })
-  onHoverSelectionsChange(newValue: Array<string>): void {
-    d3.selectAll(`#${this.identifier} .barcodeChartBar.hovering`)
-      .classed("hovering", false);
-
-    if (newValue.length > 0) {
-      d3.selectAll(this.makeSelector(newValue))
-        .classed("hovering", true);
-    }
-  }
-
-  @Watch("selectedSelections")
-  onSelectionChange(newValue: Array<string>): void {
-    d3.selectAll(`#${this.identifier} .barcodeChartBar.selected`)
-      .classed("selected", false);
-
-    if (newValue.length > 0) {
-      d3.selectAll(this.makeSelector(newValue))
-        .classed("selected", true);
-    }
   }
 
   scrollHighlighterHeight(): number {
@@ -194,20 +187,8 @@ export default class BarcodeChart extends Vue {
     top: 0;
     left: 0;
 
-    .barcodeChartBar {
+    .barcodeChartBar:not(.marked) {
       fill: #f5f2f0;
-    }
-
-    .barcodeChartBar.marked {
-      fill: var(--markedbg);
-    }
-
-    .barcodeChartBar.marked.hovering {
-      fill: var(--hoveringb);
-    }
-
-    .barcodeChartBar.marked.selected {
-      fill: var(--selectedbg);
     }
 
     #page-scroll-highlighter {

@@ -5,7 +5,7 @@ comment,
 directory,
 kmerLength,50
 kmersInWindow,50
-language,python
+language,javascript
 maxGapSize,0
 maxHashCount,
 maxHashPercentage,

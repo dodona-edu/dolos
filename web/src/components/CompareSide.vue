@@ -1,5 +1,6 @@
 <template>
-  <div><pre v-scroll.self="onScroll" ref="pre" :id="identifier" class="line-numbers highlighted-code"><code
+  <div>
+    <pre v-scroll.self="onScroll" ref="pre" :id="identifier" class="line-numbers highlighted-code"><code
       ref="codeblock"
       :class="language">{{content}}</code>
     </pre>
@@ -28,6 +29,10 @@ export default class CompareSide extends Vue {
   @Prop() selections!: Array<Selection>;
   @Prop() hoveringSelections!: Array<string>;
   @Prop() selectedSelections!: Array<string>;
+
+  get cssContent(): string {
+    return "";
+  }
 
   get content(): string {
     return this.file.content;
@@ -143,7 +148,7 @@ export default class CompareSide extends Vue {
     padding-top: 0 !important;
 
     .marked-code.hovering {
-      background: var(--hoveringb) !important;
+      background: var(--hoveringbg) !important;
       text-shadow: none;
     }
 
