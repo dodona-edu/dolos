@@ -1,9 +1,24 @@
 <template>
   <v-card :loading="!loaded">
     <v-card-title>
-      {{ leftFilename }}
-      <v-spacer/>
-      {{ rightFilename }}
+      <v-container>
+        <v-row>
+          {{ leftFilename }}
+          <v-spacer/>
+          {{ rightFilename }}
+        </v-row>
+        <v-row>
+          <v-container id="dropdown-example-3">
+            <v-overflow-btn
+              class="my-2"
+              :items="Object.keys(ReviewStatus)"
+              label="Review status"
+              :value="ReviewStatus.Unreviewed"
+              item-value="text"
+            ></v-overflow-btn>
+          </v-container>
+        </v-row>
+      </v-container>
     </v-card-title>
     <v-container fluid>
       <v-row v-if="loaded" justify="center" no-gutters>
@@ -88,6 +103,13 @@ import BarcodeChart from "@/components/BarcodeChart.vue";
 import { constructID, SelectionId } from "@/util/OccurenceHighlight";
 import * as d3 from "d3";
 
+export enum ReviewStatus {
+  Unreviewed = "Unreviewed",
+  CertainPlagiarism = "Certain plagiarism",
+  Suspicious = "Suspicious",
+  Innocent = "Innocent"
+}
+
 export enum SideID {
   leftSideId = "leftSideId",
   rightSideId = "rightSideId"
@@ -99,6 +121,10 @@ export enum SideID {
 export default class Compare extends Vue {
   @Prop({ default: false }) loaded!: boolean;
   @Prop() diff!: Diff;
+
+  get ReviewStatus(): typeof ReviewStatus {
+    return ReviewStatus;
+  }
 
   blockClickCount = 0;
   currentBlockClassIndex = 0;
