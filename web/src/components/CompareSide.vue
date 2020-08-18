@@ -1,6 +1,5 @@
 <template>
-  <div>
-    <pre v-scroll.self="onScroll" ref="pre" :id="identifier" class="line-numbers highlighted-code"><code
+  <div><pre v-scroll.self="onScroll" ref="pre" :id="identifier" class="line-numbers highlighted-code"><code
       ref="codeblock"
       :class="language">{{content}}</code>
     </pre>
@@ -166,6 +165,10 @@ export default class CompareSide extends Vue {
 
 pre.highlighted-code {
   margin-top: 0;
+
+  code {
+    padding-left: 0 !important;
+  }
 }
 
 // /* hides the scrollbar */
