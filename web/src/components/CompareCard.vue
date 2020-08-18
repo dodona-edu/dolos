@@ -261,9 +261,6 @@ export default class Compare extends Vue {
   selectionClickEventHandler(sideId: SideID, blockClasses: Array<string>): void {
     const [id, other] = this.cycle(sideId, blockClasses);
 
-    // console.log("ID", blockClasses.join("\n"));
-    // console.log("OTHER", other);
-
     this.selected.sides[sideId].blockClasses = [id];
     this.selected.sides[this.getOtherSide(sideId)].blockClasses = [other];
   }
@@ -310,12 +307,16 @@ export default class Compare extends Vue {
       if (!this.leftMap.has(leftId)) {
         this.leftMap.set(leftId, []);
       }
-      this.leftMap.get(leftId)!.push(rightId);
+      if (!this.leftMap.get(leftId)!.includes(rightId)) {
+        this.leftMap.get(leftId)!.push(rightId);
+      }
 
       if (!this.rightMap.has(rightId)) {
         this.rightMap.set(rightId, []);
       }
-      this.rightMap.get(rightId)!.push(leftId);
+      if (!this.rightMap.get(rightId)!.includes(leftId)) {
+        this.rightMap.get(rightId)!.push(leftId);
+      }
     }
     this.sortMap(this.leftMap);
     this.sortMap(this.rightMap);
