@@ -220,6 +220,13 @@ export function compareReviewStatus(el1: ReviewStatus, el2: ReviewStatus): numbe
   return reviewStatusOrder.indexOf(el2) - reviewStatusOrder.indexOf(el1);
 }
 
+export enum ReviewStatus {
+  Unreviewed = "Unreviewed",
+  CertainPlagiarism = "Certain plagiarism",
+  Suspicious = "Suspicious",
+  Innocent = "Innocent"
+}
+
 export enum SideID {
   leftSideId = "leftSideId",
   rightSideId = "rightSideId"
@@ -251,6 +258,10 @@ export default class Compare extends Vue {
 
   updateReviewStatus(reviewStatus: ReviewStatus): void {
     this.$store.commit("setReviewStatus", { diffId: this.diff.id, reviewStatus });
+  }
+
+  get ReviewStatus(): typeof ReviewStatus {
+    return ReviewStatus;
   }
 
   blockClickCount = 0;
