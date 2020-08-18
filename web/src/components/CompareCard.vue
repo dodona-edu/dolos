@@ -1,12 +1,12 @@
 <template>
-  <v-card :loading="!loaded">
+  <v-card :loading="!loaded || !blocks">
     <v-card-title>
       {{ leftFilename }}
       <v-spacer/>
       {{ rightFilename }}
     </v-card-title>
     <v-container fluid>
-      <v-row v-if="loaded" justify="center" no-gutters>
+      <v-row v-if="loaded && blocks" justify="center" no-gutters>
         <v-col sm="6">
           <v-row no-gutters>
             <v-col cols="11">
@@ -82,7 +82,7 @@
 <script lang="ts">
 
 import { Component, Vue, Prop } from "vue-property-decorator";
-import { Diff, Selection } from "@/api/api";
+import { Block, Diff, Selection } from "@/api/api";
 import CompareSide from "@/components/CompareSide.vue";
 import BarcodeChart from "@/components/BarcodeChart.vue";
 import { constructID, SelectionId } from "@/util/OccurenceHighlight";
@@ -99,6 +99,7 @@ export enum SideID {
 export default class Compare extends Vue {
   @Prop({ default: false }) loaded!: boolean;
   @Prop() diff!: Diff;
+  @Prop() blocks!: Array<Block>
 
   blockClickCount = 0;
   currentBlockClassIndex = 0;
@@ -190,10 +191,6 @@ export default class Compare extends Vue {
     return this.diff.leftFile.path;
   }
 
-  mounted(): void {
-    this.initialize();
-  }
-
   updated(): void {
     this.initialize();
   }
@@ -269,11 +266,13 @@ export default class Compare extends Vue {
   }
 
   get leftSelection(): Array<Selection> {
-    return this.diff.hunks.map(fragment => fragment.left);
+    console.log("here1");
+    return this.blocks.map(block => block.left);
   }
 
   get rightSelection(): Array<Selection> {
-    return this.diff.hunks.map(fragment => fragment.right);
+    console.log("here2");
+    return this.blocks.map(block => block.right);
   }
 
   extractRowCol(value: string): [number, number] {
@@ -303,9 +302,10 @@ export default class Compare extends Vue {
    * on the other CompareSide. This is done by looping over all the hunks in the current diff.
    */
   initializeMaps(): void {
-    for (const fragment of this.diff.hunks) {
-      const leftId = constructID(fragment.left);
-      const rightId = constructID(fragment.right);
+    console.log("here3");
+    for (const block of this.blocks) {
+      const leftId = constructID(block.left);
+      const rightId = constructID(block.right);
 
       if (!this.leftMap.has(leftId)) {
         this.leftMap.set(leftId, []);

@@ -1,6 +1,6 @@
-import { Selection } from "../util/selection";
+import { Region } from "../util/region";
 import { Presenter } from "./presenter";
-import { Analysis, ScoredIntersection } from "../analyze/analysis";
+import { Report, ScoredDiff } from "../analyze/report";
 
 /// <reference types="../../../typings/cliui" />
 import UI from "cliui";
@@ -15,14 +15,14 @@ export class TerminalPresenter extends Presenter {
   private readonly c: chalk.Chalk;
 
   constructor(
-    analysis: Analysis,
+    report: Report,
     options: Options,
     private readonly compare?: boolean,
     private readonly output: Writable = process.stdout,
     width?: number,
     private readonly context: number = 3,
   ) {
-    super(analysis, options);
+    super(report, options);
     let colorLevel = 0;
     if (output == process.stdout) {
       this.width = width || process.stdout.columns;
@@ -42,18 +42,18 @@ export class TerminalPresenter extends Presenter {
   }
 
   public async present(): Promise<void> {
-    const intersections = this.analysis.scoredIntersections;
-    if (this.compare || (this.compare == null && intersections.length == 1)) {
-      intersections.map(int => this.writeIntersectionWithComparison(int));
+    const diffs = this.report.scoredDiffs;
+    if (this.compare || (this.compare == null && diffs.length == 1)) {
+      diffs.map(int => this.writeDiffWithComparison(int));
     } else {
-      this.writeIntersections(intersections);
+      this.writeDiffs(diffs);
     }
     this.output.write(this.ui.toString() + "\n");
     this.ui.resetOutput();
   }
 
-  private writeIntersections(intersections: Array<ScoredIntersection>): void {
-    const maxOver = Math.max(...intersections.map(s => s.overlap));
+  private writeDiffs(diffs: Array<ScoredDiff>): void {
+    const maxOver = Math.max(...diffs.map(s => s.overlap));
     const overlapWidth = Math.max(15, Math.trunc(Math.log10(maxOver + 1)) + 2);
     const similarityWidth = 12;
     const pathWidth = (this.width - similarityWidth - 2*overlapWidth) / 2;
@@ -86,16 +86,16 @@ export class TerminalPresenter extends Presenter {
     });
 
     for (
-      const { intersection, overlap, similarity, longest }
-      of intersections
+      const { diff, overlap, similarity, longest }
+      of diffs
     ) {
       this.ui.div({
-        text: intersection.leftFile.path,
+        text: diff.leftFile.path,
         width: pathWidth,
         padding: [0, 1, 0, 1]
       },
       {
-        text: intersection.rightFile.path,
+        text: diff.rightFile.path,
         width: pathWidth,
         padding: [0, 1, 0, 1]
       },
@@ -117,28 +117,28 @@ export class TerminalPresenter extends Presenter {
     }
   }
 
-  private writeIntersectionWithComparison(
-    { intersection, overlap, similarity }: ScoredIntersection
+  private writeDiffWithComparison(
+    { diff, overlap, similarity }: ScoredDiff
   ): void {
-    const leftLines = intersection.leftFile.lines;
-    const rightLines = intersection.rightFile.lines;
+    const leftLines = diff.leftFile.lines;
+    const rightLines = diff.rightFile.lines;
 
     this.ui.div({
-      text: chalk.bold(intersection.leftFile.path),
+      text: chalk.bold(diff.leftFile.path),
       padding: [1, 1, 1, 1],
     },
     {
-      text: chalk.bold(intersection.rightFile.path),
+      text: chalk.bold(diff.rightFile.path),
       padding: [1, 1, 1, 1],
-    })
+    });
     this.ui.div({
       text: chalk.bold("Absolute overlap: ") + overlap.toString() + " kmers",
       padding: [0, 1, 0, 1],
-    })
+    });
     this.ui.div({
       text: chalk.bold("Similarity score: ") + similarity.toString(),
       padding: [0, 1, 1, 1],
-    })
+    });
 
     const maxLines = Math.max(leftLines.length, rightLines.length);
     const lineNrWidth = Math.trunc(Math.log10(maxLines + 1)) + 2;
@@ -148,25 +148,25 @@ export class TerminalPresenter extends Presenter {
     const nl = (i: number): string =>
       this.c.grey((i + 1).toString().padEnd(lineNrWidth));
 
-    const fragments = intersection.fragments();
-    for (let i = 0; i < fragments.length; i += 1) {
-      const fragment = fragments[i];
+    const blocks = diff.blocks();
+    for (let i = 0; i < blocks.length; i += 1) {
+      const block = blocks[i];
 
       this.ui.div({
-        text: chalk.bold(`Fragment ${i+1}/${fragments.length}:` +
-                         ` ${fragment.leftKmers.length} kmers`),
+        text: chalk.bold(`Block ${i+1}/${blocks.length}:` +
+                         ` ${block.leftKmers.length} kmers`),
         align: "center",
         padding: [1, 0, 1, 0],
-      })
+      });
 
       this.ui.div({
         text: chalk.bold("Tokens: ") + "'" +
-              chalk.red(fragment.mergedData) + "'",
+              chalk.red(block.mergedData) + "'",
         padding: [0, 0, 1, 0],
-      })
+      });
 
-      const left = this.formatLines(fragment.leftSelection, leftLines, nl);
-      const right = this.formatLines(fragment.rightSelection, rightLines, nl);
+      const left = this.formatLines(block.leftSelection, leftLines, nl);
+      const right = this.formatLines(block.rightSelection, rightLines, nl);
 
       for(let j = 0; j < Math.max(left.length, right.length); j += 1) {
         this.ui.div(
@@ -184,7 +184,7 @@ export class TerminalPresenter extends Presenter {
   }
 
   private formatLines(
-    sel: Selection,
+    sel: Region,
     lines: Array<string>,
     nl: (i: number) => string
   ): Array<string>{
@@ -195,7 +195,7 @@ export class TerminalPresenter extends Presenter {
       if (i < 0) {
         column.push("");
       } else {
-        column.push(nl(i) + lines[i])
+        column.push(nl(i) + lines[i]);
       }
     }
 
@@ -229,7 +229,7 @@ export class TerminalPresenter extends Presenter {
       if (i >= lines.length) {
         column.push("");
       } else {
-        column.push(nl(i) + lines[i])
+        column.push(nl(i) + lines[i]);
       }
     }
     return column;

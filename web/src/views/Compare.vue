@@ -5,7 +5,9 @@
         <CompareCard
           v-if="diff"
           :loaded="dataLoaded"
-          :diff="diff"/>
+          :diff="diff"
+          :blocks="blocks"
+        />
         <v-card v-else>
           <v-card-subtitle>
             Could not load comparison
@@ -20,7 +22,7 @@
 import DataView from "@/views/DataView";
 import { Component, Prop } from "vue-property-decorator";
 import CompareCard from "@/components/CompareCard.vue";
-import { Diff } from "@/api/api";
+import { Block, Diff } from "@/api/api";
 
 @Component({
   components: { CompareCard }
@@ -28,12 +30,23 @@ import { Diff } from "@/api/api";
 export default class Compare extends DataView {
   @Prop({ required: true }) diffId!: number;
 
+  async ensureBlocks(): Promise<void> {
+    if (!this.$store.getters.isBlocksLoaded(this.diffId)) {
+      await this.$store.dispatch("loadBlocks", { diffId: this.diffId });
+    }
+  }
+
   created(): void {
     super.ensureData();
+    this.ensureBlocks();
   }
 
   get diff(): Diff | undefined {
     return this.diffs[+this.diffId];
+  }
+
+  get blocks(): Array<Block> | undefined {
+    return this.$store.state.blocks[+this.diffId];
   }
 }
 </script>

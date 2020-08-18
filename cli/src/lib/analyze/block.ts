@@ -1,27 +1,27 @@
 import assert from "assert";
-import { Match } from "./match";
-import { Selection } from "../util/selection";
+import { PairedOccurrence } from "./pairedOccurrence";
+import { Region } from "../util/region";
 import { Range } from "../util/range";
 
 /**
- * A fragment is a collection of one or more consequent matches (kmers).
+ * A block is a collection of one or more consequent pairedOccurrences (kmers).
  *
- * A fragment can be extended with a new match if its kmer indices in both
- * files are directly after that of the fragment.
+ * A block can be extended with a new PairedOccurence if its kmer indices in both
+ * files are directly after that of the block.
  */
-export class Fragment {
+export class Block {
 
-  public matches: Array<Match>;
+  public pairs: Array<PairedOccurrence>;
   public leftKmers: Range;
   public rightKmers: Range;
-  public leftSelection: Selection;
-  public rightSelection: Selection;
+  public leftSelection: Region;
+  public rightSelection: Region;
   public mergedData: string;
 
   private mergedStop: number;
 
-  constructor(initial: Match) {
-    this.matches = [initial];
+  constructor(initial: PairedOccurrence) {
+    this.pairs = [initial];
     this.leftKmers = new Range(initial.left.index);
     this.rightKmers = new Range(initial.right.index);
     this.leftSelection = initial.left.location;
@@ -30,14 +30,14 @@ export class Fragment {
     this.mergedStop = initial.left.stop;
   }
 
-  private extendable(other: Match): boolean {
+  private extendable(other: PairedOccurrence): boolean {
     return this.leftKmers.to == other.left.index &&
       this.rightKmers.to == other.right.index;
   }
 
-  public extendWithMatch(other: Match): void {
-    assert(this.extendable(other), "match does not extend this fragment");
-    this.matches.push(other);
+  public extendWithPair(other: PairedOccurrence): void {
+    assert(this.extendable(other), "match does not extend this block");
+    this.pairs.push(other);
 
     if (this.mergedStop < other.left.start) {
       this.mergedData += "|" + other.left.data;
@@ -54,22 +54,22 @@ export class Fragment {
       Range.merge(this.rightKmers, new Range(other.right.index));
 
     // Merge selection
-    this.leftSelection = Selection.merge(
+    this.leftSelection = Region.merge(
       this.leftSelection,
       other.left.location
     );
-    this.rightSelection = Selection.merge(
+    this.rightSelection = Region.merge(
       this.rightSelection,
       other.right.location
     );
 
   }
 
-  public extendWithFragment(other: Fragment): void {
-    const otherFirst = other.matches[0];
+  public extendWithBlock(other: Block): void {
+    const otherFirst = other.pairs[0];
     assert(this.extendable(otherFirst));
 
-    this.matches = this.matches.concat(other.matches);
+    this.pairs = this.pairs.concat(other.pairs);
 
     if (this.mergedStop < other.leftKmers.from) {
       this.mergedData += "|" + other.mergedData;
@@ -87,11 +87,11 @@ export class Fragment {
       Range.merge(this.rightKmers, other.rightKmers);
 
     // merge selections
-    this.leftSelection = Selection.merge(
+    this.leftSelection = Region.merge(
       this.leftSelection,
       other.leftSelection,
     );
-    this.rightSelection = Selection.merge(
+    this.rightSelection = Region.merge(
       this.rightSelection,
       other.rightSelection,
     );
