@@ -10,11 +10,11 @@
         <v-row>
           <v-container id="dropdown-example-3">
             <v-overflow-btn
-              class="my-2"
-              :items="Object.keys(ReviewStatus)"
-              label="Review status"
-              :value="ReviewStatus.Unreviewed"
+              class="reviewStatusPicker"
               item-value="text"
+              :items="Object.values(ReviewStatus)"
+              :value="ReviewStatus.Unreviewed"
+              @input="updateReviewStatus"
             ></v-overflow-btn>
           </v-container>
         </v-row>
@@ -121,6 +121,10 @@ export enum SideID {
 export default class Compare extends Vue {
   @Prop({ default: false }) loaded!: boolean;
   @Prop() diff!: Diff;
+
+  updateReviewStatus(reviewStatus: ReviewStatus): void {
+    this.$store.commit("setReviewStatus", { diffId: this.diff.id, reviewStatus });
+  }
 
   get ReviewStatus(): typeof ReviewStatus {
     return ReviewStatus;
