@@ -5,13 +5,13 @@ comment,
 directory,
 kmerLength,50
 kmersInWindow,50
-language,javascript
+language,python
 maxGapSize,0
 maxHashCount,
 maxHashPercentage,
 maxMatches,
 minBlockLength,0
-limitResults,
+limitResults,20
 localPort,3000
 minSimilarity,0
 sortBy,total

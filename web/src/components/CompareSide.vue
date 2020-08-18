@@ -67,6 +67,7 @@ export default class CompareSide extends Vue {
   onSelectionChange(newValue: Array<string>): void {
     if (newValue.length > 0) {
       const element = d3.select(this.makeSelector(newValue)).node();
+      console.log(element);
       (element as HTMLElement).scrollIntoView({ behavior: "smooth", block: "center" });
     }
   }
