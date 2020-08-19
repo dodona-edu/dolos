@@ -1,6 +1,6 @@
 import Vue from "vue";
 import Vuex from "vuex";
-import { ApiData, fetchData, Diff, Kmer, Metadata, File, ObjMap, Block, populateBlocks } from "@/api/api";
+import { ApiData, fetchData, Diff, Kmer, Metadata, File, ObjMap, populateBlocks } from "@/api/api";
 
 Vue.use(Vuex);
 
