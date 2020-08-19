@@ -3190,7 +3190,7 @@ plur@^4.0.0:
   dependencies:
     irregular-plurals "^3.2.0"
 
-prebuild-install@^5.0.0:
+prebuild-install@^5.0.0, prebuild-install@^5.3.3:
   version "5.3.5"
   resolved "https://registry.yarnpkg.com/prebuild-install/-/prebuild-install-5.3.5.tgz#e7e71e425298785ea9d22d4f958dbaccf8bb0e1b"
   integrity sha512-YmMO7dph9CYKi5IR/BzjOJlRzpxGGVo1EsLSUZ0mt/Mq0HWZIHOKHHcHdT69yG54C9m6i45GpItwRHpk0Py7Uw==
@@ -3898,6 +3898,14 @@ toidentifier@1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/toidentifier/-/toidentifier-1.0.0.tgz#7e1be3470f1e77948bc43d94a3c8f4d7752ba553"
   integrity sha512-yaOH/Pk/VEhBWWTlhI+qXxDFXlejDGcQipMlyxda9nthulaxLZUNcUqFxokp0vcYnvteJln5FNQDRrxj3YcbVw==
+
+tree-sitter-bash@^0.16.1:
+  version "0.16.1"
+  resolved "https://registry.yarnpkg.com/tree-sitter-bash/-/tree-sitter-bash-0.16.1.tgz#7d171dfe3a912f7210cee2142804cba1f553939d"
+  integrity sha512-knkl96EkBSns9NSUmFVboOlnMNxkhHp/e7l5rKCt9kk7qZlT9NdCJQHsXLcjk8L2ameRnQFJfuSzCNG3DQeF7Q==
+  dependencies:
+    nan "^2.14.0"
+    prebuild-install "^5.3.3"
 
 tree-sitter-c-sharp@^0.16.1:
   version "0.16.1"
