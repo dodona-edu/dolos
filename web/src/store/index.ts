@@ -1,6 +1,6 @@
 import Vue from "vue";
 import Vuex from "vuex";
-import { ApiData, fetchData, Diff, Kmer, Metadata, File, ObjMap, Block, fetchBlocks } from "@/api/api";
+import { ApiData, fetchData, Diff, Kmer, Metadata, File, ObjMap, Block, populateBlocks } from "@/api/api";
 
 Vue.use(Vuex);
 
@@ -14,31 +14,33 @@ export default new Vuex.Store({
       diffs: Object() as ObjMap<Diff>,
       metadata: Object() as Metadata,
     },
-    blocks: Object() as ObjMap<Array<Block>>
   },
   getters: {
-    isBlocksLoaded: state => (diffId: number) => {
-      return !!state.blocks[diffId];
+    areBlocksLoaded: state => (diffId: number) => {
+      return !!state.data.diffs[diffId].blocks;
     },
-    kmers: state => state.data.kmers
+    kmers: state => state.data.kmers,
+    diff: state => (diffId: number) => {
+      return state.data.diffs[diffId];
+    }
   },
   mutations: {
     setData(state, data: ApiData) {
       state.dataLoaded = true;
       state.data = data;
     },
-    setBlocks(state, data: { diffId: number; blocks: Array<Block> }) {
-      state.blocks[data.diffId] = data.blocks;
-      state.blocks = { ...state.blocks };
+    updateDiff(state, data: { diff: Diff }) {
+      Vue.set(state.data.diffs, data.diff.id, data.diff);
     }
   },
   actions: {
     loadData({ commit }): Promise<void> {
       return fetchData().then(data => commit("setData", data));
     },
-    loadBlocks({ commit, getters }, data: { diffId: number }): Promise<void> {
-      return fetchBlocks(data.diffId, getters.kmers)
-        .then(blocks => commit("setBlocks", { diffId: data.diffId, blocks }));
+    populateBlocks({ commit, getters }, data: { diffId: number }): Promise<void> {
+      const diff = getters.diff(data.diffId);
+      return populateBlocks(diff, getters.kmers)
+        .then(() => commit("updateDiff", { diff: diff }));
     }
   },
   modules: {

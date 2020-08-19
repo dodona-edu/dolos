@@ -1,12 +1,12 @@
 <template>
-  <v-card :loading="!loaded || !blocks">
+  <v-card :loading="!loaded">
     <v-card-title>
       {{ leftFilename }}
       <v-spacer/>
       {{ rightFilename }}
     </v-card-title>
     <v-container fluid>
-      <v-row v-if="loaded && blocks" justify="center" no-gutters>
+      <v-row v-if="loaded" justify="center" no-gutters>
         <v-col sm="6">
           <v-row no-gutters>
             <v-col cols="11">
@@ -100,7 +100,6 @@ export enum SideID {
 export default class Compare extends Vue {
   @Prop({ default: false }) loaded!: boolean;
   @Prop() diff!: Diff;
-  @Prop() blocks!: Array<Block>
 
   blockClickCount = 0;
   currentBlockClassIndex = 0;
@@ -279,11 +278,11 @@ export default class Compare extends Vue {
   }
 
   get leftSelection(): Array<Selection> {
-    return this.blocks.map(block => block.left);
+    return this.diff.blocks!.map(block => block.left);
   }
 
   get rightSelection(): Array<Selection> {
-    return this.blocks.map(block => block.right);
+    return this.diff.blocks!.map(block => block.right);
   }
 
   extractRowCol(value: string): [number, number] {
@@ -313,7 +312,7 @@ export default class Compare extends Vue {
    * on the other CompareSide. This is done by looping over all the hunks in the current diff.
    */
   initializeMaps(): void {
-    for (const block of this.blocks) {
+    for (const block of this.diff.blocks!) {
       const leftId = constructID(block.left);
       const rightId = constructID(block.right);
 

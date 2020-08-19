@@ -6,7 +6,6 @@
           v-if="diff"
           :loaded="dataLoaded"
           :diff="diff"
-          :blocks="blocks"
         />
         <v-card v-else>
           <v-card-subtitle>
@@ -22,7 +21,7 @@
 import DataView from "@/views/DataView";
 import { Component, Prop } from "vue-property-decorator";
 import CompareCard from "@/components/CompareCard.vue";
-import { Block, Diff } from "@/api/api";
+import { Diff } from "@/api/api";
 
 @Component({
   components: { CompareCard }
@@ -31,8 +30,8 @@ export default class Compare extends DataView {
   @Prop({ required: true }) diffId!: number;
 
   async ensureBlocks(): Promise<void> {
-    if (!this.$store.getters.isBlocksLoaded(this.diffId)) {
-      await this.$store.dispatch("loadBlocks", { diffId: this.diffId });
+    if (!this.$store.getters.areBlocksLoaded(this.diffId)) {
+      await this.$store.dispatch("populateBlocks", { diffId: this.diffId });
     }
   }
 
@@ -45,8 +44,8 @@ export default class Compare extends DataView {
     return this.diffs[+this.diffId];
   }
 
-  get blocks(): Array<Block> | undefined {
-    return this.$store.state.blocks[+this.diffId];
+  get dataLoaded(): boolean {
+    return super.dataLoaded && this.$store.getters.areBlocksLoaded(this.diffId);
   }
 }
 </script>
