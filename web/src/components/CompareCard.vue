@@ -222,9 +222,14 @@ export function compareReviewStatus(el1: ReviewStatus, el2: ReviewStatus): numbe
 
 export enum ReviewStatus {
   Unreviewed = "Unreviewed",
-  CertainPlagiarism = "Certain plagiarism",
+  Innocent = "Innocent",
   Suspicious = "Suspicious",
-  Innocent = "Innocent"
+  CertainPlagiarism = "Certain plagiarism"
+}
+const reviewStatusOrder = Object.values(ReviewStatus);
+
+export function compareReviewStatus(el1: ReviewStatus, el2: ReviewStatus): number {
+  return reviewStatusOrder.indexOf(el2) - reviewStatusOrder.indexOf(el1);
 }
 
 export enum SideID {
