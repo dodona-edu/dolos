@@ -73,6 +73,13 @@ program
     Options.defaultMinBlockLength
   )
   .option(
+    "-c --compare",
+    Utils.indent(
+      "Print a comparison of the matching blocks even if analysing more than two " +
+      "files. Only valid when the output is set to 'terminal'."
+    )
+  )
+  .option(
     "-S, --minimum-similarity <fraction>",
     Utils.indent(
       "The minimum similarity between two files. " +
