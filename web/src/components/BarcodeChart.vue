@@ -15,7 +15,7 @@
         }
       </template>
     </component>
-    <svg class="svg-content-responsive">
+    <svg preserveAspectRatio="none" class="svg-content-responsive">
       <rect
         ref="scrollHighlighter"
         id="page-scroll-highlighter"
@@ -44,14 +44,6 @@ export default class BarcodeChart extends Vue {
   @Prop() selectedSelections!: Array<string>;
   @Prop() hoveringSelections!: Array<string>;
 
-  chart: {
-    width: number;
-    height: number;
-  } = {
-    width: 40,
-    height: 1000,
-  }
-
   mounted(): void {
     this.drawBar();
   }
@@ -69,13 +61,13 @@ export default class BarcodeChart extends Vue {
   }
 
   scrollHighlighterHeight(): number {
-    return (this.chart.height / this.maxLines) * Math.floor(this.amountOfLinesVisible);
+    return (this.lines / this.maxLines) * Math.floor(this.amountOfLinesVisible);
   }
 
   get scrollOffset(): number {
     return Math.min(
-      this.documentScrollFraction * (this.chart.height - this.scrollHighlighterHeight()) * this.lines / this.maxLines,
-      this.chart.height - this.scrollHighlighterHeight()
+      this.documentScrollFraction * (this.lines - this.scrollHighlighterHeight()) * this.lines / this.maxLines,
+      this.lines - this.scrollHighlighterHeight()
     );
   }
 
@@ -85,7 +77,7 @@ export default class BarcodeChart extends Vue {
 
   drawBar(): void {
     const svg = d3.select(`#${this.identifier} .svg-content-responsive`)
-      .attr("viewBox", [0, 0, this.chart.width, this.chart.height].join(" "));
+      .attr("viewBox", [0, 0, 1, this.lines].join(" "));
 
     const temp: {[key: number]: number} = {};
     const subgroups = [];
@@ -110,7 +102,7 @@ export default class BarcodeChart extends Vue {
 
     const y = d3.scaleLinear()
       .domain([0, this.maxLines])
-      .range([this.chart.height, 0]);
+      .range([this.lines, 0]);
 
     svg
       .insert("g", ":first-child")
@@ -129,9 +121,9 @@ export default class BarcodeChart extends Vue {
       // enter a second time = loop subgroup per subgroup to add all rectangles
       .data(function (d) { return d; })
       .enter().append("rect")
-      .attr("y", d => { return this.chart.height - y(d[0]); })
+      .attr("y", d => { return this.lines - y(d[0]); })
       .attr("height", function (d) { return y(d[0]) - y(d[1]); })
-      .attr("width", this.chart.width)
+      .attr("width", this.lines)
       .on("mouseover", (a, b, rect) => this.mouseover(map, a, b, rect))
       .on("mouseleave", (a, b, rect) => this.mouseleave(map, a, b, rect))
       .on("click", (a, b, rect) => this.mouseclick(map, a, b, rect));
@@ -182,6 +174,7 @@ export default class BarcodeChart extends Vue {
 
   .svg-content-responsive {
     height: 100%;
+    width: 100%;
     display: inline-block;
     position: absolute;
     top: 0;
