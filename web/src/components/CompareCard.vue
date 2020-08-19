@@ -87,7 +87,6 @@ import CompareSide from "@/components/CompareSide.vue";
 import BarcodeChart from "@/components/BarcodeChart.vue";
 import { constructID, SelectionId } from "@/util/OccurenceHighlight";
 import * as d3 from "d3";
-// import * as d3 from "d3";
 
 export enum SideID {
   leftSideId = "leftSideId",
