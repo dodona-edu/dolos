@@ -3,6 +3,7 @@ import csvStringify from "csv-stringify";
 import { Writable } from "stream";
 import { createWriteStream, promises as fs } from "fs";
 import { Block } from "../analyze/block";
+import { Diff } from "../analyze/diff";
 
 export function writeCSVto<T>(
   out: Writable,
@@ -54,13 +55,8 @@ export class CsvPresenter extends Presenter {
     }), null, 2);
   }
 
-  public writeBlocks(out: Writable, diffId: number): void {
-    const diffs = this.report.scoredDiffs.filter(s => s.diff.id === diffId);
-    if (diffs.length !== 1) {
-      return;
-    }
-    const diff = diffs[0];
-    out.end(this.convertBlocksToJSON(diff.diff.blocks()));
+  public writeBlocks(out: Writable, diff: Diff): void {
+    out.end(this.convertBlocksToJSON(diff.blocks()));
   }
 
   public writeDiffs(out: Writable): void {
@@ -124,7 +120,7 @@ export class CsvPresenter extends Presenter {
     await fs.mkdir(`${dirName}/blocks`);
     for (const diff of this.report.scoredDiffs) {
       const id = diff.diff.id;
-      this.writeBlocks(createWriteStream(`${dirName}/blocks/${id}.json`), id);
+      this.writeBlocks(createWriteStream(`${dirName}/blocks/${id}.json`), diff.diff);
     }
     console.log("Blocks written");
     this.writeKmers(createWriteStream(`${dirName}/kmers.csv`));
