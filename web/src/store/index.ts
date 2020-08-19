@@ -4,7 +4,6 @@ import { ApiData, fetchData, Diff, Kmer, Metadata, File, ObjMap, Block, populate
 
 Vue.use(Vuex);
 
-// noinspection SillyAssignmentJS
 export default new Vuex.Store({
   state: {
     dataLoaded: false,
