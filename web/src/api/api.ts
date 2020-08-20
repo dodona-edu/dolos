@@ -50,6 +50,7 @@ export interface Block {
   right: Selection;
   data: string;
   pairs: PairedOccurrence[];
+  active: boolean;
 }
 
 export interface Diff {
@@ -119,6 +120,7 @@ function parseBlocks(blocksJson: string, kmers: ObjMap<Kmer>): Block[] {
   const parsed = JSON.parse(blocksJson);
   return parsed.map((blockData: any): Block => {
     return {
+      active: true,
       left: blockData.leftSelection,
       right: blockData.rightSelection,
       data: blockData.data,

@@ -36,19 +36,14 @@ import "prismjs/themes/prism.css";
 import "prismjs/plugins/line-numbers/prism-line-numbers.js";
 import "prismjs/plugins/line-numbers/prism-line-numbers.css";
 import { ID_START, registerBlockHighlighting } from "@/util/OccurenceHighlight";
-import * as d3 from "d3";
-import { SideID } from "@/components/CompareCard.vue";
 
 @Component
 export default class CompareSide extends Vue {
-  @Prop() identifier!: string;
-  @Prop() selectionClickHandler!: (sideId: string, blockClasses: Array<string>) => void;
-  @Prop() onHoverEnter!: (sideId: string, blockClasses: Array<string>, element: HTMLElement) => void;
-  @Prop() onHoverExit!: (sideId: string, blockClasses: Array<string>, element: HTMLElement) => void;
-  @Prop() file!: File;
-  @Prop() selections!: Array<Selection>;
-  @Prop() hoveringSelections!: Array<string>;
-  @Prop() selectedSelections!: Array<string>;
+  @Prop({ required: true }) identifier!: string;
+  @Prop({ required: true }) file!: File;
+  @Prop({ required: true }) selections!: Array<Selection>;
+  @Prop({ required: true }) hoveringSelections!: Array<string>;
+  @Prop({ required: true }) selectedSelections!: Array<string>;
 
   get content(): string {
     return this.file.content;

@@ -3,7 +3,7 @@
     <v-row justify="center">
       <v-col cols="12">
         <CompareCard
-          v-if="diff"
+          v-if="diff && diff.blocks"
           :loaded="dataLoaded"
           :diff="diff"
         />
@@ -20,14 +20,20 @@
 <script lang="ts">
 import DataView from "@/views/DataView";
 import { Component, Prop } from "vue-property-decorator";
-import CompareCard from "@/components/CompareCard.vue";
+import CompareCard, { SideID } from "@/components/CompareCard.vue";
 import { Diff } from "@/api/api";
+import { SelectionId } from "@/util/OccurenceHighlight";
 
 @Component({
   components: { CompareCard }
 })
 export default class Compare extends DataView {
   @Prop({ required: true }) diffId!: number;
+  @Prop({ required: true }) selectedSelections!: {
+    [key in SideID]: {
+      blockClasses: Array<SelectionId>;
+    }
+  };
 
   async ensureBlocks(): Promise<void> {
     if (!this.$store.getters.areBlocksLoaded(this.diffId)) {

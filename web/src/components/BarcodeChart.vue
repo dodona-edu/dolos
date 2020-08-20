@@ -35,14 +35,14 @@ import * as d3 from "d3";
 
 @Component
 export default class BarcodeChart extends Vue {
-  @Prop() selections!: Array<Selection>;
-  @Prop() sideIdentifier!: string;
-  @Prop() maxLines!: number;
-  @Prop() lines!: number;
-  @Prop() documentScrollFraction!: number;
-  @Prop() amountOfLinesVisible!: number;
-  @Prop() selectedSelections!: Array<string>;
-  @Prop() hoveringSelections!: Array<string>;
+  @Prop({ required: true }) selections!: Array<Selection>;
+  @Prop({ required: true }) sideIdentifier!: string;
+  @Prop({ required: true }) maxLines!: number;
+  @Prop({ required: true }) lines!: number;
+  @Prop({ required: true }) documentScrollFraction!: number;
+  @Prop({ required: true }) amountOfLinesVisible!: number;
+  @Prop({ required: true }) selectedSelections!: Array<string>;
+  @Prop({ required: true }) hoveringSelections!: Array<string>;
 
   mounted(): void {
     this.drawBar();
