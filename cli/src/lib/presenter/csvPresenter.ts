@@ -56,7 +56,7 @@ export class CsvPresenter extends Presenter {
   }
 
   public writeBlocks(out: Writable, diff: Diff): void {
-    out.end(this.convertBlocksToJSON(diff.blocks()));
+    out.write(this.convertBlocksToJSON(diff.blocks()));
   }
 
   public writeDiffs(out: Writable): void {
