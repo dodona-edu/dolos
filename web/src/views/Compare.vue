@@ -20,20 +20,14 @@
 <script lang="ts">
 import DataView from "@/views/DataView";
 import { Component, Prop } from "vue-property-decorator";
-import CompareCard, { SideID } from "@/components/CompareCard.vue";
+import CompareCard from "@/components/CompareCard.vue";
 import { Diff } from "@/api/api";
-import { SelectionId } from "@/util/OccurenceHighlight";
 
 @Component({
   components: { CompareCard }
 })
 export default class Compare extends DataView {
   @Prop({ required: true }) diffId!: number;
-  @Prop({ required: true }) selectedSelections!: {
-    [key in SideID]: {
-      blockClasses: Array<SelectionId>;
-    }
-  };
 
   async ensureBlocks(): Promise<void> {
     if (!this.$store.getters.areBlocksLoaded(this.diffId)) {
@@ -41,9 +35,13 @@ export default class Compare extends DataView {
     }
   }
 
+  async ensureData(): Promise<void> {
+    await super.ensureData();
+    await this.ensureBlocks();
+  }
+
   created(): void {
-    super.ensureData();
-    this.ensureBlocks();
+    this.ensureData();
   }
 
   get diff(): Diff | undefined {
