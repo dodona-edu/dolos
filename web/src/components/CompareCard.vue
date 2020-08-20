@@ -183,17 +183,22 @@ export default class Compare extends Vue {
     return this.diff.leftFile.path;
   }
 
-  // get activeBlocks(): Array<Block> {
-  //   return this.diff.blocks!
-  //     .filter(block => block.active);
-  // }
+  get activeBlocks(): Array<Block> {
+    return this.diff.blocks!
+      .filter(block => block.active);
+  }
 
   get leftActiveSelectionIds(): Array<SelectionId> {
-    return [...this.activeBlocks.values()].map(block => constructID(block.left));
+    return this.activeBlocks.map(block => constructID(block.left));
+    // return this.activeSelectionIds(SideID.leftSideId, this.leftMap);
   }
 
   get rightActiveSelectionIds(): Array<SelectionId> {
-    return [...this.activeBlocks.values()].map(block => constructID(block.right));
+    return this.activeBlocks.map(block => constructID(block.right));
+  }
+
+  private activeSelectionIds(sideId: SideID, map: Map<SelectionId, Array<SelectionId>>): Array<SelectionId> {
+    return map ? [...map.keys()].filter(sel => this.isSelectionActive(sideId, sel)) : [];
   }
 
   get leftSelections(): Array<Selection> {
@@ -235,24 +240,7 @@ export default class Compare extends Vue {
     this.initialize();
   }
 
-  activeBlocks = new Set<Block>();
-  private initializedWatchers = false;
   initialize(): void {
-    if (!this.initializedWatchers) {
-      this.initializedWatchers = true;
-      if (this.diff.blocks) {
-        for (const block of this.diff.blocks) {
-          this.activeBlocks.add(block);
-          this.$watch(() => block.active, a => {
-            if (a) {
-              this.activeBlocks.add(block);
-            } else {
-              this.activeBlocks.delete(block);
-            }
-          });
-        }
-      }
-    }
     this.leftMap = new Map();
     this.rightMap = new Map();
     this.sideMap = new Map([
