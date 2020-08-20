@@ -46,6 +46,7 @@ export class WebPresenter extends CsvPresenter {
         res.contentType("text/json");
         res.setHeader("Content-Disposition", "attachment;filename=blocks.csv");
         this.writeBlocks(res, this.diffMap[+req.params.id]);
+        res.end();
       }
     }));
 
