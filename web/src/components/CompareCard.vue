@@ -9,35 +9,36 @@
         {{ rightFilename }}
       </v-card-title>
       <v-container fluid>
-        <v-row v-if="loaded" justify="center" no-gutters>
+        <v-row justify="center" no-gutters v-if="loaded">
           <v-col sm="6">
             <v-row no-gutters>
               <v-col cols="11">
                 <compare-side
-                  ref="leftCompareSide"
-                  :identifier="SideId.leftSideId"
                   :file="diff.leftFile"
-                  :selections="leftSelection"
-                  :selected-selections="selected.sides.leftSideId.blockClasses"
                   :hovering-selections="lastHovered.leftSideId.blockClasses"
+                  :identifier="SideId.leftSideId"
+                  :selected-selections="selected.sides.leftSideId.blockClasses"
+                  :selections="leftSelections"
+                  @codescroll="onScrollHandler"
+                  @linesvisibleamount="setLinesVisible"
                   @selectionclick="selectionClickEventHandler"
                   @selectionhoverenter="onHoverEnterHandler"
                   @selectionhoverexit="onHoverExitHandler"
-                  @linesvisibleamount="setLinesVisible"
-                  @codescroll="onScrollHandler"
+                  ref="leftCompareSide"
                 >
                 </compare-side>
               </v-col>
               <v-col cols="auto">
                 <BarcodeChart
-                  :selections="leftSelection"
-                  :side-identifier="SideId.leftSideId"
-                  :maxLines="maxLines"
-                  :lines="leftLines"
                   :amount-of-lines-visible="linesVisible"
                   :document-scroll-fraction="leftScrollFraction"
                   :hovering-selections="lastHovered.leftSideId.blockClasses"
+                  :lines="leftLines"
+                  :maxLines="maxLines"
                   :selected-selections="selected.sides.leftSideId.blockClasses"
+                  :selections="leftSelections"
+                  :side-identifier="SideId.leftSideId"
+                  :active-selections="leftActiveSelectionIds"
                   @selectionclick="selectionClickEventHandler"
                   @selectionhoverenter="onHoverEnterHandler"
                   @selectionhoverexit="onHoverExitHandler"
@@ -49,28 +50,29 @@
             <v-row no-gutters>
               <v-col cols="11">
                 <compare-side
-                  :identifier="SideId.rightSideId"
                   :file="diff.rightFile"
-                  :selections="rightSelection"
                   :hovering-selections="lastHovered.rightSideId.blockClasses"
+                  :identifier="SideId.rightSideId"
                   :selected-selections="selected.sides.rightSideId.blockClasses"
+                  :selections="rightSelections"
+                  @codescroll="onScrollHandler"
                   @selectionclick="selectionClickEventHandler"
                   @selectionhoverenter="onHoverEnterHandler"
                   @selectionhoverexit="onHoverExitHandler"
-                  @codescroll="onScrollHandler"
                 >
                 </compare-side>
               </v-col>
               <v-col cols="auto">
                 <BarcodeChart
-                  :selections="rightSelection"
-                  :side-identifier="SideId.rightSideId"
-                  :maxLines="maxLines"
-                  :lines="rightLines"
-                  :document-scroll-fraction="rightScrollFraction"
                   :amount-of-lines-visible="linesVisible"
+                  :document-scroll-fraction="rightScrollFraction"
                   :hovering-selections="lastHovered.rightSideId.blockClasses"
+                  :lines="rightLines"
+                  :maxLines="maxLines"
                   :selected-selections="selected.sides.rightSideId.blockClasses"
+                  :selections="rightSelections"
+                  :side-identifier="SideId.rightSideId"
+                  :active-selections="rightActiveSelectionIds"
                   @selectionclick="selectionClickEventHandler"
                   @selectionhoverenter="onHoverEnterHandler"
                   @selectionhoverexit="onHoverExitHandler"
@@ -86,7 +88,7 @@
 <script lang="ts">
 
 import { Component, Vue, Prop } from "vue-property-decorator";
-import { Diff, Selection } from "@/api/api";
+import { Block, Diff, Selection } from "@/api/api";
 import CompareSide from "@/components/CompareSide.vue";
 import BarcodeChart from "@/components/BarcodeChart.vue";
 import { constructID, SelectionId } from "@/util/OccurenceHighlight";
@@ -113,6 +115,15 @@ export default class Compare extends Vue {
   // maps an id of a side to its map
   sideMap!: Map<SideID, Map<SelectionId, Array<SelectionId>>>;
 
+  sideSelectionsToBlocks: {
+    [key in SideID]: {
+      [key: string]: Block[];
+    }
+  } = {
+    [SideID.leftSideId]: {},
+    [SideID.rightSideId]: {},
+  }
+
   selected: {
     sides: {
       [key in SideID]: {
@@ -128,10 +139,6 @@ export default class Compare extends Vue {
     }
   };
 
-  get SideId(): typeof SideID {
-    return SideID;
-  }
-
   lastHovered: {
     [key in SideID]: {
       blockClasses: Array<SelectionId>;
@@ -145,27 +152,8 @@ export default class Compare extends Vue {
   rightScrollFraction = 0;
   linesVisible = 0;
 
-  onScrollHandler(sideId: SideID, scrollFraction: number): void {
-    if (sideId === SideID.rightSideId) {
-      this.rightScrollFraction = scrollFraction;
-    } else {
-      this.leftScrollFraction = scrollFraction;
-    }
-  }
-
-  setLinesVisible(lines: number): void {
-    this.linesVisible = lines;
-  }
-
-  /**
-   * Prismjs trims the last line of code if that line is empty so we have to take that into account.
-   */
-  trimLastEmptyLine(lines: Array<string>): number {
-    if (lines[lines.length - 1].length === 0) {
-      return lines.length - 1;
-    } else {
-      return lines.length;
-    }
+  get SideId(): typeof SideID {
+    return SideID;
   }
 
   get leftIdentifier(): string {
@@ -193,6 +181,59 @@ export default class Compare extends Vue {
 
   get leftFilename(): string {
     return this.diff.leftFile.path;
+  }
+
+  get activeBlocks(): Array<Block> {
+    return this.diff.blocks!
+      .filter(block => block.active);
+  }
+
+  get leftActiveSelectionIds(): Array<SelectionId> {
+    return this.activeBlocks.map(block => constructID(block.left));
+    // return this.activeSelectionIds(SideID.leftSideId, this.leftMap);
+  }
+
+  get rightActiveSelectionIds(): Array<SelectionId> {
+    return this.activeBlocks.map(block => constructID(block.right));
+  }
+
+  private activeSelectionIds(sideId: SideID, map: Map<SelectionId, Array<SelectionId>>): Array<SelectionId> {
+    return map ? [...map.keys()].filter(sel => this.isSelectionActive(sideId, sel)) : [];
+  }
+
+  get leftSelections(): Array<Selection> {
+    return this.diff.blocks!.map(block => block.left);
+  }
+
+  get rightSelections(): Array<Selection> {
+    return this.diff.blocks!.map(block => block.right);
+  }
+
+  isSelectionActive(sideId: SideID, selectionId: SelectionId): boolean {
+    return this.sideSelectionsToBlocks[sideId][selectionId].some(block => block.active);
+  }
+
+  onScrollHandler(sideId: SideID, scrollFraction: number): void {
+    if (sideId === SideID.rightSideId) {
+      this.rightScrollFraction = scrollFraction;
+    } else {
+      this.leftScrollFraction = scrollFraction;
+    }
+  }
+
+  setLinesVisible(lines: number): void {
+    this.linesVisible = lines;
+  }
+
+  /**
+   * Prismjs trims the last line of code if that line is empty so we have to take that into account.
+   */
+  trimLastEmptyLine(lines: Array<string>): number {
+    if (lines[lines.length - 1].length === 0) {
+      return lines.length - 1;
+    } else {
+      return lines.length;
+    }
   }
 
   updated(): void {
@@ -281,14 +322,6 @@ export default class Compare extends Vue {
     (otherElement as HTMLElement).scrollIntoView({ behavior: "smooth", block: "center" });
   }
 
-  get leftSelection(): Array<Selection> {
-    return this.diff.blocks!.map(block => block.left);
-  }
-
-  get rightSelection(): Array<Selection> {
-    return this.diff.blocks!.map(block => block.right);
-  }
-
   extractRowCol(value: string): [number, number] {
     const [row, col] = value.split("-").slice(3, 5);
     return [+row, +col];
@@ -319,6 +352,15 @@ export default class Compare extends Vue {
     for (const block of this.diff.blocks!) {
       const leftId = constructID(block.left);
       const rightId = constructID(block.right);
+      if (!this.sideSelectionsToBlocks[SideID.leftSideId][leftId]) {
+        Vue.set(this.sideSelectionsToBlocks[SideID.leftSideId], leftId, []);
+      }
+      this.sideSelectionsToBlocks[SideID.leftSideId][leftId].push(block);
+
+      if (!this.sideSelectionsToBlocks[SideID.rightSideId][rightId]) {
+        Vue.set(this.sideSelectionsToBlocks[SideID.rightSideId], rightId, []);
+      }
+      this.sideSelectionsToBlocks[SideID.rightSideId][rightId].push(block);
 
       if (!this.leftMap.has(leftId)) {
         this.leftMap.set(leftId, []);

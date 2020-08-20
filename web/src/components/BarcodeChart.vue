@@ -1,9 +1,11 @@
 <template >
   <div :id="identifier" class="barcodeChart">
     <component :is="'style'" type="text/css">
-      .marked {
-      fill: var(--markedbg);
-      }
+      <template v-for="item in activeSelections">
+        .{{item}} {
+          fill: var(--markedbg);
+        }
+      </template>
       <template v-for="item in hoveringSelections">
         .marked.{{ item }} {
         fill: var(--hoveringbg);
@@ -41,8 +43,9 @@ export default class BarcodeChart extends Vue {
   @Prop({ required: true }) lines!: number;
   @Prop({ required: true }) documentScrollFraction!: number;
   @Prop({ required: true }) amountOfLinesVisible!: number;
-  @Prop({ required: true }) selectedSelections!: Array<string>;
+  @Prop() selectedSelections!: Array<string>;
   @Prop({ required: true }) hoveringSelections!: Array<string>;
+  @Prop({ required: true }) activeSelections!: Array<string>;
 
   mounted(): void {
     this.drawBar();
@@ -163,6 +166,10 @@ export default class BarcodeChart extends Vue {
 <style lang="scss">
 @use 'codeHighlightsColours';
 
+.barcodeChartBar {
+  fill: #f5f2f0;
+}
+
 .barcodeChart {
   display: inline-block;
   position: relative;
@@ -179,10 +186,6 @@ export default class BarcodeChart extends Vue {
     position: absolute;
     top: 0;
     left: 0;
-
-    .barcodeChartBar:not(.marked) {
-      fill: #f5f2f0;
-    }
 
     #page-scroll-highlighter {
       width: 40px;

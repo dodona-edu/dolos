@@ -43,7 +43,7 @@ export default class CompareSide extends Vue {
   @Prop({ required: true }) file!: File;
   @Prop({ required: true }) selections!: Array<Selection>;
   @Prop({ required: true }) hoveringSelections!: Array<string>;
-  @Prop({ required: true }) selectedSelections!: Array<string>;
+  @Prop() selectedSelections!: Array<string>;
 
   get content(): string {
     return this.file.content;

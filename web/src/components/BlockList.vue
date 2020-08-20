@@ -16,7 +16,6 @@
           </v-card-title>
           <v-card-text>
             <v-list dense height="20vw" class="overflow-y-auto">
-              <v-list-item-group>
                 <v-list-item v-for="(block, i) in diff.blocks" :key="i">
                   <v-list-item-action>
                     <v-checkbox v-model="block.active">
@@ -27,7 +26,6 @@
                     {{constructID(block.right)}}
                   </v-list-item-content>
                 </v-list-item>
-              </v-list-item-group>
             </v-list>
           </v-card-text>
           <v-divider></v-divider>
