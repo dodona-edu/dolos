@@ -1,20 +1,21 @@
 <template>
   <div>
     <component :is="'style'" type="text/css">
-      .marked-code, .token.marked-code {
+
+      <template v-for="item in activeSelections">
+        .token.marked-code.{{item}} {
         background: var(--markedbg);
         text-shadow: none;
-      }
+        }
+      </template>
       <template v-for="item in hoveringSelections">
-        .token.operator.{{ item }}, .token.entity.{{ item }}, .token.url.{{ item }},
-        .language-css .token.string.{{ item }}, .style .token.string.{{ item }}, .token.marked-code.{{ item }} {
+        .token.marked-code.{{ item }} {
           background: var(--hoveringbg);
           text-shadow: none;
         }
       </template>
       <template v-for="item in selectedSelections">
-        .token.operator.{{ item }}, .token.entity.{{ item }}, .token.url.{{ item }},
-        .language-css .token.string.{{ item }}, .style .token.string.{{ item }}, .token.marked-code.{{ item }} {
+        .token.marked-code.{{ item }} {
           background: var(--selectedbg);
           text-shadow: none;
         }
@@ -43,7 +44,8 @@ export default class CompareSide extends Vue {
   @Prop({ required: true }) file!: File;
   @Prop({ required: true }) selections!: Array<Selection>;
   @Prop({ required: true }) hoveringSelections!: Array<string>;
-  @Prop() selectedSelections!: Array<string>;
+  @Prop({ required: true }) activeSelections!: Array<string>;
+  @Prop({ required: true }) selectedSelections!: Array<string>;
 
   get content(): string {
     return this.file.content;
