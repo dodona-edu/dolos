@@ -1,16 +1,10 @@
 export interface DolosOptions {
-  base: string | null;
-  clusterMinMatches: number;
-  comment: string | null;
-  directory: boolean;
   kmerLength: number;
   kmersInWindow: number;
   language: string;
   limitResults: number | null;
-  maxGapSize: number;
   maxHashCount: number | null;
   maxHashPercentage: number | null;
-  maxMatches: number | null;
   minBlockLength: number;
   minSimilarity: number;
   localPort: number;
@@ -51,14 +45,11 @@ function definedOrDefault<T>(arg: T | undefined | null, def: T): T {
 
 export class Options implements DolosOptions {
 
-  public static defaultDirectory = false;
   public static defaultKmerLength = 50;
   public static defaultKmersInWindow = 40;
   public static defaultLanguage = "javascript";
   public static defaultMinBlockLength = 0;
   public static defaultMinSimilarity = 0;
-  public static defaultMaxGapSize = 0;
-  public static defaultClusterMinMatches = 15;
   public static defaultPort = 3000;
   public static defaultSortBy = "total";
 
@@ -72,7 +63,6 @@ export class Options implements DolosOptions {
     const errors = [
       validatePercentage("minSimilarity", this.minSimilarity),
       validatePercentage("maxHashPercentage", this.maxHashPercentage),
-      validatePositiveInteger("maxGapSize", this.maxGapSize),
       validatePositiveInteger("minBlockLength", this.minBlockLength),
       validatePositiveInteger("maxHashCount", this.maxHashCount),
       validatePositiveInteger("limitResults", this.limitResults),
@@ -94,14 +84,6 @@ export class Options implements DolosOptions {
 
   get language(): string {
     return definedOrDefault(this.custom.language, Options.defaultLanguage);
-  }
-
-  get base(): string | null {
-    return definedOrNull(this.custom.base);
-  }
-
-  get directory(): boolean {
-    return definedOrDefault(this.custom.directory, Options.defaultDirectory);
   }
 
   get kmerLength(): number {
@@ -127,10 +109,6 @@ export class Options implements DolosOptions {
     return definedOrNull(this.custom.maxHashPercentage);
   }
 
-  get comment(): string | null {
-    return definedOrNull(this.custom.comment);
-  }
-
   get minBlockLength(): number {
     return definedOrDefault(
       this.custom.minBlockLength,
@@ -145,21 +123,6 @@ export class Options implements DolosOptions {
     );
   }
 
-  get maxGapSize(): number {
-    return definedOrDefault(this.custom.maxGapSize, Options.defaultMaxGapSize);
-  }
-
-  get clusterMinMatches(): number {
-    return definedOrDefault(
-      this.custom.clusterMinMatches,
-      Options.defaultClusterMinMatches
-    );
-  }
-
-  get maxMatches(): number | null {
-    return definedOrNull(this.custom.maxMatches);
-  }
-
   get localPort(): number {
     return definedOrDefault(this.custom.localPort, Options.defaultPort);
   }
@@ -170,17 +133,11 @@ export class Options implements DolosOptions {
 
   public asObject(): DolosOptions {
     return {
-      base: this.base,
-      clusterMinMatches: this.clusterMinMatches,
-      comment: this.comment,
-      directory: this.directory,
       kmerLength: this.kmerLength,
       kmersInWindow: this.kmersInWindow,
       language: this.language,
-      maxGapSize: this.maxGapSize,
       maxHashCount: this.custom.maxHashCount || null,
       maxHashPercentage: this.maxHashPercentage,
-      maxMatches: this.maxMatches,
       minBlockLength: this.minBlockLength,
       limitResults: this.limitResults,
       localPort: this.localPort,
