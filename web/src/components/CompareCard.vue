@@ -200,7 +200,7 @@ export default class Compare extends Vue {
   }
 
   private activeSelectionIds(sideId: SideID, map: Map<SelectionId, Array<SelectionId>>): Array<SelectionId> {
-    return map ? [...map.keys()].filter(sel => this.isSelectionActive(sideId, sel)) : [];
+    return map ? [...map.keys()].filter(this.isSelectionActive(sideId)) : [];
   }
 
   get leftSelections(): Array<Selection> {
@@ -211,8 +211,8 @@ export default class Compare extends Vue {
     return this.diff.blocks!.map(block => block.right);
   }
 
-  isSelectionActive(sideId: SideID, selectionId: SelectionId): boolean {
-    return this.sideSelectionsToBlocks[sideId][selectionId].some(block => block.active);
+  isSelectionActive(sideId: SideID): (selectionId: SelectionId) => boolean {
+    return selectionId => this.sideSelectionsToBlocks[sideId][selectionId].some(block => block.active);
   }
 
   onScrollHandler(sideId: SideID, scrollFraction: number): void {
@@ -262,10 +262,12 @@ export default class Compare extends Vue {
   }
 
   onHoverEnterHandler(sideId: SideID, blockClasses: Array<string>): void {
+    const filteredBlockClasses = blockClasses.filter(this.isSelectionActive(sideId));
     const otherSideId = this.getOtherSide(sideId);
-    const otherBlockClasses = this.getAllOtherBlockClasses(sideId, blockClasses);
+    const otherBlockClasses = this.getAllOtherBlockClasses(sideId, filteredBlockClasses)
+      .filter(this.isSelectionActive(otherSideId));
 
-    this.lastHovered[sideId].blockClasses = blockClasses;
+    this.lastHovered[sideId].blockClasses = filteredBlockClasses;
     this.lastHovered[otherSideId].blockClasses = otherBlockClasses;
   }
 
