@@ -8,7 +8,8 @@ const languageFiles = {
   "haskell": "samples/haskell/Caesar.hs",
   "c-sharp": "samples/c-sharp/Caesar.cs",
   "java": "samples/java/Caesar.java",
-} as any; // eslint-disable-line @typescript-eslint/no-explicit-any
+  "bash": "samples/bash/caesar.sh",
+} as {[key: string]: string};
 
 for (const language of CodeTokenizer.supportedLanguages) {
   test(`tokenizer works for ${language}`, async t => {
