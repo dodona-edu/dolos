@@ -5,7 +5,8 @@
         <CompareCard
           v-if="diff"
           :loaded="dataLoaded"
-          :diff="diff"/>
+          :diff="diff"
+        />
         <v-card v-else>
           <v-card-subtitle>
             Could not load comparison
@@ -28,12 +29,23 @@ import { Diff } from "@/api/api";
 export default class Compare extends DataView {
   @Prop({ required: true }) diffId!: number;
 
+  async ensureBlocks(): Promise<void> {
+    if (!this.$store.getters.areBlocksLoaded(this.diffId)) {
+      await this.$store.dispatch("populateBlocks", { diffId: this.diffId });
+    }
+  }
+
   created(): void {
     super.ensureData();
+    this.ensureBlocks();
   }
 
   get diff(): Diff | undefined {
     return this.diffs[+this.diffId];
+  }
+
+  get dataLoaded(): boolean {
+    return super.dataLoaded && this.$store.getters.areBlocksLoaded(this.diffId);
   }
 }
 </script>

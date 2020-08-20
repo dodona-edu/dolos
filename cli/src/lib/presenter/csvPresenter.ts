@@ -2,6 +2,8 @@ import { Presenter } from "./presenter";
 import csvStringify from "csv-stringify";
 import { Writable } from "stream";
 import { createWriteStream, promises as fs } from "fs";
+import { Block } from "../analyze/block";
+import { Diff } from "../analyze/diff";
 
 export function writeCSVto<T>(
   out: Writable,
@@ -28,6 +30,35 @@ export function writeCSVto<T>(
 
 export class CsvPresenter extends Presenter {
 
+  private convertBlocksToJSON(blocks: Block[]): string {
+    return JSON.stringify(blocks.map( block => {
+      return {
+        leftSelection: block.leftSelection,
+        rightSelection: block.rightSelection,
+        data: block.mergedData,
+        pairedOccurrences: block.pairs.map(pair => {
+          return {
+            sharedKmer: pair.kmer.id,
+            left: {
+              start: pair.left.start,
+              stop: pair.left.stop,
+              index: pair.left.index,
+            },
+            right: {
+              start: pair.right.start,
+              stop: pair.right.stop,
+              index: pair.right.index,
+            }
+          };
+        })
+      };
+    }), null, 2);
+  }
+
+  public writeBlocks(out: Writable, diff: Diff): void {
+    out.write(this.convertBlocksToJSON(diff.blocks()));
+  }
+
   public writeDiffs(out: Writable): void {
     writeCSVto(
       out,
@@ -39,25 +70,6 @@ export class CsvPresenter extends Presenter {
         "similarity": s => s.similarity,
         "totalOverlap": s => s.overlap,
         "continuousOverlap": s => s.longest,
-        "blocks": s => JSON.stringify(s.diff.blocks().map(
-          block => { return {
-            leftSelection: block.leftSelection,
-            rightSelection: block.rightSelection,
-            data: block.mergedData,
-            pairedOccurrences: block.pairs.map(pair => { return {
-              sharedKmer: pair.kmer.id,
-              left: {
-                start: pair.left.start,
-                stop: pair.left.stop,
-                index: pair.left.index,
-              },
-              right: {
-                start: pair.right.start,
-                stop: pair.right.stop,
-                index: pair.right.index,
-              }
-            };})
-          };}))
       });
   }
 
@@ -105,6 +117,14 @@ export class CsvPresenter extends Presenter {
     console.log("Metadata written.");
     this.writeDiffs(createWriteStream(`${dirName}/diffs.csv`));
     console.log("Diffs written.");
+    await fs.mkdir(`${dirName}/blocks`);
+    for (const diff of this.report.scoredDiffs) {
+      const id = diff.diff.id;
+      const stream = createWriteStream(`${dirName}/blocks/${id}.json`);
+      this.writeBlocks(stream, diff.diff);
+      stream.end();
+    }
+    console.log("Blocks written");
     this.writeKmers(createWriteStream(`${dirName}/kmers.csv`));
     console.log("Kmers written.");
     this.writeFiles(createWriteStream(`${dirName}/files.csv`));

@@ -1,33 +1,79 @@
 <template>
   <v-card :loading="!loaded">
     <v-card-title>
-      {{leftFilename}}
+      {{ leftFilename }}
       <v-spacer/>
-      {{rightFilename}}
+      {{ rightFilename }}
     </v-card-title>
     <v-container fluid>
-      <v-row v-if="loaded" justify="center">
+      <v-row v-if="loaded" justify="center" no-gutters>
         <v-col sm="6">
-          <compare-side
-            :identifier="leftIdentifier"
-            :file="diff.leftFile"
-            :selections="leftSelection"
-            @selectionclick="selectionClickEventHandler"
-            @selectionhoverenter="onHoverEnterHandler"
-            @selectionhoverexit="onHoverExitHandler"
-          >
-          </compare-side>
+          <v-row no-gutters>
+            <v-col cols="11">
+              <compare-side
+                ref="leftCompareSide"
+                :identifier="SideId.leftSideId"
+                :file="diff.leftFile"
+                :selections="leftSelection"
+                :selected-selections="selected.sides.leftSideId.blockClasses"
+                :hovering-selections="lastHovered.leftSideId.blockClasses"
+                @selectionclick="selectionClickEventHandler"
+                @selectionhoverenter="onHoverEnterHandler"
+                @selectionhoverexit="onHoverExitHandler"
+                @linesvisibleamount="setLinesVisible"
+                @codescroll="onScrollHandler"
+              >
+              </compare-side>
+            </v-col>
+            <v-col cols="auto">
+              <BarcodeChart
+                :selections="leftSelection"
+                :side-identifier="SideId.leftSideId"
+                :maxLines="maxLines"
+                :lines="leftLines"
+                :amount-of-lines-visible="linesVisible"
+                :document-scroll-fraction="leftScrollFraction"
+                :hovering-selections="lastHovered.leftSideId.blockClasses"
+                :selected-selections="selected.sides.leftSideId.blockClasses"
+                @selectionclick="selectionClickEventHandler"
+                @selectionhoverenter="onHoverEnterHandler"
+                @selectionhoverexit="onHoverExitHandler"
+              ></BarcodeChart>
+            </v-col>
+          </v-row>
         </v-col>
         <v-col sm="6">
-          <compare-side
-            :identifier="rightIdentifier"
-            :file="diff.rightFile"
-            :selections="rightSelection"
-            @selectionclick="selectionClickEventHandler"
-            @selectionhoverenter="onHoverEnterHandler"
-            @selectionhoverexit="onHoverExitHandler"
-          >
-          </compare-side>
+          <v-row no-gutters>
+            <v-col cols="11">
+              <compare-side
+                :identifier="SideId.rightSideId"
+                :file="diff.rightFile"
+                :selections="rightSelection"
+                :hovering-selections="lastHovered.rightSideId.blockClasses"
+                :selected-selections="selected.sides.rightSideId.blockClasses"
+                @selectionclick="selectionClickEventHandler"
+                @selectionhoverenter="onHoverEnterHandler"
+                @selectionhoverexit="onHoverExitHandler"
+                @codescroll="onScrollHandler"
+              >
+              </compare-side>
+            </v-col>
+            <v-col cols="auto">
+              <BarcodeChart
+                :selections="rightSelection"
+                :side-identifier="SideId.rightSideId"
+                :maxLines="maxLines"
+                :lines="rightLines"
+                :document-scroll-fraction="rightScrollFraction"
+                :amount-of-lines-visible="linesVisible"
+                :hovering-selections="lastHovered.rightSideId.blockClasses"
+                :selected-selections="selected.sides.rightSideId.blockClasses"
+                @selectionclick="selectionClickEventHandler"
+                @selectionhoverenter="onHoverEnterHandler"
+                @selectionhoverexit="onHoverExitHandler"
+              ></BarcodeChart>
+            </v-col>
+          </v-row>
         </v-col>
       </v-row>
     </v-container>
@@ -36,12 +82,19 @@
 <script lang="ts">
 
 import { Component, Vue, Prop } from "vue-property-decorator";
-import { Diff, Selection } from "@/api/api";
+import { Block, Diff, Selection } from "@/api/api";
 import CompareSide from "@/components/CompareSide.vue";
-import { constructID } from "@/util/OccurenceHighlight";
+import BarcodeChart from "@/components/BarcodeChart.vue";
+import { constructID, SelectionId } from "@/util/OccurenceHighlight";
+import * as d3 from "d3";
+
+export enum SideID {
+  leftSideId = "leftSideId",
+  rightSideId = "rightSideId"
+}
 
 @Component({
-  components: { CompareSide: CompareSide }
+  components: { CompareSide, BarcodeChart }
 })
 export default class Compare extends Vue {
   @Prop({ default: false }) loaded!: boolean;
@@ -50,20 +103,84 @@ export default class Compare extends Vue {
   blockClickCount = 0;
   currentBlockClassIndex = 0;
   // this maps a selected id to all the other selected-ids that it corresponds with
-  leftMap!: Map<string, Array<string>>;
-  rightMap!: Map<string, Array<string>>;
+  leftMap!: Map<SelectionId, Array<SelectionId>>;
+  rightMap!: Map<SelectionId, Array<SelectionId>>;
   // maps an id of a side to its map
-  sideMap!: Map<string, Map<string, Array<string>>>;
+  sideMap!: Map<SideID, Map<SelectionId, Array<SelectionId>>>;
 
   selected: {
+    sides: {
+      [key in SideID]: {
+        blockClasses: Array<SelectionId>;
+      };
+    };
     side?: string;
-    blockClasses?: Array<string>;
-  } = {};
+    blockClasses?: Array<SelectionId>;
+  } = {
+    sides: {
+      [SideID.leftSideId]: { blockClasses: [] },
+      [SideID.rightSideId]: { blockClasses: [] },
+    }
+  };
+
+  get SideId(): typeof SideID {
+    return SideID;
+  }
 
   lastHovered: {
-    side?: string;
-    blockClasses?: Array<string>;
-  } = {};
+    [key in SideID]: {
+      blockClasses: Array<SelectionId>;
+    };
+  } = {
+    [SideID.leftSideId]: { blockClasses: [] },
+    [SideID.rightSideId]: { blockClasses: [] },
+  };
+
+  leftScrollFraction = 0;
+  rightScrollFraction = 0;
+  linesVisible = 0;
+
+  onScrollHandler(sideId: SideID, scrollFraction: number): void {
+    if (sideId === SideID.rightSideId) {
+      this.rightScrollFraction = scrollFraction;
+    } else {
+      this.leftScrollFraction = scrollFraction;
+    }
+  }
+
+  setLinesVisible(lines: number): void {
+    this.linesVisible = lines;
+  }
+
+  /**
+   * Prismjs trims the last line of code if that line is empty so we have to take that into account.
+   */
+  trimLastEmptyLine(lines: Array<string>): number {
+    if (lines[lines.length - 1].length === 0) {
+      return lines.length - 1;
+    } else {
+      return lines.length;
+    }
+  }
+
+  get leftIdentifier(): string {
+    return SideID.leftSideId.toString();
+  }
+
+  get leftLines(): number {
+    return this.trimLastEmptyLine(this.diff.leftFile.content.split("\n"));
+  }
+
+  get rightLines(): number {
+    return this.trimLastEmptyLine(this.diff.rightFile.content.split("\n"));
+  }
+
+  get maxLines(): number {
+    return Math.max(
+      this.leftLines,
+      this.rightLines
+    );
+  }
 
   get rightFilename(): string {
     return this.diff.rightFile.path;
@@ -71,10 +188,6 @@ export default class Compare extends Vue {
 
   get leftFilename(): string {
     return this.diff.leftFile.path;
-  }
-
-  mounted(): void {
-    this.initialize();
   }
 
   updated(): void {
@@ -85,50 +198,37 @@ export default class Compare extends Vue {
     this.leftMap = new Map();
     this.rightMap = new Map();
     this.sideMap = new Map([
-      [this.rightIdentifier, this.rightMap],
-      [this.leftIdentifier, this.leftMap]
+      [SideID.rightSideId, this.rightMap],
+      [SideID.leftSideId, this.leftMap]
     ]);
     this.initializeMaps();
   }
 
-  get rightIdentifier(): string {
-    return "rightSide";
+  getOtherSide(sideId: SideID): SideID {
+    return sideId === SideID.rightSideId ? SideID.leftSideId : SideID.rightSideId;
   }
 
-  get leftIdentifier(): string {
-    return "leftSide";
+  getAllOtherBlockClasses(sideId: SideID, blockClasses: Array<string>): Array<string> {
+    const map = this.sideMap.get(sideId)!;
+    return blockClasses.flatMap(blockClass => map.get(blockClass)!);
   }
 
-  /**
-   * Adds or removes the hovering class to all the direct siblings and cousins ( the corresponding blocks in the other
-   * side)
-   * @param op the operation that is performed, is either "add" or "remove"
-   * @param sideId the id of the side where all the siblings are
-   * @param blockClass the class used for selecting siblings and the cousins
-   */
-  private addClassesToSiblingsAndCousins(op: "add" | "remove", sideId: string, blockClass: string): void {
-    for (const siblings of document.querySelectorAll(`#${sideId} .marked-code.${blockClass}`)) {
-      siblings.classList[op]("hovering");
-    }
+  onHoverEnterHandler(sideId: SideID, blockClasses: Array<string>): void {
+    const otherSideId = this.getOtherSide(sideId);
+    const otherBlockClasses = this.getAllOtherBlockClasses(sideId, blockClasses);
 
-    const other = this.sideMap.get(sideId)!.get(blockClass)![0];
-    for (const cousins of document.querySelectorAll(`pre:not(#${sideId}) .marked-code.${other}`)) {
-      cousins.classList[op]("hovering");
-    }
+    this.lastHovered[sideId].blockClasses = blockClasses;
+    this.lastHovered[otherSideId].blockClasses = otherBlockClasses;
   }
 
-  onHoverEnterHandler(sideId: string, blockClasses: Array<string>): void {
-    this.lastHovered.side = sideId;
-    this.lastHovered.blockClasses = blockClasses;
-    this.addClassesToSiblingsAndCousins("add", sideId, blockClasses[0]);
+  onHoverExitHandler(sideId: SideID, blockClasses: Array<string>): void {
+    const otherSideId = this.getOtherSide(sideId);
+    this.lastHovered[sideId].blockClasses = [];
+    this.lastHovered[otherSideId].blockClasses = [];
   }
 
-  onHoverExitHandler(sideId: string, blockClasses: Array<string>): void {
-    this.addClassesToSiblingsAndCousins("remove", sideId, blockClasses[0]);
-  }
-
-  selectionClickEventHandler(sideId: string, blockClasses: Array<string>): void {
-    blockClasses.sort();
+  cycle(sideId: SideID, blockClasses: Array<string>): [string, string] {
+    blockClasses.sort(this.sortSelectionId);
     // if the there is nothing that was last clicked, or a different block from last time is clicked initialize the
     // values
     if (this.selected.blockClasses === undefined || !(sideId === this.selected.side &&
@@ -136,13 +236,14 @@ export default class Compare extends Vue {
       this.currentBlockClassIndex = 0;
       this.blockClickCount = 1;
       this.selected.side = sideId;
-      this.selected.blockClasses = blockClasses;
+      this.selected.blockClasses = blockClasses.slice();
     }
 
     const map = this.sideMap.get(sideId)!;
     let id = this.selected.blockClasses[this.currentBlockClassIndex];
     let blocks = map.get(id)!;
-    // cycles through all the possible combination for the current block
+    // cycles through all the blocks on the other side and if all the blocks have been cycled through, go to the next
+    // set of blocks
     if (this.blockClickCount === blocks.length) {
       this.blockClickCount = 1;
       this.currentBlockClassIndex = (this.currentBlockClassIndex + 1) % this.selected.blockClasses.length;
@@ -152,28 +253,35 @@ export default class Compare extends Vue {
       this.blockClickCount += 1;
     }
 
-    const other = blocks.shift() as string;
-    blocks.push(other);
+    const other = blocks[this.blockClickCount - 1] as string;
+    return [id, other];
+  }
 
-    const visibleElements = document.querySelectorAll(".marked-code[class~=visible]") as NodeListOf<HTMLElement>;
-    for (const visibleElement of visibleElements) {
-      visibleElement.classList.remove("visible");
-    }
+  makeSelector(sideId: SideID, blockClasses: Array<string>): string {
+    return blockClasses
+      .map(blockClass => `#${sideId} .${blockClass}`)
+      .join(", ");
+  }
 
-    const firstBlocks = document.querySelectorAll(`#${sideId} .${id}`) as NodeListOf<HTMLElement>;
-    const secondBlocks = document.querySelectorAll(`pre:not(#${sideId}) .${other}`) as NodeListOf<HTMLElement>;
-    firstBlocks.forEach(val => val.classList.add("visible"));
-    secondBlocks.forEach(val => val.classList.add("visible"));
-    firstBlocks[0].scrollIntoView({ behavior: "smooth", block: "center" });
-    secondBlocks[0].scrollIntoView({ behavior: "smooth", block: "center" });
+  selectionClickEventHandler(sideId: SideID, blockClasses: Array<string>): void {
+    const [id, other] = this.cycle(sideId, blockClasses);
+
+    this.selected.sides[sideId].blockClasses = [id];
+    this.selected.sides[this.getOtherSide(sideId)].blockClasses = [other];
+
+    // for some reason scrolling will not always work when it is done in each CompareSide separately
+    const element = d3.select(this.makeSelector(sideId, blockClasses)).node();
+    const otherElement = d3.select(this.makeSelector(this.getOtherSide(sideId), [other])).node();
+    (element as HTMLElement).scrollIntoView({ behavior: "smooth", block: "center" });
+    (otherElement as HTMLElement).scrollIntoView({ behavior: "smooth", block: "center" });
   }
 
   get leftSelection(): Array<Selection> {
-    return this.diff.blocks.map(block => block.left);
+    return this.diff.blocks!.map(block => block.left);
   }
 
   get rightSelection(): Array<Selection> {
-    return this.diff.blocks.map(block => block.right);
+    return this.diff.blocks!.map(block => block.right);
   }
 
   extractRowCol(value: string): [number, number] {
@@ -181,18 +289,20 @@ export default class Compare extends Vue {
     return [+row, +col];
   }
 
+  sortSelectionId(el1: string, el2: string): number {
+    const [row1, col1] = this.extractRowCol(el1);
+    const [row2, col2] = this.extractRowCol(el2);
+    const res = row1 - row2;
+    if (res === 0) {
+      return col1 - col2;
+    } else {
+      return res;
+    }
+  }
+
   sortMap(map: Map<string, Array<string>>): void {
     for (const array of map.values()) {
-      array.sort((el1, el2) => {
-        const [row1, col1] = this.extractRowCol(el1);
-        const [row2, col2] = this.extractRowCol(el2);
-        const res = row1 - row2;
-        if (res === 0) {
-          return col1 - col2;
-        } else {
-          return res;
-        }
-      });
+      array.sort(this.sortSelectionId);
     }
   }
 
@@ -201,26 +311,32 @@ export default class Compare extends Vue {
    * on the other CompareSide. This is done by looping over all the hunks in the current diff.
    */
   initializeMaps(): void {
-    for (const block of this.diff.blocks) {
+    for (const block of this.diff.blocks!) {
       const leftId = constructID(block.left);
       const rightId = constructID(block.right);
 
       if (!this.leftMap.has(leftId)) {
         this.leftMap.set(leftId, []);
       }
-      this.leftMap.get(leftId)!.push(rightId);
+      if (!this.leftMap.get(leftId)!.includes(rightId)) {
+        this.leftMap.get(leftId)!.push(rightId);
+      }
 
       if (!this.rightMap.has(rightId)) {
         this.rightMap.set(rightId, []);
       }
-      this.rightMap.get(rightId)!.push(leftId);
+      if (!this.rightMap.get(rightId)!.includes(leftId)) {
+        this.rightMap.get(rightId)!.push(leftId);
+      }
     }
     this.sortMap(this.leftMap);
     this.sortMap(this.rightMap);
   }
 }
+
 </script>
 
-<style scoped>
+<style lang="scss">
+@use 'codeHighlightsColours';
 
 </style>

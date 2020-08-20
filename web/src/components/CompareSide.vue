@@ -1,23 +1,43 @@
 <template>
   <div>
-    <pre ref="pre" :id="identifier" class="line-numbers highlighted-code"><code
-      :ref="tempIdentifier"
+    <component :is="'style'" type="text/css">
+      .marked-code, .token.marked-code {
+        background: var(--markedbg);
+        text-shadow: none;
+      }
+      <template v-for="item in hoveringSelections">
+        .token.operator.{{ item }}, .token.entity.{{ item }}, .token.url.{{ item }},
+        .language-css .token.string.{{ item }}, .style .token.string.{{ item }}, .token.marked-code.{{ item }} {
+          background: var(--hoveringbg);
+          text-shadow: none;
+        }
+      </template>
+      <template v-for="item in selectedSelections">
+        .token.operator.{{ item }}, .token.entity.{{ item }}, .token.url.{{ item }},
+        .language-css .token.string.{{ item }}, .style .token.string.{{ item }}, .token.marked-code.{{ item }} {
+          background: var(--selectedbg);
+          text-shadow: none;
+        }
+      </template>
+    </component>
+    <pre v-scroll.self="onScroll" ref="pre" :id="identifier" class="line-numbers highlighted-code"><code
+      ref="codeblock"
       :class="language">{{content}}</code>
     </pre>
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import { Selection, File } from "@/api/api";
 
 import Prism from "prismjs";
 import "prismjs/themes/prism.css";
-import "prismjs/components/prism-javascript";
-import "prismjs/components/prism-python";
 import "prismjs/plugins/line-numbers/prism-line-numbers.js";
 import "prismjs/plugins/line-numbers/prism-line-numbers.css";
 import { ID_START, registerBlockHighlighting } from "@/util/OccurenceHighlight";
+import * as d3 from "d3";
+import { SideID } from "@/components/CompareCard.vue";
 
 @Component
 export default class CompareSide extends Vue {
@@ -27,23 +47,54 @@ export default class CompareSide extends Vue {
   @Prop() onHoverExit!: (sideId: string, blockClasses: Array<string>, element: HTMLElement) => void;
   @Prop() file!: File;
   @Prop() selections!: Array<Selection>;
+  @Prop() hoveringSelections!: Array<string>;
+  @Prop() selectedSelections!: Array<string>;
+
   get content(): string {
     return this.file.content;
-  }
-
-  get tempIdentifier(): string {
-    return this.identifier + "code-block";
-  }
-
-  mounted(): void {
-    this.highlight();
   }
 
   get language(): string {
     return `language-${this.$store.state.data.metadata.language}`;
   }
 
-  highlight(): void {
+  onScroll(e: Event): void {
+    const scrollTop = (e.target as HTMLElement)?.scrollTop;
+    const maxScroll = (this.$refs.codeblock as HTMLElement).getBoundingClientRect().height;
+    const temp = (this.$refs.pre as HTMLElement).clientHeight;
+    this.$emit("codescroll", this.identifier, Math.min(1, scrollTop / (maxScroll - temp)));
+  }
+
+  /**
+   * Returns an approximation of the amount of visible lines if all lines where filled in.
+   */
+  getLinesVisibleAmount(): number {
+    const lineNumber = document.querySelector(".line-numbers-rows :first-child");
+    if (!lineNumber) {
+      return 0;
+    }
+    const height = (this.$refs.pre as HTMLElement).getBoundingClientRect().height;
+    return height / lineNumber.getBoundingClientRect().height;
+  }
+
+  async mounted(): Promise<void> {
+    await this.highlight();
+    this.$emit("linesvisibleamount", this.getLinesVisibleAmount());
+    window.addEventListener("resize", () => {
+      this.$emit("linesvisibleamount", this.getLinesVisibleAmount());
+    });
+  }
+
+  async installLanguage(): Promise<void> {
+    const currentLanguage: string = this.$store.state.data.metadata.language.toLowerCase();
+    if (Prism.languages[currentLanguage]) {
+      return;
+    }
+    await require("prismjs/components/prism-" + currentLanguage);
+  }
+
+  async highlight(): Promise<void> {
+    await this.installLanguage();
     registerBlockHighlighting(this.selections);
     this.codeHighLight();
   }
@@ -66,7 +117,7 @@ export default class CompareSide extends Vue {
   }
 
   codeHighLight(): void {
-    Prism.highlightElement(this.$refs[this.tempIdentifier] as Element, false, () => {
+    Prism.highlightElement(this.$refs.codeblock as Element, false, () => {
       this.addEventListeners();
     });
   }
@@ -74,30 +125,35 @@ export default class CompareSide extends Vue {
 </script>
 
 <style lang="scss">
+@use 'codeHighlightsColours';
 
-  .highlighted-code {
+.highlighted-code {
     height: 70vh;
     overflow-y: scroll;
-
-    .marked-code.hovering {
-      background: #ffe390 !important;
-      text-shadow: none;
-    }
-
-    .marked-code.visible {
-      background: #ffd54f !important;
-      text-shadow: none;
-    }
-
-    .marked-code {
-      background: #ffecb3 !important;
-      text-shadow: none;
-    }
+    padding-top: 0 !important;
 
     .token {
       margin: -4px 0 -4px 0;
       padding: 4px 0 4px 0;
     }
+}
+
+pre.highlighted-code {
+  margin-top: 0;
+
+  code {
+    padding-left: 0 !important;
   }
+}
+
+// /* hides the scrollbar */
+//pre {
+//  scrollbar-width: none; /* For Firefox */
+//  -ms-overflow-style: none; /* For Internet Explorer and Edge */
+//}
+//
+//pre::-webkit-scrollbar {
+//  width: 0; /* For Chrome, Safari, and Opera */
+//}
 
 </style>
