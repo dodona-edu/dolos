@@ -4,7 +4,7 @@ import { Token, Tokenizer } from "./tokenizer";
 
 export class CodeTokenizer extends Tokenizer {
   public static supportedLanguages =
-    ["c-sharp", "java", "javascript", "python"];
+    ["c-sharp", "bash", "java", "javascript", "python"];
 
   /**
    * Returns true if the grammar of the given language is supported.

@@ -56,7 +56,7 @@ export class CsvPresenter extends Presenter {
   }
 
   public writeBlocks(out: Writable, diff: Diff): void {
-    out.end(this.convertBlocksToJSON(diff.blocks()));
+    out.write(this.convertBlocksToJSON(diff.blocks()));
   }
 
   public writeDiffs(out: Writable): void {
@@ -120,7 +120,9 @@ export class CsvPresenter extends Presenter {
     await fs.mkdir(`${dirName}/blocks`);
     for (const diff of this.report.scoredDiffs) {
       const id = diff.diff.id;
-      this.writeBlocks(createWriteStream(`${dirName}/blocks/${id}.json`), diff.diff);
+      const stream = createWriteStream(`${dirName}/blocks/${id}.json`);
+      this.writeBlocks(stream, diff.diff);
+      stream.end();
     }
     console.log("Blocks written");
     this.writeKmers(createWriteStream(`${dirName}/kmers.csv`));
