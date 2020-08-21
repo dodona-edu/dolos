@@ -1,6 +1,6 @@
 <template>
   <div>
-    <BlockList :diff="diff" :selected="selected.sides">
+    <BlockList :diff="diff" :selected="selected" @blockclick="blockClickEventHandler">
     </BlockList>
     <v-card :loading="!loaded">
       <v-card-title>
@@ -192,15 +192,10 @@ export default class Compare extends Vue {
 
   get leftActiveSelectionIds(): Array<SelectionId> {
     return this.activeBlocks.map(block => constructID(block.left));
-    // return this.activeSelectionIds(SideID.leftSideId, this.leftMap);
   }
 
   get rightActiveSelectionIds(): Array<SelectionId> {
     return this.activeBlocks.map(block => constructID(block.right));
-  }
-
-  private activeSelectionIds(sideId: SideID, map: Map<SelectionId, Array<SelectionId>>): Array<SelectionId> {
-    return map ? [...map.keys()].filter(this.isSelectionActive(sideId)) : [];
   }
 
   get leftSelections(): Array<Selection> {
@@ -285,19 +280,21 @@ export default class Compare extends Vue {
       this.selected.blockClasses.toString() === blockClasses.toString())) {
       this.currentBlockClassIndex = 0;
       this.blockClickCount = 1;
-      this.selected.side = sideId;
-      this.selected.blockClasses = blockClasses.slice();
+      Vue.set(this.selected, "side", sideId);
+      // this.selected.side = sideId;
+      Vue.set(this.selected, "blockClasses", blockClasses.slice());
+      // this.selected.blockClasses = blockClasses.slice();
     }
 
     const map = this.sideMap.get(sideId)!;
-    let id = this.selected.blockClasses[this.currentBlockClassIndex];
+    let id = this.selected.blockClasses![this.currentBlockClassIndex];
     let blocks = map.get(id)!;
     // cycles through all the blocks on the other side and if all the blocks have been cycled through, go to the next
     // set of blocks
     if (this.blockClickCount === blocks.length) {
       this.blockClickCount = 1;
-      this.currentBlockClassIndex = (this.currentBlockClassIndex + 1) % this.selected.blockClasses.length;
-      id = this.selected.blockClasses[this.currentBlockClassIndex];
+      this.currentBlockClassIndex = (this.currentBlockClassIndex + 1) % this.selected.blockClasses!.length;
+      id = this.selected.blockClasses![this.currentBlockClassIndex];
       blocks = map.get(id)!;
     } else {
       this.blockClickCount += 1;
@@ -316,14 +313,36 @@ export default class Compare extends Vue {
   selectionClickEventHandler(sideId: SideID, blockClasses: Array<string>): void {
     const [id, other] = this.cycle(sideId, blockClasses);
 
-    this.selected.sides[sideId].blockClasses = [id];
-    this.selected.sides[this.getOtherSide(sideId)].blockClasses = [other];
+    Vue.set(this.selected.sides[sideId], "blockClasses", [id]);
+    // this.selected.sides[sideId].blockClasses = [id];
+    Vue.set(this.selected.sides[this.getOtherSide(sideId)], "blockClasses", [other]);
+    // this.selected.sides[this.getOtherSide(sideId)].blockClasses = [other];
 
+    this.scrollSelectedIntoView();
+  }
+
+  scrollSelectedIntoView(): void {
     // for some reason scrolling will not always work when it is done in each CompareSide separately
-    const element = d3.select(this.makeSelector(sideId, blockClasses)).node();
-    const otherElement = d3.select(this.makeSelector(this.getOtherSide(sideId), [other])).node();
+    const element = d3.select(
+      this.makeSelector(
+        SideID.leftSideId,
+        this.selected.sides[SideID.leftSideId].blockClasses
+      )
+    ).node();
+    const otherElement = d3.select(
+      this.makeSelector(
+        SideID.rightSideId,
+        this.selected.sides[SideID.rightSideId].blockClasses
+      )
+    ).node();
     (element as HTMLElement).scrollIntoView({ behavior: "smooth", block: "center" });
     (otherElement as HTMLElement).scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
+  blockClickEventHandler([left, right]: [SelectionId, SelectionId]): void {
+    Vue.set(this.selected.sides[SideID.leftSideId], "blockClasses", [left]);
+    Vue.set(this.selected.sides[SideID.rightSideId], "blockClasses", [right]);
+    this.scrollSelectedIntoView();
   }
 
   extractRowCol(value: string): [number, number] {
