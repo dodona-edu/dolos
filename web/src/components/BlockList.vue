@@ -24,7 +24,7 @@
       <v-expansion-panel-content>
         <v-card outlined>
           <v-card-title>
-            Blocks {{ selectedItem }}
+            Blocks
           </v-card-title>
           <v-card-text>
             <v-list dense height="20vw" class="overflow-y-auto">
@@ -51,8 +51,6 @@
             <v-btn @click.stop="changeSelectedItem(1)">Next</v-btn>
           </v-card-actions>
         </v-card>
-        <v-fade-transition>
-        </v-fade-transition>
       </v-expansion-panel-content>
     </v-expansion-panel>
   </v-expansion-panels>
@@ -83,10 +81,6 @@ export default class BlockList extends Vue {
 
   selectionsIds!: Array<[SelectionId, SelectionId]>;
   selectedItem = 0;
-
-  // @Watch("diff", { deep: true })
-  // onBlocksChange(newVal: Diff): void {
-  // }
 
   mounted(): void {
     this.selectionsIds = this.diff.blocks!.map(block => {
