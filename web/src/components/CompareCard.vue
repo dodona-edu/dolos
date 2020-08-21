@@ -1,7 +1,5 @@
 <template>
   <div>
-    <BlockList :diff="diff" :selected="selected" @blockclick="blockClickEventHandler">
-    </BlockList>
     <v-card :loading="!loaded">
       <v-card-title>
         {{ leftFilename }}
@@ -85,6 +83,8 @@
         </v-row>
       </v-container>
     </v-card>
+    <BlockList :diff="diff" :selected="selected" @blockclick="blockClickEventHandler">
+    </BlockList>
   </div>
 </template>
 <script lang="ts">

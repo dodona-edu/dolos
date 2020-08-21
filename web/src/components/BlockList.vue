@@ -6,18 +6,7 @@
           <v-row v-if="!open" justify="start" align="center">
             <v-btn @click.stop="changeSelectedItem(-1)">Previous</v-btn>
             <v-btn @click.stop="changeSelectedItem(1)">Next</v-btn>
-            <v-list-item
-              v-if="selectedBlock">
-              <v-list-item-action>
-                <v-checkbox
-                  @click.native.stop=""
-                  v-model="selectedBlock.active"></v-checkbox>
-              </v-list-item-action>
-              <v-list-item-content>
-                {{constructID(selectedBlock.left)}}
-                {{constructID(selectedBlock.right)}}
-              </v-list-item-content>
-            </v-list-item>
+            <BlockVisualizer v-if="selectedBlock" :block="selectedBlock"></BlockVisualizer>
           </v-row>
         </v-fade-transition>
       </v-expansion-panel-header>
@@ -27,21 +16,34 @@
             Blocks
           </v-card-title>
           <v-card-text>
+            <v-list dense>
+              <v-list-item>
+                <v-list-item-action>
+                </v-list-item-action>
+                <v-list-item-content>
+                  <v-row>
+                    <v-col cols="4">
+                    </v-col>
+                    <v-col cols="4">
+                      Left
+                    </v-col>
+                    <v-col cols="4">
+                      Right
+                    </v-col>
+                  </v-row>
+                </v-list-item-content>
+              </v-list-item>
+            </v-list>
             <v-list dense height="20vw" class="overflow-y-auto">
               <v-list-item-group color="primary" v-model="selectedItem" @change="emitBlockClick()">
-                <v-list-item
+                <BlockVisualizer
                   v-for="(block, i) in diff.blocks"
                   :key="i" :id="'block-list-item-' + i"
+                  :block="block"
+                  :name="i+1"
+                  :subtext="false"
                   >
-                  <v-list-item-action>
-                    <v-checkbox @click.native.stop="" v-model="block.active">
-                    </v-checkbox>
-                  </v-list-item-action>
-                  <v-list-item-content>
-                    {{constructID(block.left)}}
-                    {{constructID(block.right)}}
-                  </v-list-item-content>
-                </v-list-item>
+                </BlockVisualizer>
               </v-list-item-group>
             </v-list>
           </v-card-text>
@@ -62,8 +64,10 @@ import { constructID, SelectionId } from "@/util/OccurenceHighlight";
 import { Block, Diff } from "@/api/api";
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import { SideID } from "@/components/CompareCard.vue";
+import BlockVisualizer from "@/components/BlockVisualizer.vue";
 
 @Component({
+  components: { BlockVisualizer },
   methods: {
     constructID
   }
