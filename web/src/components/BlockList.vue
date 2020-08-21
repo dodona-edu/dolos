@@ -3,9 +3,21 @@
     <v-expansion-panel>
       <v-expansion-panel-header v-slot="{ open }">
         <v-fade-transition>
-          <v-row v-if="!open" justify="start">
+          <v-row v-if="!open" justify="start" align="center">
             <v-btn @click.stop="changeSelectedItem(-1)">Previous</v-btn>
             <v-btn @click.stop="changeSelectedItem(1)">Next</v-btn>
+            <v-list-item
+              v-if="selectedBlock">
+              <v-list-item-action>
+                <v-checkbox
+                  @click.native.stop=""
+                  v-model="selectedBlock.active"></v-checkbox>
+              </v-list-item-action>
+              <v-list-item-content>
+                {{constructID(selectedBlock.left)}}
+                {{constructID(selectedBlock.right)}}
+              </v-list-item-content>
+            </v-list-item>
           </v-row>
         </v-fade-transition>
       </v-expansion-panel-header>
@@ -64,6 +76,10 @@ export default class BlockList extends Vue {
     side: SideID;
     blockClasses: Array<SelectionId>;
   };
+
+  get selectedBlock(): Block | undefined {
+    return this.diff.blocks![this.selectedItem];
+  }
 
   selectionsIds!: Array<[SelectionId, SelectionId]>;
   selectedItem = 0;
