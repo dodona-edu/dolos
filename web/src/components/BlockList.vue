@@ -101,7 +101,6 @@ export default class BlockList extends Vue {
     const { leftSideId, rightSideId } = sides;
     const leftSel = leftSideId.blockClasses[0];
     const rightSel = rightSideId.blockClasses[0];
-    console.log(leftSideId, rightSideId);
     this.selectedItem = this.selectionsIds
       .findIndex(([left, right]) => (leftSel === left && rightSel === right));
   }
