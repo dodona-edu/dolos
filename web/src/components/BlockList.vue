@@ -4,8 +4,18 @@
       <v-expansion-panel-header v-slot="{ open }">
         <v-fade-transition>
           <v-row v-if="!open" justify="start" align="center">
-            <v-btn ref="buttonleft1" @click.stop="changeSelectedItem(-1)">Previous</v-btn>
-            <v-btn ref="buttonright1" @click.stop="changeSelectedItem(1)">Next</v-btn>
+            <v-tooltip top>
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn v-bind="attrs" v-on="on" ref="buttonleft1" @click.stop="changeSelectedItem(-1)">Previous</v-btn>
+              </template>
+              <span>Left Arrow</span>
+            </v-tooltip>
+            <v-tooltip top>
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn  v-bind="attrs" v-on="on" ref="buttonright1" @click.stop="changeSelectedItem(1)">Next</v-btn>
+              </template>
+              <span>Right Arrow</span>
+            </v-tooltip>
             <BlockVisualizer v-if="selectedBlock" :block="selectedBlock"></BlockVisualizer>
           </v-row>
         </v-fade-transition>
@@ -49,8 +59,18 @@
           </v-card-text>
           <v-divider></v-divider>
           <v-card-actions>
-            <v-btn ref="buttonleft2" @click.stop="changeSelectedItem(-1)">Previous</v-btn>
-            <v-btn ref="buttonright2" @click.stop="changeSelectedItem(1)">Next</v-btn>
+            <v-tooltip top>
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn v-bind="attrs" v-on="on" ref="buttonleft2" @click.stop="changeSelectedItem(-1)">Previous</v-btn>
+              </template>
+              <span>Left Arrow</span>
+            </v-tooltip>
+            <v-tooltip top>
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn  v-bind="attrs" v-on="on" ref="buttonright2" @click.stop="changeSelectedItem(1)">Next</v-btn>
+              </template>
+              <span>Right Arrow</span>
+            </v-tooltip>
           </v-card-actions>
         </v-card>
       </v-expansion-panel-content>
