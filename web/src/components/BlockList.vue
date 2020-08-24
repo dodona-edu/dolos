@@ -4,8 +4,8 @@
       <v-expansion-panel-header v-slot="{ open }">
         <v-fade-transition>
           <v-row v-if="!open" justify="start" align="center">
-            <v-btn @click.stop="changeSelectedItem(-1)">Previous</v-btn>
-            <v-btn @click.stop="changeSelectedItem(1)">Next</v-btn>
+            <v-btn ref="buttonleft1" @click.stop="changeSelectedItem(-1)">Previous</v-btn>
+            <v-btn ref="buttonright1" @click.stop="changeSelectedItem(1)">Next</v-btn>
             <BlockVisualizer v-if="selectedBlock" :block="selectedBlock"></BlockVisualizer>
           </v-row>
         </v-fade-transition>
@@ -49,8 +49,8 @@
           </v-card-text>
           <v-divider></v-divider>
           <v-card-actions>
-            <v-btn @click.stop="changeSelectedItem(-1)">Previous</v-btn>
-            <v-btn @click.stop="changeSelectedItem(1)">Next</v-btn>
+            <v-btn ref="buttonleft2" @click.stop="changeSelectedItem(-1)">Previous</v-btn>
+            <v-btn ref="buttonright2" @click.stop="changeSelectedItem(1)">Next</v-btn>
           </v-card-actions>
         </v-card>
       </v-expansion-panel-content>
@@ -79,12 +79,28 @@ export default class BlockList extends Vue {
     blockClasses: Array<SelectionId>;
   };
 
+  handeKeyboardEvent(event: KeyboardEvent): void {
+    if (event.key === "ArrowRight") {
+      (((this.$refs.buttonleft1 || this.$refs.buttonleft2) as Vue).$el as HTMLElement).click();
+    } else if (event.key === "ArrowLeft") {
+      (((this.$refs.buttonright1 || this.$refs.buttonright2) as Vue).$el as HTMLElement).click();
+    }
+  }
+
   get selectedBlock(): Block | undefined {
     return this.diff.blocks![this.selectedItem];
   }
 
   selectionsIds!: Array<[SelectionId, SelectionId]>;
   selectedItem = 0;
+
+  destroyed(): void {
+    window.removeEventListener("keyup", this.handeKeyboardEvent);
+  }
+
+  created(): void {
+    window.addEventListener("keyup", this.handeKeyboardEvent);
+  }
 
   mounted(): void {
     this.selectionsIds = this.diff.blocks!.map(block => {
