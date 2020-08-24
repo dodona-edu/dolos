@@ -118,9 +118,9 @@ export default class BlockList extends Vue {
   ]
 
   handeKeyboardEvent(event: KeyboardEvent): void {
-    if (event.key === "ArrowRight") {
+    if (event.key === "ArrowLeft") {
       (((this.$refs.buttonleft1 || this.$refs.buttonleft2) as Vue).$el as HTMLElement).click();
-    } else if (event.key === "ArrowLeft") {
+    } else if (event.key === "ArrowRight") {
       (((this.$refs.buttonright1 || this.$refs.buttonright2) as Vue).$el as HTMLElement).click();
     } else if (event.key === " " || event.key === "Enter") {
       if (this.selectedBlock) {
