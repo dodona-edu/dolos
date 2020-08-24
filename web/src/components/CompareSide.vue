@@ -76,10 +76,16 @@ export default class CompareSide extends Vue {
 
   async mounted(): Promise<void> {
     await this.highlight();
+    this.emitLinesVisibleAmount();
+    window.addEventListener("resize", this.emitLinesVisibleAmount);
+  }
+
+  destroyed(): void {
+    window.removeEventListener("resize", this.emitLinesVisibleAmount);
+  }
+
+  emitLinesVisibleAmount(): void {
     this.$emit("linesvisibleamount", this.getLinesVisibleAmount());
-    window.addEventListener("resize", () => {
-      this.$emit("linesvisibleamount", this.getLinesVisibleAmount());
-    });
   }
 
   async installLanguage(): Promise<void> {
