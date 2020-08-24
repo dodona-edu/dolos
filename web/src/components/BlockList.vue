@@ -4,11 +4,13 @@
       <v-expansion-panel-header v-slot="{ open }">
         <v-fade-transition>
           <v-row justify="start" align="center">
-            <v-row>
-              <v-col v-if="!open">
+            <v-row class="flex-nowrap" no-gutters>
+              <v-col v-if="!open" cols="auto">
                 <v-btn ref="buttonleft1" @click.stop="changeSelectedItem(-1)">
                   Previous
                 </v-btn>
+              </v-col>
+              <v-col v-if="!open" cols="auto">
                 <v-btn  ref="buttonright1" @click.stop="changeSelectedItem(1)">
                   Next
                 </v-btn>

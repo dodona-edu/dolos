@@ -8,7 +8,7 @@
     </v-list-item-action>
     <v-list-item-content>
       <v-row>
-        <v-col cols="4">
+        <v-col cols="auto">
           {{displayName}}
         </v-col>
         <template v-if="subtext">
@@ -57,7 +57,8 @@ export default class BlockVisualizer extends Vue {
 
   getDisplayText(left: boolean): string {
     const side = left ? this.block.left : this.block.right;
-    return `From: ${side.startRow + 1} To: ${side.endRow + 1}`;
+    // \xa0 is a non breaking space
+    return `From:\xa0${side.startRow + 1} To:\xa0${side.endRow + 1}`;
   }
 
   get displayName(): string {

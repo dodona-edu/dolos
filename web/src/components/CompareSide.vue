@@ -131,7 +131,7 @@ export default class CompareSide extends Vue {
 @use 'codeHighlightsColours';
 
 .highlighted-code {
-    height: 70vh;
+    height: 64vh;
     overflow-y: scroll;
     padding-top: 0 !important;
 
