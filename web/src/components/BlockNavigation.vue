@@ -76,6 +76,11 @@ export default class BlockNavigation extends BlockListBase {
   }
 
   handleKeyboardEvent(event: KeyboardEvent): void {
+    // unfocus current focused element so that no accidental scrolling happens when arrow keys are pressed
+    if (document.hasFocus()) {
+      (document.activeElement as HTMLElement).blur();
+    }
+
     if (event.key === "ArrowLeft") {
       (((this.$refs.buttonleft1 || this.$refs.buttonleft2) as Vue).$el as HTMLElement).click();
     } else if (event.key === "ArrowRight") {

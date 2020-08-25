@@ -356,14 +356,17 @@ export default class Compare extends Vue {
   }
 
   selectionClickEventHandler(sideId: SideID, blockClasses: Array<string>): void {
-    const [id, other] = this.cycle(sideId, blockClasses);
+    if (blockClasses.length === 0) {
+      Vue.set(this.selected.sides[SideID.leftSideId], "blockClasses", []);
+      Vue.set(this.selected.sides[SideID.rightSideId], "blockClasses", []);
+    } else {
+      const [id, other] = this.cycle(sideId, blockClasses);
 
-    Vue.set(this.selected.sides[sideId], "blockClasses", [id]);
-    // this.selected.sides[sideId].blockClasses = [id];
-    Vue.set(this.selected.sides[this.getOtherSide(sideId)], "blockClasses", [other]);
-    // this.selected.sides[this.getOtherSide(sideId)].blockClasses = [other];
+      Vue.set(this.selected.sides[sideId], "blockClasses", [id]);
+      Vue.set(this.selected.sides[this.getOtherSide(sideId)], "blockClasses", [other]);
 
-    this.scrollSelectedIntoView();
+      this.scrollSelectedIntoView();
+    }
   }
 
   scrollSelectedIntoView(): void {
