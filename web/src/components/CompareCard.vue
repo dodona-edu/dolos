@@ -115,6 +115,9 @@
                       Manage blocks
                     </template>
                   </v-btn>
+                  <v-btn v-if="selectedItem !== -1" @click="selectedItem = undefined">
+                    Unselect block
+                  </v-btn>
                 </BlockNavigation>
               </v-container>
             </v-card>
@@ -149,7 +152,7 @@ export default class Compare extends Vue {
 
   tempDrawer = false;
 
-  selectedItem = 0;
+  selectedItem = -1;
 
   blockClickCount = 0;
   currentBlockClassIndex = 0;
@@ -382,11 +385,16 @@ export default class Compare extends Vue {
   }
 
   @Watch("selectedItem")
-  blockClickEventHandler(index: number): void {
-    const { left, right } = this.diff.blocks![index];
-    Vue.set(this.selected.sides[SideID.leftSideId], "blockClasses", [constructID(left)]);
-    Vue.set(this.selected.sides[SideID.rightSideId], "blockClasses", [constructID(right)]);
-    this.scrollSelectedIntoView();
+  blockClickEventHandler(index: number | undefined): void {
+    if (index === undefined || index === -1) {
+      Vue.set(this.selected.sides[SideID.leftSideId], "blockClasses", []);
+      Vue.set(this.selected.sides[SideID.rightSideId], "blockClasses", []);
+    } else {
+      const { left, right } = this.diff.blocks![index];
+      Vue.set(this.selected.sides[SideID.leftSideId], "blockClasses", [constructID(left)]);
+      Vue.set(this.selected.sides[SideID.rightSideId], "blockClasses", [constructID(right)]);
+      this.scrollSelectedIntoView();
+    }
   }
 
   extractRowCol(value: string): [number, number] {
