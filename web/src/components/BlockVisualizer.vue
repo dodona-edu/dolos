@@ -4,6 +4,8 @@
     <v-list-item-action class="no-y-padding">
       <v-checkbox
         @click.native.stop=""
+        on-icon="mdi-eye"
+        off-icon="mdi-eye-off"
         v-model="block.active"></v-checkbox>
     </v-list-item-action>
     <v-list-item-content class="no-y-padding">
