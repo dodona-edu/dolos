@@ -2,6 +2,8 @@
   <v-card>
     <v-card-title>
       Blocks
+      <v-spacer></v-spacer>
+      <slot></slot>
     </v-card-title>
     <v-container>
       <v-list class="overflow-y-auto" dense style="height: calc(65vh)">

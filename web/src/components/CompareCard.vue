@@ -90,11 +90,16 @@
           </v-col>
           <v-col cols="auto">
             <BlockList
-              v-if="tempDrawer"
+              v-if="blockListExtended"
               :diff="diff"
               :selected="selected"
               :temp.sync="selectedItem"
             >
+              <v-btn small @click="blockListExtended = false">
+                <v-icon color="error">
+                  mdi-close
+                </v-icon>
+              </v-btn>
             </BlockList>
           </v-col>
         </v-row>
@@ -107,11 +112,8 @@
                   :selected="selected"
                   :temp.sync="selectedItem"
                 >
-                  <v-btn @click="tempDrawer = !tempDrawer">
-                    <template v-if="tempDrawer">
-                      Hide blocks
-                    </template>
-                    <template v-else>
+                  <v-btn @click="blockListExtended = !blockListExtended">
+                    <template>
                       Manage blocks
                     </template>
                   </v-btn>
@@ -150,7 +152,7 @@ export default class Compare extends Vue {
   @Prop({ default: false, required: true }) loaded!: boolean;
   @Prop({ required: true }) diff!: Diff;
 
-  tempDrawer = false;
+  blockListExtended = false;
 
   selectedItem = -1;
 

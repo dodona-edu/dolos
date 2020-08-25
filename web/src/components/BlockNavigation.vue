@@ -4,12 +4,16 @@
       <v-row no-gutters class="no-y-padding">
         <v-col cols="auto">
           <v-btn ref="buttonleft1" @click.stop="changeSelectedItem(-1)">
-            Previous
+            <v-icon>
+              mdi-arrow-left-thick
+            </v-icon>
           </v-btn>
         </v-col>
         <v-col cols="auto">
           <v-btn  ref="buttonright1" @click.stop="changeSelectedItem(1)">
-            Next
+            <v-icon>
+              mdi-arrow-right-thick
+            </v-icon>
           </v-btn>
         </v-col>
         <v-col cols="auto">
