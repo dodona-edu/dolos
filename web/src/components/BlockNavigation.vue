@@ -45,15 +45,16 @@
 
 <script lang="ts">
 import Component from "vue-class-component";
-import { Prop, PropSync, Vue } from "vue-property-decorator";
-import { Block, Diff } from "@/api/api";
-import { SideID } from "@/components/CompareCard.vue";
-import { SelectionId } from "@/util/OccurenceHighlight";
+import { Vue, Watch } from "vue-property-decorator";
 import BlockListBase from "@/components/BlockListBase.vue";
 import BlockVisualizer from "@/components/BlockVisualizer.vue";
+import { constructID } from "@/util/OccurenceHighlight";
 
 @Component({
-  components: { BlockVisualizer }
+  components: { BlockVisualizer },
+  methods: {
+    constructID
+  }
 })
 export default class BlockNavigation extends BlockListBase {
   shortcutsHelptext = [
@@ -63,14 +64,18 @@ export default class BlockNavigation extends BlockListBase {
   ]
 
   destroyed(): void {
-    window.removeEventListener("keyup", this.handeKeyboardEvent);
+    window.removeEventListener("keyup", this.handleKeyboardEvent);
   }
 
   created(): void {
-    window.addEventListener("keyup", this.handeKeyboardEvent);
+    window.addEventListener("keyup", this.handleKeyboardEvent);
   }
 
-  handeKeyboardEvent(event: KeyboardEvent): void {
+  mounted(): void {
+    super.mounted();
+  }
+
+  handleKeyboardEvent(event: KeyboardEvent): void {
     if (event.key === "ArrowLeft") {
       (((this.$refs.buttonleft1 || this.$refs.buttonleft2) as Vue).$el as HTMLElement).click();
     } else if (event.key === "ArrowRight") {

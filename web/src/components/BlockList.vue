@@ -4,24 +4,6 @@
       Blocks
     </v-card-title>
     <v-container>
-<!--      <v-list dense>-->
-<!--        <v-list-item>-->
-<!--          <v-list-item-action>-->
-<!--          </v-list-item-action>-->
-<!--          <v-list-item-content>-->
-<!--            <v-row>-->
-<!--              <v-col cols="4">-->
-<!--              </v-col>-->
-<!--              <v-col cols="4">-->
-<!--                Left-->
-<!--              </v-col>-->
-<!--              <v-col cols="4">-->
-<!--                Right-->
-<!--              </v-col>-->
-<!--            </v-row>-->
-<!--          </v-list-item-content>-->
-<!--        </v-list-item>-->
-<!--      </v-list>-->
       <v-list class="overflow-y-auto" dense style="height: calc(65vh)">
         <v-list-item-group color="primary" v-model="selectedItem">
           <BlockVisualizer
@@ -35,19 +17,12 @@
         </v-list-item-group>
       </v-list>
     </v-container>
-<!--    <v-divider></v-divider>-->
-<!--    <v-card-actions>-->
-<!--      <v-btn @click.stop="changeSelectedItem(-1)" ref="buttonleft2">Previous</v-btn>-->
-<!--      <v-btn @click.stop="changeSelectedItem(1)" ref="buttonright2">Next</v-btn>-->
-<!--    </v-card-actions>-->
   </v-card>
 </template>
 
 <script lang="ts">
-import { constructID, SelectionId } from "@/util/OccurenceHighlight";
-import { Block, Diff } from "@/api/api";
-import { Component, Prop, Vue, Watch } from "vue-property-decorator";
-import { SideID } from "@/components/CompareCard.vue";
+import { constructID } from "@/util/OccurenceHighlight";
+import { Component, Watch } from "vue-property-decorator";
 import BlockVisualizer from "@/components/BlockVisualizer.vue";
 import BlockListBase from "@/components/BlockListBase.vue";
 
@@ -66,13 +41,8 @@ export default class BlockList extends BlockListBase {
     }
   }
 
-  @Watch("selected", { deep: true })
-  onSelectedChange({ sides }: any): void {
-    const { leftSideId, rightSideId } = sides;
-    const leftSel = leftSideId.blockClasses[0];
-    const rightSel = rightSideId.blockClasses[0];
-    this.selectedItem = this.selectionsIds
-      .findIndex(([left, right]) => (leftSel === left && rightSel === right));
+  mounted(): void {
+    super.mounted();
   }
 }
 </script>

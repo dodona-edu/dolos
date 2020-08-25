@@ -90,11 +90,10 @@
           </v-col>
           <v-col cols="auto">
             <BlockList
+              v-if="tempDrawer"
               :diff="diff"
               :selected="selected"
               :temp.sync="selectedItem"
-              @blockclick="blockClickEventHandler"
-              v-if="tempDrawer"
             >
             </BlockList>
           </v-col>
