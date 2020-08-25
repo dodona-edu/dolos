@@ -89,7 +89,7 @@ export default class BlockNavigation extends BlockListBase {
 }
 </script>
 
-<style scoped>
+<style>
   .no-y-padding {
     padding-bottom: 0;
     padding-top: 0;

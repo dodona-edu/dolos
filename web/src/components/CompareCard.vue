@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-container>
+    <v-container class="no-y-padding">
       <v-row no-gutters>
         <v-row class="flex-nowrap" no-gutters>
           <v-col>
@@ -147,7 +147,7 @@ export default class Compare extends Vue {
   @Prop({ default: false, required: true }) loaded!: boolean;
   @Prop({ required: true }) diff!: Diff;
 
-  tempDrawer = true;
+  tempDrawer = false;
 
   selectedItem = 0;
 
@@ -452,5 +452,10 @@ export default class Compare extends Vue {
 
 <style lang="scss">
 @use 'codeHighlightsColours';
+
+.no-y-padding {
+  padding-bottom: 0;
+  padding-top: 0;
+}
 
 </style>
