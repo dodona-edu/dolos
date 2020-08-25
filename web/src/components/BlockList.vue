@@ -3,26 +3,26 @@
     <v-card-title>
       Blocks
     </v-card-title>
-    <v-card-text>
-      <v-list dense>
-        <v-list-item>
-          <v-list-item-action>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-row>
-              <v-col cols="4">
-              </v-col>
-              <v-col cols="4">
-                Left
-              </v-col>
-              <v-col cols="4">
-                Right
-              </v-col>
-            </v-row>
-          </v-list-item-content>
-        </v-list-item>
-      </v-list>
-      <v-list class="overflow-y-auto" dense height="20vw">
+    <v-container>
+<!--      <v-list dense>-->
+<!--        <v-list-item>-->
+<!--          <v-list-item-action>-->
+<!--          </v-list-item-action>-->
+<!--          <v-list-item-content>-->
+<!--            <v-row>-->
+<!--              <v-col cols="4">-->
+<!--              </v-col>-->
+<!--              <v-col cols="4">-->
+<!--                Left-->
+<!--              </v-col>-->
+<!--              <v-col cols="4">-->
+<!--                Right-->
+<!--              </v-col>-->
+<!--            </v-row>-->
+<!--          </v-list-item-content>-->
+<!--        </v-list-item>-->
+<!--      </v-list>-->
+      <v-list class="overflow-y-auto" dense style="height: calc(65vh)">
         <v-list-item-group color="primary" v-model="selectedItem">
           <BlockVisualizer
             :block="block"
@@ -34,12 +34,12 @@
           </BlockVisualizer>
         </v-list-item-group>
       </v-list>
-    </v-card-text>
-    <v-divider></v-divider>
-    <v-card-actions>
-      <v-btn @click.stop="changeSelectedItem(-1)" ref="buttonleft2">Previous</v-btn>
-      <v-btn @click.stop="changeSelectedItem(1)" ref="buttonright2">Next</v-btn>
-    </v-card-actions>
+    </v-container>
+<!--    <v-divider></v-divider>-->
+<!--    <v-card-actions>-->
+<!--      <v-btn @click.stop="changeSelectedItem(-1)" ref="buttonleft2">Previous</v-btn>-->
+<!--      <v-btn @click.stop="changeSelectedItem(1)" ref="buttonright2">Next</v-btn>-->
+<!--    </v-card-actions>-->
   </v-card>
 </template>
 

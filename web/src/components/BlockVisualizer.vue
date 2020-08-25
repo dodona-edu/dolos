@@ -1,12 +1,12 @@
 <template>
   <v-list-item
-    v-if="block">
-    <v-list-item-action>
+    v-if="block" class="no-y-padding">
+    <v-list-item-action class="no-y-padding">
       <v-checkbox
         @click.native.stop=""
         v-model="block.active"></v-checkbox>
     </v-list-item-action>
-    <v-list-item-content>
+    <v-list-item-content class="no-y-padding">
       <v-row>
         <v-col cols="auto">
           {{displayName}}

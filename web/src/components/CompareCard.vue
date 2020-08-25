@@ -1,112 +1,128 @@
 <template>
   <div>
-    <v-layout class="flex-nowrap">
-      <v-row class="flex-nowrap">
-        <v-col>
-          <v-card :loading="!loaded">
-            <v-card-title>
-              {{ leftFilename }}
-              <v-spacer/>
-              {{ rightFilename }}
-            </v-card-title>
-            <v-container fluid>
-              <v-row justify="center" no-gutters v-if="loaded">
-                <v-col sm="6">
-                  <v-row class="flex-nowrap" no-gutters>
-                    <v-col cols="11">
-                      <compare-side
-                        :active-selections="leftActiveSelectionIds"
-                        :file="diff.leftFile"
-                        :hovering-selections="lastHovered.leftSideId.blockClasses"
-                        :identifier="SideId.leftSideId"
-                        :selected-selections="selected.sides.leftSideId.blockClasses"
-                        :selections="leftSelections"
-                        @codescroll="onScrollHandler"
-                        @linesvisibleamount="setLinesVisible"
-                        @selectionclick="selectionClickEventHandler"
-                        @selectionhoverenter="onHoverEnterHandler"
-                        @selectionhoverexit="onHoverExitHandler"
-                        ref="leftCompareSide"
-                      >
-                      </compare-side>
-                    </v-col>
-                    <v-col cols="auto">
-                      <BarcodeChart
-                        :active-selections="leftActiveSelectionIds"
-                        :amount-of-lines-visible="linesVisible"
-                        :document-scroll-fraction="leftScrollFraction"
-                        :hovering-selections="lastHovered.leftSideId.blockClasses"
-                        :lines="leftLines"
-                        :maxLines="maxLines"
-                        :selected-selections="selected.sides.leftSideId.blockClasses"
-                        :selections="leftSelections"
-                        :side-identifier="SideId.leftSideId"
-                        @selectionclick="selectionClickEventHandler"
-                        @selectionhoverenter="onHoverEnterHandler"
-                        @selectionhoverexit="onHoverExitHandler"
-                      ></BarcodeChart>
-                    </v-col>
-                  </v-row>
-                </v-col>
-                <v-col sm="6">
-                  <v-row class="flex-nowrap" no-gutters>
-                    <v-col cols="11">
-                      <compare-side
-                        :active-selections="rightActiveSelectionIds"
-                        :file="diff.rightFile"
-                        :hovering-selections="lastHovered.rightSideId.blockClasses"
-                        :identifier="SideId.rightSideId"
-                        :selected-selections="selected.sides.rightSideId.blockClasses"
-                        :selections="rightSelections"
-                        @codescroll="onScrollHandler"
-                        @selectionclick="selectionClickEventHandler"
-                        @selectionhoverenter="onHoverEnterHandler"
-                        @selectionhoverexit="onHoverExitHandler"
-                      >
-                      </compare-side>
-                    </v-col>
-                    <v-col cols="auto">
-                      <BarcodeChart
-                        :active-selections="rightActiveSelectionIds"
-                        :amount-of-lines-visible="linesVisible"
-                        :document-scroll-fraction="rightScrollFraction"
-                        :hovering-selections="lastHovered.rightSideId.blockClasses"
-                        :lines="rightLines"
-                        :maxLines="maxLines"
-                        :selected-selections="selected.sides.rightSideId.blockClasses"
-                        :selections="rightSelections"
-                        :side-identifier="SideId.rightSideId"
-                        @selectionclick="selectionClickEventHandler"
-                        @selectionhoverenter="onHoverEnterHandler"
-                        @selectionhoverexit="onHoverExitHandler"
-                      ></BarcodeChart>
-                    </v-col>
-                  </v-row>
-                </v-col>
-              </v-row>
-            </v-container>
-          </v-card>
-        </v-col>
-        <v-col cols="auto">
-          <BlockList
-            :diff="diff"
-            :selected="selected"
-            :temp.sync="selectedItem"
-            @blockclick="blockClickEventHandler"
-            v-if="tempDrawer"
-          >
-          </BlockList>
-        </v-col>
+    <v-container>
+      <v-row no-gutters>
+        <v-row class="flex-nowrap" no-gutters>
+          <v-col>
+            <v-card :loading="!loaded">
+              <v-card-title>
+                {{ leftFilename }}
+                <v-spacer/>
+                {{ rightFilename }}
+              </v-card-title>
+              <v-container fluid>
+                <v-row justify="center" no-gutters v-if="loaded">
+                  <v-col sm="6">
+                    <v-row class="flex-nowrap" no-gutters>
+                      <v-col cols="11">
+                        <compare-side
+                          :active-selections="leftActiveSelectionIds"
+                          :file="diff.leftFile"
+                          :hovering-selections="lastHovered.leftSideId.blockClasses"
+                          :identifier="SideId.leftSideId"
+                          :selected-selections="selected.sides.leftSideId.blockClasses"
+                          :selections="leftSelections"
+                          @codescroll="onScrollHandler"
+                          @linesvisibleamount="setLinesVisible"
+                          @selectionclick="selectionClickEventHandler"
+                          @selectionhoverenter="onHoverEnterHandler"
+                          @selectionhoverexit="onHoverExitHandler"
+                          ref="leftCompareSide"
+                        >
+                        </compare-side>
+                      </v-col>
+                      <v-col cols="auto">
+                        <BarcodeChart
+                          :active-selections="leftActiveSelectionIds"
+                          :amount-of-lines-visible="linesVisible"
+                          :document-scroll-fraction="leftScrollFraction"
+                          :hovering-selections="lastHovered.leftSideId.blockClasses"
+                          :lines="leftLines"
+                          :maxLines="maxLines"
+                          :selected-selections="selected.sides.leftSideId.blockClasses"
+                          :selections="leftSelections"
+                          :side-identifier="SideId.leftSideId"
+                          @selectionclick="selectionClickEventHandler"
+                          @selectionhoverenter="onHoverEnterHandler"
+                          @selectionhoverexit="onHoverExitHandler"
+                        ></BarcodeChart>
+                      </v-col>
+                    </v-row>
+                  </v-col>
+                  <v-col sm="6">
+                    <v-row class="flex-nowrap" no-gutters>
+                      <v-col cols="11">
+                        <compare-side
+                          :active-selections="rightActiveSelectionIds"
+                          :file="diff.rightFile"
+                          :hovering-selections="lastHovered.rightSideId.blockClasses"
+                          :identifier="SideId.rightSideId"
+                          :selected-selections="selected.sides.rightSideId.blockClasses"
+                          :selections="rightSelections"
+                          @codescroll="onScrollHandler"
+                          @selectionclick="selectionClickEventHandler"
+                          @selectionhoverenter="onHoverEnterHandler"
+                          @selectionhoverexit="onHoverExitHandler"
+                        >
+                        </compare-side>
+                      </v-col>
+                      <v-col cols="auto">
+                        <BarcodeChart
+                          :active-selections="rightActiveSelectionIds"
+                          :amount-of-lines-visible="linesVisible"
+                          :document-scroll-fraction="rightScrollFraction"
+                          :hovering-selections="lastHovered.rightSideId.blockClasses"
+                          :lines="rightLines"
+                          :maxLines="maxLines"
+                          :selected-selections="selected.sides.rightSideId.blockClasses"
+                          :selections="rightSelections"
+                          :side-identifier="SideId.rightSideId"
+                          @selectionclick="selectionClickEventHandler"
+                          @selectionhoverenter="onHoverEnterHandler"
+                          @selectionhoverexit="onHoverExitHandler"
+                        ></BarcodeChart>
+                      </v-col>
+                    </v-row>
+                  </v-col>
+                </v-row>
+              </v-container>
+            </v-card>
+          </v-col>
+          <v-col cols="auto">
+            <BlockList
+              :diff="diff"
+              :selected="selected"
+              :temp.sync="selectedItem"
+              @blockclick="blockClickEventHandler"
+              v-if="tempDrawer"
+            >
+            </BlockList>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col cols="12">
+            <v-card>
+              <v-container fluid>
+                <BlockNavigation
+                  :diff="diff"
+                  :selected="selected"
+                  :temp.sync="selectedItem"
+                >
+                  <v-btn @click="tempDrawer = !tempDrawer">
+                    <template v-if="tempDrawer">
+                      Hide blocks
+                    </template>
+                    <template v-else>
+                      Manage blocks
+                    </template>
+                  </v-btn>
+                </BlockNavigation>
+              </v-container>
+            </v-card>
+          </v-col>
+        </v-row>
       </v-row>
-      <v-row>
-        <BlockNavigation
-          :diff="diff"
-          :selected="selected"
-          :temp.sync="selectedItem"
-        >
-        </BlockNavigation>
-      </v-row>
-    </v-layout>
+    </v-container>
   </div>
 </template>
 <script lang="ts">

@@ -1,7 +1,7 @@
 <template>
-  <v-fade-transition>
-    <v-row justify="start" align="center">
-      <v-row class="flex-nowrap" no-gutters>
+  <v-container class="no-y-padding">
+    <v-row class="no-y-padding">
+      <v-row no-gutters class="no-y-padding">
         <v-col cols="auto">
           <v-btn ref="buttonleft1" @click.stop="changeSelectedItem(-1)">
             Previous
@@ -11,6 +11,9 @@
           <v-btn  ref="buttonright1" @click.stop="changeSelectedItem(1)">
             Next
           </v-btn>
+        </v-col>
+        <v-col cols="auto">
+          <slot></slot>
         </v-col>
         <v-spacer></v-spacer>
         <v-col cols="auto">
@@ -34,10 +37,10 @@
         </v-col>
       </v-row>
       <template>
-        <BlockVisualizer v-if="selectedBlock" :block="selectedBlock"></BlockVisualizer>
+        <BlockVisualizer class="no-y-padding" v-if="selectedBlock" :block="selectedBlock"></BlockVisualizer>
       </template>
     </v-row>
-  </v-fade-transition>
+  </v-container>
 </template>
 
 <script lang="ts">
@@ -82,5 +85,9 @@ export default class BlockNavigation extends BlockListBase {
 </script>
 
 <style scoped>
+  .no-y-padding {
+    padding-bottom: 0;
+    padding-top: 0;
+  }
 
 </style>
