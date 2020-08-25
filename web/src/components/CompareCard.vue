@@ -127,7 +127,7 @@
 </template>
 <script lang="ts">
 
-import { Component, Vue, Prop } from "vue-property-decorator";
+import { Component, Vue, Prop, Watch } from "vue-property-decorator";
 import { Block, Diff, Selection } from "@/api/api";
 import CompareSide from "@/components/CompareSide.vue";
 import BarcodeChart from "@/components/BarcodeChart.vue";
@@ -382,9 +382,11 @@ export default class Compare extends Vue {
     (otherElement as HTMLElement).scrollIntoView({ behavior: "smooth", block: "center" });
   }
 
-  blockClickEventHandler([left, right]: [SelectionId, SelectionId]): void {
-    Vue.set(this.selected.sides[SideID.leftSideId], "blockClasses", [left]);
-    Vue.set(this.selected.sides[SideID.rightSideId], "blockClasses", [right]);
+  @Watch("selectedItem")
+  blockClickEventHandler(index: number): void {
+    const { left, right } = this.diff.blocks![index];
+    Vue.set(this.selected.sides[SideID.leftSideId], "blockClasses", [constructID(left)]);
+    Vue.set(this.selected.sides[SideID.rightSideId], "blockClasses", [constructID(right)]);
     this.scrollSelectedIntoView();
   }
 
