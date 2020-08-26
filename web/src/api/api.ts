@@ -185,6 +185,7 @@ function parseMetadata(data: d3.DSVRowArray): Metadata {
 export async function populateBlocks(diff: Diff, kmers: ObjMap<Kmer>): Promise<void> {
   const blocksPromise = fetchBlocks(diff.id);
   diff.blocks = parseBlocks(await blocksPromise, kmers);
+  diff.blocks.sort((b1, b2) => b2.pairs.length - b1.pairs.length);
 }
 
 export async function fetchData(): Promise<ApiData> {
