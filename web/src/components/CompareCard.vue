@@ -1,11 +1,12 @@
 <template>
-    <v-container fluid class="no-y-padding">
-      <v-row class="no-y-padding">
-        <v-col class="no-y-padding">
-          <v-row class="flex-nowrap">
-            <v-col cols="12" class="no-y-padding" >
-              <v-row class="flex-nowrap" dense>
-                <v-col>
+  <v-container fluid class="no-y-padding">
+    <v-row class="no-y-padding">
+      <v-col class="no-y-padding">
+        <v-container fluid class="no-y-padding">
+          <v-row class="no-y-padding">
+            <v-col class="no-y-padding">
+              <v-row class="flex-nowrap">
+                <v-col cols="12" class="no-y-padding">
                   <v-card :loading="!loaded">
                     <v-card-title>
                       {{ leftFilename }}
@@ -90,56 +91,59 @@
                     </v-container>
                   </v-card>
                 </v-col>
-                <v-col cols="auto">
-                  <BlockList
-                    v-if="blockListExtended"
-                    :diff="diff"
-                    :selected="selected"
-                    :temp.sync="selectedItem"
-                  >
-                    <v-btn small icon @click="blockListExtended = false">
-                      <v-icon>
-                        mdi-close
-                      </v-icon>
-                    </v-btn>
-                  </BlockList>
+              </v-row>
+              <v-row no-gutters>
+                <v-col cols="12">
+                  <v-card>
+                    <v-container fluid>
+                      <BlockNavigation
+                        :diff="diff"
+                        :selected="selected"
+                        :temp.sync="selectedItem"
+                      >
+                        <v-col>
+                          <v-slider
+                            @end="applyMinBlockLength"
+                            label="Min block length"
+                            thumb-label
+                            track-color="lightgray"
+                            :min="lowestBlockLength"
+                            :max="highestBlockLength"
+                          >
+                          </v-slider>
+                        </v-col>
+                        <v-col cols="auto">
+                          <v-btn @click="blockListExtended = !blockListExtended">
+                            Manage blocks
+                          </v-btn>
+                        </v-col>
+                      </BlockNavigation>
+                    </v-container>
+                  </v-card>
                 </v-col>
               </v-row>
             </v-col>
           </v-row>
-          <v-row no-gutters>
-            <v-col cols="12">
-              <v-card>
-                <v-container fluid>
-                  <BlockNavigation
-                    :diff="diff"
-                    :selected="selected"
-                    :temp.sync="selectedItem"
-                  >
-                    <v-col cols="auto">
-                      <v-btn @click="blockListExtended = !blockListExtended">
-                        Manage blocks
-                      </v-btn>
-                    </v-col>
-                    <v-col>
-                      <v-slider
-                        @end="applyMinBlockLength"
-                        label="Min block length"
-                        thumb-label
-                        track-color="lightgray"
-                        :min="lowestBlockLength"
-                        :max="highestBlockLength"
-                      >
-                      </v-slider>
-                    </v-col>
-                  </BlockNavigation>
-                </v-container>
-              </v-card>
-            </v-col>
-          </v-row>
-        </v-col>
-      </v-row>
-    </v-container>
+        </v-container>
+      </v-col>
+      <v-col cols="auto">
+        <v-navigation-drawer app :value="blockListExtended" clipped right>
+          <BlockList
+            v-if="blockListExtended"
+            :diff="diff"
+            :selected="selected"
+            :temp.sync="selectedItem"
+          >
+            <v-btn small icon @click="blockListExtended = false">
+              <v-icon>
+                mdi-close
+              </v-icon>
+            </v-btn>
+          </BlockList>
+        </v-navigation-drawer>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 <script lang="ts">
 

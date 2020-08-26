@@ -29,29 +29,34 @@
           </v-col>
         </v-row>
       </v-col>
-      <v-row class="no-y-padding">
-        <slot></slot>
-        <v-spacer></v-spacer>
-        <v-col cols="auto">
-          <v-menu @click.stop="" direction="top" transition="scale" offset-y open-on-hover>
-            <template v-slot:activator="{ on, attrs }">
-              <v-btn v-on="on" v-bind="attrs" @click.stop="" small fab icon>
-                <v-icon dark>mdi-help</v-icon>
-              </v-btn>
-            </template>
-            <v-card>
-              <v-card-title>
-                Keyboard shortcuts
-              </v-card-title>
-              <v-card-text>
-                <v-list-item :dense="true" v-for="(item, i)  in shortcutsHelptext" :key="i">
-                  {{item[0]}}: {{item[1]}}
-                </v-list-item>
-              </v-card-text>
-            </v-card>
-          </v-menu>
-        </v-col>
-      </v-row>
+      <v-col class="no-y-padding">
+        <v-row class="no-y-padding">
+          <v-col class="no-y-padding">
+            <v-row class="no-y-padding">
+              <slot></slot>
+            </v-row>
+          </v-col>
+          <v-col cols="auto" >
+            <v-menu @click.stop="" direction="top" transition="scale" offset-y open-on-hover>
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn v-on="on" v-bind="attrs" @click.stop="" small fab icon>
+                  <v-icon dark>mdi-help</v-icon>
+                </v-btn>
+              </template>
+              <v-card>
+                <v-card-title>
+                  Keyboard shortcuts
+                </v-card-title>
+                <v-card-text>
+                  <v-list-item :dense="true" v-for="(item, i)  in shortcutsHelptext" :key="i">
+                    {{item[0]}}: {{item[1]}}
+                  </v-list-item>
+                </v-card-text>
+              </v-card>
+            </v-menu>
+          </v-col>
+        </v-row>
+      </v-col>
     </v-row>
   </v-container>
 </template>

@@ -6,7 +6,7 @@
       <slot></slot>
     </v-card-title>
     <v-container>
-      <v-list class="overflow-y-auto" dense style="height: 61vh">
+      <v-list class="overflow-y-auto" dense>
         <v-list-item-group color="primary" v-model="selectedItem">
           <BlockVisualizer
             :block="block"
