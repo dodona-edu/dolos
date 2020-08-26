@@ -1,5 +1,6 @@
 <template>
   <v-list-item
+    dense
     :disabled="!block.active"
     :style="dummy ? 'visibility: hidden' : ''"
     v-if="block" class="no-y-padding">
@@ -13,15 +14,13 @@
         v-model="block.active"></v-checkbox>
     </v-list-item-action>
     <v-list-item-content class="no-y-padding">
-      <v-row>
+      <v-row class="flex-nowrap">
         <v-col cols="auto">
           {{displayName}}
         </v-col>
-        <template>
-          <v-col>
-            {{getDisplayText()}}
-          </v-col>
-        </template>
+        <v-col cols="auto">
+          {{getDisplayText()}}
+        </v-col>
       </v-row>
     </v-list-item-content>
   </v-list-item>

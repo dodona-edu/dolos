@@ -123,19 +123,14 @@
                     </v-col>
                     <v-col>
                       <v-slider
+                        @end="applyMinBlockLength"
                         label="Min block length"
                         thumb-label
                         track-color="lightgray"
                         :min="lowestBlockLength"
                         :max="highestBlockLength"
-                        v-model="minBlockLength"
                       >
                       </v-slider>
-                    </v-col>
-                    <v-col>
-                      <v-btn @click="applyMinBlockLength">
-                        Apply filter
-                      </v-btn>
                     </v-col>
                   </BlockNavigation>
                 </v-container>
@@ -169,11 +164,9 @@ export default class Compare extends Vue {
   @Prop({ default: false, required: true }) loaded!: boolean;
   @Prop({ required: true }) diff!: Diff;
 
-  minBlockLength = 0;
-
-  applyMinBlockLength(): void {
+  applyMinBlockLength(value: number): void {
     for (const block of this.diff.blocks!) {
-      block.active = block.pairs.length >= this.minBlockLength;
+      block.active = value <= block.pairs.length;
     }
   }
 
