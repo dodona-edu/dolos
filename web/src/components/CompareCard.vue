@@ -127,7 +127,7 @@
         </v-container>
       </v-col>
       <v-col cols="auto">
-        <v-navigation-drawer app :value="blockListExtended" clipped right>
+        <v-navigation-drawer app :value="blockListExtended" right>
           <BlockList
             v-if="blockListExtended"
             :diff="diff"
