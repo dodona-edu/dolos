@@ -35,10 +35,16 @@ export default abstract class BlockListBase extends Vue {
       this.selectedItem = -1;
     } else {
       const length = this.diff.blocks!.length;
-      const next = ((((current || this.selectedItem) + dx) % length) + length) % length;
-      this.selectedItem = next;
+      // can't be done with the || operator cuz 0 is falsy
+      let value = current === undefined ? this.selectedItem : current;
+      while (value < 0) {
+        value += length;
+      }
+      const next = (((value + dx) % length) + length) % length;
       if (!this.diff.blocks![next].active) {
         this.changeSelectedItem(dx, next);
+      } else {
+        this.selectedItem = next;
       }
     }
   }

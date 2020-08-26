@@ -137,9 +137,6 @@
                         Apply filter
                       </v-btn>
                     </v-col>
-                    <!--                  <v-btn v-if="selectedItem !== -1" @click="selectedItem = undefined">-->
-                    <!--                    Unselect block-->
-                    <!--                  </v-btn>-->
                   </BlockNavigation>
                 </v-container>
               </v-card>
