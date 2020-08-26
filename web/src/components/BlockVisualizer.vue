@@ -1,11 +1,12 @@
 <template>
-  <v-list-item
+  <v-list-item :style="dummy ? 'visibility: hidden' : ''"
     v-if="block" class="no-y-padding">
     <v-list-item-action class="no-y-padding">
+      <!-- the icons have to be hidden manually so that it immediately disappears -->
       <v-checkbox
         @click.native.stop=""
-        on-icon="mdi-eye"
-        off-icon="mdi-eye-off"
+        :on-icon="dummy ? '' : 'mdi-eye'"
+        :off-icon="dummy ? '' : 'mdi-eye-off'"
         v-model="block.active"></v-checkbox>
     </v-list-item-action>
     <v-list-item-content class="no-y-padding">
@@ -13,30 +14,9 @@
         <v-col cols="auto">
           {{displayName}}
         </v-col>
-        <template v-if="subtext">
-          <v-col cols="4" class="no-y-padding">
-            <v-list-item-title>
-              {{getDisplayText(true)}}
-            </v-list-item-title>
-            <v-list-item-subtitle v-if="subtext">
-              Left
-            </v-list-item-subtitle>
-          </v-col>
-          <v-col cols="4" class="no-y-padding">
-            <v-list-item-title>
-              {{getDisplayText(false)}}
-            </v-list-item-title>
-            <v-list-item-subtitle v-if="subtext">
-              Right
-            </v-list-item-subtitle>
-          </v-col>
-        </template>
-        <template v-else>
-          <v-col cols="4">
-            {{getDisplayText(true)}}
-          </v-col>
-          <v-col cols="4">
-            {{getDisplayText(false)}}
+        <template>
+          <v-col>
+            {{getDisplayText()}}
           </v-col>
         </template>
       </v-row>
@@ -53,14 +33,13 @@ import { Block } from "@/api/api";
   methods: { constructID }
 })
 export default class BlockVisualizer extends Vue {
-  @Prop({ required: true }) block!: Block;
+  @Prop() dummy!: boolean
+  @Prop() block!: Block;
   @Prop() name?: string;
   @Prop({ default: true }) subtext!: boolean;
 
-  getDisplayText(left: boolean): string {
-    const side = left ? this.block.left : this.block.right;
-    // \xa0 is a non breaking space
-    return `From:\xa0${side.startRow + 1} To:\xa0${side.endRow + 1}`;
+  getDisplayText(): string {
+    return `K-mers: ${this.block.pairs.length}`;
   }
 
   get displayName(): string {

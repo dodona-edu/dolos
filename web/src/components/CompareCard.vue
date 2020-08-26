@@ -112,14 +112,30 @@
                   :selected="selected"
                   :temp.sync="selectedItem"
                 >
-                  <v-btn @click="blockListExtended = !blockListExtended">
-                    <template>
+                  <v-col cols="auto">
+                    <v-btn @click="blockListExtended = !blockListExtended">
                       Manage blocks
-                    </template>
-                  </v-btn>
-                  <v-btn v-if="selectedItem !== -1" @click="selectedItem = undefined">
-                    Unselect block
-                  </v-btn>
+                    </v-btn>
+                  </v-col>
+                  <v-col>
+                    <v-slider
+                      label="Min block length"
+                      thumb-label
+                      track-color="lightgray"
+                      :min="lowestBlockLength"
+                      :max="highestBlockLength"
+                      v-model="minBlockLength"
+                    >
+                    </v-slider>
+                  </v-col>
+                  <v-col>
+                    <v-btn @click="applyMinBlockLength">
+                      Apply filter
+                    </v-btn>
+                  </v-col>
+<!--                  <v-btn v-if="selectedItem !== -1" @click="selectedItem = undefined">-->
+<!--                    Unselect block-->
+<!--                  </v-btn>-->
                 </BlockNavigation>
               </v-container>
             </v-card>
@@ -151,6 +167,26 @@ export enum SideID {
 export default class Compare extends Vue {
   @Prop({ default: false, required: true }) loaded!: boolean;
   @Prop({ required: true }) diff!: Diff;
+
+  minBlockLength = 0;
+
+  applyMinBlockLength(): void {
+    for (const block of this.diff.blocks!) {
+      block.active = block.pairs.length >= this.minBlockLength;
+    }
+  }
+
+  get blockLengths(): Array<number> {
+    return this.diff.blocks?.map(block => block.pairs.length)!;
+  }
+
+  get lowestBlockLength(): number {
+    return this.blockLengths.reduce((pv, cv) => Math.min(pv, cv)) as number;
+  }
+
+  get highestBlockLength(): number {
+    return this.blockLengths.reduce((pv, cv) => Math.max(pv, cv)) as number;
+  }
 
   blockListExtended = false;
 
