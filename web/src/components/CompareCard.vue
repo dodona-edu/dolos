@@ -97,8 +97,8 @@
                     :selected="selected"
                     :temp.sync="selectedItem"
                   >
-                    <v-btn small @click="blockListExtended = false">
-                      <v-icon color="error">
+                    <v-btn small icon @click="blockListExtended = false">
+                      <v-icon>
                         mdi-close
                       </v-icon>
                     </v-btn>
