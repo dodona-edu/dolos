@@ -1,9 +1,9 @@
 <template>
-    <v-container class="no-y-padding">
-      <v-row>
-        <v-col>
+    <v-container fluid class="no-y-padding">
+      <v-row class="no-y-padding">
+        <v-col class="no-y-padding">
           <v-row class="flex-nowrap">
-            <v-col cols="12">
+            <v-col cols="12" class="no-y-padding" >
               <v-row class="flex-nowrap" dense>
                 <v-col>
                   <v-card :loading="!loaded">
