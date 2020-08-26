@@ -1,9 +1,12 @@
 <template>
-  <v-list-item :style="dummy ? 'visibility: hidden' : ''"
+  <v-list-item
+    :disabled="!block.active"
+    :style="dummy ? 'visibility: hidden' : ''"
     v-if="block" class="no-y-padding">
     <v-list-item-action class="no-y-padding">
       <!-- the icons have to be hidden manually so that it immediately disappears -->
       <v-checkbox
+        class="pointer-events"
         @click.native.stop=""
         :on-icon="dummy ? '' : 'mdi-eye'"
         :off-icon="dummy ? '' : 'mdi-eye-off'"
@@ -25,7 +28,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import { constructID } from "@/util/OccurenceHighlight";
 import { Block } from "@/api/api";
 
@@ -37,6 +40,11 @@ export default class BlockVisualizer extends Vue {
   @Prop() block!: Block;
   @Prop() name?: string;
   @Prop({ default: true }) subtext!: boolean;
+
+  @Watch("block.active")
+  onActiveChange(newValue: boolean): void {
+    this.$emit("change", newValue);
+  }
 
   getDisplayText(): string {
     return `K-mers: ${this.block.pairs.length}`;
@@ -54,6 +62,9 @@ export default class BlockVisualizer extends Vue {
 
 <style scoped>
 
+.pointer-events {
+  pointer-events: all;
+}
 .no-y-padding {
   padding-top: 0;
   padding-bottom: 0;

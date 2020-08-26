@@ -26,9 +26,21 @@ export default abstract class BlockListBase extends Vue {
     });
   }
 
-  changeSelectedItem(dx: number): void {
-    const length = this.diff.blocks!.length;
-    this.selectedItem = (((this.selectedItem + dx) % length) + length) % length;
+  get anyActive(): boolean {
+    return this.diff.blocks?.some(block => block.active) as boolean;
+  }
+
+  changeSelectedItem(dx: number, current?: number): void {
+    if (!this.anyActive) {
+      this.selectedItem = -1;
+    } else {
+      const length = this.diff.blocks!.length;
+      const next = ((((current || this.selectedItem) + dx) % length) + length) % length;
+      this.selectedItem = next;
+      if (!this.diff.blocks![next].active) {
+        this.changeSelectedItem(dx, next);
+      }
+    }
   }
 
   @Watch("selected", { deep: true })

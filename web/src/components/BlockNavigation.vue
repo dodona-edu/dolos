@@ -92,6 +92,9 @@ export default class BlockNavigation extends BlockListBase {
     } else if (event.key === "ArrowRight") {
       (((this.$refs.buttonright1 || this.$refs.buttonright2) as Vue).$el as HTMLElement).click();
     } else if (event.key === " " || event.key === "Enter") {
+      if (event.key === " ") {
+        event.preventDefault();
+      }
       if (this.selectedBlock) {
         this.selectedBlock.active = !this.selectedBlock.active;
       }
