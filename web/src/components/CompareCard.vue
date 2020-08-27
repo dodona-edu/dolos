@@ -180,7 +180,7 @@ export default class Compare extends Vue {
     return this.blockLengths.reduce((pv, cv) => Math.max(pv, cv)) as number;
   }
 
-  blockListExtended = false;
+  blockListExtended = true;
 
   selectedItem = -1;
 

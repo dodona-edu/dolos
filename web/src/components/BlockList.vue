@@ -9,6 +9,7 @@
       <v-spacer></v-spacer>
       <slot></slot>
     </v-list-item>
+<!--    item-class -->
       <v-data-table
         id="blockList"
         height="89vh"
@@ -16,8 +17,15 @@
         fixed-header
         hide-default-footer
         disable-pagination
+        single-select
+        show-select
+        :item-class="itemClassFunction"
+        selectable-key="active"
+        item-key="id"
+        @click:row="onRowClick"
+        v-model="tempSel"
         :headers="headers"
-        :items="diff.blocks"
+        :items="blocksWithId"
       >
 
         <template v-slot:item.active="{ item }">
@@ -27,8 +35,8 @@
             :ripple="false"
             color="primary"
             off-icon="mdi-eye-off"
-            @change="onBlockVisualizerChange"
             on-icon="mdi-eye"
+            @input="checkBoxToggle(item, $event)"
             v-model="item.active"
           ></v-simple-checkbox>
         </template>
@@ -41,6 +49,11 @@ import { constructID } from "@/util/OccurenceHighlight";
 import { Component, Watch } from "vue-property-decorator";
 import BlockVisualizer from "@/components/BlockVisualizer.vue";
 import BlockListBase from "@/components/BlockListBase.vue";
+import { Block } from "@/api/api";
+
+interface BlockWithId extends Block {
+  id: number;
+}
 
 @Component({
   components: { BlockVisualizer },
@@ -62,18 +75,50 @@ export default class BlockList extends BlockListBase {
     }
   ]
 
-  @Watch("selectedItem")
-  onSelectedItemChange(newVal: number): void {
-    const el = document.querySelector(`#block-list-item-${newVal}`);
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth", block: "center" });
+  tempSel: Array<BlockWithId> = [];
+
+  itemClassFunction(block: BlockWithId): string | void {
+    if (this.selectedItem === block.id) {
+      return "blue lighten-4";
     }
   }
 
-  onBlockVisualizerChange(newValue: boolean): void {
-    if (!newValue) {
+  get blocksWithId(): Array<BlockWithId> {
+    return this.diff.blocks!.map((block, index) => {
+      return { ...block, id: index };
+    });
+  }
+
+  checkBoxToggle(block: BlockWithId, value: boolean): void {
+    if (this.selectedItem === block.id && !value) {
       this.selectedItem = -1;
     }
+  }
+
+  onRowClick(block: BlockWithId, { isSelected, select }: { isSelected: boolean; select: (value: boolean) => void}):
+    void {
+    if (block.active) {
+      select(!isSelected);
+      if (isSelected) {
+        this.selectedItem = -1;
+      } else {
+        this.selectedItem = block.id;
+      }
+    }
+  }
+
+  @Watch("selectedItem")
+  onSelectedItemChange(newVal: number): void {
+    if (newVal === -1) {
+      this.tempSel = [];
+    } else {
+      this.tempSel = [this.blocksWithId[newVal]];
+    }
+    // this.tempSel = [newVal];
+    // const el = document.querySelector(`#block-list-item-${newVal}`);
+    // if (el) {
+    //   el.scrollIntoView({ behavior: "smooth", block: "center" });
+    // }
   }
 
   mounted(): void {
