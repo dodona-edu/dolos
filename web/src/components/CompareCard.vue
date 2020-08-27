@@ -1,9 +1,8 @@
 <template>
   <v-container fluid class="no-y-padding">
-
-    <v-row class="no-y-padding">
-      <v-col class="no-y-padding">
-        <v-row class="flex-nowrap">
+    <v-row dense class="no-y-padding">
+      <v-col cols="12" class="no-y-padding">
+        <v-row no-gutters>
           <v-col cols="12" class="no-y-padding">
             <v-card :loading="!loaded">
               <v-card-title>
@@ -13,7 +12,7 @@
               </v-card-title>
               <v-container fluid>
                 <v-row justify="center" no-gutters v-if="loaded">
-                  <v-col sm="6">
+                  <v-col md="6" sm="12">
                     <v-row class="flex-nowrap" no-gutters>
                       <v-col cols="11">
                         <compare-side
@@ -50,7 +49,7 @@
                       </v-col>
                     </v-row>
                   </v-col>
-                  <v-col sm="6">
+                  <v-col md="6" sm="12">
                     <v-row class="flex-nowrap" no-gutters>
                       <v-col cols="11">
                         <compare-side
@@ -90,17 +89,18 @@
             </v-card>
           </v-col>
         </v-row>
-        <v-row no-gutters>
-          <v-col cols="12">
+        <v-row dense class="no-y-padding">
+          <v-col cols="12" class="no-y-padding">
             <v-card>
-              <v-container fluid>
+              <v-container fluid class="no-y-padding">
                 <BlockNavigation
                   :diff="diff"
                   :selected="selected"
                   :temp.sync="selectedItem"
                 >
-                  <v-col>
+                  <v-col sm="7" xs="10" md="6">
                     <v-slider
+                      class="slider-min-width"
                       @end="applyMinBlockLength"
                       label="Min block length"
                       thumb-label
@@ -499,4 +499,13 @@ export default class Compare extends Vue {
   padding-top: 0;
 }
 
+.slider-min-width {
+  min-width: 300px;
+}
+// disable scrolling
+html, body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden
+}
 </style>

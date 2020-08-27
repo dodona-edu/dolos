@@ -1,26 +1,38 @@
 <template>
-  <v-card>
-    <v-card-title>
-      Blocks
+  <div style="height: 100%">
+    <v-list-item>
+      <v-list-item-content>
+        <v-list-item-title class="title">
+          Blocks
+        </v-list-item-title>
+      </v-list-item-content>
       <v-spacer></v-spacer>
       <slot></slot>
-    </v-card-title>
-    <v-container>
-      <v-list class="overflow-y-auto" dense>
-        <v-list-item-group color="primary" v-model="selectedItem">
-          <BlockVisualizer
-            :block="block"
-            :id="'block-list-item-' + i" :key="i"
-            :name="i+1"
-            :subtext="false"
+    </v-list-item>
+      <v-data-table
+        height="89vh"
+        multi-sort
+        fixed-header
+        hide-default-footer
+        disable-pagination
+        :headers="headers"
+        :items="diff.blocks"
+      >
+
+        <template v-slot:item.active="{ item }">
+
+          <!--TODO get @change to work -->
+          <v-simple-checkbox
+            :ripple="false"
+            color="primary"
+            off-icon="mdi-eye-off"
             @change="onBlockVisualizerChange"
-            v-for="(block, i) in diff.blocks"
-          >
-          </BlockVisualizer>
-        </v-list-item-group>
-      </v-list>
-    </v-container>
-  </v-card>
+            on-icon="mdi-eye"
+            v-model="item.active"
+          ></v-simple-checkbox>
+        </template>
+      </v-data-table>
+  </div>
 </template>
 
 <script lang="ts">
@@ -28,7 +40,6 @@ import { constructID } from "@/util/OccurenceHighlight";
 import { Component, Watch } from "vue-property-decorator";
 import BlockVisualizer from "@/components/BlockVisualizer.vue";
 import BlockListBase from "@/components/BlockListBase.vue";
-import { Block } from "@/api/api";
 
 @Component({
   components: { BlockVisualizer },
@@ -37,6 +48,19 @@ import { Block } from "@/api/api";
   }
 })
 export default class BlockList extends BlockListBase {
+  headers = [
+    {
+      text: "visibility",
+      sortable: true,
+      value: "active"
+    },
+    {
+      text: "K-mers",
+      sortable: true,
+      value: "pairs.length"
+    }
+  ]
+
   @Watch("selectedItem")
   onSelectedItemChange(newVal: number): void {
     const el = document.querySelector(`#block-list-item-${newVal}`);

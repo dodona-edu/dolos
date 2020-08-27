@@ -1,60 +1,62 @@
 <template>
-  <v-container class="no-y-padding">
-    <v-row class="no-y-padding">
-      <v-col cols="auto">
-        <v-row no-gutters>
-          <v-col cols="auto">
-            <v-btn ref="buttonleft1" @click.stop="changeSelectedItem(-1)">
-              <v-icon>
-                mdi-arrow-left-thick
-              </v-icon>
-            </v-btn>
-          </v-col>
-          <v-spacer></v-spacer>
-          <v-col cols="auto">
-            <v-btn  ref="buttonright1" @click.stop="changeSelectedItem(1)">
-              <v-icon>
-                mdi-arrow-right-thick
-              </v-icon>
-            </v-btn>
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col cols="auto">
-            <BlockVisualizer class="no-y-padding" v-if="selectedBlock" :block="selectedBlock"></BlockVisualizer>
-            <!-- this second blockVisualizer makes sure that this component does not resize whenever a block is -->
-            <!-- selected/deselected -->
-            <BlockVisualizer class="no-y-padding" v-else :dummy="true" :block="diff.blocks[0]">
-            </BlockVisualizer>
-          </v-col>
-        </v-row>
-      </v-col>
-      <v-col class="no-y-padding">
+  <v-container class="no-y-padding" fluid>
+    <v-row class="flex-nowrap" justify="space-between">
+      <v-col>
         <v-row class="no-y-padding">
-          <v-col class="no-y-padding">
-            <v-row class="no-y-padding">
+          <v-col sm="12" md="auto">
+            <v-row no-gutters>
+              <v-col cols="auto">
+                <v-btn ref="buttonleft1" @click.stop="changeSelectedItem(-1)">
+                  <v-icon>
+                    mdi-arrow-left-thick
+                  </v-icon>
+                </v-btn>
+              </v-col>
+              <v-spacer></v-spacer>
+              <v-col cols="auto">
+                <v-btn ref="buttonright1" @click.stop="changeSelectedItem(1)">
+                  <v-icon>
+                    mdi-arrow-right-thick
+                  </v-icon>
+                </v-btn>
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col cols="auto">
+                <BlockVisualizer class="no-y-padding" v-if="selectedBlock" :block="selectedBlock"></BlockVisualizer>
+                <!-- this second blockVisualizer makes sure that this component does not resize whenever a block is -->
+                <!-- selected/deselected -->
+                <BlockVisualizer class="no-y-padding" v-else :dummy="true" :block="diff.blocks[0]">
+                </BlockVisualizer>
+              </v-col>
+            </v-row>
+          </v-col>
+          <v-col xs="12" sm="12" md="" class="no-y-padding">
+            <v-row class="no-y-padding" justify="space-between">
               <slot></slot>
             </v-row>
           </v-col>
-          <v-col cols="auto" >
-            <v-menu @click.stop="" direction="top" transition="scale" offset-y open-on-hover>
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn v-on="on" v-bind="attrs" @click.stop="" small fab icon>
-                  <v-icon dark>mdi-help</v-icon>
-                </v-btn>
-              </template>
-              <v-card>
-                <v-card-title>
-                  Keyboard shortcuts
-                </v-card-title>
-                <v-card-text>
-                  <v-list-item :dense="true" v-for="(item, i)  in shortcutsHelptext" :key="i">
-                    {{item[0]}}: {{item[1]}}
-                  </v-list-item>
-                </v-card-text>
-              </v-card>
-            </v-menu>
-          </v-col>
+        </v-row>
+      </v-col>
+      <v-col cols="auto">
+        <v-row>
+          <v-menu @click.stop="" direction="top" transition="scale" offset-y open-on-hover>
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn v-on="on" v-bind="attrs" @click.stop="" small fab icon>
+                <v-icon dark>mdi-help</v-icon>
+              </v-btn>
+            </template>
+            <v-card>
+              <v-card-title>
+                Keyboard shortcuts
+              </v-card-title>
+              <v-card-text>
+                <v-list-item :dense="true" v-for="(item, i)  in shortcutsHelptext" :key="i">
+                  {{ item[0] }}: {{ item[1] }}
+                </v-list-item>
+              </v-card-text>
+            </v-card>
+          </v-menu>
         </v-row>
       </v-col>
     </v-row>
@@ -116,9 +118,10 @@ export default class BlockNavigation extends BlockListBase {
 </script>
 
 <style>
-  .no-y-padding {
-    padding-bottom: 0;
-    padding-top: 0;
-  }
+
+.no-y-padding {
+  padding-bottom: 0;
+  padding-top: 0;
+}
 
 </style>

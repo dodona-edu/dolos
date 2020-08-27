@@ -1,7 +1,7 @@
 <template>
   <v-container fluid fill-height>
     <v-row justify="center">
-      <v-col cols="12">
+      <v-col cols="12" class="no-y-padding">
         <CompareCard
           v-if="diff && diff.blocks"
           :loaded="dataLoaded"

@@ -15,8 +15,8 @@
     </v-list-item-action>
     <v-list-item-content class="no-y-padding">
       <v-row class="flex-nowrap">
-        <v-col cols="auto">
-          {{displayName}}
+        <v-col v-if="name" cols="auto">
+          {{name}}
         </v-col>
         <v-col cols="auto">
           {{getDisplayText()}}
@@ -45,16 +45,9 @@ export default class BlockVisualizer extends Vue {
     this.$emit("change", newValue);
   }
 
+  // TODO remove this function as it is only called once
   getDisplayText(): string {
-    return `K-mers: ${this.block.pairs.length}`;
-  }
-
-  get displayName(): string {
-    if (!this.name) {
-      return "Block";
-    } else {
-      return this.name;
-    }
+    return `${this.block.pairs.length}`;
   }
 }
 </script>
