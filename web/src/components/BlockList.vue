@@ -10,6 +10,7 @@
       <slot></slot>
     </v-list-item>
       <v-data-table
+        id="blockList"
         height="89vh"
         multi-sort
         fixed-header
@@ -81,6 +82,10 @@ export default class BlockList extends BlockListBase {
 }
 </script>
 
-<style scoped>
+<style>
+
+.v-navigation-drawer__border {
+  z-index: 2;
+}
 
 </style>
