@@ -111,7 +111,10 @@
                     </v-slider>
                   </v-col>
                   <v-col cols="auto">
-                    <v-btn @click="blockListExtended = !blockListExtended">
+                    <v-btn
+                      :depressed="blockListExtended"
+                      @click="blockListExtended = !blockListExtended"
+                    >
                       Manage blocks
                     </v-btn>
                   </v-col>
@@ -180,7 +183,7 @@ export default class Compare extends Vue {
     return this.blockLengths.reduce((pv, cv) => Math.max(pv, cv)) as number;
   }
 
-  blockListExtended = true;
+  blockListExtended = false;
 
   selectedItem = -1;
 

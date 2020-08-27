@@ -18,7 +18,6 @@
         hide-default-footer
         disable-pagination
         single-select
-        show-select
         :item-class="itemClassFunction"
         selectable-key="active"
         item-key="id"
@@ -114,8 +113,7 @@ export default class BlockList extends BlockListBase {
     } else {
       this.tempSel = [this.blocksWithId[newVal]];
     }
-    // this.tempSel = [newVal];
-    // const el = document.querySelector(`#block-list-item-${newVal}`);
+    // const el = document.querySelector("#blockList .v-data-table__selected");
     // if (el) {
     //   el.scrollIntoView({ behavior: "smooth", block: "center" });
     // }
