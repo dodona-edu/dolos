@@ -40,23 +40,6 @@
       </v-col>
       <v-col cols="auto">
         <v-row>
-          <v-menu @click.stop="" direction="top" transition="scale" offset-y open-on-hover>
-            <template v-slot:activator="{ on, attrs }">
-              <v-btn v-on="on" v-bind="attrs" @click.stop="" small fab icon>
-                <v-icon dark>mdi-help</v-icon>
-              </v-btn>
-            </template>
-            <v-card>
-              <v-card-title>
-                Keyboard shortcuts
-              </v-card-title>
-              <v-card-text>
-                <v-list-item :dense="true" v-for="(item, i)  in shortcutsHelptext" :key="i">
-                  {{ item[0] }}: {{ item[1] }}
-                </v-list-item>
-              </v-card-text>
-            </v-card>
-          </v-menu>
         </v-row>
       </v-col>
     </v-row>
@@ -77,12 +60,6 @@ import { constructID } from "@/util/OccurenceHighlight";
   }
 })
 export default class BlockNavigation extends BlockListBase {
-  shortcutsHelptext = [
-    ["Left Arrow", "Previous"],
-    ["Right Arrow", "Next"],
-    ["Space/Enter", "Toggle selection"],
-  ]
-
   destroyed(): void {
     window.removeEventListener("keyup", this.handleKeyboardEvent);
   }

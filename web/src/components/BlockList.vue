@@ -28,8 +28,6 @@
       >
 
         <template v-slot:item.active="{ item }">
-
-          <!--TODO get @change to work -->
           <v-simple-checkbox
             :ripple="false"
             color="primary"
@@ -84,7 +82,9 @@ export default class BlockList extends BlockListBase {
 
   get blocksWithId(): Array<BlockWithId> {
     return this.diff.blocks!.map((block, index) => {
-      return { ...block, id: index };
+      const blockWithId = (block as BlockWithId);
+      blockWithId.id = index;
+      return blockWithId;
     });
   }
 
