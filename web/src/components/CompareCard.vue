@@ -8,11 +8,15 @@
               <v-card-title>
 <!--                TODO get resizing right-->
                 <v-container fluid class="no-y-padding">
-                  <v-row justify="space-around">
-                    <v-col cols="auto">
-                      {{ leftFilename }}
+                  <v-row justify="center" justify-xl="space-around" class="no-y-padding">
+                    <v-col cols="12" xl="auto" class="no-y-padding">
+                      <v-row justify="center" class="no-y-padding">
+                        <v-col cols="auto">
+                          {{ leftFilename }}
+                        </v-col>
+                      </v-row>
                     </v-col>
-                    <v-col cols="auto">
+                    <v-col cols="12" xl="auto">
                       <v-row justify="center" dense>
                         <v-col cols="auto">
                           <v-chip label>
@@ -40,8 +44,12 @@
                         </v-col>
                       </v-row>
                     </v-col>
-                    <v-col cols="auto">
-                      {{ rightFilename }}
+                    <v-col cols="12" xl="auto">
+                      <v-row justify="center" class="no-y-padding">
+                        <v-col cols="auto">
+                          {{ rightFilename }}
+                        </v-col>
+                      </v-row>
                     </v-col>
                   </v-row>
                 </v-container>
