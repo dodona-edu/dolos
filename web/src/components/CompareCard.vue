@@ -4,38 +4,44 @@
       <v-col class="no-y-padding">
         <v-row dense class="no-y-padding">
           <v-col cols="12" class="no-y-padding">
-            <v-card height="90vh" :loading="!loaded" style="position: relative">
+            <v-card :loading="!loaded" style="position: relative">
               <v-card-title>
-                <v-container fluid>
-                  <v-row>
-                    {{ leftFilename }}
-                    <v-spacer/>
-                    {{ rightFilename }}
-                  </v-row>
-                  <v-row justify="center" dense>
+<!--                TODO get resizing right-->
+                <v-container fluid class="no-y-padding">
+                  <v-row justify="space-around">
                     <v-col cols="auto">
-                      <v-chip label>
-                        <v-icon left>
-                          {{mdiApproximatelyEqual}}
-                        </v-icon>
-                        Similarity: {{diff.similarity.toFixed(2)}}
-                      </v-chip>
+                      {{ leftFilename }}
                     </v-col>
                     <v-col cols="auto">
-                      <v-chip label>
-                        <v-icon left size="20" >
-                          {{mdiFileDocumentMultiple}}
-                        </v-icon>
-                        Continuous overlap: {{diff.continuousOverlap}}
-                      </v-chip>
+                      <v-row justify="center" dense>
+                        <v-col cols="auto">
+                          <v-chip label>
+                            <v-icon left>
+                              {{mdiApproximatelyEqual}}
+                            </v-icon>
+                            Similarity: {{diff.similarity.toFixed(2)}}
+                          </v-chip>
+                        </v-col>
+                        <v-col cols="auto">
+                          <v-chip label>
+                            <v-icon left size="20" >
+                              {{mdiFileDocumentMultiple}}
+                            </v-icon>
+                            Continuous overlap: {{diff.continuousOverlap}}
+                          </v-chip>
+                        </v-col>
+                        <v-col cols="auto">
+                          <v-chip label>
+                            <v-icon left size="20">
+                              {{mdiFileDocumentMultipleOutline}}
+                            </v-icon>
+                            Total overlap: {{diff.totalOverlap}}
+                          </v-chip>
+                        </v-col>
+                      </v-row>
                     </v-col>
                     <v-col cols="auto">
-                      <v-chip label>
-                        <v-icon left size="20">
-                          {{mdiFileDocumentMultipleOutline}}
-                        </v-icon>
-                        Total overlap: {{diff.totalOverlap}}
-                      </v-chip>
+                      {{ rightFilename }}
                     </v-col>
                   </v-row>
                 </v-container>
