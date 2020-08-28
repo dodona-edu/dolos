@@ -1,49 +1,5 @@
 <template>
-  <v-container class="no-y-padding" fluid>
-    <v-row class="flex-nowrap" justify="space-between">
-      <v-col>
-        <v-row class="no-y-padding">
-          <v-col sm="12" md="auto">
-            <v-row no-gutters>
-              <v-col cols="auto">
-                <v-btn ref="buttonleft1" @click.stop="changeSelectedItem(-1)">
-                  <v-icon>
-                    mdi-arrow-left-thick
-                  </v-icon>
-                </v-btn>
-              </v-col>
-              <v-spacer></v-spacer>
-              <v-col cols="auto">
-                <v-btn ref="buttonright1" @click.stop="changeSelectedItem(1)">
-                  <v-icon>
-                    mdi-arrow-right-thick
-                  </v-icon>
-                </v-btn>
-              </v-col>
-            </v-row>
-            <v-row>
-              <v-col cols="auto">
-                <BlockVisualizer class="no-y-padding" v-if="selectedBlock" :block="selectedBlock"></BlockVisualizer>
-                <!-- this second blockVisualizer makes sure that this component does not resize whenever a block is -->
-                <!-- selected/deselected -->
-                <BlockVisualizer class="no-y-padding" v-else :dummy="true" :block="diff.blocks[0]">
-                </BlockVisualizer>
-              </v-col>
-            </v-row>
-          </v-col>
-          <v-col xs="12" sm="12" md="" class="no-y-padding">
-            <v-row class="no-y-padding" justify="space-between">
-              <slot></slot>
-            </v-row>
-          </v-col>
-        </v-row>
-      </v-col>
-      <v-col cols="auto">
-        <v-row>
-        </v-row>
-      </v-col>
-    </v-row>
-  </v-container>
+  <div></div>
 </template>
 
 <script lang="ts">

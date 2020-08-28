@@ -1,9 +1,11 @@
 <template>
   <v-list-item
+    class="no-y-padding block-visualizer"
     dense
     :disabled="!block.active"
     :style="dummy ? 'visibility: hidden' : ''"
-    v-if="block" class="no-y-padding">
+    v-if="block"
+  >
     <v-list-item-action class="no-y-padding">
       <!-- the icons have to be hidden manually so that it immediately disappears -->
       <v-checkbox
@@ -53,6 +55,10 @@ export default class BlockVisualizer extends Vue {
 </script>
 
 <style scoped>
+
+.block-visualizer {
+  height: 36px;
+}
 
 .pointer-events {
   pointer-events: all;

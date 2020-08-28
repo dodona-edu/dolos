@@ -101,16 +101,6 @@
                       :temp.sync="selectedItem"
                     >
                       <v-col sm="7" xs="10" md="6">
-                        <v-slider
-                          class="slider-min-width"
-                          @end="applyMinBlockLength"
-                          label="Min block length"
-                          thumb-label
-                          track-color="lightgray"
-                          :min="lowestBlockLength"
-                          :max="highestBlockLength + 1"
-                        >
-                        </v-slider>
                       </v-col>
                     </BlockNavigation>
                   </v-container>
@@ -149,9 +139,7 @@
           </v-menu>
         </v-row>
       </v-col>
-
     </v-row>
-
     <v-navigation-drawer clipped app :value="blockListExtended" right>
       <BlockList
         v-if="blockListExtended"
@@ -159,11 +147,44 @@
         :selected="selected"
         :temp.sync="selectedItem"
       >
-        <v-btn small icon @click="blockListExtended = false">
-          <v-icon>
-            mdi-close
-          </v-icon>
-        </v-btn>
+        <template v-slot:header>
+          <v-btn small icon @click="blockListExtended = false">
+            <v-icon>
+              mdi-close
+            </v-icon>
+          </v-btn>
+        </template>
+        <template v-slot:actions>
+          <v-container fluid class="no-y-padding">
+            <v-row>
+              <v-col cols="12" class="no-y-padding">
+                <v-list-item-subtitle>
+                  Minimum block length
+                </v-list-item-subtitle>
+                <v-slider
+                    class="slider-min-width"
+                    @end="applyMinBlockLength"
+                    thumb-label
+                    track-color="lightgray"
+                    :min="lowestBlockLength"
+                    :max="highestBlockLength + 1"
+                  >
+                  </v-slider>
+              </v-col>
+            </v-row>
+<!--            <v-row>-->
+<!--              <v-col>-->
+<!--                <v-list-item-subtitle>Minimum block length-->
+<!--                </v-list-item-subtitle>-->
+<!--              </v-col>-->
+<!--&lt;!&ndash;              <v-subheader>Minimum block lenght</v-subheader>&ndash;&gt;-->
+<!--            </v-row>-->
+<!--            <v-row no-gutters>-->
+<!--              <v-col>-->
+<!--              </v-col>-->
+<!--            </v-row>-->
+          </v-container>
+        </template>
       </BlockList>
     </v-navigation-drawer>
   </v-container>
@@ -217,7 +238,7 @@ export default class Compare extends Vue {
     return this.blockLengths.reduce((pv, cv) => Math.max(pv, cv)) as number;
   }
 
-  blockListExtended = false;
+  blockListExtended = true;
 
   selectedItem = -1;
 
@@ -533,7 +554,7 @@ export default class Compare extends Vue {
 }
 
 .slider-min-width {
-  min-width: 300px;
+  //min-width: 300px;
 }
 // disable scrolling
 html, body {

@@ -1,18 +1,58 @@
 <template>
   <div style="height: 100%">
-    <v-list-item>
-      <v-list-item-content>
-        <v-list-item-title class="title">
-          Blocks
-        </v-list-item-title>
-      </v-list-item-content>
-      <v-spacer></v-spacer>
-      <slot></slot>
-    </v-list-item>
-<!--    item-class -->
-      <v-data-table
+    <v-row no-gutters>
+      <v-col>
+        <v-container>
+          <v-row>
+            <v-list-item>
+              <v-list-item-content>
+                <v-list-item-title class="title">
+                  Blocks
+                </v-list-item-title>
+              </v-list-item-content>
+              <v-spacer></v-spacer>
+              <slot name="header"></slot>
+            </v-list-item>
+          </v-row>
+          <v-row>
+            <v-col>
+              <v-row no-gutters class="flex-nowrap" justify="space-between">
+                <v-col cols="auto">
+                  <v-btn ref="buttonleft1" @click.stop="changeSelectedItem(-1)">
+                    <v-icon>
+                      mdi-arrow-left-thick
+                    </v-icon>
+                  </v-btn>
+                </v-col>
+                <v-col cols="auto">
+                  <BlockVisualizer class="no-y-padding" v-if="selectedBlock" :block="selectedBlock"></BlockVisualizer>
+                  <!-- this second blockVisualizer makes sure that this component does not resize whenever a -->
+                  <!-- block is selected/deselected -->
+                  <BlockVisualizer class="no-y-padding" v-else :dummy="true" :block="diff.blocks[0]">
+                  </BlockVisualizer>
+                </v-col>
+                <v-col cols="auto">
+                  <v-btn ref="buttonright1" @click.stop="changeSelectedItem(1)">
+                    <v-icon>
+                      mdi-arrow-right-thick
+                    </v-icon>
+                  </v-btn>
+                </v-col>
+              </v-row>
+            </v-col>
+          </v-row>
+          <v-row>
+            <slot name="actions"></slot>
+          </v-row>
+        </v-container>
+      </v-col>
+    </v-row>
+    <v-divider></v-divider>
+    <v-row no-gutters>
+        <v-data-table
         id="blockList"
-        height="89vh"
+        style="width: 100%"
+        height="100%"
         multi-sort
         fixed-header
         hide-default-footer
@@ -25,19 +65,20 @@
         v-model="tempSel"
         :headers="headers"
         :items="blocksWithId"
-      >
+        >
 
         <template v-slot:item.active="{ item }">
-          <v-simple-checkbox
-            :ripple="false"
-            color="primary"
-            off-icon="mdi-eye-off"
-            on-icon="mdi-eye"
-            @input="checkBoxToggle(item, $event)"
-            v-model="item.active"
-          ></v-simple-checkbox>
+        <v-simple-checkbox
+        :ripple="false"
+        color="primary"
+        off-icon="mdi-eye-off"
+        on-icon="mdi-eye"
+        @input="checkBoxToggle(item, $event)"
+        v-model="item.active"
+        ></v-simple-checkbox>
         </template>
-      </v-data-table>
+        </v-data-table>
+        </v-row>
   </div>
 </template>
 
