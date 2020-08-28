@@ -125,7 +125,7 @@ export default class BlockList extends Vue {
     blockClasses: Array<SelectionId>;
   };
 
-  @PropSync("temp", { required: true }) selectedItem!: number;
+  @PropSync("selectedItemSync", { required: true }) selectedItem!: number;
 
   headers = [
     {

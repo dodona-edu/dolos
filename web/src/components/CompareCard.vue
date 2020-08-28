@@ -169,7 +169,7 @@
       <BlockList
         :diff="diff"
         :selected="selected"
-        :temp.sync="selectedItem"
+        :selected-item-sync.sync="selectedItem"
       >
         <template v-slot:header>
           <v-btn @click="blockListExtended = false" icon small>
