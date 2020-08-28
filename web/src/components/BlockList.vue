@@ -16,9 +16,9 @@
           </v-row>
           <v-row>
             <v-col>
-              <v-row no-gutters class="flex-nowrap" justify="space-between">
+              <v-row class="flex-nowrap" justify="space-between" no-gutters>
                 <v-col cols="auto">
-                  <v-btn ref="buttonleft1" @click.stop="changeSelectedItem(-1)">
+                  <v-btn @click.stop="changeSelectedItem(-1)" ref="buttonleft1">
                     <v-icon>
                       mdi-arrow-left-thick
                     </v-icon>
@@ -26,17 +26,17 @@
                 </v-col>
                 <v-col cols="auto">
                   <BlockVisualizer
+                    :block="selectedBlock"
                     class="no-y-padding"
-                    v-if="selectedBlock"
-                    :block="selectedBlock">
+                    v-if="selectedBlock">
                   </BlockVisualizer>
                   <!-- this second blockVisualizer makes sure that this component does not resize whenever a -->
                   <!-- block is selected/deselected -->
-                  <BlockVisualizer class="no-y-padding" v-else :dummy="true" :block="diff.blocks[0]">
+                  <BlockVisualizer :block="diff.blocks[0]" :dummy="true" class="no-y-padding" v-else>
                   </BlockVisualizer>
                 </v-col>
                 <v-col cols="auto">
-                  <v-btn ref="buttonright1" @click.stop="changeSelectedItem(1)">
+                  <v-btn @click.stop="changeSelectedItem(1)" ref="buttonright1">
                     <v-icon>
                       mdi-arrow-right-thick
                     </v-icon>
@@ -46,19 +46,18 @@
             </v-col>
           </v-row>
           <v-row>
-            <v-container fluid class="no-y-padding">
+            <v-container class="no-y-padding" fluid>
               <v-row>
-                <v-col cols="12" class="no-y-padding">
+                <v-col class="no-y-padding" cols="12">
                   <v-list-item-subtitle>
                     Minimum block length
                   </v-list-item-subtitle>
                   <v-slider
-                    class="slider-min-width"
+                    :max="highestBlockLength + 1"
+                    :min="lowestBlockLength"
                     @end="applyMinBlockLength"
                     thumb-label
                     track-color="lightgray"
-                    :min="lowestBlockLength"
-                    :max="highestBlockLength + 1"
                   >
                   </v-slider>
                 </v-col>
@@ -71,29 +70,29 @@
     <v-divider></v-divider>
     <v-row no-gutters>
       <v-data-table
-        id="blockList"
-        style="width: 100%"
-        height="71vh"
-        multi-sort
-        fixed-header
-        hide-default-footer
-        disable-pagination
-        single-select
-        :item-class="itemClassFunction"
-        selectable-key="active"
-        item-key="id"
-        @click:row="onRowClick"
-        v-model="tempSel"
         :headers="headers"
+        :item-class="itemClassFunction"
         :items="blocksWithId"
+        @click:row="onRowClick"
+        disable-pagination
+        fixed-header
+        height="71vh"
+        hide-default-footer
+        id="blockList"
+        item-key="id"
+        multi-sort
+        selectable-key="active"
+        single-select
+        style="width: 100%"
+        v-model="dataTableSelection"
       >
         <template v-slot:item.active="{ item }">
           <v-simple-checkbox
             :ripple="false"
+            @input="checkBoxToggle(item, $event)"
             color="primary"
             off-icon="mdi-eye-off"
             on-icon="mdi-eye"
-            @input="checkBoxToggle(item, $event)"
             v-model="item.active"
           ></v-simple-checkbox>
         </template>
@@ -105,7 +104,7 @@
 <script lang="ts">
 import BlockVisualizer from "@/components/BlockVisualizer.vue";
 import { Block, Diff } from "@/api/api";
-import { Prop, PropSync, Vue, Watch, Component } from "vue-property-decorator";
+import { Component, Prop, PropSync, Vue, Watch } from "vue-property-decorator";
 import { constructID, SelectionId } from "@/util/OccurenceHighlight";
 import { SideID } from "@/components/CompareCard.vue";
 
@@ -142,15 +141,7 @@ export default class BlockList extends Vue {
   ]
 
   selectionsIds!: Array<[SelectionId, SelectionId]>;
-
-  applyMinBlockLength(value: number): void {
-    for (const block of this.diff.blocks!) {
-      block.active = value <= block.pairs.length;
-    }
-    if (this.selectedBlock && !this.selectedBlock.active) {
-      this.selectedItem = -1;
-    }
-  }
+  dataTableSelection: [BlockWithId] | [] = [];
 
   get blockLengths(): Array<number> {
     return this.diff.blocks?.map(block => block.pairs.length)!;
@@ -170,6 +161,23 @@ export default class BlockList extends Vue {
 
   get anyActive(): boolean {
     return this.diff.blocks?.some(block => block.active) as boolean;
+  }
+
+  get blocksWithId(): Array<BlockWithId> {
+    return this.diff.blocks!.map((block, index) => {
+      const blockWithId = (block as BlockWithId);
+      blockWithId.id = index;
+      return blockWithId;
+    });
+  }
+
+  applyMinBlockLength(value: number): void {
+    for (const block of this.diff.blocks!) {
+      block.active = value <= block.pairs.length;
+    }
+    if (this.selectedBlock && !this.selectedBlock.active) {
+      this.selectedItem = -1;
+    }
   }
 
   changeSelectedItem(dx: number, current?: number): void {
@@ -221,9 +229,6 @@ export default class BlockList extends Vue {
     window.addEventListener("keyup", this.handleKeyboardEvent);
   }
 
-  // TODO rename this
-  tempSel: Array<BlockWithId> = [];
-
   mounted(): void {
     this.selectionsIds = this.diff.blocks!.map(block => {
       return [constructID(block.left), constructID(block.right)];
@@ -234,14 +239,6 @@ export default class BlockList extends Vue {
     if (this.selectedItem === block.id) {
       return "blue lighten-4";
     }
-  }
-
-  get blocksWithId(): Array<BlockWithId> {
-    return this.diff.blocks!.map((block, index) => {
-      const blockWithId = (block as BlockWithId);
-      blockWithId.id = index;
-      return blockWithId;
-    });
   }
 
   checkBoxToggle(block: BlockWithId, value: boolean): void {
@@ -265,20 +262,17 @@ export default class BlockList extends Vue {
   @Watch("selectedItem")
   onSelectedItemChange(newVal: number): void {
     if (newVal === -1) {
-      this.tempSel = [];
+      this.dataTableSelection = [];
     } else {
-      this.tempSel = [this.blocksWithId[newVal]];
+      this.dataTableSelection = [this.blocksWithId[newVal]];
     }
-    // const el = document.querySelector("#blockList .v-data-table__selected");
-    // if (el) {
-    //   el.scrollIntoView({ behavior: "smooth", block: "center" });
-    // }
   }
 }
 </script>
 
 <style>
 
+/* fixes wrong display of data table header */
 .v-navigation-drawer__border {
   z-index: 2;
 }

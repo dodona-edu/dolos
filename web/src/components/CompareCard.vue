@@ -1,51 +1,50 @@
 <template>
-  <v-container fluid class="no-y-padding">
+  <v-container class="no-y-padding" fluid>
     <v-row>
       <v-col class="no-y-padding">
-        <v-row dense class="no-y-padding">
-          <v-col cols="12" class="no-y-padding">
+        <v-row class="no-y-padding" dense>
+          <v-col class="no-y-padding" cols="12">
             <v-card :loading="!loaded" style="position: relative">
               <v-card-title>
-<!--                TODO get resizing right-->
-                <v-container fluid class="no-y-padding">
-                  <v-row justify="center" justify-xl="space-around" class="no-y-padding">
-                    <v-col cols="12" xl="auto" class="no-y-padding">
-                      <v-row justify="center" class="no-y-padding">
+                <v-container class="no-y-padding" fluid>
+                  <v-row class="no-y-padding" justify="center" justify-xl="space-around">
+                    <v-col class="no-y-padding" cols="12" xl="auto">
+                      <v-row class="no-y-padding" justify="center">
                         <v-col cols="auto">
                           {{ leftFilename }}
                         </v-col>
                       </v-row>
                     </v-col>
                     <v-col cols="12" xl="auto">
-                      <v-row justify="center" dense>
+                      <v-row dense justify="center">
                         <v-col cols="auto">
                           <v-chip label>
                             <v-icon left>
-                              {{mdiApproximatelyEqual}}
+                              {{ mdiApproximatelyEqual }}
                             </v-icon>
-                            Similarity: {{diff.similarity.toFixed(2)}}
-                          </v-chip>
-                        </v-col>
-                        <v-col cols="auto">
-                          <v-chip label>
-                            <v-icon left size="20" >
-                              {{mdiFileDocumentMultiple}}
-                            </v-icon>
-                            Continuous overlap: {{diff.continuousOverlap}}
+                            Similarity: {{ diff.similarity.toFixed(2) }}
                           </v-chip>
                         </v-col>
                         <v-col cols="auto">
                           <v-chip label>
                             <v-icon left size="20">
-                              {{mdiFileDocumentMultipleOutline}}
+                              {{ mdiFileDocumentMultiple }}
                             </v-icon>
-                            Total overlap: {{diff.totalOverlap}}
+                            Continuous overlap: {{ diff.continuousOverlap }}
+                          </v-chip>
+                        </v-col>
+                        <v-col cols="auto">
+                          <v-chip label>
+                            <v-icon left size="20">
+                              {{ mdiFileDocumentMultipleOutline }}
+                            </v-icon>
+                            Total overlap: {{ diff.totalOverlap }}
                           </v-chip>
                         </v-col>
                       </v-row>
                     </v-col>
                     <v-col cols="12" xl="auto">
-                      <v-row justify="center" class="no-y-padding">
+                      <v-row class="no-y-padding" justify="center">
                         <v-col cols="auto">
                           {{ rightFilename }}
                         </v-col>
@@ -59,7 +58,7 @@
                   <v-row justify="center" no-gutters v-if="loaded">
                     <v-col md="6" sm="12">
                       <v-row class="flex-nowrap" no-gutters>
-                        <v-col cols="11" >
+                        <v-col cols="11">
                           <compare-side
                             :active-selections="leftActiveSelectionIds"
                             :file="diff.leftFile"
@@ -138,7 +137,7 @@
       </v-col>
       <v-col cols="auto" v-if="!blockListExtended">
         <v-row>
-          <v-btn icon @click="blockListExtended = !blockListExtended">
+          <v-btn @click="blockListExtended = !blockListExtended" icon>
             <v-icon>
               <!-- For some strange reason "mdi-application-cog" and other cog variants wont work out of the box -->
               {{ mdiApplicationCog }}
@@ -146,9 +145,9 @@
           </v-btn>
         </v-row>
         <v-row>
-          <v-menu @click.stop="" direction="top" transition="scale" offset-y open-on-hover>
+          <v-menu @click.stop="" direction="top" offset-y open-on-hover transition="scale">
             <template v-slot:activator="{ on, attrs }">
-              <v-btn v-on="on" v-bind="attrs" @click.stop="" small fab icon>
+              <v-btn @click.stop="" fab icon small v-bind="attrs" v-on="on">
                 <v-icon dark>mdi-help</v-icon>
               </v-btn>
             </template>
@@ -157,7 +156,7 @@
                 Keyboard shortcuts
               </v-card-title>
               <v-card-text>
-                <v-list-item :dense="true" v-for="(item, i)  in shortcutsHelptext" :key="i">
+                <v-list-item :dense="true" :key="i" v-for="(item, i)  in shortcutsHelptext">
                   {{ item[0] }}: {{ item[1] }}
                 </v-list-item>
               </v-card-text>
@@ -166,14 +165,14 @@
         </v-row>
       </v-col>
     </v-row>
-    <v-navigation-drawer clipped app :value="blockListExtended" right>
+    <v-navigation-drawer :value="blockListExtended" app clipped right>
       <BlockList
         :diff="diff"
         :selected="selected"
         :temp.sync="selectedItem"
       >
         <template v-slot:header>
-          <v-btn small icon @click="blockListExtended = false">
+          <v-btn @click="blockListExtended = false" icon small>
             <v-icon>
               mdi-close
             </v-icon>
@@ -185,7 +184,7 @@
 </template>
 <script lang="ts">
 
-import { Component, Vue, Prop, Watch } from "vue-property-decorator";
+import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import { Block, Diff, Selection } from "@/api/api";
 import CompareSide from "@/components/CompareSide.vue";
 import BarcodeChart from "@/components/BarcodeChart.vue";
@@ -224,14 +223,8 @@ export default class Compare extends Vue {
     ["Space/Enter", "Toggle selection"],
   ]
 
-  updated(): void {
-    this.initialize();
-  }
-
   blockListExtended = false;
-
   selectedItem = -1;
-
   blockClickCount = 0;
   currentBlockClassIndex = 0;
   // this maps a selected id to all the other selected-ids that it corresponds with
@@ -239,7 +232,6 @@ export default class Compare extends Vue {
   rightMap!: Map<SelectionId, Array<SelectionId>>;
   // maps an id of a side to its map
   sideMap!: Map<SideID, Map<SelectionId, Array<SelectionId>>>;
-
   sideSelectionsToBlocks: {
     [key in SideID]: {
       [key: string]: Block[];
@@ -265,7 +257,6 @@ export default class Compare extends Vue {
   };
 
   lastHovered: {
-
     [key in SideID]: {
       blockClasses: Array<SelectionId>;
     };
@@ -324,6 +315,10 @@ export default class Compare extends Vue {
 
   get rightSelections(): Array<Selection> {
     return this.diff.blocks!.map(block => block.right);
+  }
+
+  updated(): void {
+    this.initialize();
   }
 
   isSelectionActive(sideId: SideID): (selectionId: SelectionId) => boolean {
@@ -539,15 +534,4 @@ export default class Compare extends Vue {
   padding-bottom: 0;
   padding-top: 0;
 }
-
-.slider-min-width {
-  //min-width: 300px;
-}
-
-// disable scrolling
-//html, body {
-//  margin: 0;
-//  height: 100%;
-//  overflow: hidden
-//}
 </style>
