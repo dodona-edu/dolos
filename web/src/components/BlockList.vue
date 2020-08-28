@@ -96,7 +96,7 @@
         <template v-slot:item.active="{ item }">
           <v-simple-checkbox
             :ripple="false"
-            @input="checkBoxToggle(item, $event)"
+            @input="dataTableCheckBoxToggle(item, $event)"
             color="primary"
             off-icon="mdi-eye-off"
             on-icon="mdi-eye"
@@ -248,7 +248,7 @@ export default class BlockList extends Vue {
     }
   }
 
-  checkBoxToggle(block: BlockWithId, value: boolean): void {
+  dataTableCheckBoxToggle(block: BlockWithId, value: boolean): void {
     if (this.selectedItem === block.id && !value) {
       this.selectedItem = -1;
     }
