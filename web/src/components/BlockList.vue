@@ -73,7 +73,7 @@
       <v-data-table
         id="blockList"
         style="width: 100%"
-        height="100%"
+        height="71vh"
         multi-sort
         fixed-header
         hide-default-footer
@@ -87,7 +87,6 @@
         :headers="headers"
         :items="blocksWithId"
       >
-
         <template v-slot:item.active="{ item }">
           <v-simple-checkbox
             :ripple="false"
