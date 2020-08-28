@@ -171,26 +171,6 @@
             </v-icon>
           </v-btn>
         </template>
-        <template v-slot:actions>
-          <v-container fluid class="no-y-padding">
-            <v-row>
-              <v-col cols="12" class="no-y-padding">
-                <v-list-item-subtitle>
-                  Minimum block length
-                </v-list-item-subtitle>
-                <v-slider
-                  class="slider-min-width"
-                  @end="applyMinBlockLength"
-                  thumb-label
-                  track-color="lightgray"
-                  :min="lowestBlockLength"
-                  :max="highestBlockLength + 1"
-                >
-                </v-slider>
-              </v-col>
-            </v-row>
-          </v-container>
-        </template>
       </BlockList>
     </v-navigation-drawer>
   </v-container>
@@ -238,24 +218,6 @@ export default class Compare extends Vue {
 
   updated(): void {
     this.initialize();
-  }
-
-  applyMinBlockLength(value: number): void {
-    for (const block of this.diff.blocks!) {
-      block.active = value <= block.pairs.length;
-    }
-  }
-
-  get blockLengths(): Array<number> {
-    return this.diff.blocks?.map(block => block.pairs.length)!;
-  }
-
-  get lowestBlockLength(): number {
-    return this.blockLengths.reduce((pv, cv) => Math.min(pv, cv)) as number;
-  }
-
-  get highestBlockLength(): number {
-    return this.blockLengths.reduce((pv, cv) => Math.max(pv, cv)) as number;
   }
 
   blockListExtended = false;

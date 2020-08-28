@@ -25,7 +25,11 @@
                   </v-btn>
                 </v-col>
                 <v-col cols="auto">
-                  <BlockVisualizer class="no-y-padding" v-if="selectedBlock" :block="selectedBlock"></BlockVisualizer>
+                  <BlockVisualizer
+                    class="no-y-padding"
+                    v-if="selectedBlock"
+                    :block="selectedBlock">
+                  </BlockVisualizer>
                   <!-- this second blockVisualizer makes sure that this component does not resize whenever a -->
                   <!-- block is selected/deselected -->
                   <BlockVisualizer class="no-y-padding" v-else :dummy="true" :block="diff.blocks[0]">
@@ -42,14 +46,31 @@
             </v-col>
           </v-row>
           <v-row>
-            <slot name="actions"></slot>
+            <v-container fluid class="no-y-padding">
+              <v-row>
+                <v-col cols="12" class="no-y-padding">
+                  <v-list-item-subtitle>
+                    Minimum block length
+                  </v-list-item-subtitle>
+                  <v-slider
+                    class="slider-min-width"
+                    @end="applyMinBlockLength"
+                    thumb-label
+                    track-color="lightgray"
+                    :min="lowestBlockLength"
+                    :max="highestBlockLength + 1"
+                  >
+                  </v-slider>
+                </v-col>
+              </v-row>
+            </v-container>
           </v-row>
         </v-container>
       </v-col>
     </v-row>
     <v-divider></v-divider>
     <v-row no-gutters>
-        <v-data-table
+      <v-data-table
         id="blockList"
         style="width: 100%"
         height="100%"
@@ -65,29 +86,29 @@
         v-model="tempSel"
         :headers="headers"
         :items="blocksWithId"
-        >
+      >
 
         <template v-slot:item.active="{ item }">
-        <v-simple-checkbox
-        :ripple="false"
-        color="primary"
-        off-icon="mdi-eye-off"
-        on-icon="mdi-eye"
-        @input="checkBoxToggle(item, $event)"
-        v-model="item.active"
-        ></v-simple-checkbox>
+          <v-simple-checkbox
+            :ripple="false"
+            color="primary"
+            off-icon="mdi-eye-off"
+            on-icon="mdi-eye"
+            @input="checkBoxToggle(item, $event)"
+            v-model="item.active"
+          ></v-simple-checkbox>
         </template>
-        </v-data-table>
-        </v-row>
+      </v-data-table>
+    </v-row>
   </div>
 </template>
 
 <script lang="ts">
-import { constructID } from "@/util/OccurenceHighlight";
-import { Component, Vue, Watch } from "vue-property-decorator";
 import BlockVisualizer from "@/components/BlockVisualizer.vue";
-import BlockListBase from "@/components/BlockListBase.vue";
-import { Block } from "@/api/api";
+import { Block, Diff } from "@/api/api";
+import { Prop, PropSync, Vue, Watch, Component } from "vue-property-decorator";
+import { constructID, SelectionId } from "@/util/OccurenceHighlight";
+import { SideID } from "@/components/CompareCard.vue";
 
 interface BlockWithId extends Block {
   id: number;
@@ -99,7 +120,15 @@ interface BlockWithId extends Block {
     constructID
   }
 })
-export default class BlockList extends BlockListBase {
+export default class BlockList extends Vue {
+  @Prop({ required: true }) diff!: Diff;
+  @Prop({ required: true }) selected!: {
+    side: SideID;
+    blockClasses: Array<SelectionId>;
+  };
+
+  @PropSync("temp", { required: true }) selectedItem!: number;
+
   headers = [
     {
       text: "visibility",
@@ -112,6 +141,65 @@ export default class BlockList extends BlockListBase {
       value: "pairs.length"
     }
   ]
+
+  selectionsIds!: Array<[SelectionId, SelectionId]>;
+
+  applyMinBlockLength(value: number): void {
+    for (const block of this.diff.blocks!) {
+      block.active = value <= block.pairs.length;
+    }
+    if (this.selectedBlock && !this.selectedBlock.active) {
+      this.selectedItem = -1;
+    }
+  }
+
+  get blockLengths(): Array<number> {
+    return this.diff.blocks?.map(block => block.pairs.length)!;
+  }
+
+  get lowestBlockLength(): number {
+    return this.blockLengths.reduce((pv, cv) => Math.min(pv, cv)) as number;
+  }
+
+  get highestBlockLength(): number {
+    return this.blockLengths.reduce((pv, cv) => Math.max(pv, cv)) as number;
+  }
+
+  get selectedBlock(): Block | undefined {
+    return this.diff.blocks![this.selectedItem];
+  }
+
+  get anyActive(): boolean {
+    return this.diff.blocks?.some(block => block.active) as boolean;
+  }
+
+  changeSelectedItem(dx: number, current?: number): void {
+    if (!this.anyActive) {
+      this.selectedItem = -1;
+    } else {
+      const length = this.diff.blocks!.length;
+      // explicit undefined check because 0 is falsy
+      let value = current === undefined ? this.selectedItem : current;
+      while (value < 0) {
+        value += length;
+      }
+      const next = (((value + dx) % length) + length) % length;
+      if (!this.diff.blocks![next].active) {
+        this.changeSelectedItem(dx, next);
+      } else {
+        this.selectedItem = next;
+      }
+    }
+  }
+
+  @Watch("selected", { deep: true })
+  onSelectedChange({ sides }: any): void {
+    const { leftSideId, rightSideId } = sides;
+    const leftSel = leftSideId.blockClasses[0];
+    const rightSel = rightSideId.blockClasses[0];
+    this.selectedItem = this.selectionsIds
+      .findIndex(([left, right]) => (leftSel === left && rightSel === right));
+  }
 
   handleKeyboardEvent(event: KeyboardEvent): void {
     event.preventDefault();
@@ -138,7 +226,9 @@ export default class BlockList extends BlockListBase {
   tempSel: Array<BlockWithId> = [];
 
   mounted(): void {
-    super.mounted();
+    this.selectionsIds = this.diff.blocks!.map(block => {
+      return [constructID(block.left), constructID(block.right)];
+    });
   }
 
   itemClassFunction(block: BlockWithId): string | void {
@@ -161,7 +251,7 @@ export default class BlockList extends BlockListBase {
     }
   }
 
-  onRowClick(block: BlockWithId, { isSelected, select }: { isSelected: boolean; select: (value: boolean) => void}):
+  onRowClick(block: BlockWithId, { isSelected, select }: { isSelected: boolean; select: (value: boolean) => void }):
     void {
     if (block.active) {
       select(!isSelected);
