@@ -164,7 +164,7 @@ export default class BarcodeChart extends Vue {
 </script>
 
 <style lang="scss">
-@use 'codeHighlightsColours';
+@use 'scssVariables';
 
 .barcodeChartBar {
   fill: #f5f2f0;
@@ -174,8 +174,7 @@ export default class BarcodeChart extends Vue {
   display: inline-block;
   position: relative;
   width: 3vw;
-  height: 100%;
-  //height: 60vh;
+  height: var(--code-height);
   padding-bottom: 100%;
   vertical-align: top;
   overflow: hidden;

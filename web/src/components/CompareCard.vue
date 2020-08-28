@@ -11,11 +11,11 @@
                 {{ rightFilename }}
               </v-card-title>
               <v-card-text style="height: 93%">
-                <v-container fluid class="full-height">
-                  <v-row justify="center" no-gutters v-if="loaded" class="full-height">
-                    <v-col md="6" sm="12" class="full-height">
-                      <v-row class="flex-nowrap full-height" no-gutters>
-                        <v-col cols="11" class="full-height">
+                <v-container fluid>
+                  <v-row justify="center" no-gutters v-if="loaded">
+                    <v-col md="6" sm="12">
+                      <v-row class="flex-nowrap" no-gutters>
+                        <v-col cols="11" >
                           <compare-side
                             :active-selections="leftActiveSelectionIds"
                             :file="diff.leftFile"
@@ -32,7 +32,7 @@
                           >
                           </compare-side>
                         </v-col>
-                        <v-col cols="auto" class="full-height">
+                        <v-col cols="auto">
                           <BarcodeChart
                             :active-selections="leftActiveSelectionIds"
                             :amount-of-lines-visible="linesVisible"
@@ -50,9 +50,9 @@
                         </v-col>
                       </v-row>
                     </v-col>
-                    <v-col md="6" sm="12" class="full-height">
-                      <v-row class="flex-nowrap full-height" no-gutters>
-                        <v-col cols="11" class="full-height">
+                    <v-col md="6" sm="12">
+                      <v-row class="flex-nowrap" no-gutters>
+                        <v-col cols="11">
                           <compare-side
                             :active-selections="rightActiveSelectionIds"
                             :file="diff.rightFile"
@@ -67,7 +67,7 @@
                           >
                           </compare-side>
                         </v-col>
-                        <v-col cols="auto" class="full-height">
+                        <v-col cols="auto">
                           <BarcodeChart
                             :active-selections="rightActiveSelectionIds"
                             :amount-of-lines-visible="linesVisible"
@@ -516,11 +516,7 @@ export default class Compare extends Vue {
 </script>
 
 <style lang="scss">
-@use 'codeHighlightsColours';
-
-.full-height {
-  height: 100%;
-}
+@use 'scssVariables';
 
 .no-y-padding {
   padding-bottom: 0;
