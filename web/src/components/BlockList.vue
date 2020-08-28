@@ -113,23 +113,13 @@ export default class BlockList extends BlockListBase {
     }
   ]
 
-  // TODO rename this
-  tempSel: Array<BlockWithId> = [];
-
   handleKeyboardEvent(event: KeyboardEvent): void {
-    // unfocus current focused element so that no accidental scrolling happens when arrow keys are pressed
-    if (document.hasFocus()) {
-      (document.activeElement as HTMLElement).blur();
-    }
-
+    event.preventDefault();
     if (event.key === "ArrowLeft") {
-      (((this.$refs.buttonleft1 || this.$refs.buttonleft2) as Vue).$el as HTMLElement).click();
+      this.changeSelectedItem(-1);
     } else if (event.key === "ArrowRight") {
-      (((this.$refs.buttonright1 || this.$refs.buttonright2) as Vue).$el as HTMLElement).click();
+      this.changeSelectedItem(1);
     } else if (event.key === " " || event.key === "Enter") {
-      if (event.key === " ") {
-        event.preventDefault();
-      }
       if (this.selectedBlock) {
         this.selectedBlock.active = !this.selectedBlock.active;
       }
@@ -142,6 +132,13 @@ export default class BlockList extends BlockListBase {
 
   created(): void {
     window.addEventListener("keyup", this.handleKeyboardEvent);
+  }
+
+  // TODO rename this
+  tempSel: Array<BlockWithId> = [];
+
+  mounted(): void {
+    super.mounted();
   }
 
   itemClassFunction(block: BlockWithId): string | void {
@@ -187,10 +184,6 @@ export default class BlockList extends BlockListBase {
     // if (el) {
     //   el.scrollIntoView({ behavior: "smooth", block: "center" });
     // }
-  }
-
-  mounted(): void {
-    super.mounted();
   }
 }
 </script>

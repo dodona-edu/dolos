@@ -154,7 +154,6 @@
     </v-row>
     <v-navigation-drawer clipped app :value="blockListExtended" right>
       <BlockList
-        v-if="blockListExtended"
         :diff="diff"
         :selected="selected"
         :temp.sync="selectedItem"
@@ -231,6 +230,10 @@ export default class Compare extends Vue {
     ["Space/Enter", "Toggle selection"],
   ]
 
+  updated(): void {
+    this.initialize();
+  }
+
   applyMinBlockLength(value: number): void {
     for (const block of this.diff.blocks!) {
       block.active = value <= block.pairs.length;
@@ -286,6 +289,7 @@ export default class Compare extends Vue {
   };
 
   lastHovered: {
+
     [key in SideID]: {
       blockClasses: Array<SelectionId>;
     };
@@ -371,10 +375,6 @@ export default class Compare extends Vue {
     } else {
       return lines.length;
     }
-  }
-
-  updated(): void {
-    this.initialize();
   }
 
   initialize(): void {

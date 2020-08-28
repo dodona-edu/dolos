@@ -13,7 +13,7 @@ export default abstract class BlockListBase extends Vue {
     blockClasses: Array<SelectionId>;
   };
 
-  @PropSync("temp") selectedItem!: number;
+  @PropSync("temp", { required: true }) selectedItem!: number;
 
   selectionsIds!: Array<[SelectionId, SelectionId]>;
 
