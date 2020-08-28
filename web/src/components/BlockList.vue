@@ -26,13 +26,20 @@
                 </v-col>
                 <v-col cols="auto">
                   <BlockVisualizer
+                    v-if="selectedBlock"
+                    @change="onSelectedItemActiveChange"
                     :block="selectedBlock"
                     class="no-y-padding"
-                    v-if="selectedBlock">
+                  >
                   </BlockVisualizer>
                   <!-- this second blockVisualizer makes sure that this component does not resize whenever a -->
                   <!-- block is selected/deselected -->
-                  <BlockVisualizer :block="diff.blocks[0]" :dummy="true" class="no-y-padding" v-else>
+                  <BlockVisualizer
+                    v-else
+                    :block="diff.blocks[0]"
+                    :dummy="true"
+                    class="no-y-padding"
+                  >
                   </BlockVisualizer>
                 </v-col>
                 <v-col cols="auto">
@@ -243,6 +250,12 @@ export default class BlockList extends Vue {
 
   checkBoxToggle(block: BlockWithId, value: boolean): void {
     if (this.selectedItem === block.id && !value) {
+      this.selectedItem = -1;
+    }
+  }
+
+  onSelectedItemActiveChange(value: boolean): void {
+    if (!value) {
       this.selectedItem = -1;
     }
   }
