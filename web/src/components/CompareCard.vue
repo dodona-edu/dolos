@@ -1,16 +1,46 @@
 <template>
   <v-container fluid class="no-y-padding">
     <v-row>
-      <v-col>
+      <v-col class="no-y-padding">
         <v-row dense class="no-y-padding">
           <v-col cols="12" class="no-y-padding">
             <v-card height="90vh" :loading="!loaded" style="position: relative">
               <v-card-title>
-                {{ leftFilename }}
-                <v-spacer/>
-                {{ rightFilename }}
+                <v-container fluid>
+                  <v-row>
+                    {{ leftFilename }}
+                    <v-spacer/>
+                    {{ rightFilename }}
+                  </v-row>
+                  <v-row justify="center" dense>
+                    <v-col cols="auto">
+                      <v-chip label>
+                        <v-icon left>
+                          {{mdiApproximatelyEqual}}
+                        </v-icon>
+                        Similarity: {{diff.similarity.toFixed(2)}}
+                      </v-chip>
+                    </v-col>
+                    <v-col cols="auto">
+                      <v-chip label>
+                        <v-icon left size="20" >
+                          {{mdiFileDocumentMultiple}}
+                        </v-icon>
+                        Continuous overlap: {{diff.continuousOverlap}}
+                      </v-chip>
+                    </v-col>
+                    <v-col cols="auto">
+                      <v-chip label>
+                        <v-icon left size="20">
+                          {{mdiFileDocumentMultipleOutline}}
+                        </v-icon>
+                        Total overlap: {{diff.totalOverlap}}
+                      </v-chip>
+                    </v-col>
+                  </v-row>
+                </v-container>
               </v-card-title>
-              <v-card-text style="height: 93%">
+              <v-card-text>
                 <v-container fluid>
                   <v-row justify="center" no-gutters v-if="loaded">
                     <v-col md="6" sm="12">
@@ -169,7 +199,12 @@ import BarcodeChart from "@/components/BarcodeChart.vue";
 import { constructID, SelectionId } from "@/util/OccurenceHighlight";
 import * as d3 from "d3";
 import BlockList from "@/components/BlockList.vue";
-import { mdiApplicationCog } from "@mdi/js";
+import {
+  mdiApplicationCog,
+  mdiApproximatelyEqual,
+  mdiFileDocumentMultiple,
+  mdiFileDocumentMultipleOutline
+} from "@mdi/js";
 
 export enum SideID {
   leftSideId = "leftSideId",
@@ -177,7 +212,13 @@ export enum SideID {
 }
 
 @Component({
-  data: () => ({ SideID, mdiApplicationCog }),
+  data: () => ({
+    SideID,
+    mdiApplicationCog,
+    mdiApproximatelyEqual,
+    mdiFileDocumentMultiple,
+    mdiFileDocumentMultipleOutline
+  }),
   components: { CompareSide, BarcodeChart, BlockList },
 })
 export default class Compare extends Vue {
@@ -208,7 +249,7 @@ export default class Compare extends Vue {
     return this.blockLengths.reduce((pv, cv) => Math.max(pv, cv)) as number;
   }
 
-  blockListExtended = true;
+  blockListExtended = false;
 
   selectedItem = -1;
 
@@ -528,9 +569,9 @@ export default class Compare extends Vue {
 }
 
 // disable scrolling
-html, body {
-  margin: 0;
-  height: 100%;
-  overflow: hidden
-}
+//html, body {
+//  margin: 0;
+//  height: 100%;
+//  overflow: hidden
+//}
 </style>
