@@ -5,6 +5,7 @@ import { Block, Diff } from "@/api/api";
 import { SideID } from "@/components/CompareCard.vue";
 import { constructID, SelectionId } from "@/util/OccurenceHighlight";
 
+// TODO move all of this into block list
 export default abstract class BlockListBase extends Vue {
   @Prop({ required: true }) diff!: Diff;
   @Prop({ required: true }) selected!: {

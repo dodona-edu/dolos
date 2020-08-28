@@ -174,7 +174,8 @@ export default class BarcodeChart extends Vue {
   display: inline-block;
   position: relative;
   width: 3vw;
-  height: 60vh;
+  height: 100%;
+  //height: 60vh;
   padding-bottom: 100%;
   vertical-align: top;
   overflow: hidden;

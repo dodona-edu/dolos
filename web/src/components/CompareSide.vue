@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="full-height">
     <component :is="'style'" type="text/css">
 
       <template v-for="item in activeSelections">
@@ -21,7 +21,7 @@
         }
       </template>
     </component>
-    <pre v-scroll.self="onScroll" ref="pre" :id="identifier" class="line-numbers highlighted-code"><code
+    <pre v-scroll.self="onScroll" ref="pre" :id="identifier" class="line-numbers highlighted-code full-height"><code
       ref="codeblock"
       :class="language">{{content}}</code>
     </pre>
@@ -134,8 +134,14 @@ export default class CompareSide extends Vue {
 <style lang="scss">
 @use 'codeHighlightsColours';
 
+.full-height {
+  height: 100%;
+}
 .highlighted-code {
-    height: 60vh;
+    //height: 60vh;
+    height: 100%;
+    min-height: 100%;
+    max-height: 100%;
     overflow-y: scroll;
     padding-top: 0 !important;
 
