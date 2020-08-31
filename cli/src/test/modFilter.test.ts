@@ -13,7 +13,7 @@ test("no hashes for text shorter than k", async t => {
   t.is(0, hashes.length);
 });
 
-test("1 hashing for text length of k", async t => {
+test("1 hashing for 1 token", async t => {
   const text = "abcde";
   const filter = new ModFilter(1, 1);
   const hashes = [];
