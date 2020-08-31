@@ -1,10 +1,13 @@
 import { Readable } from "stream";
 import { Hash, HashFilter } from "./hashFilter";
 import { RollingHash } from "./rollingHash";
+import sha1 from "sha1";
+import nPrime from "nprime";
 
 export class WinnowFilter extends HashFilter {
   private readonly k: number;
   private readonly windowSize: number;
+  private readonly maxHashValue: number;
 
   /**
    * Generates a Winnow object with given window size and k-mer size. The
@@ -19,6 +22,7 @@ export class WinnowFilter extends HashFilter {
     super();
     this.k = k;
     this.windowSize = windowSize;
+    this.maxHashValue = nPrime.next(1 << 25);
   }
 
   /**
@@ -33,21 +37,34 @@ export class WinnowFilter extends HashFilter {
    */
   public async *hashes(stream: Readable): AsyncIterableIterator<Hash> {
     const hash = new RollingHash(this.k);
-    let window = "";
-    let filePos: number = -1 * this.k;
+    const window: string[] = [];
+    let filePos = 0;
     let bufferPos = 0;
     let minPos = 0;
+    let lastToken = "";
+
     const buffer: number[] =
       new Array(this.windowSize).fill(Number.MAX_SAFE_INTEGER);
 
     // At the end of each iteration, minPos holds the position of the rightmost
     // minimal hashing in the current window.
     // yield([x,pos]) is called only the first time an instance of x is selected
-    for await (const byte of HashFilter.readBytes(stream)) {
-      filePos++;
-      const char = String.fromCharCode(byte);
-      window = window.slice(-(this.windowSize + this.k)) + char;
-      if (filePos < 0) {
+    for await (const token of HashFilter.readTokens(stream)) {
+      if (window.length === this.windowSize) {
+        lastToken = window.shift() as string;
+      }
+      filePos += lastToken.length;
+      window.push(token);
+
+      let byte;
+      if (token.length === 1) {
+        byte = token.charCodeAt(0);
+      } else {
+        byte = parseInt(sha1(token), 16) % this.maxHashValue;
+      }
+
+      // const char = String.fromCharCode(byte);
+      if (window.length < this.windowSize) {
         hash.nextHash(byte);
         continue;
       }
@@ -70,13 +87,13 @@ export class WinnowFilter extends HashFilter {
         const offset = (minPos - bufferPos - this.windowSize) % this.windowSize;
         const start = filePos + offset;
         const data =
-          window.slice(window.length + offset - this.k, window.length + offset);
+          window.slice(window.length + offset - this.k, window.length + offset).join("");
 
         yield {
           data,
           hash: buffer[minPos],
           start,
-          stop: start + this.k - 1,
+          stop: start + data.length - 1,
         };
 
       } else {
@@ -86,11 +103,12 @@ export class WinnowFilter extends HashFilter {
           minPos = bufferPos;
           const start =
             filePos + ((minPos - bufferPos - this.windowSize) % this.windowSize);
+          const data = window.slice(-this.k).join("");
           yield {
-            data: window.slice(-this.k),
+            data,
             hash: buffer[minPos],
             start,
-            stop: start + this.k - 1,
+            stop: start + data.length - 1,
           };
         }
       }
