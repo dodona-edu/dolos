@@ -1,6 +1,7 @@
 import { Readable } from "stream";
 import { Hash, HashFilter } from "./hashFilter";
 import { RollingHash } from "./rollingHash";
+import sha1 from "sha1";
 
 export class NoFilter extends HashFilter {
   private readonly k: number;
@@ -25,12 +26,21 @@ export class NoFilter extends HashFilter {
    */
   public async *hashes(stream: Readable): AsyncIterableIterator<Hash> {
     const hash = new RollingHash(this.k);
-    let window = "";
+    let window: string[] = [];
     let filePos: number = -1 * this.k;
 
-    for await (const byte of HashFilter.readBytes(stream)) {
-      filePos++;
-      window = window.slice(-this.k+1) + String.fromCharCode(byte);
+    for await (const token of HashFilter.readTokens(stream)) {
+      filePos += token.length;
+      window = window.slice(-this.k+1);
+      window.push(token);
+
+      let byte;
+      if (token.length === 1) {
+        byte = token.charCodeAt(0);
+      } else {
+        byte = parseInt(sha1(token), 16);
+      }
+
       if (filePos < 0) {
         hash.nextHash(byte);
         continue;
@@ -38,8 +48,8 @@ export class NoFilter extends HashFilter {
       yield {
         hash: hash.nextHash(byte),
         start: filePos,
-        stop: filePos + this.k - 1,
-        data: window
+        stop: filePos + token.length,
+        data: window.join("")
       };
     }
   }

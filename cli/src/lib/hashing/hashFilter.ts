@@ -23,6 +23,22 @@ export abstract class HashFilter {
     }
   }
 
+  public static async *readTokens(stream: Readable): AsyncIterableIterator<string> {
+    let token = "";
+    for await(const byte of HashFilter.readBytes(stream)) {
+      const char = String.fromCharCode(byte);
+      if (char === "(" || char === ")" || char.trim().length === 0) {
+        if (token.length !== 0){
+          yield token;
+          token = "";
+        }
+        yield char;
+      } else {
+        token += char;
+      }
+    }
+  }
+
   public abstract hashes(stream: Readable): AsyncIterableIterator<Hash>;
 
   public async *hashesFromString(text: string): AsyncIterableIterator<Hash> {

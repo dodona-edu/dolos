@@ -1,6 +1,7 @@
 import { Readable } from "stream";
 import { Hash, HashFilter } from "./hashFilter";
 import { RollingHash } from "./rollingHash";
+import sha1 from "sha1";
 
 export class WinnowFilter extends HashFilter {
   private readonly k: number;
@@ -33,20 +34,33 @@ export class WinnowFilter extends HashFilter {
    */
   public async *hashes(stream: Readable): AsyncIterableIterator<Hash> {
     const hash = new RollingHash(this.k);
-    let window = "";
+    let window: Array<string> = [];
     let filePos: number = -1 * this.k;
     let bufferPos = 0;
     let minPos = 0;
     const buffer: number[] =
       new Array(this.windowSize).fill(Number.MAX_SAFE_INTEGER);
 
+    // for await (const token of HashFilter.readTokens(stream)) {
+    //   if (token.trim().length === 0 && token.length > 1) {
+    //     console.log(token.length);
+    //   }
+    // }
+
     // At the end of each iteration, minPos holds the position of the rightmost
     // minimal hashing in the current window.
     // yield([x,pos]) is called only the first time an instance of x is selected
-    for await (const byte of HashFilter.readBytes(stream)) {
-      filePos++;
-      const char = String.fromCharCode(byte);
-      window = window.slice(-(this.windowSize + this.k)) + char;
+    for await (const token of HashFilter.readTokens(stream)) {
+      filePos += token.length;
+      let byte;
+      if (token.length === 1) {
+        byte = token.charCodeAt(0);
+      } else {
+        byte = parseInt(sha1(token), 16);
+      }
+      // const char = String.fromCharCode(byte);
+      window = window.slice(-(this.windowSize + this.k));
+      window.push(token);
       if (filePos < 0) {
         hash.nextHash(byte);
         continue;
@@ -70,7 +84,7 @@ export class WinnowFilter extends HashFilter {
         const offset = (minPos - bufferPos - this.windowSize) % this.windowSize;
         const start = filePos + offset;
         const data =
-          window.slice(window.length + offset - this.k, window.length + offset);
+          window.slice(window.length + offset - this.k, window.length + offset).join("");
 
         yield {
           data,
@@ -87,7 +101,7 @@ export class WinnowFilter extends HashFilter {
           const start =
             filePos + ((minPos - bufferPos - this.windowSize) % this.windowSize);
           yield {
-            data: window.slice(-this.k),
+            data: window.slice(-this.k).join(""),
             hash: buffer[minPos],
             start,
             stop: start + this.k - 1,

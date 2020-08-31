@@ -149,6 +149,7 @@ export class TerminalPresenter extends Presenter {
       this.c.grey((i + 1).toString().padEnd(lineNrWidth));
 
     const blocks = diff.blocks();
+    blocks.sort((b1, b2) => b1.pairs.length - b2.pairs.length);
     for (let i = 0; i < blocks.length; i += 1) {
       const block = blocks[i];
 

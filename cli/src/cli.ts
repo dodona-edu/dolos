@@ -113,10 +113,10 @@ program
     "-w, --kmers-in-window <integer>",
     Utils.indent(
       "The size of the window that will be used (in kmers).",
-      Options.defaultKmerLength
+      Options.defaultKmersInWindow
     ),
     x => parseFloat(x),
-    Options.defaultKmerLength
+    Options.defaultKmersInWindow
   )
   .arguments("<locations...>")
   .action(async locations => {

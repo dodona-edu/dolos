@@ -4,15 +4,17 @@ import { Options } from "../util/options";
 import { Range } from "../util/range";
 import { Region } from "../util/region";
 import { Tokenizer } from "../tokenizer/tokenizer";
-import { WinnowFilter } from "../hashing/winnowFilter";
+// import { WinnowFilter } from "../hashing/winnowFilter";
 import { File } from "../file/file";
 import { Report, Occurrence } from "./report";
 import { info } from "../util/utils";
+import { NoFilter } from "../hashing/noFilter";
 
 type Hash = number;
 
 export class Index {
   private readonly kmerLength: number;
+  // @ts-ignore
   private readonly kmersInWindow: number;
   private readonly index: Map<Hash, Array<Occurrence>> = new Map();
   private readonly tokenizer: Tokenizer;
@@ -43,7 +45,8 @@ export class Index {
     this.hashFilter =
       hashFilter
         ? hashFilter
-        : new WinnowFilter(this.kmerLength, this.kmersInWindow);
+        :new NoFilter(this.kmerLength);
+    // : new WinnowFilter(this.kmerLength, this.kmersInWindow);
   }
 
   /**
@@ -73,8 +76,10 @@ export class Index {
         const { data, hash, start, stop  }
         of hashFilter.hashesFromString(file.ast)
       ) {
+        console.log(data, hash, start, stop);
 
         // add kmer to file
+        // console.log(start, stop);
         file.kmers.push(new Range(start, stop));
 
         // sanity check
