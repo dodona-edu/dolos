@@ -45,11 +45,14 @@ export class NoFilter extends HashFilter {
         hash.nextHash(byte);
         continue;
       }
+      const data = window.join("");
+      const hashV = hash.nextHash(byte);
+      console.log(filePos, filePos + data.length - 1, data);
       yield {
-        hash: hash.nextHash(byte),
+        hash: hashV,
         start: filePos,
-        stop: filePos + token.length,
-        data: window.join("")
+        stop: filePos + data.length - 1,
+        data
       };
     }
   }

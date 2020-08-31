@@ -76,13 +76,13 @@ export class Index {
         const { data, hash, start, stop  }
         of hashFilter.hashesFromString(file.ast)
       ) {
-        console.log(data, hash, start, stop);
 
         // add kmer to file
         // console.log(start, stop);
         file.kmers.push(new Range(start, stop));
 
         // sanity check
+
         assert(
           Region.isInOrder(
             file.mapping[start],
