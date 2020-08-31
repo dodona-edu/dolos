@@ -35,7 +35,6 @@ export class NoFilter extends HashFilter {
         lastToken = window.shift() as string;
       }
       filePos += lastToken.length;
-      // window = window.slice(-this.k+1);
       window.push(token);
 
       let byte;
@@ -51,8 +50,6 @@ export class NoFilter extends HashFilter {
       }
       const data = window.join("");
       const hashV = hash.nextHash(byte);
-      // console.log(`"${data}"`, window);
-      // console.log(window);
       yield {
         hash: hashV,
         start: filePos,

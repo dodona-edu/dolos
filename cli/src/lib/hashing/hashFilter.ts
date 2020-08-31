@@ -23,6 +23,11 @@ export abstract class HashFilter {
     }
   }
 
+  /**
+   * iterates of the tokens read from stream. There are four kinds of tokens: "(", ")", whitespace and lastly everything
+   * that isn't broken up by the first three tokens.
+   * @param stream the input stream
+   */
   public static async *readTokens(stream: Readable): AsyncIterableIterator<string> {
     let token = "";
     for await(const byte of HashFilter.readBytes(stream)) {
@@ -36,6 +41,9 @@ export abstract class HashFilter {
       } else {
         token += char;
       }
+    }
+    if (token.length !== 0) {
+      yield token;
     }
   }
 

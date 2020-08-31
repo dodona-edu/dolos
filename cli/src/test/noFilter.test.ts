@@ -12,9 +12,9 @@ test("no hashes for text shorter than k", async t => {
   t.is(0, hashes.length);
 });
 
-test("1 hashing for text length of k", async t => {
+test("1 hashing for 1 token", async t => {
   const text = "abcde";
-  const filter = new NoFilter(5);
+  const filter = new NoFilter(1);
   const hashes = [];
 
   for await (const hash of filter.hashesFromString(text)) {
@@ -23,8 +23,9 @@ test("1 hashing for text length of k", async t => {
   t.is(1, hashes.length);
 });
 
-test("number of hashes equals text size minus k plus 1", async t => {
+test("number of hashes equals amount of tokens in text minus k plus 1", async t => {
   const text = "This is a slightly longer text to test multiple hashing values.";
+  const tokens = 21;
   const k = 5;
   const filter = new NoFilter(k);
   const hashes = [];
@@ -32,5 +33,5 @@ test("number of hashes equals text size minus k plus 1", async t => {
   for await (const hash of filter.hashesFromString(text)) {
     hashes.push(hash);
   }
-  t.is(text.length - k + 1, hashes.length);
+  t.is(tokens - k + 1, hashes.length);
 });
