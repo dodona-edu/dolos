@@ -42,7 +42,7 @@ export class NoFilter extends HashFilter {
       if (token.length === 1) {
         byte = token.charCodeAt(0);
       } else {
-        byte = parseInt(sha1(token), 16);
+        byte = parseInt(sha1(token), 16) % 10000;
       }
 
       if (window.length < this.k) {
@@ -51,7 +51,7 @@ export class NoFilter extends HashFilter {
       }
       const data = window.join("");
       const hashV = hash.nextHash(byte);
-      // console.log(hashV, byte, data);
+      // console.log(`"${data}"`, window);
       // console.log(window);
       yield {
         hash: hashV,
