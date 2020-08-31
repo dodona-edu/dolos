@@ -71,6 +71,8 @@ export class Index {
 
     for (const file of tokenizedFiles) {
       info(`Processing file ${file.path}`);
+      console.log(file.ast);
+      console.log();
       let kmer = 0;
       for await (
         const { data, hash, start, stop  }
