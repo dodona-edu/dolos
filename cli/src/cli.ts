@@ -105,7 +105,7 @@ program
   )
   .option(
     "-k, --kmer-length <integer>",
-    Utils.indent("The length of each k-mer fragment.", Options.defaultKmerLength),
+    Utils.indent("The length of each k-mer fragment, in tokens.", Options.defaultKmerLength),
     x => parseFloat(x),
     Options.defaultKmerLength
   )
