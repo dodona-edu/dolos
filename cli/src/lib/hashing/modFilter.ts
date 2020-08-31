@@ -1,9 +1,8 @@
 import { Readable } from "stream";
-import { Hash, HashFilter } from "./hashFilter";
-import { RollingHash } from "./rollingHash";
+import { Hash } from "./hashFilter";
+import { NoFilter } from "./noFilter";
 
-export class ModFilter extends HashFilter {
-  private readonly k: number;
+export class ModFilter extends NoFilter {
   private readonly mod: number;
 
   /**
@@ -14,8 +13,7 @@ export class ModFilter extends HashFilter {
    * @param mod The mod value for which hashes to keep
    */
   constructor(k: number, mod: number) {
-    super();
-    this.k = k;
+    super(k);
     this.mod = mod;
   }
 
@@ -27,26 +25,9 @@ export class ModFilter extends HashFilter {
    * stream can be created using fs.createReadStream("path").
    */
   public async *hashes(stream: Readable): AsyncIterableIterator<Hash> {
-    const hash = new RollingHash(this.k);
-    let filePos: number = -1 * this.k;
-    let currentHash: number;
-    let window = "";
-
-    for await (const byte of HashFilter.readBytes(stream)) {
-      filePos++;
-      window = window.slice(-this.k + 1) + String.fromCharCode(byte);
-      if (filePos < 0) {
-        hash.nextHash(byte);
-        continue;
-      }
-      currentHash = hash.nextHash(byte);
-      if (currentHash % this.mod === 0) {
-        yield {
-          hash: currentHash,
-          start: filePos,
-          stop: filePos + this.k - 1,
-          data: window
-        };
+    for await( const hash of super.hashes(stream)) {
+      if( hash.hash % this.mod === 0) {
+        yield hash;
       }
     }
   }

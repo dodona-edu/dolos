@@ -4,7 +4,7 @@ import { RollingHash } from "./rollingHash";
 import sha1 from "sha1";
 
 export class NoFilter extends HashFilter {
-  private readonly k: number;
+  protected readonly k: number;
 
   /**
    * Generates a HashFilter object with given k-mer size. It will not hashing

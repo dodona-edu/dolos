@@ -15,7 +15,7 @@ test("no hashes for text shorter than k", async t => {
 
 test("1 hashing for text length of k", async t => {
   const text = "abcde";
-  const filter = new ModFilter(5, 1);
+  const filter = new ModFilter(1, 1);
   const hashes = [];
 
   for await (const hash of filter.hashesFromString(text)) {
