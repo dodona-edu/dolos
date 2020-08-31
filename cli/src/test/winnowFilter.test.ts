@@ -2,10 +2,11 @@ import test from "ava";
 import { Readable } from "stream";
 import { NoFilter } from "../lib/hashing/noFilter";
 import { WinnowFilter } from "../lib/hashing/winnowFilter";
+import { HashFilter } from "../lib/hashing/hashFilter";
 
 test("Winnow on comparable files", async t => {
-  const textA = "abcdefg";
-  const textB = "bcdabcefg";
+  const textA = "a b c d e f g";
+  const textB = "b c d a b c e f g";
   const k = 2;
 
   const filter = new WinnowFilter(k, 2);
@@ -50,14 +51,25 @@ test("1 hashing for text length of k", async t => {
   t.is(1, hashes.length);
 });
 
-test("maximum gap between hashing positions is window size", async t => {
+test("maximum gap size in amount of tokens between hashing positions is window size", async t => {
   const text = "This is a slightly longer text to test multiple hashing values.";
   const windowSize = 3;
   const winnowFilter = new WinnowFilter(5, windowSize);
   let previousPos = 0;
+  async function countTokens(str: string): Promise<number> {
+    const stream = new Readable();
+    stream.push(str);
+    stream.push(null);
+    let count = 0;
+    // eslint-disable-next-line no-empty-pattern
+    for await (const {} of HashFilter.readTokens(stream)) {
+      count += 1;
+    }
+    return count;
+  }
 
   for await (const { start } of winnowFilter.hashesFromString(text)) {
-    t.true(start - previousPos <= windowSize);
+    t.true(await countTokens(text.slice(previousPos, start)) <= windowSize);
     previousPos = start;
   }
 });
