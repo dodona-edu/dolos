@@ -99,9 +99,17 @@ program
   .option(
     "--sort <field>",
     Utils.indent(
-      "Which field to sort the results by. Options are: similarity, continuous and total", "total"
+      "Which field to sort the diffs by. Options are: similarity, continuous and total", "total"
     ),
     "total"
+  )
+  .option(
+    "-b, --block-sort <sort>",
+    Utils.indent(
+      "How to sort the blocks by the amount of matches. The options are: " +
+          "asc/desc/none", "asc"
+    ),
+    "asc"
   )
   .option(
     "-k, --kmer-length <integer>",
@@ -141,6 +149,7 @@ program
         minSimilarity: program.minimumSimilarity,
         limitResults: program.limit,
         sortBy: program.sort,
+        blockSortBy: program.blockSort,
       });
       const report = await dolos.analyzePaths(locations);
 
