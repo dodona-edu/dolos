@@ -50,21 +50,17 @@ export class WinnowFilter extends HashFilter {
     // minimal hashing in the current window.
     // yield([x,pos]) is called only the first time an instance of x is selected
     for await (const token of HashFilter.readTokens(stream)) {
-      if (window.length === this.windowSize) {
+      if (window.length === (this.windowSize + this.k - 1)) {
         lastToken = window.shift() as string;
+      } else if (window.length === this.k) {
+        lastToken = window[window.length-1];
       }
       filePos += lastToken.length;
       window.push(token);
 
-      let byte;
-      if (token.length === 1) {
-        byte = token.charCodeAt(0);
-      } else {
-        byte = parseInt(sha1(token), 16) % this.maxHashValue;
-      }
+      const byte = parseInt(sha1(token), 16) % this.maxHashValue;
 
-      // const char = String.fromCharCode(byte);
-      if (window.length < this.windowSize) {
+      if (window.length < this.k) {
         hash.nextHash(byte);
         continue;
       }
@@ -89,6 +85,7 @@ export class WinnowFilter extends HashFilter {
         const data =
           window.slice(window.length + offset - this.k, window.length + offset).join("");
 
+        console.log(`"${data}"`, buffer[minPos], start, start + data.length - 1);
         yield {
           data,
           hash: buffer[minPos],
@@ -104,6 +101,7 @@ export class WinnowFilter extends HashFilter {
           const start =
             filePos + ((minPos - bufferPos - this.windowSize) % this.windowSize);
           const data = window.slice(-this.k).join("");
+          console.log(`"${data}"`, buffer[minPos], start, start + data.length - 1);
           yield {
             data,
             hash: buffer[minPos],

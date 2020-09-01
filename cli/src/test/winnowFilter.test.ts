@@ -15,6 +15,7 @@ test("Winnow on comparable files", async t => {
   for await (const { hash, start: posA } of filter.hashesFromString(textA)) {
     hashes.set(hash, posA);
   }
+  console.log(" ");
 
   let overlap = 0;
   for await (const { hash, start: posB } of filter.hashesFromString(textB)) {
@@ -29,8 +30,8 @@ test("Winnow on comparable files", async t => {
   t.true(overlap >= 3);
 });
 
-test("no hashes for text shorter than k", async t => {
-  const text = "abcd";
+test("no hashes for text shorter than k tokens", async t => {
+  const text = "a b "; // spaces are also counted as tokens
   const filter = new WinnowFilter(5, 1);
   const hashes = [];
 
@@ -41,7 +42,7 @@ test("no hashes for text shorter than k", async t => {
 });
 
 test("1 hashing for text length of k", async t => {
-  const text = "abcde";
+  const text = "a b c";
   const filter = new WinnowFilter(5, 1);
   const hashes = [];
 
