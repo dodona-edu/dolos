@@ -79,14 +79,24 @@ export class WinnowFilter extends HashFilter {
           }
         }
 
-        const offset = (minPos - bufferPos + this.windowSize) % this.windowSize;
+        const offset = (minPos + (this.windowSize - (bufferPos + 1))) % this.windowSize;
         const start = filePos + window.slice(0, offset).join("").length;
         const data = window.slice(
           offset,
-          offset + this.k + 1
+          offset + this.k
         ).join("");
 
-        console.log("1", `"${data}"`, filePos, start, start + data.length - 1, lastToken, lastToken.length);
+        // console.log(1,
+        //   {
+        //     filePos,
+        //     offset,
+        //     start,
+        //     data,
+        //     window,
+        //     bufferPos,
+        //     minPos,
+        //     buffer
+        //   }, start + data.length - 1, lastToken, lastToken.length);
         yield {
           data,
           hash: buffer[minPos],
@@ -101,7 +111,7 @@ export class WinnowFilter extends HashFilter {
           minPos = bufferPos;
           const data = window.slice(-this.k).join("");
           const start = filePos + window.slice(0, window.length - this.k).join("").length;
-          console.log("2", `"${data}"`,filePos, start, start + data.length - 1, lastToken, lastToken.length);
+          // console.log(2, `"${data}"`,filePos, start, start + data.length - 1, lastToken, lastToken.length);
           yield {
             data,
             hash: buffer[minPos],
