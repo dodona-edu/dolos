@@ -46,7 +46,7 @@ export class WinnowFilter extends HashFilter {
     // At the end of each iteration, minPos holds the position of the rightmost
     // minimal hashing in the current window.
     // yield([x,pos]) is called only the first time an instance of x is selected
-    for await (const token of HashFilter.readTokens(stream)) {
+    for await (const { token } of HashFilter.readTokens(stream)) {
       if (window.length === (this.windowSize + this.k - 1)) {
         lastToken = window.shift() as string;
       }

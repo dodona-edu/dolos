@@ -40,27 +40,46 @@ export abstract class HashFilter {
     }
   }
 
+  protected zip(skipped: number[], tokens: string[]): string {
+    let string = "";
+    for(let i = 0; i < tokens.length; i += 1) {
+      string += " ".repeat(skipped[i]) + tokens[i];
+    }
+    return string;
+  }
+
   /**
    * iterates of the tokens read from stream. There are four kinds of tokens: "(", ")", whitespace and lastly everything
    * that isn't broken up by the first three tokens.
    * @param stream the input stream
    */
-  public static async *readTokens(stream: Readable): AsyncIterableIterator<string> {
+  public static async *readTokens(stream: Readable): AsyncIterableIterator<{token: string; skipped: number}> {
     let token = "";
+    let skipped = 0;
     for await(const byte of HashFilter.readBytes(stream)) {
       const char = String.fromCharCode(byte);
-      if (char === "(" || char === ")" || char.trim().length === 0) {
-        if (token.length !== 0){
-          yield token;
+      if (char.trim().length === 0) {
+        if (token.length > 0) {
+          yield { token, skipped };
           token = "";
+          skipped = 0;
         }
-        yield char;
+        skipped += char.length;
       } else {
-        token += char;
+        if (char === "(" || char === ")") {
+          if (token.length !== 0){
+            yield { token, skipped };
+            skipped = 0;
+            token = "";
+          }
+          yield { token: char, skipped: 0 };
+        } else {
+          token += char;
+        }
       }
     }
     if (token.length !== 0) {
-      yield token;
+      yield { token, skipped };
     }
   }
 

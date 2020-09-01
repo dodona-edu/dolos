@@ -26,15 +26,20 @@ export class NoFilter extends HashFilter {
   public async *hashes(stream: Readable): AsyncIterableIterator<Hash> {
     const hash = new RollingHash(this.k);
     const window: string[] = [];
+    const skippedWindow: number[] = [];
     let filePos = 0;
     let lastToken = "";
+    let lastSkipped = 0;
 
-    for await (const token of HashFilter.readTokens(stream)) {
+    for await (const { token, skipped } of HashFilter.readTokens(stream)) {
       if (window.length === this.k) {
         lastToken = window.shift() as string;
+        lastSkipped = skippedWindow.shift() as number;
       }
-      filePos += lastToken.length;
+      console.log("hello", token, skipped);
+      filePos += lastToken.length + lastSkipped;
       window.push(token);
+      skippedWindow.push(skipped);
 
       const byte = this.hash(token);
 
@@ -42,7 +47,7 @@ export class NoFilter extends HashFilter {
         hash.nextHash(byte);
         continue;
       }
-      const data = window.join("");
+      const data = this.zip(skippedWindow, window);
       const hashV = hash.nextHash(byte);
       yield {
         hash: hashV,
