@@ -8,6 +8,23 @@ export interface Hash {
 }
 
 export abstract class HashFilter {
+
+  private readonly map: Map<string, number>;
+  private currentIndex = 1000000;
+
+
+  protected constructor() {
+    this.map = new Map();
+  }
+
+  protected hash(str: string): number {
+    if (!this.map.has(str)) {
+      this.map.set(str, this.currentIndex);
+      this.currentIndex -= 1;
+    }
+    return this.map.get(str) as number;
+  }
+
   public static async *readBytes(stream: Readable):
     AsyncIterableIterator<number> {
 

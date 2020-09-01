@@ -1,12 +1,9 @@
 import { Readable } from "stream";
 import { Hash, HashFilter } from "./hashFilter";
 import { RollingHash } from "./rollingHash";
-import sha1 from "sha1";
-import nPrime from "nprime";
 
 export class NoFilter extends HashFilter {
   protected readonly k: number;
-  protected readonly maxHashValue: number;
 
   /**
    * Generates a HashFilter object with given k-mer size. It will not hashing
@@ -17,7 +14,6 @@ export class NoFilter extends HashFilter {
   constructor(k: number) {
     super();
     this.k = k;
-    this.maxHashValue = nPrime.next(1 << 25);
   }
 
   /**
@@ -40,7 +36,7 @@ export class NoFilter extends HashFilter {
       filePos += lastToken.length;
       window.push(token);
 
-      const byte = parseInt(sha1(token), 16) % this.maxHashValue;
+      const byte = this.hash(token);
 
       if (window.length < this.k) {
         hash.nextHash(byte);

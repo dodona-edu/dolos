@@ -1,13 +1,10 @@
 import { Readable } from "stream";
 import { Hash, HashFilter } from "./hashFilter";
 import { RollingHash } from "./rollingHash";
-import sha1 from "sha1";
-import nPrime from "nprime";
 
 export class WinnowFilter extends HashFilter {
   private readonly k: number;
   private readonly windowSize: number;
-  private readonly maxHashValue: number;
 
   /**
    * Generates a Winnow object with given window size and k-mer size. The
@@ -22,8 +19,8 @@ export class WinnowFilter extends HashFilter {
     super();
     this.k = k;
     this.windowSize = windowSize;
-    this.maxHashValue = nPrime.next(1 << 25);
   }
+
 
   /**
    * Returns an async interator that yields tuples containing a hashing and its
@@ -56,13 +53,12 @@ export class WinnowFilter extends HashFilter {
       filePos += lastToken.length;
       window.push(token);
 
-      const byte = parseInt(sha1(token), 16) % this.maxHashValue;
+      const byte = this.hash(token);
 
       if (window.length < this.k) {
         hash.nextHash(byte);
         continue;
       }
-      // console.log(`"${lastToken}"`, lastToken.length);
       bufferPos = (bufferPos + 1) % this.windowSize;
       buffer[bufferPos] = hash.nextHash(byte);
       if (minPos === bufferPos) {
