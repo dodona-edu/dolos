@@ -26,6 +26,16 @@ test("locations and data match given string", async t => {
   }
 });
 
+test("locations and data match given string 2", async t => {
+  const text = " a b c d e f g";
+  const windowSize = 2;
+  const winnowFilter = new WinnowFilter(2, windowSize);
+
+  for await (const { start, stop, data } of winnowFilter.hashesFromString(text)) {
+    t.is(text.slice(start, stop + 1), data);
+  }
+});
+
 test("all returned k-mers are different", async t => {
   const text = "This is a slightly longer text to test multiple hashing values.";
   const windowSize = 3;
@@ -51,24 +61,27 @@ test("all returned k-mers are of size k tokens", async t => {
 });
 
 test("Winnow on comparable files", async t => {
-  const textA = "a b c d e f g";
-  const textB = "b c d a b c e f g";
-  const k = 2;
+  const textA = " a b c d e f g";
+  const textB = " b c d a b c e f g";
 
-  const filter = new WinnowFilter(k, 2);
-  const hashes: Map<number, number> = new Map();
+  const filter = new WinnowFilter(2, 2);
+  const hashes: Map<number, [number, number] > = new Map();
   // Build a Map from hashing to position
-  for await (const { hash, start: posA } of filter.hashesFromString(textA)) {
-    hashes.set(hash, posA);
+  for await (const { hash, start, stop, data } of filter.hashesFromString(textA)) {
+    console.log({ data,
+      slice: textA.slice(start, stop + 1),
+      equal: data === textA.slice(start, stop + 1)
+    });
+    hashes.set(hash, [start, stop]);
   }
 
   let overlap = 0;
-  for await (const { hash, start: posB } of filter.hashesFromString(textB)) {
+  for await (const { hash, start, stop } of filter.hashesFromString(textB)) {
     if (hashes.has(hash)) {
       ++overlap;
-      const posA = hashes.get(hash) as number;
+      const [startA, stopA] = hashes.get(hash) as [number, number];
       // This test assumes no hash collisions
-      t.is(textA.slice(posA, posA + k), textB.slice(posB, posB + k));
+      t.is(textA.slice(startA, stopA + 1), textB.slice(start, stop + 1));
     }
   }
   // For each equal triplet there has to be a common winnowed hashing
@@ -88,7 +101,7 @@ test("no hashes for text shorter than k tokens", async t => {
 
 test("1 hashing for text length of k", async t => {
   const text = "a b c";
-  const filter = new WinnowFilter(5, 1);
+  const filter = new WinnowFilter(3, 1);
   const hashes = [];
 
   for await (const hash of filter.hashesFromString(text)) {

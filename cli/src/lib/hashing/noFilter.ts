@@ -36,7 +36,6 @@ export class NoFilter extends HashFilter {
         lastToken = window.shift() as string;
         lastSkipped = skippedWindow.shift() as number;
       }
-      console.log("hello", token, skipped);
       filePos += lastToken.length + lastSkipped;
       window.push(token);
       skippedWindow.push(skipped);
