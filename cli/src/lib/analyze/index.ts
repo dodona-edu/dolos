@@ -75,7 +75,6 @@ export class Index {
       ) {
 
         // add kmer to file
-        // console.log(start, stop);
         file.kmers.push(new Range(start, stop));
 
         // sanity check
