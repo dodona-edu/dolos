@@ -52,8 +52,6 @@ export class WinnowFilter extends HashFilter {
     for await (const token of HashFilter.readTokens(stream)) {
       if (window.length === (this.windowSize + this.k - 1)) {
         lastToken = window.shift() as string;
-      } else if (window.length === this.k) {
-        lastToken = window[0];
       }
       filePos += lastToken.length;
       window.push(token);
@@ -64,6 +62,7 @@ export class WinnowFilter extends HashFilter {
         hash.nextHash(byte);
         continue;
       }
+      // console.log(`"${lastToken}"`, lastToken.length);
       bufferPos = (bufferPos + 1) % this.windowSize;
       buffer[bufferPos] = hash.nextHash(byte);
       if (minPos === bufferPos) {
@@ -80,12 +79,14 @@ export class WinnowFilter extends HashFilter {
           }
         }
 
-        const offset = (minPos - bufferPos - this.windowSize) % this.windowSize;
-        const start = filePos + offset;
-        const data =
-          window.slice(window.length + offset - this.k, window.length + offset).join("");
+        const offset = (minPos - bufferPos + this.windowSize) % this.windowSize;
+        const start = filePos + window.slice(0, offset).join("").length;
+        const data = window.slice(
+          offset,
+          offset + this.k + 1
+        ).join("");
 
-        console.log("1", `"${data}"`, start, start + data.length - 1, filePos);
+        console.log("1", `"${data}"`, filePos, start, start + data.length - 1, lastToken, lastToken.length);
         yield {
           data,
           hash: buffer[minPos],
@@ -98,14 +99,13 @@ export class WinnowFilter extends HashFilter {
         // against the new value and update minPos if necessary.
         if (buffer[bufferPos] <= buffer[minPos]) {
           minPos = bufferPos;
-          const start =
-            filePos + ((minPos - bufferPos - this.windowSize) % this.windowSize);
           const data = window.slice(-this.k).join("");
-          console.log("2", `"${data}"`, start, start + data.length - 1, filePos);
+          const start = filePos + window.slice(0, window.length - this.k).join("").length;
+          console.log("2", `"${data}"`,filePos, start, start + data.length - 1, lastToken, lastToken.length);
           yield {
             data,
             hash: buffer[minPos],
-            start,
+            start: start,
             stop: start + data.length - 1,
           };
         }
