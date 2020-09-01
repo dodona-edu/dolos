@@ -67,7 +67,7 @@ test("Winnow on comparable files", async t => {
     if (hashes.has(hash)) {
       ++overlap;
       const posA = hashes.get(hash) as number;
-      // This test assumes no hashcollisions
+      // This test assumes no hash collisions
       t.is(textA.slice(posA, posA + k), textB.slice(posB, posB + k));
     }
   }

@@ -1,7 +1,6 @@
 import test from "ava";
 import { Dolos } from "../dolos";
 import { File } from "../lib/file/file";
-// import { Range } from "../lib/util/range";
 import { Region } from "../lib/util/region";
 
 test("equal content should be a full match", async t => {
@@ -37,10 +36,7 @@ test("equal content should be a full match", async t => {
   t.deepEqual(new Region(2, 2, 11, 2), match.leftSelection);
   t.deepEqual(new Region(2, 2, 11, 2), match.rightSelection);
 
-  // TODO what do the ranges represent?
-  // t.deepEqual(match.leftKmers, new Range(0, 24));
-  // t.deepEqual(match.rightKmers, new Range(0, 24));
-
+  t.deepEqual(match.leftKmers, match.rightKmers);
 });
 
 test("renamed variables should be a full match", async t => {
@@ -89,9 +85,7 @@ test("renamed variables should be a full match", async t => {
   t.deepEqual(new Region(2, 2, 11, 2), match.leftSelection);
   t.deepEqual(new Region(2, 2, 11, 2), match.rightSelection);
 
-  // TODO what do the ranges represent?
-  // t.deepEqual(match.leftKmers, new Range(0, 24));
-  // t.deepEqual(match.rightKmers, new Range(0, 24));
+  t.deepEqual(match.leftKmers, match.rightKmers);
 });
 
 test("changed whitespace and semicolons should be a full match", async t => {
@@ -138,11 +132,9 @@ test("changed whitespace and semicolons should be a full match", async t => {
 
   const blocks = diff.blocks();
   t.is(blocks.length, 1);
-  // const match = blocks[0];
+  const match = blocks[0];
 
-  // TODO what do the ranges represent?
-  // t.deepEqual(match.leftKmers, new Range(0, 24));
-  // t.deepEqual(match.rightKmers, new Range(0, 24));
+  t.deepEqual(match.leftKmers, match.rightKmers);
 });
 
 test("changed order should be a good match", async t => {
