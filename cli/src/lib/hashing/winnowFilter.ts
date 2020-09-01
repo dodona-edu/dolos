@@ -113,7 +113,10 @@ export class WinnowFilter extends HashFilter {
             window.slice(-this.k)
           );
 
-          const start = filePos + window.slice(0, window.length - this.k).join("").length;
+          const start = filePos
+            + window.slice(0, window.length - this.k).join("").length
+            + skippedWindow.slice(0, window.length - this.k).reduce((p, c) => p + c, 0);
+          // console.log({ data, start, stop: start + data.length - 1 });
           yield {
             data,
             hash: buffer[minPos],

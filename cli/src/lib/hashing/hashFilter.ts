@@ -72,7 +72,8 @@ export abstract class HashFilter {
             skipped = 0;
             token = "";
           }
-          yield { token: char, skipped: 0 };
+          yield { token: char, skipped };
+          skipped = 0;
         } else {
           token += char;
         }
