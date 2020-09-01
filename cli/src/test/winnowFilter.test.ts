@@ -4,6 +4,16 @@ import { NoFilter } from "../lib/hashing/noFilter";
 import { WinnowFilter } from "../lib/hashing/winnowFilter";
 import { HashFilter } from "../lib/hashing/hashFilter";
 
+test("locations and data match given string", async t => {
+  const text = "This is a slightly longer text to test multiple hashing values.";
+  const windowSize = 3;
+  const winnowFilter = new WinnowFilter(5, windowSize);
+
+  for await (const { start, stop, data } of winnowFilter.hashesFromString(text)) {
+    t.is(text.slice(start, stop + 1), data);
+  }
+});
+
 test("Winnow on comparable files", async t => {
   const textA = "a b c d e f g";
   const textB = "b c d a b c e f g";
@@ -15,7 +25,6 @@ test("Winnow on comparable files", async t => {
   for await (const { hash, start: posA } of filter.hashesFromString(textA)) {
     hashes.set(hash, posA);
   }
-  console.log(" ");
 
   let overlap = 0;
   for await (const { hash, start: posB } of filter.hashesFromString(textB)) {
@@ -69,11 +78,15 @@ test("maximum gap size in amount of tokens between hashing positions is window s
     return count;
   }
 
-  for await (const { start } of winnowFilter.hashesFromString(text)) {
-    t.true(await countTokens(text.slice(previousPos, start)) <= windowSize);
+  // @ts-ignore
+  for await (const { start, stop, data } of winnowFilter.hashesFromString(text)) {
+    const tokenCount = await countTokens(text.slice(previousPos, start));
+    t.true(tokenCount <= windowSize);
     previousPos = start;
   }
 });
+
+// TODO test if the locations start,stop string match with the data.
 
 test("winnow 1 and noFilter create same result", async t => {
   const text = "This is a slightly longer text to test multiple hashing values.";

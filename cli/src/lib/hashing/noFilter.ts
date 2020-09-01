@@ -40,12 +40,7 @@ export class NoFilter extends HashFilter {
       filePos += lastToken.length;
       window.push(token);
 
-      let byte;
-      if (token.length === 1) {
-        byte = token.charCodeAt(0);
-      } else {
-        byte = parseInt(sha1(token), 16) % this.maxHashValue;
-      }
+      const byte = parseInt(sha1(token), 16) % this.maxHashValue;
 
       if (window.length < this.k) {
         hash.nextHash(byte);
