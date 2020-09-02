@@ -109,7 +109,7 @@
 </template>
 
 <script lang="ts">
-import BlockVisualizer from "@/components/BlockVisualizer.vue";
+import BlockVisualizer from "@/components/BlockItem.vue";
 import { Block, Diff } from "@/api/api";
 import { Component, Prop, PropSync, Vue, Watch } from "vue-property-decorator";
 import { constructID, SelectionId } from "@/util/OccurenceHighlight";

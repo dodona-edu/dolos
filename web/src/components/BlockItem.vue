@@ -36,7 +36,7 @@ import { Block } from "@/api/api";
 @Component({
   methods: { constructID }
 })
-export default class BlockVisualizer extends Vue {
+export default class BlockItem extends Vue {
   @Prop() dummy!: boolean
   @Prop() block!: Block;
   @Prop() name?: string;
