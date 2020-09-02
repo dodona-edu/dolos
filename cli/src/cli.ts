@@ -106,10 +106,11 @@ program
   .option(
     "-b, --block-sort <sort>",
     Utils.indent(
-      "How to sort the blocks by the amount of matches. The options are: " +
-          "asc/desc/none", "asc"
+      "How to sort the blocks by the amount of matches, only applicable in terminal comparason output. The " +
+        "options are: 'kmers/kmersAsc/kmersAscending', 'kmersDesc/kmersDescending' and 'fileOrder'",
+      "fileOrder"
     ),
-    "asc"
+    "fileOrder"
   )
   .option(
     "-k, --kmer-length <integer>",

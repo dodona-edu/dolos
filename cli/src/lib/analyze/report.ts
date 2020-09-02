@@ -8,7 +8,6 @@ import { Range } from "../util/range";
 import { Options } from "../util/options";
 import { SharedKmer } from "./sharedKmer";
 import { closestMatch, info } from "../util/utils";
-import {Block} from "./block";
 
 type Hash = number;
 
@@ -96,18 +95,6 @@ export class Report {
     if(this.options.limitResults) {
       console.error(`Limiting to ${ this.options.limitResults } results.`);
       this.scored = this.scored.slice(0, this.options.limitResults);
-    }
-
-    type BlockSortFn = (b1: Block, b2: Block) => number;
-    const blockSortfn = closestMatch<BlockSortFn | null>(this.options.blockSortBy, {
-      "none": null,
-      "asc": (a, b) => b.pairs.length - a.pairs.length,
-      "desc": (a, b) => a.pairs.length - b.pairs.length,
-    });
-
-    if(blockSortfn) {
-      info(`Sorting blocks ${this.options.blockSortBy}`);
-      this.scored.forEach(scoredDiff => scoredDiff.diff.blocks.)
     }
 
     info("Freezing report object.");
