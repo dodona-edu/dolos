@@ -163,42 +163,56 @@ export default class BlockList extends Vue {
   }
 
   get selectedBlock(): Block | undefined {
-    return this.diff.blocks![this.selectedItem];
+    if (this.diff.blocks === null) {
+      return undefined;
+    } else {
+      return this.diff.blocks[this.selectedItem];
+    }
   }
 
   get anyActive(): boolean {
-    return this.diff.blocks?.some(block => block.active) as boolean;
+    if (this.diff.blocks === null) {
+      return false;
+    } else {
+      return this.diff.blocks.some(block => block.active) as boolean;
+    }
   }
 
   get blocksWithId(): Array<BlockWithId> {
-    return this.diff.blocks!.map((block, index) => {
-      const blockWithId = (block as BlockWithId);
-      blockWithId.id = index;
-      return blockWithId;
-    });
+    if (this.diff.blocks === null) {
+      return [];
+    } else {
+      return this.diff.blocks.map((block, index) => {
+        const blockWithId = (block as BlockWithId);
+        blockWithId.id = index;
+        return blockWithId;
+      });
+    }
   }
 
   applyMinBlockLength(value: number): void {
-    for (const block of this.diff.blocks!) {
-      block.active = value <= block.pairs.length;
-    }
-    if (this.selectedBlock && !this.selectedBlock.active) {
-      this.selectedItem = -1;
+    if (this.diff.blocks !== null) {
+      for (const block of this.diff.blocks) {
+        block.active = value <= block.pairs.length;
+      }
+      if (this.selectedBlock && !this.selectedBlock.active) {
+        this.selectedItem = -1;
+      }
     }
   }
 
   changeSelectedItem(dx: number, current?: number): void {
-    if (!this.anyActive) {
+    if (this.diff.blocks === null || !this.anyActive) {
       this.selectedItem = -1;
     } else {
-      const length = this.diff.blocks!.length;
+      const length = this.diff.blocks.length;
       // explicit undefined check because 0 is falsy
       let value = current === undefined ? this.selectedItem : current;
       while (value < 0) {
         value += length;
       }
       const next = (((value + dx) % length) + length) % length;
-      if (!this.diff.blocks![next].active) {
+      if (!this.diff.blocks[next].active) {
         this.changeSelectedItem(dx, next);
       } else {
         this.selectedItem = next;
@@ -237,9 +251,29 @@ export default class BlockList extends Vue {
   }
 
   mounted(): void {
-    this.selectionsIds = this.diff.blocks!.map(block => {
-      return [constructID(block.left), constructID(block.right)];
-    });
+    if (this.diff.blocks === null) {
+      const unwatch = this.$watch("diff.blocks", function () {
+        // the documentation specifically tells that arrow function should not be used
+        // eslint-disable-next-line no-invalid-this
+        this.makeSelectionsWithIds();
+        // eslint-disable-next-line no-invalid-this
+        if (this.selectionsIds.length > 0) {
+          unwatch();
+        }
+      });
+    } else {
+      this.makeSelectionsWithIds();
+    }
+  }
+
+  private makeSelectionsWithIds(): void {
+    if (this.diff.blocks === null) {
+      this.selectionsIds = [];
+    } else {
+      this.selectionsIds = this.diff.blocks.map(block => {
+        return [constructID(block.left), constructID(block.right)];
+      });
+    }
   }
 
   itemClassFunction(block: BlockWithId): string | void {
