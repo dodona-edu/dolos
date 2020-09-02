@@ -66,8 +66,8 @@ program
   .option(
     "-s, --minimum-block-length <integer>",
     Utils.indent(
-      "The minimum length of a matching block. Every block shorter than this is " +
-      "filtered out."
+      "The minimum amount of k-mers a block should contain. Every block with less kmers then the specified" +
+      " amount is filtered out."
     ),
     x => parseFloat(x),
     Options.defaultMinBlockLength
@@ -76,7 +76,7 @@ program
     "-c --compare",
     Utils.indent(
       "Print a comparison of the matching blocks even if analysing more than two " +
-      "files. Only valid when the output is set to 'terminal'."
+      "files. Only valid when the output is set to 'terminal' or 'console'."
     )
   )
   .option(
@@ -106,7 +106,7 @@ program
   .option(
     "-b, --block-sort <sort>",
     Utils.indent(
-      "How to sort the blocks by the amount of matches, only applicable in terminal comparason output. The " +
+      "How to sort the blocks by the amount of matches, only applicable in terminal comparison output. The " +
         "options are: 'kmers/kmersAsc/kmersAscending', 'kmersDesc/kmersDescending' and 'fileOrder'",
       "fileOrder"
     ),
