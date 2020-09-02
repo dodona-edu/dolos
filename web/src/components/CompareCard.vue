@@ -57,6 +57,7 @@
                       item-value="text"
                       :items="Object.values(ReviewStatus)"
                       :value="ReviewStatus.Unreviewed"
+                      :filled="$store.state.reviewStatus[diff.id] === ReviewStatus.Unreviewed"
                       @input="updateReviewStatus"
                     ></v-overflow-btn>
                   </v-row>
@@ -227,6 +228,7 @@ export enum SideID {
 @Component({
   data: () => ({
     SideID,
+    ReviewStatus,
     mdiApplicationCog,
     mdiApproximatelyEqual,
     mdiFileDocumentMultiple,
@@ -249,10 +251,6 @@ export default class Compare extends Vue {
 
   updateReviewStatus(reviewStatus: ReviewStatus): void {
     this.$store.commit("setReviewStatus", { diffId: this.diff.id, reviewStatus });
-  }
-
-  get ReviewStatus(): typeof ReviewStatus {
-    return ReviewStatus;
   }
 
   blockClickCount = 0;
