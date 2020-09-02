@@ -132,7 +132,7 @@ export default class CompareSide extends Vue {
 </script>
 
 <style lang="scss">
-@use 'scssVariables';
+@use 'variables';
 
 .highlighted-code {
     height: var(--code-height);

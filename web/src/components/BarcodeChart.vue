@@ -164,7 +164,7 @@ export default class BarcodeChart extends Vue {
 </script>
 
 <style lang="scss">
-@use 'scssVariables';
+@use 'variables';
 
 .barcodeChartBar {
   fill: #f5f2f0;

@@ -528,7 +528,7 @@ export default class Compare extends Vue {
 </script>
 
 <style lang="scss">
-@use 'scssVariables';
+@use 'variables';
 
 .no-y-padding {
   padding-bottom: 0;
