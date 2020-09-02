@@ -60,8 +60,8 @@
                     Minimum block length
                   </v-list-item-subtitle>
                   <v-slider
-                    :max="highestBlockLength + 1"
-                    :min="lowestBlockLength"
+                    :max="maxBlockKmers + 1"
+                    :min="minBlockKmers"
                     @end="applyMinBlockLength"
                     thumb-label
                     track-color="lightgray"
@@ -154,11 +154,11 @@ export default class BlockList extends Vue {
     return this.diff.blocks?.map(block => block.pairs.length)!;
   }
 
-  get lowestBlockLength(): number {
+  get minBlockKmers(): number {
     return this.blockLengths.reduce((pv, cv) => Math.min(pv, cv)) as number;
   }
 
-  get highestBlockLength(): number {
+  get maxBlockKmers(): number {
     return this.blockLengths.reduce((pv, cv) => Math.max(pv, cv)) as number;
   }
 
