@@ -30,6 +30,7 @@
 <script lang="ts">
 import { Component, Prop, Vue } from "vue-property-decorator";
 import { Diff } from "@/api/api";
+import { compareReviewStatus, ReviewStatus } from "@/components/CompareCard.vue";
 
 @Component
 export default class DiffsTable extends Vue {
@@ -43,6 +44,7 @@ export default class DiffsTable extends Vue {
     { text: "Similarity", value: "similarity" },
     { text: "Continuous overlap", value: "cont" },
     { text: "Total overlap", value: "total" },
+    { text: "Review status", value: "reviewStatus", sort: compareReviewStatus }
   ];
 
   get items(): Array<{left: string; right: string; similarity: string}> {
@@ -53,6 +55,7 @@ export default class DiffsTable extends Vue {
       similarity: diff.similarity.toFixed(2),
       cont: diff.continuousOverlap,
       total: diff.totalOverlap,
+      reviewStatus: this.$store.state.reviewStatus[diff.id] || ReviewStatus.Unreviewed
     }));
   }
 

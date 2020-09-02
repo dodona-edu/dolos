@@ -51,6 +51,15 @@
                       </v-row>
                     </v-col>
                   </v-row>
+                  <v-row>
+                    <v-overflow-btn
+                      class="reviewStatusPicker"
+                      item-value="text"
+                      :items="Object.values(ReviewStatus)"
+                      :value="ReviewStatus.Unreviewed"
+                      @input="updateReviewStatus"
+                    ></v-overflow-btn>
+                  </v-row>
                 </v-container>
               </v-card-title>
               <v-card-text>
@@ -198,6 +207,18 @@ import {
   mdiFileDocumentMultipleOutline
 } from "@mdi/js";
 
+export enum ReviewStatus {
+  Unreviewed = "Unreviewed",
+  Innocent = "Innocent",
+  Suspicious = "Suspicious",
+  CertainPlagiarism = "Certain plagiarism"
+}
+const reviewStatusOrder = Object.values(ReviewStatus);
+
+export function compareReviewStatus(el1: ReviewStatus, el2: ReviewStatus): number {
+  return reviewStatusOrder.indexOf(el2) - reviewStatusOrder.indexOf(el1);
+}
+
 export enum SideID {
   leftSideId = "leftSideId",
   rightSideId = "rightSideId"
@@ -225,6 +246,15 @@ export default class Compare extends Vue {
 
   blockListExtended = false;
   selectedItem = -1;
+
+  updateReviewStatus(reviewStatus: ReviewStatus): void {
+    this.$store.commit("setReviewStatus", { diffId: this.diff.id, reviewStatus });
+  }
+
+  get ReviewStatus(): typeof ReviewStatus {
+    return ReviewStatus;
+  }
+
   blockClickCount = 0;
   currentBlockClassIndex = 0;
   // this maps a selected id to all the other selected-ids that it corresponds with
