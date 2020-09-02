@@ -1,6 +1,7 @@
 import Vue from "vue";
 import Vuex from "vuex";
 import { ApiData, fetchData, Diff, Kmer, Metadata, File, ObjMap, populateBlocks } from "@/api/api";
+import { ReviewStatus } from "@/components/CompareCard.vue";
 
 Vue.use(Vuex);
 
@@ -13,6 +14,7 @@ export default new Vuex.Store({
       diffs: Object() as ObjMap<Diff>,
       metadata: Object() as Metadata,
     },
+    reviewStatus: Object() as ObjMap<ReviewStatus>
   },
   getters: {
     areBlocksLoaded: state => (diffId: number) => {
@@ -30,6 +32,9 @@ export default new Vuex.Store({
     },
     updateDiff(state, data: { diff: Diff }) {
       Vue.set(state.data.diffs, data.diff.id, data.diff);
+    },
+    setReviewStatus(state, data: { diffId: number; reviewStatus: ReviewStatus }) {
+      Vue.set(state.reviewStatus, data.diffId, data.reviewStatus);
     }
   },
   actions: {

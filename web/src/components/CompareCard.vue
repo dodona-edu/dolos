@@ -1,9 +1,24 @@
 <template>
   <v-card :loading="!loaded">
     <v-card-title>
-      {{ leftFilename }}
-      <v-spacer/>
-      {{ rightFilename }}
+      <v-container>
+        <v-row>
+          {{ leftFilename }}
+          <v-spacer/>
+          {{ rightFilename }}
+        </v-row>
+        <v-row>
+          <v-container id="dropdown-example-3">
+            <v-overflow-btn
+              class="reviewStatusPicker"
+              item-value="text"
+              :items="Object.values(ReviewStatus)"
+              :value="ReviewStatus.Unreviewed"
+              @input="updateReviewStatus"
+            ></v-overflow-btn>
+          </v-container>
+        </v-row>
+      </v-container>
     </v-card-title>
     <v-container fluid>
       <v-row v-if="loaded" justify="center" no-gutters>
@@ -88,6 +103,18 @@ import BarcodeChart from "@/components/BarcodeChart.vue";
 import { constructID, SelectionId } from "@/util/OccurenceHighlight";
 import * as d3 from "d3";
 
+export enum ReviewStatus {
+  Unreviewed = "Unreviewed",
+  Innocent = "Innocent",
+  Suspicious = "Suspicious",
+  CertainPlagiarism = "Certain plagiarism"
+}
+const reviewStatusOrder = Object.values(ReviewStatus);
+
+export function compareReviewStatus(el1: ReviewStatus, el2: ReviewStatus): number {
+  return reviewStatusOrder.indexOf(el2) - reviewStatusOrder.indexOf(el1);
+}
+
 export enum SideID {
   leftSideId = "leftSideId",
   rightSideId = "rightSideId"
@@ -99,6 +126,14 @@ export enum SideID {
 export default class Compare extends Vue {
   @Prop({ default: false }) loaded!: boolean;
   @Prop() diff!: Diff;
+
+  updateReviewStatus(reviewStatus: ReviewStatus): void {
+    this.$store.commit("setReviewStatus", { diffId: this.diff.id, reviewStatus });
+  }
+
+  get ReviewStatus(): typeof ReviewStatus {
+    return ReviewStatus;
+  }
 
   blockClickCount = 0;
   currentBlockClassIndex = 0;
