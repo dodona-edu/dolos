@@ -61,6 +61,11 @@
                       @input="updateReviewStatus"
                     ></v-overflow-btn>
                   </v-row>
+                  <v-row justify="center">
+                    <v-col cols="auto">
+                      <DotPlot :diff="diff"></DotPlot>
+                    </v-col>
+                  </v-row>
                 </v-container>
               </v-card-title>
               <v-card-text>
@@ -207,6 +212,7 @@ import {
   mdiFileDocumentMultiple,
   mdiFileDocumentMultipleOutline
 } from "@mdi/js";
+import DotPlot from "@/components/DotPlot.vue";
 
 export enum ReviewStatus {
   Unreviewed = "Unreviewed",
@@ -234,7 +240,7 @@ export enum SideID {
     mdiFileDocumentMultiple,
     mdiFileDocumentMultipleOutline
   }),
-  components: { CompareSide, BarcodeChart, BlockList },
+  components: { DotPlot, CompareSide, BarcodeChart, BlockList },
 })
 export default class Compare extends Vue {
   @Prop({ default: false, required: true }) loaded!: boolean;

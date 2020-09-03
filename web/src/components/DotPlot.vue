@@ -1,5 +1,5 @@
 <template>
-  <div id="dotplot"></div>
+  <svg id="dotplot"></svg>
 </template>
 
 <script lang="ts">
@@ -14,6 +14,14 @@ export default class DotPlot extends Vue {
   @Prop({ required: true }) diff!: Diff;
 
   private matrix: Array<Array<number>> = [];
+
+  mounted(): void {
+    this.onDiffChange(this.diff);
+  }
+
+  updated(): void {
+    this.onDiffChange(this.diff);
+  }
 
   @Watch("diff", { deep: true })
   onDiffChange(newDiff: Diff): void {
@@ -45,7 +53,6 @@ export default class DotPlot extends Vue {
 
     // append the svg object to the body of the page
     const svg = d3.select("#dotplot")
-      .append("svg")
       .attr("width", width)
       .attr("height", height)
       .style("background", "lightgray")
