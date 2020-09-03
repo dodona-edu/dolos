@@ -23,9 +23,9 @@ export default class DotPlot extends Vue {
 
   drawPlot(): void {
     console.log("drawing plot");
-    const margin = { top: 0, right: 0, bottom: 0, left: 0 };
-    const width = 450 - margin.left - margin.right;
-    const height = 450 - margin.top - margin.bottom;
+    // const margin = { top: 0, right: 0, bottom: 0, left: 0 };
+    // const width = 450 - margin.left - margin.right;
+    // const height = 450 - margin.top - margin.bottom;
 
     const matrix = this.matrix;
     // Read the data
@@ -35,68 +35,97 @@ export default class DotPlot extends Vue {
 
     const numrows = matrix.length;
     const numcols = matrix[0].length;
-    console.log(numrows, numcols);
 
-    const svg = d3.select("#dotplot").append("svg")
-      .attr("width", width + margin.left + margin.right)
-      .attr("height", height + margin.top + margin.bottom)
-      .append("g")
-      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    const size = 450;
+    const width = size;
+    const height = size;
 
-    console.log("svg");
-    const background = svg.append("rect")
-      .style("stroke", "black")
-      .style("stroke-width", "2px")
+    console.log(height, width, numrows, numcols, height / width, numrows / numcols);
+    const base = d3.select("#dotplot");
+    const chart = base.append("canvas")
       .attr("width", width)
       .attr("height", height);
 
-    const x = d3.scaleOrdinal()
-      // @ts-ignore
-      .domain(d3.range(0, numcols))
-      .range(d3.range(0, width));
+    const customBase = document.createElement("custom");
+    const custom = d3.select(customBase); // this is our svg replacement
 
-    const y = d3.scaleOrdinal()
-      // @ts-ignore
-      .domain(d3.range(0, numrows))
-      // @ts-ignore
-      .range(d3.range(0, height));
+    const context = chart.node()?.getContext("2d") as CanvasRenderingContext2D;
+    // Read the data
 
-    const colorMap = d3.scaleLinear()
-      .domain([minValue, maxValue])
-      // @ts-ignore
-      .range([this.startColor, this.endColor]);
+    // Labels of row and columns -> unique identifier of the column called 'group' and 'variable'
+    const myGroups = d3.range(0, numrows);
+    const myVars = d3.range(0, numcols);
+    // const myGroups = d3.map(data, function (d) { return d.group; }).keys();
+    // const myVars = d3.map(data, function (d) { return d.variable; }).keys();
 
-    const row = svg.selectAll(".row")
-      .data(matrix)
-      .enter().append("g")
-      .attr("class", "row")
+    // Build X scales and axis:
+    const x = d3.scaleBand()
+      .range([0, width])
       // @ts-ignore
-      .attr("transform", function (d, i) { return "translate(0," + y(i) + ")"; });
+      .domain(myGroups);
+    // svg.append("g")
+    //   .style("font-size", 15)
+    //   .attr("transform", "translate(0," + height + ")")
+    //   .call(d3.axisBottom(x).tickSize(0))
+    //   .select(".domain").remove();
 
-    // const cell = row.selectAll(".cell")
-    //   .data(function (d) { return d; })
-    //   .enter().append("g")
-    //   .attr("class", "cell")
-    //   // @ts-ignore
-    //   .attr("transform", function (d, i) { return "translate(" + x(i) + ", 0)"; });
-    //
-    // cell.append("rect")
-    //   .attr("width", 450)
-    //   .attr("height", 450)
-    //   .style("stroke-width", 0);
-    //
-    // cell.append("text")
-    //   .attr("dy", ".32em")
-    //   .attr("x", 450 / 2)
-    //   .attr("y", 450 / 2)
-    //   .attr("text-anchor", "middle")
-    //   .style("fill", function (d, i) { return d >= maxValue / 2 ? "white" : "black"; })
-    //   .text(function (d, i) { return d; });
-    //
-    // row.selectAll(".cell")
-    //   .data(function (d, i) { return matrix[i]; })
-    //   .style("fill", colorMap);
-    // console.log("done drawing");
+    // Build Y scales and axis:
+    const y = d3.scaleBand()
+      .range([0, height])
+      // @ts-ignore
+      .domain(myVars);
+    // svg.append("g")
+    //   .style("font-size", 15)
+    //   .call(d3.axisLeft(y).tickSize(0))
+    //   .select(".domain").remove();
+
+    // Build color scale
+    const myColor = d3.scaleSequential(d3.interpolateInferno)
+      .domain([minValue, maxValue]);
+
+    // Three function that change the tooltip when user hover / move / leave a cell
+
+    // add the squares
+    custom.selectAll("rect")
+      .data([...this.loopSequentiallyOverData(this.matrix)], function (d: any) { return d?.row + ":" + d?.col; })
+      .enter()
+      .append("rect")
+      // @ts-ignore
+      .attr("x", function (d) { return x(d.row); })
+      // @ts-ignore
+      .attr("y", function (d) { return y(d.col); })
+      .attr("rx", 4)
+      .attr("ry", 4)
+      .attr("width", x.bandwidth())
+      .attr("height", y.bandwidth())
+      .attr("fillStyle", function (d) { return d.value === 0 ? "lightgray" : myColor(d.value); });
+
+    context.fillStyle = "#ffffff";
+    context.fillRect(0, 0, width, height);
+
+    custom.selectAll("rect")
+      .each(function (d: any, i) {
+        if (d.value !== 0) {
+          console.log(d);
+        }
+        // eslint-disable-next-line no-invalid-this
+        const node = d3.select(this);
+        context.fillStyle = node.attr("fillStyle");
+        context.fillRect(
+          +node.attr("x"),
+          +node.attr("y"),
+          +node.attr("width"),
+          +node.attr("height")
+        );
+      });
+  }
+
+  private * loopSequentiallyOverData(matrix: number[][]): IterableIterator<{ row: number; col: number; value: number}> {
+    for (const row in matrix) {
+      for (const col in matrix[row]) {
+        yield { row: +row, col: +col, value: matrix[row][col] };
+      }
+    }
   }
 
   mounted(): void {
