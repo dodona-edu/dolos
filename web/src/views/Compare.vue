@@ -21,10 +21,11 @@
 import DataView from "@/views/DataView";
 import { Component, Prop } from "vue-property-decorator";
 import CompareCard from "@/components/CompareCard.vue";
+import DotPlot from "@/components/DotPlot.vue";
 import { Diff } from "@/api/api";
 
 @Component({
-  components: { CompareCard }
+  components: { CompareCard, DotPlot }
 })
 export default class Compare extends DataView {
   @Prop({ required: true }) diffId!: number;
