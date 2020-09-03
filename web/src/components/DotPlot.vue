@@ -3,7 +3,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import { Diff } from "@/api/api";
 import * as d3 from "d3";
 
@@ -15,13 +15,17 @@ export default class DotPlot extends Vue {
 
   private matrix: Array<Array<number>> = [];
 
-  showPlot(): void {
-    this.onDiffChange(this.diff);
+  @Watch("diff", { deep: true })
+  onDiffChange(newDiff: Diff): void {
+    this.calculateMatrix(newDiff);
     this.drawPlot();
   }
 
   drawPlot(): void {
     const matrix = this.matrix;
+    if (!matrix) {
+      return;
+    }
 
     const numrows = matrix.length;
     const numcols = matrix[0].length;
@@ -87,15 +91,7 @@ export default class DotPlot extends Vue {
     }
   }
 
-  mounted(): void {
-    this.showPlot();
-  }
-
-  updated(): void {
-    this.showPlot();
-  }
-
-  onDiffChange(diff: Diff | undefined): void {
+  calculateMatrix(diff: Diff | undefined): void {
     if (!diff || !diff.blocks) {
       return;
     }
