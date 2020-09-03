@@ -1,92 +1,224 @@
 <template>
-  <v-card :loading="!loaded">
-    <v-card-title>
-      {{ leftFilename }}
-      <v-spacer/>
-      {{ rightFilename }}
-    </v-card-title>
-    <v-container fluid>
-      <v-row v-if="loaded" justify="center" no-gutters>
-        <v-col sm="6">
-          <v-row no-gutters>
-            <v-col cols="11">
-              <compare-side
-                ref="leftCompareSide"
-                :identifier="SideId.leftSideId"
-                :file="diff.leftFile"
-                :selections="leftSelection"
-                :selected-selections="selected.sides.leftSideId.blockClasses"
-                :hovering-selections="lastHovered.leftSideId.blockClasses"
-                @selectionclick="selectionClickEventHandler"
-                @selectionhoverenter="onHoverEnterHandler"
-                @selectionhoverexit="onHoverExitHandler"
-                @linesvisibleamount="setLinesVisible"
-                @codescroll="onScrollHandler"
-              >
-              </compare-side>
-            </v-col>
-            <v-col cols="auto">
-              <BarcodeChart
-                :selections="leftSelection"
-                :side-identifier="SideId.leftSideId"
-                :maxLines="maxLines"
-                :lines="leftLines"
-                :amount-of-lines-visible="linesVisible"
-                :document-scroll-fraction="leftScrollFraction"
-                :hovering-selections="lastHovered.leftSideId.blockClasses"
-                :selected-selections="selected.sides.leftSideId.blockClasses"
-                @selectionclick="selectionClickEventHandler"
-                @selectionhoverenter="onHoverEnterHandler"
-                @selectionhoverexit="onHoverExitHandler"
-              ></BarcodeChart>
-            </v-col>
-          </v-row>
-        </v-col>
-        <v-col sm="6">
-          <v-row no-gutters>
-            <v-col cols="11">
-              <compare-side
-                :identifier="SideId.rightSideId"
-                :file="diff.rightFile"
-                :selections="rightSelection"
-                :hovering-selections="lastHovered.rightSideId.blockClasses"
-                :selected-selections="selected.sides.rightSideId.blockClasses"
-                @selectionclick="selectionClickEventHandler"
-                @selectionhoverenter="onHoverEnterHandler"
-                @selectionhoverexit="onHoverExitHandler"
-                @codescroll="onScrollHandler"
-              >
-              </compare-side>
-            </v-col>
-            <v-col cols="auto">
-              <BarcodeChart
-                :selections="rightSelection"
-                :side-identifier="SideId.rightSideId"
-                :maxLines="maxLines"
-                :lines="rightLines"
-                :document-scroll-fraction="rightScrollFraction"
-                :amount-of-lines-visible="linesVisible"
-                :hovering-selections="lastHovered.rightSideId.blockClasses"
-                :selected-selections="selected.sides.rightSideId.blockClasses"
-                @selectionclick="selectionClickEventHandler"
-                @selectionhoverenter="onHoverEnterHandler"
-                @selectionhoverexit="onHoverExitHandler"
-              ></BarcodeChart>
-            </v-col>
-          </v-row>
-        </v-col>
-      </v-row>
-    </v-container>
-  </v-card>
+  <v-container class="no-y-padding" fluid>
+    <v-row>
+      <v-col class="no-y-padding">
+        <v-row class="no-y-padding" dense>
+          <v-col class="no-y-padding" cols="12">
+            <v-card :loading="!loaded" style="position: relative">
+              <v-card-title>
+                <v-container class="no-y-padding" fluid>
+                  <v-row class="no-y-padding" justify="center" justify-xl="space-around">
+                    <v-col class="no-y-padding" cols="12" xl="auto">
+                      <v-row class="no-y-padding" justify="center">
+                        <v-col cols="auto">
+                          {{ leftFilename }}
+                        </v-col>
+                      </v-row>
+                    </v-col>
+                    <v-col cols="12" xl="auto">
+                      <v-row dense justify="center">
+                        <v-col cols="auto">
+                          <v-chip label>
+                            <v-icon left>
+                              {{ mdiApproximatelyEqual }}
+                            </v-icon>
+                            Similarity: {{ diff.similarity.toFixed(2) }}
+                          </v-chip>
+                        </v-col>
+                        <v-col cols="auto">
+                          <v-chip label>
+                            <v-icon left size="20">
+                              {{ mdiFileDocumentMultiple }}
+                            </v-icon>
+                            Continuous overlap: {{ diff.continuousOverlap }}
+                          </v-chip>
+                        </v-col>
+                        <v-col cols="auto">
+                          <v-chip label>
+                            <v-icon left size="20">
+                              {{ mdiFileDocumentMultipleOutline }}
+                            </v-icon>
+                            Total overlap: {{ diff.totalOverlap }}
+                          </v-chip>
+                        </v-col>
+                      </v-row>
+                    </v-col>
+                    <v-col cols="12" xl="auto">
+                      <v-row class="no-y-padding" justify="center">
+                        <v-col cols="auto">
+                          {{ rightFilename }}
+                        </v-col>
+                      </v-row>
+                    </v-col>
+                  </v-row>
+                  <v-row>
+                    <v-overflow-btn
+                      class="reviewStatusPicker"
+                      item-value="text"
+                      :items="Object.values(ReviewStatus)"
+                      :value="ReviewStatus.Unreviewed"
+                      :filled="$store.state.reviewStatus[diff.id] === ReviewStatus.Unreviewed"
+                      @input="updateReviewStatus"
+                    ></v-overflow-btn>
+                  </v-row>
+                </v-container>
+              </v-card-title>
+              <v-card-text>
+                <v-container fluid>
+                  <v-row justify="center" no-gutters v-if="loaded">
+                    <v-col md="6" sm="12">
+                      <v-row class="flex-nowrap" no-gutters>
+                        <v-col cols="11">
+                          <compare-side
+                            :active-selections="leftActiveSelectionIds"
+                            :file="diff.leftFile"
+                            :hovering-selections="lastHovered.leftSideId.blockClasses"
+                            :identifier="SideID.leftSideId"
+                            :selected-selections="selected.sides.leftSideId.blockClasses"
+                            :selections="leftSelections"
+                            @codescroll="onScrollHandler"
+                            @linesvisibleamount="setLinesVisible"
+                            @selectionclick="selectionClickEventHandler"
+                            @selectionhoverenter="onHoverEnterHandler"
+                            @selectionhoverexit="onHoverExitHandler"
+                            ref="leftCompareSide"
+                          >
+                          </compare-side>
+                        </v-col>
+                        <v-col cols="auto">
+                          <BarcodeChart
+                            :active-selections="leftActiveSelectionIds"
+                            :amount-of-lines-visible="linesVisible"
+                            :document-scroll-fraction="leftScrollFraction"
+                            :hovering-selections="lastHovered.leftSideId.blockClasses"
+                            :lines="leftLines"
+                            :maxLines="maxLines"
+                            :selected-selections="selected.sides.leftSideId.blockClasses"
+                            :selections="leftSelections"
+                            :side-identifier="SideID.leftSideId"
+                            @selectionclick="selectionClickEventHandler"
+                            @selectionhoverenter="onHoverEnterHandler"
+                            @selectionhoverexit="onHoverExitHandler"
+                          ></BarcodeChart>
+                        </v-col>
+                      </v-row>
+                    </v-col>
+                    <v-col md="6" sm="12">
+                      <v-row class="flex-nowrap" no-gutters>
+                        <v-col cols="11">
+                          <compare-side
+                            :active-selections="rightActiveSelectionIds"
+                            :file="diff.rightFile"
+                            :hovering-selections="lastHovered.rightSideId.blockClasses"
+                            :identifier="SideID.rightSideId"
+                            :selected-selections="selected.sides.rightSideId.blockClasses"
+                            :selections="rightSelections"
+                            @codescroll="onScrollHandler"
+                            @selectionclick="selectionClickEventHandler"
+                            @selectionhoverenter="onHoverEnterHandler"
+                            @selectionhoverexit="onHoverExitHandler"
+                          >
+                          </compare-side>
+                        </v-col>
+                        <v-col cols="auto">
+                          <BarcodeChart
+                            :active-selections="rightActiveSelectionIds"
+                            :amount-of-lines-visible="linesVisible"
+                            :document-scroll-fraction="rightScrollFraction"
+                            :hovering-selections="lastHovered.rightSideId.blockClasses"
+                            :lines="rightLines"
+                            :maxLines="maxLines"
+                            :selected-selections="selected.sides.rightSideId.blockClasses"
+                            :selections="rightSelections"
+                            :side-identifier="SideID.rightSideId"
+                            @selectionclick="selectionClickEventHandler"
+                            @selectionhoverenter="onHoverEnterHandler"
+                            @selectionhoverexit="onHoverExitHandler"
+                          ></BarcodeChart>
+                        </v-col>
+                      </v-row>
+                    </v-col>
+                  </v-row>
+                </v-container>
+              </v-card-text>
+            </v-card>
+          </v-col>
+        </v-row>
+      </v-col>
+      <v-col cols="auto" v-if="!blockListExtended">
+        <v-row>
+          <v-btn @click="blockListExtended = !blockListExtended" icon>
+            <v-icon>
+              <!-- For some strange reason "mdi-application-cog" and other cog variants wont work out of the box -->
+              {{ mdiApplicationCog }}
+            </v-icon>
+          </v-btn>
+        </v-row>
+        <v-row>
+          <v-menu @click.stop="" direction="top" offset-y open-on-hover transition="scale">
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn @click.stop="" fab icon small v-bind="attrs" v-on="on">
+                <v-icon dark>mdi-help</v-icon>
+              </v-btn>
+            </template>
+            <v-card>
+              <v-card-title>
+                Keyboard shortcuts
+              </v-card-title>
+              <v-card-text>
+                <v-list-item :dense="true" :key="i" v-for="(item, i)  in shortcutsHelptext">
+                  {{ item[0] }}: {{ item[1] }}
+                </v-list-item>
+              </v-card-text>
+            </v-card>
+          </v-menu>
+        </v-row>
+      </v-col>
+    </v-row>
+    <v-navigation-drawer :value="blockListExtended" app clipped right>
+      <BlockList
+        :diff="diff"
+        :selected="selected"
+        :selected-item-sync.sync="selectedItem"
+      >
+        <template v-slot:header>
+          <v-btn @click="blockListExtended = false" icon small>
+            <v-icon>
+              mdi-close
+            </v-icon>
+          </v-btn>
+        </template>
+      </BlockList>
+    </v-navigation-drawer>
+  </v-container>
 </template>
 <script lang="ts">
 
-import { Component, Vue, Prop } from "vue-property-decorator";
+import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import { Block, Diff, Selection } from "@/api/api";
 import CompareSide from "@/components/CompareSide.vue";
 import BarcodeChart from "@/components/BarcodeChart.vue";
 import { constructID, SelectionId } from "@/util/OccurenceHighlight";
 import * as d3 from "d3";
+import BlockList from "@/components/BlockList.vue";
+import {
+  mdiApplicationCog,
+  mdiApproximatelyEqual,
+  mdiFileDocumentMultiple,
+  mdiFileDocumentMultipleOutline
+} from "@mdi/js";
+
+export enum ReviewStatus {
+  Unreviewed = "Unreviewed",
+  Innocent = "Innocent",
+  Suspicious = "Suspicious",
+  CertainPlagiarism = "Certain plagiarism"
+}
+const reviewStatusOrder = Object.values(ReviewStatus);
+
+export function compareReviewStatus(el1: ReviewStatus, el2: ReviewStatus): number {
+  return reviewStatusOrder.indexOf(el2) - reviewStatusOrder.indexOf(el1);
+}
 
 export enum SideID {
   leftSideId = "leftSideId",
@@ -94,11 +226,32 @@ export enum SideID {
 }
 
 @Component({
-  components: { CompareSide, BarcodeChart }
+  data: () => ({
+    SideID,
+    ReviewStatus,
+    mdiApplicationCog,
+    mdiApproximatelyEqual,
+    mdiFileDocumentMultiple,
+    mdiFileDocumentMultipleOutline
+  }),
+  components: { CompareSide, BarcodeChart, BlockList },
 })
 export default class Compare extends Vue {
-  @Prop({ default: false }) loaded!: boolean;
-  @Prop() diff!: Diff;
+  @Prop({ default: false, required: true }) loaded!: boolean;
+  @Prop({ required: true }) diff!: Diff;
+
+  shortcutsHelptext = [
+    ["Left Arrow", "Previous"],
+    ["Right Arrow", "Next"],
+    ["Space/Enter", "Toggle selection"],
+  ]
+
+  blockListExtended = false;
+  selectedItem = -1;
+
+  updateReviewStatus(reviewStatus: ReviewStatus): void {
+    this.$store.commit("setReviewStatus", { diffId: this.diff.id, reviewStatus });
+  }
 
   blockClickCount = 0;
   currentBlockClassIndex = 0;
@@ -107,6 +260,14 @@ export default class Compare extends Vue {
   rightMap!: Map<SelectionId, Array<SelectionId>>;
   // maps an id of a side to its map
   sideMap!: Map<SideID, Map<SelectionId, Array<SelectionId>>>;
+  sideSelectionsToBlocks: {
+    [key in SideID]: {
+      [key: string]: Block[];
+    }
+  } = {
+    [SideID.leftSideId]: {},
+    [SideID.rightSideId]: {},
+  }
 
   selected: {
     sides: {
@@ -123,10 +284,6 @@ export default class Compare extends Vue {
     }
   };
 
-  get SideId(): typeof SideID {
-    return SideID;
-  }
-
   lastHovered: {
     [key in SideID]: {
       blockClasses: Array<SelectionId>;
@@ -139,29 +296,6 @@ export default class Compare extends Vue {
   leftScrollFraction = 0;
   rightScrollFraction = 0;
   linesVisible = 0;
-
-  onScrollHandler(sideId: SideID, scrollFraction: number): void {
-    if (sideId === SideID.rightSideId) {
-      this.rightScrollFraction = scrollFraction;
-    } else {
-      this.leftScrollFraction = scrollFraction;
-    }
-  }
-
-  setLinesVisible(lines: number): void {
-    this.linesVisible = lines;
-  }
-
-  /**
-   * Prismjs trims the last line of code if that line is empty so we have to take that into account.
-   */
-  trimLastEmptyLine(lines: Array<string>): number {
-    if (lines[lines.length - 1].length === 0) {
-      return lines.length - 1;
-    } else {
-      return lines.length;
-    }
-  }
 
   get leftIdentifier(): string {
     return SideID.leftSideId.toString();
@@ -190,8 +324,56 @@ export default class Compare extends Vue {
     return this.diff.leftFile.path;
   }
 
+  get activeBlocks(): Array<Block> {
+    return this.diff.blocks!
+      .filter(block => block.active);
+  }
+
+  get leftActiveSelectionIds(): Array<SelectionId> {
+    return this.activeBlocks.map(block => constructID(block.left));
+  }
+
+  get rightActiveSelectionIds(): Array<SelectionId> {
+    return this.activeBlocks.map(block => constructID(block.right));
+  }
+
+  get leftSelections(): Array<Selection> {
+    return this.diff.blocks!.map(block => block.left);
+  }
+
+  get rightSelections(): Array<Selection> {
+    return this.diff.blocks!.map(block => block.right);
+  }
+
   updated(): void {
     this.initialize();
+  }
+
+  isSelectionActive(sideId: SideID): (selectionId: SelectionId) => boolean {
+    return selectionId => this.sideSelectionsToBlocks[sideId][selectionId].some(block => block.active);
+  }
+
+  onScrollHandler(sideId: SideID, scrollFraction: number): void {
+    if (sideId === SideID.rightSideId) {
+      this.rightScrollFraction = scrollFraction;
+    } else {
+      this.leftScrollFraction = scrollFraction;
+    }
+  }
+
+  setLinesVisible(lines: number): void {
+    this.linesVisible = lines;
+  }
+
+  /**
+   * Prismjs trims the last line of code if that line is empty so we have to take that into account.
+   */
+  trimLastEmptyLine(lines: Array<string>): number {
+    if (lines[lines.length - 1].length === 0) {
+      return lines.length - 1;
+    } else {
+      return lines.length;
+    }
   }
 
   initialize(): void {
@@ -214,10 +396,12 @@ export default class Compare extends Vue {
   }
 
   onHoverEnterHandler(sideId: SideID, blockClasses: Array<string>): void {
+    const filteredBlockClasses = blockClasses.filter(this.isSelectionActive(sideId));
     const otherSideId = this.getOtherSide(sideId);
-    const otherBlockClasses = this.getAllOtherBlockClasses(sideId, blockClasses);
+    const otherBlockClasses = this.getAllOtherBlockClasses(sideId, filteredBlockClasses)
+      .filter(this.isSelectionActive(otherSideId));
 
-    this.lastHovered[sideId].blockClasses = blockClasses;
+    this.lastHovered[sideId].blockClasses = filteredBlockClasses;
     this.lastHovered[otherSideId].blockClasses = otherBlockClasses;
   }
 
@@ -235,19 +419,21 @@ export default class Compare extends Vue {
       this.selected.blockClasses.toString() === blockClasses.toString())) {
       this.currentBlockClassIndex = 0;
       this.blockClickCount = 1;
-      this.selected.side = sideId;
-      this.selected.blockClasses = blockClasses.slice();
+      Vue.set(this.selected, "side", sideId);
+      // this.selected.side = sideId;
+      Vue.set(this.selected, "blockClasses", blockClasses.slice());
+      // this.selected.blockClasses = blockClasses.slice();
     }
 
     const map = this.sideMap.get(sideId)!;
-    let id = this.selected.blockClasses[this.currentBlockClassIndex];
+    let id = this.selected.blockClasses![this.currentBlockClassIndex];
     let blocks = map.get(id)!;
     // cycles through all the blocks on the other side and if all the blocks have been cycled through, go to the next
     // set of blocks
     if (this.blockClickCount === blocks.length) {
       this.blockClickCount = 1;
-      this.currentBlockClassIndex = (this.currentBlockClassIndex + 1) % this.selected.blockClasses.length;
-      id = this.selected.blockClasses[this.currentBlockClassIndex];
+      this.currentBlockClassIndex = (this.currentBlockClassIndex + 1) % this.selected.blockClasses!.length;
+      id = this.selected.blockClasses![this.currentBlockClassIndex];
       blocks = map.get(id)!;
     } else {
       this.blockClickCount += 1;
@@ -264,24 +450,48 @@ export default class Compare extends Vue {
   }
 
   selectionClickEventHandler(sideId: SideID, blockClasses: Array<string>): void {
-    const [id, other] = this.cycle(sideId, blockClasses);
+    if (blockClasses.length === 0) {
+      Vue.set(this.selected.sides[SideID.leftSideId], "blockClasses", []);
+      Vue.set(this.selected.sides[SideID.rightSideId], "blockClasses", []);
+    } else {
+      const [id, other] = this.cycle(sideId, blockClasses);
 
-    this.selected.sides[sideId].blockClasses = [id];
-    this.selected.sides[this.getOtherSide(sideId)].blockClasses = [other];
+      Vue.set(this.selected.sides[sideId], "blockClasses", [id]);
+      Vue.set(this.selected.sides[this.getOtherSide(sideId)], "blockClasses", [other]);
 
+      this.scrollSelectedIntoView();
+    }
+  }
+
+  scrollSelectedIntoView(): void {
     // for some reason scrolling will not always work when it is done in each CompareSide separately
-    const element = d3.select(this.makeSelector(sideId, blockClasses)).node();
-    const otherElement = d3.select(this.makeSelector(this.getOtherSide(sideId), [other])).node();
+    const element = d3.select(
+      this.makeSelector(
+        SideID.leftSideId,
+        this.selected.sides[SideID.leftSideId].blockClasses
+      )
+    ).node();
+    const otherElement = d3.select(
+      this.makeSelector(
+        SideID.rightSideId,
+        this.selected.sides[SideID.rightSideId].blockClasses
+      )
+    ).node();
     (element as HTMLElement).scrollIntoView({ behavior: "smooth", block: "center" });
     (otherElement as HTMLElement).scrollIntoView({ behavior: "smooth", block: "center" });
   }
 
-  get leftSelection(): Array<Selection> {
-    return this.diff.blocks!.map(block => block.left);
-  }
-
-  get rightSelection(): Array<Selection> {
-    return this.diff.blocks!.map(block => block.right);
+  @Watch("selectedItem")
+  blockClickEventHandler(index: number | undefined): void {
+    if (index === undefined || index === -1) {
+      Vue.set(this.selected.sides[SideID.leftSideId], "blockClasses", []);
+      Vue.set(this.selected.sides[SideID.rightSideId], "blockClasses", []);
+    } else {
+      const { left, right } = this.diff.blocks![index];
+      Vue.set(this.selected.sides[SideID.leftSideId], "blockClasses", [constructID(left)]);
+      Vue.set(this.selected.sides[SideID.rightSideId], "blockClasses", [constructID(right)]);
+      this.scrollSelectedIntoView();
+    }
   }
 
   extractRowCol(value: string): [number, number] {
@@ -314,6 +524,15 @@ export default class Compare extends Vue {
     for (const block of this.diff.blocks!) {
       const leftId = constructID(block.left);
       const rightId = constructID(block.right);
+      if (!this.sideSelectionsToBlocks[SideID.leftSideId][leftId]) {
+        Vue.set(this.sideSelectionsToBlocks[SideID.leftSideId], leftId, []);
+      }
+      this.sideSelectionsToBlocks[SideID.leftSideId][leftId].push(block);
+
+      if (!this.sideSelectionsToBlocks[SideID.rightSideId][rightId]) {
+        Vue.set(this.sideSelectionsToBlocks[SideID.rightSideId], rightId, []);
+      }
+      this.sideSelectionsToBlocks[SideID.rightSideId][rightId].push(block);
 
       if (!this.leftMap.has(leftId)) {
         this.leftMap.set(leftId, []);
@@ -337,6 +556,10 @@ export default class Compare extends Vue {
 </script>
 
 <style lang="scss">
-@use 'codeHighlightsColours';
+@use 'variables';
 
+.no-y-padding {
+  padding-bottom: 0;
+  padding-top: 0;
+}
 </style>

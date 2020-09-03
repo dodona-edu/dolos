@@ -1,9 +1,11 @@
 <template >
   <div :id="identifier" class="barcodeChart">
     <component :is="'style'" type="text/css">
-      .marked {
-      fill: var(--markedbg);
-      }
+      <template v-for="item in activeSelections">
+        .{{item}} {
+          fill: var(--markedbg);
+        }
+      </template>
       <template v-for="item in hoveringSelections">
         .marked.{{ item }} {
         fill: var(--hoveringbg);
@@ -35,14 +37,15 @@ import * as d3 from "d3";
 
 @Component
 export default class BarcodeChart extends Vue {
-  @Prop() selections!: Array<Selection>;
-  @Prop() sideIdentifier!: string;
-  @Prop() maxLines!: number;
-  @Prop() lines!: number;
-  @Prop() documentScrollFraction!: number;
-  @Prop() amountOfLinesVisible!: number;
+  @Prop({ required: true }) selections!: Array<Selection>;
+  @Prop({ required: true }) sideIdentifier!: string;
+  @Prop({ required: true }) maxLines!: number;
+  @Prop({ required: true }) lines!: number;
+  @Prop({ required: true }) documentScrollFraction!: number;
+  @Prop({ required: true }) amountOfLinesVisible!: number;
   @Prop() selectedSelections!: Array<string>;
-  @Prop() hoveringSelections!: Array<string>;
+  @Prop({ required: true }) hoveringSelections!: Array<string>;
+  @Prop({ required: true }) activeSelections!: Array<string>;
 
   mounted(): void {
     this.drawBar();
@@ -161,13 +164,17 @@ export default class BarcodeChart extends Vue {
 </script>
 
 <style lang="scss">
-@use 'codeHighlightsColours';
+@use 'variables';
+
+.barcodeChartBar {
+  fill: #f5f2f0;
+}
 
 .barcodeChart {
   display: inline-block;
   position: relative;
   width: 3vw;
-  height: 70vh;
+  height: var(--code-height);
   padding-bottom: 100%;
   vertical-align: top;
   overflow: hidden;
@@ -179,10 +186,6 @@ export default class BarcodeChart extends Vue {
     position: absolute;
     top: 0;
     left: 0;
-
-    .barcodeChartBar:not(.marked) {
-      fill: #f5f2f0;
-    }
 
     #page-scroll-highlighter {
       width: 40px;
