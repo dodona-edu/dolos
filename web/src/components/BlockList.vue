@@ -116,7 +116,7 @@ import { constructID, SelectionId } from "@/util/OccurenceHighlight";
 import { SideID } from "@/components/CompareCard.vue";
 
 interface BlockWithId extends Block {
-  id: number;
+  index: number;
 }
 
 @Component({
@@ -184,7 +184,7 @@ export default class BlockList extends Vue {
     } else {
       return this.diff.blocks.map((block, index) => {
         const blockWithId = (block as BlockWithId);
-        blockWithId.id = index;
+        blockWithId.index = index;
         return blockWithId;
       });
     }
@@ -277,13 +277,13 @@ export default class BlockList extends Vue {
   }
 
   itemClassFunction(block: BlockWithId): string | void {
-    if (this.selectedItem === block.id) {
+    if (this.selectedItem === block.index) {
       return "blue lighten-4";
     }
   }
 
   dataTableCheckBoxToggle(block: BlockWithId, value: boolean): void {
-    if (this.selectedItem === block.id && !value) {
+    if (this.selectedItem === block.index && !value) {
       this.selectedItem = -1;
     }
   }
@@ -301,7 +301,7 @@ export default class BlockList extends Vue {
       if (isSelected) {
         this.selectedItem = -1;
       } else {
-        this.selectedItem = block.id;
+        this.selectedItem = block.index;
       }
     }
   }
