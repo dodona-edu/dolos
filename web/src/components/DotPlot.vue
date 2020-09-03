@@ -13,9 +13,6 @@ type CellData = { row: number; col: number; value: number};
 export default class DotPlot extends Vue {
   @Prop({ required: true }) diff!: Diff;
 
-  private startColor = "#ffffff";
-  private endColor = "#3498db";
-
   private matrix: Array<Array<number>> = [];
 
   showPlot(): void {
@@ -39,18 +36,16 @@ export default class DotPlot extends Vue {
       width = size;
       height = size * numcols / numrows;
     }
-    const base = d3.select("#dotplot");
-    const chart = base.append("canvas")
-      .attr("width", width)
-      .attr("height", height);
-
-    const customBase = document.createElement("custom");
-    const custom = d3.select(customBase);
-
-    const context = chart.node()?.getContext("2d") as CanvasRenderingContext2D;
-
     const rowGroups = d3.range(0, numrows);
     const colGroups = d3.range(0, numcols);
+
+    // append the svg object to the body of the page
+    const svg = d3.select("#dotplot")
+      .append("svg")
+      .attr("width", width)
+      .attr("height", height)
+      .style("background", "lightgray")
+      .append("g");
 
     // Build X scales and axis:
     const x = d3.scaleBand()
@@ -65,43 +60,29 @@ export default class DotPlot extends Vue {
       .domain(colGroups);
 
     // add the squares
-    custom.selectAll("rect")
-      .data([...DotPlot.loopSequentiallyOverData(this.matrix)])
+    svg.selectAll()
+      .data([...DotPlot.loopSequentiallyOverData(this.matrix)], function (d) { return d?.row + ":" + d?.col; })
       .enter()
       .append("rect")
       // @ts-ignore
       .attr("x", function (d) { return x(d.row); })
       // @ts-ignore
       .attr("y", function (d) { return y(d.col); })
-      .attr("width", x.bandwidth())
-      .attr("height", y.bandwidth())
-      .attr("fillStyle", function (d: CellData) {
-        return d.value === 0 ? "lightgray" : "black";
-      });
-
-    context.fillStyle = "#ffffff";
-    context.fillRect(0, 0, width, height);
-
-    custom.selectAll("rect")
-      .each(function () {
-        // eslint-disable-next-line no-invalid-this
-        const node = d3.select(this);
-        context.fillStyle = node.attr("fillStyle");
-        context.fillRect(
-          // @ts-ignore
-          node.attr("x"),
-          node.attr("y"),
-          node.attr("width"),
-          node.attr("height")
-        );
-      });
+      .attr("width", x.bandwidth() * 4)
+      .attr("height", y.bandwidth() * 4)
+      .style("fill", function () { return "black"; })
+      .style("stroke-width", 4)
+      .style("stoke-color", "black")
+      .style("stroke", "none");
   }
 
   private static * loopSequentiallyOverData(matrix: number[][]):
     IterableIterator<CellData> {
     for (const row in matrix) {
       for (const col in matrix[row]) {
-        yield { row: +row, col: +col, value: matrix[row][col] };
+        if (matrix[row][col] > 0) {
+          yield { row: +row, col: +col, value: matrix[row][col] };
+        }
       }
     }
   }
