@@ -7,6 +7,8 @@ import UI from "cliui";
 import chalk from "chalk";
 import { Writable } from "stream";
 import { Options } from "../util/options";
+import { Block } from "../analyze/block";
+import { closestMatch } from "../util/utils";
 
 export class TerminalPresenter extends Presenter {
 
@@ -149,6 +151,18 @@ export class TerminalPresenter extends Presenter {
       this.c.grey((i + 1).toString().padEnd(lineNrWidth));
 
     const blocks = diff.blocks();
+
+    type BlockSortFn = (b1: Block, b2: Block) => number;
+    const blockSortFn = closestMatch<BlockSortFn | null>(this.options.blockSortBy, {
+      "fileOrder": null,
+      "kmersAscending": (a, b) => b.pairs.length - a.pairs.length,
+      "kmersDescending": (a, b) => a.pairs.length - b.pairs.length,
+    });
+
+    if(blockSortFn) {
+      blocks.sort(blockSortFn);
+    }
+
     for (let i = 0; i < blocks.length; i += 1) {
       const block = blocks[i];
 

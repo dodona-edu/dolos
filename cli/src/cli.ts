@@ -66,8 +66,8 @@ program
   .option(
     "-s, --minimum-block-length <integer>",
     Utils.indent(
-      "The minimum amount of paired occurrences (=matches) that are contained within this block. " +
-        "Every block shorter than this is filtered out."
+      "The minimum amount of k-mers a block should contain. Every block with less kmers then the specified" +
+      " amount is filtered out."
     ),
     x => parseFloat(x),
     Options.defaultMinBlockLength
@@ -76,7 +76,7 @@ program
     "-c --compare",
     Utils.indent(
       "Print a comparison of the matching blocks even if analysing more than two " +
-      "files. Only valid when the output is set to 'terminal'."
+      "files. Only valid when the output is set to 'terminal' or 'console'."
     )
   )
   .option(
@@ -99,9 +99,18 @@ program
   .option(
     "--sort <field>",
     Utils.indent(
-      "Which field to sort the results by. Options are: similarity, continuous and total", "total"
+      "Which field to sort the diffs by. Options are: similarity, continuous and total", "total"
     ),
     "total"
+  )
+  .option(
+    "-b, --block-sort <sort>",
+    Utils.indent(
+      "How to sort the blocks by the amount of matches, only applicable in terminal comparison output. The " +
+        "options are: 'kmers/kmersAsc/kmersAscending', 'kmersDesc/kmersDescending' and 'fileOrder'",
+      "fileOrder"
+    ),
+    "fileOrder"
   )
   .option(
     "-k, --kmer-length <integer>",
@@ -141,6 +150,7 @@ program
         minSimilarity: program.minimumSimilarity,
         limitResults: program.limit,
         sortBy: program.sort,
+        blockSortBy: program.blockSort,
       });
       const report = await dolos.analyzePaths(locations);
 

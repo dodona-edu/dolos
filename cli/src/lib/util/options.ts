@@ -9,6 +9,7 @@ export interface DolosOptions {
   minSimilarity: number;
   localPort: number;
   sortBy: string | null;
+  blockSortBy: string | null;
 }
 
 export type CustomOptions = Partial<DolosOptions>;
@@ -52,6 +53,7 @@ export class Options implements DolosOptions {
   public static defaultMinSimilarity = 0;
   public static defaultPort = 3000;
   public static defaultSortBy = "total";
+  public static defaultBlockSortBy = "none";
 
   private custom: CustomOptions = {};
 
@@ -77,6 +79,7 @@ export class Options implements DolosOptions {
     }
     Object.freeze(this);
   }
+
 
   get limitResults(): number | null {
     return definedOrNull(this.custom.limitResults);
@@ -131,6 +134,10 @@ export class Options implements DolosOptions {
     return definedOrDefault(this.custom.sortBy, Options.defaultSortBy);
   }
 
+  get blockSortBy(): string {
+    return definedOrDefault(this.custom.blockSortBy, Options.defaultBlockSortBy);
+  }
+
   public asObject(): DolosOptions {
     return {
       kmerLength: this.kmerLength,
@@ -143,6 +150,7 @@ export class Options implements DolosOptions {
       localPort: this.localPort,
       minSimilarity: this.minSimilarity,
       sortBy: this.sortBy,
+      blockSortBy: this.blockSortBy
     };
   }
 

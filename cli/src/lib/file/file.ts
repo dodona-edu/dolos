@@ -36,9 +36,9 @@ export class File extends Identifiable {
   }
 
   /**
-   * Read the given locatio into a file.
+   * Read the given location into a file.
    *
-   * Reaturns a result with the File if it succeeded, or an Error otherwise.
+   * Returns a result with the File if it succeeded, or an Error otherwise.
    */
   public static async fromPath(location: string): Promise<Result<File>> {
     return Result.tryAwait(async () =>
