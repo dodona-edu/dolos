@@ -1,9 +1,9 @@
 <template>
   <v-container fluid fill-height>
     <v-row justify="center">
-      <v-col cols="12">
+      <v-col cols="12" class="no-y-padding">
         <CompareCard
-          v-if="diff"
+          v-if="diff && diff.blocks"
           :loaded="dataLoaded"
           :diff="diff"
         />
@@ -35,9 +35,13 @@ export default class Compare extends DataView {
     }
   }
 
+  async ensureData(): Promise<void> {
+    await super.ensureData();
+    await this.ensureBlocks();
+  }
+
   created(): void {
-    super.ensureData();
-    this.ensureBlocks();
+    this.ensureData();
   }
 
   get diff(): Diff | undefined {

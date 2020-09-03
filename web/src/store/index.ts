@@ -18,7 +18,7 @@ export default new Vuex.Store({
   },
   getters: {
     areBlocksLoaded: state => (diffId: number) => {
-      return !!state.data.diffs[diffId].blocks;
+      return !!state.data.diffs[diffId] && !!state.data.diffs[diffId].blocks;
     },
     kmers: state => state.data.kmers,
     diff: state => (diffId: number) => {

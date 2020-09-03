@@ -66,8 +66,8 @@ program
   .option(
     "-s, --minimum-block-length <integer>",
     Utils.indent(
-      "The minimum length of a matching block. Every block shorter than this is " +
-      "filtered out."
+      "The minimum amount of paired occurrences (=matches) that are contained within this block. " +
+        "Every block shorter than this is filtered out."
     ),
     x => parseFloat(x),
     Options.defaultMinBlockLength

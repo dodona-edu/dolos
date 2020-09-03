@@ -1,20 +1,21 @@
 <template>
   <div>
     <component :is="'style'" type="text/css">
-      .marked-code, .token.marked-code {
+
+      <template v-for="item in activeSelections">
+        .token.marked-code.{{item}} {
         background: var(--markedbg);
         text-shadow: none;
-      }
+        }
+      </template>
       <template v-for="item in hoveringSelections">
-        .token.operator.{{ item }}, .token.entity.{{ item }}, .token.url.{{ item }},
-        .language-css .token.string.{{ item }}, .style .token.string.{{ item }}, .token.marked-code.{{ item }} {
+        .token.marked-code.{{ item }} {
           background: var(--hoveringbg);
           text-shadow: none;
         }
       </template>
       <template v-for="item in selectedSelections">
-        .token.operator.{{ item }}, .token.entity.{{ item }}, .token.url.{{ item }},
-        .language-css .token.string.{{ item }}, .style .token.string.{{ item }}, .token.marked-code.{{ item }} {
+        .token.marked-code.{{ item }} {
           background: var(--selectedbg);
           text-shadow: none;
         }
@@ -36,19 +37,15 @@ import "prismjs/themes/prism.css";
 import "prismjs/plugins/line-numbers/prism-line-numbers.js";
 import "prismjs/plugins/line-numbers/prism-line-numbers.css";
 import { ID_START, registerBlockHighlighting } from "@/util/OccurenceHighlight";
-import * as d3 from "d3";
-import { SideID } from "@/components/CompareCard.vue";
 
 @Component
 export default class CompareSide extends Vue {
-  @Prop() identifier!: string;
-  @Prop() selectionClickHandler!: (sideId: string, blockClasses: Array<string>) => void;
-  @Prop() onHoverEnter!: (sideId: string, blockClasses: Array<string>, element: HTMLElement) => void;
-  @Prop() onHoverExit!: (sideId: string, blockClasses: Array<string>, element: HTMLElement) => void;
-  @Prop() file!: File;
-  @Prop() selections!: Array<Selection>;
-  @Prop() hoveringSelections!: Array<string>;
-  @Prop() selectedSelections!: Array<string>;
+  @Prop({ required: true }) identifier!: string;
+  @Prop({ required: true }) file!: File;
+  @Prop({ required: true }) selections!: Array<Selection>;
+  @Prop({ required: true }) hoveringSelections!: Array<string>;
+  @Prop({ required: true }) activeSelections!: Array<string>;
+  @Prop({ required: true }) selectedSelections!: Array<string>;
 
   get content(): string {
     return this.file.content;
@@ -79,10 +76,16 @@ export default class CompareSide extends Vue {
 
   async mounted(): Promise<void> {
     await this.highlight();
+    this.emitLinesVisibleAmount();
+    window.addEventListener("resize", this.emitLinesVisibleAmount);
+  }
+
+  destroyed(): void {
+    window.removeEventListener("resize", this.emitLinesVisibleAmount);
+  }
+
+  emitLinesVisibleAmount(): void {
     this.$emit("linesvisibleamount", this.getLinesVisibleAmount());
-    window.addEventListener("resize", () => {
-      this.$emit("linesvisibleamount", this.getLinesVisibleAmount());
-    });
   }
 
   async installLanguage(): Promise<void> {
@@ -100,10 +103,14 @@ export default class CompareSide extends Vue {
   }
 
   addEventListeners(): void {
+    (this.$refs.pre as HTMLElement)
+      .addEventListener("click", () => this.$emit("selectionclick", this.identifier, []));
+
     for (const value of document.querySelectorAll(`#${this.identifier} .marked-code`) as NodeListOf<HTMLElement>) {
       const filteredClassList = [...value.classList].filter(className => className.startsWith(ID_START));
-      value.addEventListener("click", () => {
+      value.addEventListener("click", (ev: Event) => {
         this.$emit("selectionclick", this.identifier, filteredClassList);
+        ev.stopPropagation();
       });
 
       value.addEventListener("mouseout", () => {
@@ -125,10 +132,12 @@ export default class CompareSide extends Vue {
 </script>
 
 <style lang="scss">
-@use 'codeHighlightsColours';
+@use 'variables';
 
 .highlighted-code {
-    height: 70vh;
+    height: var(--code-height);
+    min-height: 100%;
+    max-height: 100%;
     overflow-y: scroll;
     padding-top: 0 !important;
 
