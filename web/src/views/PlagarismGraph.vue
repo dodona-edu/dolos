@@ -5,16 +5,24 @@
       <v-col cols="12" class="no-y-padding">
         <div ref="container" class="graph-container">
           <form class="settings">
-            <label>
-              Similarity ≥ {{ cutoff }}<br />
-              <input
-                type="range"
-                min="0.5"
-                max="1"
-                step="0.01"
-                v-model="cutoff"
-              />
-            </label>
+            <p>
+              <label>
+                Similarity ≥ {{ cutoff }}<br />
+                <input
+                  type="range"
+                  min="0.5"
+                  max="1"
+                  step="0.01"
+                  v-model="cutoff"
+                />
+              </label>
+            </p>
+            <p>
+              <label
+                ><input type="checkbox" v-model="showSingletons" /> Display
+                singletons</label
+              >
+            </p>
           </form>
           <div class="node-selected">
             <ul class="legend">
@@ -123,6 +131,7 @@ export default class PlagarismGraph extends DataView {
       width: 100,
       height: 100,
       legend: [],
+      showSingletons: false,
     };
   }
   get selectedInfo() {
@@ -168,6 +177,7 @@ export default class PlagarismGraph extends DataView {
 
   @Watch("cutoff")
   @Watch("files")
+  @Watch("showSingletons")
   updateGraph() {
     if (this.delayUpdateGraph >= 0) clearTimeout(this.delayUpdateGraph);
     this.delayUpdateGraph = setTimeout(() => {
@@ -224,7 +234,11 @@ export default class PlagarismGraph extends DataView {
         }
       });
       this.removeSelectedNode();
-      this.nodes = Object.values(nodeMap).filter((n) => n.neighbors.length);
+      if (this.showSingletons) {
+        this.nodes = Object.values(nodeMap);
+      } else {
+        this.nodes = Object.values(nodeMap).filter((n) => n.neighbors.length);
+      }
       const colorScale = d3
         .scaleOrdinal(d3.schemeCategory10)
         .domain([...programs]);
