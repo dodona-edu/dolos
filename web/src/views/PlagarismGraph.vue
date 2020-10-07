@@ -16,6 +16,25 @@
               />
             </label>
           </form>
+          <div class="node-selected">
+            <ul class="legend">
+              <li v-for="{ color, program } of legend" :key="color">
+                <span
+                  :style="{
+                    'background-color': color,
+                  }"
+                ></span>
+                {{ program }}
+              </li>
+            </ul>
+
+            <!-- <span class="path">{{ selectedInfo.path }}</span> -->
+            <ul v-if="selectedInfo.info !== undefined">
+              <li>Name: {{ selectedInfo.info.name }}</li>
+              <li>Timestamp: {{ selectedInfo.info.timestamp }}</li>
+              <li>Program: {{ selectedInfo.info.program }}</li>
+            </ul>
+          </div>
         </div>
       </v-col>
     </v-row>
@@ -37,17 +56,21 @@ export default class PlagarismGraph extends DataView {
     d3.zoom().on("zoom", () => {
       container.attr("transform", d3.event.transform);
     })(svg);
+    var defs = svg.append("svg:defs");
+    defs
+      .append("svg:marker")
+      .attr("id", "arrow-marker")
+      .attr("viewBox", "0 -6 10 12")
+      .attr("refX", "5")
+      .attr("markerWidth", 2)
+      .attr("markerHeight", 2)
+      .attr("orient", "auto")
+      .append("svg:path")
+      .attr("d", "M5,-5L10,0L5,5M10,0L0,0");
 
     this.svg = svg;
-    this.svgLinks = container
-      .append("g")
-      .attr("stroke", "#999")
-      .attr("stroke-opacity", 0.6);
-
-    this.svgNodes = container
-      .append("g")
-      .attr("stroke", "#fff")
-      .attr("stroke-width", 1.5);
+    this.svgLinks = container.append("g");
+    this.svgNodes = container.append("g");
 
     this.simulation = d3
       .forceSimulation()
@@ -73,11 +96,13 @@ export default class PlagarismGraph extends DataView {
 
     this.simulation.on("tick", () => {
       if (this.svgLink)
-        this.svgLink
-          .attr("x1", (d) => d.source.x || 0)
-          .attr("y1", (d) => d.source.y || 0)
-          .attr("x2", (d) => d.target.x || 0)
-          .attr("y2", (d) => d.target.y || 0);
+        this.svgLink.attr("d", (d) => {
+          const { x: x0, y: y0 } = d.source;
+          const { x: x1, y: y1 } = d.target;
+          return `M${x0},${y0}L${0.5 * (x0 + x1)},${
+            0.5 * (y0 + y1)
+          }L${x1},${y1}`;
+        });
 
       if (this.svgNode)
         this.svgNode.attr("cx", (d) => d.x || 0).attr("cy", (d) => d.y || 0);
@@ -93,10 +118,39 @@ export default class PlagarismGraph extends DataView {
     return {
       cutoff: 0.75,
       nodes: [],
+      selectedNode: -1,
       links: [],
       width: 100,
       height: 100,
+      legend: [],
     };
+  }
+  get selectedInfo() {
+    if (this.selectedNode >= 0) {
+      const node = this.nodes[this.selectedNode];
+      const file = node.file;
+      const fileInfo = {
+        path: file.path,
+        info: {
+          name: "Unavailable",
+          timestamp: "Unavailable",
+          program: "Unavailable",
+        },
+      };
+      if (file.info) {
+        fileInfo.info = {
+          name: file.info.full_name,
+          timestamp: file.info.timestamp.toLocaleString(),
+          program: node.program,
+        };
+      }
+      return fileInfo;
+    } else {
+      return {
+        path: "Nothing selected",
+        info: undefined,
+      };
+    }
   }
 
   @Watch("width")
@@ -119,26 +173,40 @@ export default class PlagarismGraph extends DataView {
     this.delayUpdateGraph = setTimeout(() => {
       this.delayUpdateGraph = -1;
       const nodeMap = this.getRawNodeMap();
+      let programs = new Set();
       Object.values(nodeMap).forEach((node) => {
         node.component = -1;
         node.neighbors = [];
+        node.links = [];
+        node.program = (node.file.info ? node.file.info.program : "") || " N/A";
+        programs.add(node.program);
       });
+      programs = [...programs].sort();
       this.links = Object.entries(this.diffs)
         .filter(([key, value]) => value.similarity >= this.cutoff)
         .map(([key, value]) => {
-          const left = nodeMap[value.leftFile.id];
-          const right = nodeMap[value.rightFile.id];
+          let left = nodeMap[value.leftFile.id];
+          let right = nodeMap[value.rightFile.id];
+          const leftInfo = left.file.info;
+          const rightInfo = right.file.info;
+          const directed = leftInfo && rightInfo;
+          if (directed && rightInfo.timestamp < leftInfo.timestamp)
+            [left, right] = [right, left];
           left.neighbors.push(right);
           right.neighbors.push(left);
           const similarity = value.similarity;
-          return {
+          const link = {
             id: key,
+            directed: directed,
             source: left,
             target: right,
             similarity,
             linkWidth:
               4 * Math.pow(Math.max(0.4, (similarity - 0.75) / 0.2), 2),
           };
+          left.links.push(link);
+          right.links.push(link);
+          return link;
         });
       let component = 0;
       Object.values(nodeMap).forEach((node) => {
@@ -155,8 +223,39 @@ export default class PlagarismGraph extends DataView {
           }
         }
       });
+      this.removeSelectedNode();
       this.nodes = Object.values(nodeMap).filter((n) => n.neighbors.length);
+      const colorScale = d3
+        .scaleOrdinal(d3.schemeCategory10)
+        .domain([...programs]);
+      this.legend = [];
+      for (const program of programs) {
+        this.legend.push({
+          color: colorScale(program),
+          program: program,
+        });
+      }
+      this.nodes.forEach((node, index) => {
+        node.index = index;
+        let incomming = 0;
+        let outgoing = 0;
+        node.links.forEach((l) => {
+          if (l.directed) {
+            if (l.target == node) ++incomming;
+            else ++outgoing;
+          }
+        });
+        node.source = outgoing > 1 && incomming == 0;
+        node.fillColor = colorScale(node.program);
+      });
     }, 50);
+  }
+  removeSelectedNode() {
+    if (this.selectedNode >= 0) {
+      this.svgNodes.select("circle.node.selected").classed("selected", false);
+      this.nodes[this.selectedNode].selected = false;
+      this.selectedNode = -1;
+    }
   }
   getRawNodeMap() {
     if (!this.dataLoaded) return {};
@@ -180,17 +279,21 @@ export default class PlagarismGraph extends DataView {
   @Watch("links")
   updateSimulation() {
     this.svgLink = this.svgLinks
-      .selectAll("line")
+      .selectAll("path")
       .data(this.links)
-      .join("line")
+      .join("path")
+      .classed("link", true)
+      .classed("directed", (d) => d.directed)
       .attr("stroke-width", (d) => d.linkWidth);
 
     this.svgNode = this.svgNodes
       .selectAll("circle")
       .data(this.nodes)
       .join("circle")
+      .classed("node", true)
+      .classed("source", (d) => d.source)
       .attr("r", 5)
-      .attr("fill", (d) => "red")
+      .attr("fill", (d) => d.fillColor)
       .call(this.drag());
 
     this.simulation.nodes(this.nodes);
@@ -217,17 +320,30 @@ export default class PlagarismGraph extends DataView {
         if (!event.active) this.simulation.alphaTarget(0.3).restart();
         event.subject.fx = event.subject.x;
         event.subject.fy = event.subject.y;
+        event.subject.justDragged = false;
       })
       .on("drag", () => {
         const event = d3.event;
         event.subject.fx = event.x;
         event.subject.fy = event.y;
+        event.subject.justDragged = true;
       })
       .on("end", () => {
         const event = d3.event;
         if (!event.active) this.simulation.alphaTarget(0);
         event.subject.fx = null;
         event.subject.fy = null;
+        if (!event.subject.justDragged) {
+          // clicked
+          if (event.subject.index == this.selectedNode) {
+            this.removeSelectedNode();
+          } else {
+            this.removeSelectedNode();
+            d3.select(event.sourceEvent.target).classed("selected", true);
+            event.subject.selected = true;
+            this.selectedNode = event.subject.index;
+          }
+        }
       });
   }
 
@@ -244,6 +360,19 @@ export default class PlagarismGraph extends DataView {
   height: 100%;
   position: relative;
 
+  .legend {
+    li {
+      display: block;
+
+      span {
+        display: inline-block;
+        width: 1em;
+        height: 1em;
+        border: 2px white solid;
+      }
+    }
+  }
+
   svg {
     position: absolute;
     left: 0;
@@ -253,6 +382,36 @@ export default class PlagarismGraph extends DataView {
     width: 100%;
     height: 100%;
     z-index: 1;
+
+    #arrow-marker {
+      stroke: #666;
+      fill: transparent;
+      stroke-linecap: round;
+    }
+
+    .node {
+      stroke: white;
+      stroke-width: 2;
+      stroke-linecap: round;
+
+      &.source {
+        stroke-width: 0;
+      }
+
+      &.selected {
+        stroke: red;
+        stroke-dasharray: 1.14, 2;
+        stroke-width: 1;
+      }
+    }
+
+    .link {
+      stroke: #999;
+      opacity: 0.6;
+      &.directed {
+        marker-mid: url(#arrow-marker);
+      }
+    }
   }
 
   .settings {
