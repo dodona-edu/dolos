@@ -26,13 +26,27 @@
           </form>
           <div class="node-selected">
             <ul class="legend">
-              <li v-for="{ color, program } of legend" :key="color">
-                <span
-                  :style="{
-                    'background-color': color,
-                  }"
-                ></span>
-                {{ program }}
+              <li
+                v-for="program of Object.values(programs).sort()"
+                :key="program.program"
+              >
+                <label
+                  ><input
+                    type="checkbox"
+                    v-model="program.selected"
+                    class="legend-checkbox"
+                    @change="updateGraph"
+                  />
+                  <span class="legend-label"
+                    ><span
+                      class="legend-color"
+                      :style="{
+                        'background-color': program.color,
+                      }"
+                    ></span>
+                    {{ program.program }}
+                  </span></label
+                >
               </li>
             </ul>
 
@@ -130,7 +144,7 @@ export default class PlagarismGraph extends DataView {
       links: [],
       width: 100,
       height: 100,
-      legend: [],
+      programs: [],
       showSingletons: false,
     };
   }
@@ -183,17 +197,19 @@ export default class PlagarismGraph extends DataView {
     this.delayUpdateGraph = setTimeout(() => {
       this.delayUpdateGraph = -1;
       const nodeMap = this.getRawNodeMap();
-      let programs = new Set();
+      const programs = this.programs;
       Object.values(nodeMap).forEach((node) => {
         node.component = -1;
         node.neighbors = [];
         node.links = [];
-        node.program = (node.file.info ? node.file.info.program : "") || " N/A";
-        programs.add(node.program);
+        node.visible = programs[node.program].selected;
       });
-      programs = [...programs].sort();
       this.links = Object.entries(this.diffs)
         .filter(([key, value]) => value.similarity >= this.cutoff)
+        .filter(
+          ([_, { leftFile, rightFile }]) =>
+            nodeMap[leftFile.id].visible && nodeMap[rightFile.id].visible
+        )
         .map(([key, value]) => {
           let left = nodeMap[value.leftFile.id];
           let right = nodeMap[value.rightFile.id];
@@ -234,20 +250,9 @@ export default class PlagarismGraph extends DataView {
         }
       });
       this.removeSelectedNode();
-      if (this.showSingletons) {
-        this.nodes = Object.values(nodeMap);
-      } else {
-        this.nodes = Object.values(nodeMap).filter((n) => n.neighbors.length);
-      }
-      const colorScale = d3
-        .scaleOrdinal(d3.schemeCategory10)
-        .domain([...programs]);
-      this.legend = [];
-      for (const program of programs) {
-        this.legend.push({
-          color: colorScale(program),
-          program: program,
-        });
+      this.nodes = Object.values(nodeMap).filter(n => n.visible);
+      if (!this.showSingletons) {
+        this.nodes = this.nodes.filter((n) => n.neighbors.length);
       }
       this.nodes.forEach((node, index) => {
         node.index = index;
@@ -260,7 +265,7 @@ export default class PlagarismGraph extends DataView {
           }
         });
         node.source = outgoing > 1 && incomming == 0;
-        node.fillColor = colorScale(node.program);
+        node.fillColor = programs[node.program].color;
       });
     }, 50);
   }
@@ -275,18 +280,31 @@ export default class PlagarismGraph extends DataView {
     if (!this.dataLoaded) return {};
     if (this._nodeMap) return this._nodeMap;
     const nodeMap = {};
+    let programs = new Set();
     Object.entries(this.files).forEach(([key, value]) => {
+      const program = (value.info ? value.info.program : "") || "N/A";
+      programs.add(program);
       nodeMap[value.id] = {
         id: key,
         file: value,
         component: -1,
         neighbors: [],
+        program: program,
         x: this.width * Math.random(),
         y: this.height * Math.random(),
         vx: 0,
         vy: 0,
       };
     });
+    const colorScale = d3
+      .scaleOrdinal(d3.schemeCategory10)
+      .domain([...programs]);
+    programs = [...programs].sort().map((p) => ({
+      program: p,
+      selected: true,
+      color: colorScale(p),
+    }));
+    this.programs = Object.fromEntries(programs.map((p) => [p.program, p]));
     return (this._nodeMap = nodeMap);
   }
   @Watch("nodes")
@@ -375,14 +393,28 @@ export default class PlagarismGraph extends DataView {
   position: relative;
 
   .legend {
+    position: absolute;
+    right: 0;
+    top: 0;
+    z-index: 4;
     li {
       display: block;
 
-      span {
+      span.legend-color {
         display: inline-block;
         width: 1em;
         height: 1em;
         border: 2px white solid;
+      }
+
+      input.legend-checkbox {
+        display: none;
+
+        &:not(:checked) {
+          & + .legend-label {
+            opacity: 0.3;
+          }
+        }
       }
     }
   }

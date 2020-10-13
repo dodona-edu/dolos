@@ -1,6 +1,8 @@
 import * as d3 from "d3";
 // import { assertType } from "typescript-is";
 
+const DATA_URL = "/data";
+
 // TODO: replace with actual assertion
 function assertType<T>(item: T | undefined | null): T {
   if (item == null) {
@@ -94,13 +96,13 @@ export interface ApiData {
 }
 
 async function fetchFiles(
-  url = "/data/files.csv"
+  url = DATA_URL + "/files.csv"
 ): Promise<d3.DSVRowArray> {
   return await d3.csv(url);
 }
 
 async function fetchFilesInfo(
-  url = "/data/info.csv"
+  url = DATA_URL + "/info.csv"
 ): Promise<d3.DSVRowArray | undefined> {
   try {
     return await d3.csv(url);
@@ -111,26 +113,26 @@ async function fetchFilesInfo(
 }
 
 async function fetchDiffs(
-  url = "/data/diffs.csv"
+  url = DATA_URL + "/diffs.csv"
 ): Promise<d3.DSVRowArray> {
   return await d3.csv(url);
 }
 
 async function fetchKmers(
-  url = "/data/kmers.csv"
+  url = DATA_URL + "/kmers.csv"
 ): Promise<d3.DSVRowArray> {
   return await d3.csv(url);
 }
 
 async function fetchMetadata(
-  url = "/data/metadata.csv"
+  url = DATA_URL + "/metadata.csv"
 ): Promise<d3.DSVRowArray> {
   return await d3.csv(url);
 }
 
 async function fetchBlocks(
   diffId: number,
-  url = "/data/blocks/"
+  url = DATA_URL + "/blocks/"
 ): Promise<string> {
   return await d3.text(url + diffId + ".json");
 }
