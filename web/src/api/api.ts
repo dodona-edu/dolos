@@ -101,17 +101,6 @@ async function fetchFiles(
   return await d3.csv(url);
 }
 
-async function fetchFilesInfo(
-  url = DATA_URL + "/info.csv"
-): Promise<d3.DSVRowArray | undefined> {
-  try {
-    return await d3.csv(url);
-  } catch (error) {
-    console.error(error);
-    return undefined;
-  }
-}
-
 async function fetchDiffs(
   url = DATA_URL + "/diffs.csv"
 ): Promise<d3.DSVRowArray> {
@@ -137,21 +126,16 @@ async function fetchBlocks(
   return await d3.text(url + diffId + ".json");
 }
 
-function parseFiles(
-  fileData: d3.DSVRowArray,
-  filesInfoData: d3.DSVRowArray | undefined
-): ObjMap<File> {
+function parseFiles(fileData: d3.DSVRowArray): ObjMap<File> {
   return Object.fromEntries(
     fileData.map(row => {
-      const info = filesInfoData?.filter(i =>
-        i.filename && row.path?.endsWith(i.filename)
-      )[0];
+      const info = JSON.parse(row.dodona || "undefined");
       return [
         row.id, {
           ...row,
-          info: !info ? undefined : {
+          dodona: !info ? undefined : {
             ...info,
-            timestamp: info.created_at ? new Date(info.created_at) : undefined
+            createdAt: new Date(info.createdAt)
           }
         }
       ];
@@ -233,11 +217,10 @@ export async function populateBlocks(diff: Diff, kmers: ObjMap<Kmer>): Promise<v
 export async function fetchData(): Promise<ApiData> {
   const kmerPromise = fetchKmers();
   const filePromise = fetchFiles();
-  const filesInfoPromise = fetchFilesInfo();
   const metadataPromise = fetchMetadata();
   const diffPromise = fetchDiffs();
 
-  const files = parseFiles(await filePromise, await filesInfoPromise);
+  const files = parseFiles(await filePromise);
   const kmers = parseKmers(await kmerPromise, files);
   const diffs = parseDiffs(await diffPromise, files, kmers);
   const metadata = parseMetadata(await metadataPromise);

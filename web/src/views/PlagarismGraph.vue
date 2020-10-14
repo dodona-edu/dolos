@@ -27,13 +27,13 @@
           <div class="node-selected">
             <ul class="legend">
               <li
-                v-for="program of Object.values(programs).sort()"
-                :key="program.program"
+                v-for="legendDatum of Object.values(legend).sort()"
+                :key="legendDatum.label"
               >
                 <label
                   ><input
                     type="checkbox"
-                    v-model="program.selected"
+                    v-model="legendDatum.selected"
                     class="legend-checkbox"
                     @change="updateGraph"
                   />
@@ -41,10 +41,10 @@
                     ><span
                       class="legend-color"
                       :style="{
-                        'background-color': program.color,
+                        'background-color': legendDatum.color,
                       }"
                     ></span>
-                    {{ program.program }}
+                    {{ legendDatum.label }}
                   </span></label
                 >
               </li>
@@ -54,7 +54,7 @@
             <ul v-if="selectedInfo.info !== undefined">
               <li>Name: {{ selectedInfo.info.name }}</li>
               <li>Timestamp: {{ selectedInfo.info.timestamp }}</li>
-              <li>Program: {{ selectedInfo.info.program }}</li>
+              <li>Label: {{ selectedInfo.info.label }}</li>
             </ul>
           </div>
         </div>
@@ -144,7 +144,7 @@ export default class PlagarismGraph extends DataView {
       links: [],
       width: 100,
       height: 100,
-      programs: [],
+      legend: [],
       showSingletons: false,
     };
   }
@@ -157,14 +157,14 @@ export default class PlagarismGraph extends DataView {
         info: {
           name: "Unavailable",
           timestamp: "Unavailable",
-          program: "Unavailable",
+          label: "Unavailable",
         },
       };
-      if (file.info) {
+      if (file.dodona) {
         fileInfo.info = {
-          name: file.info.full_name,
-          timestamp: file.info.timestamp.toLocaleString(),
-          program: node.program,
+          name: file.dodona.fullName,
+          timestamp: file.dodona.createdAt.toLocaleString(),
+          label: file.dodona.labels,
         };
       }
       return fileInfo;
@@ -197,12 +197,12 @@ export default class PlagarismGraph extends DataView {
     this.delayUpdateGraph = setTimeout(() => {
       this.delayUpdateGraph = -1;
       const nodeMap = this.getRawNodeMap();
-      const programs = this.programs;
+      const labels = this.legend;
       Object.values(nodeMap).forEach((node) => {
         node.component = -1;
         node.neighbors = [];
         node.links = [];
-        node.visible = programs[node.program].selected;
+        node.visible = labels[node.label].selected;
       });
       this.links = Object.entries(this.diffs)
         .filter(([key, value]) => value.similarity >= this.cutoff)
@@ -213,10 +213,10 @@ export default class PlagarismGraph extends DataView {
         .map(([key, value]) => {
           let left = nodeMap[value.leftFile.id];
           let right = nodeMap[value.rightFile.id];
-          const leftInfo = left.file.info;
-          const rightInfo = right.file.info;
+          const leftInfo = left.file.dodona;
+          const rightInfo = right.file.dodona;
           const directed = leftInfo && rightInfo;
-          if (directed && rightInfo.timestamp < leftInfo.timestamp)
+          if (directed && rightInfo.createdAt < leftInfo.createdAt)
             [left, right] = [right, left];
           left.neighbors.push(right);
           right.neighbors.push(left);
@@ -265,7 +265,7 @@ export default class PlagarismGraph extends DataView {
           }
         });
         node.source = outgoing > 1 && incomming == 0;
-        node.fillColor = programs[node.program].color;
+        node.fillColor = labels[node.label].color;
       });
     }, 50);
   }
@@ -280,16 +280,16 @@ export default class PlagarismGraph extends DataView {
     if (!this.dataLoaded) return {};
     if (this._nodeMap) return this._nodeMap;
     const nodeMap = {};
-    let programs = new Set();
+    let labels = new Set();
     Object.entries(this.files).forEach(([key, value]) => {
-      const program = (value.info ? value.info.program : "") || "N/A";
-      programs.add(program);
+      const label = (value.dodona ? value.dodona.labels : "") || "N/A";
+      labels.add(label);
       nodeMap[value.id] = {
         id: key,
         file: value,
         component: -1,
         neighbors: [],
-        program: program,
+        label: label,
         x: this.width * Math.random(),
         y: this.height * Math.random(),
         vx: 0,
@@ -298,13 +298,13 @@ export default class PlagarismGraph extends DataView {
     });
     const colorScale = d3
       .scaleOrdinal(d3.schemeCategory10)
-      .domain([...programs]);
-    programs = [...programs].sort().map((p) => ({
-      program: p,
+      .domain([...labels]);
+    labels = [...labels].sort().map((p) => ({
+      label: p,
       selected: true,
       color: colorScale(p),
     }));
-    this.programs = Object.fromEntries(programs.map((p) => [p.program, p]));
+    this.legend = Object.fromEntries(labels.map((p) => [p.label, p]));
     return (this._nodeMap = nodeMap);
   }
   @Watch("nodes")

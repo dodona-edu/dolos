@@ -42,7 +42,7 @@ export class Dolos {
               nameNL: row.name_nl as string,
               exerciseID: row.exercise_id as string,
               createdAt: new Date(row.created_at as string),
-              labels: row.full_name as string
+              labels: row.labels as string
             }))
             .map((row: DodonaInfo) => File.fromPath(path.join(dirname, row.filename), row));
         } catch(e) {
