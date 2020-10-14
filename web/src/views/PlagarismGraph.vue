@@ -66,7 +66,7 @@
 <script>
 /* eslint-disable */
 
-import { Vue, Component, Watch } from "vue-property-decorator";
+import { Component, Watch } from "vue-property-decorator";
 import DataView from "@/views/DataView";
 import * as d3 from "d3";
 
