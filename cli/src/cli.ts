@@ -25,7 +25,8 @@ program
   .option(
     "-l, --language <language>",
     Utils.indent(
-      "Programming language used in the submitted files.",
+      "Programming language used in the submitted files. Or 'chars' to do " +
+      "a character by character comparison.",
       Options.defaultLanguage
     ),
     Options.defaultLanguage

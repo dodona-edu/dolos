@@ -5,16 +5,27 @@ import { CodeTokenizer } from "./lib/tokenizer/codeTokenizer";
 import { File } from "./lib/file/file";
 import { Result } from "./lib/util/result";
 import { info } from "./lib/util/utils";
+import { Tokenizer } from "./lib/tokenizer/tokenizer";
+import { CharTokenizer } from "./lib/tokenizer/charTokenizer";
+
+function newTokenizer(language: string): Tokenizer {
+  if (language == "chars") {
+    return new CharTokenizer();
+  } else if (CodeTokenizer.supportedLanguages.includes(language)) {
+    return new CodeTokenizer(language);
+  }
+
+  throw new Error(`No tokenizer found for ${language}`);
+}
 
 export class Dolos {
-
   readonly options: Options;
-  private readonly tokenizer: CodeTokenizer;
+  private readonly tokenizer: Tokenizer;
   private readonly index: Index;
 
   constructor(customOptions?: CustomOptions) {
     this.options = new Options(customOptions);
-    this.tokenizer = new CodeTokenizer(this.options.language);
+    this.tokenizer = newTokenizer(this.options.language);
     this.index = new Index(this.tokenizer, this.options);
   }
 
@@ -40,5 +51,4 @@ export class Dolos {
 
     return this.index.compareFiles(files);
   }
-
 }
