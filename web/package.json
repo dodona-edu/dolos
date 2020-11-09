@@ -22,7 +22,7 @@
     "vuex": "^3.4.0"
   },
   "devDependencies": {
-    "@mdi/js": "^5.5.55",
+    "@mdi/js": "^5.8.55",
     "@types/d3": "^5.7.2",
     "@types/prismjs": "^1.16.1",
     "@typescript-eslint/eslint-plugin": "^2.33.0",
