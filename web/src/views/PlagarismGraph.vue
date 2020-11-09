@@ -161,11 +161,11 @@ export default class PlagarismGraph extends DataView {
           label: "Unavailable",
         },
       };
-      if (file.dodona) {
+      if (file.extra) {
         fileInfo.info = {
-          name: file.dodona.fullName,
-          timestamp: file.dodona.createdAt.toLocaleString(),
-          label: file.dodona.labels,
+          name: file.extra.fullName,
+          timestamp: file.extra.timestamp.toLocaleString(),
+          label: file.extra.labels,
         };
       }
       return fileInfo;
@@ -214,8 +214,8 @@ export default class PlagarismGraph extends DataView {
         .map(([key, value]) => {
           let left = nodeMap[value.leftFile.id];
           let right = nodeMap[value.rightFile.id];
-          const leftInfo = left.file.dodona;
-          const rightInfo = right.file.dodona;
+          const leftInfo = left.file.extra;
+          const rightInfo = right.file.extra;
           const directed = leftInfo && rightInfo;
           if (directed && rightInfo.createdAt < leftInfo.createdAt)
             [left, right] = [right, left];
@@ -283,7 +283,7 @@ export default class PlagarismGraph extends DataView {
     const nodeMap = {};
     let labels = new Set();
     Object.entries(this.files).forEach(([key, value]) => {
-      const label = (value.dodona ? value.dodona.labels : "") || "N/A";
+      const label = (value.extra ? value.extra.labels : "") || "N/A";
       labels.add(label);
       nodeMap[value.id] = {
         id: key,

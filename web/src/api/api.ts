@@ -24,7 +24,7 @@ export interface File {
   path: string;
   content: string;
   ast: string;
-  info?: {
+  extra?: {
     timestamp: Date;
     created_at: string;
     exercise_id: string;
@@ -135,7 +135,7 @@ function parseFiles(fileData: d3.DSVRowArray): ObjMap<File> {
           ...row,
           extra: !info ? undefined : {
             ...info,
-            createdAt: new Date(info.createdAt)
+            timestamp: new Date(info.createdAt)
           }
         }
       ];
