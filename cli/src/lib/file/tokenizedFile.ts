@@ -11,7 +11,7 @@ export class TokenizedFile extends File {
     public readonly ast: string,
     public readonly mapping: Array<Region>
   ) {
-    super(file.path, file.content);
+    super(file.path, file.content, file.extra);
     this.kmers = [];
   }
 

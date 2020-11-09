@@ -12,6 +12,10 @@ export default abstract class DataView extends Vue {
     return this.$store.state.data.diffs;
   }
 
+  get files(): ObjMap<Diff> {
+    return this.$store.state.data.files;
+  }
+
   get dataLoaded(): boolean {
     return this.$store.state.dataLoaded;
   }

@@ -2,9 +2,13 @@ import { Index } from "./lib/analyze";
 import { Report } from "./lib/analyze/report";
 import { CustomOptions, Options } from "./lib/util/options";
 import { CodeTokenizer } from "./lib/tokenizer/codeTokenizer";
-import { File } from "./lib/file/file";
+import { ExtraInfo, File } from "./lib/file/file";
 import { Result } from "./lib/util/result";
-import { info } from "./lib/util/utils";
+import { info, error } from "./lib/util/utils";
+import { csvParse } from "d3-dsv";
+import * as path from "path";
+import { default as fsWithCallbacks } from "fs";
+const fs = fsWithCallbacks.promises;
 
 export class Dolos {
 
@@ -20,9 +24,39 @@ export class Dolos {
 
   public async analyzePaths(paths: string[]): Promise<Report> {
     info("=== Starting report ===");
-    info(`Reading ${ paths.length} files`);
-    const files = await Result.all(paths.map(File.fromPath));
-    return this.analyze(files.ok());
+    let files = null;
+    if(paths.length == 1) {
+      const infoPath = paths[0];
+      if(infoPath.toLowerCase().endsWith(".csv")) {
+        info("Reading info-file from Dodona");
+        const dirname = path.dirname(infoPath);
+        try {
+          files = csvParse((await fs.readFile(infoPath)).toString())
+            .map((row:  d3.DSVRowString) => ({
+              filename: row.filename as string,
+              fullName: row.full_name as string,
+              id: row.id as string,
+              status: row.status as string,
+              submissionID: row.submission_id as string,
+              nameEN: row.name_en as string,
+              nameNL: row.name_nl as string,
+              exerciseID: row.exercise_id as string,
+              createdAt: new Date(row.created_at as string),
+              labels: row.labels as string
+            }))
+            .map((row: ExtraInfo) => File.fromPath(path.join(dirname, row.filename), row));
+        } catch(e) {
+          error(e);
+          throw new Error("The given '.csv'-file could not be opened");
+        }
+      } else {
+        throw new Error("You only gave one file wich is not a '.csv.'-file. ");
+      }
+    } else {
+      info(`Reading ${ paths.length} files`);
+      files = paths.map(location => File.fromPath(location));
+    }
+    return this.analyze((await Result.all(files)).ok());
   }
 
   public async analyze(
@@ -37,7 +71,6 @@ export class Dolos {
                       "be present in 100% of the files. This option does only" +
                       "make sense when comparing more than two files.");
     }
-
     return this.index.compareFiles(files);
   }
 
