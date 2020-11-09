@@ -127,7 +127,7 @@ program
     x => parseFloat(x),
     Options.defaultKmerLength
   )
-  .arguments("<locations...>")
+  .arguments("<paths...>")
   .action(async locations => {
     if(program.verbose){
       setLogging("info");

@@ -3,7 +3,7 @@ import { default as fsWithCallbacks } from "fs";
 import Identifiable from "../util/identifiable";
 const fs = fsWithCallbacks.promises;
 
-export interface DodonaInfo {
+export interface ExtraInfo {
   filename: string;
   fullName: string;
   id: string;
@@ -25,7 +25,7 @@ export class File extends Identifiable {
   public readonly charCount: number;
   public readonly lineCount: number;
   public readonly lines: Array<string>;
-  public readonly dodonaInfo?: DodonaInfo;
+  public readonly extra?: ExtraInfo;
 
   public static compare(a: File, b: File): number {
     if (a.path < b.path) {
@@ -54,12 +54,12 @@ export class File extends Identifiable {
    *
    * Returns a result with the File if it succeeded, or an Error otherwise.
    */
-  public static async fromPath(location: string, dodonaInfo?: DodonaInfo): Promise<Result<File>> {
+  public static async fromPath(location: string, extra?: ExtraInfo): Promise<Result<File>> {
     return Result.tryAwait(async () =>
       new File(
         location,
         (await fs.readFile(location)).toString(),
-        dodonaInfo
+        extra
       )
     );
   }
@@ -67,13 +67,13 @@ export class File extends Identifiable {
   constructor(
     public readonly path: string,
     content: string,
-    dodonaInfo?: DodonaInfo
+    extra?: ExtraInfo
   ) {
     super();
     this.charCount = content.length;
     this.lines = content.split("\n");
     this.lineCount = this.lines.length;
-    this.dodonaInfo = dodonaInfo;
+    this.extra = extra;
   }
 
   get content(): string {

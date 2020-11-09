@@ -2,9 +2,9 @@ import { Index } from "./lib/analyze";
 import { Report } from "./lib/analyze/report";
 import { CustomOptions, Options } from "./lib/util/options";
 import { CodeTokenizer } from "./lib/tokenizer/codeTokenizer";
-import { DodonaInfo, File } from "./lib/file/file";
+import { ExtraInfo, File } from "./lib/file/file";
 import { Result } from "./lib/util/result";
-import { info, warning, error } from "./lib/util/utils";
+import { info, error } from "./lib/util/utils";
 import { csvParse } from "d3-dsv";
 import * as path from "path";
 import { default as fsWithCallbacks } from "fs";
@@ -44,16 +44,15 @@ export class Dolos {
               createdAt: new Date(row.created_at as string),
               labels: row.labels as string
             }))
-            .map((row: DodonaInfo) => File.fromPath(path.join(dirname, row.filename), row));
+            .map((row: ExtraInfo) => File.fromPath(path.join(dirname, row.filename), row));
         } catch(e) {
           error(e);
           throw new Error("The given '.csv'-file could not be opened");
         }
       } else {
-        warning("You only gave one file wich is not a '.csv.'-file. ");
+        throw new Error("You only gave one file wich is not a '.csv.'-file. ");
       }
-    }
-    if(files === null) {
+    } else {
       info(`Reading ${ paths.length} files`);
       files = paths.map(location => File.fromPath(location));
     }
