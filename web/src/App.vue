@@ -10,13 +10,17 @@
         <v-toolbar-title @click="toHomeScreen">DOLOS</v-toolbar-title>
 
         <v-spacer></v-spacer>
-
         <v-btn
-          href="https://github.com/dodona-edu/dolos"
-          target="_blank"
-          text
+          icon
+          @click="toHomeScreen"
         >
-          <v-icon>mdi-github-circle</v-icon>
+          <v-icon>mdi-format-list-bulleted-square</v-icon>
+        </v-btn>
+        <v-btn
+          icon
+          @click="toGraphView"
+        >
+          <v-icon>mdi-graph</v-icon>
         </v-btn>
       </v-app-bar>
 
@@ -33,6 +37,10 @@ import { Vue, Component } from "vue-property-decorator";
 export default class App extends Vue {
   toHomeScreen(): void {
     this.$router.push("/");
+  }
+
+  toGraphView(): void {
+    this.$router.push("/graph/");
   }
 }
 </script>

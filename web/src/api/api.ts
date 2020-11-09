@@ -1,7 +1,7 @@
 import * as d3 from "d3";
 // import { assertType } from "typescript-is";
 
-const DATA_URL = "/custom/hittegolf";
+const DATA_URL = "/data/";
 
 // TODO: replace with actual assertion
 function assertType<T>(item: T | undefined | null): T {
@@ -129,11 +129,11 @@ async function fetchBlocks(
 function parseFiles(fileData: d3.DSVRowArray): ObjMap<File> {
   return Object.fromEntries(
     fileData.map(row => {
-      const info = JSON.parse(row.dodona || "undefined");
+      const info = JSON.parse(row.extra || "null");
       return [
         row.id, {
           ...row,
-          dodona: !info ? undefined : {
+          extra: !info ? undefined : {
             ...info,
             createdAt: new Date(info.createdAt)
           }

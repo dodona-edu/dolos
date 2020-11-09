@@ -78,7 +78,7 @@ export default class PlagarismGraph extends DataView {
     d3.zoom().on("zoom", () => {
       container.attr("transform", d3.event.transform);
     })(svg);
-    var defs = svg.append("svg:defs");
+    const defs = svg.append("svg:defs");
     defs
       .append("svg:marker")
       .attr("id", "arrow-marker")
@@ -135,6 +135,7 @@ export default class PlagarismGraph extends DataView {
       this.height = this.$refs.container.clientHeight;
     };
     window.addEventListener("resize", this.resizeHandler);
+    this.updateGraph();
   }
   data() {
     return {
