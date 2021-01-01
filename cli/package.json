@@ -46,6 +46,6 @@
     "tree-sitter-c-sharp": "^0.16.1",
     "tree-sitter-java": "^0.16.0",
     "tree-sitter-javascript": "^0.16.0",
-    "tree-sitter-python": "^0.16.0"
+    "tree-sitter-python": "^0.17.0"
   }
 }
