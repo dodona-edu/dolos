@@ -36,7 +36,7 @@
   },
   "dependencies": {
     "chalk": "^4.0.0",
-    "cliui": "^6.0.0",
+    "cliui": "^7.0.4",
     "commander": "^5.1.0",
     "csv-stringify": "^5.5.0",
     "express": "^4.17.1",
