@@ -103,9 +103,11 @@ export default class BarcodeChart extends Vue {
     const data = [temp];
     const stackedData = d3.stack().keys(subgroups)(data);
 
-    const y = d3.scaleLinear()
-      .domain([0, this.maxLines])
-      .range([this.lines, 0]);
+    const y: d3.ScaleLinear<number, number> =
+      d3.scaleLinear()
+        .domain([0, this.maxLines])
+        .range([this.lines, 0]);
+    const ys: (d: number) => number = (d: number) => y(d) || 0;
 
     svg
       .insert("g", ":first-child")
@@ -124,8 +126,8 @@ export default class BarcodeChart extends Vue {
       // enter a second time = loop subgroup per subgroup to add all rectangles
       .data(function (d) { return d; })
       .enter().append("rect")
-      .attr("y", d => { return this.lines - y(d[0]); })
-      .attr("height", function (d) { return y(d[0]) - y(d[1]); })
+      .attr("y", d => { return this.lines - ys(d[0]); })
+      .attr("height", function (d) { return ys(d[0]) - ys(d[1]); })
       .attr("width", this.lines)
       .on("mouseover", (a, b, rect) => this.mouseover(map, a, b, rect))
       .on("mouseleave", (a, b, rect) => this.mouseleave(map, a, b, rect))
