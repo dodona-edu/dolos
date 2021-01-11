@@ -13,7 +13,7 @@
     "d3": "^6.3.1",
     "reflect-metadata": "^0.1.13",
     "roboto-fontface": "*",
-    "typescript-is": "^0.16.3",
+    "typescript-is": "^0.17.0",
     "vue": "^2.6.11",
     "vue-class-component": "^7.2.3",
     "vue-property-decorator": "^8.4.2",
