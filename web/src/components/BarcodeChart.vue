@@ -109,29 +109,30 @@ export default class BarcodeChart extends Vue {
         .range([this.lines, 0]);
     const ys: (d: number) => number = (d: number) => y(d) || 0;
 
-    svg
-      .insert("g", ":first-child")
-      .selectAll("g")
-      .data(stackedData)
-      .enter().append("g")
-      .attr("class", function (d) {
-        const blocks = map[+d.key];
-        let classes = `barcodeChartBar ${blocks.join(" ")}`;
-        if (blocks.length > 0) {
-          classes += " " + "marked";
-        }
-        return classes;
-      })
-      .selectAll("rect")
-      // enter a second time = loop subgroup per subgroup to add all rectangles
-      .data(function (d) { return d; })
-      .enter().append("rect")
-      .attr("y", d => { return this.lines - ys(d[0]); })
-      .attr("height", function (d) { return ys(d[0]) - ys(d[1]); })
-      .attr("width", this.lines)
-      .on("mouseover", (a, b, rect) => this.mouseover(map, a, b, rect))
-      .on("mouseleave", (a, b, rect) => this.mouseleave(map, a, b, rect))
-      .on("click", (a, b, rect) => this.mouseclick(map, a, b, rect));
+    const selection =
+      svg
+        .insert("g", ":first-child")
+        .selectAll("g")
+        .data(stackedData)
+        .enter().append("g")
+        .attr("class", function (d) {
+          const blocks = map[+d.key];
+          let classes = `barcodeChartBar ${blocks.join(" ")}`;
+          if (blocks.length > 0) {
+            classes += " " + "marked";
+          }
+          return classes;
+        })
+        .selectAll("rect")
+        // enter a second time = loop subgroup per subgroup to add all rectangles
+        .data(function (d) { return d; })
+        .enter().append("rect")
+        .attr("y", d => { return this.lines - ys(d[0]); })
+        .attr("height", function (d) { return ys(d[0]) - ys(d[1]); })
+        .attr("width", this.lines);
+    selection.on("mouseover", () => this.mouseover(map, selection.nodes()));
+    selection.on("mouseleave", () => this.mouseleave(map, selection.nodes()));
+    selection.on("click", () => this.mouseclick(map, selection.nodes()));
   }
 
   getKey(rect: SVGRectElement[] | ArrayLike<SVGRectElement>): number {
@@ -139,7 +140,7 @@ export default class BarcodeChart extends Vue {
     return d3.select(rect[0].parentNode).datum().key;
   }
 
-  mouseover(map: {[key: number]: Array<string>}, a: any, b: any, rect: SVGRectElement[] | ArrayLike<SVGRectElement>):
+  mouseover(map: {[key: number]: Array<string>}, rect: SVGRectElement[] | ArrayLike<SVGRectElement>):
     void {
     const classes = map[this.getKey(rect)];
     if (classes.length) {
@@ -147,7 +148,7 @@ export default class BarcodeChart extends Vue {
     }
   }
 
-  mouseleave(map: {[key: number]: Array<string>}, a: any, b: any, rect: SVGRectElement[] | ArrayLike<SVGRectElement>):
+  mouseleave(map: {[key: number]: Array<string>}, rect: SVGRectElement[] | ArrayLike<SVGRectElement>):
     void {
     const classes = map[this.getKey(rect)];
     if (classes.length) {
@@ -155,7 +156,7 @@ export default class BarcodeChart extends Vue {
     }
   }
 
-  mouseclick(map: {[key: number]: Array<string>}, a: any, b: any, rect: SVGRectElement[] | ArrayLike<SVGRectElement>):
+  mouseclick(map: {[key: number]: Array<string>}, rect: SVGRectElement[] | ArrayLike<SVGRectElement>):
     void {
     const classes = map[this.getKey(rect)];
     if (classes.length) {

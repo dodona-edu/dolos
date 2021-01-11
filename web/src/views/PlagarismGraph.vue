@@ -75,8 +75,8 @@ export default class PlagarismGraph extends DataView {
   created() {
     const svg = d3.create("svg").attr("viewBox", [0, 0, 500, 500]);
     const container = svg.append("g");
-    d3.zoom().on("zoom", () => {
-      container.attr("transform", d3.event.transform);
+    d3.zoom().on("zoom", event => {
+      container.attr("transform", event.transform);
     })(svg);
     const defs = svg.append("svg:defs");
     defs
@@ -348,27 +348,24 @@ export default class PlagarismGraph extends DataView {
   drag() {
     return d3
       .drag()
-      .on("start", () => {
-        const event = d3.event;
+      .on("start", event => {
         if (!event.active) this.simulation.alphaTarget(0.3).restart();
         event.subject.fx = event.subject.x;
         event.subject.fy = event.subject.y;
         event.subject.justDragged = false;
       })
-      .on("drag", () => {
-        const event = d3.event;
+      .on("drag", event => {
         event.subject.fx = event.x;
         event.subject.fy = event.y;
         event.subject.justDragged = true;
       })
-      .on("end", () => {
-        const event = d3.event;
+      .on("end", event => {
         if (!event.active) this.simulation.alphaTarget(0);
         event.subject.fx = null;
         event.subject.fy = null;
         if (!event.subject.justDragged) {
           // clicked
-          if (event.subject.index == this.selectedNode) {
+          if (event.subject.index === this.selectedNode) {
             this.removeSelectedNode();
           } else {
             this.removeSelectedNode();
