@@ -44,7 +44,7 @@
     "eslint-plugin-vue": "^6.2.2",
     "prismjs": "^1.20.0",
     "sass": "^1.19.0",
-    "sass-loader": "^8.0.0",
+    "sass-loader": "^10.1.0",
     "ttypescript": "^1.5.10",
     "typescript": "~3.9.3",
     "vue-cli-plugin-vuetify": "~2.0.6",
