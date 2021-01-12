@@ -24,6 +24,7 @@ export interface File {
   path: string;
   content: string;
   ast: string;
+  /* eslint-disable camelcase */
   extra?: {
     timestamp: Date;
     created_at: string;
@@ -36,6 +37,7 @@ export interface File {
     name_en: string;
     name_nl: string;
   };
+  /* eslint-enable camelcase */
 }
 
 export interface Selection {
@@ -43,6 +45,13 @@ export interface Selection {
   startCol: number;
   endRow: number;
   endCol: number;
+}
+
+export interface Kmer {
+  id: number;
+  hash: number;
+  data: string;
+  files: File[];
 }
 
 export interface PairedOccurrence {
@@ -75,13 +84,6 @@ export interface Diff {
   continuousOverlap: number;
   totalOverlap: number;
   blocks: Array<Block> | null;
-}
-
-export interface Kmer {
-  id: number;
-  hash: number;
-  data: string;
-  files: File[];
 }
 
 export interface Metadata {

@@ -136,7 +136,7 @@ export default class BarcodeChart extends Vue {
   }
 
   getKey(rect: SVGRectElement[] | ArrayLike<SVGRectElement>): number {
-    // @ts-expect-error
+    // @ts-expect-error object is of type 'unknown', too deep in D3 types?
     return d3.select(rect[0].parentNode).datum().key;
   }
 

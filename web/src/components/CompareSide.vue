@@ -106,7 +106,7 @@ export default class CompareSide extends Vue {
     (this.$refs.pre as HTMLElement)
       .addEventListener("click", () => this.$emit("selectionclick", this.identifier, []));
 
-    for (const value of document.querySelectorAll(`#${this.identifier} .marked-code`) as NodeListOf<HTMLElement>) {
+    for (const value of document.querySelectorAll(`#${this.identifier} .marked-code`)) {
       const filteredClassList = [...value.classList].filter(className => className.startsWith(ID_START));
       value.addEventListener("click", (ev: Event) => {
         this.$emit("selectionclick", this.identifier, filteredClassList);
