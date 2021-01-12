@@ -1,4 +1,4 @@
-import { Suite } from "benchmark";
+import { Suite, Event } from "benchmark";
 import crypto from "crypto";
 
 import { Hash } from "../lib/hashing/hashFilter";

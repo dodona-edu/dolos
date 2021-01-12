@@ -5,7 +5,7 @@ import { CodeTokenizer } from "./lib/tokenizer/codeTokenizer";
 import { ExtraInfo, File } from "./lib/file/file";
 import { Result } from "./lib/util/result";
 import { info, error } from "./lib/util/utils";
-import { csvParse } from "d3-dsv";
+import { csvParse, DSVRowString } from "d3-dsv";
 import * as path from "path";
 import { default as fsWithCallbacks } from "fs";
 const fs = fsWithCallbacks.promises;
@@ -32,7 +32,7 @@ export class Dolos {
         const dirname = path.dirname(infoPath);
         try {
           files = csvParse((await fs.readFile(infoPath)).toString())
-            .map((row:  d3.DSVRowString) => ({
+            .map((row:  DSVRowString) => ({
               filename: row.filename as string,
               fullName: row.full_name as string,
               id: row.id as string,
