@@ -54,7 +54,7 @@ async function setup(): Promise<Hash[]> {
     console.log(event.target?.toString());
   });
 
-  const done = new Promise((r, e) => {
+  const done = new Promise<void>((r, e) => {
     suite.on("complete", function () {
       r();
     });
