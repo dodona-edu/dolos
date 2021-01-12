@@ -1606,7 +1606,7 @@
     "@types/d3-interpolate" "*"
     "@types/d3-selection" "*"
 
-"@types/d3@^6.3.1":
+"@types/d3@^6.2.0":
   version "6.2.0"
   resolved "https://registry.yarnpkg.com/@types/d3/-/d3-6.2.0.tgz#db3c70ad6479cf79b15840a3d15338a9754384e7"
   integrity sha512-XhQ6sCTu+CrFLqJMsg/uRPZQrt5FlCPjPE/wvsSBYoaOZ9C1chdJSS9+2oR8+Xtk6DKGewa7/UP5icJRwAryEA==
@@ -12770,10 +12770,10 @@ typedarray@^0.0.6:
   resolved "https://registry.yarnpkg.com/typedarray/-/typedarray-0.0.6.tgz#867ac74e3864187b1d3d47d996a78ec5c8830777"
   integrity sha1-hnrHTjhkGHsdPUfZlqeOxciDB3c=
 
-typescript-is@^0.16.3:
-  version "0.16.3"
-  resolved "https://registry.yarnpkg.com/typescript-is/-/typescript-is-0.16.3.tgz#85eefd5f13ee03ecb0d4aed34c0ac0c773d271c6"
-  integrity sha512-Vlpo9YFnjWEBUyfD5Yx3MLYupxMdK15ZBHkDYOWpRZWcjXS2XNScKMWhY5JSouu9+q4wduGz/v1lfZdW9Hk+qQ==
+typescript-is@^0.17.0:
+  version "0.17.0"
+  resolved "https://registry.yarnpkg.com/typescript-is/-/typescript-is-0.17.0.tgz#b810e240463739d212d7e91f92b275f3a285ef29"
+  integrity sha512-Tq0b/tcw0khcKFY3V8Md4x2np9LGNvFu5KUlPEZMx1ryUyzhSF+u4gqF9EleiH60g8UFJFzG4w4Aj5ISslxvKg==
   dependencies:
     nested-error-stacks "^2"
     tsutils "^3.17.1"
