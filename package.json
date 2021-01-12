@@ -1,0 +1,8 @@
+{
+  "name": "dolos-meta",
+  "license": "MIT",
+  "workspaces": [
+    "cli/",
+    "web/"
+  ]
+}
