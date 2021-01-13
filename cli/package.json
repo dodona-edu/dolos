@@ -22,6 +22,9 @@
   "author": "Bart Mesuere <Bart.Mesuere@UGent.be>",
   "license": "MIT",
   "private": false,
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org"
+  },
   "devDependencies": {
     "@types/benchmark": "^2.1.0",
     "@types/d3": "^6.2.0",
