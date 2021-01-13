@@ -13,8 +13,9 @@
     "test-winnow-performance": "tsc && time head -c 1000000 /dev/random | node dist/bin/hash.js > /dev/null",
     "test": "nyc ava",
     "test:watch": "ava --watch",
-    "build": "tsc && rsync -rc --delete ../web/dist/ dist/web/",
-    "lint": "eslint --ext .ts src/"
+    "build": "tsc",
+    "lint": "eslint --ext .ts src/",
+    "copy:web": "rsync -rc --delete ../web/dist/ dist/web/"
   },
   "repository": "git@github.com:dodona-edu/dolos.git",
   "author": "Bart Mesuere <Bart.Mesuere@UGent.be>",
