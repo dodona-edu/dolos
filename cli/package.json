@@ -18,7 +18,6 @@
     "copy:web": "rsync -rc --delete ../web/dist/ dist/web/"
   },
   "repository": "git@github.com:dodona-edu/dolos.git",
-  "author": "Bart Mesuere <Bart.Mesuere@UGent.be>",
   "license": "MIT",
   "private": false,
   "publishConfig": {
