@@ -1,7 +1,7 @@
 {
-  "name": "dolos",
-  "version": "0.0.1",
-  "description": "Plagiarism detection for Dodona based on the Winnowing algorithm",
+  "name": "@dodona/dolos",
+  "version": "0.0.0",
+  "description": "Code similarity detection based on the Winnowing algorithm",
   "main": "dist/dolos.js",
   "types": "dist/dolos.d.ts",
   "bin": {
@@ -33,6 +33,7 @@
     "benchmark": "^2.1.4",
     "d3": "^6.3.1",
     "eslint": "^6.8.0",
+    "np": "^7.2.0",
     "nyc": "^15.0.1",
     "ts-node": "^9.1.1",
     "typescript": "^4.1.3"
