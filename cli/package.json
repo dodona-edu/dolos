@@ -20,6 +20,7 @@
   "repository": "git@github.com:dodona-edu/dolos.git",
   "license": "MIT",
   "private": false,
+  "access": "public",
   "publishConfig": {
     "registry": "https://registry.npmjs.org"
   },
