@@ -6,3 +6,5 @@ yarn-error.log
 dolos-analysis-*
 dolos-report-*
 .nyc_output
+*.tgz
+*.tsbuildinfo

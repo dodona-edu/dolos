@@ -1,2 +1,0 @@
-#!/bin/sh
-node --max-old-space-size="$(( 1024 * 4 ))" ./dist/cli.js $@

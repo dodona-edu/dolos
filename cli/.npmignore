@@ -1,0 +1,8 @@
+samples/
+dist/test/
+dist/bin/
+dist/web/data/
+src/test/
+.nyc_output/
+*.tgz
+dolos-report-*

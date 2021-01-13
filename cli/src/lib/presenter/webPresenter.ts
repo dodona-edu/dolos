@@ -25,7 +25,7 @@ export class WebPresenter extends CsvPresenter {
 
     const app: Express = express();
     app.use("/data", express.static(reportDir));
-    app.use(express.static(path.join(__dirname, "..", "..", "..", "..", "web", "dist")));
+    app.use(express.static(path.join(__dirname, "..", "..", "web")));
 
     return this.run(app);
   }
