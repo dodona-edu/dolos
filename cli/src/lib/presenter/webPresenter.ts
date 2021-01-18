@@ -25,7 +25,9 @@ export class WebPresenter extends CsvPresenter {
 
     const app: Express = express();
     app.use("/data", express.static(reportDir));
-    app.use(express.static(path.join(__dirname, "..", "..", "web")));
+    const staticDir = path.dirname(require.resolve("@dodona/dolos-static-web"));
+    console.log(staticDir);
+    app.use(express.static(staticDir));
 
     return this.run(app);
   }
