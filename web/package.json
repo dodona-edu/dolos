@@ -1,7 +1,8 @@
 {
-  "name": "dolos-web",
+  "name": "@dodona/dolos-static-web",
+  "description": "Static files for the Dolos web user interface",
   "version": "0.0.1",
-  "private": true,
+  "main": "dist/index.html",
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
@@ -31,6 +32,7 @@
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^5.0.0",
     "eslint-plugin-vue": "^6.2.2",
+    "np": "^7.2.0",
     "prismjs": "^1.20.0",
     "reflect-metadata": "^0.1.13",
     "roboto-fontface": "*",
@@ -48,5 +50,11 @@
     "vuetify": "^2.2.11",
     "vuetify-loader": "^1.3.0",
     "vuex": "^3.4.0"
+  },
+  "license": "MIT",
+  "repository": "git@github.com:dodona-edu/dolos.git",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org",
+    "access": "public"
   }
 }
