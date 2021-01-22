@@ -69,20 +69,20 @@ export class Report {
     }
 
     info(`Combining ${ this.kmers.size } shared kmers into diffs.`);
-    let ints = this.build();
+    let diffs = this.build();
 
-    info(`Cleaning ${ ints.length} diffs.`);
-    ints = ints.map(diff => {
+    info(`Cleaning ${ diffs.length} diffs.`);
+    diffs = diffs.map(diff => {
       diff.removeSmallerThan(this.options.minBlockLength);
       diff.squash();
       return diff;
     });
 
     info("Filtering diffs.");
-    ints = ints.filter(i => i.blockCount > 0);
+    diffs = diffs.filter(i => i.blockCount > 0);
 
-    info(`Calculating the score of ${ ints.length } diffs.`);
-    this.scored = ints.map(i => this.calculateScore(i));
+    info(`Calculating the score of ${ diffs.length } diffs.`);
+    this.scored = diffs.map(i => this.calculateScore(i));
 
     info(`Keeping diffs with similarity >= ${ this.options.minSimilarity }`);
     this.scored = this.scored.filter(s =>
@@ -177,7 +177,7 @@ export class Report {
     const rightTotal = diff.rightFile.kmers.length;
     return {
       diff: diff,
-      overlap: leftCovered,
+      overlap: leftCovered + rightCovered,
       longest: diff.largestBlockLength(),
       similarity: (leftCovered + rightCovered) / (leftTotal + rightTotal)
     };
