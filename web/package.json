@@ -47,6 +47,6 @@
     "vue-template-compiler": "^2.6.11",
     "vuetify": "^2.2.11",
     "vuetify-loader": "^1.3.0",
-    "vuex": "^3.4.0"
+    "vuex": "^3.6.2"
   }
 }
