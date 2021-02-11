@@ -1,6 +1,6 @@
 {
   "name": "@dodona/dolos",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Code similarity detection based on the Winnowing algorithm",
   "main": "dist/dolos.js",
   "types": "dist/dolos.d.ts",
@@ -40,11 +40,11 @@
     "typescript": "^4.1.3"
   },
   "dependencies": {
-    "d3": "^6.3.1",
     "chalk": "^4.0.0",
     "cliui": "^7.0.4",
     "commander": "^6.2.1",
     "csv-stringify": "^5.5.0",
+    "d3": "^6.3.1",
     "express": "^4.17.1",
     "nprime": "^0.2.1",
     "tree-sitter": "^0.17.1",

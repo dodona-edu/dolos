@@ -2,26 +2,8 @@
 
 A quick guide on how to perform plagiarism detection on a Dodona exercise.
 
-First, make sure [yarn](https://classic.yarnpkg.com/en/docs/install) and [node](https://nodejs.org/en/download/) are installed.
-
-## Install Dolos
-
-1. Clone the repository
-    ```
-    git clone git@github.com:dodona-edu/dolos.git
-    ```
-2. Go to the `web/` directory, install and build the Web UI.
-    ```
-    cd web/
-    yarn install
-    yarn build
-    ```
-3. Go to the `cli/` directory, install and build the CLI.
-    ```
-    cd ../cli/
-    yarn install
-    yarn build
-    ```
+First [follow the installation instructions](./cli/README.md#Installation) to
+install Dolos on your system.
 
 ## Fetch submissions from Dodona
 
