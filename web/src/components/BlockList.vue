@@ -151,7 +151,9 @@ export default class BlockList extends Vue {
   dataTableSelection: [BlockWithId] | [] = [];
 
   get blockLengths(): Array<number> {
-    return this.diff.blocks?.map(block => block.pairs.length)!;
+    const lengths = this.diff.blocks?.map(block => block.pairs.length);
+    if (!lengths) throw new Error("blocks are not loaded");
+    return lengths;
   }
 
   get minBlockKmers(): number {

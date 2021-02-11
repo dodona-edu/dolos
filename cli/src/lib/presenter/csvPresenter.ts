@@ -1,7 +1,7 @@
 import { Presenter } from "./presenter";
 import csvStringify from "csv-stringify";
 import { Writable } from "stream";
-import { createWriteStream, promises as fs } from "fs";
+import { createWriteStream, promises, promises as fs } from "fs";
 import { Block } from "../analyze/block";
 import { Diff } from "../analyze/diff";
 
@@ -55,8 +55,8 @@ export class CsvPresenter extends Presenter {
     }), null, 2);
   }
 
-  public writeBlocks(out: Writable, diff: Diff): void {
-    out.write(this.convertBlocksToJSON(diff.blocks()));
+  public async writeBlocks(out: promises.FileHandle, diff: Diff): Promise<void> {
+    await out.write(this.convertBlocksToJSON(diff.blocks()));
   }
 
   public writeDiffs(out: Writable): void {
@@ -93,7 +93,8 @@ export class CsvPresenter extends Presenter {
         "id": f => f.id,
         "path": f => f.path,
         "content": f => f.content,
-        "ast": f => f.ast
+        "ast": f => f.ast,
+        "extra": f => JSON.stringify(f.extra)
       });
   }
 
@@ -108,7 +109,7 @@ export class CsvPresenter extends Presenter {
       });
   }
 
-  async present(): Promise<void> {
+  async writeToDirectory(): Promise<string> {
     const dirName = `dolos-report-${ new Date().toISOString() }`;
     await fs.mkdir(dirName);
 
@@ -120,9 +121,9 @@ export class CsvPresenter extends Presenter {
     await fs.mkdir(`${dirName}/blocks`);
     for (const diff of this.report.scoredDiffs) {
       const id = diff.diff.id;
-      const stream = createWriteStream(`${dirName}/blocks/${id}.json`);
-      this.writeBlocks(stream, diff.diff);
-      stream.end();
+      const file = await fs.open(`${dirName}/blocks/${id}.json`, "w");
+      await this.writeBlocks(file, diff.diff);
+      await file.close();
     }
     console.log("Blocks written");
     this.writeKmers(createWriteStream(`${dirName}/kmers.csv`));
@@ -130,6 +131,11 @@ export class CsvPresenter extends Presenter {
     this.writeFiles(createWriteStream(`${dirName}/files.csv`));
     console.log("Files written.");
     console.log("Completed");
+    return dirName;
+  }
+
+  async present(): Promise<void> {
+    await this.writeToDirectory();
   }
 
 }

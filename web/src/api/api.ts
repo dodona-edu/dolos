@@ -1,6 +1,8 @@
 import * as d3 from "d3";
 // import { assertType } from "typescript-is";
 
+const DATA_URL = "/data/";
+
 // TODO: replace with actual assertion
 function assertType<T>(item: T | undefined | null): T {
   if (item == null) {
@@ -22,6 +24,20 @@ export interface File {
   path: string;
   content: string;
   ast: string;
+  /* eslint-disable camelcase */
+  extra?: {
+    timestamp: Date;
+    created_at: string;
+    exercise_id: string;
+    filename: string;
+    full_name: string;
+    id: string;
+    status: string;
+    submission_id: string;
+    name_en: string;
+    name_nl: string;
+  };
+  /* eslint-enable camelcase */
 }
 
 export interface Selection {
@@ -29,6 +45,13 @@ export interface Selection {
   startCol: number;
   endRow: number;
   endCol: number;
+}
+
+export interface Kmer {
+  id: number;
+  hash: number;
+  data: string;
+  files: File[];
 }
 
 export interface PairedOccurrence {
@@ -63,13 +86,6 @@ export interface Diff {
   blocks: Array<Block> | null;
 }
 
-export interface Kmer {
-  id: number;
-  hash: number;
-  data: string;
-  files: File[];
-}
-
 export interface Metadata {
   [k: string]: unknown;
 }
@@ -82,38 +98,51 @@ export interface ApiData {
 }
 
 async function fetchFiles(
-  url = "/data/files.csv"
+  url = DATA_URL + "/files.csv"
 ): Promise<d3.DSVRowArray> {
   return await d3.csv(url);
 }
 
 async function fetchDiffs(
-  url = "/data/diffs.csv"
+  url = DATA_URL + "/diffs.csv"
 ): Promise<d3.DSVRowArray> {
   return await d3.csv(url);
 }
 
 async function fetchKmers(
-  url = "/data/kmers.csv"
+  url = DATA_URL + "/kmers.csv"
 ): Promise<d3.DSVRowArray> {
   return await d3.csv(url);
 }
 
 async function fetchMetadata(
-  url = "/data/metadata.csv"
+  url = DATA_URL + "/metadata.csv"
 ): Promise<d3.DSVRowArray> {
   return await d3.csv(url);
 }
 
 async function fetchBlocks(
   diffId: number,
-  url = "/data/blocks/"
+  url = DATA_URL + "/blocks/"
 ): Promise<string> {
   return await d3.text(url + diffId + ".json");
 }
 
 function parseFiles(fileData: d3.DSVRowArray): ObjMap<File> {
-  return Object.fromEntries(fileData.map(row => [row.id, row]));
+  return Object.fromEntries(
+    fileData.map(row => {
+      const info = JSON.parse(row.extra || "null");
+      return [
+        row.id, {
+          ...row,
+          extra: !info ? undefined : {
+            ...info,
+            timestamp: new Date(info.createdAt)
+          }
+        }
+      ];
+    })
+  );
 }
 
 function parseBlocks(blocksJson: string, kmers: ObjMap<Kmer>): Block[] {
@@ -138,7 +167,7 @@ function parseBlocks(blocksJson: string, kmers: ObjMap<Kmer>): Block[] {
 function parseDiffs(
   diffData: d3.DSVRowArray,
   files: ObjMap<File>,
-  kmers: ObjMap<Kmer>,
+  kmers: ObjMap<Kmer>
 ): ObjMap<Diff> {
   return Object.fromEntries(
     diffData.map(row => {
