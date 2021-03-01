@@ -34,7 +34,7 @@
     "prismjs": "^1.20.0",
     "reflect-metadata": "^0.1.13",
     "roboto-fontface": "*",
-    "sass": "^1.19.0",
+    "sass": "^1.32.8",
     "sass-loader": "^10.0.0",
     "ttypescript": "^1.5.10",
     "typescript": "~4.1.3",
