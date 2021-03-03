@@ -1,5 +1,4 @@
-import { Readable } from "stream";
-import { Hash, HashFilter } from "./hashFilter";
+import { Fingerprint, HashFilter } from "./hashFilter";
 import { RollingHash } from "./rollingHash";
 
 export class NoFilter extends HashFilter {
@@ -20,17 +19,17 @@ export class NoFilter extends HashFilter {
    * Returns an async interator that yields tuples containing a hashing and its
    * corresponding k-mer position. Can be called successively on multiple files.
    *
-   * @param stream The readable stream of a file (or stdin) to process. Such
-   * stream can be created using fs.createReadStream("path").
+   * @param tokens The list of tokens to process.
    */
-  public async *hashes(stream: Readable): AsyncIterableIterator<Hash> {
+  public async *fingerprints(tokens: string[]): AsyncIterableIterator<Fingerprint> {
     const hash = new RollingHash(this.k);
-    let window = "";
+    let window: string[] = [];
     let filePos: number = -1 * this.k;
 
-    for await (const byte of HashFilter.readBytes(stream)) {
+    for await (const [byte, token] of this.hashTokens(tokens)) {
       filePos++;
-      window = window.slice(-this.k+1) + String.fromCharCode(byte);
+      window = window.slice(-this.k+1);
+      window.push(token);
       if (filePos < 0) {
         hash.nextHash(byte);
         continue;

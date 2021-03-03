@@ -10,7 +10,7 @@ export class SharedKmer extends Identifiable {
 
   constructor(
     public readonly hash: number,
-    public readonly kmer: string,
+    public readonly kmer: Array<string>,
   ) { super(); }
 
   public add(part: Occurrence): void {

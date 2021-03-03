@@ -25,7 +25,7 @@ export interface ASTRegion {
   /**
    * The AST data corresponding to this kmer.
    */
-  data: string;
+  data: Array<string>;
 }
 
 /**

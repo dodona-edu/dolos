@@ -1,17 +1,15 @@
 /* tslint:disable:no-bitwise */
-/// <reference types="../../../typings/nprime" />
-import nPrime from "nprime";
 
 export class RollingHash {
-  private readonly mod: number;
-  private readonly base: number;
-  private readonly k: number;
+  protected readonly mod: number;
+  protected readonly base: number;
+  protected readonly k: number;
 
-  private readonly memory: number[];
-  private readonly maxBase: number;
+  protected readonly memory: number[];
+  protected readonly maxBase: number;
 
-  private i = 0;
-  private hash = 0;
+  protected i = 0;
+  protected hash = 0;
 
   /**
    * Generates a rolling hashing object that can be used to create hashes of a
@@ -20,18 +18,13 @@ export class RollingHash {
    *
    * @param k The size of the window/length of the string of which the hashes
    * are calculated.
-   * @param base The base to be used for the hashing function. By default, a prime
-   * number around 2^13 is used.
-   * @param mod The modulus to be used for the hashing function. By default, a
-   * prime number just over 2^25 is used.
    */
-  constructor(k: number, base?: number, mod?: number) {
+  constructor(k: number) {
     this.k = k;
-    this.mod = mod ? mod : nPrime.next(1 << 25);
-    this.base = base ? base : nPrime.next(Math.ceil(Math.sqrt(this.mod)));
-
-    this.memory = new Array(k).fill(0);
+    this.mod = 33554467;
+    this.base = 5801;
     this.maxBase = this.mod - this.modPow(this.base, this.k, this.mod);
+    this.memory = new Array(this.k).fill(0);
   }
 
   /**

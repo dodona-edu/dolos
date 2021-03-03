@@ -44,14 +44,14 @@ export abstract class Tokenizer {
    *
    * @param text The text buffer to stringify
    */
-  public tokenizeWithMapping(text: string): [string, Region[]] {
-    let resultString = "";
+  public tokenizeWithMapping(text: string): [string[], Region[]] {
+    const resultTokens: Array<string> = [];
     const positionMapping: Array<Region> = [];
     for (const { token, location } of this.generateTokens(text)) {
-      resultString += token;
-      positionMapping.push(...new Array(token.length).fill(location));
+      resultTokens.push(token);
+      positionMapping.push(location);
     }
-    return [resultString, positionMapping];
+    return [resultTokens, positionMapping];
   }
 
   /**

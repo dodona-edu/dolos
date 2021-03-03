@@ -1,27 +1,26 @@
 import test from "ava";
-import { Readable } from "stream";
 import { NoFilter } from "../lib/hashing/noFilter";
 import { WinnowFilter } from "../lib/hashing/winnowFilter";
 
 test("Winnow on comparable files", async t => {
-  const textA = "abcdefg";
-  const textB = "bcdabcefg";
+  const textA = "abcdefg".split("");
+  const textB = "bcdabcefg".split("");
   const k = 2;
 
   const filter = new WinnowFilter(k, 2);
   const hashes: Map<number, number> = new Map();
   // Build a Map from hashing to position
-  for await (const { hash, start: posA } of filter.hashesFromString(textA)) {
+  for await (const { hash, start: posA } of filter.fingerprints(textA)) {
     hashes.set(hash, posA);
   }
 
   let overlap = 0;
-  for await (const { hash, start: posB } of filter.hashesFromString(textB)) {
+  for await (const { hash, start: posB } of filter.fingerprints(textB)) {
     if (hashes.has(hash)) {
       ++overlap;
       const posA = hashes.get(hash) as number;
       // This test assumes no hashcollisions
-      t.is(textA.slice(posA, posA + k), textB.slice(posB, posB + k));
+      t.deepEqual(textA.slice(posA, posA + k), textB.slice(posB, posB + k));
     }
   }
   // For each equal triplet there has to be a common winnowed hashing
@@ -29,78 +28,51 @@ test("Winnow on comparable files", async t => {
 });
 
 test("no hashes for text shorter than k", async t => {
-  const text = "abcd";
+  const text = "abcd".split("");
   const filter = new WinnowFilter(5, 1);
   const hashes = [];
 
-  for await (const hash of filter.hashesFromString(text)) {
+  for await (const hash of filter.fingerprints(text)) {
     hashes.push(hash);
   }
   t.is(0, hashes.length);
 });
 
 test("1 hashing for text length of k", async t => {
-  const text = "abcde";
+  const text = "abcde".split("");
   const filter = new WinnowFilter(5, 1);
   const hashes = [];
 
-  for await (const hash of filter.hashesFromString(text)) {
+  for await (const hash of filter.fingerprints(text)) {
     hashes.push(hash);
   }
   t.is(1, hashes.length);
 });
 
 test("maximum gap between hashing positions is window size", async t => {
-  const text = "This is a slightly longer text to test multiple hashing values.";
+  const text = "This is a slightly longer text to test multiple hashing values.".split("");
   const windowSize = 3;
   const winnowFilter = new WinnowFilter(5, windowSize);
   let previousPos = 0;
 
-  for await (const { start } of winnowFilter.hashesFromString(text)) {
+  for await (const { start } of winnowFilter.fingerprints(text)) {
     t.true(start - previousPos <= windowSize);
     previousPos = start;
   }
 });
 
 test("winnow 1 and noFilter create same result", async t => {
-  const text = "This is a slightly longer text to test multiple hashing values.";
+  const text = "This is a slightly longer text to test multiple hashing values.".split("");
   const noFilter = new NoFilter(5);
   const winnowFilter = new WinnowFilter(5, 1);
   const noHashes = [];
   const winnowHashes = [];
 
-  for await (const hash of noFilter.hashesFromString(text)) {
+  for await (const hash of noFilter.fingerprints(text)) {
     noHashes.push(hash);
   }
-  for await (const hash of winnowFilter.hashesFromString(text)) {
+  for await (const hash of winnowFilter.fingerprints(text)) {
     winnowHashes.push(hash);
   }
   t.deepEqual(noHashes, winnowHashes);
-});
-
-test("strings or buffers doesn't matter", async t => {
-  const text = "This is a slightly longer text to compare strings with " +
-    "buffers and test multiple hashing values.";
-
-  const winnowFilter = new WinnowFilter(5, 4);
-
-  const stringHashes = [];
-  for await (const hash of winnowFilter.hashesFromString(text)) {
-    stringHashes.push(hash);
-  }
-
-  const bufferHashes = [];
-  const buffer = Buffer.from(text);
-  for await (const hash of winnowFilter.hashes(
-    new (class extends Readable {
-      public _read(): void {
-        this.push(buffer);
-        this.push(null);
-      }
-    })({ objectMode: false })
-  )) {
-    bufferHashes.push(hash);
-  }
-
-  t.deepEqual(bufferHashes, stringHashes);
 });

@@ -16,8 +16,8 @@ export class Block {
   public rightKmers: Range;
   public leftSelection: Region;
   public rightSelection: Region;
-  public mergedData: string;
-
+  public mergedData: Array<string>;
+  private mergedStart: number;
   private mergedStop: number;
 
   constructor(initial: PairedOccurrence) {
@@ -26,6 +26,7 @@ export class Block {
     this.rightKmers = new Range(initial.right.index);
     this.leftSelection = initial.left.location;
     this.rightSelection = initial.right.location;
+    this.mergedStart = initial.left.start;
     this.mergedData = initial.left.data;
     this.mergedStop = initial.left.stop;
   }
@@ -40,10 +41,10 @@ export class Block {
     this.pairs.push(other);
 
     if (this.mergedStop < other.left.start) {
-      this.mergedData += "|" + other.left.data;
+      this.mergedData.push(...new Array(other.left.start - this.mergedStop - 1).fill("?"));
+      this.mergedData.push(...other.left.data);
     } else {
-      this.mergedData +=
-        other.left.data.substring(this.mergedStop - other.left.start + 1);
+      this.mergedData.push(...other.left.data.slice(this.mergedStop - other.left.start + 1));
     }
     this.mergedStop = other.left.stop;
 
@@ -72,10 +73,10 @@ export class Block {
     this.pairs = this.pairs.concat(other.pairs);
 
     if (this.mergedStop < other.leftKmers.from) {
-      this.mergedData += "|" + other.mergedData;
+      this.mergedData.push(...new Array(other.mergedStart - this.mergedStop - 1).fill("?"));
+      this.mergedData.push(...other.mergedData);
     } else {
-      this.mergedData +=
-        other.mergedData.substring(this.mergedStop - other.leftKmers.from + 1);
+      this.mergedData.push(...other.mergedData.slice(this.mergedStop - other.leftKmers.from + 1));
     }
 
     this.mergedStop = other.mergedStop;

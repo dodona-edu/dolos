@@ -91,13 +91,11 @@ export class CodeTokenizer extends Tokenizer {
     );
 
     yield this.newToken("(", location);
+
     // "(node.type child1 child2 ...)"
-    for (const c of node.type) {
-      yield this.newToken(c, location);
-    }
+    yield this.newToken(node.type, location);
 
     for (const child of node.namedChildren) {
-      yield this.newToken(" ", location);
       yield* this.tokenizeNode(child);
     }
     yield this.newToken(")", location);

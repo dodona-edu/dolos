@@ -80,7 +80,7 @@ export class CsvPresenter extends Presenter {
       {
         "id": s => s.id,
         "hash": s => s.hash,
-        "data": s => s.kmer,
+        "data": s => s.kmer.join(" "),
         "files": s => JSON.stringify(s.files().map(f => f.id))
       });
   }
@@ -93,7 +93,7 @@ export class CsvPresenter extends Presenter {
         "id": f => f.id,
         "path": f => f.path,
         "content": f => f.content,
-        "ast": f => f.ast,
+        "ast": f => f.ast.join(" "),
         "extra": f => JSON.stringify(f.extra)
       });
   }

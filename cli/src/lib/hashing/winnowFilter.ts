@@ -1,5 +1,4 @@
-import { Readable } from "stream";
-import { Hash, HashFilter } from "./hashFilter";
+import { Fingerprint, HashFilter } from "./hashFilter";
 import { RollingHash } from "./rollingHash";
 
 export class WinnowFilter extends HashFilter {
@@ -22,37 +21,35 @@ export class WinnowFilter extends HashFilter {
   }
 
   /**
-   * Returns an async interator that yields tuples containing a hashing and its
+   * Returns an async interator that yields fingerprints containing a hashing and its
    * corresponding k-mer position. Can be called successively on multiple files.
    *
    * Code based on pseudocode from
    * http://theory.stanford.edu/~aiken/publications/papers/sigmod03.pdf
    *
-   * @param stream The readable stream of a file (or stdin) to process. Such
-   * stream can be created using `fs.createReadStream("path")`.
+   * @param tokens The list of tokens to process.
    */
-  public async *hashes(stream: Readable): AsyncIterableIterator<Hash> {
+  public async *fingerprints(tokens: string[]): AsyncIterableIterator<Fingerprint> {
     const hash = new RollingHash(this.k);
-    let window = "";
+    let window: string[] = [];
     let filePos: number = -1 * this.k;
     let bufferPos = 0;
     let minPos = 0;
-    const buffer: number[] =
-      new Array(this.windowSize).fill(Number.MAX_SAFE_INTEGER);
+    const buffer: number[] = new Array(this.windowSize).fill(Number.MAX_SAFE_INTEGER);
 
     // At the end of each iteration, minPos holds the position of the rightmost
     // minimal hashing in the current window.
     // yield([x,pos]) is called only the first time an instance of x is selected
-    for await (const byte of HashFilter.readBytes(stream)) {
+    for await (const [hashedToken, token] of this.hashTokens(tokens)) {
       filePos++;
-      const char = String.fromCharCode(byte);
-      window = window.slice(-(this.windowSize + this.k)) + char;
+      window = window.slice(-this.k + 1);
+      window.push(token);
       if (filePos < 0) {
-        hash.nextHash(byte);
+        hash.nextHash(hashedToken);
         continue;
       }
       bufferPos = (bufferPos + 1) % this.windowSize;
-      buffer[bufferPos] = hash.nextHash(byte);
+      buffer[bufferPos] = hash.nextHash(hashedToken);
       if (minPos === bufferPos) {
         // The previous minimum is no longer in this window.
         // Scan buffer starting from bufferPos for the rightmost minimal hashing.
@@ -69,11 +66,9 @@ export class WinnowFilter extends HashFilter {
 
         const offset = (minPos - bufferPos - this.windowSize) % this.windowSize;
         const start = filePos + offset;
-        const data =
-          window.slice(window.length + offset - this.k, window.length + offset);
 
         yield {
-          data,
+          data: tokens.slice(start, start + this.k),
           hash: buffer[minPos],
           start,
           stop: start + this.k - 1,
@@ -84,10 +79,10 @@ export class WinnowFilter extends HashFilter {
         // against the new value and update minPos if necessary.
         if (buffer[bufferPos] <= buffer[minPos]) {
           minPos = bufferPos;
-          const start =
-            filePos + ((minPos - bufferPos - this.windowSize) % this.windowSize);
+          const start = filePos + ((minPos - bufferPos - this.windowSize) % this.windowSize);
+
           yield {
-            data: window.slice(-this.k),
+            data: tokens.slice(start, start + this.k),
             hash: buffer[minPos],
             start,
             stop: start + this.k - 1,

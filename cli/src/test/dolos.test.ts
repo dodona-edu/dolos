@@ -37,8 +37,8 @@ test("equal content should be a full match", async t => {
   t.deepEqual(new Region(2, 2, 11, 2), match.leftSelection);
   t.deepEqual(new Region(2, 2, 11, 2), match.rightSelection);
 
-  t.deepEqual(new Range(0, 24), match.leftKmers);
-  t.deepEqual(new Range(0, 24), match.rightKmers);
+  t.deepEqual(new Range(0, 3), match.leftKmers);
+  t.deepEqual(new Range(0, 3), match.rightKmers);
 
 });
 
@@ -88,8 +88,8 @@ test("renamed variables should be a full match", async t => {
   t.deepEqual(new Region(2, 2, 11, 2), match.leftSelection);
   t.deepEqual(new Region(2, 2, 11, 2), match.rightSelection);
 
-  t.deepEqual(new Range(0, 24), match.leftKmers);
-  t.deepEqual(new Range(0, 24), match.rightKmers);
+  t.deepEqual(new Range(0, 3), match.leftKmers);
+  t.deepEqual(new Range(0, 3), match.rightKmers);
 });
 
 test("changed whitespace and semicolons should be a full match", async t => {
@@ -138,36 +138,36 @@ test("changed whitespace and semicolons should be a full match", async t => {
   t.is(blocks.length, 1);
   const match = blocks[0];
 
-  t.deepEqual(new Range(0, 24), match.leftKmers);
-  t.deepEqual(new Range(0, 24), match.rightKmers);
+  t.deepEqual(new Range(0, 3), match.leftKmers);
+  t.deepEqual(new Range(0, 3), match.rightKmers);
 });
 
 test("changed order should be a good match", async t => {
-  const dolos = new Dolos();
+  const dolos = new Dolos({ kmerLength: 10, kmersInWindow: 5 });
   const original = `
 
+  function helloWorld() {
+    console.log(hello() + " " + world())
+  }
+  
   function hello() {
     return "hello";
   }
 
   const world = () => "world";
-
-  function helloWorld() {
-    console.log(hello() + " " + world())
-  }
   `;
 
   const changed = `
 
-  function helloWorld() {
-    console.log(hello() + " " + world())
-  }
-
   function hello() {
     return "hello";
   }
 
   const world = () => "world";
+
+  function helloWorld() {
+    console.log(hello() + " " + world())
+  }
   `;
 
   const report = await dolos.analyze(

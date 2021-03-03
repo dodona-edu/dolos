@@ -9,7 +9,7 @@ import { PairedOccurrence } from "../lib/analyze/pairedOccurrence";
 function createFakeFile(name: string): TokenizedFile {
   return new TokenizedFile(
     new File(name, "content"),
-    "(program)",
+    ["(", "program", ")"],
     []
   );
 }
@@ -23,7 +23,7 @@ function createDiff(): Diff {
 test("paired occurrence merging & squashing", t => {
   const int = createDiff();
 
-  let kmer = new SharedKmer(1, "kmer 1");
+  let kmer = new SharedKmer(1, "kmer 1".split(" "));
   const biggerTopLeft = [];
   // bigger match
   for(let i = 0; i < 10; i++) {
@@ -33,14 +33,14 @@ test("paired occurrence merging & squashing", t => {
         start: i,
         stop: i + 1,
         location: new Region(i, 0, i + 1, 0),
-        data: "lines 0 - 10",
+        data: "lines 0 - 10".split(" "),
       },
       {
         index: 20 + i,
         start: 20 + i,
         stop: 20 + i + 1,
         location: new Region(20 + i, 0, 20 + i + 1, 0),
-        data: "lines 20 - 30",
+        data: "lines 20 - 30".split(" "),
       },
       kmer
     );
@@ -50,21 +50,21 @@ test("paired occurrence merging & squashing", t => {
   }
 
   // contained match
-  kmer = new SharedKmer(2, "kmer 2");
+  kmer = new SharedKmer(2, "kmer 2".split(" "));
   const topLeftContained = new PairedOccurrence(
     {
       index: 5,
       start: 5 + 1,
       stop: 5 + 2,
       location: new Region(5, 0, 6, 0),
-      data: "small match line 5",
+      data: "small match line 5".split(" "),
     },
     {
       index: 25,
       start: 25 + 1,
       stop: 25 + 2,
       location: new Region(25, 0, 26, 0),
-      data: "small match line 25",
+      data: "small match line 25".split(" "),
     },
     kmer
   );
@@ -73,7 +73,7 @@ test("paired occurrence merging & squashing", t => {
 
   // bigger match, same location
   const biggerMiddle = [];
-  kmer = new SharedKmer(3, "kmer 3");
+  kmer = new SharedKmer(3, "kmer 3".split(" "));
   for(let i = 0; i < 10; i++) {
     const match = new PairedOccurrence(
       {
@@ -81,14 +81,14 @@ test("paired occurrence merging & squashing", t => {
         start: 10 + i + 1,
         stop: 10 + i + 2,
         location: new Region(10 + i, 0, 10 + i + 1, 0),
-        data: "lines 10 - 20",
+        data: "lines 10 - 20".split(" "),
       },
       {
         index: 20 + i,
         start: 20 + i + 1,
         stop: 20 + i + 2,
         location: new Region(10 + i, 0, 10 + i + 1, 0),
-        data: "lines 10 - 20",
+        data: "lines 10 - 20".split(" "),
       },
       kmer
     );
@@ -99,7 +99,7 @@ test("paired occurrence merging & squashing", t => {
 
   // bigger match
   const  biggerBottomLeft = [];
-  kmer = new SharedKmer(4, "kmer 4");
+  kmer = new SharedKmer(4, "kmer 4".split(" "));
   for(let i = 0; i < 10; i++) {
     const match = new PairedOccurrence(
       {
@@ -107,14 +107,14 @@ test("paired occurrence merging & squashing", t => {
         start: 20 + i + 1,
         stop: 20 + i + 2,
         location: new Region(20 + i, 0, 20 + i + 1, 0),
-        data: "lines 20 - 30",
+        data: "lines 20 - 30".split(" "),
       },
       {
         index: i,
         start: i + 1,
         stop: i + 2,
         location: new Region(i, 0, i + 1, 0),
-        data: "lines 0 - 10",
+        data: "lines 0 - 10".split(" "),
       },
       kmer
     );
@@ -124,21 +124,21 @@ test("paired occurrence merging & squashing", t => {
   }
 
   // contained match
-  kmer = new SharedKmer(5, "kmer 5");
+  kmer = new SharedKmer(5, "kmer 5".split(" "));
   const bottomLeftContained = new PairedOccurrence(
     {
       index: 25,
       start: 25 + 1,
       stop: 25 + 2,
       location: new Region(25, 0, 26, 0),
-      data: "small match line 25",
+      data: "small match line 25".split(" "),
     },
     {
       index: 5,
       start: 5 + 1,
       stop: 5 + 2,
       location: new Region(5, 0, 6, 0),
-      data: "small match line 5",
+      data: "small match line 5".split(" "),
     },
     kmer
   );
@@ -146,21 +146,21 @@ test("paired occurrence merging & squashing", t => {
   t.is(5, int.blocks().length);
 
   // match not contained
-  kmer = new SharedKmer(6, "kmer 6");
+  kmer = new SharedKmer(6, "kmer 6".split(" "));
   const notContained = new PairedOccurrence(
     {
       index: 5,
       start: 5 + 1,
       stop: 5 + 2,
       location: new Region(5, 0, 6, 0),
-      data: "not contained match line 5",
+      data: "not contained match line 5".split(" "),
     },
     {
       index: 5,
       start: 5 + 1,
       stop: 5 + 2,
       location: new Region(5, 0, 6, 0),
-      data: "not contained match line 5",
+      data: "not contained match line 5".split(" "),
     },
     kmer
   );

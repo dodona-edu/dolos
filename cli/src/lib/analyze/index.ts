@@ -71,7 +71,7 @@ export class Index {
       let kmer = 0;
       for await (
         const { data, hash, start, stop  }
-        of hashFilter.hashesFromString(file.ast)
+        of hashFilter.fingerprints(file.ast)
       ) {
 
         // add kmer to file

@@ -1,34 +1,21 @@
-import { Readable } from "stream";
+import { TokenHash } from "./tokenHash";
 
-export interface Hash {
-  data: string;
+export interface Fingerprint {
+  data: Array<string>;
   hash: number;
   start: number;
   stop: number;
 }
 
 export abstract class HashFilter {
-  public static async *readBytes(stream: Readable):
-    AsyncIterableIterator<number> {
 
-    for await (const buffer of stream) {
-      if (buffer instanceof Buffer) {
-        yield* buffer as Buffer;
-      } else {
-        const s = buffer as string;
-        for (let i = 0; i < s.length; ++i) {
-          yield s.charCodeAt(i);
-        }
-      }
+  protected hasher: TokenHash = new TokenHash();
+
+  public async *hashTokens(tokens: string[]): AsyncGenerator<[number, string]> {
+    for (const token of tokens) {
+      yield [this.hasher.hashToken(token), token];
     }
   }
 
-  public abstract hashes(stream: Readable): AsyncIterableIterator<Hash>;
-
-  public async *hashesFromString(text: string): AsyncIterableIterator<Hash> {
-    const stream = new Readable();
-    stream.push(text);
-    stream.push(null);
-    yield* this.hashes(stream);
-  }
+  public abstract fingerprints(tokens: string[]): AsyncIterableIterator<Fingerprint>;
 }

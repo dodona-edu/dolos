@@ -1,15 +1,15 @@
 import { Suite, Event } from "benchmark";
 import crypto from "crypto";
 
-import { Hash } from "../lib/hashing/hashFilter";
+import { Fingerprint } from "../lib/hashing/hashFilter";
 import { NoFilter } from "../lib/hashing/noFilter";
 
 
-async function setup(): Promise<Hash[]> {
-  const text = crypto.randomBytes(1024 * 1024).toString("hex");
+async function setup(): Promise<Fingerprint[]> {
+  const text = crypto.randomBytes(1024 * 1024).toString("hex").split("");
   const hashes = new NoFilter(10);
   const data = [];
-  for await (const hash of hashes.hashesFromString(text)) {
+  for await (const hash of hashes.fingerprints(text)) {
     data.push(hash);
   }
   return data;
@@ -25,7 +25,7 @@ async function setup(): Promise<Hash[]> {
   const suite = new Suite();
 
   suite.add("Object", () => {
-    const obj: {[k: number]: Hash[] | undefined} = {};
+    const obj: {[k: number]: Fingerprint[] | undefined} = {};
     for (let i = 0; i < data.length; i++) {
       const item = data[i];
       let list = obj[item.hash];
@@ -38,7 +38,7 @@ async function setup(): Promise<Hash[]> {
   });
 
   suite.add("Map", () => {
-    const map: Map<number, Hash[]> = new Map();
+    const map: Map<number, Fingerprint[]> = new Map();
     for (let i = 0; i < data.length; i++) {
       const item = data[i];
       let list = map.get(item.hash);
