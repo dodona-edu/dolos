@@ -9,8 +9,8 @@ Right now, C#, Java, JavaScript and Python are officially supported. Additional 
 To run Dolos on your system, you will need [NodeJS](https://nodejs.org/) and then
 install the program globally for your system using either
 
-- `yarn add global dolos`
-- `npm install -g dolos`
+- `yarn add global @dodona/dolos`
+- `npm install -g @dodona/dolos`
 
 Make sure the location `yarn` or `npm` are installing to is included in your
 `$PATH`. Please refer to their manuals to specify the installation location.
