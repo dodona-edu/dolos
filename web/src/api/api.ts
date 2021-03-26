@@ -1,7 +1,7 @@
 import * as d3 from "d3";
 // import { assertType } from "typescript-is";
 
-const DATA_URL = "/data/";
+const DATA_URL = "./data/";
 
 // TODO: replace with actual assertion
 function assertType<T>(item: T | undefined | null): T {
