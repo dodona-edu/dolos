@@ -29,7 +29,8 @@ export class CodeTokenizer extends Tokenizer {
       require("tree-sitter-" + language);
     } catch (error) {
       throw new Error(
-        `The module 'tree-sitter-${language}' could not be found`
+        `The module 'tree-sitter-${language}' could not be found. ` +
+        'Try to install it using npm or yarn, but it may not be supported (yet).'
       );
     }
     this.supportedLanguages.push(language);
@@ -48,7 +49,7 @@ export class CodeTokenizer extends Tokenizer {
   constructor(language: string) {
     super();
     if (!CodeTokenizer.isSupportedLanguage(language)) {
-      throw new Error(`Language '${language}' is not supported`);
+      CodeTokenizer.registerLanguage(language);
     }
 
     this.language = language;
