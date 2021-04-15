@@ -3494,12 +3494,7 @@ mute-stream@0.0.8:
   resolved "https://registry.yarnpkg.com/mute-stream/-/mute-stream-0.0.8.tgz#1630c42b2251ff81e2a283de96a5497ea92e5e0d"
   integrity sha512-nnbWWOkoWyUsTjKrhgD0dcz22mdkSnpYqbEjIm2nhwhuxlSkpywJmBo8h0ZqJdkp73mb90SssHkN4rsRaBAfAA==
 
-nan@^2.10.0, nan@^2.12.1, nan@^2.4.0:
-  version "2.14.1"
-  resolved "https://registry.yarnpkg.com/nan/-/nan-2.14.1.tgz#d7be34dfa3105b91494c3147089315eff8874b01"
-  integrity sha512-isWHgVjnFjh2x2yuJ/tj3JbwoHu3UC2dX5G/88Cm24yB6YopVgxvBObDY7n5xW6ExmFhJpSEQqFPvq9zaXc8Jw==
-
-nan@^2.14.0:
+nan@^2.10.0, nan@^2.12.1, nan@^2.14.0, nan@^2.4.0:
   version "2.14.2"
   resolved "https://registry.yarnpkg.com/nan/-/nan-2.14.2.tgz#f5376400695168f4cc694ac9393d0c9585eeea19"
   integrity sha512-M2ufzIiINKCuDfBSAUr1vWQ+vuVcA9kqx8JJUsbQi6yf1uGRyb7HfpdfUr5qLXf3B/t8dPvcjhKMmlfnP47EzQ==
@@ -4893,12 +4888,12 @@ tree-sitter-bash@^0.16.1:
     nan "^2.14.0"
     prebuild-install "^5.3.3"
 
-tree-sitter-c-sharp@^0.16.1:
-  version "0.16.1"
-  resolved "https://registry.yarnpkg.com/tree-sitter-c-sharp/-/tree-sitter-c-sharp-0.16.1.tgz#66ff7abfbeb311e6bf3b354d652ec839c2774992"
-  integrity sha512-NbQVS7if1qfEGGe796J66fynSdy3hoO8v5kOM7ttMMo+NOmJYB4C8CYFOQknt1i6CMGUGL0Oy4V6I6jrsK+TBQ==
+tree-sitter-c-sharp@^0.19.0:
+  version "0.19.0"
+  resolved "https://registry.yarnpkg.com/tree-sitter-c-sharp/-/tree-sitter-c-sharp-0.19.0.tgz#89a940fc0f2c05e7d0248c8de101fba01fb73e5a"
+  integrity sha512-Y2T7lisxbJHYg44hxE8XQPFpJLUE5jZSfKO4jyOuNLFS0wpN1wux6SucU4aWTkTfyaiyGWZ10GvEIQ++ZDAVTQ==
   dependencies:
-    nan "^2.10.0"
+    nan "^2.14.0"
 
 tree-sitter-c@^0.16.1:
   version "0.16.1"
