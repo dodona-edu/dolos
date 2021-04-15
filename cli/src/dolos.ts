@@ -10,11 +10,17 @@ import * as path from "path";
 import { Tokenizer } from "./lib/tokenizer/tokenizer";
 import { CharTokenizer } from "./lib/tokenizer/charTokenizer";
 import { default as fsWithCallbacks } from "fs";
+import { IPyNbTokenizer } from "./lib/tokenizer/ipynbTokenizer";
+import { MarkdownTokenizer } from "./lib/tokenizer/markdownTokenizer";
 const fs = fsWithCallbacks.promises;
 
 function newTokenizer(language: string): Tokenizer {
   if (language == "chars") {
     return new CharTokenizer();
+  } else if (language == "ipynb") {
+    return new IPyNbTokenizer();
+  } else if (language == "md") {
+    return new MarkdownTokenizer();
   } else if (CodeTokenizer.supportedLanguages.includes(language)) {
     return new CodeTokenizer(language);
   }
@@ -35,14 +41,14 @@ export class Dolos {
   public async analyzePaths(paths: string[]): Promise<Report> {
     info("=== Starting report ===");
     let files = null;
-    if(paths.length == 1) {
+    if (paths.length == 1) {
       const infoPath = paths[0];
-      if(infoPath.toLowerCase().endsWith(".csv")) {
+      if (infoPath.toLowerCase().endsWith(".csv")) {
         info("Reading info-file from Dodona");
         const dirname = path.dirname(infoPath);
         try {
           files = csvParse((await fs.readFile(infoPath)).toString())
-            .map((row:  DSVRowString) => ({
+            .map((row: DSVRowString) => ({
               filename: row.filename as string,
               fullName: row.full_name as string,
               id: row.id as string,
@@ -52,10 +58,10 @@ export class Dolos {
               nameNL: row.name_nl as string,
               exerciseID: row.exercise_id as string,
               createdAt: new Date(row.created_at as string),
-              labels: row.labels as string
+              labels: row.labels as string,
             }))
             .map((row: ExtraInfo) => File.fromPath(path.join(dirname, row.filename), row));
-        } catch(e) {
+        } catch (e) {
           error(e);
           throw new Error("The given '.csv'-file could not be opened");
         }
@@ -63,23 +69,22 @@ export class Dolos {
         throw new Error("You only gave one file wich is not a '.csv.'-file. ");
       }
     } else {
-      info(`Reading ${ paths.length} files`);
+      info(`Reading ${paths.length} files`);
       files = paths.map(location => File.fromPath(location));
     }
     return this.analyze((await Result.all(files)).ok());
   }
 
-  public async analyze(
-    files: Array<File>
-  ): Promise<Report> {
-
+  public async analyze(files: Array<File>): Promise<Report> {
     if (files.length < 2) {
       throw new Error("You need to supply at least two files");
     } else if (files.length == 2 && this.options.maxHashPercentage !== null) {
-      throw new Error("You have given a maximum hash percentage but your are " +
-                      "comparing two files. Each matching hash will thus " +
-                      "be present in 100% of the files. This option does only" +
-                      "make sense when comparing more than two files.");
+      throw new Error(
+        "You have given a maximum hash percentage but your are " +
+          "comparing two files. Each matching hash will thus " +
+          "be present in 100% of the files. This option does only" +
+          "make sense when comparing more than two files.",
+      );
     }
     return this.index.compareFiles(files);
   }
