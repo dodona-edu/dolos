@@ -3494,12 +3494,7 @@ mute-stream@0.0.8:
   resolved "https://registry.yarnpkg.com/mute-stream/-/mute-stream-0.0.8.tgz#1630c42b2251ff81e2a283de96a5497ea92e5e0d"
   integrity sha512-nnbWWOkoWyUsTjKrhgD0dcz22mdkSnpYqbEjIm2nhwhuxlSkpywJmBo8h0ZqJdkp73mb90SssHkN4rsRaBAfAA==
 
-nan@^2.10.0, nan@^2.12.1, nan@^2.4.0:
-  version "2.14.1"
-  resolved "https://registry.yarnpkg.com/nan/-/nan-2.14.1.tgz#d7be34dfa3105b91494c3147089315eff8874b01"
-  integrity sha512-isWHgVjnFjh2x2yuJ/tj3JbwoHu3UC2dX5G/88Cm24yB6YopVgxvBObDY7n5xW6ExmFhJpSEQqFPvq9zaXc8Jw==
-
-nan@^2.14.0:
+nan@^2.10.0, nan@^2.12.1, nan@^2.14.0, nan@^2.4.0:
   version "2.14.2"
   resolved "https://registry.yarnpkg.com/nan/-/nan-2.14.2.tgz#f5376400695168f4cc694ac9393d0c9585eeea19"
   integrity sha512-M2ufzIiINKCuDfBSAUr1vWQ+vuVcA9kqx8JJUsbQi6yf1uGRyb7HfpdfUr5qLXf3B/t8dPvcjhKMmlfnP47EzQ==
@@ -4034,7 +4029,7 @@ plur@^4.0.0:
   dependencies:
     irregular-plurals "^3.2.0"
 
-prebuild-install@^5.0.0:
+prebuild-install@^5.0.0, prebuild-install@^5.3.3:
   version "5.3.6"
   resolved "https://registry.yarnpkg.com/prebuild-install/-/prebuild-install-5.3.6.tgz#7c225568d864c71d89d07f8796042733a3f54291"
   integrity sha512-s8Aai8++QQGi4sSbs/M1Qku62PFK49Jm1CbgXklGz4nmHveDq0wzJkg7Na5QbnO1uNH8K7iqx2EQ/mV0MZEmOg==
@@ -4044,27 +4039,6 @@ prebuild-install@^5.0.0:
     github-from-package "0.0.0"
     minimist "^1.2.3"
     mkdirp-classic "^0.5.3"
-    napi-build-utils "^1.0.1"
-    node-abi "^2.7.0"
-    noop-logger "^0.1.1"
-    npmlog "^4.0.1"
-    pump "^3.0.0"
-    rc "^1.2.7"
-    simple-get "^3.0.3"
-    tar-fs "^2.0.0"
-    tunnel-agent "^0.6.0"
-    which-pm-runs "^1.0.0"
-
-prebuild-install@^5.3.3:
-  version "5.3.5"
-  resolved "https://registry.yarnpkg.com/prebuild-install/-/prebuild-install-5.3.5.tgz#e7e71e425298785ea9d22d4f958dbaccf8bb0e1b"
-  integrity sha512-YmMO7dph9CYKi5IR/BzjOJlRzpxGGVo1EsLSUZ0mt/Mq0HWZIHOKHHcHdT69yG54C9m6i45GpItwRHpk0Py7Uw==
-  dependencies:
-    detect-libc "^1.0.3"
-    expand-template "^2.0.3"
-    github-from-package "0.0.0"
-    minimist "^1.2.3"
-    mkdirp "^0.5.1"
     napi-build-utils "^1.0.1"
     node-abi "^2.7.0"
     noop-logger "^0.1.1"
@@ -4928,10 +4902,10 @@ tree-sitter-python@^0.17.0:
   dependencies:
     nan "^2.4.0"
 
-tree-sitter@^0.17.1:
-  version "0.17.1"
-  resolved "https://registry.yarnpkg.com/tree-sitter/-/tree-sitter-0.17.1.tgz#821c5a4ac1afdb623d63f5ffc7916663e732a95c"
-  integrity sha512-obIe804bwfAGFMhTjQz0NXF75GDupCVXo7Sv0NVVdA3s/Q4ZI4mdirIN8cpw6bVhz/K1qgUdEuI3SEoOE/q75A==
+tree-sitter@^0.19.0:
+  version "0.19.0"
+  resolved "https://registry.yarnpkg.com/tree-sitter/-/tree-sitter-0.19.0.tgz#68c4cfa12b34752d69162b81ad233f3e6fc4a70d"
+  integrity sha512-jw/BNCCRB9RCq/GFGU0VuhchGlIIlYRQFnjXgPKG3fBIo+c3ImuPITtAHJJ4XgTBNfeAQmt8XC4wShgBw8tgdg==
   dependencies:
     nan "^2.14.0"
     prebuild-install "^5.0.0"
