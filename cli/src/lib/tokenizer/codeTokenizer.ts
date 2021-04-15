@@ -30,7 +30,7 @@ export class CodeTokenizer extends Tokenizer {
     } catch (error) {
       throw new Error(
         `The module 'tree-sitter-${language}' could not be found. ` +
-        'Try to install it using npm or yarn, but it may not be supported (yet).'
+        "Try to install it using npm or yarn, but it may not be supported (yet)."
       );
     }
     this.supportedLanguages.push(language);
