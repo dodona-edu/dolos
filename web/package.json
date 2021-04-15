@@ -13,7 +13,7 @@
     "@types/d3": "^6.2.0",
     "@types/prismjs": "^1.16.5",
     "@typescript-eslint/eslint-plugin": "^4.13.0",
-    "@typescript-eslint/parser": "^4.13.0",
+    "@typescript-eslint/parser": "^4.22.0",
     "@vue/cli": "~4.5.12",
     "@vue/cli-plugin-babel": "~4.5.10",
     "@vue/cli-plugin-eslint": "~4.5.12",
