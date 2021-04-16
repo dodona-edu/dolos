@@ -93,7 +93,11 @@ export default class CompareSide extends Vue {
     if (Prism.languages[currentLanguage]) {
       return;
     }
-    await require("prismjs/components/prism-" + currentLanguage);
+    try {
+      await require("prismjs/components/prism-" + currentLanguage);
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   async highlight(): Promise<void> {

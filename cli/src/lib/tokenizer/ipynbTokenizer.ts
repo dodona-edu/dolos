@@ -1,3 +1,5 @@
+import { File } from "../file/file";
+import { TokenizedFile } from "../file/tokenizedFile";
 import { Region } from "../util/region";
 import { CodeTokenizer } from "./codeTokenizer";
 import { MarkdownTokenizer } from "./markdownTokenizer";
@@ -18,6 +20,21 @@ export interface IPyNbFileFormat {
   }[];
 }
 
+export class IPyNbTokenizedFile extends TokenizedFile {
+  constructor(
+    public file: File,
+    public ast: string,
+    public mapping: Array<Region>,
+    public readonly _readableContent: string,
+  ) {
+    super(file, ast, mapping);
+  }
+
+  get readableContent(): string {
+    return this._readableContent;
+  }
+}
+
 export class IPyNbTokenizer extends Tokenizer {
   private markdownTokenizer = new MarkdownTokenizer();
 
@@ -28,14 +45,20 @@ export class IPyNbTokenizer extends Tokenizer {
    *
    * @param text The text string to parse
    */
-  public *generateTokens(text: string): IterableIterator<Token> {
+  public *generateTokens(
+    text: string,
+    onReadableSource: (source: string) => void = () => {
+      /* ignore */
+    },
+  ): IterableIterator<Token> {
     const nb = JSON.parse(text) as IPyNbFileFormat;
     const language = nb.metadata.language_info.name;
     const codeTokenizer = new CodeTokenizer(language);
+    let readableSource = "";
 
     let lineNumber = 0;
     for (const cell of nb.cells) {
-      const source: string = Array.isArray(cell.source) ? cell.source.join("\n") : cell.source;
+      const source: string = Array.isArray(cell.source) ? cell.source.join("") : cell.source;
       const tokenizer: Tokenizer | undefined = ({
         code: codeTokenizer,
         markdown: this.markdownTokenizer,
@@ -55,6 +78,28 @@ export class IPyNbTokenizer extends Tokenizer {
         }
       }
       lineNumber += (source.match(/\n/g) || "").length + 1;
+      readableSource += source + "\n";
     }
+
+    onReadableSource(readableSource);
+  }
+
+  /**
+   * Returns a stringified version the given file.
+   *
+   * @param fileName The name of the file to parse
+   */
+  public tokenizeFile(file: File): TokenizedFile {
+    let ast = "";
+    let source = "";
+    const mapping: Array<Region> = [];
+    for (const { token, location } of this.generateTokens(file.content, readableSource => {
+      source = readableSource;
+    })) {
+      ast += token;
+      mapping.push(...new Array(token.length).fill(location));
+    }
+    console.log(source);
+    return new IPyNbTokenizedFile(file, ast, mapping, source);
   }
 }

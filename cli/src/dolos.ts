@@ -15,16 +15,19 @@ import { MarkdownTokenizer } from "./lib/tokenizer/markdownTokenizer";
 const fs = fsWithCallbacks.promises;
 
 function newTokenizer(language: string): Tokenizer {
-  if (language == "chars") {
-    return new CharTokenizer();
-  } else if (language == "ipynb") {
-    return new IPyNbTokenizer();
-  } else if (language == "md") {
-    return new MarkdownTokenizer();
-  } else if (CodeTokenizer.supportedLanguages.includes(language)) {
-    return new CodeTokenizer(language);
+  switch (language) {
+    case "chars":
+      return new CharTokenizer();
+    case "ipynb":
+      return new IPyNbTokenizer();
+    case "md":
+      return new MarkdownTokenizer();
+    default:
+      if (CodeTokenizer.supportedLanguages.includes(language)) {
+        return new CodeTokenizer(language);
+      }
+      throw new Error(`No tokenizer found for ${language}`);
   }
-  throw new Error(`No tokenizer found for ${language}`);
 }
 
 export class Dolos {

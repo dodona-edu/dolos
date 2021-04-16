@@ -92,7 +92,7 @@ export class CsvPresenter extends Presenter {
       {
         "id": f => f.id,
         "path": f => f.path,
-        "content": f => f.content,
+        "content": f => f.readableContent,
         "ast": f => f.ast.join(" "),
         "extra": f => JSON.stringify(f.extra)
       });

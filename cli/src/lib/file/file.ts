@@ -79,4 +79,8 @@ export class File extends Identifiable {
   get content(): string {
     return this.lines.join("\n");
   }
+
+  get readableContent(): string {
+    return this.content;
+  }
 }
