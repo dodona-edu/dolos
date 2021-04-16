@@ -93,7 +93,7 @@
         style="width: 100%"
         v-model="dataTableSelection"
       >
-        <template v-slot:item.active="{ item }">
+        <template v-slot:[`item.active`] ="{ item }">
           <v-simple-checkbox
             :ripple="false"
             @input="dataTableCheckBoxToggle(item, $event)"
