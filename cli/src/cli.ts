@@ -130,11 +130,12 @@ program
   )
   .arguments("<paths...>")
   .action(async locations => {
-    if(program.verbose){
+    const options = program.opts();
+    if(options.verbose){
       setLogging("info");
     }
 
-    if (locations.length < 3 && program.maximumHashPercentage) {
+    if (locations.length < 3 && options.maximumHashPercentage) {
       warning("You have given a maximum hash percentage (with -M), but " +
         "you are comparing less than three files so matching hash will occur " +
         "in 100% of the files. You might not want to use this option.");
@@ -142,29 +143,29 @@ program
 
     try {
       const dolos = new Dolos({
-        kmerLength: program.kmerLength,
-        kmersInWindow: program.kmersInWindow,
-        language: program.language,
-        maxHashCount: program.maximumHashCount,
-        maxHashPercentage: program.maxHashPercentage,
-        minBlockLength: program.minimumBlockLength,
-        minSimilarity: program.minimumSimilarity,
-        limitResults: program.limit,
-        sortBy: program.sort,
-        blockSortBy: program.blockSort,
+        kmerLength: options.kmerLength,
+        kmersInWindow: options.kmersInWindow,
+        language: options.language,
+        maxHashCount: options.maximumHashCount,
+        maxHashPercentage: options.maxHashPercentage,
+        minBlockLength: options.minimumBlockLength,
+        minSimilarity: options.minimumSimilarity,
+        limitResults: options.limit,
+        sortBy: options.sort,
+        blockSortBy: options.blockSort,
       });
       const report = await dolos.analyzePaths(locations);
 
-      const presenter = closestMatch(program.outputFormat, {
-        "terminal": () => new TerminalPresenter(report, dolos.options, program.compare),
-        "console" : () => new TerminalPresenter(report, dolos.options, program.compare),
+      const presenter = closestMatch(options.outputFormat, {
+        "terminal": () => new TerminalPresenter(report, dolos.options, options.compare),
+        "console" : () => new TerminalPresenter(report, dolos.options, options.compare),
         "csv" : () => new CsvPresenter(report, dolos.options),
         "html": () => new WebPresenter(report, dolos.options),
         "web": () => new WebPresenter(report, dolos.options),
       });
 
       if(presenter == null) {
-        throw new Error(`Invalid output format: ${program.format}`);
+        throw new Error(`Invalid output format: ${options.format}`);
       }
 
       await presenter().present();
