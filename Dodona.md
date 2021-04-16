@@ -26,7 +26,7 @@ Then, on your computer:
     ```
 2. Unzip the export to this directory
     ```
-    unzip ~/Downloads/{EXPORT NAME}.zip -d {EXERCISE}/
+    unzip ~/Downloads/{EXPORT NAME}.zip -d {EXERCISE}/ -O utf8
     ```
 
 ## Run Dolos plagiarism detection
