@@ -23,7 +23,7 @@ export interface IPyNbFileFormat {
 export class IPyNbTokenizedFile extends TokenizedFile {
   constructor(
     public file: File,
-    public ast: string,
+    public ast: string[],
     public mapping: Array<Region>,
     public readonly _readableContent: string,
   ) {
@@ -90,14 +90,14 @@ export class IPyNbTokenizer extends Tokenizer {
    * @param fileName The name of the file to parse
    */
   public tokenizeFile(file: File): TokenizedFile {
-    let ast = "";
+    const ast = [];
     let source = "";
     const mapping: Array<Region> = [];
     for (const { token, location } of this.generateTokens(file.content, readableSource => {
-      source = readableSource;
+      source += readableSource;
     })) {
-      ast += token;
-      mapping.push(...new Array(token.length).fill(location));
+      ast.push(token);
+      mapping.push(location);
     }
     return new IPyNbTokenizedFile(file, ast, mapping, source);
   }
