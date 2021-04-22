@@ -3700,11 +3700,6 @@ npmlog@^4.0.1:
     gauge "~2.7.3"
     set-blocking "~2.0.0"
 
-nprime@^0.2.1:
-  version "0.2.1"
-  resolved "https://registry.yarnpkg.com/nprime/-/nprime-0.2.1.tgz#dec1c2782e9dc6f0f58077d1d12bfbfa3837b504"
-  integrity sha1-3sHCeC6dxvD1gHfR0Sv7+jg3tQQ=
-
 number-is-nan@^1.0.0:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/number-is-nan/-/number-is-nan-1.0.1.tgz#097b602b53422a522c1afb8790318336941a011d"

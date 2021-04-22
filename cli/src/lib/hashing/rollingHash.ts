@@ -13,10 +13,10 @@ export class RollingHash {
    * two hashes, the modulus multiplied by itself should not have more than the
    * available amount of bits of precision.
    *
-   * Javascript has 53-bit precision numbers (doubles) so. We pick the largest
-   * modulus m for which m * m has 53 bits.
+   * Javascript has 53-bit precision numbers (doubles) so we pick the largest
+   * prime number with 26 bits.
    */
-  readonly mod: number = 94906249;
+  readonly mod: number = 33554393;
 
   /**
    * The base (or radix) used in the hash calculation.
