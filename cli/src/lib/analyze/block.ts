@@ -41,10 +41,16 @@ export class Block {
     this.pairs.push(other);
 
     if (this.mergedStop < other.left.start) {
-      this.mergedData.push(...new Array(other.left.start - this.mergedStop - 1).fill("?"));
-      this.mergedData.push(...other.left.data);
+      for (let i = 0; i < (other.left.start - this.mergedStop - 1); i++) {
+        this.mergedData.push("?");
+      }
+      for (let i = 0; i < other.left.data.length; i++) {
+        this.mergedData.push(other.left.data[i]);
+      }
     } else {
-      this.mergedData.push(...other.left.data.slice(this.mergedStop - other.left.start + 1));
+      for (let i = this.mergedStop - other.left.start + 1; i < other.left.data.length; i++) {
+        this.mergedData.push(other.left.data[i]);
+      }
     }
     this.mergedStop = other.left.stop;
 
@@ -73,10 +79,16 @@ export class Block {
     this.pairs = this.pairs.concat(other.pairs);
 
     if (this.mergedStop < other.leftKmers.from) {
-      this.mergedData.push(...new Array(other.mergedStart - this.mergedStop - 1).fill("?"));
-      this.mergedData.push(...other.mergedData);
+      for (let i = 0; i < (other.mergedStart - this.mergedStop - 1); i++) {
+        this.mergedData.push("?");
+      }
+      for (let i = 0; i < other.mergedData.length; i++) {
+        this.mergedData.push(other.mergedData[i]);
+      }
     } else {
-      this.mergedData.push(...other.mergedData.slice(this.mergedStop - other.leftKmers.from + 1));
+      for (let i = this.mergedStop - other.leftKmers.from + 1; i < other.mergedData.length; i++) {
+        this.mergedData.push(other.mergedData[i]);
+      }
     }
 
     this.mergedStop = other.mergedStop;
