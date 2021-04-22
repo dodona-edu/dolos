@@ -1,7 +1,6 @@
 import test from "ava";
 import { Dolos } from "../dolos";
 import { File } from "../lib/file/file";
-import { Range } from "../lib/util/range";
 import { Region } from "../lib/util/region";
 
 test("equal content should be a full match", async t => {
@@ -37,8 +36,10 @@ test("equal content should be a full match", async t => {
   t.deepEqual(new Region(2, 2, 11, 2), match.leftSelection);
   t.deepEqual(new Region(2, 2, 11, 2), match.rightSelection);
 
-  t.deepEqual(new Range(0, 7), match.leftKmers);
-  t.deepEqual(new Range(0, 7), match.rightKmers);
+  t.is(0, match.leftKmers.from);
+  t.is(0, match.rightKmers.from);
+  t.true(match.leftKmers.to > 3);
+  t.true(match.rightKmers.to > 3);
 
 });
 
@@ -88,8 +89,10 @@ test("renamed variables should be a full match", async t => {
   t.deepEqual(new Region(2, 2, 11, 2), match.leftSelection);
   t.deepEqual(new Region(2, 2, 11, 2), match.rightSelection);
 
-  t.deepEqual(new Range(0, 7), match.leftKmers);
-  t.deepEqual(new Range(0, 7), match.rightKmers);
+  t.is(0, match.leftKmers.from);
+  t.is(0, match.rightKmers.from);
+  t.true(match.leftKmers.to > 3);
+  t.true(match.rightKmers.to > 3);
 });
 
 test("changed whitespace and semicolons should be a full match", async t => {
@@ -138,8 +141,10 @@ test("changed whitespace and semicolons should be a full match", async t => {
   t.is(blocks.length, 1);
   const match = blocks[0];
 
-  t.deepEqual(new Range(0, 7), match.leftKmers);
-  t.deepEqual(new Range(0, 7), match.rightKmers);
+  t.is(0, match.leftKmers.from);
+  t.is(0, match.rightKmers.from);
+  t.true(match.leftKmers.to > 3);
+  t.true(match.rightKmers.to > 3);
 });
 
 test("changed order should be a good match", async t => {
