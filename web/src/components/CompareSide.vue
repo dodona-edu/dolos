@@ -96,7 +96,11 @@ export default class CompareSide extends Vue {
     try {
       await require("prismjs/components/prism-" + currentLanguage);
     } catch (e) {
-      console.error(e);
+      Prism.languages[currentLanguage] = {
+        word: {
+          pattern: /\S+/,
+        }
+      };
     }
   }
 

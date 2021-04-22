@@ -99,7 +99,6 @@ export class IPyNbTokenizer extends Tokenizer {
       ast += token;
       mapping.push(...new Array(token.length).fill(location));
     }
-    console.log(source);
     return new IPyNbTokenizedFile(file, ast, mapping, source);
   }
 }
