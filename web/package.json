@@ -8,7 +8,7 @@
     "lint": "vue-cli-service lint"
   },
   "devDependencies": {
-    "@mdi/font": "^5.8.55",
+    "@mdi/font": "^5.9.55",
     "@mdi/js": "^5.5.55",
     "@types/d3": "^6.2.0",
     "@types/prismjs": "^1.16.5",
