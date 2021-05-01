@@ -11122,10 +11122,10 @@ typedarray@^0.0.6:
   resolved "https://registry.yarnpkg.com/typedarray/-/typedarray-0.0.6.tgz#867ac74e3864187b1d3d47d996a78ec5c8830777"
   integrity sha1-hnrHTjhkGHsdPUfZlqeOxciDB3c=
 
-typescript-is@^0.17.0:
-  version "0.17.0"
-  resolved "https://registry.yarnpkg.com/typescript-is/-/typescript-is-0.17.0.tgz#b810e240463739d212d7e91f92b275f3a285ef29"
-  integrity sha512-Tq0b/tcw0khcKFY3V8Md4x2np9LGNvFu5KUlPEZMx1ryUyzhSF+u4gqF9EleiH60g8UFJFzG4w4Aj5ISslxvKg==
+typescript-is@^0.18.2:
+  version "0.18.2"
+  resolved "https://registry.yarnpkg.com/typescript-is/-/typescript-is-0.18.2.tgz#5b46304051666777be4cb6dd658fb5b528a37551"
+  integrity sha512-TXgcmHLbuYaKtwyGy/v+oFWi9sIlEUSMcHSuRbIH7OtUuaMP6/bOPwOMDuEVRtGQ62Yx1XMdxFGbax81nXDKjg==
   dependencies:
     nested-error-stacks "^2"
     tsutils "^3.17.1"
