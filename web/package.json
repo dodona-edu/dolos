@@ -41,7 +41,7 @@
     "typescript-is": "^0.17.0",
     "vue": "^2.6.11",
     "vue-class-component": "^7.2.3",
-    "vue-cli-plugin-vuetify": "~2.3.1",
+    "vue-cli-plugin-vuetify": "~2.4.0",
     "vue-property-decorator": "^9.1.2",
     "vue-router": "^3.2.0",
     "vue-template-compiler": "^2.6.11",
