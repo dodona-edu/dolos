@@ -4,7 +4,9 @@
   "description": "Code similarity detection based on the Winnowing algorithm",
   "main": "dist/dolos.js",
   "types": "dist/dolos.d.ts",
-  "bin": "dist/cli.js",
+  "bin": {
+    "dolos": "dist/cli.js"
+  },
   "scripts": {
     "dolos": "tsc && node dist/cli.js",
     "debug": "tsc && node inspect dist/cli.js",
@@ -17,7 +19,10 @@
     "lint": "eslint --ext .ts src/",
     "copy:web": "rsync -rc --delete ../web/dist/ dist/web/"
   },
-  "repository": "git@github.com:dodona-edu/dolos.git",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/dodona-edu/dolos.git"
+  },
   "license": "MIT",
   "private": false,
   "publishConfig": {
@@ -53,5 +58,10 @@
     "tree-sitter-java": "^0.19.1",
     "tree-sitter-javascript": "^0.19.0",
     "tree-sitter-python": "^0.19.0"
-  }
+  },
+  "bugs": {
+    "url": "https://github.com/dodona-edu/dolos/issues"
+  },
+  "homepage": "https://github.com/dodona-edu/dolos#readme",
+  "keywords": ["plagiarism", "plagiarism-checker", "plagiarism detection", "similarity", "code similarity"]
 }
