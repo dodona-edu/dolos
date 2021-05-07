@@ -43,7 +43,7 @@ export class Index {
     this.hashFilter =
       hashFilter
         ? hashFilter
-        : new WinnowFilter(this.kmerLength, this.kmersInWindow);
+        : new WinnowFilter(this.kmerLength, this.kmersInWindow, options.kmerData);
   }
 
   /**

@@ -13,9 +13,10 @@ export class WinnowFilter extends HashFilter {
    *
    * @param k The k-mer size of which hashes are calculated
    * @param windowSize The window size
+   * @param kmerData Whether to output kmer content in fingerprints.
    */
-  constructor(k: number, windowSize: number) {
-    super();
+  constructor(k: number, windowSize: number, kmerData = false) {
+    super(kmerData);
     this.k = k;
     this.windowSize = windowSize;
   }
@@ -68,7 +69,7 @@ export class WinnowFilter extends HashFilter {
         const start = filePos + offset;
 
         yield {
-          data: tokens.slice(start, start + this.k),
+          data: this.kmerData ? tokens.slice(start, start + this.k) : null,
           hash: buffer[minPos],
           start,
           stop: start + this.k - 1,
@@ -82,7 +83,7 @@ export class WinnowFilter extends HashFilter {
           const start = filePos + ((minPos - bufferPos - this.windowSize) % this.windowSize);
 
           yield {
-            data: tokens.slice(start, start + this.k),
+            data: this.kmerData ? tokens.slice(start, start + this.k) : null,
             hash: buffer[minPos],
             start,
             stop: start + this.k - 1,

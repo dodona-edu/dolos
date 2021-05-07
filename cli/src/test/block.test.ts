@@ -103,8 +103,8 @@ test("block should partially reconstruct matched kmers when k < w", async t => {
     block.extendWithPair(pair);
   }
   for (let i = 0; i < f1.ast.length; i++) {
-    if (block.mergedData[i] !== "?") {
-      t.deepEqual(f1.ast[i], block.mergedData[i]);
+    if (block.mergedData?.[i] !== "?") {
+      t.deepEqual(f1.ast[i], block.mergedData?.[i]);
     }
   }
 });

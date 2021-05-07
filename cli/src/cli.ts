@@ -143,6 +143,7 @@ program
 
     try {
       const dolos = new Dolos({
+        kmerData: options.compare,
         kmerLength: options.kmerLength,
         kmersInWindow: options.kmersInWindow,
         language: options.language,

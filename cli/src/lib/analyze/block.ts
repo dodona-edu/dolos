@@ -16,7 +16,7 @@ export class Block {
   public rightKmers: Range;
   public leftSelection: Region;
   public rightSelection: Region;
-  public mergedData: Array<string>;
+  public mergedData: Array<string> | null;
   private mergedStart: number;
   private mergedStop: number;
 
@@ -40,18 +40,22 @@ export class Block {
     assert(this.extendable(other), "match does not extend this block");
     this.pairs.push(other);
 
-    if (this.mergedStop < other.left.start) {
-      for (let i = 0; i < (other.left.start - this.mergedStop - 1); i++) {
-        this.mergedData.push("?");
-      }
-      for (let i = 0; i < other.left.data.length; i++) {
-        this.mergedData.push(other.left.data[i]);
-      }
-    } else {
-      for (let i = this.mergedStop - other.left.start + 1; i < other.left.data.length; i++) {
-        this.mergedData.push(other.left.data[i]);
+    if(this.mergedData && other.left.data) {
+      if (this.mergedStop < other.left.start) {
+
+        for (let i = 0; i < (other.left.start - this.mergedStop - 1); i++) {
+          this.mergedData.push("?");
+        }
+        for (let i = 0; i < other.left.data.length; i++) {
+          this.mergedData.push(other.left.data[i]);
+        }
+      } else {
+        for (let i = this.mergedStop - other.left.start + 1; i < other.left.data.length; i++) {
+          this.mergedData.push(other.left.data[i]);
+        }
       }
     }
+
     this.mergedStop = other.left.stop;
 
     // Merge kmers index range
@@ -78,16 +82,18 @@ export class Block {
 
     this.pairs = this.pairs.concat(other.pairs);
 
-    if (this.mergedStop < other.leftKmers.from) {
-      for (let i = 0; i < (other.mergedStart - this.mergedStop - 1); i++) {
-        this.mergedData.push("?");
-      }
-      for (let i = 0; i < other.mergedData.length; i++) {
-        this.mergedData.push(other.mergedData[i]);
-      }
-    } else {
-      for (let i = this.mergedStop - other.leftKmers.from + 1; i < other.mergedData.length; i++) {
-        this.mergedData.push(other.mergedData[i]);
+    if (this.mergedData && other.mergedData) {
+      if (this.mergedStop < other.leftKmers.from) {
+        for (let i = 0; i < (other.mergedStart - this.mergedStop - 1); i++) {
+          this.mergedData.push("?");
+        }
+        for (let i = 0; i < other.mergedData.length; i++) {
+          this.mergedData.push(other.mergedData[i]);
+        }
+      } else {
+        for (let i = this.mergedStop - other.leftKmers.from + 1; i < other.mergedData.length; i++) {
+          this.mergedData.push(other.mergedData[i]);
+        }
       }
     }
 

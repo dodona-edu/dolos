@@ -10,6 +10,7 @@ export interface DolosOptions {
   localPort: number;
   sortBy: string | null;
   blockSortBy: string | null;
+  kmerData: boolean;
 }
 
 export type CustomOptions = Partial<DolosOptions>;
@@ -78,6 +79,10 @@ export class Options implements DolosOptions {
       );
     }
     Object.freeze(this);
+  }
+
+  get kmerData(): boolean {
+    return this.custom.kmerData == true;
   }
 
 
@@ -150,7 +155,8 @@ export class Options implements DolosOptions {
       localPort: this.localPort,
       minSimilarity: this.minSimilarity,
       sortBy: this.sortBy,
-      blockSortBy: this.blockSortBy
+      blockSortBy: this.blockSortBy,
+      kmerData: this.kmerData
     };
   }
 

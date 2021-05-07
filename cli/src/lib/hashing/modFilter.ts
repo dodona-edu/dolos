@@ -11,9 +11,10 @@ export class ModFilter extends HashFilter {
    *
    * @param k The k-mer size of which hashes are calculated
    * @param mod The mod value for which hashes to keep
+   * @param debug Whether to output debugging information in fingerprints.
    */
-  constructor(k: number, mod: number) {
-    super();
+  constructor(k: number, mod: number, debug = false) {
+    super(debug);
     this.k = k;
     this.mod = mod;
   }
@@ -40,11 +41,12 @@ export class ModFilter extends HashFilter {
       }
       currentHash = hash.nextHash(byte);
       if (currentHash % this.mod === 0) {
+
         yield {
           hash: currentHash,
           start: filePos,
           stop: filePos + this.k - 1,
-          data: tokens.slice(filePos, filePos + this.k)
+          data: this.kmerData ? tokens.slice(filePos, filePos + this.k) : null,
         };
       }
     }

@@ -66,7 +66,9 @@ export class CsvPresenter extends Presenter {
       {
         "id": s => s.diff.id,
         "leftFileId": s => s.diff.leftFile.id,
+        "leftFilePath": s => s.diff.leftFile.path,
         "rightFileId": s => s.diff.rightFile.id,
+        "rightFilePath": s => s.diff.rightFile.path,
         "similarity": s => s.similarity,
         "totalOverlap": s => s.overlap,
         "continuousOverlap": s => s.longest,
@@ -80,7 +82,7 @@ export class CsvPresenter extends Presenter {
       {
         "id": s => s.id,
         "hash": s => s.hash,
-        "data": s => s.kmer.join(" "),
+        "data": s => s.kmer?.join(" ") || null,
         "files": s => JSON.stringify(s.files().map(f => f.id))
       });
   }

@@ -9,9 +9,10 @@ export class NoFilter extends HashFilter {
    * anything and return all hashes
    *
    * @param k The k-mer size of which hashes are calculated
+   * @param debug Whether to output debugging information in fingerprints.
    */
-  constructor(k: number) {
-    super();
+  constructor(k: number, debug = false) {
+    super(debug);
     this.k = k;
   }
 
@@ -38,7 +39,7 @@ export class NoFilter extends HashFilter {
         hash: hash.nextHash(byte),
         start: filePos,
         stop: filePos + this.k - 1,
-        data: window
+        data: this.kmerData ? window : null,
       };
     }
   }
