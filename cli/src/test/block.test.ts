@@ -18,7 +18,7 @@ test("block should fully reconstruct matched kmers when k > w", async t => {
     (await File.fromPath("samples/javascript/sample.js")).ok()
   );
 
-  const filter = new WinnowFilter(10, 5);
+  const filter = new WinnowFilter(10, 5, true);
 
   const f1Hashes = [];
   for await (const hash of filter.fingerprints(f1.ast)) {
@@ -66,7 +66,7 @@ test("block should partially reconstruct matched kmers when k < w", async t => {
     (await File.fromPath("samples/javascript/sample.js")).ok()
   );
 
-  const filter = new WinnowFilter(5, 10);
+  const filter = new WinnowFilter(5, 10, true);
 
   const f1Hashes = [];
   for await (const hash of filter.fingerprints(f1.ast)) {
