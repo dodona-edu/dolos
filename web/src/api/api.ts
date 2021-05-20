@@ -132,15 +132,13 @@ function parseFiles(fileData: d3.DSVRowArray): ObjMap<File> {
   return Object.fromEntries(
     fileData.map(row => {
       const info = JSON.parse(row.extra || "null");
-      return [
-        row.id, {
-          ...row,
-          extra: !info ? undefined : {
-            ...info,
-            timestamp: new Date(info.createdAt)
-          }
-        }
-      ];
+      if (info) {
+        row.extra = {
+          ...info,
+          timestamp: new Date(info.createdAt)
+        };
+      }
+      return [row.id, row];
     })
   );
 }
