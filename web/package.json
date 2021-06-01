@@ -10,7 +10,7 @@
   "devDependencies": {
     "@mdi/font": "^5.9.55",
     "@mdi/js": "^5.9.55",
-    "@types/d3": "^6.5.0",
+    "@types/d3": "^6.7.0",
     "@types/prismjs": "^1.16.5",
     "@typescript-eslint/eslint-plugin": "^4.24.0",
     "@typescript-eslint/parser": "^4.24.0",
