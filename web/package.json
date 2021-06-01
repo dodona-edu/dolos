@@ -45,7 +45,7 @@
     "vue-property-decorator": "^9.1.2",
     "vue-router": "^3.5.1",
     "vue-template-compiler": "^2.6.11",
-    "vuetify": "^2.5.0",
+    "vuetify": "^2.5.1",
     "vuetify-loader": "^1.7.2",
     "vuex": "^3.6.2"
   }
