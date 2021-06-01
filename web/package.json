@@ -12,7 +12,7 @@
     "@mdi/js": "^5.9.55",
     "@types/d3": "^6.5.0",
     "@types/prismjs": "^1.16.5",
-    "@typescript-eslint/eslint-plugin": "^4.24.0",
+    "@typescript-eslint/eslint-plugin": "^4.26.0",
     "@typescript-eslint/parser": "^4.24.0",
     "@vue/cli": "~4.5.13",
     "@vue/cli-plugin-babel": "~4.5.13",
