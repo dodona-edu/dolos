@@ -4,6 +4,8 @@ import { Writable } from "stream";
 import { createWriteStream, promises, promises as fs } from "fs";
 import { Block } from "../analyze/block";
 import { Diff } from "../analyze/diff";
+import { Report } from "../analyze/report";
+import { Options } from "../util/options";
 
 export function writeCSVto<T>(
   out: Writable,
@@ -29,6 +31,10 @@ export function writeCSVto<T>(
 }
 
 export class CsvPresenter extends Presenter {
+
+  constructor(report: Report, options: Options, protected destination: string) {
+    super(report, options);
+  }
 
   private convertBlocksToJSON(blocks: Block[]): string {
     return JSON.stringify(blocks.map( block => {
@@ -112,8 +118,8 @@ export class CsvPresenter extends Presenter {
   }
 
   async writeToDirectory(): Promise<string> {
-    const dirName = `dolos-report-${ new Date().toISOString() }`;
-    await fs.mkdir(dirName);
+    const dirName = this.destination || `dolos-report-${ new Date().toISOString() }`;
+    await fs.mkdir(dirName, { recursive: true });
 
     console.log(`Writing results to directory: ${dirName}`);
     this.writeMetadata(createWriteStream(`${dirName}/metadata.csv`));
