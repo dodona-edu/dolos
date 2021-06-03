@@ -11,8 +11,8 @@ export class WebPresenter extends CsvPresenter {
 
   private diffMap: {[key: number]: Diff} = {};
 
-  constructor(report: Report, options: Options) {
-    super(report, options);
+  constructor(report: Report, options: Options, destination: string) {
+    super(report, options, destination);
     for(const { diff } of report.scoredDiffs) {
       this.diffMap[diff.id] = diff;
     }

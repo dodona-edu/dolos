@@ -98,6 +98,13 @@ program
     "terminal"
   )
   .option(
+    "-o, --output-destination <path>",
+    Utils.indent(
+      "Path where to write the output report to. " +
+      "This has no effect when the output format is set to 'terminal'."
+    )
+  )
+  .option(
     "--sort <field>",
     Utils.indent(
       "Which field to sort the diffs by. Options are: similarity, continuous and total", "total"
@@ -157,12 +164,13 @@ program
       });
       const report = await dolos.analyzePaths(locations);
 
+      const dest = options.outputDestination;
       const presenter = closestMatch(options.outputFormat, {
         "terminal": () => new TerminalPresenter(report, dolos.options, options.compare),
         "console" : () => new TerminalPresenter(report, dolos.options, options.compare),
-        "csv" : () => new CsvPresenter(report, dolos.options),
-        "html": () => new WebPresenter(report, dolos.options),
-        "web": () => new WebPresenter(report, dolos.options),
+        "csv" : () => new CsvPresenter(report, dolos.options, dest),
+        "html": () => new WebPresenter(report, dolos.options, dest),
+        "web": () => new WebPresenter(report, dolos.options, dest),
       });
 
       if(presenter == null) {
