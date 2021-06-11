@@ -2,7 +2,6 @@
   "name": "@dodona/dolos",
   "version": "0.0.1",
   "description": "Code similarity detection based on the Winnowing algorithm",
-  "main": "dist/dolos.js",
   "types": "dist/dolos.d.ts",
   "bin": {
     "dolos": "dist/cli.js"
@@ -16,8 +15,7 @@
     "test": "nyc ava",
     "test:watch": "ava --watch",
     "build": "tsc",
-    "lint": "eslint --ext .ts src/",
-    "copy:web": "rsync -rc --delete ../web/dist/ dist/web/"
+    "lint": "eslint --ext .ts src/"
   },
   "repository": {
     "type": "git",
@@ -58,6 +56,9 @@
     "tree-sitter-java": "^0.19.1",
     "tree-sitter-javascript": "^0.19.0",
     "tree-sitter-python": "^0.19.0"
+  },
+  "optionalDependencies": {
+    "@dodona/dolos-web": "0.0.1"
   },
   "bugs": {
     "url": "https://github.com/dodona-edu/dolos/issues"

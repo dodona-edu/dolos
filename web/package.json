@@ -1,7 +1,8 @@
 {
-  "name": "dolos-web",
+  "name": "@dodona/dolos-web",
+  "description": "Web UI for the Dolos plagiarism detection tool.",
   "version": "0.0.1",
-  "private": true,
+  "main": "dist/index.html",
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
@@ -48,5 +49,14 @@
     "vuetify": "^2.5.3",
     "vuetify-loader": "^1.7.2",
     "vuex": "^3.6.2"
+  },
+  "license": "MIT",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org",
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/dodona-edu/dolos.git"
   }
 }
