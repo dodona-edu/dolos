@@ -32,6 +32,7 @@
     "eslint-plugin-promise": "^5.1.0",
     "eslint-plugin-standard": "^5.0.0",
     "eslint-plugin-vue": "^7.10.0",
+    "np": "^7.5.0",
     "prismjs": "^1.20.0",
     "reflect-metadata": "^0.1.13",
     "roboto-fontface": "*",
