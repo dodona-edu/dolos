@@ -19,14 +19,14 @@ jobs:
       - name: Cache Yarn dependencies
         uses: actions/cache@v1
         with:
-          path: ${{ github.workspace }}/web/node_modules
-          key: ${{ runner.os }}-node-${{ matrix.node }}-node_modules-${{ hashFiles(format('{0}{1}', github.workspace, '/web/yarn.lock')) }}
+          path: ${{ github.workspace }}/node_modules
+          key: ${{ runner.os }}-node-${{ matrix.node }}-node_modules-${{ hashFiles(format('{0}{1}', github.workspace, '/yarn.lock')) }}
           restore-keys: |
             ${{ runner.os }}-node-${{ matrix.node }}-node_modules-
       - name: Test
         run: |
-          cd web/
           yarn install
+          cd web/
           yarn build
   lint:
     name: Lint
@@ -40,12 +40,12 @@ jobs:
       - name: Cache Yarn dependencies
         uses: actions/cache@v1
         with:
-          path: ${{ github.workspace }}/web/node_modules
-          key: ${{ runner.os }}-node_modules-${{ hashFiles(format('{0}{1}', github.workspace, '/web/yarn.lock')) }}
+          path: ${{ github.workspace }}/node_modules
+          key: ${{ runner.os }}-node_modules-${{ hashFiles(format('{0}{1}', github.workspace, '/yarn.lock')) }}
           restore-keys: |
             ${{ runner.os }}-node_modules-
       - name: Lint
         run: |
-          cd web/
           yarn install
+          cd web/
           yarn lint
