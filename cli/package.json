@@ -1,6 +1,6 @@
 {
   "name": "@dodona/dolos",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Code similarity detection based on the Winnowing algorithm",
   "types": "dist/dolos.d.ts",
   "bin": {
