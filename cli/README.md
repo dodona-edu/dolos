@@ -37,8 +37,12 @@ With the following parameters:
 
 ## Development
 
-- If you want to use the `web` format, you need to build the [web project](../web/) first and run `yarn copy:web`.
-- Install dependencies with `yarn install`
+This project uses [yarn workspaces](https://classic.yarnpkg.com/en/docs/workspaces/)
+so you will need to use yarn.
+
+- Run `yarn install` in the **root directory**, this will link the `web` project
+  with the `cli` project as well.
+- If you want to use the `web` format, you need to build the [web project](../web/) first.
 - Build the project with `yarn build`
 - Run basic tests with `yarn test`
 

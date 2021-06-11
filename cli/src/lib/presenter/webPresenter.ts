@@ -6,6 +6,7 @@ import path from "path";
 import { Report } from "../analyze/report";
 import { Options } from "../util/options";
 import { Diff } from "../analyze/diff";
+import { error } from "../util/utils";
 
 export class WebPresenter extends CsvPresenter {
 
@@ -23,11 +24,20 @@ export class WebPresenter extends CsvPresenter {
 
     const reportDir = await this.writeToDirectory();
 
-    const app: Express = express();
-    app.use("/data", express.static(reportDir));
-    app.use(express.static(path.join(__dirname, "..", "..", "web")));
-
-    return this.run(app);
+    try {
+      const webfiles = require.resolve("@dodona/dolos-web");
+      const app: Express = express();
+      app.use("/data", express.static(reportDir));
+      app.use(express.static(path.dirname(webfiles)));
+      return this.run(app);
+    } catch (e) {
+      if (e.code === "MODULE_NOT_FOUND") {
+        error("Module '@dodona/dolos-web' was not found on your system, " +
+              "but it is required to run the web view.\n" +
+              "Please install it to show the results in your browser.");
+      }
+      throw e;
+    }
   }
 
   async run(app: Express): Promise<void> {

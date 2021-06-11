@@ -3,5 +3,4 @@
 dist/tsconfig.tsbuildinfo
 dist/test/
 dist/bin/
-dist/web/data/
 *.map
