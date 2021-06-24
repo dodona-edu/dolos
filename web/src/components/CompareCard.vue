@@ -43,23 +43,13 @@
                         </v-col>
                       </v-row>
                     </v-col>
-                    <v-col cols="12" xl="auto">
+                    <v-col class="no-y-padding" cols="12" xl="auto">
                       <v-row class="no-y-padding" justify="center">
                         <v-col cols="auto">
                           {{ rightFilename }}
                         </v-col>
                       </v-row>
                     </v-col>
-                  </v-row>
-                  <v-row>
-                    <v-overflow-btn
-                      class="reviewStatusPicker"
-                      item-value="text"
-                      :items="Object.values(ReviewStatus)"
-                      :value="ReviewStatus.Unreviewed"
-                      :filled="$store.state.reviewStatus[diff.id] === ReviewStatus.Unreviewed"
-                      @input="updateReviewStatus"
-                    ></v-overflow-btn>
                   </v-row>
                 </v-container>
               </v-card-title>
@@ -208,18 +198,6 @@ import {
   mdiFileDocumentMultipleOutline
 } from "@mdi/js";
 
-export enum ReviewStatus {
-  Unreviewed = "Unreviewed",
-  Innocent = "Innocent",
-  Suspicious = "Suspicious",
-  CertainPlagiarism = "Certain plagiarism"
-}
-const reviewStatusOrder = Object.values(ReviewStatus);
-
-export function compareReviewStatus(el1: ReviewStatus, el2: ReviewStatus): number {
-  return reviewStatusOrder.indexOf(el2) - reviewStatusOrder.indexOf(el1);
-}
-
 export enum SideID {
   leftSideId = "leftSideId",
   rightSideId = "rightSideId"
@@ -228,7 +206,6 @@ export enum SideID {
 @Component({
   data: () => ({
     SideID,
-    ReviewStatus,
     mdiApplicationCog,
     mdiApproximatelyEqual,
     mdiFileDocumentMultiple,
@@ -248,10 +225,6 @@ export default class Compare extends Vue {
 
   blockListExtended = false;
   selectedItem = -1;
-
-  updateReviewStatus(reviewStatus: ReviewStatus): void {
-    this.$store.commit("setReviewStatus", { diffId: this.diff.id, reviewStatus });
-  }
 
   blockClickCount = 0;
   currentBlockClassIndex = 0;
