@@ -177,7 +177,7 @@ export class Report {
     const rightTotal = diff.rightFile.kmers.length;
     return {
       diff: diff,
-      overlap: leftCovered,
+      overlap: leftCovered + rightCovered,
       longest: diff.largestBlockLength(),
       similarity: (leftCovered + rightCovered) / (leftTotal + rightTotal)
     };
