@@ -10,7 +10,7 @@
                 Similarity ≥ {{ cutoff }}<br />
                 <input
                   type="range"
-                  min="0.5"
+                  min="0.25"
                   max="1"
                   step="0.01"
                   v-model="cutoff"
@@ -25,7 +25,7 @@
             </p>
           </form>
           <div class="node-selected">
-            <ul class="legend">
+            <ul v-if="Object.values(legend).length > 1" class="legend">
               <li
                 v-for="legendDatum of Object.values(legend).sort()"
                 :key="legendDatum.label"
@@ -52,7 +52,7 @@
 
             <!-- <span class="path">{{ selectedInfo.path }}</span> -->
             <ul v-if="selectedInfo.info !== undefined">
-              <li>Name: {{ selectedInfo.info.name }}</li>
+              <li v-if="selectedInfo.info.name !== undefined">Name: {{ selectedInfo.info.name }}</li>
               <li>Timestamp: {{ selectedInfo.info.timestamp }}</li>
               <li>Label: {{ selectedInfo.info.label }}</li>
             </ul>
@@ -153,22 +153,15 @@ export default class PlagarismGraph extends DataView {
     if (this.selectedNode >= 0) {
       const node = this.nodes[this.selectedNode];
       const file = node.file;
-      const fileInfo = {
+      return {
         path: file.path,
         info: {
-          name: "Unavailable",
-          timestamp: "Unavailable",
-          label: "Unavailable",
+          file: file.path,
+          name: file.extra.full_name || "Unavailable",
+          timestamp: file.extra.timestamp.toLocaleString() || "Unavailable",
+          label: file.extra.labels || "Unavailable",
         },
       };
-      if (file.extra) {
-        fileInfo.info = {
-          name: file.extra.fullName,
-          timestamp: file.extra.timestamp.toLocaleString(),
-          label: file.extra.labels,
-        };
-      }
-      return fileInfo;
     } else {
       return {
         path: "Nothing selected",
@@ -216,7 +209,7 @@ export default class PlagarismGraph extends DataView {
           let right = nodeMap[value.rightFile.id];
           const leftInfo = left.file.extra;
           const rightInfo = right.file.extra;
-          const directed = leftInfo && rightInfo;
+          const directed = leftInfo.createdAt && rightInfo.createdAt;
           if (directed && rightInfo.createdAt < leftInfo.createdAt)
             [left, right] = [right, left];
           left.neighbors.push(right);
@@ -257,15 +250,15 @@ export default class PlagarismGraph extends DataView {
       }
       this.nodes.forEach((node, index) => {
         node.index = index;
-        let incomming = 0;
+        let incoming = 0;
         let outgoing = 0;
         node.links.forEach((l) => {
           if (l.directed) {
-            if (l.target == node) ++incomming;
+            if (l.target === node) ++incoming;
             else ++outgoing;
           }
         });
-        node.source = outgoing > 1 && incomming == 0;
+        node.source = outgoing > 1 && incoming === 0;
         node.fillColor = labels[node.label].color;
       });
     }, 50);
@@ -283,7 +276,7 @@ export default class PlagarismGraph extends DataView {
     const nodeMap = {};
     let labels = new Set();
     Object.entries(this.files).forEach(([key, value]) => {
-      const label = (value.extra ? value.extra.labels : "") || "N/A";
+      const label = value.extra.labels || "N/A";
       labels.add(label);
       nodeMap[value.id] = {
         id: key,
@@ -299,7 +292,7 @@ export default class PlagarismGraph extends DataView {
     });
     const colorScale = d3
       .scaleOrdinal(d3.schemeCategory10)
-      .domain([...labels]);
+      .domain([...labels].reverse());
     labels = [...labels].sort().map((p) => ({
       label: p,
       selected: true,
@@ -317,7 +310,8 @@ export default class PlagarismGraph extends DataView {
       .join("path")
       .classed("link", true)
       .classed("directed", (d) => d.directed)
-      .attr("stroke-width", (d) => d.linkWidth);
+      .attr("stroke-width", (d) => d.linkWidth)
+      .on("click", (event, d) => this.toCompareView(d));
 
     this.svgNode = this.svgNodes
       .selectAll("circle")
@@ -375,6 +369,10 @@ export default class PlagarismGraph extends DataView {
           }
         }
       });
+  }
+
+  toCompareView(diff) {
+    this.$router.push(`/compare/${diff.id}`)
   }
 
   destroyed() {
@@ -441,11 +439,13 @@ export default class PlagarismGraph extends DataView {
       &.source {
         stroke-width: 0;
       }
-
       &.selected {
         stroke: red;
         stroke-dasharray: 1.14, 2;
         stroke-width: 1;
+      }
+      &:hover {
+        cursor: grab;
       }
     }
 
@@ -454,6 +454,9 @@ export default class PlagarismGraph extends DataView {
       opacity: 0.6;
       &.directed {
         marker-mid: url(#arrow-marker);
+      }
+      &:hover {
+         cursor: pointer;
       }
     }
   }

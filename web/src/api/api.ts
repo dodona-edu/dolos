@@ -25,17 +25,10 @@ export interface File {
   content: string;
   ast: string;
   /* eslint-disable camelcase */
-  extra?: {
-    timestamp: Date;
-    created_at: string;
-    exercise_id: string;
-    filename: string;
-    full_name: string;
-    id: string;
-    status: string;
-    submission_id: string;
-    name_en: string;
-    name_nl: string;
+  extra: {
+    timestamp?: Date;
+    full_name?: string;
+    labels?: string;
   };
   /* eslint-enable camelcase */
 }
@@ -131,13 +124,9 @@ async function fetchBlocks(
 function parseFiles(fileData: d3.DSVRowArray): ObjMap<File> {
   return Object.fromEntries(
     fileData.map(row => {
-      const info = JSON.parse(row.extra || "null");
-      if (info) {
-        row.extra = {
-          ...info,
-          timestamp: new Date(info.createdAt)
-        };
-      }
+      const extra = JSON.parse(row.extra || "{}");
+      extra.timestamp = extra.createdAt && new Date(extra.createdAt);
+      row.extra = extra;
       return [row.id, row];
     })
   );
