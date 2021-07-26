@@ -2,9 +2,9 @@
   <v-list-item
     class="no-y-padding block-visualizer"
     dense
-    :disabled="!block.active"
+    :disabled="!fragment.active"
     :style="dummy ? 'visibility: hidden' : ''"
-    v-if="block"
+    v-if="fragment"
   >
     <v-list-item-action class="no-y-padding">
       <!-- the icons have to be hidden manually so that it immediately disappears -->
@@ -13,7 +13,7 @@
         @click.native.stop=""
         :on-icon="dummy ? '' : 'mdi-eye'"
         :off-icon="dummy ? '' : 'mdi-eye-off'"
-        v-model="block.active"></v-checkbox>
+        v-model="fragment.active"></v-checkbox>
     </v-list-item-action>
     <v-list-item-content class="no-y-padding">
       <v-row class="flex-nowrap">
@@ -31,25 +31,25 @@
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import { constructID } from "@/util/OccurenceHighlight";
-import { Block } from "@/api/api";
+import { Fragment } from "@/api/api";
 
 @Component({
   methods: { constructID }
 })
-export default class BlockItem extends Vue {
+export default class FragmentItem extends Vue {
   @Prop() dummy!: boolean
-  @Prop() block!: Block;
+  @Prop() fragment!: Fragment;
   @Prop() name?: string;
   @Prop({ default: true }) subtext!: boolean;
 
-  @Watch("block.active")
+  @Watch("fragment.active")
   onActiveChange(newValue: boolean): void {
     this.$emit("change", newValue);
   }
 
   // TODO remove this function as it is only called once
   getDisplayText(): string {
-    return `${this.block.pairs.length}`;
+    return `${this.fragment.occurrences.length}`;
   }
 }
 </script>

@@ -22,7 +22,7 @@
                             <v-icon left>
                               {{ mdiApproximatelyEqual }}
                             </v-icon>
-                            Similarity: {{ diff.similarity.toFixed(2) }}
+                            Similarity: {{ pair.similarity.toFixed(2) }}
                           </v-chip>
                         </v-col>
                         <v-col cols="auto">
@@ -30,7 +30,7 @@
                             <v-icon left size="20">
                               {{ mdiFileDocumentMultiple }}
                             </v-icon>
-                            Continuous overlap: {{ diff.continuousOverlap }}
+                            Continuous overlap: {{ pair.longestFragment }}
                           </v-chip>
                         </v-col>
                         <v-col cols="auto">
@@ -38,7 +38,7 @@
                             <v-icon left size="20">
                               {{ mdiFileDocumentMultipleOutline }}
                             </v-icon>
-                            Total overlap: {{ diff.totalOverlap }}
+                            Total overlap: {{ pair.totalOverlap }}
                           </v-chip>
                         </v-col>
                       </v-row>
@@ -61,10 +61,10 @@
                         <v-col cols="11">
                           <compare-side
                             :active-selections="leftActiveSelectionIds"
-                            :file="diff.leftFile"
-                            :hovering-selections="lastHovered.leftSideId.blockClasses"
+                            :file="pair.leftFile"
+                            :hovering-selections="lastHovered.leftSideId.fragmentClasses"
                             :identifier="SideID.leftSideId"
-                            :selected-selections="selected.sides.leftSideId.blockClasses"
+                            :selected-selections="selected.sides.leftSideId.fragmentClasses"
                             :selections="leftSelections"
                             @codescroll="onScrollHandler"
                             @linesvisibleamount="setLinesVisible"
@@ -80,10 +80,10 @@
                             :active-selections="leftActiveSelectionIds"
                             :amount-of-lines-visible="linesVisible"
                             :document-scroll-fraction="leftScrollFraction"
-                            :hovering-selections="lastHovered.leftSideId.blockClasses"
+                            :hovering-selections="lastHovered.leftSideId.fragmentClasses"
                             :lines="leftLines"
                             :maxLines="maxLines"
-                            :selected-selections="selected.sides.leftSideId.blockClasses"
+                            :selected-selections="selected.sides.leftSideId.fragmentClasses"
                             :selections="leftSelections"
                             :side-identifier="SideID.leftSideId"
                             @selectionclick="selectionClickEventHandler"
@@ -98,10 +98,10 @@
                         <v-col cols="11">
                           <compare-side
                             :active-selections="rightActiveSelectionIds"
-                            :file="diff.rightFile"
-                            :hovering-selections="lastHovered.rightSideId.blockClasses"
+                            :file="pair.rightFile"
+                            :hovering-selections="lastHovered.rightSideId.fragmentClasses"
                             :identifier="SideID.rightSideId"
-                            :selected-selections="selected.sides.rightSideId.blockClasses"
+                            :selected-selections="selected.sides.rightSideId.fragmentClasses"
                             :selections="rightSelections"
                             @codescroll="onScrollHandler"
                             @selectionclick="selectionClickEventHandler"
@@ -115,10 +115,10 @@
                             :active-selections="rightActiveSelectionIds"
                             :amount-of-lines-visible="linesVisible"
                             :document-scroll-fraction="rightScrollFraction"
-                            :hovering-selections="lastHovered.rightSideId.blockClasses"
+                            :hovering-selections="lastHovered.rightSideId.fragmentClasses"
                             :lines="rightLines"
                             :maxLines="maxLines"
-                            :selected-selections="selected.sides.rightSideId.blockClasses"
+                            :selected-selections="selected.sides.rightSideId.fragmentClasses"
                             :selections="rightSelections"
                             :side-identifier="SideID.rightSideId"
                             @selectionclick="selectionClickEventHandler"
@@ -135,9 +135,9 @@
           </v-col>
         </v-row>
       </v-col>
-      <v-col cols="auto" v-if="!blockListExtended">
+      <v-col cols="auto" v-if="!fragmentListExtended">
         <v-row>
-          <v-btn @click="blockListExtended = !blockListExtended" icon>
+          <v-btn @click="fragmentListExtended = !fragmentListExtended" icon>
             <v-icon>
               <!-- For some strange reason "mdi-application-cog" and other cog variants wont work out of the box -->
               {{ mdiApplicationCog }}
@@ -165,32 +165,33 @@
         </v-row>
       </v-col>
     </v-row>
-    <v-navigation-drawer :value="blockListExtended" app clipped right>
-      <BlockList
-        :diff="diff"
+    <v-navigation-drawer :value="fragmentListExtended" app clipped right>
+      <FragmentList
+          :pair="pair"
+          :kgram-length="kgramLength"
         :selected="selected"
         :selected-item-sync.sync="selectedItem"
       >
         <template v-slot:header>
-          <v-btn @click="blockListExtended = false" icon small>
+          <v-btn @click="fragmentListExtended = false" icon small>
             <v-icon>
               mdi-close
             </v-icon>
           </v-btn>
         </template>
-      </BlockList>
+      </FragmentList>
     </v-navigation-drawer>
   </v-container>
 </template>
 <script lang="ts">
 
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
-import { Block, Diff, Selection } from "@/api/api";
+import { Fragment, Pair, Selection } from "@/api/api";
 import CompareSide from "@/components/CompareSide.vue";
 import BarcodeChart from "@/components/BarcodeChart.vue";
 import { constructID, SelectionId } from "@/util/OccurenceHighlight";
 import * as d3 from "d3";
-import BlockList from "@/components/BlockList.vue";
+import FragmentList from "@/components/FragmentList.vue";
 import {
   mdiApplicationCog,
   mdiApproximatelyEqual,
@@ -211,11 +212,12 @@ export enum SideID {
     mdiFileDocumentMultiple,
     mdiFileDocumentMultipleOutline
   }),
-  components: { CompareSide, BarcodeChart, BlockList },
+  components: { CompareSide, BarcodeChart, FragmentList },
 })
-export default class Compare extends Vue {
+export default class CompareCard extends Vue {
   @Prop({ default: false, required: true }) loaded!: boolean;
-  @Prop({ required: true }) diff!: Diff;
+  @Prop({ required: true }) pair!: Pair;
+  @Prop({ required: true }) kgramLength!: number;
 
   shortcutsHelptext = [
     ["Left Arrow", "Previous"],
@@ -223,19 +225,19 @@ export default class Compare extends Vue {
     ["Space/Enter", "Toggle selection"],
   ]
 
-  blockListExtended = false;
+  fragmentListExtended = false;
   selectedItem = -1;
 
-  blockClickCount = 0;
-  currentBlockClassIndex = 0;
+  fragmentClickCount = 0;
+  currentFragmentClassIndex = 0;
   // this maps a selected id to all the other selected-ids that it corresponds with
   leftMap!: Map<SelectionId, Array<SelectionId>>;
   rightMap!: Map<SelectionId, Array<SelectionId>>;
   // maps an id of a side to its map
   sideMap!: Map<SideID, Map<SelectionId, Array<SelectionId>>>;
-  sideSelectionsToBlocks: {
+  sideSelectionsToFragments: {
     [key in SideID]: {
-      [key: string]: Block[];
+      [key: string]: Fragment[];
     }
   } = {
     [SideID.leftSideId]: {},
@@ -245,25 +247,25 @@ export default class Compare extends Vue {
   selected: {
     sides: {
       [key in SideID]: {
-        blockClasses: Array<SelectionId>;
+        fragmentClasses: Array<SelectionId>;
       };
     };
     side?: string;
-    blockClasses?: Array<SelectionId>;
+    fragmentClasses?: Array<SelectionId>;
   } = {
     sides: {
-      [SideID.leftSideId]: { blockClasses: [] },
-      [SideID.rightSideId]: { blockClasses: [] },
+      [SideID.leftSideId]: { fragmentClasses: [] },
+      [SideID.rightSideId]: { fragmentClasses: [] },
     }
   };
 
   lastHovered: {
     [key in SideID]: {
-      blockClasses: Array<SelectionId>;
+      fragmentClasses: Array<SelectionId>;
     };
   } = {
-    [SideID.leftSideId]: { blockClasses: [] },
-    [SideID.rightSideId]: { blockClasses: [] },
+    [SideID.leftSideId]: { fragmentClasses: [] },
+    [SideID.rightSideId]: { fragmentClasses: [] },
   };
 
   leftScrollFraction = 0;
@@ -275,11 +277,11 @@ export default class Compare extends Vue {
   }
 
   get leftLines(): number {
-    return this.trimLastEmptyLine(this.diff.leftFile.content.split("\n"));
+    return this.trimLastEmptyLine(this.pair.leftFile.content.split("\n"));
   }
 
   get rightLines(): number {
-    return this.trimLastEmptyLine(this.diff.rightFile.content.split("\n"));
+    return this.trimLastEmptyLine(this.pair.rightFile.content.split("\n"));
   }
 
   get maxLines(): number {
@@ -290,32 +292,32 @@ export default class Compare extends Vue {
   }
 
   get rightFilename(): string {
-    return this.diff.rightFile.path;
+    return this.pair.rightFile.path;
   }
 
   get leftFilename(): string {
-    return this.diff.leftFile.path;
+    return this.pair.leftFile.path;
   }
 
-  get activeBlocks(): Array<Block> {
-    return this.diff.blocks!
-      .filter(block => block.active);
+  get activeFragments(): Array<Fragment> {
+    return this.pair.fragments!
+      .filter(fragment => fragment.active);
   }
 
   get leftActiveSelectionIds(): Array<SelectionId> {
-    return this.activeBlocks.map(block => constructID(block.left));
+    return this.activeFragments.map(fragment => constructID(fragment.left));
   }
 
   get rightActiveSelectionIds(): Array<SelectionId> {
-    return this.activeBlocks.map(block => constructID(block.right));
+    return this.activeFragments.map(fragment => constructID(fragment.right));
   }
 
   get leftSelections(): Array<Selection> {
-    return this.diff.blocks!.map(block => block.left);
+    return this.pair.fragments!.map(fragment => fragment.left);
   }
 
   get rightSelections(): Array<Selection> {
-    return this.diff.blocks!.map(block => block.right);
+    return this.pair.fragments!.map(fragment => fragment.right);
   }
 
   updated(): void {
@@ -323,7 +325,7 @@ export default class Compare extends Vue {
   }
 
   isSelectionActive(sideId: SideID): (selectionId: SelectionId) => boolean {
-    return selectionId => this.sideSelectionsToBlocks[sideId][selectionId].some(block => block.active);
+    return selectionId => this.sideSelectionsToFragments[sideId][selectionId].some(fragment => fragment.active);
   }
 
   onScrollHandler(sideId: SideID, scrollFraction: number): void {
@@ -363,74 +365,74 @@ export default class Compare extends Vue {
     return sideId === SideID.rightSideId ? SideID.leftSideId : SideID.rightSideId;
   }
 
-  getAllOtherBlockClasses(sideId: SideID, blockClasses: Array<string>): Array<string> {
+  getAllOtherFragmentClasses(sideId: SideID, fragmentClasses: Array<string>): Array<string> {
     const map = this.sideMap.get(sideId)!;
-    return blockClasses.flatMap(blockClass => map.get(blockClass)!);
+    return fragmentClasses.flatMap(fragmentClass => map.get(fragmentClass)!);
   }
 
-  onHoverEnterHandler(sideId: SideID, blockClasses: Array<string>): void {
-    const filteredBlockClasses = blockClasses.filter(this.isSelectionActive(sideId));
+  onHoverEnterHandler(sideId: SideID, fragmentClasses: Array<string>): void {
+    const filteredFragmentClasses = fragmentClasses.filter(this.isSelectionActive(sideId));
     const otherSideId = this.getOtherSide(sideId);
-    const otherBlockClasses = this.getAllOtherBlockClasses(sideId, filteredBlockClasses)
+    const otherFragmentClasses = this.getAllOtherFragmentClasses(sideId, filteredFragmentClasses)
       .filter(this.isSelectionActive(otherSideId));
 
-    this.lastHovered[sideId].blockClasses = filteredBlockClasses;
-    this.lastHovered[otherSideId].blockClasses = otherBlockClasses;
+    this.lastHovered[sideId].fragmentClasses = filteredFragmentClasses;
+    this.lastHovered[otherSideId].fragmentClasses = otherFragmentClasses;
   }
 
-  onHoverExitHandler(sideId: SideID, blockClasses: Array<string>): void {
+  onHoverExitHandler(sideId: SideID, fragmentClasses: Array<string>): void {
     const otherSideId = this.getOtherSide(sideId);
-    this.lastHovered[sideId].blockClasses = [];
-    this.lastHovered[otherSideId].blockClasses = [];
+    this.lastHovered[sideId].fragmentClasses = [];
+    this.lastHovered[otherSideId].fragmentClasses = [];
   }
 
-  cycle(sideId: SideID, blockClasses: Array<string>): [string, string] {
-    blockClasses.sort(this.sortSelectionId);
-    // if the there is nothing that was last clicked, or a different block from last time is clicked initialize the
+  cycle(sideId: SideID, fragmentClasses: Array<string>): [string, string] {
+    fragmentClasses.sort(this.sortSelectionId);
+    // if the there is nothing that was last clicked, or a different fragment from last time is clicked initialize the
     // values
-    if (this.selected.blockClasses === undefined || !(sideId === this.selected.side &&
-      this.selected.blockClasses.toString() === blockClasses.toString())) {
-      this.currentBlockClassIndex = 0;
-      this.blockClickCount = 1;
+    if (this.selected.fragmentClasses === undefined || !(sideId === this.selected.side &&
+      this.selected.fragmentClasses.toString() === fragmentClasses.toString())) {
+      this.currentFragmentClassIndex = 0;
+      this.fragmentClickCount = 1;
       Vue.set(this.selected, "side", sideId);
       // this.selected.side = sideId;
-      Vue.set(this.selected, "blockClasses", blockClasses.slice());
-      // this.selected.blockClasses = blockClasses.slice();
+      Vue.set(this.selected, "fragmentClasses", fragmentClasses.slice());
+      // this.selected.fragmentClasses = fragmentClasses.slice();
     }
 
     const map = this.sideMap.get(sideId)!;
-    let id = this.selected.blockClasses![this.currentBlockClassIndex];
-    let blocks = map.get(id)!;
-    // cycles through all the blocks on the other side and if all the blocks have been cycled through, go to the next
-    // set of blocks
-    if (this.blockClickCount === blocks.length) {
-      this.blockClickCount = 1;
-      this.currentBlockClassIndex = (this.currentBlockClassIndex + 1) % this.selected.blockClasses!.length;
-      id = this.selected.blockClasses![this.currentBlockClassIndex];
-      blocks = map.get(id)!;
+    let id = this.selected.fragmentClasses![this.currentFragmentClassIndex];
+    let fragments = map.get(id)!;
+    // cycles through all the fragments on the other side and if all the fragments have been cycled through,
+    // go to the next set of fragments
+    if (this.fragmentClickCount === fragments.length) {
+      this.fragmentClickCount = 1;
+      this.currentFragmentClassIndex = (this.currentFragmentClassIndex + 1) % this.selected.fragmentClasses!.length;
+      id = this.selected.fragmentClasses![this.currentFragmentClassIndex];
+      fragments = map.get(id)!;
     } else {
-      this.blockClickCount += 1;
+      this.fragmentClickCount += 1;
     }
 
-    const other = blocks[this.blockClickCount - 1] as string;
+    const other = fragments[this.fragmentClickCount - 1] as string;
     return [id, other];
   }
 
-  makeSelector(sideId: SideID, blockClasses: Array<string>): string {
-    return blockClasses
-      .map(blockClass => `#${sideId} .${blockClass}`)
+  makeSelector(sideId: SideID, fragmentClasses: Array<string>): string {
+    return fragmentClasses
+      .map(fragmentClass => `#${sideId} .${fragmentClass}`)
       .join(", ");
   }
 
-  selectionClickEventHandler(sideId: SideID, blockClasses: Array<string>): void {
-    if (blockClasses.length === 0) {
-      Vue.set(this.selected.sides[SideID.leftSideId], "blockClasses", []);
-      Vue.set(this.selected.sides[SideID.rightSideId], "blockClasses", []);
+  selectionClickEventHandler(sideId: SideID, fragmentClasses: Array<string>): void {
+    if (fragmentClasses.length === 0) {
+      Vue.set(this.selected.sides[SideID.leftSideId], "fragmentClasses", []);
+      Vue.set(this.selected.sides[SideID.rightSideId], "fragmentClasses", []);
     } else {
-      const [id, other] = this.cycle(sideId, blockClasses);
+      const [id, other] = this.cycle(sideId, fragmentClasses);
 
-      Vue.set(this.selected.sides[sideId], "blockClasses", [id]);
-      Vue.set(this.selected.sides[this.getOtherSide(sideId)], "blockClasses", [other]);
+      Vue.set(this.selected.sides[sideId], "fragmentClasses", [id]);
+      Vue.set(this.selected.sides[this.getOtherSide(sideId)], "fragmentClasses", [other]);
 
       this.scrollSelectedIntoView();
     }
@@ -441,13 +443,13 @@ export default class Compare extends Vue {
     const element = d3.select(
       this.makeSelector(
         SideID.leftSideId,
-        this.selected.sides[SideID.leftSideId].blockClasses
+        this.selected.sides[SideID.leftSideId].fragmentClasses
       )
     ).node();
     const otherElement = d3.select(
       this.makeSelector(
         SideID.rightSideId,
-        this.selected.sides[SideID.rightSideId].blockClasses
+        this.selected.sides[SideID.rightSideId].fragmentClasses
       )
     ).node();
     (element as HTMLElement).scrollIntoView({ behavior: "smooth", block: "center" });
@@ -455,14 +457,14 @@ export default class Compare extends Vue {
   }
 
   @Watch("selectedItem")
-  blockClickEventHandler(index: number | undefined): void {
+  fragmentClickEventHandler(index: number | undefined): void {
     if (index === undefined || index === -1) {
-      Vue.set(this.selected.sides[SideID.leftSideId], "blockClasses", []);
-      Vue.set(this.selected.sides[SideID.rightSideId], "blockClasses", []);
+      Vue.set(this.selected.sides[SideID.leftSideId], "fragmentClasses", []);
+      Vue.set(this.selected.sides[SideID.rightSideId], "fragmentClasses", []);
     } else {
-      const { left, right } = this.diff.blocks![index];
-      Vue.set(this.selected.sides[SideID.leftSideId], "blockClasses", [constructID(left)]);
-      Vue.set(this.selected.sides[SideID.rightSideId], "blockClasses", [constructID(right)]);
+      const { left, right } = this.pair.fragments![index];
+      Vue.set(this.selected.sides[SideID.leftSideId], "fragmentClasses", [constructID(left)]);
+      Vue.set(this.selected.sides[SideID.rightSideId], "fragmentClasses", [constructID(right)]);
       this.scrollSelectedIntoView();
     }
   }
@@ -494,18 +496,18 @@ export default class Compare extends Vue {
    * on the other CompareSide. This is done by looping over all the hunks in the current diff.
    */
   initializeMaps(): void {
-    for (const block of this.diff.blocks!) {
-      const leftId = constructID(block.left);
-      const rightId = constructID(block.right);
-      if (!this.sideSelectionsToBlocks[SideID.leftSideId][leftId]) {
-        Vue.set(this.sideSelectionsToBlocks[SideID.leftSideId], leftId, []);
+    for (const fragment of this.pair.fragments!) {
+      const leftId = constructID(fragment.left);
+      const rightId = constructID(fragment.right);
+      if (!this.sideSelectionsToFragments[SideID.leftSideId][leftId]) {
+        Vue.set(this.sideSelectionsToFragments[SideID.leftSideId], leftId, []);
       }
-      this.sideSelectionsToBlocks[SideID.leftSideId][leftId].push(block);
+      this.sideSelectionsToFragments[SideID.leftSideId][leftId].push(fragment);
 
-      if (!this.sideSelectionsToBlocks[SideID.rightSideId][rightId]) {
-        Vue.set(this.sideSelectionsToBlocks[SideID.rightSideId], rightId, []);
+      if (!this.sideSelectionsToFragments[SideID.rightSideId][rightId]) {
+        Vue.set(this.sideSelectionsToFragments[SideID.rightSideId], rightId, []);
       }
-      this.sideSelectionsToBlocks[SideID.rightSideId][rightId].push(block);
+      this.sideSelectionsToFragments[SideID.rightSideId][rightId].push(fragment);
 
       if (!this.leftMap.has(leftId)) {
         this.leftMap.set(leftId, []);

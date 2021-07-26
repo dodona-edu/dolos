@@ -1,4 +1,4 @@
-import { Diff, ObjMap } from "@/api/api";
+import { Pair, ObjMap, Metadata } from "@/api/api";
 import { Vue } from "vue-property-decorator";
 
 export default abstract class DataView extends Vue {
@@ -8,11 +8,15 @@ export default abstract class DataView extends Vue {
     }
   }
 
-  get diffs(): ObjMap<Diff> {
-    return this.$store.state.data.diffs;
+  get metadata(): Metadata {
+    return this.$store.state.data.metadata;
   }
 
-  get files(): ObjMap<Diff> {
+  get pairs(): ObjMap<Pair> {
+    return this.$store.state.data.pairs;
+  }
+
+  get files(): ObjMap<File> {
     return this.$store.state.data.files;
   }
 

@@ -3,9 +3,10 @@
     <v-row justify="center">
       <v-col cols="12" class="no-y-padding">
         <CompareCard
-          v-if="diff && diff.blocks"
+          v-if="pair && pair.fragments"
           :loaded="dataLoaded"
-          :diff="diff"
+          :pair="pair"
+          :kgram-length="kgramLength"
         />
         <v-card v-else>
           <v-card-subtitle>
@@ -21,35 +22,39 @@
 import DataView from "@/views/DataView";
 import { Component, Prop } from "vue-property-decorator";
 import CompareCard from "@/components/CompareCard.vue";
-import { Diff } from "@/api/api";
+import { Pair } from "@/api/api";
 
 @Component({
   components: { CompareCard }
 })
 export default class Compare extends DataView {
-  @Prop({ required: true }) diffId!: number;
+  @Prop({ required: true }) pairId!: number;
 
-  async ensureBlocks(): Promise<void> {
-    if (!this.$store.getters.areBlocksLoaded(this.diffId)) {
-      await this.$store.dispatch("populateBlocks", { diffId: this.diffId });
+  async ensureFragments(): Promise<void> {
+    if (!this.$store.getters.areFragmentsLoaded(this.pairId)) {
+      await this.$store.dispatch("populateFragments", { pairId: this.pairId });
     }
   }
 
   async ensureData(): Promise<void> {
     await super.ensureData();
-    await this.ensureBlocks();
+    await this.ensureFragments();
   }
 
   created(): void {
     this.ensureData();
   }
 
-  get diff(): Diff | undefined {
-    return this.diffs[+this.diffId];
+  get pair(): Pair | undefined {
+    return this.pairs[+this.pairId];
+  }
+
+  get kgramLength(): number {
+    return this.metadata.kgramLength as number;
   }
 
   get dataLoaded(): boolean {
-    return super.dataLoaded && this.$store.getters.areBlocksLoaded(this.diffId);
+    return super.dataLoaded && this.$store.getters.areFragmentsLoaded(this.pairId);
   }
 }
 </script>

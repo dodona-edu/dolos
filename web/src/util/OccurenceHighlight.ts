@@ -31,9 +31,9 @@ function flattenToken(token: Prism.Token): Prism.Token | Array<Prism.Token> {
   }
 }
 
-export const ID_START = "marked-code-block";
+export const ID_START = "marked-code-fragment";
 
-// all selection id have the following structure: marked-code-block-STARTROW-STARTCOL-ENDROW-ENDCOL where the rows
+// all selection id have the following structure: marked-code-fragment-STARTROW-STARTCOL-ENDROW-ENDCOL where the rows
 // and cols have been replace by their values
 export type SelectionId = string;
 
@@ -73,7 +73,7 @@ function returnSelectionIds(selections: Array<Selection>, row: number, col: numb
  * registers the needed hooks to mark all the given selections
  * @param selections the selection that need to be marked
  */
-export function registerBlockHighlighting(selections: Array<Selection>): void {
+export function registerFragmentHighlighting(selections: Array<Selection>): void {
   let executed = false;
   Prism.hooks.add("after-tokenize", function (arg) {
     // each hook instance can only run once otherwise a hook, once registered, will run for every page with it's
