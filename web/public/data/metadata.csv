@@ -1,12 +1,13 @@
 property,value
-kmerLength,50
-kmersInWindow,50
+kgramLength,17
+kgramsInWindow,23
 language,javascript
-maxHashCount,
-maxHashPercentage,
-minBlockLength,0
+maxFingerprintCount,
+maxFingerprintPercentage,
+minFragmentLength,0
 limitResults,
 localPort,3000
 minSimilarity,0
-sortBy,total
-blockSortBy,fileOrder
+sortBy,total overlap
+fragmentSortBy,file order
+kgramData,
