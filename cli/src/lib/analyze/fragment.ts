@@ -4,16 +4,16 @@ import { Region } from "../util/region";
 import { Range } from "../util/range";
 
 /**
- * A block is a collection of one or more consequent pairedOccurrences (kmers).
+ * A fragment is a collection of one or more consequent pairedOccurrences (kgrams).
  *
- * A block can be extended with a new PairedOccurence if its kmer indices in both
- * files are directly after that of the block.
+ * A fragment can be extended with a new PairedOccurence if its kgram indices in both
+ * files are directly after that of the fragment.
  */
-export class Block {
+export class Fragment {
 
   public pairs: Array<PairedOccurrence>;
-  public leftKmers: Range;
-  public rightKmers: Range;
+  public leftkgrams: Range;
+  public rightkgrams: Range;
   public leftSelection: Region;
   public rightSelection: Region;
   public mergedData: Array<string> | null;
@@ -22,8 +22,8 @@ export class Block {
 
   constructor(initial: PairedOccurrence) {
     this.pairs = [initial];
-    this.leftKmers = new Range(initial.left.index);
-    this.rightKmers = new Range(initial.right.index);
+    this.leftkgrams = new Range(initial.left.index);
+    this.rightkgrams = new Range(initial.right.index);
     this.leftSelection = initial.left.location;
     this.rightSelection = initial.right.location;
     this.mergedStart = initial.left.start;
@@ -32,12 +32,12 @@ export class Block {
   }
 
   private extendable(other: PairedOccurrence): boolean {
-    return this.leftKmers.to == other.left.index &&
-      this.rightKmers.to == other.right.index;
+    return this.leftkgrams.to == other.left.index &&
+      this.rightkgrams.to == other.right.index;
   }
 
-  public extendWithPair(other: PairedOccurrence): void {
-    assert(this.extendable(other), "match does not extend this block");
+  public extendWith(other: PairedOccurrence): void {
+    assert(this.extendable(other), "match does not extend this fragment");
     this.pairs.push(other);
 
     if(this.mergedData && other.left.data) {
@@ -58,11 +58,11 @@ export class Block {
 
     this.mergedStop = other.left.stop;
 
-    // Merge kmers index range
-    this.leftKmers =
-      Range.merge(this.leftKmers, new Range(other.left.index));
-    this.rightKmers =
-      Range.merge(this.rightKmers, new Range(other.right.index));
+    // Merge kgrams index range
+    this.leftkgrams =
+      Range.merge(this.leftkgrams, new Range(other.left.index));
+    this.rightkgrams =
+      Range.merge(this.rightkgrams, new Range(other.right.index));
 
     // Merge selection
     this.leftSelection = Region.merge(
@@ -76,14 +76,14 @@ export class Block {
 
   }
 
-  public extendWithBlock(other: Block): void {
+  public extendWithFragment(other: Fragment): void {
     const otherFirst = other.pairs[0];
     assert(this.extendable(otherFirst));
 
     this.pairs = this.pairs.concat(other.pairs);
 
     if (this.mergedData && other.mergedData) {
-      if (this.mergedStop < other.leftKmers.from) {
+      if (this.mergedStop < other.leftkgrams.from) {
         for (let i = 0; i < (other.mergedStart - this.mergedStop - 1); i++) {
           this.mergedData.push("?");
         }
@@ -91,7 +91,7 @@ export class Block {
           this.mergedData.push(other.mergedData[i]);
         }
       } else {
-        for (let i = this.mergedStop - other.leftKmers.from + 1; i < other.mergedData.length; i++) {
+        for (let i = this.mergedStop - other.leftkgrams.from + 1; i < other.mergedData.length; i++) {
           this.mergedData.push(other.mergedData[i]);
         }
       }
@@ -99,11 +99,11 @@ export class Block {
 
     this.mergedStop = other.mergedStop;
 
-    // merge kmer ranges
-    this.leftKmers =
-      Range.merge(this.leftKmers, other.leftKmers);
-    this.rightKmers =
-      Range.merge(this.rightKmers, other.rightKmers);
+    // merge kgram ranges
+    this.leftkgrams =
+      Range.merge(this.leftkgrams, other.leftkgrams);
+    this.rightkgrams =
+      Range.merge(this.rightkgrams, other.rightkgrams);
 
     // merge selections
     this.leftSelection = Region.merge(

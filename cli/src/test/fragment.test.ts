@@ -2,14 +2,14 @@ import test from "ava";
 import { File } from "../lib/file/file";
 import { Fingerprint } from "../lib/hashing/hashFilter";
 import { PairedOccurrence } from "../lib/analyze/pairedOccurrence";
-import { Block } from "../lib/analyze/block";
+import { Fragment } from "../lib/analyze/fragment";
 import { Region } from "../lib/util/region";
-import { SharedKmer } from "../lib/analyze/sharedKmer";
+import { SharedFingerprint } from "../lib/analyze/sharedFingerprint";
 import { CodeTokenizer } from "../lib/tokenizer/codeTokenizer";
 import { WinnowFilter } from "../lib/hashing/winnowFilter";
 
 
-test("block should fully reconstruct matched kmers when k > w", async t => {
+test("fragment should fully reconstruct matched kgrams when k > w", async t => {
   const tokenizer = new CodeTokenizer("javascript");
   const f1 = tokenizer.tokenizeFile(
     (await File.fromPath("samples/javascript/sample.js")).ok()
@@ -46,18 +46,18 @@ test("block should fully reconstruct matched kmers when k > w", async t => {
         location: Region.merge(f2.mapping[h2.start], f2.mapping[h2.stop]),
         data: h2.data,
       },
-      new SharedKmer(h1.hash, h1.data),
+      new SharedFingerprint(h1.hash, h1.data),
     );
 
-  const block = new Block(createPair(0, f1Hashes[0], f2Hashes[0]));
+  const fragment = new Fragment(createPair(0, f1Hashes[0], f2Hashes[0]));
   for (let i = 1; i < f1Hashes.length; i += 1) {
     const pair = createPair(i, f1Hashes[i], f2Hashes[i]);
-    block.extendWithPair(pair);
+    fragment.extendWith(pair);
   }
-  t.deepEqual(f1.ast, block.mergedData);
+  t.deepEqual(f1.ast, fragment.mergedData);
 });
 
-test("block should partially reconstruct matched kmers when k < w", async t => {
+test("fragment should partially reconstruct matched kgrams when k < w", async t => {
   const tokenizer = new CodeTokenizer("javascript");
   const f1 = tokenizer.tokenizeFile(
     (await File.fromPath("samples/javascript/sample.js")).ok()
@@ -94,17 +94,17 @@ test("block should partially reconstruct matched kmers when k < w", async t => {
         location: Region.merge(f2.mapping[h2.start], f2.mapping[h2.stop]),
         data: h2.data,
       },
-      new SharedKmer(h1.hash, h1.data),
+      new SharedFingerprint(h1.hash, h1.data),
     );
 
-  const block = new Block(createPair(0, f1Hashes[0], f2Hashes[0]));
+  const fragment = new Fragment(createPair(0, f1Hashes[0], f2Hashes[0]));
   for (let i = 1; i < f1Hashes.length; i += 1) {
     const pair = createPair(i, f1Hashes[i], f2Hashes[i]);
-    block.extendWithPair(pair);
+    fragment.extendWith(pair);
   }
   for (let i = 0; i < f1.ast.length; i++) {
-    if (block.mergedData?.[i] !== "?") {
-      t.deepEqual(f1.ast[i], block.mergedData?.[i]);
+    if (fragment.mergedData?.[i] !== "?") {
+      t.deepEqual(f1.ast[i], fragment.mergedData?.[i]);
     }
   }
 });

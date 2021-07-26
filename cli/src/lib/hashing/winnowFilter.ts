@@ -6,24 +6,24 @@ export class WinnowFilter extends HashFilter {
   private readonly windowSize: number;
 
   /**
-   * Generates a Winnow object with given window size and k-mer size. The
+   * Generates a Winnow object with given window size and kgram size. The
    * winnowing algorithm will reduce the number of hashing values returned by the
    * hashing function. It will at least return 1 hashing for every window (i.e. for
    * every windowSize characters).
    *
-   * @param k The k-mer size of which hashes are calculated
+   * @param k The kgram size of which hashes are calculated
    * @param windowSize The window size
-   * @param kmerData Whether to output kmer content in fingerprints.
+   * @param kgramData Whether to output kgram content in fingerprints.
    */
-  constructor(k: number, windowSize: number, kmerData = false) {
-    super(kmerData);
+  constructor(k: number, windowSize: number, kgramData = false) {
+    super(kgramData);
     this.k = k;
     this.windowSize = windowSize;
   }
 
   /**
-   * Returns an async interator that yields fingerprints containing a hashing and its
-   * corresponding k-mer position. Can be called successively on multiple files.
+   * Returns an async iterator that yields fingerprints containing a hashing and its
+   * corresponding kgram position. Can be called successively on multiple files.
    *
    * Code based on pseudocode from
    * http://theory.stanford.edu/~aiken/publications/papers/sigmod03.pdf
@@ -69,7 +69,7 @@ export class WinnowFilter extends HashFilter {
         const start = filePos + offset;
 
         yield {
-          data: this.kmerData ? tokens.slice(start, start + this.k) : null,
+          data: this.kgramData ? tokens.slice(start, start + this.k) : null,
           hash: buffer[minPos],
           start,
           stop: start + this.k - 1,
@@ -83,7 +83,7 @@ export class WinnowFilter extends HashFilter {
           const start = filePos + ((minPos - bufferPos - this.windowSize) % this.windowSize);
 
           yield {
-            data: this.kmerData ? tokens.slice(start, start + this.k) : null,
+            data: this.kgramData ? tokens.slice(start, start + this.k) : null,
             hash: buffer[minPos],
             start,
             stop: start + this.k - 1,

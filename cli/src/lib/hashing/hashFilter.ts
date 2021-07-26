@@ -10,10 +10,10 @@ export interface Fingerprint {
 export abstract class HashFilter {
 
   protected hasher: TokenHash = new TokenHash();
-  protected readonly kmerData: boolean;
+  protected readonly kgramData: boolean;
 
-  protected constructor(kmerData = false) {
-    this.kmerData = kmerData;
+  protected constructor(kgramData = false) {
+    this.kgramData = kgramData;
   }
 
 

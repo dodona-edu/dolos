@@ -3,14 +3,14 @@ import { DefaultMap } from "../util/defaultMap";
 import { TokenizedFile } from "../file/tokenizedFile";
 import Identifiable from "../util/identifiable";
 
-export class SharedKmer extends Identifiable {
+export class SharedFingerprint extends Identifiable {
 
   private partMap: DefaultMap<TokenizedFile, Set<Occurrence>>
     = new DefaultMap(() => new Set());
 
   constructor(
     public readonly hash: number,
-    public readonly kmer: Array<string> | null,
+    public readonly kgram: Array<string> | null,
   ) { super(); }
 
   public add(part: Occurrence): void {

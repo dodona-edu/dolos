@@ -1,4 +1,4 @@
-import { SharedKmer } from "./sharedKmer";
+import { SharedFingerprint } from "./sharedFingerprint";
 import { Region } from "../util/region";
 
 /**
@@ -6,39 +6,39 @@ import { Region } from "../util/region";
  */
 export interface ASTRegion {
   /**
-   * Start index in the AST of this kmer.
+   * Start index in the AST of this kgram.
    */
   start: number;
   /**
-   * Stop index (inclusive) in the AST of this kmer.
+   * Stop index (inclusive) in the AST of this kgram.
    */
   stop: number;
   /**
-   * The index of when this kmer was outputted by the HashFilter.
-   * This differs of kmerStart if not all kmers in a file are outputted.
+   * The index of when this kgram was outputted by the HashFilter.
+   * This differs of kgramStart if not all kgrams in a file are outputted.
    */
   index: number;
   /**
-   * The selection in the actual file corrresponding to this kmer.
+   * The selection in the actual file corrresponding to this kgram.
    */
   location: Region;
   /**
-   * The AST data corresponding to this kmer.
+   * The AST data corresponding to this kgram.
    */
   data: Array<string> | null;
 }
 
 /**
- * A paired occurrence represents a common kmer between two files.
+ * A paired occurrence represents a common fingerprint between two files.
  *
- * It keeps track of the kmer index in both files, the hashing of the kmer, and
+ * It keeps track of the kgram index in both files, the hashing of the kgram, and
  * the location with its data it represents.
  */
 export class PairedOccurrence {
   constructor(
     public readonly left: ASTRegion,
     public readonly right: ASTRegion,
-    public readonly kmer: SharedKmer,
+    public readonly fingerprint: SharedFingerprint
   ) {
   }
 }

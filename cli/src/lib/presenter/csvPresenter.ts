@@ -2,8 +2,8 @@ import { Presenter } from "./presenter";
 import csvStringify from "csv-stringify";
 import { Writable } from "stream";
 import { createWriteStream, promises, promises as fs } from "fs";
-import { Block } from "../analyze/block";
-import { Diff } from "../analyze/diff";
+import { Fragment } from "../analyze/fragment";
+import { Pair } from "../analyze/pair";
 import { Report } from "../analyze/report";
 import { Options } from "../util/options";
 
@@ -36,15 +36,15 @@ export class CsvPresenter extends Presenter {
     super(report, options);
   }
 
-  private convertBlocksToJSON(blocks: Block[]): string {
-    return JSON.stringify(blocks.map( block => {
+  private convertFragmentsToJSON(fragments: Fragment[]): string {
+    return JSON.stringify(fragments.map( fragment => {
       return {
-        leftSelection: block.leftSelection,
-        rightSelection: block.rightSelection,
-        data: block.mergedData,
-        pairedOccurrences: block.pairs.map(pair => {
+        leftSelection: fragment.leftSelection,
+        rightSelection: fragment.rightSelection,
+        data: fragment.mergedData,
+        pairedOccurrences: fragment.pairs.map(pair => {
           return {
-            sharedKmer: pair.kmer.id,
+            sharedFingerprint: pair.fingerprint.id,
             left: {
               start: pair.left.start,
               stop: pair.left.stop,
@@ -61,34 +61,34 @@ export class CsvPresenter extends Presenter {
     }), null, 2);
   }
 
-  public async writeBlocks(out: promises.FileHandle, diff: Diff): Promise<void> {
-    await out.write(this.convertBlocksToJSON(diff.blocks()));
+  public async writeFragments(out: promises.FileHandle, pair: Pair): Promise<void> {
+    await out.write(this.convertFragmentsToJSON(pair.fragments()));
   }
 
-  public writeDiffs(out: Writable): void {
+  public writePairs(out: Writable): void {
     writeCSVto(
       out,
-      this.report.scoredDiffs,
+      this.report.scoredPairs,
       {
-        "id": s => s.diff.id,
-        "leftFileId": s => s.diff.leftFile.id,
-        "leftFilePath": s => s.diff.leftFile.path,
-        "rightFileId": s => s.diff.rightFile.id,
-        "rightFilePath": s => s.diff.rightFile.path,
+        "id": s => s.pair.id,
+        "leftFileId": s => s.pair.leftFile.id,
+        "leftFilePath": s => s.pair.leftFile.path,
+        "rightFileId": s => s.pair.rightFile.id,
+        "rightFilePath": s => s.pair.rightFile.path,
         "similarity": s => s.similarity,
         "totalOverlap": s => s.overlap,
-        "continuousOverlap": s => s.longest,
+        "longestFragment": s => s.longest,
       });
   }
 
-  public writeKmers(out: Writable): void {
+  public writekgrams(out: Writable): void {
     writeCSVto(
       out,
-      this.report.sharedKmers(),
+      this.report.sharedFingerprints(),
       {
         "id": s => s.id,
         "hash": s => s.hash,
-        "data": s => s.kmer?.join(" ") || null,
+        "data": s => s.kgram?.join(" ") || null,
         "files": s => JSON.stringify(s.files().map(f => f.id))
       });
   }
@@ -124,18 +124,18 @@ export class CsvPresenter extends Presenter {
     console.log(`Writing results to directory: ${dirName}`);
     this.writeMetadata(createWriteStream(`${dirName}/metadata.csv`));
     console.log("Metadata written.");
-    this.writeDiffs(createWriteStream(`${dirName}/diffs.csv`));
-    console.log("Diffs written.");
-    await fs.mkdir(`${dirName}/blocks`);
-    for (const diff of this.report.scoredDiffs) {
-      const id = diff.diff.id;
-      const file = await fs.open(`${dirName}/blocks/${id}.json`, "w");
-      await this.writeBlocks(file, diff.diff);
+    this.writePairs(createWriteStream(`${dirName}/pairs.csv`));
+    console.log("Pairs written.");
+    await fs.mkdir(`${dirName}/fragments`);
+    for (const pair of this.report.scoredPairs) {
+      const id = pair.pair.id;
+      const file = await fs.open(`${dirName}/fragments/${id}.json`, "w");
+      await this.writeFragments(file, pair.pair);
       await file.close();
     }
-    console.log("Blocks written");
-    this.writeKmers(createWriteStream(`${dirName}/kmers.csv`));
-    console.log("Kmers written.");
+    console.log("Fragments written");
+    this.writekgrams(createWriteStream(`${dirName}/kgrams.csv`));
+    console.log("kgrams written.");
     this.writeFiles(createWriteStream(`${dirName}/files.csv`));
     console.log("Files written.");
     console.log("Completed");
