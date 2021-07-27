@@ -1,7 +1,7 @@
 <template>
   <v-card>
     <v-card-title>
-      Pair list
+      File pairs
       <v-spacer></v-spacer>
       <v-text-field
         v-model="search"

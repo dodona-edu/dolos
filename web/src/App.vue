@@ -21,7 +21,7 @@
               <v-icon>mdi-format-list-bulleted-square</v-icon>
             </v-list-item-icon>
             <v-list-item-content>
-              <v-list-item-title>Pair list</v-list-item-title>
+              <v-list-item-title>File pairs</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
           <v-list-item @click="toGraphView" link>
@@ -29,7 +29,7 @@
               <v-icon>mdi-graph</v-icon>
             </v-list-item-icon>
             <v-list-item-content>
-              <v-list-item-title>Similarity graph</v-list-item-title>
+              <v-list-item-title>Plagiarism graph</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
         </v-list>
