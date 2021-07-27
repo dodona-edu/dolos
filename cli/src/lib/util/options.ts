@@ -47,8 +47,8 @@ function definedOrDefault<T>(arg: T | undefined | null, def: T): T {
 
 export class Options implements DolosOptions {
 
-  public static defaultKgramLength = 50;
-  public static defaultKgramsInWindow = 40;
+  public static defaultKgramLength = 23;
+  public static defaultKgramsInWindow = 17;
   public static defaultLanguage = "javascript";
   public static defaultMinFragmentLength = 0;
   public static defaultMinSimilarity = 0;
