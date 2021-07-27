@@ -7,7 +7,7 @@
             <v-list-item>
               <v-list-item-content>
                 <v-list-item-title class="title">
-                  Blocks
+                  Fragments
                 </v-list-item-title>
               </v-list-item-content>
               <v-spacer></v-spacer>
@@ -25,22 +25,22 @@
                   </v-btn>
                 </v-col>
                 <v-col cols="auto">
-                  <BlockVisualizer
-                    v-if="selectedBlock"
+                  <FragmentItem
+                    v-if="selectedFragment"
                     @change="onSelectedItemActiveChange"
-                    :block="selectedBlock"
+                    :fragment="selectedFragment"
                     class="no-y-padding"
                   >
-                  </BlockVisualizer>
-                  <!-- this second blockVisualizer makes sure that this component does not resize whenever a -->
-                  <!-- block is selected/deselected -->
-                  <BlockVisualizer
+                  </FragmentItem>
+                  <!-- this second fragmentVisualizer makes sure that this component does not resize whenever a -->
+                  <!-- fragment is selected/deselected -->
+                  <FragmentItem
                     v-else
-                    :block="diff.blocks[0]"
+                    :fragment="pair.fragments[0]"
                     :dummy="true"
                     class="no-y-padding"
                   >
-                  </BlockVisualizer>
+                  </FragmentItem>
                 </v-col>
                 <v-col cols="auto">
                   <v-btn @click.stop="changeSelectedItem(1)" ref="buttonright1">
@@ -57,12 +57,12 @@
               <v-row>
                 <v-col class="no-y-padding" cols="12">
                   <v-list-item-subtitle>
-                    Minimum block length
+                    Minimum fragment length
                   </v-list-item-subtitle>
                   <v-slider
-                    :max="maxBlockKmers + 1"
-                    :min="minBlockKmers"
-                    @end="applyMinBlockLength"
+                    :max="maxFragmentKgrams + 1"
+                    :min="minFragmentKgrams"
+                    @end="applyMinFragmentLength"
                     thumb-label
                     track-color="lightgray"
                   >
@@ -79,13 +79,13 @@
       <v-data-table
         :headers="headers"
         :item-class="itemClassFunction"
-        :items="blocksWithId"
+        :items="fragmentsWithId"
         @click:row="onRowClick"
         disable-pagination
         fixed-header
         height="71vh"
         hide-default-footer
-        id="blockList"
+        id="fragmentList"
         item-key="id"
         multi-sort
         selectable-key="active"
@@ -109,112 +109,115 @@
 </template>
 
 <script lang="ts">
-import BlockVisualizer from "@/components/BlockItem.vue";
-import { Block, Diff } from "@/api/api";
+import FragmentItem from "@/components/FragmentItem.vue";
+import { Fragment, Pair } from "@/api/api";
 import { Component, Prop, PropSync, Vue, Watch } from "vue-property-decorator";
 import { constructID, SelectionId } from "@/util/OccurenceHighlight";
 import { SideID } from "@/components/CompareCard.vue";
 
-interface BlockWithId extends Block {
+interface FragmentWithId extends Fragment {
   index: number;
 }
 
 @Component({
-  components: { BlockVisualizer },
+  components: { FragmentItem },
   methods: {
     constructID
   }
 })
-export default class BlockList extends Vue {
-  @Prop({ required: true }) diff!: Diff;
+export default class FragmentList extends Vue {
+  @Prop({ required: true }) kgramLength!: number;
+  @Prop({ required: true }) pair!: Pair;
   @Prop({ required: true }) selected!: {
     side: SideID;
-    blockClasses: Array<SelectionId>;
+    fragmentClasses: Array<SelectionId>;
   };
 
   @PropSync("selectedItemSync", { required: true }) selectedItem!: number;
 
-  headers = [
-    {
-      text: "visibility",
-      sortable: true,
-      value: "active"
-    },
-    {
-      text: "K-mers",
-      sortable: true,
-      value: "pairs.length"
-    }
-  ]
+  get headers(): Array<{text: string; sortable: boolean; value: string}> {
+    return [
+      {
+        text: "Visibility",
+        sortable: true,
+        value: "active"
+      },
+      {
+        text: this.kgramLength + "-grams",
+        sortable: true,
+        value: "occurrences.length"
+      }
+    ];
+  }
 
   selectionsIds!: Array<[SelectionId, SelectionId]>;
-  dataTableSelection: [BlockWithId] | [] = [];
+  dataTableSelection: [FragmentWithId] | [] = [];
 
-  get blockLengths(): Array<number> {
-    const lengths = this.diff.blocks?.map(block => block.pairs.length);
-    if (!lengths) throw new Error("blocks are not loaded");
+  get fragmentLengths(): Array<number> {
+    const lengths = this.pair.fragments?.map(fragment => fragment.occurrences.length);
+    if (!lengths) throw new Error("fragments are not loaded");
     return lengths;
   }
 
-  get minBlockKmers(): number {
-    return this.blockLengths.reduce((pv, cv) => Math.min(pv, cv)) as number;
+  get minFragmentKgrams(): number {
+    return this.fragmentLengths.reduce((pv, cv) => Math.min(pv, cv)) as number;
   }
 
-  get maxBlockKmers(): number {
-    return this.blockLengths.reduce((pv, cv) => Math.max(pv, cv)) as number;
+  get maxFragmentKgrams(): number {
+    return this.fragmentLengths.reduce((pv, cv) => Math.max(pv, cv)) as number;
   }
 
-  get selectedBlock(): Block | undefined {
-    if (this.diff.blocks === null) {
+  get selectedFragment(): Fragment | undefined {
+    if (this.pair.fragments === null) {
       return undefined;
     } else {
-      return this.diff.blocks[this.selectedItem];
+      return this.pair.fragments[this.selectedItem];
     }
   }
 
   get anyActive(): boolean {
-    if (this.diff.blocks === null) {
+    if (this.pair.fragments === null) {
       return false;
     } else {
-      return this.diff.blocks.some(block => block.active) as boolean;
+      return this.pair.fragments.some(fragment => fragment.active) as boolean;
     }
   }
 
-  get blocksWithId(): Array<BlockWithId> {
-    if (this.diff.blocks === null) {
+  get fragmentsWithId(): Array<FragmentWithId> {
+    if (this.pair.fragments === null) {
       return [];
     } else {
-      return this.diff.blocks.map((block, index) => {
-        const blockWithId = (block as BlockWithId);
-        blockWithId.index = index;
-        return blockWithId;
+      return this.pair.fragments.map((fragment, index) => {
+        const fragmentWithId = (fragment as FragmentWithId);
+        fragmentWithId.index = index;
+        return fragmentWithId;
       });
     }
   }
 
-  applyMinBlockLength(value: number): void {
-    if (this.diff.blocks !== null) {
-      for (const block of this.diff.blocks) {
-        block.active = value <= block.pairs.length;
+  applyMinFragmentLength(value: number): void {
+    if (this.pair.fragments !== null) {
+      for (const fragment of this.pair.fragments) {
+        fragment.active = value <= fragment.occurrences.length;
       }
-      if (this.selectedBlock && !this.selectedBlock.active) {
+      if (this.selectedFragment && !this.selectedFragment.active) {
         this.selectedItem = -1;
       }
     }
   }
 
   changeSelectedItem(dx: number, current?: number): void {
-    if (this.diff.blocks === null || !this.anyActive) {
+    if (this.pair.fragments === null || !this.anyActive) {
       this.selectedItem = -1;
     } else {
-      const length = this.diff.blocks.length;
+      const length = this.pair.fragments.length;
       // explicit undefined check because 0 is falsy
       let value = current === undefined ? this.selectedItem : current;
       while (value < 0) {
         value += length;
       }
       const next = (((value + dx) % length) + length) % length;
-      if (!this.diff.blocks[next].active) {
+      if (!this.pair.fragments[next].active) {
         this.changeSelectedItem(dx, next);
       } else {
         this.selectedItem = next;
@@ -225,8 +228,8 @@ export default class BlockList extends Vue {
   @Watch("selected", { deep: true })
   onSelectedChange({ sides }: any): void {
     const { leftSideId, rightSideId } = sides;
-    const leftSel = leftSideId.blockClasses[0];
-    const rightSel = rightSideId.blockClasses[0];
+    const leftSel = leftSideId.fragmentClasses[0];
+    const rightSel = rightSideId.fragmentClasses[0];
     this.selectedItem = this.selectionsIds
       .findIndex(([left, right]) => (leftSel === left && rightSel === right));
   }
@@ -238,8 +241,8 @@ export default class BlockList extends Vue {
     } else if (event.key === "ArrowRight") {
       this.changeSelectedItem(1);
     } else if (event.key === " " || event.key === "Enter") {
-      if (this.selectedBlock) {
-        this.selectedBlock.active = !this.selectedBlock.active;
+      if (this.selectedFragment) {
+        this.selectedFragment.active = !this.selectedFragment.active;
       }
     }
   }
@@ -253,8 +256,8 @@ export default class BlockList extends Vue {
   }
 
   mounted(): void {
-    if (this.diff.blocks === null) {
-      const unwatch = this.$watch("diff.blocks", function () {
+    if (this.pair.fragments === null) {
+      const unwatch = this.$watch("pair.fragments", function () {
         // the documentation specifically tells that arrow function should not be used
         // eslint-disable-next-line no-invalid-this
         this.makeSelectionsWithIds();
@@ -269,23 +272,23 @@ export default class BlockList extends Vue {
   }
 
   private makeSelectionsWithIds(): void {
-    if (this.diff.blocks === null) {
+    if (this.pair.fragments === null) {
       this.selectionsIds = [];
     } else {
-      this.selectionsIds = this.diff.blocks.map(block => {
-        return [constructID(block.left), constructID(block.right)];
+      this.selectionsIds = this.pair.fragments.map(fragment => {
+        return [constructID(fragment.left), constructID(fragment.right)];
       });
     }
   }
 
-  itemClassFunction(block: BlockWithId): string | void {
-    if (this.selectedItem === block.index) {
+  itemClassFunction(fragment: FragmentWithId): string | void {
+    if (this.selectedItem === fragment.index) {
       return "blue lighten-4";
     }
   }
 
-  dataTableCheckBoxToggle(block: BlockWithId, value: boolean): void {
-    if (this.selectedItem === block.index && !value) {
+  dataTableCheckBoxToggle(fragment: FragmentWithId, value: boolean): void {
+    if (this.selectedItem === fragment.index && !value) {
       this.selectedItem = -1;
     }
   }
@@ -296,14 +299,16 @@ export default class BlockList extends Vue {
     }
   }
 
-  onRowClick(block: BlockWithId, { isSelected, select }: { isSelected: boolean; select: (value: boolean) => void }):
-    void {
-    if (block.active) {
+  onRowClick(
+    fragment: FragmentWithId,
+    { isSelected, select }: { isSelected: boolean; select: (value: boolean) => void }
+  ): void {
+    if (fragment.active) {
       select(!isSelected);
       if (isSelected) {
         this.selectedItem = -1;
       } else {
-        this.selectedItem = block.index;
+        this.selectedItem = fragment.index;
       }
     }
   }
@@ -313,7 +318,7 @@ export default class BlockList extends Vue {
     if (newVal === -1) {
       this.dataTableSelection = [];
     } else {
-      this.dataTableSelection = [this.blocksWithId[newVal]];
+      this.dataTableSelection = [this.fragmentsWithId[newVal]];
     }
   }
 }

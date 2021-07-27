@@ -1,19 +1,19 @@
 import Vue from "vue";
 import VueRouter, { RouteConfig } from "vue-router";
-import Summary from "@/views/Summary.vue";
+import Pairs from "@/views/Pairs.vue";
 
 Vue.use(VueRouter);
 
 const routes: Array<RouteConfig> = [
   {
     path: "/",
-    name: "Dolos summary",
-    component: Summary
+    name: "Pairs",
+    component: Pairs
   },
   {
     path: "/compare/:id",
     name: "Compare",
-    props: route => ({ diffId: route.params.id }),
+    props: route => ({ pairId: route.params.id }),
     // route level code-splitting
     // this generates a separate chunk (compare.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
@@ -21,11 +21,11 @@ const routes: Array<RouteConfig> = [
   },
   {
     path: "/graph/",
-    name: "Plagarism graph",
+    name: "Graph",
     // route level code-splitting
     // this generates a separate chunk (compare.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "graph" */ "../views/PlagarismGraph.vue")
+    component: () => import(/* webpackChunkName: "graph" */ "../views/Graph.vue")
   }
 ];
 

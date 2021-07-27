@@ -198,7 +198,7 @@ export default class PlagarismGraph extends DataView {
         node.links = [];
         node.visible = labels[node.label].selected;
       });
-      this.links = Object.entries(this.diffs)
+      this.links = Object.entries(this.pairs)
         .filter(([key, value]) => value.similarity >= this.cutoff)
         .filter(
           ([_, { leftFile, rightFile }]) =>

@@ -4,7 +4,7 @@ import { Range } from "../util/range";
 
 export class TokenizedFile extends File {
 
-  public readonly kmers: Array<Range>;
+  public readonly kgrams: Array<Range>;
 
   constructor(
     public file: File,
@@ -12,7 +12,7 @@ export class TokenizedFile extends File {
     public readonly mapping: Array<Region>
   ) {
     super(file.path, file.content, file.extra);
-    this.kmers = [];
+    this.kgrams = [];
   }
 
 }

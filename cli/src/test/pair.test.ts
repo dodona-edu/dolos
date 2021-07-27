@@ -1,9 +1,9 @@
 import test from "ava";
 import { File } from "../lib/file/file";
 import { TokenizedFile } from "../lib/file/tokenizedFile";
-import { Diff } from "../lib/analyze/diff";
+import { Pair } from "../lib/analyze/pair";
 import { Region } from "../lib/util/region";
-import { SharedKmer } from "../lib/analyze/sharedKmer";
+import { SharedFingerprint } from "../lib/analyze/sharedFingerprint";
 import { PairedOccurrence } from "../lib/analyze/pairedOccurrence";
 
 function createFakeFile(name: string): TokenizedFile {
@@ -14,16 +14,16 @@ function createFakeFile(name: string): TokenizedFile {
   );
 }
 
-function createDiff(): Diff {
+function createPair(): Pair {
   const f1 = createFakeFile("file1");
   const f2 = createFakeFile("file2");
-  return new Diff(f1, f2);
+  return new Pair(f1, f2);
 }
 
 test("paired occurrence merging & squashing", t => {
-  const int = createDiff();
+  const int = createPair();
 
-  let kmer = new SharedKmer(1, "kmer 1".split(" "));
+  let kgram = new SharedFingerprint(1, "kgram 1".split(" "));
   const biggerTopLeft = [];
   // bigger match
   for(let i = 0; i < 10; i++) {
@@ -42,15 +42,15 @@ test("paired occurrence merging & squashing", t => {
         location: new Region(20 + i, 0, 20 + i + 1, 0),
         data: "lines 20 - 30".split(" "),
       },
-      kmer
+      kgram
     );
     int.addPair(pair);
-    t.is(1, int.blocks().length);
+    t.is(1, int.fragments().length);
     biggerTopLeft.push(pair);
   }
 
   // contained match
-  kmer = new SharedKmer(2, "kmer 2".split(" "));
+  kgram = new SharedFingerprint(2, "kgram 2".split(" "));
   const topLeftContained = new PairedOccurrence(
     {
       index: 5,
@@ -66,14 +66,14 @@ test("paired occurrence merging & squashing", t => {
       location: new Region(25, 0, 26, 0),
       data: "small match line 25".split(" "),
     },
-    kmer
+    kgram
   );
   int.addPair(topLeftContained);
-  t.is(2, int.blocks().length);
+  t.is(2, int.fragments().length);
 
   // bigger match, same location
   const biggerMiddle = [];
-  kmer = new SharedKmer(3, "kmer 3".split(" "));
+  kgram = new SharedFingerprint(3, "kgram 3".split(" "));
   for(let i = 0; i < 10; i++) {
     const match = new PairedOccurrence(
       {
@@ -90,16 +90,16 @@ test("paired occurrence merging & squashing", t => {
         location: new Region(10 + i, 0, 10 + i + 1, 0),
         data: "lines 10 - 20".split(" "),
       },
-      kmer
+      kgram
     );
     biggerMiddle.push(match);
     int.addPair(match);
-    t.is(3, int.blocks().length);
+    t.is(3, int.fragments().length);
   }
 
   // bigger match
   const  biggerBottomLeft = [];
-  kmer = new SharedKmer(4, "kmer 4".split(" "));
+  kgram = new SharedFingerprint(4, "kgram 4".split(" "));
   for(let i = 0; i < 10; i++) {
     const match = new PairedOccurrence(
       {
@@ -116,15 +116,15 @@ test("paired occurrence merging & squashing", t => {
         location: new Region(i, 0, i + 1, 0),
         data: "lines 0 - 10".split(" "),
       },
-      kmer
+      kgram
     );
     biggerBottomLeft.push(match);
     int.addPair(match);
-    t.is(4, int.blocks().length);
+    t.is(4, int.fragments().length);
   }
 
   // contained match
-  kmer = new SharedKmer(5, "kmer 5".split(" "));
+  kgram = new SharedFingerprint(5, "kgram 5".split(" "));
   const bottomLeftContained = new PairedOccurrence(
     {
       index: 25,
@@ -140,13 +140,13 @@ test("paired occurrence merging & squashing", t => {
       location: new Region(5, 0, 6, 0),
       data: "small match line 5".split(" "),
     },
-    kmer
+    kgram
   );
   int.addPair(bottomLeftContained);
-  t.is(5, int.blocks().length);
+  t.is(5, int.fragments().length);
 
   // match not contained
-  kmer = new SharedKmer(6, "kmer 6".split(" "));
+  kgram = new SharedFingerprint(6, "kgram 6".split(" "));
   const notContained = new PairedOccurrence(
     {
       index: 5,
@@ -162,28 +162,28 @@ test("paired occurrence merging & squashing", t => {
       location: new Region(5, 0, 6, 0),
       data: "not contained match line 5".split(" "),
     },
-    kmer
+    kgram
   );
   int.addPair(notContained);
 
-  let blocks = int.blocks();
-  t.is(6, blocks.length);
+  let fragments = int.fragments();
+  t.is(6, fragments.length);
 
-  t.deepEqual(biggerTopLeft, blocks[0].pairs);
-  t.deepEqual([topLeftContained], blocks[1].pairs);
-  t.deepEqual([notContained], blocks[2].pairs);
-  t.deepEqual(biggerMiddle, blocks[3].pairs);
-  t.deepEqual(biggerBottomLeft, blocks[4].pairs);
-  t.deepEqual([bottomLeftContained], blocks[5].pairs);
+  t.deepEqual(biggerTopLeft, fragments[0].pairs);
+  t.deepEqual([topLeftContained], fragments[1].pairs);
+  t.deepEqual([notContained], fragments[2].pairs);
+  t.deepEqual(biggerMiddle, fragments[3].pairs);
+  t.deepEqual(biggerBottomLeft, fragments[4].pairs);
+  t.deepEqual([bottomLeftContained], fragments[5].pairs);
 
   int.squash();
 
-  blocks = int.blocks();
+  fragments = int.fragments();
 
-  t.is(4, blocks.length, "squashed too many");
-  t.deepEqual(biggerTopLeft, blocks[0].pairs);
-  t.deepEqual([notContained], blocks[1].pairs);
-  t.deepEqual(biggerMiddle, blocks[2].pairs);
-  t.deepEqual(biggerBottomLeft, blocks[3].pairs);
+  t.is(4, fragments.length, "squashed too many");
+  t.deepEqual(biggerTopLeft, fragments[0].pairs);
+  t.deepEqual([notContained], fragments[1].pairs);
+  t.deepEqual(biggerMiddle, fragments[2].pairs);
+  t.deepEqual(biggerBottomLeft, fragments[3].pairs);
 
 });

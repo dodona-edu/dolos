@@ -12,8 +12,8 @@ import { info } from "../util/utils";
 type Hash = number;
 
 export class Index {
-  private readonly kmerLength: number;
-  private readonly kmersInWindow: number;
+  private readonly kgramLength: number;
+  private readonly kgramsInWindow: number;
   private readonly index: Map<Hash, Array<Occurrence>> = new Map();
   private readonly tokenizer: Tokenizer;
   private readonly hashFilter: HashFilter;
@@ -38,12 +38,12 @@ export class Index {
     hashFilter?: HashFilter
   ) {
     this.tokenizer = tokenizer;
-    this.kmerLength = options.kmerLength;
-    this.kmersInWindow = options.kmersInWindow;
+    this.kgramLength = options.kgramLength;
+    this.kgramsInWindow = options.kgramsInWindow;
     this.hashFilter =
       hashFilter
         ? hashFilter
-        : new WinnowFilter(this.kmerLength, this.kmersInWindow, options.kmerData);
+        : new WinnowFilter(this.kgramLength, this.kgramsInWindow, options.kgramData);
   }
 
   /**
@@ -54,7 +54,7 @@ export class Index {
    * and each other. The file hashes will be added to the index.
    * @param hashFilter: an optional HashFilter. By default the HashFilter of the
    * Index object will be used.
-   * @return an Report object, which is a list of Diffs
+   * @return an Report object, which is a list of Pairs
    * (containing all the pairedOccurrences between two files).
    */
   public async compareFiles(
@@ -68,14 +68,14 @@ export class Index {
 
     for (const file of tokenizedFiles) {
       info(`Processing file ${file.path}`);
-      let kmer = 0;
+      let kgram = 0;
       for await (
         const { data, hash, start, stop  }
         of hashFilter.fingerprints(file.ast)
       ) {
 
-        // add kmer to file
-        file.kmers.push(new Range(start, stop));
+        // add kgram to file
+        file.kgrams.push(new Range(start, stop));
 
         // sanity check
         assert(
@@ -95,7 +95,7 @@ export class Index {
 
         const part: Occurrence = {
           file,
-          side: { index: kmer, start, stop, data, location }
+          side: { index: kgram, start, stop, data, location }
         };
 
         // look if the index already contains the given hashing
@@ -113,7 +113,7 @@ export class Index {
           this.index.set(hash, [part]);
         }
 
-        kmer += 1;
+        kgram += 1;
       }
     }
     info("Finishing report.");
@@ -130,7 +130,7 @@ export class Index {
    * @param file The file to query
    * @param hashFilter An optional HashFilter. By default the HashFilter of the
    * Index object will be used.
-   * @return a promise of a list of Diff objects. A Diff object
+   * @return report wuth the results of the comparison
    * contains the common hashes (occurrences) between two files.
    */
   public async compareFile(

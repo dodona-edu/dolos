@@ -36,7 +36,7 @@ import Prism from "prismjs";
 import "prismjs/themes/prism.css";
 import "prismjs/plugins/line-numbers/prism-line-numbers.js";
 import "prismjs/plugins/line-numbers/prism-line-numbers.css";
-import { ID_START, registerBlockHighlighting } from "@/util/OccurenceHighlight";
+import { ID_START, registerFragmentHighlighting } from "@/util/OccurenceHighlight";
 
 @Component
 export default class CompareSide extends Vue {
@@ -98,7 +98,7 @@ export default class CompareSide extends Vue {
 
   async highlight(): Promise<void> {
     await this.installLanguage();
-    registerBlockHighlighting(this.selections);
+    registerFragmentHighlighting(this.selections);
     this.codeHighLight();
   }
 

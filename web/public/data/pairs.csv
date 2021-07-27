@@ -1,0 +1,6 @@
+id,leftFileId,leftFilePath,rightFileId,rightFilePath,similarity,totalOverlap,longestFragment
+66,6,samples/javascript/copy_of_sample.js,7,samples/javascript/sample.js,1,132,66
+64,4,samples/javascript/another_copied_function.js,6,samples/javascript/copy_of_sample.js,0.3037974683544304,24,7
+65,4,samples/javascript/another_copied_function.js,7,samples/javascript/sample.js,0.3037974683544304,24,7
+67,5,samples/javascript/copied_function.js,6,samples/javascript/copy_of_sample.js,0.15789473684210525,12,6
+68,5,samples/javascript/copied_function.js,7,samples/javascript/sample.js,0.15789473684210525,12,6

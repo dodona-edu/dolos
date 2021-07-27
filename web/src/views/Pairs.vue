@@ -2,8 +2,8 @@
   <v-container fluid>
     <v-row justify="center">
       <v-col cols="10">
-        <DiffsTable
-          :diffs="diffs"
+        <PairsTable
+          :pairs="pairs"
           :loaded="dataLoaded"
         />
       </v-col>
@@ -13,13 +13,13 @@
 
 <script lang="ts">
 import { Component } from "vue-property-decorator";
-import DiffsTable from "@/components/DiffsTable.vue";
+import PairsTable from "@/components/PairsTable.vue";
 import DataView from "@/views/DataView";
 
 @Component({
-  components: { DiffsTable: DiffsTable }
+  components: { PairsTable }
 })
-export default class Home extends DataView {
+export default class Pairs extends DataView {
   created(): Promise<void> {
     return super.ensureData();
   }
