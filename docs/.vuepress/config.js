@@ -32,32 +32,36 @@ module.exports = {
     docsDir: '',
     editLinkText: '',
     lastUpdated: false,
+    displayAllHeaders: true,
     nav: [
       {
         text: 'Guide',
         link: '/guide/',
       },
       {
-        text: 'Demo',
-        link: '/demo/'
+        text: 'Try Dolos',
+        link: '/try/'
       },
       {
         text: 'GitHub',
         link: 'https://github.com/dodona-edu/dolos'
       }
     ],
+
     sidebar: {
       '/guide/': [
         {
           title: 'Guide',
           collapsable: false,
           children: [
-            '',
-            'installation',
-            'new-language',
+            './',
+            './installation',
+            './running',
+            './languages',
+            './algorithm'
           ]
         }
-      ],
+      ]
     }
   },
 

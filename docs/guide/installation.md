@@ -37,10 +37,14 @@ Dolos with `npm` with the folllowing command:
 npm install -g @dodona/dolos
 ```
 
-**Note:** the `@dodona/` prefix is required. If you just try installing `dolos`
+::: warning
+The `@dodona/` prefix is required. If you just try installing `dolos`
 you will install another package not associated with this project.
+:::
 
-The `-g` flag will install Dolos  globally.
+The `-g` flag will install Dolos  globally. If you ommit this flag, `npm` will
+add Dolos as a dependency to the JavaScript project you are currently in (if any)
+and Dolos  will only be available there.
 
 Alternatively, you can also use other node package managers like [yarn](https://classic.yarnpkg.com/lang/en/):
 ```shell
