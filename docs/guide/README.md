@@ -5,11 +5,10 @@ uses the parsing library
 [tree-sitter](https://tree-sitter.github.io/tree-sitter/) to support a broad
 range of programming languages. 
 
-//TODO
 
-- go to demo
-- install dolos
-- how to use dolos
+- [Try Dolos](/try/)
+- [Install Dolos](/guide/installation)
+- [How to use Dolos](/guide/running)
 
 
 ## What's in a name?
