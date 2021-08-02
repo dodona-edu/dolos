@@ -58,17 +58,25 @@ It is possible to [create a new parser](https://tree-sitter.github.io/tree-sitte
 
 ### Install the parser
 
+First, you need to check which version of Tree-sitter Dolos is currently using,
+by running the command `dolos --version`. The output will look like this:
+
+```
+Dolos v1.0.1
+Node v14.17.3
+Tree-sitter v0.19.0
+```
+
+Tree-sitter parsers need to have the same (major) version of the core library,
+so you will need to specify the version explicitly by suffixing the parser name
+with `@<version>`. In the example above, Dolos is using Tree-sitter v0.19.0, so
+you would need to install `tree-sitter-rust@0.19`. You may safely omit the minor
+version (the numbers after the last dot).
+
 Install a Tree-sitter parser for a specific programming language using `npm` or `yarn`:
 ```shell
 npm install -g tree-sitter-rust@0.19
 ```
-
-::: warning
-Since Tree-sitter is evolving quickly, you often need to pass the specific version
-of the parser supported by Dolos. You can specify an older version of a parser by
-suffixing it with `@<version>` like we did in the example.
-:::
-
 ### Start Dolos with the new parser
 
 Once the parser is installed, Dolos will be able to detect the new parser, and you
