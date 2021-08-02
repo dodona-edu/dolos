@@ -1,9 +1,10 @@
-# Language support
+# Supported programming languages
 
-In order to analyze the source code files, Dolos needs to parse them into tokens.
-Dolos uses [Tree-sitter](https://tree-sitter.github.io/tree-sitter/) which is
-both a parser generator and an incremental parsing library. Dolos supports every
-language supported by tree-sitter. [Which is a lot](https://tree-sitter.github.io/tree-sitter/#available-parsers).
+Dolos uses [Tree-sitter](https://tree-sitter.github.io/tree-sitter/) parsers to
+process source files. As a result, Dolos supports all programming languages for
+which a Tree-sitter parser is available.
+[The list of available parsers](https://tree-sitter.github.io/tree-sitter/#available-parsers) 
+is sheer endless
 
 ![Tree-sitter logo](https://tree-sitter.github.io/tree-sitter/assets/images/tree-sitter-small.png)
 
@@ -43,10 +44,10 @@ If the parser is not installed, you will get an error message:
 
 ### Find a parser
 
-If the parser is not installed, you can search for it [on their website](https://tree-sitter.github.io/tree-sitter/#available-parsers)
-or [on their GitHub site](https://github.com/tree-sitter).
+If the parser is not installed, you can search for it [on the Tree-sitter website](https://tree-sitter.github.io/tree-sitter/#available-parsers)
+or [on the Tree-sitter GitHub page](https://github.com/tree-sitter).
 
-We are lucky: a Rust parser [exists](https://github.com/tree-sitter/tree-sitter-rust) and the package is named, unsurprisingly, `tree-sitter-rust`.
+A Rust parser [exists](https://github.com/tree-sitter/tree-sitter-rust) and the package is named, unsurprisingly, `tree-sitter-rust`.
 
 ::: tip
 If the language you are looking for is not listed on either the website or GitHub, it might be that there is no parser available.
@@ -57,7 +58,7 @@ It is possible to [create a new parser](https://tree-sitter.github.io/tree-sitte
 
 ### Install the parser
 
-Just like we installed Dolos itself, we can install a new parser using `npm` or `yarn`:
+Install a Tree-sitter parser for a specific programming language using `npm` or `yarn`:
 ```shell
 npm install -g tree-sitter-rust@0.19
 ```

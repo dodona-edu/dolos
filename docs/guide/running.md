@@ -1,7 +1,9 @@
 # Running Dolos
 
 If you want to follow along, we have provided a [ZIP with sample files](/dolos-js-samples.zip).
-Download and extract this in your terminal:
+Download and extract this in your terminal.
+
+On Unix, you can accomplish this using the following commands:
 ```shell
 wget https://dolos.ugent.be/dolos-js-samples.zip
 unzip dolos-js-samples.zip
