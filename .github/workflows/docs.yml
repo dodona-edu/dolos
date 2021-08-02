@@ -1,4 +1,4 @@
-name: Dolos-web
+name: Dolos-docs
 
 on: [push]
 
@@ -19,7 +19,7 @@ jobs:
           key: ${{ runner.os }}-node-16-node_modules-${{ hashFiles(format('{0}{1}', github.workspace, '/yarn.lock')) }}
           restore-keys: |
             ${{ runner.os }}-node_modules-
-      - name: Lint
+      - name: Build
         run: |
           yarn install
           cd docs/
