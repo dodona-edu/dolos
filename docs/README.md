@@ -5,7 +5,7 @@ heroAlt: The Dolos plagiarism graph
 heroText: Dolos
 tagline: Source code plagiarism detection
 actionText: Try it out →
-actionLink: https://dolos.ugent.be/demo/soco/java/#/graph/
+actionLink: /try/
 footer: Made by Team Dodona with ❤️
 ---
 

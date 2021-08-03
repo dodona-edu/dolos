@@ -8,13 +8,34 @@ indicating whether a file is involved in plagiarism (orange) or not (blue).
 
 If you want to run Dolos yourself, you can follow our [quick start guide](/guide/installation.html)
 
+<div class="row">
+<div class="column center">
+
 ## Java
 
-[![Plagiarism graph of the Java files in the SOCO dataset](/images/soco-java-graph.png) Try out the Java demo][1]
+A set of 259 Java files, of which 115 files are labeled as plagiarism.
+
+<div class="center-content">
+<a class="link-button" href="https://dolos.ugent.be/demo/soco/java/#/">Try Java demo</a>
+</div>
+
+[![Plagiarism graph of the Java files in the SOCO dataset](/images/soco-java-graph.png)](https://dolos.ugent.be/demo/soco/java/#/graph)
+
+
+</div>
+<div class="column">
 
 ## C
 
-[![Plagiarism graph of the C files in the SOCO dataset](/images/soco-c-graph.png) Try out the C demo][2]
+A set of 79 C files, of which 37 files are labeled as plagiarism.
 
-[1]: https://dolos.ugent.be/demo/soco/java/#/graph
-[2]: https://dolos.ugent.be/demo/soco/c/#/graph
+<div class="center-content">
+<a class="link-button" href="https://dolos.ugent.be/demo/soco/c/#/">Try C demo</a>
+</div>
+
+[![Plagiarism graph of the C files in the SOCO dataset](/images/soco-c-graph.png)](https://dolos.ugent.be/demo/soco/c/#/graph)
+
+
+
+</div>
+</div>
