@@ -22,8 +22,7 @@
       </template>
     </component>
     <pre v-scroll.self="onScroll" ref="pre" :id="identifier" class="line-numbers highlighted-code"><code
-      ref="codeblock"
-      :class="language">{{content}}</code>
+      ref="codeblock" :class="`language-${language}`"></code>
     </pre>
   </div>
 </template>
@@ -52,7 +51,7 @@ export default class CompareSide extends Vue {
   }
 
   get language(): string {
-    return `language-${this.$store.state.data.metadata.language}`;
+    return this.$store.state.data.metadata.language;
   }
 
   onScroll(e: Event): void {
@@ -89,13 +88,14 @@ export default class CompareSide extends Vue {
   }
 
   async installLanguage(): Promise<void> {
-    const currentLanguage: string = this.$store.state.data.metadata.language.toLowerCase();
+    const currentLanguage: string = this.language.toLowerCase();
     if (Prism.languages[currentLanguage]) {
       return;
     }
     await require("prismjs/components/prism-" + currentLanguage);
   }
 
+  @Watch("file")
   async highlight(): Promise<void> {
     await this.installLanguage();
     registerFragmentHighlighting(this.selections);
@@ -124,9 +124,10 @@ export default class CompareSide extends Vue {
   }
 
   codeHighLight(): void {
-    Prism.highlightElement(this.$refs.codeblock as Element, false, () => {
-      this.addEventListeners();
-    });
+    const codeblock = this.$refs.codeblock as Element;
+    codeblock.textContent = this.content;
+    Prism.highlightElement(codeblock, false);
+    this.addEventListeners();
   }
 }
 </script>
