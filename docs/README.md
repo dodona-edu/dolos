@@ -16,13 +16,13 @@ detection and prevention.
 
 <div class="features">
   <div class="feature">
-    <h2>User-friendly</h2>
+    <h2>Install & Run</h2>
     <p>Minimal installation instructions and intuitive user interface.</p>
     <p><router-link to="/guide/installation">Install Dolos →</router-link></p>
   </div>
   <div class="feature">
     <h2>Programming languages</h2>
-    <p>Dolos uses supports many programming languages by leveraging the <b>tree-sitter</b> parser library which</p>
+    <p>Dolos supports many programming languages by leveraging the <b>tree-sitter</b> parser library.</p>
     <p><router-link to="/guide/languages">Supported languages →</router-link></p>
   </div>
 
