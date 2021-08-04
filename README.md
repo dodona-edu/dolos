@@ -11,7 +11,7 @@
     <img src="https://img.shields.io/npm/v/@dodona/dolos.svg" alt="Version of the npm package">
   </a>
   <a href="https://github.com/dodona-edu/dolos/actions?query=branch%3Amain">
-    <img src="https://img.shields.io/github/checks-status/dodona-edu/dolos/main" alt="GitHub branch checks state">
+    <img src="https://github.com/dodona-edu/dolos/actions/workflows/cli.yml/badge.svg" alt="Build state">
   </a>
   <a href="https://github.com/dodona-edu/dolos/blob/main/LICENSE">
     <img alt="Source code license" src="https://img.shields.io/github/license/dodona-edu/dolos">
@@ -22,14 +22,14 @@ Dolos is a source code plagiarism detection tool which is:
 
 - **Easy to use** by having minimal installation instructions and an intuitive user interface
 - **Flexible** to support many programming languages
-- **Powerful** by using state-of-the art algorithms to help you discover plagiarism
+- **Powerful** by using state-of-the-art algorithms to help you discover plagiarism
 
 ## Documentation
 
-Visit the project's web page at <https://dolos.ugent.be>.
+Visit our web page at <https://dolos.ugent.be>.
 
-## Directories
+## Projects
 
 - [CLI](./tree/develop/cli/): the core library and commandline interface
 - [Web](./tree/develop/web/): a graphical user interface in your browser
-- [Doc](./tree/develop/doc): the source code of the [documentation site](https://dolos.ugent.be)
+- [Doc](./tree/develop/doc): the source code of <https://dolos.ugent.be>

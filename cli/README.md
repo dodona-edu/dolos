@@ -11,7 +11,7 @@
     <img src="https://img.shields.io/npm/v/@dodona/dolos.svg" alt="Version of the npm package">
   </a>
   <a href="https://github.com/dodona-edu/dolos/actions?query=branch%3Amain">
-    <img src="https://img.shields.io/github/checks-status/dodona-edu/dolos/main" alt="GitHub branch checks state">
+    <img src="https://github.com/dodona-edu/dolos/actions/workflows/cli.yml/badge.svg" alt="Build state">
   </a>
   <a href="https://github.com/dodona-edu/dolos/blob/main/LICENSE">
     <img alt="Source code license" src="https://img.shields.io/github/license/dodona-edu/dolos">
