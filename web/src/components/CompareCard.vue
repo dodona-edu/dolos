@@ -42,7 +42,7 @@
                             <v-icon left size="20">
                               {{ mdiFileDocumentMultiple }}
                             </v-icon>
-                            Continuous overlap: {{ activePair.longestFragment }}
+                            Longest fragment: {{ activePair.longestFragment }}
                           </v-chip>
                         </v-col>
                         <v-col cols="auto">
