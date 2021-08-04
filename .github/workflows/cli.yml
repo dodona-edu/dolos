@@ -42,9 +42,9 @@ jobs:
         uses: actions/cache@v1
         with:
           path: ${{ github.workspace }}/cli/node_modules
-          key: ${{ runner.os }}-node_modules-${{ hashFiles(format('{0}{1}', github.workspace, '/cli/yarn.lock')) }}
+          key: ${{ runner.os }}-node-16-node_modules-${{ hashFiles(format('{0}{1}', github.workspace, '/cli/yarn.lock')) }}
           restore-keys: |
-            ${{ runner.os }}-node_modules-
+            ${{ runner.os }}-node-16-node_modules-
       - name: Lint
         run: |
           yarn install

@@ -7,13 +7,22 @@ import { TerminalPresenter } from "./lib/presenter/terminalPresenter";
 import { closestMatch, error, setLogging, warning } from "./lib/util/utils";
 import { WebPresenter } from "./lib/presenter/webPresenter";
 import { CsvPresenter } from "./lib/presenter/csvPresenter";
+import * as path from "path";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const pkg = require("../package.json");
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const treeSitterPkg = require(path.dirname(require.resolve("tree-sitter")) + "/package.json");
+
+const versions = [
+  `Dolos v${pkg.version}`,
+  `Node ${process.version}`,
+  `Tree-sitter v${treeSitterPkg.version}`
+];
+
 const program = new Command();
 
-
-program.version(pkg.version, "-v --version", "Output the current version.")
+program.version(versions.join("\n"), "-v --version", "Output the current version.")
   .description("Plagiarism detection for programming exercises");
 
 program
