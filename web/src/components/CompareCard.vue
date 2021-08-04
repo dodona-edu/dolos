@@ -7,22 +7,34 @@
             <v-card :loading="!loaded" style="position: relative">
               <v-card-title>
                 <v-container class="no-y-padding" fluid>
-                  <v-row class="no-y-padding" justify="center" justify-xl="space-around">
-                    <v-col class="no-y-padding" cols="12" xl="auto">
-                      <v-row class="no-y-padding" justify="center">
-                        <v-col cols="auto">
-                          {{ leftFilename }}
-                        </v-col>
-                      </v-row>
+                  <v-row
+                    class="no-y-padding"
+                    justify="center"
+                    justify-xl="space-around"
+                  >
+                    <v-col class="text-center">
+                      {{ leftFilename }}
                     </v-col>
-                    <v-col cols="12" xl="auto">
+                    <v-col cols="auto">
+                      <v-btn @click.prevent="swapFiles()">
+                        <v-icon>
+                          {{ mdiSwapHorizontalBold }}
+                        </v-icon>
+                      </v-btn>
+                    </v-col>
+                    <v-col class="text-center">
+                      {{ rightFilename }}
+                    </v-col>
+                  </v-row>
+                  <v-row>
+                    <v-col cols="12">
                       <v-row dense justify="center">
                         <v-col cols="auto">
                           <v-chip label>
                             <v-icon left>
                               {{ mdiApproximatelyEqual }}
                             </v-icon>
-                            Similarity: {{ pair.similarity.toFixed(2) }}
+                            Similarity: {{ activePair.similarity.toFixed(2) }}
                           </v-chip>
                         </v-col>
                         <v-col cols="auto">
@@ -30,7 +42,7 @@
                             <v-icon left size="20">
                               {{ mdiFileDocumentMultiple }}
                             </v-icon>
-                            Continuous overlap: {{ pair.longestFragment }}
+                            Longest fragment: {{ activePair.longestFragment }}
                           </v-chip>
                         </v-col>
                         <v-col cols="auto">
@@ -38,15 +50,8 @@
                             <v-icon left size="20">
                               {{ mdiFileDocumentMultipleOutline }}
                             </v-icon>
-                            Total overlap: {{ pair.totalOverlap }}
+                            Total overlap: {{ activePair.totalOverlap }}
                           </v-chip>
-                        </v-col>
-                      </v-row>
-                    </v-col>
-                    <v-col class="no-y-padding" cols="12" xl="auto">
-                      <v-row class="no-y-padding" justify="center">
-                        <v-col cols="auto">
-                          {{ rightFilename }}
                         </v-col>
                       </v-row>
                     </v-col>
@@ -61,7 +66,7 @@
                         <v-col cols="11">
                           <compare-side
                             :active-selections="leftActiveSelectionIds"
-                            :file="pair.leftFile"
+                            :file="activePair.leftFile"
                             :hovering-selections="lastHovered.leftSideId.fragmentClasses"
                             :identifier="SideID.leftSideId"
                             :selected-selections="selected.sides.leftSideId.fragmentClasses"
@@ -98,7 +103,7 @@
                         <v-col cols="11">
                           <compare-side
                             :active-selections="rightActiveSelectionIds"
-                            :file="pair.rightFile"
+                            :file="activePair.rightFile"
                             :hovering-selections="lastHovered.rightSideId.fragmentClasses"
                             :identifier="SideID.rightSideId"
                             :selected-selections="selected.sides.rightSideId.fragmentClasses"
@@ -167,16 +172,14 @@
     </v-row>
     <v-navigation-drawer :value="fragmentListExtended" app clipped right>
       <FragmentList
-          :pair="pair"
-          :kgram-length="kgramLength"
+        :pair="activePair"
+        :kgram-length="kgramLength"
         :selected="selected"
         :selected-item-sync.sync="selectedItem"
       >
         <template v-slot:header>
           <v-btn @click="fragmentListExtended = false" icon small>
-            <v-icon>
-              mdi-close
-            </v-icon>
+            <v-icon>mdi-close</v-icon>
           </v-btn>
         </template>
       </FragmentList>
@@ -184,7 +187,6 @@
   </v-container>
 </template>
 <script lang="ts">
-
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import { Fragment, Pair, Selection } from "@/api/api";
 import CompareSide from "@/components/CompareSide.vue";
@@ -196,12 +198,13 @@ import {
   mdiApplicationCog,
   mdiApproximatelyEqual,
   mdiFileDocumentMultiple,
-  mdiFileDocumentMultipleOutline
+  mdiFileDocumentMultipleOutline,
+  mdiSwapHorizontalBold,
 } from "@mdi/js";
 
 export enum SideID {
   leftSideId = "leftSideId",
-  rightSideId = "rightSideId"
+  rightSideId = "rightSideId",
 }
 
 @Component({
@@ -210,7 +213,8 @@ export enum SideID {
     mdiApplicationCog,
     mdiApproximatelyEqual,
     mdiFileDocumentMultiple,
-    mdiFileDocumentMultipleOutline
+    mdiFileDocumentMultipleOutline,
+    mdiSwapHorizontalBold,
   }),
   components: { CompareSide, BarcodeChart, FragmentList },
 })
@@ -223,7 +227,9 @@ export default class CompareCard extends Vue {
     ["Left Arrow", "Previous"],
     ["Right Arrow", "Next"],
     ["Space/Enter", "Toggle selection"],
-  ]
+  ];
+
+  filesSwapped = false;
 
   fragmentListExtended = false;
   selectedItem = -1;
@@ -272,36 +278,56 @@ export default class CompareCard extends Vue {
   rightScrollFraction = 0;
   linesVisible = 0;
 
+  get activePair() : Pair {
+    if (this.filesSwapped) {
+      return {
+        ...this.pair,
+        leftFile: this.pair.rightFile,
+        rightFile: this.pair.leftFile,
+        fragments: this.pair.fragments === null
+          ? null
+          : this.pair.fragments.map(fragment => ({
+            ...fragment,
+            left: fragment.right,
+            right: fragment.left,
+            occurrences: fragment.occurrences.map(occurence => ({
+              ...occurence,
+              left: occurence.right,
+              right: occurence.left,
+            }))
+          }))
+      };
+    } else {
+      return this.pair;
+    }
+  }
+
   get leftIdentifier(): string {
     return SideID.leftSideId.toString();
   }
 
   get leftLines(): number {
-    return this.trimLastEmptyLine(this.pair.leftFile.content.split("\n"));
+    return this.trimLastEmptyLine(this.activePair.leftFile.content.split("\n"));
   }
 
   get rightLines(): number {
-    return this.trimLastEmptyLine(this.pair.rightFile.content.split("\n"));
+    return this.trimLastEmptyLine(this.activePair.rightFile.content.split("\n"));
   }
 
   get maxLines(): number {
-    return Math.max(
-      this.leftLines,
-      this.rightLines
-    );
+    return Math.max(this.leftLines, this.rightLines);
   }
 
   get rightFilename(): string {
-    return this.pair.rightFile.path;
+    return this.activePair.rightFile.path;
   }
 
   get leftFilename(): string {
-    return this.pair.leftFile.path;
+    return this.activePair.leftFile.path;
   }
 
   get activeFragments(): Array<Fragment> {
-    return this.pair.fragments!
-      .filter(fragment => fragment.active);
+    return this.activePair.fragments!.filter(fragment => fragment.active);
   }
 
   get leftActiveSelectionIds(): Array<SelectionId> {
@@ -313,11 +339,16 @@ export default class CompareCard extends Vue {
   }
 
   get leftSelections(): Array<Selection> {
-    return this.pair.fragments!.map(fragment => fragment.left);
+    return this.activePair.fragments!.map(fragment => fragment.left);
   }
 
   get rightSelections(): Array<Selection> {
-    return this.pair.fragments!.map(fragment => fragment.right);
+    return this.activePair.fragments!.map(fragment => fragment.right);
+  }
+
+  swapFiles(): void {
+    this.filesSwapped = !this.filesSwapped;
+    this.reset();
   }
 
   updated(): void {
@@ -325,7 +356,10 @@ export default class CompareCard extends Vue {
   }
 
   isSelectionActive(sideId: SideID): (selectionId: SelectionId) => boolean {
-    return selectionId => this.sideSelectionsToFragments[sideId][selectionId].some(fragment => fragment.active);
+    return selectionId => {
+      const fragments = this.sideSelectionsToFragments[sideId][selectionId];
+      return fragments && fragments.some(fragment => fragment.active);
+    };
   }
 
   onScrollHandler(sideId: SideID, scrollFraction: number): void {
@@ -349,6 +383,28 @@ export default class CompareCard extends Vue {
     } else {
       return lines.length;
     }
+  }
+
+  reset(): void {
+    this.fragmentListExtended = false;
+    this.selectedItem = -1;
+    this.fragmentClickCount = 0;
+    this.currentFragmentClassIndex = 0;
+    this.leftScrollFraction = 0;
+    this.rightScrollFraction = 0;
+    this.linesVisible = 0;
+
+    this.selected.fragmentClasses = undefined;
+    this.selected.sides[SideID.leftSideId].fragmentClasses = [];
+    this.selected.sides[SideID.rightSideId].fragmentClasses = [];
+
+    this.sideSelectionsToFragments[SideID.leftSideId] = {};
+    this.sideSelectionsToFragments[SideID.rightSideId] = {};
+
+    this.lastHovered[SideID.leftSideId].fragmentClasses = [];
+    this.lastHovered[SideID.rightSideId].fragmentClasses = [];
+
+    this.initialize();
   }
 
   initialize(): void {
@@ -462,7 +518,7 @@ export default class CompareCard extends Vue {
       Vue.set(this.selected.sides[SideID.leftSideId], "fragmentClasses", []);
       Vue.set(this.selected.sides[SideID.rightSideId], "fragmentClasses", []);
     } else {
-      const { left, right } = this.pair.fragments![index];
+      const { left, right } = this.activePair.fragments![index];
       Vue.set(this.selected.sides[SideID.leftSideId], "fragmentClasses", [constructID(left)]);
       Vue.set(this.selected.sides[SideID.rightSideId], "fragmentClasses", [constructID(right)]);
       this.scrollSelectedIntoView();
@@ -496,7 +552,7 @@ export default class CompareCard extends Vue {
    * on the other CompareSide. This is done by looping over all the hunks in the current diff.
    */
   initializeMaps(): void {
-    for (const fragment of this.pair.fragments!) {
+    for (const fragment of this.activePair.fragments!) {
       const leftId = constructID(fragment.left);
       const rightId = constructID(fragment.right);
       if (!this.sideSelectionsToFragments[SideID.leftSideId][leftId]) {
@@ -527,7 +583,6 @@ export default class CompareCard extends Vue {
     this.sortMap(this.rightMap);
   }
 }
-
 </script>
 
 <style lang="scss">
