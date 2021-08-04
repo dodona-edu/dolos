@@ -22,8 +22,7 @@
       </template>
     </component>
     <pre v-scroll.self="onScroll" ref="pre" :id="identifier" class="line-numbers highlighted-code"><code
-      ref="codeblock"
-      :class="language">{{content}}</code>
+      ref="codeblock" :class="`language-${language}`"></code>
     </pre>
   </div>
 </template>
@@ -36,7 +35,7 @@ import Prism from "prismjs";
 import "prismjs/themes/prism.css";
 import "prismjs/plugins/line-numbers/prism-line-numbers.js";
 import "prismjs/plugins/line-numbers/prism-line-numbers.css";
-import { ID_START, registerBlockHighlighting } from "@/util/OccurenceHighlight";
+import { ID_START, registerFragmentHighlighting } from "@/util/OccurenceHighlight";
 
 @Component
 export default class CompareSide extends Vue {
@@ -52,7 +51,7 @@ export default class CompareSide extends Vue {
   }
 
   get language(): string {
-    return `language-${this.$store.state.data.metadata.language}`;
+    return this.$store.state.data.metadata.language;
   }
 
   onScroll(e: Event): void {
@@ -89,16 +88,17 @@ export default class CompareSide extends Vue {
   }
 
   async installLanguage(): Promise<void> {
-    const currentLanguage: string = this.$store.state.data.metadata.language.toLowerCase();
+    const currentLanguage: string = this.language.toLowerCase();
     if (Prism.languages[currentLanguage]) {
       return;
     }
     await require("prismjs/components/prism-" + currentLanguage);
   }
 
+  @Watch("file")
   async highlight(): Promise<void> {
     await this.installLanguage();
-    registerBlockHighlighting(this.selections);
+    registerFragmentHighlighting(this.selections);
     this.codeHighLight();
   }
 
@@ -124,9 +124,10 @@ export default class CompareSide extends Vue {
   }
 
   codeHighLight(): void {
-    Prism.highlightElement(this.$refs.codeblock as Element, false, () => {
-      this.addEventListeners();
-    });
+    const codeblock = this.$refs.codeblock as Element;
+    codeblock.textContent = this.content;
+    Prism.highlightElement(codeblock, false);
+    this.addEventListeners();
   }
 }
 </script>

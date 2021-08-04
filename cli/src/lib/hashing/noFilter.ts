@@ -5,10 +5,10 @@ export class NoFilter extends HashFilter {
   private readonly k: number;
 
   /**
-   * Generates a HashFilter object with given k-mer size. It will not hashing
+   * Generates a HashFilter object with given kgram size. It will not hashing
    * anything and return all hashes
    *
-   * @param k The k-mer size of which hashes are calculated
+   * @param k The kgram size of which hashes are calculated
    * @param debug Whether to output debugging information in fingerprints.
    */
   constructor(k: number, debug = false) {
@@ -17,8 +17,8 @@ export class NoFilter extends HashFilter {
   }
 
   /**
-   * Returns an async interator that yields tuples containing a hashing and its
-   * corresponding k-mer position. Can be called successively on multiple files.
+   * Returns an async iterator that yields tuples containing a hashing and its
+   * corresponding kgram position. Can be called successively on multiple files.
    *
    * @param tokens The list of tokens to process.
    */
@@ -39,7 +39,7 @@ export class NoFilter extends HashFilter {
         hash: hash.nextHash(byte),
         start: filePos,
         stop: filePos + this.k - 1,
-        data: this.kmerData ? window : null,
+        data: this.kgramData ? window : null,
       };
     }
   }

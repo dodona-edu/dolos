@@ -1,28 +1,39 @@
 <template>
     <v-app>
       <v-app-bar
-        clipped-right
+        clipped-left
         app
         color="primary"
         dark
         dense
       >
         <v-toolbar-title @click="toHomeScreen">DOLOS</v-toolbar-title>
-
-        <v-spacer></v-spacer>
-        <v-btn
-          icon
-          @click="toHomeScreen"
-        >
-          <v-icon>mdi-format-list-bulleted-square</v-icon>
-        </v-btn>
-        <v-btn
-          icon
-          @click="toGraphView"
-        >
-          <v-icon>mdi-graph</v-icon>
-        </v-btn>
       </v-app-bar>
+
+      <v-navigation-drawer
+          clipped
+          app
+          expand-on-hover
+      >
+        <v-list nav>
+          <v-list-item @click="toHomeScreen" link>
+            <v-list-item-icon>
+              <v-icon>mdi-format-list-bulleted-square</v-icon>
+            </v-list-item-icon>
+            <v-list-item-content>
+              <v-list-item-title>File pairs</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+          <v-list-item @click="toGraphView" link>
+            <v-list-item-icon>
+              <v-icon>mdi-graph</v-icon>
+            </v-list-item-icon>
+            <v-list-item-content>
+              <v-list-item-title>Plagiarism graph</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list>
+      </v-navigation-drawer>
 
       <v-main>
         <router-view />

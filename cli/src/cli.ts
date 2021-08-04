@@ -7,13 +7,22 @@ import { TerminalPresenter } from "./lib/presenter/terminalPresenter";
 import { closestMatch, error, setLogging, warning } from "./lib/util/utils";
 import { WebPresenter } from "./lib/presenter/webPresenter";
 import { CsvPresenter } from "./lib/presenter/csvPresenter";
+import * as path from "path";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const pkg = require("../package.json");
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const treeSitterPkg = require(path.dirname(require.resolve("tree-sitter")) + "/package.json");
+
+const versions = [
+  `Dolos v${pkg.version}`,
+  `Node ${process.version}`,
+  `Tree-sitter v${treeSitterPkg.version}`
+];
+
 const program = new Command();
 
-
-program.version(pkg.version, "-v --version", "Output the current version.")
+program.version(versions.join("\n"), "-v --version", "Output the current version.")
   .description("Plagiarism detection for programming exercises");
 
 program
@@ -32,24 +41,24 @@ program
     Options.defaultLanguage
   )
   .option(
-    "-m, --maximum-hashing-count <integer>",
+    "-m, --maximum-fingerprint-count <integer>",
     Utils.indent(
-      "The -m option sets the maximum number of times a given hash may " +
+      "The -m option sets the maximum number of times a given fingerprint may " +
       "appear before it is ignored. A code fragment that appears in many " +
       "programs is probably legitimate sharing and not the result of " +
-      "plagiarism. With -m N any hashing appearing in more than N programs is " +
+      "plagiarism. With -m N any fingerprint appearing in more than N programs is " +
       "filtered out. This option has precedence over the -M option, " +
       "which is set to 0.9 by default."
     ),
     x => parseFloat(x)
   )
   .option(
-    "-M --maximum-hashing-percentage <fraction>",
+    "-M --maximum-fingerprint-percentage <fraction>",
     Utils.indent(
-      "The -M option sets how many percent of the files the hash may appear " +
-      "before it is ignored. A hash that appears in many programs is " +
-      "probably legitimate hash and not the result of plagiarism. With -M " +
-      "N any hashing appearing in more than N percent of the files is filtered " +
+      "The -M option sets how many percent of the files the fingerprint may appear in " +
+      "before it is ignored. A fingerprint that appears in many programs is " +
+      "probably a legitimate fingerprint and not the result of plagiarism. With -M " +
+      "N any fingerprint appearing in more than N percent of the files is filtered " +
       "out. Must be a value between 0 and 1. This option is ignored when " +
       "comparing only two files, because each match appear in 100% of the " +
       "files",
@@ -65,18 +74,18 @@ program
     x => parseFloat(x)
   )
   .option(
-    "-s, --minimum-block-length <integer>",
+    "-s, --minimum-fragment-length <integer>",
     Utils.indent(
-      "The minimum amount of k-mers a block should contain. Every block with less kmers then the specified" +
+      "The minimum amount of kgrams a fragment should contain. Every fragment with less kgrams then the specified" +
       " amount is filtered out."
     ),
     x => parseFloat(x),
-    Options.defaultMinBlockLength
+    Options.defaultMinFragmentLength
   )
   .option(
     "-c --compare",
     Utils.indent(
-      "Print a comparison of the matching blocks even if analysing more than two " +
+      "Print a comparison of the matching fragments even if analysing more than two " +
       "files. Only valid when the output is set to 'terminal' or 'console'."
     )
   )
@@ -107,33 +116,33 @@ program
   .option(
     "--sort <field>",
     Utils.indent(
-      "Which field to sort the diffs by. Options are: similarity, continuous and total", "total"
+      "Which field to sort the pairs by. Options are: similarity, total overlap, and longest fragment", "total overlap"
     ),
-    "total"
+    "total overlap"
   )
   .option(
-    "-b, --block-sort <sort>",
+    "-b, --fragment-sort <sort>",
     Utils.indent(
-      "How to sort the blocks by the amount of matches, only applicable in terminal comparison output. The " +
-        "options are: 'kmers/kmersAsc/kmersAscending', 'kmersDesc/kmersDescending' and 'fileOrder'",
-      "fileOrder"
+      "How to sort the fragments by the amount of matches, only applicable in terminal comparison output. The " +
+        "options are: 'kgrams ascending', 'kgrams descending' and 'file order'",
+      "file order"
     ),
-    "fileOrder"
+    "file order"
   )
   .option(
-    "-k, --kmer-length <integer>",
-    Utils.indent("The length of each k-mer fragment.", Options.defaultKmerLength),
+    "-k, --kgram-length <integer>",
+    Utils.indent("The length of each kgram fragment.", Options.defaultKgramLength),
     x => parseFloat(x),
-    Options.defaultKmerLength
+    Options.defaultKgramLength
   )
   .option(
-    "-w, --kmers-in-window <integer>",
+    "-w, --kgrams-in-window <integer>",
     Utils.indent(
-      "The size of the window that will be used (in kmers).",
-      Options.defaultKmerLength
+      "The size of the window that will be used (in kgrams).",
+      Options.defaultKgramsInWindow
     ),
     x => parseFloat(x),
-    Options.defaultKmerLength
+    Options.defaultKgramsInWindow
   )
   .arguments("<paths...>")
   .action(async locations => {
@@ -142,25 +151,25 @@ program
       setLogging("info");
     }
 
-    if (locations.length < 3 && options.maximumHashPercentage) {
-      warning("You have given a maximum hash percentage (with -M), but " +
-        "you are comparing less than three files so matching hash will occur " +
+    if (locations.length < 3 && options.maximumFingerprintPercentage) {
+      warning("You have given a maximum fingerprint percentage (with -M), but " +
+        "you are comparing less than three files so matching fingerprint will occur " +
         "in 100% of the files. You might not want to use this option.");
     }
 
     try {
       const dolos = new Dolos({
-        kmerData: options.compare,
-        kmerLength: options.kmerLength,
-        kmersInWindow: options.kmersInWindow,
+        kgramData: options.compare,
+        kgramLength: options.kgramLength,
+        kgramsInWindow: options.kgramsInWindow,
         language: options.language,
-        maxHashCount: options.maximumHashCount,
-        maxHashPercentage: options.maxHashPercentage,
-        minBlockLength: options.minimumBlockLength,
+        maxFingerprintCount: options.maximumfingerprintCount,
+        maxFingerprintPercentage: options.maxFingerprintPercentage,
+        minFragmentLength: options.minimumFragmentLength,
         minSimilarity: options.minimumSimilarity,
         limitResults: options.limit,
         sortBy: options.sort,
-        blockSortBy: options.blockSort,
+        fragmentSortBy: options.fragmentSort,
       });
       const report = await dolos.analyzePaths(locations);
 

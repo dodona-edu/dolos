@@ -19,9 +19,9 @@ export abstract class Tokenizer {
   public abstract generateTokens(text: string): IterableIterator<Token>;
 
   /**
-   * Returns a stringified version the given file.
+   * Returns a tokenized version of the given file.
    *
-   * @param fileName The name of the file to parse
+   * @param file The file to parse
    */
   public tokenizeFile(file: File): TokenizedFile {
     const [ast, mapping] = this.tokenizeWithMapping(file.content);
@@ -29,7 +29,7 @@ export abstract class Tokenizer {
   }
 
   /**
-   * Returns a stringified version of the buffer
+   * Returns a stringified version of the tokens in the buffer
    *
    * @param text The buffer to stringify
    */

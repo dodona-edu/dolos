@@ -75,7 +75,7 @@ export class Dolos {
 
     if (files.length < 2) {
       throw new Error("You need to supply at least two files");
-    } else if (files.length == 2 && this.options.maxHashPercentage !== null) {
+    } else if (files.length == 2 && this.options.maxFingerprintPercentage !== null) {
       throw new Error("You have given a maximum hash percentage but your are " +
                       "comparing two files. Each matching hash will thus " +
                       "be present in 100% of the files. This option does only" +

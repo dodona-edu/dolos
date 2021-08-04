@@ -1,13 +1,13 @@
 import { Region } from "../util/region";
 import { Presenter } from "./presenter";
-import { Report, ScoredDiff } from "../analyze/report";
+import { Report, ScoredPairs } from "../analyze/report";
 
 /// <reference types="../../../typings/cliui" />
 import UI from "cliui";
 import chalk from "chalk";
 import { Writable } from "stream";
 import { Options } from "../util/options";
-import { Block } from "../analyze/block";
+import { Fragment } from "../analyze/fragment";
 import { closestMatch } from "../util/utils";
 
 export class TerminalPresenter extends Presenter {
@@ -44,18 +44,18 @@ export class TerminalPresenter extends Presenter {
   }
 
   public async present(): Promise<void> {
-    const diffs = this.report.scoredDiffs;
-    if (this.compare || (this.compare == null && diffs.length == 1)) {
-      diffs.map(int => this.writeDiffWithComparison(int));
+    const pairs = this.report.scoredPairs;
+    if (this.compare || (this.compare == null && pairs.length == 1)) {
+      pairs.map(int => this.writePairWithComparison(int));
     } else {
-      this.writeDiffs(diffs);
+      this.writePairs(pairs);
     }
     this.output.write(this.ui.toString() + "\n");
     this.ui.resetOutput();
   }
 
-  private writeDiffs(diffs: Array<ScoredDiff>): void {
-    const maxOver = Math.max(...diffs.map(s => s.overlap));
+  private writePairs(pairs: Array<ScoredPairs>): void {
+    const maxOver = Math.max(...pairs.map(s => s.overlap));
     const overlapWidth = Math.max(15, Math.trunc(Math.log10(maxOver + 1)) + 2);
     const similarityWidth = 12;
     const pathWidth = (this.width - similarityWidth - 2*overlapWidth) / 2;
@@ -77,7 +77,7 @@ export class TerminalPresenter extends Presenter {
       padding: [1, 1, 1, 1]
     },
     {
-      text: chalk.bold("Cont. overlap"),
+      text: chalk.bold("Longest fragment"),
       width: overlapWidth,
       padding: [1, 1, 1, 1]
     },
@@ -88,16 +88,16 @@ export class TerminalPresenter extends Presenter {
     });
 
     for (
-      const { diff, overlap, similarity, longest }
-      of diffs
+      const { pair, overlap, similarity, longest }
+      of pairs
     ) {
       this.ui.div({
-        text: diff.leftFile.path,
+        text: pair.leftFile.path,
         width: pathWidth,
         padding: [0, 1, 0, 1]
       },
       {
-        text: diff.rightFile.path,
+        text: pair.rightFile.path,
         width: pathWidth,
         padding: [0, 1, 0, 1]
       },
@@ -119,22 +119,22 @@ export class TerminalPresenter extends Presenter {
     }
   }
 
-  private writeDiffWithComparison(
-    { diff, overlap, similarity }: ScoredDiff
+  private writePairWithComparison(
+    { pair, overlap, similarity }: ScoredPairs
   ): void {
-    const leftLines = diff.leftFile.lines;
-    const rightLines = diff.rightFile.lines;
+    const leftLines = pair.leftFile.lines;
+    const rightLines = pair.rightFile.lines;
 
     this.ui.div({
-      text: chalk.bold(diff.leftFile.path),
+      text: chalk.bold(pair.leftFile.path),
       padding: [1, 1, 1, 1],
     },
     {
-      text: chalk.bold(diff.rightFile.path),
+      text: chalk.bold(pair.rightFile.path),
       padding: [1, 1, 1, 1],
     });
     this.ui.div({
-      text: chalk.bold("Absolute overlap: ") + overlap.toString() + " kmers",
+      text: chalk.bold("Total overlap: ") + overlap.toString() + " kgrams",
       padding: [0, 1, 0, 1],
     });
     this.ui.div({
@@ -150,37 +150,37 @@ export class TerminalPresenter extends Presenter {
     const nl = (i: number): string =>
       this.c.grey((i + 1).toString().padEnd(lineNrWidth));
 
-    const blocks = diff.blocks();
+    const fragments = pair.fragments();
 
-    type BlockSortFn = (b1: Block, b2: Block) => number;
-    const blockSortFn = closestMatch<BlockSortFn | null>(this.options.blockSortBy, {
-      "fileOrder": null,
-      "kmersAscending": (a, b) => b.pairs.length - a.pairs.length,
-      "kmersDescending": (a, b) => a.pairs.length - b.pairs.length,
+    type FragmentSorter = (b1: Fragment, b2: Fragment) => number;
+    const fragmentSorter = closestMatch<FragmentSorter | null>(this.options.fragmentSortBy, {
+      "file order": null,
+      "kgrams ascending": (a, b) => b.pairs.length - a.pairs.length,
+      "kgrams descending": (a, b) => a.pairs.length - b.pairs.length,
     });
 
-    if(blockSortFn) {
-      blocks.sort(blockSortFn);
+    if(fragmentSorter) {
+      fragments.sort(fragmentSorter);
     }
 
-    for (let i = 0; i < blocks.length; i += 1) {
-      const block = blocks[i];
+    for (let i = 0; i < fragments.length; i += 1) {
+      const fragment = fragments[i];
 
       this.ui.div({
-        text: chalk.bold(`Block ${i+1}/${blocks.length}:` +
-                         ` ${block.leftKmers.length} kmers`),
+        text: chalk.bold(`Fragment ${i+1}/${fragments.length}:` +
+                         ` ${fragment.leftkgrams.length} kgrams`),
         align: "center",
         padding: [1, 0, 1, 0],
       });
 
       this.ui.div({
         text: chalk.bold("Tokens: ") + "'" +
-              chalk.red(block.mergedData) + "'",
+              chalk.red(fragment.mergedData) + "'",
         padding: [0, 0, 1, 0],
       });
 
-      const left = this.formatLines(block.leftSelection, leftLines, nl);
-      const right = this.formatLines(block.rightSelection, rightLines, nl);
+      const left = this.formatLines(fragment.leftSelection, leftLines, nl);
+      const right = this.formatLines(fragment.rightSelection, rightLines, nl);
 
       for(let j = 0; j < Math.max(left.length, right.length); j += 1) {
         this.ui.div(

@@ -5,22 +5,22 @@ import { CsvPresenter } from "./csvPresenter";
 import path from "path";
 import { Report } from "../analyze/report";
 import { Options } from "../util/options";
-import { Diff } from "../analyze/diff";
+import { Pair } from "../analyze/pair";
 import { error } from "../util/utils";
 
 export class WebPresenter extends CsvPresenter {
 
-  private diffMap: {[key: number]: Diff} = {};
+  private pairMap: {[key: number]: Pair} = {};
 
   constructor(report: Report, options: Options, destination: string) {
     super(report, options, destination);
-    for(const { diff } of report.scoredDiffs) {
-      this.diffMap[diff.id] = diff;
+    for(const { pair } of report.scoredPairs) {
+      this.pairMap[pair.id] = pair;
     }
   }
 
   async present(): Promise<void> {
-    assert(this.report.scoredDiffs);
+    assert(this.report.scoredPairs);
 
     const reportDir = await this.writeToDirectory();
 

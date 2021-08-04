@@ -1,7 +1,6 @@
 import Vue from "vue";
 import Vuex from "vuex";
-import { ApiData, fetchData, Diff, Kmer, Metadata, File, ObjMap, populateBlocks } from "@/api/api";
-import { ReviewStatus } from "@/components/CompareCard.vue";
+import { ApiData, fetchData, Pair, Kgram, Metadata, File, ObjMap, populateFragments } from "@/api/api";
 
 Vue.use(Vuex);
 
@@ -9,20 +8,19 @@ export default new Vuex.Store({
   state: {
     dataLoaded: false,
     data: {
-      kmers: Object() as ObjMap<Kmer>,
+      kgrams: Object() as ObjMap<Kgram>,
       files: Object() as ObjMap<File>,
-      diffs: Object() as ObjMap<Diff>,
+      pairs: Object() as ObjMap<Pair>,
       metadata: Object() as Metadata,
-    },
-    reviewStatus: Object() as ObjMap<ReviewStatus>
+    }
   },
   getters: {
-    areBlocksLoaded: state => (diffId: number) => {
-      return !!state.data.diffs[diffId] && !!state.data.diffs[diffId].blocks;
+    areFragmentsLoaded: state => (diffId: number) => {
+      return !!state.data.pairs[diffId] && !!state.data.pairs[diffId].fragments;
     },
-    kmers: state => state.data.kmers,
-    diff: state => (diffId: number) => {
-      return state.data.diffs[diffId];
+    kgrams: state => state.data.kgrams,
+    pair: state => (pairId: number) => {
+      return state.data.pairs[pairId];
     }
   },
   mutations: {
@@ -30,21 +28,18 @@ export default new Vuex.Store({
       state.dataLoaded = true;
       state.data = data;
     },
-    updateDiff(state, data: { diff: Diff }) {
-      Vue.set(state.data.diffs, data.diff.id, data.diff);
-    },
-    setReviewStatus(state, data: { diffId: number; reviewStatus: ReviewStatus }) {
-      Vue.set(state.reviewStatus, data.diffId, data.reviewStatus);
+    updatePair(state, data: { pair: Pair }) {
+      Vue.set(state.data.pairs, data.pair.id, data.pair);
     }
   },
   actions: {
     loadData({ commit }): Promise<void> {
       return fetchData().then(data => commit("setData", data));
     },
-    populateBlocks({ commit, getters }, data: { diffId: number }): Promise<void> {
-      const diff = getters.diff(data.diffId);
-      return populateBlocks(diff, getters.kmers)
-        .then(() => commit("updateDiff", { diff: diff }));
+    populateFragments({ commit, getters }, data: { pairId: number }): Promise<void> {
+      const diff = getters.pair(data.pairId);
+      return populateFragments(diff, getters.kgrams)
+        .then(() => commit("updatePair", { pair: diff }));
     }
   },
   modules: {

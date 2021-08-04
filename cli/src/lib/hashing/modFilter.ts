@@ -6,10 +6,10 @@ export class ModFilter extends HashFilter {
   private readonly mod: number;
 
   /**
-   * Generates a HashFilter object with given k-mer size and mod value. It will
+   * Generates a HashFilter object with given kgram size and mod value. It will
    * return all hashes whose value is 0 after % mod.
    *
-   * @param k The k-mer size of which hashes are calculated
+   * @param k The kgram size of which hashes are calculated
    * @param mod The mod value for which hashes to keep
    * @param debug Whether to output debugging information in fingerprints.
    */
@@ -20,8 +20,8 @@ export class ModFilter extends HashFilter {
   }
 
   /**
-   * Returns an async interator that yields tuples containing a hashing and its
-   * corresponding k-mer position. Can be called successively on multiple files.
+   * Returns an async iterator that yields tuples containing a hashing and its
+   * corresponding kgram position. Can be called successively on multiple files.
    *
    * @param tokens The list of tokens to process.
    */
@@ -46,7 +46,7 @@ export class ModFilter extends HashFilter {
           hash: currentHash,
           start: filePos,
           stop: filePos + this.k - 1,
-          data: this.kmerData ? tokens.slice(filePos, filePos + this.k) : null,
+          data: this.kgramData ? tokens.slice(filePos, filePos + this.k) : null,
         };
       }
     }

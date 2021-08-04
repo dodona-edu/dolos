@@ -25,21 +25,21 @@ test("equal content should be a full match", async t => {
     ]
   );
 
-  t.is(1, report.scoredDiffs.length);
-  const { diff, similarity } = report.scoredDiffs[0];
+  t.is(1, report.scoredPairs.length);
+  const { pair, similarity } = report.scoredPairs[0];
   t.is(similarity, 1.0);
 
-  const blocks = diff.blocks();
-  t.is(blocks.length, 1);
-  const match = blocks[0];
+  const fragments = pair.fragments();
+  t.is(fragments.length, 1);
+  const match = fragments[0];
 
   t.deepEqual(new Region(2, 2, 11, 2), match.leftSelection);
   t.deepEqual(new Region(2, 2, 11, 2), match.rightSelection);
 
-  t.is(0, match.leftKmers.from);
-  t.is(0, match.rightKmers.from);
-  t.true(match.leftKmers.to > 3);
-  t.true(match.rightKmers.to > 3);
+  t.is(0, match.leftkgrams.from);
+  t.is(0, match.rightkgrams.from);
+  t.true(match.leftkgrams.to > 3);
+  t.true(match.rightkgrams.to > 3);
 
 });
 
@@ -78,21 +78,21 @@ test("renamed variables should be a full match", async t => {
     ]
   );
 
-  t.is(1, report.scoredDiffs.length);
-  const { diff, similarity } = report.scoredDiffs[0];
+  t.is(1, report.scoredPairs.length);
+  const { pair, similarity } = report.scoredPairs[0];
   t.is(similarity, 1.0);
 
-  const blocks = diff.blocks();
-  t.is(blocks.length, 1);
-  const match = blocks[0];
+  const fragments = pair.fragments();
+  t.is(fragments.length, 1);
+  const match = fragments[0];
 
   t.deepEqual(new Region(2, 2, 11, 2), match.leftSelection);
   t.deepEqual(new Region(2, 2, 11, 2), match.rightSelection);
 
-  t.is(0, match.leftKmers.from);
-  t.is(0, match.rightKmers.from);
-  t.true(match.leftKmers.to > 3);
-  t.true(match.rightKmers.to > 3);
+  t.is(0, match.leftkgrams.from);
+  t.is(0, match.rightkgrams.from);
+  t.true(match.leftkgrams.to > 3);
+  t.true(match.rightkgrams.to > 3);
 });
 
 test("changed whitespace and semicolons should be a full match", async t => {
@@ -133,22 +133,22 @@ test("changed whitespace and semicolons should be a full match", async t => {
     ]
   );
 
-  t.is(1, report.scoredDiffs.length);
-  const { diff: diff, similarity } = report.scoredDiffs[0];
+  t.is(1, report.scoredPairs.length);
+  const { pair, similarity } = report.scoredPairs[0];
   t.is(similarity, 1.0);
 
-  const blocks = diff.blocks();
-  t.is(blocks.length, 1);
-  const match = blocks[0];
+  const fragments = pair.fragments();
+  t.is(fragments.length, 1);
+  const match = fragments[0];
 
-  t.is(0, match.leftKmers.from);
-  t.is(0, match.rightKmers.from);
-  t.true(match.leftKmers.to > 3);
-  t.true(match.rightKmers.to > 3);
+  t.is(0, match.leftkgrams.from);
+  t.is(0, match.rightkgrams.from);
+  t.true(match.leftkgrams.to > 3);
+  t.true(match.rightkgrams.to > 3);
 });
 
 test("changed order should be a good match", async t => {
-  const dolos = new Dolos({ kmerLength: 10, kmersInWindow: 5 });
+  const dolos = new Dolos({ kgramLength: 10, kgramsInWindow: 5 });
   const original = `
 
   function helloWorld() {
@@ -182,11 +182,11 @@ test("changed order should be a good match", async t => {
     ]
   );
 
-  t.is(1, report.scoredDiffs.length);
-  const { diff, similarity } = report.scoredDiffs[0];
+  t.is(1, report.scoredPairs.length);
+  const { pair, similarity } = report.scoredPairs[0];
   t.true(similarity > 0.75);
 
-  // four blocks: program declaration, hello(), world() and helloWorld()
-  t.is(4, diff.blocks().length);
+  // four fragments: program declaration, hello(), world() and helloWorld()
+  t.is(4, pair.fragments().length);
 
 });

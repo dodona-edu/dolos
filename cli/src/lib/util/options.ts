@@ -1,16 +1,16 @@
 export interface DolosOptions {
-  kmerLength: number;
-  kmersInWindow: number;
+  kgramLength: number;
+  kgramsInWindow: number;
   language: string;
   limitResults: number | null;
-  maxHashCount: number | null;
-  maxHashPercentage: number | null;
-  minBlockLength: number;
+  maxFingerprintCount: number | null;
+  maxFingerprintPercentage: number | null;
+  minFragmentLength: number;
   minSimilarity: number;
   localPort: number;
   sortBy: string | null;
-  blockSortBy: string | null;
-  kmerData: boolean;
+  fragmentSortBy: string | null;
+  kgramData: boolean;
 }
 
 export type CustomOptions = Partial<DolosOptions>;
@@ -47,14 +47,14 @@ function definedOrDefault<T>(arg: T | undefined | null, def: T): T {
 
 export class Options implements DolosOptions {
 
-  public static defaultKmerLength = 50;
-  public static defaultKmersInWindow = 40;
+  public static defaultKgramLength = 23;
+  public static defaultKgramsInWindow = 17;
   public static defaultLanguage = "javascript";
-  public static defaultMinBlockLength = 0;
+  public static defaultMinFragmentLength = 0;
   public static defaultMinSimilarity = 0;
   public static defaultPort = 3000;
   public static defaultSortBy = "total";
-  public static defaultBlockSortBy = "none";
+  public static defaultFragmentSortBy = "none";
 
   private custom: CustomOptions = {};
 
@@ -65,12 +65,12 @@ export class Options implements DolosOptions {
 
     const errors = [
       validatePercentage("minSimilarity", this.minSimilarity),
-      validatePercentage("maxHashPercentage", this.maxHashPercentage),
-      validatePositiveInteger("minBlockLength", this.minBlockLength),
-      validatePositiveInteger("maxHashCount", this.maxHashCount),
+      validatePercentage("maxFingerprintPercentage", this.maxFingerprintPercentage),
+      validatePositiveInteger("minFragmentLength", this.minFragmentLength),
+      validatePositiveInteger("maxFingerprintCount", this.maxFingerprintCount),
       validatePositiveInteger("limitResults", this.limitResults),
-      validatePositiveInteger("kmerLength", this.kmerLength),
-      validatePositiveInteger("kmersInWindow", this.kmersInWindow),
+      validatePositiveInteger("kgramLength", this.kgramLength),
+      validatePositiveInteger("kgramsInWindow", this.kgramsInWindow),
     ].filter(err => err !== null);
 
     if (errors.length > 0) {
@@ -81,8 +81,8 @@ export class Options implements DolosOptions {
     Object.freeze(this);
   }
 
-  get kmerData(): boolean {
-    return this.custom.kmerData == true;
+  get kgramData(): boolean {
+    return this.custom.kgramData == true;
   }
 
 
@@ -94,33 +94,33 @@ export class Options implements DolosOptions {
     return definedOrDefault(this.custom.language, Options.defaultLanguage);
   }
 
-  get kmerLength(): number {
-    return definedOrDefault(this.custom.kmerLength, Options.defaultKmerLength);
+  get kgramLength(): number {
+    return definedOrDefault(this.custom.kgramLength, Options.defaultKgramLength);
   }
 
-  get kmersInWindow(): number {
+  get kgramsInWindow(): number {
     return definedOrDefault(
-      this.custom.kmersInWindow,
-      Options.defaultKmersInWindow
+      this.custom.kgramsInWindow,
+      Options.defaultKgramsInWindow
     );
   }
 
   get filterByPercentage(): boolean {
-    return this.custom.maxHashCount === undefined;
+    return this.custom.maxFingerprintCount === undefined;
   }
 
-  get maxHashCount(): number | null {
-    return definedOrNull(this.custom.maxHashCount);
+  get maxFingerprintCount(): number | null {
+    return definedOrNull(this.custom.maxFingerprintCount);
   }
 
-  get maxHashPercentage(): number | null {
-    return definedOrNull(this.custom.maxHashPercentage);
+  get maxFingerprintPercentage(): number | null {
+    return definedOrNull(this.custom.maxFingerprintPercentage);
   }
 
-  get minBlockLength(): number {
+  get minFragmentLength(): number {
     return definedOrDefault(
-      this.custom.minBlockLength,
-      Options.defaultMinBlockLength
+      this.custom.minFragmentLength,
+      Options.defaultMinFragmentLength
     );
   }
 
@@ -139,24 +139,24 @@ export class Options implements DolosOptions {
     return definedOrDefault(this.custom.sortBy, Options.defaultSortBy);
   }
 
-  get blockSortBy(): string {
-    return definedOrDefault(this.custom.blockSortBy, Options.defaultBlockSortBy);
+  get fragmentSortBy(): string {
+    return definedOrDefault(this.custom.fragmentSortBy, Options.defaultFragmentSortBy);
   }
 
   public asObject(): DolosOptions {
     return {
-      kmerLength: this.kmerLength,
-      kmersInWindow: this.kmersInWindow,
+      kgramLength: this.kgramLength,
+      kgramsInWindow: this.kgramsInWindow,
       language: this.language,
-      maxHashCount: this.custom.maxHashCount || null,
-      maxHashPercentage: this.maxHashPercentage,
-      minBlockLength: this.minBlockLength,
+      maxFingerprintCount: this.custom.maxFingerprintCount || null,
+      maxFingerprintPercentage: this.maxFingerprintPercentage,
+      minFragmentLength: this.minFragmentLength,
       limitResults: this.limitResults,
       localPort: this.localPort,
       minSimilarity: this.minSimilarity,
       sortBy: this.sortBy,
-      blockSortBy: this.blockSortBy,
-      kmerData: this.kmerData
+      fragmentSortBy: this.fragmentSortBy,
+      kgramData: this.kgramData
     };
   }
 
