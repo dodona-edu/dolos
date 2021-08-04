@@ -11,10 +11,6 @@ jobs:
       fail-fast: false
     steps:
       - uses: actions/checkout@v2
-      - name: Setup Node
-        uses: actions/setup-node@v2
-        with:
-          node-version: ${{ matrix.node }}
       - name: Cache Yarn dependencies
         id: cache-dependencies
         uses: actions/cache@v2
@@ -23,6 +19,11 @@ jobs:
             ${{ github.workspace }}/node_modules
             ${{ github.workspace }}/*/node_modules
           key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('/yarn.lock') }}
+      - name: Setup Node
+        if: steps.cache-dependencies.outputs.cache-hit != 'true'
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node }}
       - name: Yarn install
         if: steps.cache-dependencies.outputs.cache-hit != 'true'
         run: yarn install
