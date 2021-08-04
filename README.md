@@ -2,7 +2,7 @@
 
 <p align="center">
   <a href="https://dolos.ugent.be/" target="_blank">
-    <img width="180" src="https://github.com/dodona-edu/dolos/blob/docs/docs/.vuepress/public/images/soco-java-graph-circle.png" alt="A plagiarism graph showing a lot of plagiarism.">
+    <img width="180" src="https://github.com/dodona-edu/dolos/blob/main/docs/.vuepress/public/images/soco-java-graph-circle.png" alt="A plagiarism graph showing a lot of plagiarism.">
   </a>
 </p>
 
@@ -30,6 +30,6 @@ Visit our web page at <https://dolos.ugent.be>.
 
 ## Projects
 
-- [CLI](./tree/develop/cli/): the core library and commandline interface
-- [Web](./tree/develop/web/): a graphical user interface in your browser
-- [Doc](./tree/develop/doc): the source code of <https://dolos.ugent.be>
+- [CLI](./tree/main/cli/): the core library and commandline interface
+- [Web](./tree/main/web/): a graphical user interface in your browser
+- [Doc](./tree/main/doc): the source code of <https://dolos.ugent.be>
