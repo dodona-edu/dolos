@@ -30,6 +30,6 @@ Visit our web page at <https://dolos.ugent.be>.
 
 ## Projects
 
-- [CLI](./tree/main/cli/): the core library and commandline interface
-- [Web](./tree/main/web/): a graphical user interface in your browser
-- [Doc](./tree/main/docs): the source code of <https://dolos.ugent.be>
+- [CLI](https://github.com/dodona-edu/dolos/tree/main/cli): the core library and commandline interface
+- [Web](https://github.com/dodona-edu/dolos/tree/main/web): a graphical user interface in your browser
+- [Docs](https://github.com/dodona-edu/dolos/tree/main/docs): the source code of <https://dolos.ugent.be>
