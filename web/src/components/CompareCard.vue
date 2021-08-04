@@ -27,7 +27,7 @@
                     </v-col>
                   </v-row>
                   <v-row>
-                    <v-col cols="12" xl="auto">
+                    <v-col cols="12">
                       <v-row dense justify="center">
                         <v-col cols="auto">
                           <v-chip label>
