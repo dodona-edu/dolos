@@ -58,7 +58,8 @@ module.exports = {
             './installation',
             './running',
             './languages',
-            './algorithm'
+            './algorithm',
+            './dodona'
           ]
         }
       ]
