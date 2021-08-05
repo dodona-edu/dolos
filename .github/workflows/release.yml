@@ -66,6 +66,14 @@ jobs:
 #          # publish: true
 #        env:
 #          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build CLI
+        run: |
+          cd cli/
+          yarn build
+      - name: Build web
+        run: |
+          cd web/
+          yarn build
       - name: Publish @dodona/dolos-web to NPM
         uses: JS-DevTools/npm-publish@v1
         with:
