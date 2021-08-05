@@ -1,0 +1,13 @@
+categories:
+  - title: '🚀 Features'
+    label: 'enhancement'
+  - title: '🐛 Bug Fixes'
+    label: 'bug'
+  - title: '🧰 Maintenance'
+    label: 'chore'
+  - title: '📖 Documentation'
+    label: 'documentation'
+exclude-labels:
+  - "dependencies"
+template: |
+  $CHANGES
