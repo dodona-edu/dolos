@@ -56,16 +56,16 @@ jobs:
       - name: Parse tag
         id: parse_tag
         run: "echo ${{ github.ref }} | sed 's#^refs/tags/#::set-output name=version::#'"
-      - name: Create release
-        id: create_release
-        uses: release-drafter/release-drafter@v5
-        with:
-          name: ${{ steps.parse_tag.outputs.version }}
-          tag: ${{ steps.parse_tag.outputs.version }}
-          version: ${{ steps.parse_tag.outputs.version }}
-          # publish: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#      - name: Create release
+#        id: create_release
+#        uses: release-drafter/release-drafter@v5
+#        with:
+#          name: ${{ steps.parse_tag.outputs.version }}
+#          tag: ${{ steps.parse_tag.outputs.version }}
+#          version: ${{ steps.parse_tag.outputs.version }}
+#          # publish: true
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Publish @dodona/dolos-web to NPM
         uses: JS-DevTools/npm-publish@v1
         with:
