@@ -118,7 +118,7 @@ export class CsvPresenter extends Presenter {
   }
 
   async writeToDirectory(): Promise<string> {
-    const dirName = this.destination || `dolos-report-${ new Date().toISOString() }`;
+    const dirName = this.destination || `dolos-report-${ new Date().toISOString().replace(/[.:-]/g, "") }`;
     await fs.mkdir(dirName, { recursive: true });
 
     console.log(`Writing results to directory: ${dirName}`);
