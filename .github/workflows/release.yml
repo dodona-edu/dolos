@@ -1,5 +1,3 @@
-name: Release package
-
 name: Release Package
 
 on:
@@ -18,24 +16,24 @@ jobs:
       - uses: actions/checkout@v2
       - name: Check version strings
         run: |
-        # version strings should be only numbers and dots
-        # and not contain '-dev' for example
-        valid=true
-        if ! jq -e '.version| test("^[0-9.]+$")' cli/package.json >/dev/null; then
-            echo "CLI package has invalid version string"
-            valid=false
-        fi
-        if ! jq -e '.optionalDependencies."@dodona/dolos-web" | test("^[0-9.]+$")' cli/package.json >/dev/null; then
-            echo "CLI dependency dolos-web has invalid version string"
-            valid=false
-        fi
-        if ! jq -e '.version | test("^[0-9.]+$")' web/package.json >/dev/null; then
-            echo "Web package has invalid version string"
-            valid=false
-        fi
-        if ! $valid; then
-            exit 1
-        fi
+          # version strings should be only numbers and dots
+          # and not contain '-dev' for example
+          valid=true
+          if ! jq -e '.version| test("^[0-9.]+$")' cli/package.json >/dev/null; then
+              echo "CLI package has invalid version string"
+              valid=false
+          fi
+          if ! jq -e '.optionalDependencies."@dodona/dolos-web" | test("^[0-9.]+$")' cli/package.json >/dev/null; then
+              echo "CLI dependency dolos-web has invalid version string"
+              valid=false
+          fi
+          if ! jq -e '.version | test("^[0-9.]+$")' web/package.json >/dev/null; then
+              echo "Web package has invalid version string"
+              valid=false
+          fi
+          if ! $valid; then
+              exit 1
+          fi
 
       - name: Setup Node
         uses: actions/setup-node@v2
@@ -53,33 +51,34 @@ jobs:
         if: steps.cache-dependencies.outputs.cache-hit != 'true'
         run: |
           echo "Should have hit cache"
-          false
-    - name: Parse tag
-      id: parse_tag
-      run: "echo ${{ github.ref }} | sed 's#^refs/tags/#::set-output name=version::#'"
-    - name: Create release
-      id: create_release
-      uses: release-drafter/release-drafter@v5
-      with:
-        name: ${{ steps.parse_tag.outputs.version }}
-        tag: ${{ steps.parse_tag.outputs.version }}
-        version: ${{ steps.parse_tag.outputs.version }}
-        # publish: true
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    - name: Publish @dodona/dolos-web to NPM
-      uses: JS-DevTools/npm-publish@v1
-      with:
-        token: ${{ secrets.NPM_AUTH_TOKEN }}
-        package: ./web/package.json
-        check-version: true
-        access: public
-        dry-run: true
-    - name: Publish @dodona/dolos to NPM
-      uses: JS-DevTools/npm-publish@v1
-      with:
-        token: ${{ secrets.NPM_AUTH_TOKEN }}
-        package: ./cli/package.json
-        check-version: true
-        access: public
-        dry-run: true
+          exit 1
+
+      - name: Parse tag
+        id: parse_tag
+        run: "echo ${{ github.ref }} | sed 's#^refs/tags/#::set-output name=version::#'"
+      - name: Create release
+        id: create_release
+        uses: release-drafter/release-drafter@v5
+        with:
+          name: ${{ steps.parse_tag.outputs.version }}
+          tag: ${{ steps.parse_tag.outputs.version }}
+          version: ${{ steps.parse_tag.outputs.version }}
+          # publish: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish @dodona/dolos-web to NPM
+        uses: JS-DevTools/npm-publish@v1
+        with:
+          token: ${{ secrets.NPM_AUTH_TOKEN }}
+          package: ./web/package.json
+          check-version: true
+          access: public
+          dry-run: true
+      - name: Publish @dodona/dolos to NPM
+        uses: JS-DevTools/npm-publish@v1
+        with:
+          token: ${{ secrets.NPM_AUTH_TOKEN }}
+          package: ./cli/package.json
+          check-version: true
+          access: public
+          dry-run: true
