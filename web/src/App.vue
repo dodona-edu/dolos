@@ -7,13 +7,17 @@
         dark
         dense
       >
+        <v-app-bar-nav-icon
+            v-if="$vuetify.breakpoint.mobile"
+            @click.stop="drawerEnabled = !drawerEnabled"></v-app-bar-nav-icon>
         <v-toolbar-title @click="toHomeScreen">DOLOS</v-toolbar-title>
       </v-app-bar>
 
       <v-navigation-drawer
+          v-model="drawerEnabled"
           clipped
           app
-          expand-on-hover
+          :expand-on-hover="!$vuetify.breakpoint.mobile"
       >
         <v-list nav>
           <v-list-item @click="toHomeScreen" link>
@@ -42,10 +46,12 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component } from "vue-property-decorator";
+import { Vue, Component, Prop } from "vue-property-decorator";
 
 @Component({})
 export default class App extends Vue {
+  @Prop() drawerEnabled = false;
+
   toHomeScreen(): void {
     this.$router.push("/");
   }
