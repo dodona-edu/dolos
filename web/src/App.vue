@@ -48,18 +48,24 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from "vue-property-decorator";
+import { Vue, Component } from "vue-property-decorator";
 
 @Component({})
 export default class App extends Vue {
-  @Prop() drawerEnabled = false;
+  drawerEnabled = false;
+
+  navigateTo(route: string): void {
+    if (this.$router.currentRoute.path !== route) {
+      this.$router.push(route);
+    }
+  }
 
   toHomeScreen(): void {
-    this.$router.push("/");
+    this.navigateTo("/");
   }
 
   toGraphView(): void {
-    this.$router.push("/graph/");
+    this.navigateTo("/graph/");
   }
 }
 </script>
