@@ -6,7 +6,7 @@
           v-if="pair && pair.fragments"
           :loaded="dataLoaded"
           :pair="pair"
-          :kgram-length="kgramLength"
+          :metadata="metadata"
         />
         <v-card v-else>
           <v-card-subtitle>
@@ -31,7 +31,7 @@ export default class Compare extends DataView {
   @Prop({ required: true }) pairId!: number;
 
   async ensureFragments(): Promise<void> {
-    if (!this.$store.getters.areFragmentsLoaded(this.pairId)) {
+    if (!this.dataLoaded) {
       await this.$store.dispatch("populateFragments", { pairId: this.pairId });
     }
   }
@@ -47,10 +47,6 @@ export default class Compare extends DataView {
 
   get pair(): Pair | undefined {
     return this.pairs[+this.pairId];
-  }
-
-  get kgramLength(): number {
-    return this.metadata.kgramLength as number;
   }
 
   get dataLoaded(): boolean {

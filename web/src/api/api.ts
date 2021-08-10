@@ -198,7 +198,7 @@ function parseMetadata(data: d3.DSVRowArray): Metadata {
   );
 }
 
-export async function populateFragments(pair: Pair, kmers: ObjMap<Kgram>): Promise<void> {
+export async function loadFragments(pair: Pair, kmers: ObjMap<Kgram>): Promise<void> {
   const fragments = fetchFragments(pair.id);
   pair.fragments = parseFragments(await fragments, kmers);
 }
