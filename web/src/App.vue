@@ -40,7 +40,9 @@
       </v-navigation-drawer>
 
       <v-main>
-        <router-view />
+        <keep-alive exclude="Compare">
+          <router-view />
+        </keep-alive>
       </v-main>
     </v-app>
 </template>
