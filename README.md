@@ -24,12 +24,34 @@ Dolos is a source code plagiarism detection tool which is:
 - **Flexible** to support many programming languages
 - **Powerful** by using state-of-the-art algorithms to help you discover plagiarism
 
+## Installation
+
+You can install Dolos on your system using npm:
+```shell
+npm install -g @dodona/dolos
+```
+
+See [the installation instructions on our website](https://dolos.ugent.be/guide/installation.html) for more complete instructions.
+
+## Usage
+
+Dolos has to be launched using the command-line interface, but it is able to
+show the results in your browser.
+
+Launch Dolos using the following command in your terminal:
+```shell
+dolos --format web --language <language> path/to/your/files/*
+```
+The above command will launch a web interface with the analysis results at <http://localhost:3000>.
+
+[More elaborate instructions on how to use Dolos](https://dolos.ugent.be/guide/running.html).
+
 ## Documentation
 
 Visit our web page at <https://dolos.ugent.be>.
 
 ## Projects
 
-- [CLI](https://github.com/dodona-edu/dolos/tree/main/cli): the core library and commandline interface
-- [Web](https://github.com/dodona-edu/dolos/tree/main/web): a graphical user interface in your browser
+- [CLI](https://github.com/dodona-edu/dolos/tree/main/cli): the core library and command-line interface
+- [Web](https://github.com/dodona-edu/dolos/tree/main/web): the graphical user interface in your browser which can be launched using the CLI
 - [Docs](https://github.com/dodona-edu/dolos/tree/main/docs): the source code of <https://dolos.ugent.be>
