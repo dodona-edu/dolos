@@ -18,16 +18,48 @@
   </a>
 </p>
 
-Dolos is a source code plagiarism detection tool which is:
+Dolos is a source code plagiarism detection tool for programming exercises.
+Dolos helps teachers in discovering students sharing solutions, even if they are
+modified. By providing interactive visualizations, Dolos can also be used to
+sensitize students to prevent plagiarism.
+
+Dolos aims to be:
 
 - **Easy to use** by having minimal installation instructions and an intuitive user interface
 - **Flexible** to support many programming languages
-- **Powerful** by using state-of-the art algorithms to help you discover plagiarism
+- **Powerful** by using state-of-the-art algorithms to help you discover plagiarism
 
-## How to use Dolos
+Dolos is a command-line (CLI) tool that analyses source code files for similarities between them.
+It is able to show an interactive user interface in your browser by launching a local webserver.
+The analysis results are available in machine readable CSV files and Dolos can be integrated as a
+[JavaScript library](https://www.npmjs.com/package/@dodona/dolos) in other applications empowering
+users to integrate plagiarism detection in their personal workflow.
 
-Visit the project's web page at <https://dolos.ugent.be> to find out how  to [install](https://dolos.ugent.be/guide/installation.html)
-and [use](https://dolos.ugent.be/guide/running.html) Dolos.
+## Installation
+
+You can install Dolos on your system using npm:
+```shell
+npm install -g @dodona/dolos
+```
+
+See [the installation instructions on our website](https://dolos.ugent.be/guide/installation.html) for more complete instructions.
+
+## Usage
+
+Dolos has to be launched using the command-line interface, but it is able to
+show the results in your browser.
+
+Launch Dolos using the following command in your terminal:
+```shell
+dolos --format web --language <language> path/to/your/files/*
+```
+The above command will launch a web interface with the analysis results at <http://localhost:3000>.
+
+[More elaborate instructions on how to use Dolos](https://dolos.ugent.be/guide/running.html).
+
+## Documentation
+
+Visit our web page at <https://dolos.ugent.be>.
 
 ## Development
 

@@ -32,7 +32,7 @@ copied_function.js           copy_of_sample.js            0.153846    8         
 copied_function.js           sample.js                    0.153846    8              16
 ```
 ::: tip
-You can show all the commandline options by passing the `-h` or `--help` flag:
+You can show all the command-line options by passing the `-h` or `--help` flag:
 ```shell
 dolos --help
 # Usage: dolos [options] <paths...>

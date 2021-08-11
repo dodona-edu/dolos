@@ -52,7 +52,7 @@ By passing the `info.csv` file, Dolos can include the metadata associated with
 the submissions in the resulting report. 
 :::
 
-You can change how Dolos performs the analysis by passing different commandline
+You can change how Dolos performs the analysis by passing different command-line
 arguments. You can view a list of arguments by running `dolos -h`.
 
 ## Dolos web
