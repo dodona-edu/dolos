@@ -18,11 +18,17 @@
   </a>
 </p>
 
-Dolos is a source code plagiarism detection tool which is:
+Dolos is a source code plagiarism detection tool for programming exercises.
+Dolos helps teachers in discovering students sharing solutions, even if they are
+modified. By providing interactive visualizations, Dolos can also be used to
+sensitize students to prevent plagiarism.
+
+Dolos aims to be:
 
 - **Easy to use** by having minimal installation instructions and an intuitive user interface
 - **Flexible** to support many programming languages
 - **Powerful** by using state-of-the-art algorithms to help you discover plagiarism
+
 
 ## Installation
 
