@@ -114,6 +114,13 @@ program
     )
   )
   .option(
+    "--no-open",
+    Utils.indent(
+      "Do not open the web page in your browser once it is ready."
+    ),
+    false
+  )
+  .option(
     "--sort <field>",
     Utils.indent(
       "Which field to sort the pairs by. Options are: similarity, total overlap, and longest fragment", "total overlap"
@@ -168,6 +175,7 @@ program
         minFragmentLength: options.minimumFragmentLength,
         minSimilarity: options.minimumSimilarity,
         limitResults: options.limit,
+        open: !options.noOpen,
         sortBy: options.sort,
         fragmentSortBy: options.fragmentSort,
       });
