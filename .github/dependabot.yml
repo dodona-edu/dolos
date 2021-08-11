@@ -24,9 +24,3 @@ updates:
     interval: weekly
     time: "13:00"
     timezone: Europe/Brussels
-- package-ecosystem: npm
-  directory: "/"
-  schedule:
-    interval: weekly
-    time: "13:00"
-    timezone: Europe/Brussels
