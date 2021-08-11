@@ -29,7 +29,7 @@ Dolos aims to be:
 - **Flexible** to support many programming languages
 - **Powerful** by using state-of-the-art algorithms to help you discover plagiarism
 
-Dolos is a commandline (CLI) tool that analyses source code files for similarities between them.
+Dolos is a command-line (CLI) tool that analyses source code files for similarities between them.
 It is able to show an interactive user interface in your browser by launching a local webserver.
 The analysis results are available in machine readable CSV files and Dolos can be integrated as a
 [JavaScript library](https://www.npmjs.com/package/@dodona/dolos) in other applications empowering
