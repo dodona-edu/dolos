@@ -175,7 +175,7 @@ program
         minFragmentLength: options.minimumFragmentLength,
         minSimilarity: options.minimumSimilarity,
         limitResults: options.limit,
-        open: !options.noOpen,
+        open: options.open,
         sortBy: options.sort,
         fragmentSortBy: options.fragmentSort,
       });
