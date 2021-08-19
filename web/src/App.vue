@@ -52,7 +52,11 @@ import { Vue, Component } from "vue-property-decorator";
 
 @Component({})
 export default class App extends Vue {
-  drawerEnabled = false;
+  drawerEnabled = true;
+
+  created(): void {
+    this.drawerEnabled = !this.$vuetify.breakpoint.mobile;
+  }
 
   navigateTo(route: string): void {
     if (this.$router.currentRoute.path !== route) {
