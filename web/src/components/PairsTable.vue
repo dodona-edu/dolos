@@ -21,6 +21,7 @@
       :search="search"
       :loading="!loaded"
       class="elevation-1"
+      :footer-props="footerprops"
       @click:row="rowClicked"
     >
     </v-data-table>
@@ -44,6 +45,12 @@ export default class PairsTable extends Vue {
     { text: "Longest fragment", value: "longestFragment" },
     { text: "Total overlap", value: "totalOverlap" },
   ];
+
+  footerprops = {
+    itemsPerPageOptions: [15, 25, 50, 100, -1],
+    showCurrentPage: true,
+    showFirstLastPage: true,
+  };
 
   get items(): Array<{left: string; right: string; similarity: string}> {
     return Object.values(this.pairs).map(pair => ({
