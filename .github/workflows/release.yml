@@ -88,3 +88,63 @@ jobs:
           package: ./cli/package.json
           check-version: true
           access: public
+  demo:
+    needs: release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: "16"
+      - name: Install dolos
+        run: |
+          npm install -g @dodona/dolos
+          dolos --version
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          echo "$KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+        env:
+          SSH_KEY: ${{ secrets.SSH_KEY }}
+          KNOWN_HOSTS: ${{ secrets.KNOWN_HOSTS }}
+      - name: Prepare analysis
+        run: |
+          mkdir analysis
+          cd analysis
+          rsync \
+              -e 'ssh -p 4840' \
+              dodona@dolos.ugent.be:soco-with-labels.zip \
+              .
+          unzip soco-with-labels.zip
+      - name: Run analysis on samples
+        run: |
+          cd analysis
+          dolos -l javascript -f csv -o samples-results samples/*.js
+      - name: Run analysis on Java files
+        run: |
+          cd analysis
+          dolos -l java -f csv -o java-results java-labels.csv
+      - name: Run analysis on C files
+        run: |
+          cd analysis
+          dolos -l c -f csv -o c-results c-labels.csv
+      - name: Deploy results to demo site
+        run: |
+          cd analysis
+          npm pack @dodona/dolos-web
+          tar xzf dodona-dolos-web-*.tgz
+          mkdir -p demo/sample demo/soco/java demo/soco/c
+          cp -r package/dist demo/sample/
+          cp -r package/dist demo/soco/java
+          cp -r package/dist demo/soco/c
+          mv samples-results demo/sample/data
+          mv java-results demo/soco/java/data
+          mv c-results demo/soco/c/data
+          rsync -glpPrtvz \
+              -e 'ssh -p 4840' \
+              demo/ \
+              dodona@dolos.ugent.be:demo
+
