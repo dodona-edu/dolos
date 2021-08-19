@@ -6,8 +6,8 @@ parser library, to support a broad range of programming languages.
 
 
 - [Try Dolos](/try/)
-- [Install Dolos](/guide/installation)
-- [How to use Dolos](/guide/running)
+- [Install Dolos](/guide/installation.html)
+- [How to use Dolos](/guide/running.html)
 
 
 ## What's in a name?
