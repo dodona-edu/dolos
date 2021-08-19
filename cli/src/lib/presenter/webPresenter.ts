@@ -61,7 +61,7 @@ export class WebPresenter extends CsvPresenter {
 
     if (this.options.open) {
       // Open the URL in browser
-      console.log(`Opening the web page in your browser...`);
+      console.log("Opening the web page in your browser...");
       await open(url, { wait: false });
     }
 
