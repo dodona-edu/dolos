@@ -1,6 +1,6 @@
 {
   "name": "@dodona/dolos",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Code similarity detection based on the Winnowing algorithm",
   "types": "dist/dolos.d.ts",
   "bin": {
@@ -59,7 +59,7 @@
     "tree-sitter-python": "^0.19.0"
   },
   "optionalDependencies": {
-    "@dodona/dolos-web": "1.2.0"
+    "@dodona/dolos-web": "1.2.1"
   },
   "bugs": {
     "url": "https://github.com/dodona-edu/dolos/issues"
