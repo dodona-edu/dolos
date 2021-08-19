@@ -136,8 +136,8 @@ jobs:
           cd analysis
           npm pack @dodona/dolos-web
           tar xzf dodona-dolos-web-*.tgz
-          mkdir -p demo/sample demo/soco/java demo/soco/c
-          cp -r package/dist demo/sample/
+          mkdir -p demo/soco
+          cp -r package/dist demo/sample
           cp -r package/dist demo/soco/java
           cp -r package/dist demo/soco/c
           mv samples-results demo/sample/data
