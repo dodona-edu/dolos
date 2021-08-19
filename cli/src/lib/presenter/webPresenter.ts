@@ -3,6 +3,7 @@ import assert from "assert";
 import * as http from "http";
 import { CsvPresenter } from "./csvPresenter";
 import path from "path";
+import open from "open";
 import { Report } from "../analyze/report";
 import { Options } from "../util/options";
 import { Pair } from "../analyze/pair";
@@ -53,10 +54,18 @@ export class WebPresenter extends CsvPresenter {
 
     server.listen(this.options.localPort, "localhost");
 
-    await serverStarted;
-    console.log(`Dolos is available on http://localhost:${ this.options.localPort }`);
-    console.log("Press Ctrl-C to exit.");
+    const url = `http://localhost:${ this.options.localPort }`;
 
+    await serverStarted;
+    console.log(`Dolos is available on ${ url }`);
+
+    if (this.options.open) {
+      // Open the URL in browser
+      console.log("Opening the web page in your browser...");
+      await open(url, { wait: false });
+    }
+
+    console.log("Press Ctrl-C to exit.");
     return serverStopped;
   }
 

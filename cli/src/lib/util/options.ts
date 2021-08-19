@@ -7,6 +7,7 @@ export interface DolosOptions {
   maxFingerprintPercentage: number | null;
   minFragmentLength: number;
   minSimilarity: number;
+  open: boolean;
   localPort: number;
   sortBy: string | null;
   fragmentSortBy: string | null;
@@ -53,6 +54,7 @@ export class Options implements DolosOptions {
   public static defaultMinFragmentLength = 0;
   public static defaultMinSimilarity = 0;
   public static defaultPort = 3000;
+  public static defaultOpen = true;
   public static defaultSortBy = "total";
   public static defaultFragmentSortBy = "none";
 
@@ -131,6 +133,10 @@ export class Options implements DolosOptions {
     );
   }
 
+  get open(): boolean {
+    return definedOrDefault(this.custom.open, Options.defaultOpen);
+  }
+
   get localPort(): number {
     return definedOrDefault(this.custom.localPort, Options.defaultPort);
   }
@@ -153,6 +159,7 @@ export class Options implements DolosOptions {
       minFragmentLength: this.minFragmentLength,
       limitResults: this.limitResults,
       localPort: this.localPort,
+      open: this.open,
       minSimilarity: this.minSimilarity,
       sortBy: this.sortBy,
       fragmentSortBy: this.fragmentSortBy,
