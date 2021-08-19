@@ -71,6 +71,7 @@
                             :identifier="SideID.leftSideId"
                             :selected-selections="selected.sides.leftSideId.fragmentClasses"
                             :selections="leftSelections"
+                            :language="language"
                             @codescroll="onScrollHandler"
                             @linesvisibleamount="setLinesVisible"
                             @selectionclick="selectionClickEventHandler"
@@ -108,6 +109,7 @@
                             :identifier="SideID.rightSideId"
                             :selected-selections="selected.sides.rightSideId.fragmentClasses"
                             :selections="rightSelections"
+                            :language="language"
                             @codescroll="onScrollHandler"
                             @selectionclick="selectionClickEventHandler"
                             @selectionhoverenter="onHoverEnterHandler"
@@ -188,7 +190,7 @@
 </template>
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
-import { Fragment, Pair, Selection } from "@/api/api";
+import { Fragment, Metadata, Pair, Selection } from "@/api/api";
 import CompareSide from "@/components/CompareSide.vue";
 import BarcodeChart from "@/components/BarcodeChart.vue";
 import { constructID, SelectionId } from "@/util/OccurenceHighlight";
@@ -221,7 +223,7 @@ export enum SideID {
 export default class CompareCard extends Vue {
   @Prop({ default: false, required: true }) loaded!: boolean;
   @Prop({ required: true }) pair!: Pair;
-  @Prop({ required: true }) kgramLength!: number;
+  @Prop({ required: true }) metadata!: Metadata;
 
   shortcutsHelptext = [
     ["Left Arrow", "Previous"],
@@ -277,6 +279,14 @@ export default class CompareCard extends Vue {
   leftScrollFraction = 0;
   rightScrollFraction = 0;
   linesVisible = 0;
+
+  get language(): string {
+    return this.metadata.language as string;
+  }
+
+  get kgramLength(): number {
+    return this.metadata.kgramLength as number;
+  }
 
   get activePair() : Pair {
     if (this.filesSwapped) {

@@ -41,6 +41,7 @@ import { ID_START, registerFragmentHighlighting } from "@/util/OccurenceHighligh
 export default class CompareSide extends Vue {
   @Prop({ required: true }) identifier!: string;
   @Prop({ required: true }) file!: File;
+  @Prop({ required: true }) language!: string;
   @Prop({ required: true }) selections!: Array<Selection>;
   @Prop({ required: true }) hoveringSelections!: Array<string>;
   @Prop({ required: true }) activeSelections!: Array<string>;
@@ -48,10 +49,6 @@ export default class CompareSide extends Vue {
 
   get content(): string {
     return this.file.content;
-  }
-
-  get language(): string {
-    return this.$store.state.data.metadata.language;
   }
 
   onScroll(e: Event): void {
