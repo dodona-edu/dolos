@@ -46,7 +46,7 @@
     "chalk": "^4.1.1",
     "cliui": "^7.0.4",
     "commander": "^8.1.0",
-    "csv-stringify": "^5.6.2",
+    "csv-stringify": "^5.6.4",
     "d3": "^6.7.0",
     "express": "^4.17.1",
     "open": "^8.2.1",
