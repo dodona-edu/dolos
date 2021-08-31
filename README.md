@@ -61,6 +61,25 @@ The above command will launch a web interface with the analysis results at <http
 
 Visit our web page at <https://dolos.ugent.be>.
 
+## Building and developing
+
+If you want to build Dolos from source you will need
+[yarn (v1)](https://classic.yarnpkg.com/en/docs/install) because this project
+uses [yarn workspaces](https://classic.yarnpkg.com/en/docs/workspaces/) to
+combine the dependencies of each project (cli, web and docs).
+
+You only need to run install the dependencies once in the repository root by
+running `yarn install`. This will install all dependencies and link them in each
+project's `node_modules`. You should **not** run `yarn install` in each
+project's directory separately.
+
+This will also link the `dist` folder from the web project as `dolos-web` in the
+CLI project as long as the `cli/package.json` mentions `dolos-web` with the
+correct version as a dependency. This allows you to simultaneously develop the
+CLI and the Web project together.
+
+Each project has its own build instructions in its own directory.
+
 ## Projects
 
 - [CLI](https://github.com/dodona-edu/dolos/tree/main/cli): the core library and command-line interface
