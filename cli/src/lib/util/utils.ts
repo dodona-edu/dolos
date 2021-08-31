@@ -124,6 +124,19 @@ export function error(msg: unknown, ...other: unknown[]): void {
   log("error", msg, ...other);
 }
 
+export async function tryCatch(verbose: boolean, run: () => Promise<void>): Promise<void> {
+  try {
+    await run();
+  } catch (err) {
+    if (verbose) {
+      error(err.stack);
+    } else {
+      error(err.message);
+    }
+    process.exit(1);
+  }
+}
+
 
 
 
