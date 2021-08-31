@@ -17,9 +17,9 @@ ls
 The simplest way to run Dolos is to set the language using the `-l` or `--language`
 flag and pass it a list of all the files you want to analyze:
 ```shell
-dolos -l javascript another_copied_function.js  copied_function.js  copy_of_sample.js  sample.js
+dolos run -l javascript another_copied_function.js  copied_function.js  copy_of_sample.js  sample.js
 # or shorter using file globbing
-dolos -l javascript *.js
+dolos run -l javascript *.js
 ```
 The output in your terminal will should look like this:
 ```
@@ -32,16 +32,8 @@ copied_function.js           copy_of_sample.js            0.153846    8         
 copied_function.js           sample.js                    0.153846    8              16
 ```
 ::: tip
-You can show all the command-line options by passing the `-h` or `--help` flag:
-```shell
-dolos --help
-# Usage: dolos [options] <paths...>
-# 
-# Plagiarism detection for programming exercises
-# 
-# Options:
-# ...
-```
+You can show all the command-line options by passing the `-h` or `--help` flag
+or by running `dolos help run`.
 :::
 
 ## Output format
@@ -56,10 +48,24 @@ Often, you want to use the **web** option to use the interactive user interface
 provided by Dolos:
 
 ```shell
-dolos -f web -l javascript *.js
+dolos run -f web -l javascript *.js
 ```
 
 This will start a local webserver where you can interactively explore the
 analysis report in your browser. By default, the report is available on <http://localhost:3000>.
 
 The report should look like [this](https://dolos.ugent.be/demo/sample/).
+
+## Serving generated reports
+
+If you run Dolos with `-f web` or `-f csv`, it will create a directory with the
+analysis report in your current working directory.
+
+You can view the results again in your browser without having to re-analyze the
+files by executing the command
+```shell
+dolos serve dolos-report-20210831T141228596Z/
+```
+
+This will launch the same web view as if you launched Dolos with the `-f web`
+option.
