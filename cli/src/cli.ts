@@ -107,6 +107,13 @@ program
     "terminal"
   )
   .option(
+    "-p, --port <port>",
+    Utils.indent(
+      "Specifies on which port --format=web should be served. Defaults to 3000.",
+    ),
+    "3000"
+  )
+  .option(
     "-o, --output-destination <path>",
     Utils.indent(
       "Path where to write the output report to. " +
@@ -177,6 +184,7 @@ program
         limitResults: options.limit,
         open: options.open,
         sortBy: options.sort,
+        localPort: options.port,
         fragmentSortBy: options.fragmentSort,
       });
       const report = await dolos.analyzePaths(locations);
