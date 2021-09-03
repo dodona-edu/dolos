@@ -92,6 +92,14 @@ export function runCommand(program: Command): Command {
       "terminal"
     )
     .option(
+      "-p, --port <port>",
+      Utils.indent(
+        "Specifies on which port --format=web should be served.",
+        "3000"
+      ),
+      "3000"
+    )
+    .option(
       "-o, --output-destination <path>",
       Utils.indent(
         "Path where to write the output report to. " +
