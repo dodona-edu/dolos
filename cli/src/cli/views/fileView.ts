@@ -1,13 +1,12 @@
-import { Presenter } from "./presenter";
+import { View } from "./view";
 import csvStringify from "csv-stringify";
 import { Writable } from "stream";
 import { createWriteStream, promises, promises as fs } from "fs";
-import { Fragment } from "../analyze/fragment";
-import { Pair } from "../analyze/pair";
-import { Report } from "../analyze/report";
-import { Options } from "../util/options";
+import { Fragment } from "../../lib/analyze/fragment";
+import { Pair } from "../../lib/analyze/pair";
+import { Report } from "../../lib/analyze/report";
 
-export function writeCSVto<T>(
+function writeCSVto<T>(
   out: Writable,
   data: T[],
   extractor: {[field: string]: (obj: T) => string | number | null}
@@ -30,10 +29,18 @@ export function writeCSVto<T>(
   csv.end();
 }
 
-export class CsvPresenter extends Presenter {
+export interface Options {
+  outputDestination?: string;
+}
 
-  constructor(report: Report, options: Options, protected destination: string) {
-    super(report, options);
+export class FileView extends View {
+
+  protected outputDestination: string;
+
+  constructor(protected report: Report, options: Options) {
+    super();
+    this.outputDestination =
+      options.outputDestination || `dolos-report-${ new Date().toISOString().replace(/[.:-]/g, "") }`;
   }
 
   private convertFragmentsToJSON(fragments: Fragment[]): string {
@@ -118,7 +125,7 @@ export class CsvPresenter extends Presenter {
   }
 
   async writeToDirectory(): Promise<string> {
-    const dirName = this.destination || `dolos-report-${ new Date().toISOString().replace(/[.:-]/g, "") }`;
+    const dirName = this.outputDestination;
     await fs.mkdir(dirName, { recursive: true });
 
     console.log(`Writing results to directory: ${dirName}`);
@@ -142,7 +149,7 @@ export class CsvPresenter extends Presenter {
     return dirName;
   }
 
-  async present(): Promise<void> {
+  async show(): Promise<void> {
     await this.writeToDirectory();
   }
 

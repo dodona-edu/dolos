@@ -1,41 +1,43 @@
-import { Region } from "../util/region";
-import { Presenter } from "./presenter";
-import { Report, ScoredPairs } from "../analyze/report";
+import { Region } from "../../lib/util/region";
+import { View } from "./view";
+import { Report, ScoredPairs } from "../../lib/analyze/report";
 
 /// <reference types="../../../typings/cliui" />
 import UI from "cliui";
 import chalk from "chalk";
 import { Writable } from "stream";
-import { Options } from "../util/options";
-import { Fragment } from "../analyze/fragment";
-import { closestMatch } from "../util/utils";
+import { Fragment } from "../../lib/analyze/fragment";
+import { closestMatch } from "../../lib/util/utils";
 
-export class TerminalPresenter extends Presenter {
+/**
+ * This {@link View} will print the results of an analysis to the terminal.
+ */
+export class TerminalView extends View {
 
   private ui: UI;
+  private output: Writable;
+  private readonly fragmentSortBy?: string;
+  private readonly compare: boolean;
   private readonly width: number;
   private readonly c: chalk.Chalk;
+  private readonly context: number = 3;
 
   constructor(
-    report: Report,
-    options: Options,
-    private readonly compare?: boolean,
-    private readonly output: Writable = process.stdout,
-    width?: number,
-    private readonly context: number = 3,
+    private report: Report,
+    options: {
+      compare?: boolean;
+      context?: number;
+      fragmentSortBy?: string;
+    },
   ) {
-    super(report, options);
-    let colorLevel = 0;
-    if (output == process.stdout) {
-      this.width = width || process.stdout.columns;
-      if(process.stdout.getColorDepth) {
-        colorLevel = Math.min(3, process.stdout.getColorDepth());
-      } else {
-        colorLevel = 0;
-      }
-    } else {
-      this.width = width || +Infinity;
-    }
+
+    super();
+    this.compare = options.compare == undefined
+      ? report.files().length == 2
+      : options.compare;
+    this.output = process.stdout;
+    this.width = process.stdout.columns;
+    const colorLevel = Math.min(3, process.stdout?.getColorDepth() || 0);
     this.c = new chalk.Instance({ level: colorLevel as 0 | 1 | 2 | 3 });
     this.ui = new UI({
       wrap: true,
@@ -43,7 +45,7 @@ export class TerminalPresenter extends Presenter {
     });
   }
 
-  public async present(): Promise<void> {
+  public async show(): Promise<void> {
     const pairs = this.report.scoredPairs;
     if (this.compare || (this.compare == null && pairs.length == 1)) {
       pairs.map(int => this.writePairWithComparison(int));
@@ -153,11 +155,13 @@ export class TerminalPresenter extends Presenter {
     const fragments = pair.fragments();
 
     type FragmentSorter = (b1: Fragment, b2: Fragment) => number;
-    const fragmentSorter = closestMatch<FragmentSorter | null>(this.options.fragmentSortBy, {
-      "file order": null,
-      "kgrams ascending": (a, b) => b.pairs.length - a.pairs.length,
-      "kgrams descending": (a, b) => a.pairs.length - b.pairs.length,
-    });
+    const fragmentSorter = closestMatch<FragmentSorter | null>(
+      this.fragmentSortBy || "file order",
+      {
+        "file order": null,
+        "kgrams ascending": (a, b) => b.pairs.length - a.pairs.length,
+        "kgrams descending": (a, b) => a.pairs.length - b.pairs.length,
+      });
 
     if(fragmentSorter) {
       fragments.sort(fragmentSorter);
