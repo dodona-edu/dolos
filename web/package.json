@@ -24,7 +24,7 @@
     "@vue/cli-service": "~4.5.13",
     "@vue/eslint-config-standard": "^6.0.0",
     "@vue/eslint-config-typescript": "^7.0.0",
-    "core-js": "^3.13.1",
+    "core-js": "^3.17.2",
     "d3": "^7.0.0",
     "eslint": "^7.27.0",
     "eslint-plugin-import": "^2.23.4",
