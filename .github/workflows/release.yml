@@ -63,7 +63,6 @@ jobs:
           name: ${{ steps.parse_tag.outputs.version }}
           tag: ${{ steps.parse_tag.outputs.version }}
           version: ${{ steps.parse_tag.outputs.version }}
-          # publish: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Build CLI
@@ -148,3 +147,20 @@ jobs:
               demo/ \
               dodona@dolos.ugent.be:demo
 
+  docker:
+    needs: release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Parse tag (without v)
+        id: parse_tag
+        run: "echo ${{ github.ref }} | sed 's#^refs/tags/v#::set-output name=version::#'"
+      - name: Build the new image
+        run: docker build docker/ -t ghcr.io/dodona-edu/dolos:${{ steps.parse_tag.outputs.version }}
+      - name: Login to the container registry
+        run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
+      - name: Tag the new image with latest
+        run: docker tag ghcr.io/dodona-edu/dolos:${{ steps.parse_tag.outputs.version }} ghcr.io/dodona-edu/dolos:latest
+      - name: Push the new image
+        run: docker push --all-tags

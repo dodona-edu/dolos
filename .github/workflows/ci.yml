@@ -28,20 +28,6 @@ jobs:
         if: steps.cache-dependencies.outputs.cache-hit != 'true'
         run: yarn install
 
-  docker:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Login to the container registry
-        run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
-      - name: Build the new image
-        run: docker build docker/ -t ghcr.io/dodona-edu/dolos:1.2.1
-      - name: Tag the new image with latest
-        run: docker tag ghcr.io/dodona-edu/dolos:1.2.1 ghcr.io/dodona-edu/dolos:latest
-        # - name: Push the new image
-        #   run: docker push ghcr.io/dodona-edu/dodona:develop-latest
-
   docs:
     name: "Docs: build and deploy"
     runs-on: ubuntu-latest
