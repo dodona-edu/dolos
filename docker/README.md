@@ -14,5 +14,5 @@ docker run --init --network host -v "$PWD:/dolos" dodona/dolos -l javascript -f 
 The arguments passed to docker serve the following purpose:
 - `--init` will make sure stopping the container with Control-C works
 - `--network host` allows Dolos's webserver to bind to <http://localhost:3000>
-- `-v "$PWD:/dolos" gives Dolos acces to your current directory
+- `-v "$PWD:/dolos"` gives Dolos acces to your current directory
 
