@@ -108,7 +108,7 @@ jobs:
         run: |
           cd cli/
           yarn build
-          yarn test
+          yarn test -v --serial
 
   cli-lint:
     name: "CLI: lint"
