@@ -59,6 +59,7 @@ module.exports = {
             './running',
             './languages',
             './algorithm',
+            './docker',
             './dodona'
           ]
         }

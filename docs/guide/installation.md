@@ -1,5 +1,9 @@
 # Installation
 
+By following the steps on this page, you can install Dolos directly on your
+system. You can also use Dolos by using the [docker container](./docker.html) we
+have provided.
+
 ## Install Node.js
 
 Dolos needs the JavaScript runtime [Node.js](https://nodejs.org/en/), version 12
