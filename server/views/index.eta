@@ -6,7 +6,7 @@
 </head>
 <body>
 <div>
-<form action="/upload" method="post">
+<form action="/upload" method="post" encType="multipart/form-data">
     <h4>Upload & analyze</h4>
     <div>
     <label for="name">
@@ -19,7 +19,7 @@
         Upload a Dodona export zip:
     </label>
     <input type="file" id="zip" name="zip"
-        encType="multipart/form-data"
+        
         accept="application/zip, application/octet-stream, application/x-zip-compressed, multipart/x-zip">
     </div>
     <div>
