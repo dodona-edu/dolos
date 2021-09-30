@@ -2,10 +2,15 @@ import { default as express, Express } from "express";
 import { default as fileUpload, UploadedFile } from "express-fileupload";
 import * as Eta from "eta";
 import { default as fs } from "fs";
+import path from "path";
+import { analyze } from "./analyzer";
 
 const app: Express = express();
 const port = 3000;
-const reportsDir = __dirname + "/reports/";
+const reportsDir = path.join(__dirname, "../reports/");
+const sourceZipfileFolder = "source"
+const sourceZipName = "upload.zip";
+
 
 app.engine("eta", Eta.renderFile);
 app.set("view engine", "eta");
@@ -23,21 +28,24 @@ app.get("/", (_req, res) => {
 });
 
 app.post<{name: string}>("/upload", (req, res) => {
-  if (!req.files || Object.keys(req.files).length === 0) {
+  if (!req.files || Object.keys(req.files).length === 0 || !req.files.zip) {
     return res.status(400).send('No files were uploaded.');
   }
-  const name = req.params.name;
-  const destination = reportsDir + name;
+
+  const name = req.body.name;
+  const destination = path.join(reportsDir, name, sourceZipfileFolder);
+
   if (fs.existsSync(destination)) {
     return res.status(400).send('There is already a report with the same name.');
   }
 
   const zipfile = req.files.zip as UploadedFile;
-  return zipfile.mv(destination + "/upload.zip", function(err: unknown) {
+  return zipfile.mv(path.join(destination, sourceZipName), function(err: unknown) {
     if (err) {
       return res.status(500).send(err);
     }
-    return res.send("File uploaded");
+    analyze(path.join(destination, sourceZipName))
+    return res.status(202).send("File uploaded, will be analyzed.");
   });
 });
 
