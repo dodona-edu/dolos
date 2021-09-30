@@ -4,12 +4,11 @@ import * as Eta from "eta";
 import { default as fs } from "fs";
 import path from "path";
 import { analyze } from "./analyzer";
+import { reportsDir, resultFiles, sourceZipfileFolder, sourceZipName } from "./constants";
+import { listReports } from "./reports";
 
 const app: Express = express();
 const port = 3000;
-const reportsDir = path.join(__dirname, "../reports/");
-const sourceZipfileFolder = "source"
-const sourceZipName = "upload.zip";
 
 
 app.engine("eta", Eta.renderFile);
@@ -23,8 +22,8 @@ app.use(fileUpload({
   tempFileDir: "/tmp/dolos-uploads",
 }));
 
-app.get("/", (_req, res) => {
-  res.render("index");
+app.get("/", async (_req, res) => {
+  res.render("index", {reports: await listReports()});
 });
 
 app.post<{name: string}>("/upload", (req, res) => {
@@ -50,7 +49,7 @@ app.post<{name: string}>("/upload", (req, res) => {
 });
 
 app.use("/reports/:reportname/data/*", (req, res) => {
-  const filePath =  path.join(reportsDir, req.params.reportname, "results", req.originalUrl.replace(/^.*\/data\/\//, ""))
+  const filePath =  path.join(reportsDir, req.params.reportname, resultFiles, req.originalUrl.replace(/^.*\/data\/\//, ""))
   res.sendFile(filePath);
 });
 

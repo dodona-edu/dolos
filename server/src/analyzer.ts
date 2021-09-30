@@ -4,9 +4,8 @@ import {default as fsWithCallbacks} from "fs";
 const fs = fsWithCallbacks.promises;
 import path from "path";
 import {default as unzipper} from "unzipper";
+import { resultFiles, unzippedPath } from "./constants";
 
-const unzippedPath = "unzipped"
-const resultFiles = "results";
 
 export async function analyze(sourceZipPath: string) {
     assert(fsWithCallbacks.existsSync(sourceZipPath), "This file does not exist.");

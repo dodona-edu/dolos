@@ -26,6 +26,11 @@
         <input type="submit" value="Analyze">
     </div>
 </form>
+    <h4>Look at previous reports</h4>
+    <% for(let report of it.reports) { %>
+    <a href="./reports/<%= report %>"><%= report %></a>
+    <% } %>
+
 </div>
 </body>
 </html>
