@@ -44,12 +44,12 @@ app.post<{name: string}>("/upload", (req, res) => {
       return res.status(500).send(err);
     }
     analyze(path.join(destination, sourceZipName))
-    return res.status(202).send("File uploaded, will be analyzed.");
+    return res.status(202).send("File uploaded, will be analyzed. <a href='../'>Back to home</a>");
   });
 });
 
-app.use("/reports/:reportname/data/*", (req, res) => {
-  const filePath =  path.join(reportsDir, req.params.reportname, resultFiles, req.originalUrl.replace(/^.*\/data\/\//, ""))
+app.use("/reports/:reportname/data//:file/:fragment?", (req, res) => {
+  const filePath =  path.join(reportsDir, req.params.reportname, resultFiles, req.params.file, req.params.fragment || "")
   res.sendFile(filePath);
 });
 
