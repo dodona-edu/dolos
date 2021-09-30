@@ -49,6 +49,16 @@ app.post<{name: string}>("/upload", (req, res) => {
   });
 });
 
+app.use("/reports/:reportname/data/*", (req, res) => {
+  const filePath =  path.join(reportsDir, req.params.reportname, "results", req.originalUrl.replace(/^.*\/data\/\//, ""))
+  res.sendFile(filePath);
+});
+
+app.use("/reports/:reportname", express.static(path.dirname(require.resolve("@dodona/dolos-web"))));
+
+
+
+
 app.listen(port, () => {
   console.log(`Dolos-server is listening on http://localhost:${ port }`);
 });
