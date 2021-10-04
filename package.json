@@ -3,9 +3,9 @@
   "license": "MIT",
   "private": true,
   "workspaces": [
+    "lib/",
     "cli/",
     "web/",
-    "lib/",
     "docs/"
   ]
 }
