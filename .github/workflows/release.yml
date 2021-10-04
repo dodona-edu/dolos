@@ -65,6 +65,10 @@ jobs:
           version: ${{ steps.parse_tag.outputs.version }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build LIB
+        run: |
+          cd lib/
+          yarn build
       - name: Build CLI
         run: |
           cd cli/
@@ -72,11 +76,6 @@ jobs:
       - name: Build web
         run: |
           cd web/
-          yarn build
-
-      - name: Build LIB
-        run: |
-          cd lib/
           yarn build
       - name: Publish @dodona/dolos-web to NPM
         uses: JS-DevTools/npm-publish@v1
