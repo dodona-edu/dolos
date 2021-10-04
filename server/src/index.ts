@@ -6,6 +6,7 @@ import path from "path";
 import { analyze } from "./analyzer";
 import { reportsDir, resultFiles, sourceZipfileFolder, sourceZipName } from "./constants";
 import { listReports } from "./reports";
+import sanitize from "sanitize-filename";
 
 const app: Express = express();
 const port = 3000;
@@ -32,7 +33,8 @@ app.post<{name: string}>("/upload", (req, res) => {
   }
 
   const name = req.body.name;
-  const destination = path.join(reportsDir, name, sourceZipfileFolder);
+  const sanName = sanitize(name);
+  const destination = path.join(reportsDir, sanName, sourceZipfileFolder);
 
   if (fs.existsSync(destination)) {
     return res.status(400).send('There is already a report with the same name.');
@@ -49,7 +51,8 @@ app.post<{name: string}>("/upload", (req, res) => {
 });
 
 app.use("/reports/:reportname/data//:file/:fragment?", (req, res) => {
-  const filePath =  path.join(reportsDir, req.params.reportname, resultFiles, req.params.file, req.params.fragment || "")
+  const [sanReportName, sanFile, sanFragment] = [sanitize(req.params.reportname), sanitize(req.params.file), sanitize(req.params.fragment || "")]
+  const filePath =  path.join(reportsDir, sanReportName, resultFiles, sanFile, sanFragment)
   res.sendFile(filePath);
 });
 

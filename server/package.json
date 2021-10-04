@@ -26,6 +26,7 @@
     "eta": "^1.12.3",
     "express": "^4.17.1",
     "express-fileupload": "^1.2.1",
+    "sanitize-filename": "^1.6.3",
     "unzipper": "^0.10.11"
   },
   "repository": {
