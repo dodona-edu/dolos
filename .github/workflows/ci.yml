@@ -204,6 +204,7 @@ jobs:
         run: |
           cd web/
           yarn lint
+
   lib-build-test:
     name: "LIB: build and test"
     runs-on: ubuntu-latest
