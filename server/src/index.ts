@@ -7,6 +7,7 @@ import { analyze } from "./analyzer";
 import { reportsDir, resultFiles, sourceZipfileFolder, sourceZipName } from "./constants";
 import { listReports } from "./reports";
 import sanitize from "sanitize-filename";
+import rateLimit from "express-rate-limit";
 
 const app: Express = express();
 const port = 3000;
@@ -22,6 +23,13 @@ app.use(fileUpload({
   abortOnLimit: true,
   tempFileDir: "/tmp/dolos-uploads",
 }));
+
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100 // limit each IP to 100 requests per windowMs
+});
+app.use(limiter);
 
 app.get("/", async (_req, res) => {
   res.render("index", { reports: await listReports() });
