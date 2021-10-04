@@ -1,0 +1,60 @@
+{
+  "name": "@dodona/dolos-lib",
+  "version": "1.2.1",
+  "description": "Code similarity detection based on the Winnowing algorithm",
+  "types": "dist/dolos.d.ts",
+  "scripts": {
+    "hash": "tsc && node dist/bin/hash.js",
+    "test-hash-performance": "tsc && time head -c 1000000 /dev/random | node dist/bin/hash.js > /dev/null",
+    "test-winnow-performance": "tsc && time head -c 1000000 /dev/random | node dist/bin/hash.js > /dev/null",
+    "test": "nyc ava",
+    "test:watch": "ava --watch",
+    "build": "tsc",
+    "lint": "eslint --ext .ts src/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/dodona-edu/dolos.git"
+  },
+  "license": "MIT",
+  "private": false,
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org",
+    "access": "public"
+  },
+  "devDependencies": {
+    "@types/benchmark": "^2.1.0",
+    "@types/d3": "^6.7.0",
+    "@types/express": "^4.17.12",
+    "@types/node": "^16.9.0",
+    "@typescript-eslint/eslint-plugin": "^4.29.2",
+    "@typescript-eslint/parser": "^4.29.2",
+    "ava": "^3.8.2",
+    "benchmark": "^2.1.4",
+    "eslint": "^7.27.0",
+    "np": "^7.5.0",
+    "nyc": "^15.0.1",
+    "ts-node": "^10.2.1",
+    "typescript": "^4.3.2"
+  },
+  "dependencies": {
+    "tree-sitter": "^0.19.0",
+    "tree-sitter-bash": "^0.19.0",
+    "tree-sitter-c": "^0.19.0",
+    "tree-sitter-c-sharp": "^0.19.0",
+    "tree-sitter-java": "^0.19.1",
+    "tree-sitter-javascript": "^0.19.0",
+    "tree-sitter-python": "^0.19.0"
+  },
+  "bugs": {
+    "url": "https://github.com/dodona-edu/dolos/issues"
+  },
+  "homepage": "https://dolos.ugent.be",
+  "keywords": [
+    "plagiarism",
+    "plagiarism-checker",
+    "plagiarism detection",
+    "similarity",
+    "code similarity"
+  ]
+}

@@ -15,7 +15,7 @@ export class Result<T> {
     try {
       return Result.ok(canFail());
     } catch (error) {
-      return Result.error(error);
+      return Result.error(error as Error);
     }
   }
 
@@ -59,7 +59,7 @@ export class Result<T> {
     try {
       return Result.ok(await canFail());
     } catch (err) {
-      return Result.error(err);
+      return Result.error(err as Error);
     }
   }
 
