@@ -5,6 +5,7 @@
   "workspaces": [
     "cli/",
     "web/",
+    "lib/",
     "docs/"
   ]
 }
