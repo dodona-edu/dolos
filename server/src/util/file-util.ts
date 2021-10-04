@@ -27,15 +27,15 @@ export async function collectFilesRecursively(directory: string, values?: string
   const contents = await fs.readdir(directory);
 
 
-  for(const content of contents) {
+  for (const content of contents) {
     const absPath = path.join(directory, content);
 
     const stat = await fs.lstat(absPath);
-    if(stat.isDirectory()) {
+    if (stat.isDirectory()) {
       await collectFilesRecursively(absPath, currentValues);
     }
 
-    if(stat.isFile()) {
+    if (stat.isFile()) {
       currentValues.push(absPath);
     }
   }
