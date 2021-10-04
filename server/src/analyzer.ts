@@ -1,13 +1,13 @@
 import { Dolos, FileView } from "@dodona/dolos/dist/dolos";
-import { assert } from "console";
 import { default as fsWithCallbacks } from "fs";
 import path from "path";
 import { resultFiles, unzippedPath } from "./constants";
+import { devAssert } from "./util/development-util";
 import { collectFilesRecursively, unzip } from "./util/file-util";
 
 
 export async function analyze(sourceZipPath: string): Promise<void> {
-  assert(fsWithCallbacks.existsSync(sourceZipPath), "This file does not exist.");
+  devAssert(() => fsWithCallbacks.existsSync(sourceZipPath), "This file does not exist.");
 
   const targetPath = path.join(sourceZipPath, "..", unzippedPath);
   await unzip(sourceZipPath, targetPath);
