@@ -107,7 +107,7 @@ jobs:
         run: |
           cd lib/
           yarn build
-          yarn test -v --serial
+          npx ava -v --serial
 
   lib-lint:
     name: "LIB: lint"
