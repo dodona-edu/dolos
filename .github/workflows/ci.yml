@@ -25,7 +25,7 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
       - name: Yarn install
-        if: steps.cache-dependencies.outputs.cache-hit != 'true'
+#        if: steps.cache-dependencies.outputs.cache-hit != 'true'
         run: yarn install
 
   docs:

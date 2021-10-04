@@ -11,7 +11,7 @@
     "debug": "tsc && node inspect dist/cli.js",
     "hash": "tsc && node dist/bin/hash.js",
     "build": "tsc",
-    "lint": "eslint --ext .ts src/"
+    "lint": "npx eslint --ext .ts src/"
   },
   "repository": {
     "type": "git",
