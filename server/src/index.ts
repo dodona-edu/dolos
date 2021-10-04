@@ -24,12 +24,12 @@ app.use(fileUpload({
 }));
 
 app.get("/", async (_req, res) => {
-  res.render("index", {reports: await listReports()});
+  res.render("index", { reports: await listReports() });
 });
 
 app.post<{name: string}>("/upload", (req, res) => {
   if (!req.files || Object.keys(req.files).length === 0 || !req.files.zip) {
-    return res.status(400).send('No files were uploaded.');
+    return res.status(400).send("No files were uploaded.");
   }
 
   const name = req.body.name;
@@ -37,22 +37,25 @@ app.post<{name: string}>("/upload", (req, res) => {
   const destination = path.join(reportsDir, sanName, sourceZipfileFolder);
 
   if (fs.existsSync(destination)) {
-    return res.status(400).send('There is already a report with the same name.');
+    return res.status(400).send("There is already a report with the same name.");
   }
 
   const zipfile = req.files.zip as UploadedFile;
-  return zipfile.mv(path.join(destination, sourceZipName), function(err: unknown) {
+  return zipfile.mv(path.join(destination, sourceZipName), function (err: unknown) {
     if (err) {
       return res.status(500).send(err);
     }
-    analyze(path.join(destination, sourceZipName))
+    analyze(path.join(destination, sourceZipName));
     return res.status(202).send("File uploaded, will be analyzed. <a href='../'>Back to home</a>");
   });
 });
 
 app.use("/reports/:reportname/data//:file/:fragment?", (req, res) => {
-  const [sanReportName, sanFile, sanFragment] = [sanitize(req.params.reportname), sanitize(req.params.file), sanitize(req.params.fragment || "")]
-  const filePath =  path.join(reportsDir, sanReportName, resultFiles, sanFile, sanFragment)
+  const [sanReportName, sanFile, sanFragment] = [
+    sanitize(req.params.reportname), 
+    sanitize(req.params.file), 
+    sanitize(req.params.fragment || "")];
+  const filePath =  path.join(reportsDir, sanReportName, resultFiles, sanFile, sanFragment);
   res.sendFile(filePath);
 });
 
