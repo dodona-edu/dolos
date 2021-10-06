@@ -172,7 +172,9 @@ jobs:
           false
       - name: Build and test
         run: |
-          cd cli/
+          cd lib/
+          yarn build
+          cd ../cli/
           yarn build
 
   cli-lint:
