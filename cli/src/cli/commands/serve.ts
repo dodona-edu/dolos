@@ -42,7 +42,7 @@ export async function serve(reportDir: string, options: ServeOptions): Promise<v
       for (const file of ["files.csv", "kgrams.csv", "metadata.csv", "pairs.csv", "fragments"]) {
         await fs.access(path.join(reportDir, file), constants.R_OK);
       }
-    } catch (e) {
+    } catch (e: any) {
       error(e.message);
       throw new Error(`The given path '${reportDir}' does not seem like a Dolos report.`);
     }

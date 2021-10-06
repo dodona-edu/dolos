@@ -1,13 +1,13 @@
-import { Region } from "@dodona/dolos-lib/dist/lib/util/region";
+import { Region } from "@dodona/dolos-lib";
 import { View } from "./view";
-import { Report, ScoredPairs } from "@dodona/dolos-lib/dist/lib/analyze/report";
+import { Report, ScoredPairs } from "@dodona/dolos-lib";
 
 /// <reference types="../../../typings/cliui" />
 import UI from "cliui";
 import chalk from "chalk";
 import { Writable } from "stream";
-import { Fragment } from "@dodona/dolos-lib/dist/lib/analyze/fragment";
-import { closestMatch } from "@dodona/dolos-lib/dist/lib/util/utils";
+import { Fragment } from "@dodona/dolos-lib";
+import { closestMatch } from "@dodona/dolos-lib";
 
 /**
  * This {@link View} will print the results of an analysis to the terminal.

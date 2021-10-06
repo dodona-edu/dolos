@@ -2,9 +2,9 @@ import { View } from "./view";
 import csvStringify from "csv-stringify";
 import { Writable } from "stream";
 import { createWriteStream, promises, promises as fs } from "fs";
-import { Report } from "@dodona/dolos-lib/dist/lib/analyze/report";
-import { Fragment } from "@dodona/dolos-lib/dist/lib/analyze/fragment";
-import { Pair } from "@dodona/dolos-lib/dist/lib/analyze/pair";
+import { Report } from "@dodona/dolos-lib";
+import { Fragment } from "@dodona/dolos-lib";
+import { Pair } from "@dodona/dolos-lib";
 
 function writeCSVto<T>(
   out: Writable,

@@ -5,12 +5,25 @@ import { CodeTokenizer } from "./lib/tokenizer/codeTokenizer";
 import { ExtraInfo, File } from "./lib/file/file";
 import { Result } from "./lib/util/result";
 import { info, error } from "./lib/util/utils";
-import { csvParse, DSVRowString } from "d3-dsv";
-import * as path from "path";
 import { Tokenizer } from "./lib/tokenizer/tokenizer";
 import { CharTokenizer } from "./lib/tokenizer/charTokenizer";
+import { csvParse, DSVRowString } from "d3-dsv";
+import * as path from "path";
 import { default as fsWithCallbacks } from "fs";
 const fs = fsWithCallbacks.promises;
+
+export { CharTokenizer } from "./lib/tokenizer/charTokenizer";
+export { CodeTokenizer } from "./lib/tokenizer/codeTokenizer";
+export { CustomOptions, Options } from "./lib/util/options";
+export { ExtraInfo, File } from "./lib/file/file";
+export { Fragment } from "./lib/analyze/fragment";
+export { Index } from "./lib/analyze";
+export { Pair } from "./lib/analyze/pair";
+export { Region } from "./lib/util/region";
+export { Report, ScoredPairs } from "./lib/analyze/report";
+export { Result } from "./lib/util/result";
+export { Tokenizer } from "./lib/tokenizer/tokenizer";
+export { info, error, closestMatch } from "./lib/util/utils";
 
 function newTokenizer(language: string): Tokenizer {
   if (language == "chars") {

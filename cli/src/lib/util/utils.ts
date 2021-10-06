@@ -127,7 +127,7 @@ export function error(msg: unknown, ...other: unknown[]): void {
 export async function tryCatch(verbose: boolean, run: () => Promise<void>): Promise<void> {
   try {
     await run();
-  } catch (err) {
+  } catch (err: any) {
     if (verbose) {
       error(err.stack);
     } else {

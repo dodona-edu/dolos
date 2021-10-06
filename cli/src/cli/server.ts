@@ -7,7 +7,7 @@ import open from "open";
 function assets(): string {
   try {
     return require.resolve("@dodona/dolos-web");
-  } catch (e) {
+  } catch (e: any) {
     if (e.code === "MODULE_NOT_FOUND") {
       error("Module '@dodona/dolos-web' was not found on your system, " +
         "but it is required to run the web server.\n" +
