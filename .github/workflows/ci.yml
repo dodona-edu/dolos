@@ -146,7 +146,6 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - install-deps
-      - lib-build-test
     strategy:
       matrix:
         node: ["12", "14", "16"]
@@ -175,14 +174,13 @@ jobs:
           cd lib/
           yarn build
           cd ../cli/
-          yarn build
+          yarn tsc --build
 
   cli-lint:
     name: "CLI: lint"
     runs-on: ubuntu-latest
     needs:
       - install-deps
-      - lib-build-test
     strategy:
       matrix:
         node: ["16"]
