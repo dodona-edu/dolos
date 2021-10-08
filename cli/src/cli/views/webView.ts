@@ -1,6 +1,6 @@
 import { FileView, Options as FVOptions } from "./fileView";
 import runServer, { Options as ServerOptions } from "../server";
-import { Report } from "@dodona/dolos-library/dist/lib/analyze/report";
+import { Report } from "@dodona/dolos-library";
 
 /**
  * This {@link View} will launch a webserver which hosts a web application to

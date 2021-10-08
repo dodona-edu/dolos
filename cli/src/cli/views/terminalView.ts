@@ -5,9 +5,9 @@ import UI from "cliui";
 import chalk from "chalk";
 import { Writable } from "stream";
 import { closestMatch } from "../../lib/util/utils";
-import { Report, ScoredPairs } from "@dodona/dolos-library/dist/lib/analyze/report";
-import { Fragment } from "@dodona/dolos-library/dist/lib/analyze/fragment";
-import { Region } from "@dodona/dolos-library/dist/lib/util/region";
+import { Report, ScoredPairs } from "@dodona/dolos-library";
+import { Fragment } from "@dodona/dolos-library";
+import { Region } from "@dodona/dolos-library";
 
 /**
  * This {@link View} will print the results of an analysis to the terminal.

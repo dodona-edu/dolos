@@ -9,8 +9,7 @@ import { FileView } from "../views/fileView";
 import { WebView } from "../views/webView";
 import { Command } from "commander";
 import * as Utils from "../../lib/util/utils";
-import { Options } from "@dodona/dolos-library/dist/lib/util/options";
-import { Dolos } from "@dodona/dolos-library/dist/dolos";
+import { Dolos, Options } from "@dodona/dolos-library";
 
 export function runCommand(program: Command): Command {
   return new Command("run")
