@@ -12,6 +12,9 @@ import { CharTokenizer } from "./lib/tokenizer/charTokenizer";
 import { default as fsWithCallbacks } from "fs";
 const fs = fsWithCallbacks.promises;
 
+export { Report } from "./lib/analyze/report";
+export { Options } from "./lib/util/options";
+
 function newTokenizer(language: string): Tokenizer {
   if (language == "chars") {
     return new CharTokenizer();
