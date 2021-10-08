@@ -60,8 +60,8 @@
     // "experimentalDecorators": true,        /* Enables experimental support for ES7 decorators. */
     // "emitDecoratorMetadata": true,         /* Enables experimental support for emitting type metadata for decorators. */
     "pretty": true,
-    "forceConsistentCasingInFileNames": true,
+    "forceConsistentCasingInFileNames": true
   },
   "exclude": [ "web/", "dist/" ],
-  "references": [{ "path": "../library/tsconfig.json"}]
+//  "references": [{ "path": "../library/tsconfig.json"}]
 }
