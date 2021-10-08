@@ -10,7 +10,6 @@ import * as path from "path";
 import { Tokenizer } from "./lib/tokenizer/tokenizer";
 import { CharTokenizer } from "./lib/tokenizer/charTokenizer";
 import { default as fsWithCallbacks } from "fs";
-export { FileView } from "./cli/views/fileView";
 const fs = fsWithCallbacks.promises;
 
 function newTokenizer(language: string): Tokenizer {

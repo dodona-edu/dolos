@@ -4,13 +4,13 @@ import {
   tryCatch,
   warning
 } from "../../lib/util/utils";
-import { Dolos } from "../../dolos";
 import { TerminalView } from "../views/terminalView";
 import { FileView } from "../views/fileView";
 import { WebView } from "../views/webView";
 import { Command } from "commander";
 import * as Utils from "../../lib/util/utils";
-import { Options } from "../../lib/util/options";
+import { Options } from "@dodona/dolos-library/dist/lib/util/options";
+import { Dolos } from "@dodona/dolos-library/dist/dolos";
 
 export function runCommand(program: Command): Command {
   return new Command("run")
