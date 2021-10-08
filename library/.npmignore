@@ -1,0 +1,6 @@
+/*
+!dist/
+dist/tsconfig.tsbuildinfo
+dist/test/
+dist/bin/
+*.map

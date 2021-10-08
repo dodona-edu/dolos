@@ -1043,6 +1043,7 @@
 "@dodona/dolos@1.2.1-dev":
   version "1.2.1"
   dependencies:
+    "@dodona/dolos-library" "1.0.0"
     chalk "^4.1.1"
     cliui "^7.0.4"
     commander "^8.1.0"
