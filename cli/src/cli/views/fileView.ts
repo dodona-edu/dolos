@@ -2,9 +2,9 @@ import { View } from "./view";
 import csvStringify from "csv-stringify";
 import { Writable } from "stream";
 import { createWriteStream, promises, promises as fs } from "fs";
-import {Report} from "@dodona/dolos-library/dist/lib/analyze/report";
-import {Fragment} from "@dodona/dolos-library/dist/lib/analyze/fragment";
-import {Pair} from "@dodona/dolos-library/dist/lib/analyze/pair";
+import { Report } from "@dodona/dolos-library/dist/lib/analyze/report";
+import { Fragment } from "@dodona/dolos-library/dist/lib/analyze/fragment";
+import { Pair } from "@dodona/dolos-library/dist/lib/analyze/pair";
 
 function writeCSVto<T>(
   out: Writable,
@@ -119,8 +119,8 @@ export class FileView extends View {
       out,
       Object.entries(metaData),
       {
-        "property": ([k, _v]) => k,
-        "value": ([_k, v]) => v,
+        "property": ([k ]) => k,
+        "value": ([, v]) => v,
       });
   }
 
