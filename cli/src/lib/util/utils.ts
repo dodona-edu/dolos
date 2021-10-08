@@ -128,10 +128,12 @@ export async function tryCatch(verbose: boolean, run: () => Promise<void>): Prom
   try {
     await run();
   } catch (err) {
-    if (verbose) {
-      error(err.stack);
-    } else {
-      error(err.message);
+    if (err instanceof Error) {
+      if (verbose) {
+        error(err.stack);
+      } else {
+        error(err.message);
+      }
     }
     process.exit(1);
   }

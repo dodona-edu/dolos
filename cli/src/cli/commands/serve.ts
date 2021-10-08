@@ -43,7 +43,9 @@ export async function serve(reportDir: string, options: ServeOptions): Promise<v
         await fs.access(path.join(reportDir, file), constants.R_OK);
       }
     } catch (e) {
-      error(e.message);
+      if(e instanceof Error) {
+        error(e.message);
+      }
       throw new Error(`The given path '${reportDir}' does not seem like a Dolos report.`);
     }
     await runServer(reportDir, options);

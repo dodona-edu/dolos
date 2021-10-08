@@ -8,7 +8,10 @@ function assets(): string {
   try {
     return require.resolve("@dodona/dolos-web");
   } catch (e) {
-    if (e.code === "MODULE_NOT_FOUND") {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    // eslint-disable-next-line no-undef
+    if ((e instanceof NodeJS.ErrnoException).code === "MODULE_NOT_FOUND") {
       error("Module '@dodona/dolos-web' was not found on your system, " +
         "but it is required to run the web server.\n" +
         "Please install it to view the results in your browser.");
