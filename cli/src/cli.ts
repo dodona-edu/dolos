@@ -4,9 +4,6 @@ import { Command } from "commander";
 import { runCommand } from "./cli/commands/run";
 import { serveCommand } from "./cli/commands/serve";
 import * as path from "path";
-import { testFunction } from "@dodona/dolos-library/dist/test";
-
-testFunction("hello");
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const pkg = require("../package.json");
