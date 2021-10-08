@@ -62,5 +62,6 @@
     "pretty": true,
     "forceConsistentCasingInFileNames": true,
   },
-  "exclude": [ "web/", "dist/" ]
+  "exclude": [ "web/", "dist/" ],
+  "references": [{ "path": "../library/tsconfig.json"}]
 }
