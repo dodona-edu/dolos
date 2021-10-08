@@ -46,7 +46,7 @@
     "d3": "^6.7.0",
     "express": "^4.17.1",
     "open": "^8.2.1",
-    "@dodona/dolos-lib": "1.2.1"
+    "@dodona/dolos-lib": "1.2.3"
   },
   "optionalDependencies": {
     "@dodona/dolos-web": "1.2.1"
