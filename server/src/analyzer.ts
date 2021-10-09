@@ -1,4 +1,6 @@
-import { Dolos, FileView } from "@dodona/dolos/dist/dolos";
+import { Dolos } from "@dodona/dolos-library";
+import { FileView } from "@dodona/dolos";
+
 import { default as fsWithCallbacks } from "fs";
 import path from "path";
 import { resultFiles, unzippedPath } from "./constants";

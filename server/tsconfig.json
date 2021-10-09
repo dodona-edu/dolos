@@ -14,7 +14,7 @@
     // "outFile": "./",                       /* Concatenate and emit output to single file. */
     "outDir": "dist", /* Redirect output structure to the directory. */
     // "rootDir": "src/",                       /* Specify the root directory of input files. Use to control the output directory structure with --outDir. */
-    // "composite": true,                     /* Enable project compilation */
+    "composite": true,                     /* Enable project compilation */
     // "tsBuildInfoFile": "./",               /* Specify file to store incremental compilation information */
     // "removeComments": true,                /* Do not emit comments to output. */
     // "noEmit": true,                        /* Do not emit outputs. */
@@ -55,9 +55,13 @@
     // "experimentalDecorators": true,        /* Enables experimental support for ES7 decorators. */
     // "emitDecoratorMetadata": true,         /* Enables experimental support for emitting type metadata for decorators. */
     "pretty": true,
-    "forceConsistentCasingInFileNames": true,
+    "forceConsistentCasingInFileNames": true
   },
   "exclude": [
     "dist/"
+  ],
+  "references": [
+    { "path": "../library" },
+    { "path": "../cli" }
   ]
 }

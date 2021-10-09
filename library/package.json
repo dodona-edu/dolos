@@ -10,7 +10,8 @@
     "test-winnow-performance": "tsc && time head -c 1000000 /dev/random | node dist/bin/hash.js > /dev/null",
     "test": "nyc ava",
     "test:watch": "ava --watch",
-    "build": "tsc",
+    "build": "tsc --build --verbose",
+    "force-build": "tsc --build --verbose --force",
     "lint": "eslint --ext .ts src/"
   },
   "repository": {

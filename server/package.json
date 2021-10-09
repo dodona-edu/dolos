@@ -22,8 +22,9 @@
     "typescript": "^4.3.2"
   },
   "dependencies": {
-    "@dodona/dolos": "1.2.1-dev",
+    "@dodona/dolos": "1.2.1",
     "@dodona/dolos-web": "^1.2.1",
+    "@dodona/dolos-library": "1.0.0",
     "eta": "^1.12.3",
     "express": "^4.17.1",
     "express-fileupload": "^1.2.1",
