@@ -1,11 +1,29 @@
 <template>
-  <v-container fluid>
-    <v-row justify="center">
-      <v-col cols="10">
-        <ClusteringTable :clustering="cluster" :loaded="dataLoaded" />
-      </v-col>
-    </v-row>
-  </v-container>
+  <div>
+    <v-container fluid>
+      <v-row justify="center">
+        <v-col cols="10">
+          <ClusteringTable :clustering="cluster" :loaded="dataLoaded" />
+        </v-col>
+      </v-row>
+      <v-row justify="end">
+        <v-col cols="3">
+          <form>
+            <label>
+              Similarity ≥ {{ cutoff }}<br />
+              <input
+                type="range"
+                min="0.25"
+                max="1"
+                step="0.01"
+                v-model="cutoff"
+              />
+            </label>
+          </form>
+        </v-col>
+      </v-row>
+    </v-container>
+  </div>
 </template>
 
 <script lang="ts">
@@ -18,12 +36,14 @@ import { cluster, Clustering } from "@/util/Clustering";
   components: { ClusteringTable }
 })
 export default class Cluster extends DataView {
+  public cutoff = 0.25;
+
   created(): Promise<void> {
     return super.ensureData();
   }
 
   get cluster(): Clustering {
-    return cluster(super.pairs, super.files, 0.28);
+    return cluster(super.pairs, super.files, this.cutoff);
   }
 }
 </script>
