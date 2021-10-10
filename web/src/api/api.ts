@@ -1,6 +1,13 @@
 import * as d3 from "d3";
 
-import { Dolos, File as DolosFile, Region, TokenizedFile, Fragment as DolosFragment } from "@dodona/dolos-library";
+import {
+  File as DolosFile,
+  Region,
+  TokenizedFile,
+  Fragment as DolosFragment,
+  Index,
+  EmptyTokenizer
+} from "@dodona/dolos-library";
 // import { assertType } from "typescript-is";
 
 const DATA_URL = "./data/";
@@ -214,9 +221,9 @@ export async function loadFragments(pair: Pair, kmers: ObjMap<Kgram>): Promise<v
   // const fragments = fetchFragments(pair.id);
   // pair.fragments = parseFragments(await fragments, kmers);
 
-  // TODO: add dolos parameters
-  const dolos = new Dolos();
-  const report = await dolos.analyzeTokenized(
+  const emptyTokenizer = new EmptyTokenizer();
+  const index = new Index(emptyTokenizer);
+  const report = await index.compareTokenizedFiles(
     [fileToTokenizedFile(pair.leftFile), fileToTokenizedFile(pair.rightFile)]
   );
   const reportPair = report.scoredPairs[0].pair;

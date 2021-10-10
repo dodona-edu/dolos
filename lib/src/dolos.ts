@@ -1,7 +1,6 @@
 import { Index } from "./lib/analyze";
 import { Report } from "./lib/analyze/report";
 import { CustomOptions, Options } from "./lib/util/options";
-import { CodeTokenizer } from "./lib/tokenizer/codeTokenizer";
 import { ExtraInfo, File } from "./lib/file/file";
 import { Result } from "./lib/util/result";
 import { csvParse, DSVRowString } from "d3-dsv";
@@ -9,7 +8,7 @@ import * as path from "path";
 import { Tokenizer } from "./lib/tokenizer/tokenizer";
 import { CharTokenizer } from "./lib/tokenizer/charTokenizer";
 import { default as fsWithCallbacks } from "fs";
-import { TokenizedFile } from "./lib/file/tokenizedFile";
+import { CodeTokenizer } from "./lib/tokenizer/codeTokenizer";
 const fs = fsWithCallbacks.promises;
 
 export { Report, ScoredPairs } from "./lib/analyze/report";
@@ -19,6 +18,8 @@ export { Pair } from "./lib/analyze/pair";
 export { Options } from "./lib/util/options";
 export { File } from "./lib/file/file";
 export { TokenizedFile } from "./lib/file/tokenizedFile";
+export { EmptyTokenizer } from "./lib/tokenizer/emptyTokenizer";
+export { Index } from "./lib/analyze/index";
 
 
 function newTokenizer(language: string): Tokenizer {
@@ -88,11 +89,4 @@ export class Dolos {
     }
     return this.index.compareFiles(files);
   }
-
-  public async analyzeTokenized(
-    tokenizedFiles: Array<TokenizedFile>
-  ): Promise<Report> {
-    return this.index.compareTokenizedFiles(tokenizedFiles);
-  }
-
 }
