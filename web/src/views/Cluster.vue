@@ -1,25 +1,18 @@
 <template>
-  <div>
-    <v-container fluid>
-      <v-row justify="center">
-        <v-col cols="10">
-          <ClusteringTable
-            :current-clustering="cluster"
-            :loaded="dataLoaded"
-            @cutoffChange="cutoffChange"
-          />
-        </v-col>
-      </v-row>
-    </v-container>
-  </div>
+  <v-container fluid>
+    <v-row justify="center">
+      <v-col cols="10">
+        <ClusteringTable :clustering="cluster" :loaded="dataLoaded" />
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script lang="ts">
 import { Component } from "vue-property-decorator";
 import ClusteringTable from "@/components/ClusteringTable.vue";
 import DataView from "@/views/DataView";
-import { Clustering } from "@/util/clustering-algorithms/ClusterTypes";
-import { singleLinkageCluster } from "@/util/clustering-algorithms/SingleLinkageClustering";
+import { cluster, Clustering } from "@/util/Clustering";
 
 @Component({
   components: { ClusteringTable }
@@ -30,11 +23,7 @@ export default class Cluster extends DataView {
   }
 
   get cluster(): Clustering {
-    return singleLinkageCluster(super.pairs, super.files, this.cutoff);
-  }
-
-  cutoffChange(value: number): void {
-    this.cutoff = value;
+    return cluster(super.pairs, super.files, 0.28);
   }
 }
 </script>
