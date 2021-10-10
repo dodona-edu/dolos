@@ -18,7 +18,7 @@ jobs:
           path: |
             ${{ github.workspace }}/node_modules
             ${{ github.workspace }}/*/node_modules
-          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('/yarn.lock') }}
+          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('/yarn.lock') }}-v2
       - name: Setup Node
         if: steps.cache-dependencies.outputs.cache-hit != 'true'
         uses: actions/setup-node@v2
@@ -106,12 +106,11 @@ jobs:
           false
       - name: Lint
         run: |
-          yarn install
           cd library/
           yarn lint
 
   library-build-test:
-    name: "CLI: build and test"
+    name: "LIB: build and test"
     runs-on: ubuntu-latest
     needs: install-deps
     strategy:
@@ -139,7 +138,6 @@ jobs:
           false
       - name: Build and test
         run: |
-          yarn install
           cd library/
           yarn build
           yarn test -v --serial
@@ -174,7 +172,7 @@ jobs:
       - name: Build and test
         run: |
           cd cli/
-          yarn build
+          yarn build --force
 
   cli-lint:
     name: "CLI: lint"
