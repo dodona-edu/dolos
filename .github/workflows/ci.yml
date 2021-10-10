@@ -260,7 +260,7 @@ jobs:
           path: |
             ${{ github.workspace }}/node_modules
             ${{ github.workspace }}/*/node_modules
-          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('/yarn.lock') }}-${{ hashFiles('/package.json') }}
+          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('/yarn.lock') }}-v2
       - name: Check if cache was hit
         if: steps.cache-dependencies.outputs.cache-hit != 'true'
         run: |
