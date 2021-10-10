@@ -106,6 +106,7 @@ jobs:
           false
       - name: Lint
         run: |
+          yarn install
           cd library/
           yarn lint
 
@@ -138,6 +139,7 @@ jobs:
           false
       - name: Build and test
         run: |
+          yarn install
           cd library/
           yarn build
           yarn test -v --serial
