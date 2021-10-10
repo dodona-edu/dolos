@@ -51,6 +51,9 @@
     "vuetify-loader": "^1.7.2",
     "vuex": "^3.6.2"
   },
+  "dependencies": {
+    "@dodona/dolos-library": "1.0.0"
+  },
   "license": "MIT",
   "publishConfig": {
     "registry": "https://registry.npmjs.org",

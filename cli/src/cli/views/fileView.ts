@@ -106,7 +106,8 @@ export class FileView extends View {
         "id": f => f.id,
         "path": f => f.path,
         "content": f => f.content,
-        "ast": f => f.ast.join(" "),
+        "ast": f => JSON.stringify(f.ast),
+        "mapping": f => JSON.stringify(f.mapping),
         "extra": f => JSON.stringify(f.extra)
       });
   }
@@ -122,7 +123,7 @@ export class FileView extends View {
       });
   }
 
-  async writeToDirectory(): Promise<string> {
+  async writeToDirectory(writeFragments = false): Promise<string> {
     const dirName = this.outputDestination;
     await fs.mkdir(dirName, { recursive: true });
 
@@ -131,14 +132,18 @@ export class FileView extends View {
     console.log("Metadata written.");
     this.writePairs(createWriteStream(`${dirName}/pairs.csv`));
     console.log("Pairs written.");
-    await fs.mkdir(`${dirName}/fragments`);
-    for (const pair of this.report.scoredPairs) {
-      const id = pair.pair.id;
-      const file = await fs.open(`${dirName}/fragments/${id}.json`, "w");
-      await this.writeFragments(file, pair.pair);
-      await file.close();
+    if (writeFragments) {
+
+      await fs.mkdir(`${dirName}/fragments`);
+      for (const pair of this.report.scoredPairs) {
+        const id = pair.pair.id;
+        const file = await fs.open(`${dirName}/fragments/${id}.json`, "w");
+        await this.writeFragments(file, pair.pair);
+        await file.close();
+      }
+      console.log("Fragments written");
+
     }
-    console.log("Fragments written");
     this.writekgrams(createWriteStream(`${dirName}/kgrams.csv`));
     console.log("kgrams written.");
     this.writeFiles(createWriteStream(`${dirName}/files.csv`));
@@ -148,7 +153,7 @@ export class FileView extends View {
   }
 
   async show(): Promise<void> {
-    await this.writeToDirectory();
+    await this.writeToDirectory(true);
   }
 
 }

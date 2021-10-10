@@ -1,4 +1,6 @@
 import * as d3 from "d3";
+
+import { Dolos, File as DolosFile, Region, TokenizedFile, Fragment as DolosFragment } from "@dodona/dolos-library";
 // import { assertType } from "typescript-is";
 
 const DATA_URL = "./data/";
@@ -19,11 +21,19 @@ export interface ObjMap<T> {
   [id: number]: T;
 }
 
+export interface Selection {
+  startRow: number;
+  startCol: number;
+  endRow: number;
+  endCol: number;
+}
+
 export interface File {
   id: number;
   path: string;
   content: string;
-  ast: string;
+  ast: string[];
+  mapping: Selection[];
   /* eslint-disable camelcase */
   extra: {
     timestamp?: Date;
@@ -31,13 +41,6 @@ export interface File {
     labels?: string;
   };
   /* eslint-enable camelcase */
-}
-
-export interface Selection {
-  startRow: number;
-  startCol: number;
-  endRow: number;
-  endCol: number;
 }
 
 export interface Kgram {
@@ -64,7 +67,7 @@ export interface PairedOccurrence {
 export interface Fragment {
   left: Selection;
   right: Selection;
-  data: string;
+  data: string[];
   occurrences: PairedOccurrence[];
   active: boolean;
 }
@@ -88,6 +91,7 @@ export interface ApiData {
   pairs: ObjMap<Pair>;
   kgrams: ObjMap<Kgram>;
   metadata: Metadata;
+
 }
 
 async function fetchFiles(
@@ -127,22 +131,25 @@ function parseFiles(fileData: d3.DSVRowArray): ObjMap<File> {
       const extra = JSON.parse(row.extra || "{}");
       extra.timestamp = extra.createdAt && new Date(extra.createdAt);
       row.extra = extra;
+      row.mapping = JSON.parse(row.mapping || "[]");
+      row.ast = JSON.parse(row.ast || "[]");
       return [row.id, row];
     })
   );
 }
 
-function parseFragments(fragmentsJson: string, kgrams: ObjMap<Kgram>): Fragment[] {
-  const parsed = JSON.parse(fragmentsJson);
-  return parsed.map((fragmentData: any): Fragment => {
+function parseFragments(dolosFragments: DolosFragment[], kgrams: ObjMap<Kgram>): Fragment[] {
+  // const parsed = JSON.parse(fragmentsJson);
+  return dolosFragments.map((dolosFragment: DolosFragment): Fragment => {
     return {
       active: true,
-      left: fragmentData.leftSelection,
-      right: fragmentData.rightSelection,
-      data: fragmentData.data,
-      occurrences: fragmentData.pairedOccurrences.map((occurrence: any): PairedOccurrence => {
+      left: dolosFragment.leftSelection,
+      right: dolosFragment.rightSelection,
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      data: dolosFragment.mergedData!,
+      occurrences: dolosFragment.pairs.map((occurrence): PairedOccurrence => {
         return {
-          kgram: kgrams[occurrence.sharedFingerprint],
+          kgram: kgrams[occurrence.fingerprint.id],
           left: occurrence.left,
           right: occurrence.right
         };
@@ -198,9 +205,22 @@ function parseMetadata(data: d3.DSVRowArray): Metadata {
   );
 }
 
+function fileToTokenizedFile(file: File): TokenizedFile {
+  const dolosFile = new DolosFile(file.path, file.content);
+  return new TokenizedFile(dolosFile, file.ast, file.mapping as Region[]);
+}
+
 export async function loadFragments(pair: Pair, kmers: ObjMap<Kgram>): Promise<void> {
-  const fragments = fetchFragments(pair.id);
-  pair.fragments = parseFragments(await fragments, kmers);
+  // const fragments = fetchFragments(pair.id);
+  // pair.fragments = parseFragments(await fragments, kmers);
+
+  // TODO: add dolos parameters
+  const dolos = new Dolos();
+  const report = await dolos.analyzeTokenized(
+    [fileToTokenizedFile(pair.leftFile), fileToTokenizedFile(pair.rightFile)]
+  );
+  const reportPair = report.scoredPairs[0].pair;
+  pair.fragments = parseFragments(reportPair.fragments(), kmers);
 }
 
 export async function fetchData(): Promise<ApiData> {

@@ -9,6 +9,7 @@ import * as path from "path";
 import { Tokenizer } from "./lib/tokenizer/tokenizer";
 import { CharTokenizer } from "./lib/tokenizer/charTokenizer";
 import { default as fsWithCallbacks } from "fs";
+import {TokenizedFile} from "./lib/file/tokenizedFile";
 const fs = fsWithCallbacks.promises;
 
 export { Report, ScoredPairs } from "./lib/analyze/report";
@@ -16,6 +17,8 @@ export { Fragment } from "./lib/analyze/fragment";
 export { Region } from "./lib/util/region";
 export { Pair } from "./lib/analyze/pair";
 export { Options } from "./lib/util/options";
+export { File } from "./lib/file/file";
+export { TokenizedFile } from "./lib/file/tokenizedFile";
 
 
 function newTokenizer(language: string): Tokenizer {
@@ -85,4 +88,11 @@ export class Dolos {
     }
     return this.index.compareFiles(files);
   }
+
+  public async analyzeTokenized(
+    tokenizedFiles: Array<TokenizedFile>
+  ): Promise<Report> {
+    return this.index.compareTokenizedFiles(tokenizedFiles);
+  }
+
 }
