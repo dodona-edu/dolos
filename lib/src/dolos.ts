@@ -9,7 +9,7 @@ import * as path from "path";
 import { Tokenizer } from "./lib/tokenizer/tokenizer";
 import { CharTokenizer } from "./lib/tokenizer/charTokenizer";
 import { default as fsWithCallbacks } from "fs";
-import {TokenizedFile} from "./lib/file/tokenizedFile";
+import { TokenizedFile } from "./lib/file/tokenizedFile";
 const fs = fsWithCallbacks.promises;
 
 export { Report, ScoredPairs } from "./lib/analyze/report";
