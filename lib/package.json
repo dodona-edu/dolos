@@ -3,7 +3,7 @@
   "version": "1.3.0",
   "main": "dist/index.js",
   "description": "Code similarity detection based on the Winnowing algorithm",
-  "types": "dist/dolos.d.ts",
+  "types": "dist/index.d.ts",
   "scripts": {
     "hash": "tsc && node dist/bin/hash.js",
     "test-hash-performance": "tsc && time head -c 1000000 /dev/random | node dist/bin/hash.js > /dev/null",
