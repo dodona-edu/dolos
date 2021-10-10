@@ -36,6 +36,16 @@
               <v-list-item-title>Plagiarism graph</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
+
+          <v-list-item @click="toClusterView" link>
+            <v-list-item-icon>
+              <v-icon>mdi-arrow-top-right-bottom-left</v-icon>
+            </v-list-item-icon>
+            <v-list-item-content>
+              <v-list-item-title>Cluster list</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+
         </v-list>
       </v-navigation-drawer>
 
@@ -70,6 +80,10 @@ export default class App extends Vue {
 
   toGraphView(): void {
     this.navigateTo("/graph/");
+  }
+
+  toClusterView(): void {
+    this.navigateTo("/cluster/");
   }
 }
 </script>
