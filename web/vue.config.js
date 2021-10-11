@@ -16,6 +16,7 @@ module.exports = {
       return options;
     });
   },
+  // explicitly makes sure that tree sitter is not loaded as it does not work in browser environments
   configureWebpack: {
     plugins: [
       new webpack.IgnorePlugin({ 
@@ -27,16 +28,6 @@ module.exports = {
       })
     ]
   }
-  //configureWebpack: {
-    //module: {
-      //rules: [
-        //{
-          //test: /\.js$/,
-          //exclude: [/..\/node_modules\/tree-sitter*/]
-        //}
-      //]
-    //}
-  //}
   /*
   chainWebpack: config => {
     config.module
