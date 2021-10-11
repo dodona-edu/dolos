@@ -8,15 +8,20 @@ import * as path from "path";
 import { Tokenizer } from "./lib/tokenizer/tokenizer";
 import { CharTokenizer } from "./lib/tokenizer/charTokenizer";
 import { default as fsWithCallbacks } from "fs";
-import { CodeTokenizer } from "./lib/tokenizer/codeTokenizer";
+// import { CodeTokenizer } from "./lib/tokenizer/codeTokenizer";
 const fs = fsWithCallbacks.promises;
 
 function newTokenizer(language: string): Tokenizer {
   if (language == "chars") {
     return new CharTokenizer();
-  } else if (CodeTokenizer.supportedLanguages.includes(language)) {
-    return new CodeTokenizer(language);
+  } else {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const codeTokenizer = require("./lib/tokenizer/codeTokenizer");
+    if (codeTokenizer.CodeTokenizer.supportedLanguages.includes(language)) {
+      return new codeTokenizer.CodeTokenizer(language);
+    }
   }
+
   throw new Error(`No tokenizer found for ${language}`);
 }
 

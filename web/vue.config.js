@@ -1,3 +1,4 @@
+const webpack = require("webpack");
 
 module.exports = {
   publicPath: "./",
@@ -15,6 +16,27 @@ module.exports = {
       return options;
     });
   },
+  configureWebpack: {
+    plugins: [
+      new webpack.IgnorePlugin({ 
+        resourceRegExp: /tree-sitter/ 
+      }),
+      new webpack.IgnorePlugin({ 
+        resourceRegExp: /codeTokenizer/, 
+        contextRegExp: /library/ 
+      })
+    ]
+  }
+  //configureWebpack: {
+    //module: {
+      //rules: [
+        //{
+          //test: /\.js$/,
+          //exclude: [/..\/node_modules\/tree-sitter*/]
+        //}
+      //]
+    //}
+  //}
   /*
   chainWebpack: config => {
     config.module
