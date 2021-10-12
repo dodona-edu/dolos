@@ -236,7 +236,7 @@ jobs:
           false
       - name: Build
         run: |
-          cd ../library/
+          cd library/
           yarn build
           cd ../web/
           yarn build
