@@ -3,7 +3,7 @@
     <v-container fluid>
       <v-row justify="center">
         <v-col cols="10">
-          <ClusteringTable :clustering="cluster" :loaded="dataLoaded" />
+          <ClusteringTable :clustering="cluster" :loaded="dataLoaded" :cutoff="cutoff"/>
         </v-col>
       </v-row>
       <v-row justify="end">
