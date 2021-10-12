@@ -125,13 +125,6 @@ async function fetchMetadata(
   return await d3.csv(url);
 }
 
-async function fetchFragments(
-  pairId: number,
-  url = DATA_URL + "/fragments/"
-): Promise<string> {
-  return await d3.text(url + pairId + ".json");
-}
-
 function parseFiles(fileData: d3.DSVRowArray): ObjMap<File> {
   return Object.fromEntries(
     fileData.map(row => {
