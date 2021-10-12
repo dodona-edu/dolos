@@ -30,7 +30,8 @@
 import { Component } from "vue-property-decorator";
 import ClusteringTable from "@/components/ClusteringTable.vue";
 import DataView from "@/views/DataView";
-import { cluster, Clustering } from "@/util/Clustering";
+import { Clustering } from "@/util/clustering-algorithms/ClusterTypes";
+import { singleLinkageCluster } from "@/util/clustering-algorithms/SingleLinkageClustering";
 
 @Component({
   components: { ClusteringTable }
@@ -43,7 +44,7 @@ export default class Cluster extends DataView {
   }
 
   get cluster(): Clustering {
-    return cluster(super.pairs, super.files, this.cutoff);
+    return singleLinkageCluster(super.pairs, super.files, this.cutoff);
   }
 }
 </script>

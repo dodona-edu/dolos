@@ -30,8 +30,12 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from "vue-property-decorator";
-import { Clustering } from "@/util/Clustering";
-import { Cluster } from "@/util/Cluster";
+import { Clustering, Cluster } from "@/util/clustering-algorithms/ClusterTypes";
+import {
+  getAverageClusterSimilarity,
+  getClusterElements,
+  getClusterElementsArray,
+} from "@/util/clustering-algorithms/ClusterFunctions";
 
 @Component
 export default class ClusteringTable extends Vue {
@@ -43,26 +47,28 @@ export default class ClusteringTable extends Vue {
   headers = [
     { text: "Cluster Id", value: "id", sortable: true },
     { text: "Cluster Size", value: "size", sortable: true },
-    { text: "Average Similarity", value: "similarity" }
+    { text: "Average Similarity", value: "similarity" },
   ];
 
   footerprops = {
     itemsPerPageOptions: [15, 25, 50, 100, -1],
     showCurrentPage: true,
-    showFirstLastPage: true
+    showFirstLastPage: true,
   };
 
   get items(): Array<{ id: number; size: number; similarity: string }> {
     return Object.values(this.clustering).map((cluster, id) => ({
       id,
-      size: cluster.getElementSize(),
-      similarity: cluster.getAverageSimilarity().toFixed(2),
-      cluster
+      size: getClusterElements(cluster).size,
+      similarity: getAverageClusterSimilarity(cluster).toFixed(2),
+      cluster,
     }));
   }
 
-  public rowClicked(item: {cluster: Cluster}): void {
-    const items = [...item.cluster.getElements()].join(",");
+  public rowClicked(item: { cluster: Cluster }): void {
+    const items = getClusterElementsArray(item.cluster)
+      .map(c => c.id)
+      .join(",");
     this.$router.push(`/graph?cutoff=${this.cutoff}&red=${items}`);
   }
 }
