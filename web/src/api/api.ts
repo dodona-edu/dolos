@@ -6,7 +6,7 @@ import {
   TokenizedFile,
   Fragment as DolosFragment,
   Index,
-  EmptyTokenizer
+  EmptyTokenizer, CustomOptions, Options
 } from "@dodona/dolos-library";
 // import { assertType } from "typescript-is";
 
@@ -206,9 +206,22 @@ function parseKgrams(kgramData: d3.DSVRowArray, fileMap: ObjMap<File>): ObjMap<K
   }));
 }
 
+function castToType(rowValue: string | null, rowType: string): string | boolean | number | null {
+  if (rowValue && rowType === "string") {
+    return rowValue;
+  } else if (rowValue && rowType === "number") {
+    return Number.parseFloat(rowValue);
+  } else if (rowType === "boolean") {
+    if (!rowValue) return false;
+    if (rowValue.toLowerCase() === "true") return true;
+    if (rowValue.toLowerCase() === "false") return false;
+  }
+  return null;
+}
+
 function parseMetadata(data: d3.DSVRowArray): Metadata {
   return Object.fromEntries(
-    data.map(row => [row.property, row.value])
+    data.map(row => [row.property, castToType(row.value as string | null, row.type as string)])
   );
 }
 
@@ -217,12 +230,10 @@ function fileToTokenizedFile(file: File): TokenizedFile {
   return new TokenizedFile(dolosFile, file.ast, file.mapping as Region[]);
 }
 
-export async function loadFragments(pair: Pair, kmers: ObjMap<Kgram>): Promise<void> {
-  // const fragments = fetchFragments(pair.id);
-  // pair.fragments = parseFragments(await fragments, kmers);
-
+export async function loadFragments(pair: Pair, kmers: ObjMap<Kgram>, customOptions: CustomOptions): Promise<void> {
   const emptyTokenizer = new EmptyTokenizer();
-  const index = new Index(emptyTokenizer);
+  const options = new Options(customOptions);
+  const index = new Index(emptyTokenizer, options);
   const report = await index.compareTokenizedFiles(
     [fileToTokenizedFile(pair.leftFile), fileToTokenizedFile(pair.rightFile)]
   );

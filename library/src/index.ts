@@ -2,7 +2,7 @@ export { Report, ScoredPairs } from "./lib/analyze/report";
 export { Fragment } from "./lib/analyze/fragment";
 export { Region } from "./lib/util/region";
 export { Pair } from "./lib/analyze/pair";
-export { Options } from "./lib/util/options";
+export { Options, CustomOptions } from "./lib/util/options";
 export { File } from "./lib/file/file";
 export { TokenizedFile } from "./lib/file/tokenizedFile";
 export { EmptyTokenizer } from "./lib/tokenizer/emptyTokenizer";

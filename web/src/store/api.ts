@@ -60,7 +60,9 @@ export default {
     ): Promise<void> {
       const pair = getters.pair(data.pairId);
       const kgrams = state.kgrams;
-      await loadFragments(pair, kgrams);
+      const customOptions = state.metadata;
+
+      await loadFragments(pair, kgrams, customOptions);
       commit("updatePair", pair);
     }
   }

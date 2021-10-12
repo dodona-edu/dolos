@@ -120,6 +120,7 @@ export class FileView extends View {
       {
         "property": ([k ]) => k,
         "value": ([, v]) => v,
+        "type": ([, v]) => typeof v
       });
   }
 
