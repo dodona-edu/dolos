@@ -72,7 +72,11 @@ import * as d3 from "d3";
 
 @Component()
 export default class PlagarismGraph extends DataView {
+
+  queryColorMap;
+
   created() {
+    this.updateRoute()
     const svg = d3.create("svg").attr("viewBox", [0, 0, 500, 500]);
     const container = svg.append("g");
     d3.zoom().on("zoom", event => {
@@ -170,6 +174,15 @@ export default class PlagarismGraph extends DataView {
     }
   }
 
+  @Watch("$route")
+  updateRoute() {
+    this.queryColorMap = this.getQueryColorMap();
+    this.cutoff = this.$route.query.cutoff || 0.25;
+
+    if(this.resizeHandler)
+      this.resizeHandler();
+  }
+
   @Watch("width")
   @Watch("height")
   updateSize() {
@@ -248,6 +261,7 @@ export default class PlagarismGraph extends DataView {
       if (!this.showSingletons) {
         this.nodes = this.nodes.filter((n) => n.neighbors.length);
       }
+
       this.nodes.forEach((node, index) => {
         node.index = index;
         let incoming = 0;
@@ -259,8 +273,9 @@ export default class PlagarismGraph extends DataView {
           }
         });
         node.source = outgoing > 1 && incoming === 0;
-        node.fillColor = labels[node.label].color;
+        node.fillColor = this.queryColorMap?.has(+node.id) ? this.queryColorMap.get(+node.id) : labels[node.label].color;
       });
+
     }, 50);
   }
   removeSelectedNode() {
@@ -301,6 +316,19 @@ export default class PlagarismGraph extends DataView {
     this.legend = Object.fromEntries(labels.map((p) => [p.label, p]));
     return (this._nodeMap = nodeMap);
   }
+
+  getQueryColorMap() {
+    const map = new Map();
+    const {cutoff, ...colors} = this.$route.query;
+
+    for(const [color, nodelist] of Object.entries(colors)) {
+      const ids = nodelist.split(",").map(v => +v);
+      ids.forEach(v => map.set(v, color));
+    }
+
+    return map;
+  }
+
   @Watch("nodes")
   @Watch("links")
   updateSimulation() {

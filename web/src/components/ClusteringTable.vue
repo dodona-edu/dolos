@@ -31,12 +31,14 @@
 <script lang="ts">
 import { Component, Prop, Vue } from "vue-property-decorator";
 import { Clustering } from "@/util/Clustering";
+import { Cluster } from "@/util/Cluster";
 
 @Component
 export default class ClusteringTable extends Vue {
   @Prop() loaded!: boolean;
   @Prop() clustering!: Clustering;
   @Prop({ default: "" }) search!: string;
+  @Prop() cutoff!: number;
 
   headers = [
     { text: "Cluster Id", value: "id", sortable: true },
@@ -54,8 +56,14 @@ export default class ClusteringTable extends Vue {
     return Object.values(this.clustering).map((cluster, id) => ({
       id,
       size: cluster.getElementSize(),
-      similarity: cluster.getAverageSimilarity().toFixed(2)
+      similarity: cluster.getAverageSimilarity().toFixed(2),
+      cluster
     }));
+  }
+
+  public rowClicked(item: {cluster: Cluster}): void {
+    const items = [...item.cluster.getElements()].join(",");
+    this.$router.push(`/graph?cutoff=${this.cutoff}&red=${items}`);
   }
 }
 </script>
