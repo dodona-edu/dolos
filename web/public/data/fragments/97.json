@@ -1,0 +1,123 @@
+[
+  {
+    "leftSelection": {
+      "startRow": 3,
+      "startCol": 14,
+      "endRow": 9,
+      "endCol": 1
+    },
+    "rightSelection": {
+      "startRow": 14,
+      "startCol": 7,
+      "endRow": 20,
+      "endCol": 3
+    },
+    "data": null,
+    "pairedOccurrences": [
+      {
+        "sharedFingerprint": 12,
+        "left": {
+          "start": 12,
+          "stop": 34,
+          "index": 3
+        },
+        "right": {
+          "start": 253,
+          "stop": 275,
+          "index": 25
+        }
+      },
+      {
+        "sharedFingerprint": 13,
+        "left": {
+          "start": 17,
+          "stop": 39,
+          "index": 4
+        },
+        "right": {
+          "start": 258,
+          "stop": 280,
+          "index": 26
+        }
+      },
+      {
+        "sharedFingerprint": 14,
+        "left": {
+          "start": 31,
+          "stop": 53,
+          "index": 5
+        },
+        "right": {
+          "start": 272,
+          "stop": 294,
+          "index": 27
+        }
+      },
+      {
+        "sharedFingerprint": 15,
+        "left": {
+          "start": 38,
+          "stop": 60,
+          "index": 6
+        },
+        "right": {
+          "start": 279,
+          "stop": 301,
+          "index": 28
+        }
+      },
+      {
+        "sharedFingerprint": 16,
+        "left": {
+          "start": 40,
+          "stop": 62,
+          "index": 7
+        },
+        "right": {
+          "start": 281,
+          "stop": 303,
+          "index": 29
+        }
+      },
+      {
+        "sharedFingerprint": 17,
+        "left": {
+          "start": 51,
+          "stop": 73,
+          "index": 8
+        },
+        "right": {
+          "start": 292,
+          "stop": 314,
+          "index": 30
+        }
+      },
+      {
+        "sharedFingerprint": 18,
+        "left": {
+          "start": 59,
+          "stop": 81,
+          "index": 9
+        },
+        "right": {
+          "start": 300,
+          "stop": 322,
+          "index": 31
+        }
+      },
+      {
+        "sharedFingerprint": 19,
+        "left": {
+          "start": 69,
+          "stop": 91,
+          "index": 10
+        },
+        "right": {
+          "start": 310,
+          "stop": 332,
+          "index": 32
+        }
+      }
+    ]
+  }
+]

@@ -1,0 +1,352 @@
+[
+  {
+    "leftSelection": {
+      "startRow": 0,
+      "startCol": 0,
+      "endRow": 0,
+      "endCol": 56
+    },
+    "rightSelection": {
+      "startRow": 11,
+      "startCol": 4,
+      "endRow": 11,
+      "endCol": 60
+    },
+    "data": null,
+    "pairedOccurrences": [
+      {
+        "sharedFingerprint": 8,
+        "left": {
+          "start": 3,
+          "stop": 25,
+          "index": 3
+        },
+        "right": {
+          "start": 191,
+          "stop": 213,
+          "index": 19
+        }
+      },
+      {
+        "sharedFingerprint": 9,
+        "left": {
+          "start": 13,
+          "stop": 35,
+          "index": 4
+        },
+        "right": {
+          "start": 201,
+          "stop": 223,
+          "index": 20
+        }
+      },
+      {
+        "sharedFingerprint": 10,
+        "left": {
+          "start": 29,
+          "stop": 51,
+          "index": 5
+        },
+        "right": {
+          "start": 217,
+          "stop": 239,
+          "index": 21
+        }
+      },
+      {
+        "sharedFingerprint": 11,
+        "left": {
+          "start": 33,
+          "stop": 55,
+          "index": 6
+        },
+        "right": {
+          "start": 221,
+          "stop": 243,
+          "index": 22
+        }
+      }
+    ]
+  },
+  {
+    "leftSelection": {
+      "startRow": 2,
+      "startCol": 21,
+      "endRow": 7,
+      "endCol": 1
+    },
+    "rightSelection": {
+      "startRow": 51,
+      "startCol": 14,
+      "endRow": 56,
+      "endCol": 3
+    },
+    "data": null,
+    "pairedOccurrences": [
+      {
+        "sharedFingerprint": 28,
+        "left": {
+          "start": 72,
+          "stop": 94,
+          "index": 10
+        },
+        "right": {
+          "start": 727,
+          "stop": 749,
+          "index": 79
+        }
+      },
+      {
+        "sharedFingerprint": 29,
+        "left": {
+          "start": 80,
+          "stop": 102,
+          "index": 11
+        },
+        "right": {
+          "start": 735,
+          "stop": 757,
+          "index": 80
+        }
+      },
+      {
+        "sharedFingerprint": 30,
+        "left": {
+          "start": 93,
+          "stop": 115,
+          "index": 12
+        },
+        "right": {
+          "start": 748,
+          "stop": 770,
+          "index": 81
+        }
+      },
+      {
+        "sharedFingerprint": 31,
+        "left": {
+          "start": 95,
+          "stop": 117,
+          "index": 13
+        },
+        "right": {
+          "start": 750,
+          "stop": 772,
+          "index": 82
+        }
+      },
+      {
+        "sharedFingerprint": 32,
+        "left": {
+          "start": 99,
+          "stop": 121,
+          "index": 14
+        },
+        "right": {
+          "start": 754,
+          "stop": 776,
+          "index": 83
+        }
+      },
+      {
+        "sharedFingerprint": 33,
+        "left": {
+          "start": 105,
+          "stop": 127,
+          "index": 15
+        },
+        "right": {
+          "start": 760,
+          "stop": 782,
+          "index": 84
+        }
+      },
+      {
+        "sharedFingerprint": 34,
+        "left": {
+          "start": 107,
+          "stop": 129,
+          "index": 16
+        },
+        "right": {
+          "start": 762,
+          "stop": 784,
+          "index": 85
+        }
+      },
+      {
+        "sharedFingerprint": 35,
+        "left": {
+          "start": 111,
+          "stop": 133,
+          "index": 17
+        },
+        "right": {
+          "start": 766,
+          "stop": 788,
+          "index": 86
+        }
+      },
+      {
+        "sharedFingerprint": 20,
+        "left": {
+          "start": 119,
+          "stop": 141,
+          "index": 18
+        },
+        "right": {
+          "start": 774,
+          "stop": 796,
+          "index": 87
+        }
+      },
+      {
+        "sharedFingerprint": 21,
+        "left": {
+          "start": 134,
+          "stop": 156,
+          "index": 19
+        },
+        "right": {
+          "start": 789,
+          "stop": 811,
+          "index": 88
+        }
+      },
+      {
+        "sharedFingerprint": 22,
+        "left": {
+          "start": 139,
+          "stop": 161,
+          "index": 20
+        },
+        "right": {
+          "start": 794,
+          "stop": 816,
+          "index": 89
+        }
+      },
+      {
+        "sharedFingerprint": 23,
+        "left": {
+          "start": 149,
+          "stop": 171,
+          "index": 21
+        },
+        "right": {
+          "start": 804,
+          "stop": 826,
+          "index": 90
+        }
+      },
+      {
+        "sharedFingerprint": 24,
+        "left": {
+          "start": 158,
+          "stop": 180,
+          "index": 22
+        },
+        "right": {
+          "start": 813,
+          "stop": 835,
+          "index": 91
+        }
+      },
+      {
+        "sharedFingerprint": 36,
+        "left": {
+          "start": 164,
+          "stop": 186,
+          "index": 23
+        },
+        "right": {
+          "start": 819,
+          "stop": 841,
+          "index": 92
+        }
+      }
+    ]
+  },
+  {
+    "leftSelection": {
+      "startRow": 5,
+      "startCol": 13,
+      "endRow": 5,
+      "endCol": 87
+    },
+    "rightSelection": {
+      "startRow": 28,
+      "startCol": 9,
+      "endRow": 28,
+      "endCol": 81
+    },
+    "data": null,
+    "pairedOccurrences": [
+      {
+        "sharedFingerprint": 20,
+        "left": {
+          "start": 119,
+          "stop": 141,
+          "index": 18
+        },
+        "right": {
+          "start": 464,
+          "stop": 486,
+          "index": 52
+        }
+      },
+      {
+        "sharedFingerprint": 21,
+        "left": {
+          "start": 134,
+          "stop": 156,
+          "index": 19
+        },
+        "right": {
+          "start": 479,
+          "stop": 501,
+          "index": 53
+        }
+      },
+      {
+        "sharedFingerprint": 22,
+        "left": {
+          "start": 139,
+          "stop": 161,
+          "index": 20
+        },
+        "right": {
+          "start": 484,
+          "stop": 506,
+          "index": 54
+        }
+      },
+      {
+        "sharedFingerprint": 23,
+        "left": {
+          "start": 149,
+          "stop": 171,
+          "index": 21
+        },
+        "right": {
+          "start": 494,
+          "stop": 516,
+          "index": 55
+        }
+      },
+      {
+        "sharedFingerprint": 24,
+        "left": {
+          "start": 158,
+          "stop": 180,
+          "index": 22
+        },
+        "right": {
+          "start": 503,
+          "stop": 525,
+          "index": 56
+        }
+      }
+    ]
+  }
+]
