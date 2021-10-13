@@ -163,4 +163,4 @@ jobs:
       - name: Tag the new image with latest
         run: docker tag ghcr.io/dodona-edu/dolos:${{ steps.parse_tag.outputs.version }} ghcr.io/dodona-edu/dolos:latest
       - name: Push the new image
-        run: docker push --all-tags
+        run: docker push --all-tags ghcr.io/dodona-edu/dolos
