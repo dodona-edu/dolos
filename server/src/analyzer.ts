@@ -1,4 +1,4 @@
-import { Dolos } from "@dodona/dolos-library";
+import { Dolos } from "@dodona/dolos-lib";
 import { FileView } from "@dodona/dolos";
 
 import { default as fsWithCallbacks } from "fs";

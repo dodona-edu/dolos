@@ -39,7 +39,7 @@
     "typescript": "^4.3.2"
   },
   "dependencies": {
-    "@dodona/dolos-library": "1.0.0",
+    "@dodona/dolos-lib": "1.2.1",
     "chalk": "^4.1.1",
     "cliui": "^7.0.4",
     "commander": "^8.1.0",

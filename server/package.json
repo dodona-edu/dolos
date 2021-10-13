@@ -24,7 +24,7 @@
   "dependencies": {
     "@dodona/dolos": "1.2.1",
     "@dodona/dolos-web": "^1.2.1",
-    "@dodona/dolos-library": "1.0.0",
+    "@dodona/dolos-lib": "1.2.1",
     "eta": "^1.12.3",
     "express": "^4.17.1",
     "express-fileupload": "^1.2.1",
