@@ -61,7 +61,7 @@
     "dist/"
   ],
   "references": [
-    { "path": "../library" },
+    { "path": "../lib"},
     { "path": "../cli" }
   ]
 }

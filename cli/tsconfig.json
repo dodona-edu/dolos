@@ -63,5 +63,5 @@
     "forceConsistentCasingInFileNames": true
   },
   "exclude": [ "web/", "dist/" ],
-  "references": [{ "path": "../library"}]
+  "references": [{ "path": "../lib"}]
 }

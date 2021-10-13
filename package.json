@@ -7,6 +7,6 @@
     "web/",
     "docs/",
     "server/",
-    "library/"
+    "lib/"
   ]
 }
