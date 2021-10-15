@@ -20,7 +20,7 @@
 
 <script lang="ts">
 import DataView from "@/views/DataView";
-import { Component, Prop } from "vue-property-decorator";
+import { Component, Prop, Watch } from "vue-property-decorator";
 import CompareCard from "@/components/CompareCard.vue";
 import { Pair } from "@/api/api";
 
@@ -36,6 +36,7 @@ export default class Compare extends DataView {
     }
   }
 
+  @Watch("pairId")
   async ensureData(): Promise<void> {
     await super.ensureData();
     await this.ensureFragments();
