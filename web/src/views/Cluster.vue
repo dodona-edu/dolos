@@ -3,23 +3,11 @@
     <v-container fluid>
       <v-row justify="center">
         <v-col cols="10">
-          <ClusteringTable :clustering="cluster" :loaded="dataLoaded" :cutoff="cutoff"/>
-        </v-col>
-      </v-row>
-      <v-row justify="end">
-        <v-col cols="3">
-          <form>
-            <label>
-              Similarity ≥ {{ cutoff }}<br />
-              <input
-                type="range"
-                min="0.25"
-                max="1"
-                step="0.01"
-                v-model="cutoff"
-              />
-            </label>
-          </form>
+          <ClusteringTable
+            :clustering="cluster"
+            :loaded="dataLoaded"
+            @cutoffChange="cutoffChange"
+          />
         </v-col>
       </v-row>
     </v-container>
@@ -45,6 +33,10 @@ export default class Cluster extends DataView {
 
   get cluster(): Clustering {
     return singleLinkageCluster(super.pairs, super.files, this.cutoff);
+  }
+
+  cutoffChange(value: number): void {
+    this.cutoff = value;
   }
 }
 </script>
