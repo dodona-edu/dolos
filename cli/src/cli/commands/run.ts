@@ -94,7 +94,7 @@ export function runCommand(program: Command): Command {
     .option(
       "-p, --port <port>",
       Utils.indent(
-        "Specifies on which port --format=web should be served.",
+        "Specifies on which port --output-format=web should be served.",
         "3000"
       ),
       "3000"
