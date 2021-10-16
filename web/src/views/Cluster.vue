@@ -25,7 +25,7 @@ import { singleLinkageCluster } from "@/util/clustering-algorithms/SingleLinkage
   components: { ClusteringTable }
 })
 export default class Cluster extends DataView {
-  public cutoff = 0.25;
+  public cutoff = 0.5;
 
   created(): Promise<void> {
     return super.ensureData();
