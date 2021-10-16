@@ -1,48 +1,51 @@
 <template>
   <v-card>
     <v-card-title>
-      File pairs
+      Clusters
       <v-spacer></v-spacer>
-      <v-text-field
-        v-model="search"
-        append-icon="mdi-magnify"
-        label="Search"
-        single-line
-        hide-details
-      ></v-text-field>
+      <form>
+        <label>
+          <div class="title-slider">Similarity ≥ {{ cutoff }}</div>
+          <input type="range" min="0.25" max="1" step="0.01" v-model="cutoff" />
+        </label>
+      </form>
     </v-card-title>
-    <v-data-table
-      :headers="headers"
-      :items="items"
-      :must-sort="true"
-      :sort-by="'size'"
-      :sort-desc="true"
-      :items-per-page="15"
-      :search="search"
-      :loading="!loaded"
-      class="elevation-1"
-      :footer-props="footerprops"
-      @click:row="rowClicked"
-    >
-    </v-data-table>
+    <v-expansion-panels>
+      <ClusteringCard
+        v-for="(cluster, index) in sortedClustering()"
+        :key="index"
+        :cluster="cluster"
+        :cutoff="cutoff"
+      ></ClusteringCard>
+    </v-expansion-panels>
   </v-card>
 </template>
 
+<style scoped>
+.title-slider {
+  font-weight: 400;
+  font-size: 1rem;
+}
+</style>
+
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
-import { Clustering, Cluster } from "@/util/clustering-algorithms/ClusterTypes";
+import ClusteringCard from "@/components/ClusteringCard.vue";
 import {
   getAverageClusterSimilarity,
-  getClusterElements,
-  getClusterElementsArray,
+  getClusterElements
 } from "@/util/clustering-algorithms/ClusterFunctions";
+import { Clustering, Cluster } from "@/util/clustering-algorithms/ClusterTypes";
+import { SortingFunction } from "@/util/Types";
+import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 
-@Component
+@Component({
+  components: { ClusteringCard },
+})
 export default class ClusteringTable extends Vue {
   @Prop() loaded!: boolean;
   @Prop() clustering!: Clustering;
   @Prop({ default: "" }) search!: string;
-  @Prop() cutoff!: number;
+  public cutoff = 0.25;
 
   headers = [
     { text: "Cluster Id", value: "id", sortable: true },
@@ -65,11 +68,18 @@ export default class ClusteringTable extends Vue {
     }));
   }
 
-  public rowClicked(item: { cluster: Cluster }): void {
-    const items = getClusterElementsArray(item.cluster)
-      .map(c => c.id)
-      .join(",");
-    this.$router.push(`/graph?cutoff=${this.cutoff}&red=${items}`);
+  @Watch("cutoff")
+  private emitCutoff(): void {
+    this.$emit("cutoffChange", this.cutoff);
+  }
+
+  private sortedClustering(): Clustering {
+    const sort: SortingFunction<Cluster> = (a, b) =>
+      getClusterElements(a).size - getClusterElements(b).size;
+
+    const toSort = [...this.clustering];
+    toSort.sort(sort);
+    return toSort;
   }
 }
 </script>
