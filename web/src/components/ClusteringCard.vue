@@ -26,6 +26,7 @@
         </div>
         <div>
           <v-btn @click="graphView(cluster)">Graph view</v-btn>
+          <v-btn @click="pairView(cluster)">Pair view</v-btn>
         </div>
       </div>
     </v-expansion-panel-content>
@@ -61,6 +62,12 @@ export default class ClusteringCard extends Vue {
       .join(",");
 
     this.$router.push(`/graph?cutoff=${this.cutoff}&red=${items}`);
+  }
+
+  public pairView(cluster: Cluster): void {
+    const items = Array.from(cluster).map(v => v.id).join(",");
+
+    this.$router.push(`/?showIds=${items}`);
   }
 }
 </script>
