@@ -11,17 +11,42 @@
     <v-expansion-panel-content>
       <div class="d-flex justify-space-between">
         <div>
-          <h3>Data</h3>
+          <div class="d-flex">
+            <v-icon>mdi-chevron-right</v-icon>
+            <h3>Statistics</h3>
+          </div>
           <ul>
-            <li><b>Size:</b> {{ getClusterElements(cluster).size }}</li>
-            <li><b>Average Similarity:</b> {{ averageSimilarity(cluster) }}</li>
+            <v-list-item>
+              <v-list-item-title>
+                <v-icon>mdi-menu-right</v-icon>
+
+                <b>Size: </b>
+                {{ getClusterElements(cluster).size }}
+              </v-list-item-title>
+            </v-list-item>
+            <v-list-item>
+              <v-list-item-title>
+                <v-icon>mdi-menu-right</v-icon>
+
+                <b>Average Similarity: </b>
+                {{ averageSimilarity(cluster) }}
+              </v-list-item-title>
+            </v-list-item>
           </ul>
 
-          <h3>Files</h3>
+          <div class="d-flex">
+            <v-icon>mdi-chevron-right</v-icon>
+            <h3>Files</h3>
+          </div>
           <ul>
-            <li v-for="item in getClusterElements(cluster)" :key="item.id">
-              {{ item.path }}
-            </li>
+            <v-list-item
+              v-for="item in getClusterElements(cluster)"
+              :key="item.id"
+            >
+              <v-icon>mdi-menu-right</v-icon>
+
+              <v-list-item-title>{{ item.path }}</v-list-item-title>
+            </v-list-item>
           </ul>
         </div>
         <div>
@@ -58,14 +83,16 @@ export default class ClusteringCard extends Vue {
 
   public graphView(cluster: Cluster): void {
     const items = getClusterElementsArray(cluster)
-      .map(c => c.id)
+      .map((c) => c.id)
       .join(",");
 
     this.$router.push(`/graph?cutoff=${this.cutoff}&red=${items}`);
   }
 
   public pairView(cluster: Cluster): void {
-    const items = Array.from(cluster).map(v => v.id).join(",");
+    const items = Array.from(cluster)
+      .map((v) => v.id)
+      .join(",");
 
     this.$router.push(`/?showIds=${items}`);
   }
