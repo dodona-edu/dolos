@@ -45,7 +45,7 @@ export default class ClusteringTable extends Vue {
   @Prop() loaded!: boolean;
   @Prop() clustering!: Clustering;
   @Prop({ default: "" }) search!: string;
-  public cutoff = 0.25;
+  public cutoff = 0.5;
 
   headers = [
     { text: "Cluster Id", value: "id", sortable: true },
