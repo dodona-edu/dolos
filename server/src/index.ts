@@ -31,6 +31,10 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
+
+app.use("/css", express.static(path.join(__dirname, "../css")));
+
+
 app.get("/", async (_req, res) => {
   res.render("index", { reports: await listReports() });
 });
@@ -67,6 +71,8 @@ app.use("/reports/:reportname/data//:file/:fragment?", (req, res) => {
 });
 
 app.use("/reports/:reportname", express.static(path.dirname(require.resolve("@dodona/dolos-web"))));
+
+
 
 app.listen(port, () => {
   console.log(`Dolos-server is listening on http://localhost:${port}`);
