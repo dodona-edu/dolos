@@ -7,10 +7,11 @@ import { Tokenizer } from "../tokenizer/tokenizer";
 import { WinnowFilter } from "../hashing/winnowFilter";
 import { File } from "../file/file";
 import { Report, Occurrence } from "./report";
+import { IndexInterface } from "./indexInterface";
 
 type Hash = number;
 
-export class Index {
+export class Index implements IndexInterface {
   private readonly kgramLength: number;
   private readonly kgramsInWindow: number;
   private readonly index: Map<Hash, Array<Occurrence>> = new Map();

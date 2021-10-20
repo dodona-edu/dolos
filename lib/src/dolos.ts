@@ -1,5 +1,4 @@
 import { Index } from "./lib/analyze";
-import { Report } from "./lib/analyze/report";
 import { CustomOptions, Options } from "./lib/util/options";
 import { CodeTokenizer } from "./lib/tokenizer/codeTokenizer";
 import { ExtraInfo, File } from "./lib/file/file";
@@ -9,8 +8,12 @@ import * as path from "path";
 import { Tokenizer } from "./lib/tokenizer/tokenizer";
 import { CharTokenizer } from "./lib/tokenizer/charTokenizer";
 import { default as fsWithCallbacks } from "fs";
+import { TreeIndex } from "./lib/analyze/treeIndex";
+import { IndexInterface } from "./lib/analyze/indexInterface";
+import { ReportInterface } from "./lib/analyze/reportInterface";
 const fs = fsWithCallbacks.promises;
 export { ScoredPairs } from "./lib/analyze/reportInterface";
+export { TreeIndex } from "./lib/analyze/treeIndex";
 
 export { Report } from "./lib/analyze/report";
 export { Fragment } from "./lib/analyze/fragment";
@@ -30,16 +33,19 @@ function newTokenizer(language: string): Tokenizer {
 
 export class Dolos {
   readonly options: Options;
-  private readonly tokenizer: Tokenizer;
-  private readonly index: Index;
+  private readonly index: IndexInterface;
 
   constructor(customOptions?: CustomOptions) {
     this.options = new Options(customOptions);
-    this.tokenizer = newTokenizer(this.options.language);
-    this.index = new Index(this.tokenizer, this.options);
+
+    //TODO add option to options and use if statement to construct new index
+    const tokenizer = newTokenizer(this.options.language);
+    this.index = new Index(tokenizer, this.options);
+
+    this.index = new TreeIndex(this.options);
   }
 
-  public async analyzePaths(paths: string[]): Promise<Report> {
+  public async analyzePaths(paths: string[]): Promise<ReportInterface> {
     let files = null;
     if(paths.length == 1) {
       const infoPath = paths[0];
@@ -74,7 +80,7 @@ export class Dolos {
 
   public async analyze(
     files: Array<File>
-  ): Promise<Report> {
+  ): Promise<ReportInterface> {
 
     if (files.length < 2) {
       throw new Error("You need to supply at least two files");
