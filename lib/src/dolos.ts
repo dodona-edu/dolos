@@ -10,8 +10,9 @@ import { Tokenizer } from "./lib/tokenizer/tokenizer";
 import { CharTokenizer } from "./lib/tokenizer/charTokenizer";
 import { default as fsWithCallbacks } from "fs";
 const fs = fsWithCallbacks.promises;
+export { ScoredPairs } from "./lib/analyze/reportInterface";
 
-export { Report, ScoredPairs } from "./lib/analyze/report";
+export { Report } from "./lib/analyze/report";
 export { Fragment } from "./lib/analyze/fragment";
 export { Region } from "./lib/util/region";
 export { Pair } from "./lib/analyze/pair";

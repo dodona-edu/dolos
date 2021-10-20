@@ -3,27 +3,21 @@ import { Pair } from "./pair";
 import { DefaultMap } from "../util/defaultMap";
 import { File } from "../file/file";
 import { TokenizedFile } from "../file/tokenizedFile";
-import { PairedOccurrence, ASTRegion } from "./pairedOccurrence";
+import { ASTRegion, PairedOccurrence } from "./pairedOccurrence";
 import { Range } from "../util/range";
 import { Options } from "../util/options";
 import { SharedFingerprint } from "./sharedFingerprint";
 import { closestMatch } from "../util/utils";
+import { ScoredPairs, ReportInterface } from "./reportInterface";
 
 type Hash = number;
-
-export interface ScoredPairs {
-  pair: Pair;
-  overlap: number;
-  longest: number;
-  similarity: number;
-}
 
 export interface Occurrence {
   file: TokenizedFile;
   side: ASTRegion;
 }
 
-export class Report {
+export class Report implements ReportInterface {
 
   // computed list of scored pairs,
   // only defined after finished() is called
