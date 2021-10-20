@@ -1,3 +1,4 @@
+import { randomUUID } from "crypto";
 import { default as fsWithCallbacks } from "fs";
 import path from "path";
 import { default as unzipper } from "unzipper";
@@ -17,6 +18,22 @@ export async function unzip(sourcePath: string, targetPath: string): Promise<voi
     stream.on("close", () => resolve());
     stream.on("error", err => reject(err));
   });
+}
+
+export async function anonimizeDirectory(folder: string): Promise<void> {
+  devAssert(() => fsWithCallbacks.existsSync(folder), "Sourcepath does not exist.");
+
+  const idMap = new Map();
+
+  const contents = await fs.readdir(folder);
+  for (const content of contents) {
+    const absPath = path.join(folder, content);
+
+    if(!idMap.has(content))
+      idMap.set(content, randomUUID());
+
+    await fs.rename(absPath, path.join(folder, idMap.get(content)));
+  }
 }
 
 

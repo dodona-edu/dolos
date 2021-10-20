@@ -3,7 +3,7 @@ import { default as fsWithCallbacks } from "fs";
 import path from "path";
 import { resultFiles, unzippedPath } from "./constants";
 import { devAssert } from "./util/development-util";
-import { collectFilesRecursively, unzip } from "./util/file-util";
+import { anonimizeDirectory, collectFilesRecursively, unzip } from "./util/file-util";
 
 
 export async function analyze(sourceZipPath: string): Promise<void> {
@@ -11,6 +11,7 @@ export async function analyze(sourceZipPath: string): Promise<void> {
 
   const targetPath = path.join(sourceZipPath, "..", unzippedPath);
   await unzip(sourceZipPath, targetPath);
+  await anonimizeDirectory(targetPath);
 
   const applicableFiles = await collectFilesRecursively(targetPath);
   console.log("files: ", applicableFiles);

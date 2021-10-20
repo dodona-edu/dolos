@@ -2,7 +2,8 @@
   "ignore": [
     "**/*.test.ts",
     "**/*.spec.ts",
-    "node_modules"
+    "node_modules",
+    "**/*.eta"
   ],
   "watch": [
     "src",
