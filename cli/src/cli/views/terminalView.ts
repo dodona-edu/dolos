@@ -5,9 +5,10 @@ import UI from "cliui";
 import chalk from "chalk";
 import { Writable } from "stream";
 import { closestMatch } from "../../lib/util/utils";
-import { Report, ScoredPairs } from "@dodona/dolos-lib";
+import { ScoredPairs } from "@dodona/dolos-lib";
 import { Fragment } from "@dodona/dolos-lib";
 import { Region } from "@dodona/dolos-lib";
+import { ReportInterface } from "@dodona/dolos-lib/dist/lib/analyze/reportInterface";
 
 /**
  * This {@link View} will print the results of an analysis to the terminal.
@@ -23,7 +24,7 @@ export class TerminalView extends View {
   private readonly context: number = 3;
 
   constructor(
-    private report: Report,
+    private report: ReportInterface,
     options: {
       compare?: boolean;
       context?: number;
@@ -33,7 +34,7 @@ export class TerminalView extends View {
 
     super();
     this.compare = options.compare == undefined
-      ? report.files().length == 2
+      ? report.files.length == 2
       : options.compare;
     this.output = process.stdout;
     this.width = process.stdout.columns;

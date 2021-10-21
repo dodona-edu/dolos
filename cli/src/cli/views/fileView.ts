@@ -2,7 +2,8 @@ import { View } from "./view";
 import csvStringify from "csv-stringify";
 import { Writable } from "stream";
 import { createWriteStream, promises, promises as fs } from "fs";
-import { Fragment, Pair, Report } from "@dodona/dolos-lib";
+import { Fragment, Pair } from "@dodona/dolos-lib";
+import { ReportInterface } from "@dodona/dolos-lib/dist/lib/analyze/reportInterface";
 
 function writeCSVto<T>(
   out: Writable,
@@ -35,7 +36,7 @@ export class FileView extends View {
 
   protected outputDestination: string;
 
-  constructor(protected report: Report, options: Options) {
+  constructor(protected report: ReportInterface, options: Options) {
     super();
     this.outputDestination =
       options.outputDestination || `dolos-report-${ new Date().toISOString().replace(/[.:-]/g, "") }`;
@@ -86,30 +87,32 @@ export class FileView extends View {
       });
   }
 
-  public writekgrams(out: Writable): void {
-    writeCSVto(
-      out,
-      this.report.sharedFingerprints(),
-      {
-        "id": s => s.id,
-        "hash": s => s.hash,
-        "data": s => s.kgram?.join(" ") || null,
-        "files": s => JSON.stringify(s.files().map(f => f.id))
-      });
-  }
+  //TODO different output format for trees
+  // public writekgrams(out: Writable): void {
+  //   writeCSVto(
+  //     out,
+  //     this.report.sharedFingerprints(),
+  //     {
+  //       "id": s => s.id,
+  //       "hash": s => s.hash,
+  //       "data": s => s.kgram?.join(" ") || null,
+  //       "files": s => JSON.stringify(s.files().map(f => f.id))
+  //     });
+  // }
 
-  public writeFiles(out: Writable): void {
-    writeCSVto(
-      out,
-      this.report.files(),
-      {
-        "id": f => f.id,
-        "path": f => f.path,
-        "content": f => f.content,
-        "ast": f => f.ast.join(" "),
-        "extra": f => JSON.stringify(f.extra)
-      });
-  }
+  //TODO different output format for trees
+  // public writeFiles(out: Writable): void {
+  //   writeCSVto(
+  //     out,
+  //     this.report.files(),
+  //     {
+  //       "id": f => f.id,
+  //       "path": f => f.path,
+  //       "content": f => f.content,
+  //       "ast": f => f.ast.join(" "),
+  //       "extra": f => JSON.stringify(f.extra)
+  //     });
+  // }
 
   public writeMetadata(out: Writable): void {
     const metaData = this.report.options.asObject();
@@ -138,10 +141,11 @@ export class FileView extends View {
       await this.writeFragments(file, pair.pair);
       await file.close();
     }
-    console.log("Fragments written");
-    this.writekgrams(createWriteStream(`${dirName}/kgrams.csv`));
-    console.log("kgrams written.");
-    this.writeFiles(createWriteStream(`${dirName}/files.csv`));
+    //TODO different output format for trees
+    // console.log("Fragments written");
+    // this.writekgrams(createWriteStream(`${dirName}/kgrams.csv`));
+    // console.log("kgrams written.");
+    // this.writeFiles(createWriteStream(`${dirName}/files.csv`));
     console.log("Files written.");
     console.log("Completed");
     return dirName;

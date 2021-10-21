@@ -1,6 +1,6 @@
 import { FileView, Options as FVOptions } from "./fileView";
 import runServer, { Options as ServerOptions } from "../server";
-import { Report } from "@dodona/dolos-lib";
+import { ReportInterface } from "@dodona/dolos-lib/dist/lib/analyze/reportInterface";
 
 /**
  * This {@link View} will launch a webserver which hosts a web application to
@@ -9,7 +9,7 @@ import { Report } from "@dodona/dolos-lib";
  */
 export class WebView extends FileView {
 
-  constructor(report: Report, private options: ServerOptions & FVOptions) {
+  constructor(report: ReportInterface, private options: ServerOptions & FVOptions) {
     super(report, options);
   }
 

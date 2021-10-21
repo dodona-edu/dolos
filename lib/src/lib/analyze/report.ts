@@ -151,7 +151,7 @@ export class Report implements ReportInterface {
       .flat();
   }
 
-  public files(): TokenizedFile[] {
+  public get files(): TokenizedFile[] {
     return Array.of(...this.fileSet);
   }
 

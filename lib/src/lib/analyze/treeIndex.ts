@@ -1,7 +1,7 @@
 import { IndexInterface } from "./indexInterface";
 import { SimpleReport } from "./simpleReport";
 import { File } from "../file/file";
-import { CustomOptions } from "../util/options";
+import { CustomOptions, Options } from "../util/options";
 import { default as Parser, SyntaxNode, Tree, TreeCursor } from "tree-sitter";
 
 type Count = number;
@@ -50,15 +50,73 @@ export class TreeIndex implements IndexInterface {
       const tree = this.parser.parse(file.content);
       forest.push(tree);
 
-      for (const node of TreeIndex.breadthFirstWalk(tree)) {
+      for (const node of TreeIndex.breadthFirstWalk(tree.rootNode)) {
         nodeMappedToFile.set(node, file.path);
       }
     }
 
     this.subTreeIsomorphism(forest);
 
+    // console.log(this.listNumber);
+
+    // const grouped = this.listNumber.ent
+    const numberToNodeList: Map<number, SyntaxNode[]> = new Map();
+
+    for (const node of TreeIndex.breadthFirstWalkForest(forest)) {
+      // // leave matches are not useful information
+      // if(node.childCount == 0) {
+      //   continue;
+      // }
+      const integer: number = this.nodeNumber.get(node) as number;
+      const matchedNodes = numberToNodeList.get(integer);
+      if (matchedNodes !== undefined) {
+        matchedNodes.push(node);
+      } else {
+        numberToNodeList.set(integer, [node]);
+      }
+    }
+
+    // nodes that have either already been looked at or it's a root of a subtree to which this node belongs has been
+    // accepted
+    const acceptedSet: Set<SyntaxNode> = new Set();
+    // matches
+    const grouped: SyntaxNode[][] = [];
+    // Has to be breadth first so that parents are always first
+    for (const node of TreeIndex.breadthFirstWalkForest(forest)) {
+      if (acceptedSet.has(node)) {
+        continue;
+      }
+
+      const matchedNodes: SyntaxNode[] = numberToNodeList.get(
+          this.nodeNumber.get(node) as number
+      ) as SyntaxNode[];
+
+      if (matchedNodes.length > 1) {
+        grouped.push(matchedNodes);
+        for (const matchedNode of matchedNodes) {
+          for (const child of TreeIndex.breadthFirstWalk(matchedNode)) {
+            acceptedSet.add(child);
+          }
+        }
+      }
+    }
+
+    const filteredGroup = grouped.filter(group =>
+      group.some(node => node.endPosition.row - node.startPosition.row > 0),
+    );
+    for (const group of filteredGroup) {
+      console.log("new group");
+      for (const node of group) {
+        let str = "\t";
+        str += `{from: [${node.startPosition.row + 1}, ${node.startPosition.column}]`;
+        str += `, to: [${node.endPosition.row + 1}, ${node.endPosition.column}]}: => ${nodeMappedToFile.get(node)}`;
+        console.log(str);
+      }
+      console.log("");
+    }
+
     // TODO
-    return new SimpleReport([]);
+    return new SimpleReport([], new Options(), []);
   }
 
   private subTreeIsomorphism(forest: Tree[]): void {
@@ -116,13 +174,13 @@ export class TreeIndex implements IndexInterface {
 
   private static* breadthFirstWalkForest(forest: Tree[]): IterableIterator<SyntaxNode> {
     for (const tree of forest) {
-      yield* TreeIndex.breadthFirstWalk(tree);
+      yield* TreeIndex.breadthFirstWalk(tree.rootNode);
     }
   }
 
-  private static* breadthFirstWalk(tree: Tree): IterableIterator<SyntaxNode> {
+  private static* breadthFirstWalk(rootNode: SyntaxNode): IterableIterator<SyntaxNode> {
     const queue: SyntaxNode[] = [];
-    queue.push(tree.rootNode);
+    queue.push(rootNode);
     while (queue.length > 0) {
       const node: SyntaxNode = queue.shift() as SyntaxNode;
       yield node;
