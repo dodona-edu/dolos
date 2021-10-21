@@ -7,7 +7,7 @@ import { PairedOccurrence, ASTRegion } from "./pairedOccurrence";
 import { Range } from "../util/range";
 import { Options } from "../util/options";
 import { SharedFingerprint } from "./sharedFingerprint";
-import { closestMatch, info } from "../util/utils";
+import { closestMatch } from "../util/utils";
 
 type Hash = number;
 
@@ -68,28 +68,22 @@ export class Report {
       throw new Error(`${this.options.sortBy} is not a valid field to sort on`);
     }
 
-    info(`Combining ${ this.fingerprints.size } shared fingerprints into pairs.`);
     let ints = this.build();
 
-    info(`Cleaning ${ ints.length} pairs.`);
     ints = ints.map(pair => {
       pair.removeSmallerThan(this.options.minFragmentLength);
       pair.squash();
       return pair;
     });
 
-    info("Filtering pairs.");
     ints = ints.filter(i => i.fragmentCount > 0);
 
-    info(`Calculating the score of ${ ints.length } pairs.`);
     this.scored = ints.map(i => this.calculateScore(i));
 
-    info(`Keeping pairs with similarity >= ${ this.options.minSimilarity }`);
     this.scored = this.scored.filter(s =>
       s.similarity >= this.options.minSimilarity
     );
 
-    info(`Sorting ${ this.scored.length } pairs.`);
     this.scored.sort(sortfn);
 
     if(this.options.limitResults) {
@@ -97,7 +91,6 @@ export class Report {
       this.scored = this.scored.slice(0, this.options.limitResults);
     }
 
-    info("Freezing report object.");
     Object.freeze(this);
   }
 

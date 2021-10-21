@@ -68,7 +68,7 @@ jobs:
       - name: Build CLI
         run: |
           cd cli/
-          yarn build
+          yarn build --force
       - name: Build web
         run: |
           cd web/
