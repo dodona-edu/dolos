@@ -12,10 +12,10 @@ import { WinnowFilter } from "../lib/hashing/winnowFilter";
 test("fragment should fully reconstruct matched kgrams when k > w", async t => {
   const tokenizer = new CodeTokenizer("javascript");
   const f1 = tokenizer.tokenizeFile(
-    (await File.fromPath("samples/javascript/sample.js")).ok()
+    (await File.fromPath("../samples/javascript/sample.js")).ok()
   );
   const f2 = tokenizer.tokenizeFile(
-    (await File.fromPath("samples/javascript/sample.js")).ok()
+    (await File.fromPath("../samples/javascript/sample.js")).ok()
   );
 
   const filter = new WinnowFilter(10, 5, true);
@@ -60,10 +60,10 @@ test("fragment should fully reconstruct matched kgrams when k > w", async t => {
 test("fragment should partially reconstruct matched kgrams when k < w", async t => {
   const tokenizer = new CodeTokenizer("javascript");
   const f1 = tokenizer.tokenizeFile(
-    (await File.fromPath("samples/javascript/sample.js")).ok()
+    (await File.fromPath("../samples/javascript/sample.js")).ok()
   );
   const f2 = tokenizer.tokenizeFile(
-    (await File.fromPath("samples/javascript/sample.js")).ok()
+    (await File.fromPath("../samples/javascript/sample.js")).ok()
   );
 
   const filter = new WinnowFilter(5, 10, true);
