@@ -7,7 +7,7 @@ import {
   Fragment as DolosFragment,
   Index,
   EmptyTokenizer, CustomOptions, Options
-} from "@dodona/dolos-library";
+} from "@dodona/dolos-lib";
 // import { assertType } from "typescript-is";
 
 const DATA_URL = "./data/";
