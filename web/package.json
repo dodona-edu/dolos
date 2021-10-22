@@ -52,7 +52,7 @@
     "vuex": "^3.6.2"
   },
   "dependencies": {
-    "@dodona/dolos-library": "1.0.0"
+    "@dodona/dolos-lib": "1.3.0"
   },
   "license": "MIT",
   "publishConfig": {
