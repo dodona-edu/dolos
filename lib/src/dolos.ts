@@ -1,7 +1,7 @@
-import { Index } from "./lib/analyze";
-import { Report } from "./lib/analyze/report";
+import { WinnowingIndex } from "./lib/analyze/winnowingIndex";
+import { WinnowingReport } from "./lib/analyze/winnowingReport";
 import { CustomOptions, Options } from "./lib/util/options";
-import { CodeTokenizer } from "./lib/tokenizer/codeTokenizer";
+import { CodeTokenizerTreeSitter } from "./lib/tokenizer/codeTokenizerTreeSitter";
 import { ExtraInfo, File } from "./lib/file/file";
 import { Result } from "./lib/util/result";
 import { csvParse, DSVRowString } from "d3-dsv";
@@ -9,9 +9,12 @@ import * as path from "path";
 import { Tokenizer } from "./lib/tokenizer/tokenizer";
 import { CharTokenizer } from "./lib/tokenizer/charTokenizer";
 import { default as fsWithCallbacks } from "fs";
+import { AstFile, OutputFormat } from "./lib/outputFormat/outputFormat";
+import { Fragment } from "./lib/analyze/fragment";
+import { CodeTokenizerFromAst } from "./lib/tokenizer/codeTokenizerFromAst";
 const fs = fsWithCallbacks.promises;
 
-export { Report, ScoredPairs } from "./lib/analyze/report";
+export { WinnowingReport, ScoredPairs } from "./lib/analyze/winnowingReport";
 export { Fragment } from "./lib/analyze/fragment";
 export { Region } from "./lib/util/region";
 export { Pair } from "./lib/analyze/pair";
@@ -21,8 +24,8 @@ export { Options } from "./lib/util/options";
 function newTokenizer(language: string): Tokenizer {
   if (language == "chars") {
     return new CharTokenizer();
-  } else if (CodeTokenizer.supportedLanguages.includes(language)) {
-    return new CodeTokenizer(language);
+  } else if (CodeTokenizerTreeSitter.supportedLanguages.includes(language)) {
+    return new CodeTokenizerTreeSitter(language);
   }
   throw new Error(`No tokenizer found for ${language}`);
 }
@@ -30,15 +33,15 @@ function newTokenizer(language: string): Tokenizer {
 export class Dolos {
   readonly options: Options;
   private readonly tokenizer: Tokenizer;
-  private readonly index: Index;
+  private readonly index: WinnowingIndex;
 
   constructor(customOptions?: CustomOptions) {
     this.options = new Options(customOptions);
     this.tokenizer = newTokenizer(this.options.language);
-    this.index = new Index(this.tokenizer, this.options);
+    this.index = new WinnowingIndex(this.tokenizer, this.options);
   }
 
-  public async analyzePaths(paths: string[]): Promise<Report> {
+  public async analyzePaths(paths: string[]): Promise<WinnowingReport> {
     let files = null;
     if(paths.length == 1) {
       const infoPath = paths[0];
@@ -73,7 +76,7 @@ export class Dolos {
 
   public async analyze(
     files: Array<File>
-  ): Promise<Report> {
+  ): Promise<WinnowingReport> {
 
     if (files.length < 2) {
       throw new Error("You need to supply at least two files");
@@ -84,5 +87,14 @@ export class Dolos {
                       "make sense when comparing more than two files.");
     }
     return this.index.compareFiles(files);
+  }
+
+  public static async getFragments(outputFormat: OutputFormat, file1: AstFile, file2: AstFile): Promise<Fragment[]> {
+    const tokenizer = new CodeTokenizerFromAst([file1, file2]);
+    const index = new WinnowingIndex(tokenizer, outputFormat.metadata);
+    const hashWhitelist = new Set(outputFormat.fingerprints.map(fingerprint => fingerprint.fingerprint));
+    const report = await index.compareFiles([file1, file2], hashWhitelist);
+    const reportPair = report.scoredPairs[0];
+    return reportPair.pair.fragments();
   }
 }

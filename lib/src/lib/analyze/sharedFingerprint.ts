@@ -1,4 +1,4 @@
-import { Occurrence } from "./report";
+import { Occurrence } from "./winnowingReport";
 import { DefaultMap } from "../util/defaultMap";
 import { TokenizedFile } from "../file/tokenizedFile";
 import Identifiable from "../util/identifiable";

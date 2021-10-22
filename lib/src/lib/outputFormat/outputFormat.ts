@@ -1,5 +1,5 @@
 import { Options } from "../util/options";
-import { ScoredPairs } from "../analyze/report";
+import { ScoredPairs } from "../analyze/winnowingReport";
 import { File } from "../file/file";
 // we can import things from tree-sitter as long as it is only used as a type. This is because type imports are removed
 // in the generated javascript. So this will not break in any environment where tree-sitter cannot be used.

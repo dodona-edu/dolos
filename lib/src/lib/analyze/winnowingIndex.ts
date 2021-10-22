@@ -6,11 +6,11 @@ import { Region } from "../util/region";
 import { Tokenizer } from "../tokenizer/tokenizer";
 import { WinnowFilter } from "../hashing/winnowFilter";
 import { File } from "../file/file";
-import { Report, Occurrence } from "./report";
+import { WinnowingReport, Occurrence } from "./winnowingReport";
 
 type Hash = number;
 
-export class Index {
+export class WinnowingIndex {
   private readonly kgramLength: number;
   private readonly kgramsInWindow: number;
   private readonly index: Map<Hash, Array<Occurrence>> = new Map();
@@ -34,7 +34,7 @@ export class Index {
   constructor(
     tokenizer: Tokenizer,
     private readonly options: Options = new Options(),
-    hashFilter?: HashFilter
+    hashFilter?: HashFilter,
   ) {
     this.tokenizer = tokenizer;
     this.kgramLength = options.kgramLength;
@@ -53,16 +53,18 @@ export class Index {
    * and each other. The file hashes will be added to the index.
    * @param hashFilter: an optional HashFilter. By default the HashFilter of the
    * Index object will be used.
+   * @param hashWhitelist: a list of all allowed hash values
    * @return an Report object, which is a list of Pairs
    * (containing all the pairedOccurrences between two files).
    */
   public async compareFiles(
     files: File[],
+    hashWhitelist?: Set<Hash>,
     hashFilter = this.hashFilter
-  ): Promise<Report> {
+  ): Promise<WinnowingReport> {
 
     const tokenizedFiles = files.map(f => this.tokenizer.tokenizeFile(f));
-    const report = new Report(this.options, tokenizedFiles);
+    const report = new WinnowingReport(this.options, tokenizedFiles);
 
     for (const file of tokenizedFiles) {
       let kgram = 0;
@@ -113,7 +115,7 @@ export class Index {
         kgram += 1;
       }
     }
-    report.finish();
+    report.finish(hashWhitelist);
     return report;
   }
 
@@ -131,7 +133,7 @@ export class Index {
   public async compareFile(
     file: File,
     hashFilter = this.hashFilter
-  ): Promise<Report> {
-    return this.compareFiles([file], hashFilter);
+  ): Promise<WinnowingReport> {
+    return this.compareFiles([file], undefined, hashFilter);
   }
 }

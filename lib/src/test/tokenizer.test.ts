@@ -1,5 +1,5 @@
 import test from "ava";
-import { CodeTokenizer } from "../lib/tokenizer/codeTokenizer";
+import { CodeTokenizerTreeSitter } from "../lib/tokenizer/codeTokenizerTreeSitter";
 import { File } from "../lib/file/file";
 
 const languageFiles = {
@@ -13,9 +13,9 @@ const languageFiles = {
   "c": "samples/c/caesar.c",
 } as {[key: string]: string};
 
-for (const language of CodeTokenizer.supportedLanguages) {
+for (const language of CodeTokenizerTreeSitter.supportedLanguages) {
   test(`tokenizer works for ${language}`, async t => {
-    const tokenizer =  new CodeTokenizer(language);
+    const tokenizer =  new CodeTokenizerTreeSitter(language);
     t.truthy(tokenizer);
 
     const sampleFile:  string | undefined = languageFiles[language];
@@ -32,19 +32,19 @@ for (const language of CodeTokenizer.supportedLanguages) {
 }
 
 test("tokenizer creation throws error for unsupported language", t => {
-  t.throws(() => new CodeTokenizer("some string"));
+  t.throws(() => new CodeTokenizerTreeSitter("some string"));
 });
 
 test("registering a new installed language works", t => {
-  t.is(undefined, CodeTokenizer.registerLanguage("python"));
+  t.is(undefined, CodeTokenizerTreeSitter.registerLanguage("python"));
 });
 
 test("registering a new invalid language throws error", t => {
-  t.throws(() => CodeTokenizer.registerLanguage("some string"));
+  t.throws(() => CodeTokenizerTreeSitter.registerLanguage("some string"));
 });
 
 test("tokenizer with or without location is equal", async t => {
-  const tokenizer = new CodeTokenizer("javascript");
+  const tokenizer = new CodeTokenizerTreeSitter("javascript");
   const file = (await File.fromPath(languageFiles["javascript"])).ok();
 
   const tokenized = (await tokenizer.tokenizeFile(file));

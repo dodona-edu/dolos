@@ -5,12 +5,12 @@ import { PairedOccurrence } from "../lib/analyze/pairedOccurrence";
 import { Fragment } from "../lib/analyze/fragment";
 import { Region } from "../lib/util/region";
 import { SharedFingerprint } from "../lib/analyze/sharedFingerprint";
-import { CodeTokenizer } from "../lib/tokenizer/codeTokenizer";
+import { CodeTokenizerTreeSitter } from "../lib/tokenizer/codeTokenizerTreeSitter";
 import { WinnowFilter } from "../lib/hashing/winnowFilter";
 
 
 test("fragment should fully reconstruct matched kgrams when k > w", async t => {
-  const tokenizer = new CodeTokenizer("javascript");
+  const tokenizer = new CodeTokenizerTreeSitter("javascript");
   const f1 = tokenizer.tokenizeFile(
     (await File.fromPath("samples/javascript/sample.js")).ok()
   );
@@ -58,7 +58,7 @@ test("fragment should fully reconstruct matched kgrams when k > w", async t => {
 });
 
 test("fragment should partially reconstruct matched kgrams when k < w", async t => {
-  const tokenizer = new CodeTokenizer("javascript");
+  const tokenizer = new CodeTokenizerTreeSitter("javascript");
   const f1 = tokenizer.tokenizeFile(
     (await File.fromPath("samples/javascript/sample.js")).ok()
   );
