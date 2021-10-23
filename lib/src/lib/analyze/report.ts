@@ -1,6 +1,7 @@
 import { ScoredPairs } from "./winnowingReport";
 import { Options } from "../util/options";
-import { AstFileNullable, SharedFingerprint } from "../outputFormat/outputFormat";
+import { SharedFingerprint } from "../outputFormat/exchangeData";
+import { AstFileNullable } from "../outputFormat/astFile";
 
 export interface Report {
     get scoredPairs(): Array<ScoredPairs>;

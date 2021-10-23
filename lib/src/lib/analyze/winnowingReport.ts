@@ -8,8 +8,9 @@ import { Range } from "../util/range";
 import { Options } from "../util/options";
 import { SharedWinnowingFingerprint } from "./sharedWinnowingFingerprint";
 import { closestMatch } from "../util/utils";
-import { AstFileNullable, SharedFingerprint } from "../outputFormat/outputFormat";
+import { SharedFingerprint } from "../outputFormat/exchangeData";
 import { Report } from "./report";
+import { AstFileNullable } from "../outputFormat/astFile";
 
 type Hash = number;
 

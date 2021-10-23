@@ -2,7 +2,7 @@ import { Options } from "../util/options";
 import { ScoredPairs } from "../analyze/winnowingReport";
 import { AstFileNullable } from "./astFile";
 
-export interface OutputFormat {
+export interface ExchangeData {
    files: AstFileNullable[],
    pairs: ScoredPairs[],
    metadata: Options,

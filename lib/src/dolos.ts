@@ -9,7 +9,7 @@ import * as path from "path";
 import { Tokenizer } from "./lib/tokenizer/tokenizer";
 import { CharTokenizer } from "./lib/tokenizer/charTokenizer";
 import { default as fsWithCallbacks } from "fs";
-import { OutputFormat } from "./lib/outputFormat/outputFormat";
+import { ExchangeData } from "./lib/outputFormat/exchangeData";
 import { Fragment } from "./lib/analyze/fragment";
 import { CodeTokenizerFromAst } from "./lib/tokenizer/codeTokenizerFromAst";
 import { AstFileNullable, AstFileTree } from "./lib/outputFormat/astFile";
@@ -83,7 +83,7 @@ export class Dolos {
     return this.index.compareFiles(files);
   }
 
-  public static async getFragments(outputFormat: OutputFormat, file1: AstFileNullable, file2: AstFileNullable):
+  public static async getFragments(outputFormat: ExchangeData, file1: AstFileNullable, file2: AstFileNullable):
       Promise<Fragment[]> {
     let tokenizer;
     if (outputFormat.metadata.language === "chars") {
