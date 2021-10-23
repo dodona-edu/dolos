@@ -5,17 +5,6 @@ import { AstFileTree } from "../outputFormat/astFile";
 
 export abstract class CodeTokenizer extends Tokenizer<AstFileTree> {
 
-  // /**
-  //  * Runs the parser on a given string. Returns a stringified version of the
-  //  * abstract syntax tree.
-  //  *
-  //  * @param text The text string to parse
-  //  */
-  // public tokenize(text: string): string {
-  //   const tree = this.getTree(text);
-  //   return tree.rootNode.toString();
-  // }
-
   /**
      * Runs the parser on a given string. Returns an async iterator returning
      * tuples containing the stringified version of the token and the

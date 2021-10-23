@@ -7,6 +7,9 @@ export interface Token {
   location: Region;
 }
 
+/**
+ * The generic type "TokenizableFile" defines which file format the tokenizer needs in order for tokenization to happen
+ */
 export abstract class Tokenizer<TokenizableFile extends File> {
 
   /**
@@ -14,9 +17,9 @@ export abstract class Tokenizer<TokenizableFile extends File> {
    * tuples containing the stringified version of the token and the
    * corresponding position.
    *
-   * @param text The text string to parse
+   * @param tokenizableFile A tokenizable file for which the contents should be tokenized
    */
-  public abstract generateTokens(text: TokenizableFile): IterableIterator<Token>;
+  public abstract generateTokens(tokenizableFile: TokenizableFile): IterableIterator<Token>;
 
   /**
    * Returns a tokenized version of the given file.
@@ -34,6 +37,10 @@ export abstract class Tokenizer<TokenizableFile extends File> {
     return new TokenizedFile(file, ast, mapping);
   }
 
+  /**
+   * converts a normal file to a file containing all the data needed in order for tokenization to happen.
+   * @param file The file to be converted.
+   */
   public abstract toTokenizableFile(file: File): TokenizableFile;
 
   /**
