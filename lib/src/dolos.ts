@@ -1,5 +1,4 @@
 import { WinnowingIndex } from "./lib/analyze/winnowingIndex";
-import { WinnowingReport } from "./lib/analyze/winnowingReport";
 import { CustomOptions, Options } from "./lib/util/options";
 import { CodeTokenizerTreeSitter } from "./lib/tokenizer/codeTokenizerTreeSitter";
 import { ExtraInfo, File } from "./lib/file/file";
@@ -13,6 +12,8 @@ import { ExchangeData } from "./lib/outputFormat/exchangeData";
 import { Fragment } from "./lib/analyze/fragment";
 import { CodeTokenizerFromAst } from "./lib/tokenizer/codeTokenizerFromAst";
 import { AstFileNullable, AstFileTree } from "./lib/outputFormat/astFile";
+import { Report } from "./lib/analyze/report";
+import { Index } from "./lib/analyze/Index";
 const fs = fsWithCallbacks.promises;
 
 function newTokenizer(language: string): Tokenizer<File | AstFileNullable> {
@@ -27,7 +28,7 @@ function newTokenizer(language: string): Tokenizer<File | AstFileNullable> {
 export class Dolos {
   readonly options: Options;
   private readonly tokenizer: Tokenizer<File | AstFileNullable>;
-  private readonly index: WinnowingIndex;
+  private readonly index: Index;
 
   constructor(customOptions?: CustomOptions) {
     this.options = new Options(customOptions);
@@ -35,7 +36,7 @@ export class Dolos {
     this.index = new WinnowingIndex(this.tokenizer, this.options);
   }
 
-  public async analyzePaths(paths: string[]): Promise<WinnowingReport> {
+  public async analyzePaths(paths: string[]): Promise<Report> {
     let files = null;
     if(paths.length == 1) {
       const infoPath = paths[0];
@@ -70,7 +71,7 @@ export class Dolos {
 
   public async analyze(
     files: Array<File>
-  ): Promise<WinnowingReport> {
+  ): Promise<Report> {
 
     if (files.length < 2) {
       throw new Error("You need to supply at least two files");
