@@ -48,6 +48,8 @@
               <v-list-item-title>{{ item.path }}</v-list-item-title>
             </v-list-item>
           </ul>
+
+          <HeatMap :cluster="cluster"></HeatMap>
         </div>
         <div>
           <v-btn @click="graphView(cluster)">Graph view</v-btn>
@@ -67,8 +69,9 @@ import {
   getClusterElementsArray,
 } from "@/util/clustering-algorithms/ClusterFunctions";
 import { File } from "@/api/api";
+import HeatMap from "./HeatMap.vue";
 
-@Component
+@Component({ components: { HeatMap } })
 export default class ClusteringCard extends Vue {
   @Prop() cluster!: Cluster;
   @Prop() cutoff!: number;
