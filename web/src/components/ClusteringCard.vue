@@ -8,53 +8,58 @@
 
       <v-spacer></v-spacer>
     </v-expansion-panel-header>
-    <v-expansion-panel-content>
-      <div class="d-flex justify-space-between">
-        <div>
-          <div class="d-flex">
-            <v-icon>mdi-chevron-right</v-icon>
-            <h3>Statistics</h3>
+    <v-expansion-panel-content class="d-flex">
+      <div class="d-flex flex-column">
+        <div class="d-flex justify-space-between">
+          <div>
+            <div class="d-flex">
+              <v-icon>mdi-chevron-right</v-icon>
+              <h3>Statistics</h3>
+            </div>
+            <ul>
+              <v-list-item>
+                <v-list-item-title>
+                  <v-icon>mdi-menu-right</v-icon>
+
+                  <b>Size: </b>
+                  {{ getClusterElements(cluster).size }}
+                </v-list-item-title>
+              </v-list-item>
+              <v-list-item>
+                <v-list-item-title>
+                  <v-icon>mdi-menu-right</v-icon>
+
+                  <b>Average Similarity: </b>
+                  {{ averageSimilarity(cluster) }}
+                </v-list-item-title>
+              </v-list-item>
+            </ul>
           </div>
-          <ul>
-            <v-list-item>
-              <v-list-item-title>
-                <v-icon>mdi-menu-right</v-icon>
 
-                <b>Size: </b>
-                {{ getClusterElements(cluster).size }}
-              </v-list-item-title>
-            </v-list-item>
-            <v-list-item>
-              <v-list-item-title>
-                <v-icon>mdi-menu-right</v-icon>
-
-                <b>Average Similarity: </b>
-                {{ averageSimilarity(cluster) }}
-              </v-list-item-title>
-            </v-list-item>
-          </ul>
-
-          <div class="d-flex">
-            <v-icon>mdi-chevron-right</v-icon>
-            <h3>Files</h3>
+          <div>
+            <v-btn @click="graphView(cluster)">Graph view</v-btn>
+            <v-btn @click="pairView(cluster)">Pair view</v-btn>
           </div>
-          <ul>
-            <v-list-item
-              v-for="item in getClusterElements(cluster)"
-              :key="item.id"
-            >
-              <v-icon>mdi-menu-right</v-icon>
-
-              <v-list-item-title>{{ item.path }}</v-list-item-title>
-            </v-list-item>
-          </ul>
-
-          <HeatMap :cluster="cluster"></HeatMap>
         </div>
-        <div>
-          <v-btn @click="graphView(cluster)">Graph view</v-btn>
-          <v-btn @click="pairView(cluster)">Pair view</v-btn>
+        <div class="d-flex">
+          <v-icon>mdi-chevron-right</v-icon>
+          <h3>Files</h3>
         </div>
+        <ul class="d-flex flex-wrap justify-space-between">
+          <v-list-item
+            v-for="item in getClusterElements(cluster)"
+            :key="item.id"
+            class="file-element"
+          >
+            <v-icon>mdi-menu-right</v-icon>
+
+            <v-list-item-title>{{
+              item.path.split("/").slice(-2).join("/")
+            }}</v-list-item-title>
+          </v-list-item>
+        </ul>
+
+        <HeatMap :cluster="cluster"></HeatMap>
       </div>
     </v-expansion-panel-content>
   </v-expansion-panel>
@@ -101,3 +106,9 @@ export default class ClusteringCard extends Vue {
   }
 }
 </script>
+
+<style scoped>
+.file-element {
+  flex: 0 1 calc(33% - 20px);
+}
+</style>
