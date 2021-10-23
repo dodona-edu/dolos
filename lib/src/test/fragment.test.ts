@@ -4,7 +4,7 @@ import { Fingerprint } from "../lib/hashing/hashFilter";
 import { PairedOccurrence } from "../lib/analyze/pairedOccurrence";
 import { Fragment } from "../lib/analyze/fragment";
 import { Region } from "../lib/util/region";
-import { SharedFingerprint } from "../lib/analyze/sharedFingerprint";
+import { SharedWinnowingFingerprint } from "../lib/analyze/sharedWinnowingFingerprint";
 import { CodeTokenizerTreeSitter } from "../lib/tokenizer/codeTokenizerTreeSitter";
 import { WinnowFilter } from "../lib/hashing/winnowFilter";
 
@@ -46,7 +46,7 @@ test("fragment should fully reconstruct matched kgrams when k > w", async t => {
         location: Region.merge(f2.mapping[h2.start], f2.mapping[h2.stop]),
         data: h2.data,
       },
-      new SharedFingerprint(h1.hash, h1.data),
+      new SharedWinnowingFingerprint(h1.hash, h1.data),
     );
 
   const fragment = new Fragment(createPair(0, f1Hashes[0], f2Hashes[0]));
@@ -94,7 +94,7 @@ test("fragment should partially reconstruct matched kgrams when k < w", async t 
         location: Region.merge(f2.mapping[h2.start], f2.mapping[h2.stop]),
         data: h2.data,
       },
-      new SharedFingerprint(h1.hash, h1.data),
+      new SharedWinnowingFingerprint(h1.hash, h1.data),
     );
 
   const fragment = new Fragment(createPair(0, f1Hashes[0], f2Hashes[0]));

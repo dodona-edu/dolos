@@ -2,7 +2,6 @@ import { File } from "./file";
 import { Region } from "../util/region";
 import { Range } from "../util/range";
 
-// TODO remove class
 export class TokenizedFile extends File {
 
   public readonly kgrams: Array<Range>;

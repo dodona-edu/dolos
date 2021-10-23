@@ -1,5 +1,8 @@
-import { default as Parser, Tree } from "tree-sitter";
+import { default as Parser } from "tree-sitter";
 import { CodeTokenizer } from "./codeTokenizer";
+import { AstFile } from "../outputFormat/outputFormat";
+import { File } from "../file/file";
+import { Tree } from "tree-sitter";
 
 export class CodeTokenizerTreeSitter extends CodeTokenizer {
   public static supportedLanguages =
@@ -58,8 +61,8 @@ export class CodeTokenizerTreeSitter extends CodeTokenizer {
     this.parser.setLanguage(languageModule);
   }
 
-  public getTree(contents: string): Tree {
-    return this.parser.parse(contents);
+  public toTokenizableFile(file: File): AstFile<Tree> {
+    return new AstFile(file, this.parser.parse(file.content));
   }
 
 }

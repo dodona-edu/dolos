@@ -7,7 +7,7 @@ export interface Token {
   location: Region;
 }
 
-export abstract class Tokenizer {
+export abstract class Tokenizer<TokenizableFile extends File> {
 
   /**
    * Runs the tokenizer on a given Buffer. Returns an async iterator returning
@@ -16,38 +16,47 @@ export abstract class Tokenizer {
    *
    * @param text The text string to parse
    */
-  public abstract generateTokens(text: string): IterableIterator<Token>;
+  public abstract generateTokens(text: TokenizableFile): IterableIterator<Token>;
 
   /**
    * Returns a tokenized version of the given file.
    *
    * @param file The file to parse
    */
-  public tokenizeFile(file: File): TokenizedFile {
-    const [ast, mapping] = this.tokenizeWithMapping(file.content);
+  public tokenizeFile(file: TokenizableFile | File): TokenizedFile {
+    let tokenizableFile: TokenizableFile;
+    if(file.constructor.name === File.name) {
+      tokenizableFile = this.toTokenizableFile(file);
+    } else {
+      tokenizableFile = file as TokenizableFile;
+    }
+    const [ast, mapping] = this.tokenizeWithMapping(tokenizableFile);
     return new TokenizedFile(file, ast, mapping);
   }
 
-  /**
-   * Returns a stringified version of the tokens in the buffer
-   *
-   * @param text The buffer to stringify
-   */
-  public tokenize(text: string): string {
-    return Array.of(...this.generateTokens(text)).join();
-  }
+  public abstract toTokenizableFile(file: File): TokenizableFile;
+
+  //TODO delete?
+  // /**
+  //  * Returns a stringified version of the tokens in the buffer
+  //  *
+  //  * @param text The buffer to stringify
+  //  */
+  // public tokenize(text: string): string {
+  //   return Array.of(...this.generateTokens(text)).join();
+  // }
 
   /**
    * Runs the stringifier on a given buffer. Returns a tuple containing the
    * stringified version and an array containing a mapping from each token to
    * the corresponding token in the original buffer.
    *
-   * @param text The text buffer to stringify
+   * @param tokenizableFile A tokenizable file for which the contents should be tokenized
    */
-  public tokenizeWithMapping(text: string): [string[], Region[]] {
+  public tokenizeWithMapping(tokenizableFile: TokenizableFile): [string[], Region[]] {
     const resultTokens: Array<string> = [];
     const positionMapping: Array<Region> = [];
-    for (const { token, location } of this.generateTokens(text)) {
+    for (const { token, location } of this.generateTokens(tokenizableFile)) {
       resultTokens.push(token);
       positionMapping.push(location);
     }

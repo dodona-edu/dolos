@@ -1,24 +1,22 @@
 import { CodeTokenizer } from "./codeTokenizer";
 import { AstFile } from "../outputFormat/outputFormat";
+import { File } from "../file/file";
 import { Tree } from "tree-sitter";
 
 // TODO doc
 export class CodeTokenizerFromAst extends CodeTokenizer {
-  private contentsToAst: Map<string, Tree>;
+  private fileToAstFile: Map<string, AstFile<Tree>>;
 
-  public constructor(files: AstFile[]) {
+  public constructor(files: AstFile<Tree>[]) {
     super();
-    this.contentsToAst = new Map<string, Tree>();
+    this.fileToAstFile = new Map<string, AstFile<Tree>>();
     for (const file of files) {
-      this.contentsToAst.set(
-        file.content,
-        file.tree
-      );
+      this.fileToAstFile.set(file.content, file);
     }
   }
 
-  getTree(contents: string): Tree {
-    return this.contentsToAst.get(contents) as Tree;
+  toTokenizableFile(file: File): AstFile<Tree> {
+    return this.fileToAstFile.get(file.content) as AstFile<Tree>;
   }
 
 }

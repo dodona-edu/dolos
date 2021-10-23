@@ -1,49 +1,49 @@
-import { Tree, SyntaxNode } from "tree-sitter";
+import { SyntaxNode } from "tree-sitter";
 import { Token, Tokenizer } from "./tokenizer";
 import { Region } from "../util/region";
+import { AstFile } from "../outputFormat/outputFormat";
+import { Tree } from "tree-sitter";
 
-export abstract class CodeTokenizer extends Tokenizer {
-    abstract getTree(contents: string): Tree;
+export abstract class CodeTokenizer extends Tokenizer<AstFile<Tree>> {
 
-    /**
-     * Runs the parser on a given string. Returns a stringified version of the
-     * abstract syntax tree.
-     *
-     * @param text The text string to parse
-     */
-    public tokenize(text: string): string {
-      const tree = this.getTree(text);
-      return tree.rootNode.toString();
-    }
+  // /**
+  //  * Runs the parser on a given string. Returns a stringified version of the
+  //  * abstract syntax tree.
+  //  *
+  //  * @param text The text string to parse
+  //  */
+  // public tokenize(text: string): string {
+  //   const tree = this.getTree(text);
+  //   return tree.rootNode.toString();
+  // }
 
-    /**
+  /**
      * Runs the parser on a given string. Returns an async iterator returning
      * tuples containing the stringified version of the token and the
      * corresponding position.
      *
-     * @param text The text string to parse
+     * @param tokenizableFile A tokenizable file for which the contents should be tokenized
      */
-    public *generateTokens(text: string): IterableIterator<Token> {
-      const tree = this.getTree(text);
-      yield* this.tokenizeNode(tree.rootNode);
+  public *generateTokens(tokenizableFile: AstFile<Tree>): IterableIterator<Token> {
+    yield* this.tokenizeNode(tokenizableFile.astTree.rootNode);
+  }
+
+  private *tokenizeNode(node: SyntaxNode): IterableIterator<Token> {
+    const location = new Region(
+      node.startPosition.row,
+      node.startPosition.column,
+      node.endPosition.row,
+      node.endPosition.column
+    );
+
+    yield this.newToken("(", location);
+
+    // "(node.type child1 child2 ...)"
+    yield this.newToken(node.type, location);
+
+    for (const child of node.namedChildren) {
+      yield* this.tokenizeNode(child);
     }
-
-    private *tokenizeNode(node: SyntaxNode): IterableIterator<Token> {
-      const location = new Region(
-        node.startPosition.row,
-        node.startPosition.column,
-        node.endPosition.row,
-        node.endPosition.column
-      );
-
-      yield this.newToken("(", location);
-
-      // "(node.type child1 child2 ...)"
-      yield this.newToken(node.type, location);
-
-      for (const child of node.namedChildren) {
-        yield* this.tokenizeNode(child);
-      }
-      yield this.newToken(")", location);
-    }
+    yield this.newToken(")", location);
+  }
 }

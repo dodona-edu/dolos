@@ -6,8 +6,9 @@ import { TokenizedFile } from "../file/tokenizedFile";
 import { PairedOccurrence, ASTRegion } from "./pairedOccurrence";
 import { Range } from "../util/range";
 import { Options } from "../util/options";
-import { SharedFingerprint } from "./sharedFingerprint";
+import { SharedWinnowingFingerprint } from "./sharedWinnowingFingerprint";
 import { closestMatch } from "../util/utils";
+import { AstFileNullable } from "../outputFormat/outputFormat";
 
 type Hash = number;
 
@@ -23,6 +24,7 @@ export interface Occurrence {
   side: ASTRegion;
 }
 
+// TODO should extend Report interface
 export class WinnowingReport {
 
   // computed list of scored pairs,
@@ -30,13 +32,13 @@ export class WinnowingReport {
   private scored?: Array<ScoredPairs>;
 
   // collection of all shared fingerprints
-  private fingerprints: Map<Hash, SharedFingerprint> = new Map();
+  private fingerprints: Map<Hash, SharedWinnowingFingerprint> = new Map();
 
-  private readonly fileSet: Set<TokenizedFile>;
+  private readonly fileSet: Set<AstFileNullable>;
 
   constructor(
     public readonly options: Options,
-    files: TokenizedFile[],
+    files: AstFileNullable[],
   ) {
     this.fileSet = new Set(files);
   }
@@ -45,7 +47,7 @@ export class WinnowingReport {
     assert(parts.length > 0);
     let fingerprint = this.fingerprints.get(hash);
     if(!fingerprint) {
-      fingerprint = new SharedFingerprint(hash, parts[0].side.data);
+      fingerprint = new SharedWinnowingFingerprint(hash, parts[0].side.data);
       this.fingerprints.set(hash, fingerprint);
     }
     fingerprint.addAll(parts);
@@ -104,7 +106,7 @@ export class WinnowingReport {
     }
   }
 
-  public sharedFingerprints(): Array<SharedFingerprint> {
+  public sharedFingerprints(): Array<SharedWinnowingFingerprint> {
     return Array.of(...this.fingerprints.values());
   }
 
@@ -165,7 +167,7 @@ export class WinnowingReport {
       .flat();
   }
 
-  public files(): TokenizedFile[] {
+  public files(): AstFileNullable[] {
     return Array.of(...this.fileSet);
   }
 

@@ -3,7 +3,7 @@ import { File } from "../lib/file/file";
 import { TokenizedFile } from "../lib/file/tokenizedFile";
 import { Pair } from "../lib/analyze/pair";
 import { Region } from "../lib/util/region";
-import { SharedFingerprint } from "../lib/analyze/sharedFingerprint";
+import { SharedWinnowingFingerprint } from "../lib/analyze/sharedWinnowingFingerprint";
 import { PairedOccurrence } from "../lib/analyze/pairedOccurrence";
 
 function createFakeFile(name: string): TokenizedFile {
@@ -23,7 +23,7 @@ function createPair(): Pair {
 test("paired occurrence merging & squashing", t => {
   const int = createPair();
 
-  let kgram = new SharedFingerprint(1, "kgram 1".split(" "));
+  let kgram = new SharedWinnowingFingerprint(1, "kgram 1".split(" "));
   const biggerTopLeft = [];
   // bigger match
   for(let i = 0; i < 10; i++) {
@@ -50,7 +50,7 @@ test("paired occurrence merging & squashing", t => {
   }
 
   // contained match
-  kgram = new SharedFingerprint(2, "kgram 2".split(" "));
+  kgram = new SharedWinnowingFingerprint(2, "kgram 2".split(" "));
   const topLeftContained = new PairedOccurrence(
     {
       index: 5,
@@ -73,7 +73,7 @@ test("paired occurrence merging & squashing", t => {
 
   // bigger match, same location
   const biggerMiddle = [];
-  kgram = new SharedFingerprint(3, "kgram 3".split(" "));
+  kgram = new SharedWinnowingFingerprint(3, "kgram 3".split(" "));
   for(let i = 0; i < 10; i++) {
     const match = new PairedOccurrence(
       {
@@ -99,7 +99,7 @@ test("paired occurrence merging & squashing", t => {
 
   // bigger match
   const  biggerBottomLeft = [];
-  kgram = new SharedFingerprint(4, "kgram 4".split(" "));
+  kgram = new SharedWinnowingFingerprint(4, "kgram 4".split(" "));
   for(let i = 0; i < 10; i++) {
     const match = new PairedOccurrence(
       {
@@ -124,7 +124,7 @@ test("paired occurrence merging & squashing", t => {
   }
 
   // contained match
-  kgram = new SharedFingerprint(5, "kgram 5".split(" "));
+  kgram = new SharedWinnowingFingerprint(5, "kgram 5".split(" "));
   const bottomLeftContained = new PairedOccurrence(
     {
       index: 25,
@@ -146,7 +146,7 @@ test("paired occurrence merging & squashing", t => {
   t.is(5, int.fragments().length);
 
   // match not contained
-  kgram = new SharedFingerprint(6, "kgram 6".split(" "));
+  kgram = new SharedWinnowingFingerprint(6, "kgram 6".split(" "));
   const notContained = new PairedOccurrence(
     {
       index: 5,

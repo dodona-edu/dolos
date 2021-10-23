@@ -9,19 +9,13 @@ import * as path from "path";
 import { Tokenizer } from "./lib/tokenizer/tokenizer";
 import { CharTokenizer } from "./lib/tokenizer/charTokenizer";
 import { default as fsWithCallbacks } from "fs";
-import { AstFile, OutputFormat } from "./lib/outputFormat/outputFormat";
+import { AstFile, AstFileNullable, OutputFormat } from "./lib/outputFormat/outputFormat";
 import { Fragment } from "./lib/analyze/fragment";
 import { CodeTokenizerFromAst } from "./lib/tokenizer/codeTokenizerFromAst";
+import { Tree } from "tree-sitter";
 const fs = fsWithCallbacks.promises;
 
-export { WinnowingReport, ScoredPairs } from "./lib/analyze/winnowingReport";
-export { Fragment } from "./lib/analyze/fragment";
-export { Region } from "./lib/util/region";
-export { Pair } from "./lib/analyze/pair";
-export { Options } from "./lib/util/options";
-
-
-function newTokenizer(language: string): Tokenizer {
+function newTokenizer(language: string): Tokenizer<File | AstFileNullable> {
   if (language == "chars") {
     return new CharTokenizer();
   } else if (CodeTokenizerTreeSitter.supportedLanguages.includes(language)) {
@@ -32,7 +26,7 @@ function newTokenizer(language: string): Tokenizer {
 
 export class Dolos {
   readonly options: Options;
-  private readonly tokenizer: Tokenizer;
+  private readonly tokenizer: Tokenizer<File | AstFileNullable>;
   private readonly index: WinnowingIndex;
 
   constructor(customOptions?: CustomOptions) {
@@ -89,8 +83,21 @@ export class Dolos {
     return this.index.compareFiles(files);
   }
 
-  public static async getFragments(outputFormat: OutputFormat, file1: AstFile, file2: AstFile): Promise<Fragment[]> {
-    const tokenizer = new CodeTokenizerFromAst([file1, file2]);
+  public static async getFragments(outputFormat: OutputFormat, file1: AstFileNullable, file2: AstFileNullable):
+      Promise<Fragment[]> {
+    let tokenizer;
+    if (outputFormat.metadata.language === "chars") {
+      tokenizer = new CharTokenizer();
+    } else {
+      if(file1.astTree && file2.astTree) {
+        tokenizer = new CodeTokenizerFromAst([
+          file1 as AstFile<Tree>,
+          file2 as AstFile<Tree>
+        ]);
+      } else {
+        throw Error("Files must contain non null ast trees!");
+      }
+    }
     const index = new WinnowingIndex(tokenizer, outputFormat.metadata);
     const hashWhitelist = new Set(outputFormat.fingerprints.map(fingerprint => fingerprint.fingerprint));
     const report = await index.compareFiles([file1, file2], hashWhitelist);

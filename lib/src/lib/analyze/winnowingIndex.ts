@@ -7,14 +7,16 @@ import { Tokenizer } from "../tokenizer/tokenizer";
 import { WinnowFilter } from "../hashing/winnowFilter";
 import { File } from "../file/file";
 import { WinnowingReport, Occurrence } from "./winnowingReport";
+import { AstFile, AstFileNullable } from "../outputFormat/outputFormat";
 
 type Hash = number;
 
+//TODO should extent Index interface
 export class WinnowingIndex {
   private readonly kgramLength: number;
   private readonly kgramsInWindow: number;
   private readonly index: Map<Hash, Array<Occurrence>> = new Map();
-  private readonly tokenizer: Tokenizer;
+  private readonly tokenizer: Tokenizer<File | AstFileNullable>;
   private readonly hashFilter: HashFilter;
 
   /**
@@ -32,7 +34,7 @@ export class WinnowingIndex {
    * the rolling hashing function.
    */
   constructor(
-    tokenizer: Tokenizer,
+    tokenizer: Tokenizer<File | AstFileNullable>,
     private readonly options: Options = new Options(),
     hashFilter?: HashFilter,
   ) {
@@ -63,8 +65,10 @@ export class WinnowingIndex {
     hashFilter = this.hashFilter
   ): Promise<WinnowingReport> {
 
-    const tokenizedFiles = files.map(f => this.tokenizer.tokenizeFile(f));
-    const report = new WinnowingReport(this.options, tokenizedFiles);
+    const tokenizableFiles = files.map(f => this.tokenizer.toTokenizableFile(f));
+    const tokenizedFiles = tokenizableFiles.map(f => this.tokenizer.tokenizeFile(f));
+
+    const report = new WinnowingReport(this.options, tokenizableFiles.map(f => AstFile.FromFile(f)));
 
     for (const file of tokenizedFiles) {
       let kgram = 0;

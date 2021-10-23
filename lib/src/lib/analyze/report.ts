@@ -1,9 +1,10 @@
 import { ScoredPairs } from "./winnowingReport";
-import { TokenizedFile } from "../file/tokenizedFile";
 import { Options } from "../util/options";
+import { AstFileNullable, SharedFingerprint } from "../outputFormat/outputFormat";
 
 export interface Report {
     get scoredPairs(): Array<ScoredPairs>;
-    get files(): TokenizedFile[];
+    get files(): AstFileNullable[];
     readonly options: Options;
+    sharedFingerprints(): Array<SharedFingerprint>
 }

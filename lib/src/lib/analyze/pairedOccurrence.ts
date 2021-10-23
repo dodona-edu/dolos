@@ -1,4 +1,4 @@
-import { SharedFingerprint } from "./sharedFingerprint";
+import { SharedWinnowingFingerprint } from "./sharedWinnowingFingerprint";
 import { Region } from "../util/region";
 
 /**
@@ -38,7 +38,7 @@ export class PairedOccurrence {
   constructor(
     public readonly left: ASTRegion,
     public readonly right: ASTRegion,
-    public readonly fingerprint: SharedFingerprint
+    public readonly fingerprint: SharedWinnowingFingerprint
   ) {
   }
 }
