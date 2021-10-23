@@ -11,7 +11,7 @@ import { default as fsWithCallbacks } from "fs";
 import { ExchangeData } from "./lib/outputFormat/exchangeData";
 import { Fragment } from "./lib/analyze/fragment";
 import { CodeTokenizerFromAst } from "./lib/tokenizer/codeTokenizerFromAst";
-import { AstFileNullable, AstFileTree } from "./lib/outputFormat/astFile";
+import { AstFileNullable, AstFileNotNull } from "./lib/outputFormat/astFile";
 import { Report } from "./lib/analyze/report";
 import { Index } from "./lib/analyze/Index";
 const fs = fsWithCallbacks.promises;
@@ -92,8 +92,8 @@ export class Dolos {
     } else {
       if(file1.astTree && file2.astTree) {
         tokenizer = new CodeTokenizerFromAst([
-          file1 as AstFileTree,
-          file2 as AstFileTree
+          file1 as AstFileNotNull,
+          file2 as AstFileNotNull
         ]);
       } else {
         throw Error("Files must contain non null ast trees!");

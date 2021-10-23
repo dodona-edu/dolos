@@ -19,4 +19,4 @@ export class AstFile<T extends Tree | null> extends File {
 }
 
 export type AstFileNullable = AstFile<Tree | null>;
-export type AstFileTree = AstFile<Tree>;
+export type AstFileNotNull = AstFile<Tree>;

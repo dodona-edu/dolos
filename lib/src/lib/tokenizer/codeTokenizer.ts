@@ -1,9 +1,9 @@
 import { SyntaxNode } from "tree-sitter";
 import { Token, Tokenizer } from "./tokenizer";
 import { Region } from "../util/region";
-import { AstFileTree } from "../outputFormat/astFile";
+import { AstFileNotNull } from "../outputFormat/astFile";
 
-export abstract class CodeTokenizer extends Tokenizer<AstFileTree> {
+export abstract class CodeTokenizer extends Tokenizer<AstFileNotNull> {
 
   /**
      * Runs the parser on a given string. Returns an async iterator returning
@@ -12,7 +12,7 @@ export abstract class CodeTokenizer extends Tokenizer<AstFileTree> {
      *
      * @param tokenizableFile A tokenizable file for which the contents should be tokenized
      */
-  public *generateTokens(tokenizableFile: AstFileTree): IterableIterator<Token> {
+  public *generateTokens(tokenizableFile: AstFileNotNull): IterableIterator<Token> {
     yield* this.tokenizeNode(tokenizableFile.astTree.rootNode);
   }
 
