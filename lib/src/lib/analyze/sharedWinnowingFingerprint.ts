@@ -3,7 +3,7 @@ import { DefaultMap } from "../util/defaultMap";
 import { TokenizedFile } from "../file/tokenizedFile";
 import Identifiable from "../util/identifiable";
 
-export class SharedFingerprint extends Identifiable {
+export class SharedWinnowingFingerprint extends Identifiable {
 
   private partMap: DefaultMap<TokenizedFile, Set<Occurrence>>
     = new DefaultMap(() => new Set());
