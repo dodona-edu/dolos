@@ -115,7 +115,7 @@ async function anonymizeCsv(
       if (replacementName) {
         const newFilename = row[0].replace(/^[^/]*/, replacementName);
 
-        const newRow = [newFilename, "", "", "", "", "", "", ...row.slice(7)];
+        const newRow = [newFilename, "", "", "", "", replacementName, "", ...row.slice(7)];
         anonymizedData.push(newRow);
       }
     } else {
