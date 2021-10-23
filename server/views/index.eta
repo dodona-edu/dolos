@@ -43,9 +43,12 @@
         </div>
     </form>
     <h4>Look at previous reports</h4>
+    <ul>
     <% for(let report of it.reports) { %>
-    <a href="./reports/<%= report %>"><%= report %></a>
+    <li><a href="./reports/<%= report %>"><%= report %></a></li>
     <% } %>
+
+    </ul>
 
 </div>
 </body>

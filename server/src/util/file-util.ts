@@ -128,7 +128,7 @@ async function anonymizeCsv(
 }
 
 
-function generateName() {
+function generateName(): string {
   return uniqueNamesGenerator({
     separator: "-",
     dictionaries: [adjectives, colors, names],
