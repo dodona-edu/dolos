@@ -94,7 +94,6 @@ export class FileView extends View {
         "id": s => s.id,
         "hash": s => s.fingerprint,
         "data": s => s.data,
-        // "data": s => s.kgram?.join(" ") || null,
         "files": s => JSON.stringify(s.fileIds)
       });
   }
@@ -107,7 +106,7 @@ export class FileView extends View {
         "id": f => f.id,
         "path": f => f.path,
         "content": f => f.content,
-        "ast": f => JSON.stringify(f.tree),
+        "ast": f => JSON.stringify(f.astTree),
         "extra": f => JSON.stringify(f.extra)
       });
   }
