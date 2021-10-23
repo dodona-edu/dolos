@@ -7,8 +7,9 @@ import { Tokenizer } from "../tokenizer/tokenizer";
 import { WinnowFilter } from "../hashing/winnowFilter";
 import { File } from "../file/file";
 import { WinnowingReport, Occurrence } from "./winnowingReport";
-import { AstFile, AstFileNullable } from "../outputFormat/outputFormat";
+import { AstFileNullable } from "../outputFormat/outputFormat";
 import { Index } from "./Index";
+import {AstFile} from "../outputFormat/astFile";
 
 type Hash = number;
 

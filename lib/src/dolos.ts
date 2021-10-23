@@ -9,10 +9,10 @@ import * as path from "path";
 import { Tokenizer } from "./lib/tokenizer/tokenizer";
 import { CharTokenizer } from "./lib/tokenizer/charTokenizer";
 import { default as fsWithCallbacks } from "fs";
-import { AstFile, AstFileNullable, OutputFormat } from "./lib/outputFormat/outputFormat";
+import { OutputFormat } from "./lib/outputFormat/outputFormat";
 import { Fragment } from "./lib/analyze/fragment";
 import { CodeTokenizerFromAst } from "./lib/tokenizer/codeTokenizerFromAst";
-import { Tree } from "tree-sitter";
+import { AstFileNullable, AstFileTree } from "./lib/outputFormat/astFile";
 const fs = fsWithCallbacks.promises;
 
 function newTokenizer(language: string): Tokenizer<File | AstFileNullable> {
@@ -91,8 +91,8 @@ export class Dolos {
     } else {
       if(file1.astTree && file2.astTree) {
         tokenizer = new CodeTokenizerFromAst([
-          file1 as AstFile<Tree>,
-          file2 as AstFile<Tree>
+          file1 as AstFileTree,
+          file2 as AstFileTree
         ]);
       } else {
         throw Error("Files must contain non null ast trees!");

@@ -1,10 +1,9 @@
 import { SyntaxNode } from "tree-sitter";
 import { Token, Tokenizer } from "./tokenizer";
 import { Region } from "../util/region";
-import { AstFile } from "../outputFormat/outputFormat";
-import { Tree } from "tree-sitter";
+import { AstFileTree } from "../outputFormat/astFile";
 
-export abstract class CodeTokenizer extends Tokenizer<AstFile<Tree>> {
+export abstract class CodeTokenizer extends Tokenizer<AstFileTree> {
 
   // /**
   //  * Runs the parser on a given string. Returns a stringified version of the
@@ -24,7 +23,7 @@ export abstract class CodeTokenizer extends Tokenizer<AstFile<Tree>> {
      *
      * @param tokenizableFile A tokenizable file for which the contents should be tokenized
      */
-  public *generateTokens(tokenizableFile: AstFile<Tree>): IterableIterator<Token> {
+  public *generateTokens(tokenizableFile: AstFileTree): IterableIterator<Token> {
     yield* this.tokenizeNode(tokenizableFile.astTree.rootNode);
   }
 

@@ -36,16 +36,6 @@ export abstract class Tokenizer<TokenizableFile extends File> {
 
   public abstract toTokenizableFile(file: File): TokenizableFile;
 
-  //TODO delete?
-  // /**
-  //  * Returns a stringified version of the tokens in the buffer
-  //  *
-  //  * @param text The buffer to stringify
-  //  */
-  // public tokenize(text: string): string {
-  //   return Array.of(...this.generateTokens(text)).join();
-  // }
-
   /**
    * Runs the stringifier on a given buffer. Returns a tuple containing the
    * stringified version and an array containing a mapping from each token to
