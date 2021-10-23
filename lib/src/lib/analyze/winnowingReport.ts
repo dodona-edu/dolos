@@ -8,7 +8,8 @@ import { Range } from "../util/range";
 import { Options } from "../util/options";
 import { SharedWinnowingFingerprint } from "./sharedWinnowingFingerprint";
 import { closestMatch } from "../util/utils";
-import { AstFileNullable } from "../outputFormat/outputFormat";
+import { AstFileNullable, SharedFingerprint } from "../outputFormat/outputFormat";
+import { Report } from "./report";
 
 type Hash = number;
 
@@ -24,8 +25,7 @@ export interface Occurrence {
   side: ASTRegion;
 }
 
-// TODO should extend Report interface
-export class WinnowingReport {
+export class WinnowingReport implements Report {
 
   // computed list of scored pairs,
   // only defined after finished() is called
@@ -106,8 +106,13 @@ export class WinnowingReport {
     }
   }
 
-  public sharedFingerprints(): Array<SharedWinnowingFingerprint> {
-    return Array.of(...this.fingerprints.values());
+  public sharedFingerprints(): Array<SharedFingerprint> {
+    return Array.of(...this.fingerprints.values()).map(swf => ({
+      id: swf.id,
+      fingerprint: swf.hash,
+      fileIds: swf.files().map(f => f.id),
+      data: swf.kgram?.join(" ") || null
+    }));
   }
 
   /**
@@ -167,7 +172,7 @@ export class WinnowingReport {
       .flat();
   }
 
-  public files(): AstFileNullable[] {
+  public get files(): Array<AstFileNullable> {
     return Array.of(...this.fileSet);
   }
 

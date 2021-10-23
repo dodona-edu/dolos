@@ -33,7 +33,7 @@ export class TerminalView extends View {
 
     super();
     this.compare = options.compare == undefined
-      ? report.files().length == 2
+      ? report.files.length == 2
       : options.compare;
     this.output = process.stdout;
     this.width = process.stdout.columns;

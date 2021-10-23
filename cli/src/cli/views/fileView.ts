@@ -92,21 +92,22 @@ export class FileView extends View {
       this.report.sharedFingerprints(),
       {
         "id": s => s.id,
-        "hash": s => s.hash,
-        "data": s => s.kgram?.join(" ") || null,
-        "files": s => JSON.stringify(s.files().map(f => f.id))
+        "hash": s => s.fingerprint,
+        "data": s => s.data,
+        // "data": s => s.kgram?.join(" ") || null,
+        "files": s => JSON.stringify(s.fileIds)
       });
   }
 
   public writeFiles(out: Writable): void {
     writeCSVto(
       out,
-      this.report.files(),
+      this.report.files,
       {
         "id": f => f.id,
         "path": f => f.path,
         "content": f => f.content,
-        "ast": f => f.ast.join(" "),
+        "ast": f => JSON.stringify(f.tree),
         "extra": f => JSON.stringify(f.extra)
       });
   }

@@ -8,11 +8,11 @@ import { WinnowFilter } from "../hashing/winnowFilter";
 import { File } from "../file/file";
 import { WinnowingReport, Occurrence } from "./winnowingReport";
 import { AstFile, AstFileNullable } from "../outputFormat/outputFormat";
+import { Index } from "./Index";
 
 type Hash = number;
 
-//TODO should extent Index interface
-export class WinnowingIndex {
+export class WinnowingIndex implements Index {
   private readonly kgramLength: number;
   private readonly kgramsInWindow: number;
   private readonly index: Map<Hash, Array<Occurrence>> = new Map();
