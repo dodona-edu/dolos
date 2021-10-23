@@ -6,15 +6,15 @@ import { devAssert } from "./util/development-util";
 import { anonymizeDirectory, collectFilesRecursively, unzip } from "./util/file-util";
 
 
-export async function analyze(sourceZipPath: string): Promise<void> {
+export async function analyze(sourceZipPath: string, anonymize = true): Promise<void> {
   devAssert(() => fsWithCallbacks.existsSync(sourceZipPath), "This file does not exist.");
 
   const targetPath = path.join(sourceZipPath, "..", unzippedPath);
   await unzip(sourceZipPath, targetPath);
-  await anonymizeDirectory(targetPath);
+  if(anonymize)
+    await anonymizeDirectory(targetPath);
 
   const applicableFiles = await collectFilesRecursively(targetPath);
-  console.log("files: ", applicableFiles);
   await analyzeByDolos(applicableFiles, path.join(sourceZipPath, "../..", resultFiles));
 }
 

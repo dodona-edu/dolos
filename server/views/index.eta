@@ -17,18 +17,26 @@
     <form action="/upload" method="post" encType="multipart/form-data">
         <h4>Upload & analyze</h4>
         <div>
-        <label for="name">
-            Upload name:
-        </label>
-        <input type="text" name="name">
+          <label for="name">
+              Upload name:
+          </label>
+          <input type="text" name="name">
         </div>
+
         <div>
-        <label for="zip">
-            Upload a Dodona export zip:
-        </label>
-        <input type="file" id="zip" name="zip"
-            
-            accept="application/zip, application/octet-stream, application/x-zip-compressed, multipart/x-zip">
+          <label for="zip">
+              Upload a Dodona export zip:
+          </label>
+          <input type="file" id="zip" name="zip"
+              
+              accept="application/zip, application/octet-stream, application/x-zip-compressed, multipart/x-zip">
+        </div>
+
+        <div>
+          <label for="zip">
+              Anonymize the directory?
+          </label>
+          <input type="checkbox" id="anonymize" name="anonymize" checked/>
         </div>
         <div>
             <input type="submit" value="Analyze">

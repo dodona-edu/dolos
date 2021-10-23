@@ -55,7 +55,7 @@ app.post<{ name: string }>("/upload", async (req, res) => {
   const zipfile = req.files.zip as UploadedFile;
   await zipfile.mv(path.join(destination, sourceZipName));
 
-  analyze(path.join(destination, sourceZipName));
+  analyze(path.join(destination, sourceZipName), req.body.anonymize || false);
   return res.status(202).send("File uploaded, will be analyzed. <a href='../'>Back to home</a>");
 });
 

@@ -74,6 +74,7 @@ export async function anonymizeDirectory(folder: string): Promise<void> {
   );
 
   const idMap = new Map();
+  const usedNames = new Set();
 
   const contents = await fs.readdir(folder);
   for (const content of contents) {
@@ -81,15 +82,14 @@ export async function anonymizeDirectory(folder: string): Promise<void> {
     const stat = await fs.stat(absPath);
 
     if (stat.isDirectory()) {
-      if (!idMap.has(content))
-        idMap.set(
-          content,
-          uniqueNamesGenerator({
-            separator: "-",
-            dictionaries: [adjectives, colors, names],
-            length: 2
-          })
-        );
+      if (!idMap.has(content)) {
+        let name = generateName();
+        while (name in usedNames)
+          name = generateName();
+
+        idMap.set(content, name);
+        usedNames.add(name);
+      }
 
       await fs.rename(absPath, path.join(folder, idMap.get(content)));
     }
@@ -125,4 +125,13 @@ async function anonymizeCsv(
 
   const newCsvData = await csv.stringify(anonymizedData);
   await fs.writeFile(path.join(folder, "info.csv"), newCsvData);
+}
+
+
+function generateName() {
+  return uniqueNamesGenerator({
+    separator: "-",
+    dictionaries: [adjectives, colors, names],
+    length: 2
+  });
 }
