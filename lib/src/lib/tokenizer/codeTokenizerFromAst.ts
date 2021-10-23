@@ -2,6 +2,7 @@ import { CodeTokenizer } from "./codeTokenizer";
 import { AstFile } from "../outputFormat/outputFormat";
 import { Tree } from "tree-sitter";
 
+// TODO doc
 export class CodeTokenizerFromAst extends CodeTokenizer {
   private contentsToAst: Map<string, Tree>;
 
