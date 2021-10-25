@@ -8,8 +8,7 @@
 
       <v-spacer></v-spacer>
     </v-expansion-panel-header>
-    <v-expansion-panel-content class="d-flex">
-      <div class="d-flex flex-column">
+    <v-expansion-panel-content>
         <div class="d-flex justify-space-between">
           <div>
             <div class="d-flex">
@@ -59,8 +58,6 @@
           </v-list-item>
         </ul>
 
-        <HeatMap :cluster="cluster"></HeatMap>
-      </div>
     </v-expansion-panel-content>
   </v-expansion-panel>
 </template>
