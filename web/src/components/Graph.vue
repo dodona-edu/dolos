@@ -1,85 +1,31 @@
 <!-- eslint-disable -->
 <template>
-  <v-container fluid fill-height>
-    <v-row style="height: 100%">
-      <v-col cols="12" class="no-y-padding">
-        <div ref="container" class="graph-container">
-          <form class="settings">
-            <p>
-              <label>
-                Similarity ≥ {{ cutoff }}<br />
-                <input
-                  type="range"
-                  min="0.25"
-                  max="1"
-                  step="0.01"
-                  v-model="cutoff"
-                />
-              </label>
-            </p>
-            <p>
-              <label
-                ><input type="checkbox" v-model="showSingletons" /> Display
-                singletons</label
-              >
-            </p>
-          </form>
-          <div class="node-selected">
-            <ul v-if="Object.values(legend).length > 1" class="legend">
-              <li
-                v-for="legendDatum of Object.values(legend).sort()"
-                :key="legendDatum.label"
-              >
-                <label
-                  ><input
-                    type="checkbox"
-                    v-model="legendDatum.selected"
-                    class="legend-checkbox"
-                    @change="updateGraph"
-                  />
-                  <span class="legend-label"
-                    ><span
-                      class="legend-color"
-                      :style="{
-                        'background-color': legendDatum.color,
-                      }"
-                    ></span>
-                    {{ legendDatum.label }}
-                  </span></label
-                >
-              </li>
-            </ul>
-
-            <!-- <span class="path">{{ selectedInfo.path }}</span> -->
-            <ul v-if="selectedInfo.info !== undefined">
-              <li v-if="selectedInfo.info.name !== undefined">Name: {{ selectedInfo.info.name }}</li>
-              <li>Timestamp: {{ selectedInfo.info.timestamp }}</li>
-              <li>Label: {{ selectedInfo.info.label }}</li>
-            </ul>
-          </div>
-        </div>
-      </v-col>
-    </v-row>
-  </v-container>
+  <div ref="container" class="graph-container">
+    <!-- Extra (optional) UI elements can be added to this container  -->
+    <slot></slot>
+  </div>
 </template>
 
 <script>
 /* eslint-disable */
 
-import { Component, Watch } from "vue-property-decorator";
+import { Component, Watch, Prop } from "vue-property-decorator";
 import DataView from "@/views/DataView";
 import * as d3 from "d3";
 
 @Component()
-export default class PlagarismGraph extends DataView {
-
+export default class PlagarismGraph {
   queryColorMap;
+  @Prop() files;
+  @Prop() pairs;
+  @Prop() cutoff;
+  @Prop() showSingletons;
 
   created() {
-    this.updateRoute()
+    this.updateRoute();
     const svg = d3.create("svg").attr("viewBox", [0, 0, 500, 500]);
     const container = svg.append("g");
-    d3.zoom().on("zoom", event => {
+    d3.zoom().on("zoom", (event) => {
       container.attr("transform", event.transform);
     })(svg);
     const defs = svg.append("svg:defs");
@@ -143,35 +89,13 @@ export default class PlagarismGraph extends DataView {
   }
   data() {
     return {
-      cutoff: 0.75,
       nodes: [],
       selectedNode: -1,
       links: [],
       width: 100,
       height: 100,
       legend: [],
-      showSingletons: false,
     };
-  }
-  get selectedInfo() {
-    if (this.selectedNode >= 0) {
-      const node = this.nodes[this.selectedNode];
-      const file = node.file;
-      return {
-        path: file.path,
-        info: {
-          file: file.path,
-          name: file.extra.full_name || "Unavailable",
-          timestamp: file.extra.timestamp.toLocaleString() || "Unavailable",
-          label: file.extra.labels || "Unavailable",
-        },
-      };
-    } else {
-      return {
-        path: "Nothing selected",
-        info: undefined,
-      };
-    }
   }
 
   @Watch("$route")
@@ -179,8 +103,7 @@ export default class PlagarismGraph extends DataView {
     this.queryColorMap = this.getQueryColorMap();
     this.cutoff = this.$route.query.cutoff || 0.25;
 
-    if(this.resizeHandler)
-      this.resizeHandler();
+    if (this.resizeHandler) this.resizeHandler();
   }
 
   @Watch("width")
@@ -257,7 +180,7 @@ export default class PlagarismGraph extends DataView {
         }
       });
       this.removeSelectedNode();
-      this.nodes = Object.values(nodeMap).filter(n => n.visible);
+      this.nodes = Object.values(nodeMap).filter((n) => n.visible);
       if (!this.showSingletons) {
         this.nodes = this.nodes.filter((n) => n.neighbors.length);
       }
@@ -273,9 +196,10 @@ export default class PlagarismGraph extends DataView {
           }
         });
         node.source = outgoing > 1 && incoming === 0;
-        node.fillColor = this.queryColorMap?.has(+node.id) ? this.queryColorMap.get(+node.id) : labels[node.label].color;
+        node.fillColor = this.queryColorMap?.has(+node.id)
+          ? this.queryColorMap.get(+node.id)
+          : labels[node.label].color;
       });
-
     }, 50);
   }
   removeSelectedNode() {
@@ -286,8 +210,9 @@ export default class PlagarismGraph extends DataView {
     }
   }
   getRawNodeMap() {
-    if (!this.dataLoaded) return {};
     if (this._nodeMap) return this._nodeMap;
+    if (Object.entries(this.files).length == 0) return {};
+
     const nodeMap = {};
     let labels = new Set();
     Object.entries(this.files).forEach(([key, value]) => {
@@ -319,11 +244,11 @@ export default class PlagarismGraph extends DataView {
 
   getQueryColorMap() {
     const map = new Map();
-    const {cutoff, ...colors} = this.$route.query;
+    const { cutoff, ...colors } = this.$route.query;
 
-    for(const [color, nodelist] of Object.entries(colors)) {
-      const ids = nodelist.split(",").map(v => +v);
-      ids.forEach(v => map.set(v, color));
+    for (const [color, nodelist] of Object.entries(colors)) {
+      const ids = nodelist.split(",").map((v) => +v);
+      ids.forEach((v) => map.set(v, color));
     }
 
     return map;
@@ -356,13 +281,33 @@ export default class PlagarismGraph extends DataView {
     this.simulation.force("link").links(this.links);
   }
 
-  mounted() {
-    // @ts-ignore
-    (async () => {
-      if (!this.dataLoaded) await this.ensureData();
-      this.updateSimulation();
-    })();
+  get selectedInfo() {
+    if (this.selectedNode >= 0) {
+      const node = this.nodes[this.selectedNode];
+      const file = node.file;
+      return {
+        path: file.path,
+        info: {
+          file: file.path,
+          name: file.extra.full_name || "Unavailable",
+          timestamp: file.extra.timestamp?.toLocaleString() || "Unavailable",
+          label: file.extra.labels || "Unavailable",
+        },
+      };
+    } else {
+      return {
+        path: "Nothing selected",
+        info: undefined,
+      };
+    }
+  }
 
+  @Watch("selectedNode")
+  emitInfo() {
+    this.$emit("selectedInfo", this.selectedInfo);
+  }
+
+  mounted() {
     this.$refs.container.appendChild(this.svg.node());
     this.resizeHandler();
   }
@@ -370,18 +315,18 @@ export default class PlagarismGraph extends DataView {
   drag() {
     return d3
       .drag()
-      .on("start", event => {
+      .on("start", (event) => {
         if (!event.active) this.simulation.alphaTarget(0.3).restart();
         event.subject.fx = event.subject.x;
         event.subject.fy = event.subject.y;
         event.subject.justDragged = false;
       })
-      .on("drag", event => {
+      .on("drag", (event) => {
         event.subject.fx = event.x;
         event.subject.fy = event.y;
         event.subject.justDragged = true;
       })
-      .on("end", event => {
+      .on("end", (event) => {
         if (!event.active) this.simulation.alphaTarget(0);
         event.subject.fx = null;
         event.subject.fy = null;
@@ -400,7 +345,7 @@ export default class PlagarismGraph extends DataView {
   }
 
   toCompareView(diff) {
-    this.$router.push(`/compare/${diff.id}`)
+    this.$router.push(`/compare/${diff.id}`);
   }
 
   destroyed() {
@@ -484,7 +429,7 @@ export default class PlagarismGraph extends DataView {
         marker-mid: url(#arrow-marker);
       }
       &:hover {
-         cursor: pointer;
+        cursor: pointer;
       }
     }
   }

@@ -65,6 +65,7 @@ import HeatMap from "./HeatMap.vue";
 @Component({ components: { HeatMap } })
 export default class DataTab extends Vue {
   @Prop() cluster!: Cluster;
+  @Prop() cutoff!: number;
 
   averageSimilarity(cluster: Cluster): string {
     return getAverageClusterSimilarity(cluster).toFixed(2);
