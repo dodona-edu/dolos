@@ -100,7 +100,7 @@ export class WinnowingReportBuilder implements ReportBuilder {
     return {
       files: this.files,
       scoredPairs: this.scoredPairs,
-      fingerprints: this.sharedFingerprints(),
+      sharedFingerprints: this.sharedFingerprints(),
       metadata: this.options
     } as Report;
   }

@@ -5,7 +5,7 @@ import UI from "cliui";
 import chalk from "chalk";
 import { Writable } from "stream";
 import { closestMatch } from "../../lib/util/utils";
-import { Report, ScoredPairs } from "@dodona/dolos-lib";
+import { Report, ScoredPair } from "@dodona/dolos-lib";
 import { Fragment } from "@dodona/dolos-lib";
 import { Region } from "@dodona/dolos-lib";
 
@@ -56,7 +56,7 @@ export class TerminalView extends View {
     this.ui.resetOutput();
   }
 
-  private writePairs(pairs: Array<ScoredPairs>): void {
+  private writePairs(pairs: Array<ScoredPair>): void {
     const maxOver = Math.max(...pairs.map(s => s.overlap));
     const overlapWidth = Math.max(15, Math.trunc(Math.log10(maxOver + 1)) + 2);
     const similarityWidth = 12;
@@ -122,7 +122,7 @@ export class TerminalView extends View {
   }
 
   private writePairWithComparison(
-    { pair, overlap, similarity }: ScoredPairs
+    { pair, overlap, similarity }: ScoredPair
   ): void {
     const leftLines = pair.leftFile.lines;
     const rightLines = pair.rightFile.lines;

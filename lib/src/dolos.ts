@@ -99,7 +99,7 @@ export class Dolos {
       }
     }
     const index = new WinnowingIndex(tokenizer, outputFormat.metadata);
-    const hashWhitelist = new Set(outputFormat.fingerprints.map(fingerprint => fingerprint.fingerprint));
+    const hashWhitelist = new Set(outputFormat.sharedFingerprints.map(fingerprint => fingerprint.fingerprint));
     const report = await index.compareFiles([file1, file2], hashWhitelist);
     const reportPair = report.scoredPairs[0];
     return reportPair.pair.fragments();

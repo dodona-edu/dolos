@@ -6,7 +6,7 @@ export interface Report {
    files: AstFileNullable[],
    scoredPairs: ScoredPair[],
    metadata: Options,
-   fingerprints: SharedFingerprint[]
+   sharedFingerprints: SharedFingerprint[]
 }
 
 

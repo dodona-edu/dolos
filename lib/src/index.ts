@@ -4,4 +4,5 @@ export { Region } from "./lib/util/region";
 export { Pair } from "./lib/analyze/pair";
 export { Options } from "./lib/util/options";
 export { Dolos } from "./dolos";
-export { ReportBuilder } from "./lib/analyze/reportBuilder";
+export { Report } from "./lib/analyze/report";
+

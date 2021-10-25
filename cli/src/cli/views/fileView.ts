@@ -41,7 +41,7 @@ export class FileView extends View {
       options.outputDestination || `dolos-report-${ new Date().toISOString().replace(/[.:-]/g, "") }`;
   }
 
-  private convertFragmentsToJSON(fragments: Fragment[]): string {
+  private static convertFragmentsToJSON(fragments: Fragment[]): string {
     return JSON.stringify(fragments.map( fragment => {
       return {
         leftSelection: fragment.leftSelection,
@@ -67,7 +67,7 @@ export class FileView extends View {
   }
 
   public async writeFragments(out: promises.FileHandle, pair: Pair): Promise<void> {
-    await out.write(this.convertFragmentsToJSON(pair.fragments()));
+    await out.write(FileView.convertFragmentsToJSON(pair.fragments()));
   }
 
   public writePairs(out: Writable): void {
@@ -89,7 +89,7 @@ export class FileView extends View {
   public writekgrams(out: Writable): void {
     writeCSVto(
       out,
-      this.report.sharedFingerprints(),
+      this.report.sharedFingerprints,
       {
         "id": s => s.id,
         "hash": s => s.fingerprint,
@@ -106,13 +106,13 @@ export class FileView extends View {
         "id": f => f.id,
         "path": f => f.path,
         "content": f => f.content,
-        "ast": f => JSON.stringify(f.astTree),
+        "ast": f => JSON.stringify(f.ast),
         "extra": f => JSON.stringify(f.extra)
       });
   }
 
   public writeMetadata(out: Writable): void {
-    const metaData = this.report.options.asObject();
+    const metaData = this.report.metadata.asObject();
     writeCSVto(
       out,
       Object.entries(metaData),
