@@ -5,7 +5,7 @@ import { File } from "../file/file";
 import { Tree } from "tree-sitter";
 
 export class AstFile<T extends Tree | null> extends File {
-  constructor(file: File, public readonly astTree: T) {
+  constructor(file: File, public readonly ast: T) {
     super(file.path, file.content, file.extra);
   }
 

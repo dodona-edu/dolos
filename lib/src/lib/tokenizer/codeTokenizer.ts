@@ -13,7 +13,7 @@ export abstract class CodeTokenizer extends Tokenizer<AstFileNotNull> {
      * @param tokenizableFile A tokenizable file for which the contents should be tokenized
      */
   public *generateTokens(tokenizableFile: AstFileNotNull): IterableIterator<Token> {
-    yield* this.tokenizeNode(tokenizableFile.astTree.rootNode);
+    yield* this.tokenizeNode(tokenizableFile.ast.rootNode);
   }
 
   private *tokenizeNode(node: SyntaxNode): IterableIterator<Token> {

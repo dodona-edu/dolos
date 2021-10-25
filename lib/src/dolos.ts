@@ -90,7 +90,7 @@ export class Dolos {
     if (outputFormat.metadata.language === "chars") {
       tokenizer = new CharTokenizer();
     } else {
-      if(file1.astTree && file2.astTree) {
+      if(file1.ast && file2.ast) {
         tokenizer = new CodeTokenizerFromAst([
           file1 as AstFileNotNull,
           file2 as AstFileNotNull
