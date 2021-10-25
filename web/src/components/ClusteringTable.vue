@@ -29,7 +29,7 @@
 </style>
 
 <script lang="ts">
-import ClusteringCard from "@/components/ClusteringCard.vue";
+import ClusteringCard from "@/components/clustering/ClusteringCard.vue";
 import {
   getAverageClusterSimilarity,
   getClusterElements
