@@ -6,11 +6,17 @@
       </div>
     </v-expansion-panel-header>
     <v-expansion-panel-content>
+<<<<<<< HEAD
       <v-tabs right v-model="activeTab">
         <v-tab :key="1">
           <a class="no-markup" target="_blank" :href="`../?showIds=${pairViewItems(cluster)}`">Pair view</a>
         </v-tab>
         <v-tab-item ></v-tab-item>
+=======
+      <v-tabs right>
+        <v-tab>Similarity Data</v-tab>
+        <v-tab-item> <DataTab :cluster="cluster" :cutoff="cutoff"/> </v-tab-item>
+>>>>>>> 05cfdeb (Refactoring the Graph.vue component to be more abstract, which should enable reuse on the cluster screen)
 
         <div class="empty-space"></div>
 
