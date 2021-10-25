@@ -104,6 +104,12 @@ export default class PlagarismGraph {
     if (this.resizeHandler) this.resizeHandler();
   }
 
+  @Watch("$refs.container")
+  updateSize() {
+    console.log("refs");
+    this.resizeHandler();
+  }
+
   @Watch("width")
   @Watch("height")
   updateSize() {
@@ -121,6 +127,8 @@ export default class PlagarismGraph {
   @Watch("files")
   @Watch("showSingletons")
   updateGraph() {
+    setTimeout(() => this.resizeHandler(), 50);
+
     if (this.delayUpdateGraph >= 0) clearTimeout(this.delayUpdateGraph);
     this.delayUpdateGraph = setTimeout(() => {
       this.delayUpdateGraph = -1;
