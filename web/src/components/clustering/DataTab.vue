@@ -26,10 +26,6 @@
         </ul>
       </div>
 
-      <div>
-        <v-btn @click="graphView(cluster)">Graph view</v-btn>
-        <v-btn @click="pairView(cluster)">Pair view</v-btn>
-      </div>
     </div>
     <div class="d-flex">
       <v-icon>mdi-chevron-right</v-icon>
@@ -73,22 +69,6 @@ export default class DataTab extends Vue {
 
   getClusterElements(cluster: Cluster): Set<File> {
     return getClusterElements(cluster);
-  }
-
-  public graphView(cluster: Cluster): void {
-    const items = getClusterElementsArray(cluster)
-      .map((c) => c.id)
-      .join(",");
-
-    this.$router.push(`/graph?cutoff=${this.cutoff}&red=${items}`);
-  }
-
-  public pairView(cluster: Cluster): void {
-    const items = Array.from(cluster)
-      .map((v) => v.id)
-      .join(",");
-
-    this.$router.push(`/?showIds=${items}`);
   }
 }
 </script>

@@ -3,7 +3,7 @@
     <Graph
       :pairs="clusterPairs"
       :files="clusterFiles"
-      :cutoff="0"
+      :cutoff="cutoff"
     ></Graph>
   </div>
 </template>
@@ -24,6 +24,8 @@ export default class GraphTab extends DataView {
 
   clusterFiles: File[] = [];
   clusterPairs: Pair[] = [];
+
+  cutoff = 0;
 
   mounted(): void {
     this.ensureData();
