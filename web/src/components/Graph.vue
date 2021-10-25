@@ -101,8 +101,6 @@ export default class PlagarismGraph {
   @Watch("$route")
   updateRoute() {
     this.queryColorMap = this.getQueryColorMap();
-    this.cutoff = this.$route.query.cutoff || 0.25;
-
     if (this.resizeHandler) this.resizeHandler();
   }
 
@@ -209,6 +207,13 @@ export default class PlagarismGraph {
       this.selectedNode = -1;
     }
   }
+
+  @Watch("pairs")
+  @Watch("files")
+  clearCachedNodemap() {
+    this._nodeMap = null;
+  }
+
   getRawNodeMap() {
     if (this._nodeMap) return this._nodeMap;
     if (Object.entries(this.files).length == 0) return {};

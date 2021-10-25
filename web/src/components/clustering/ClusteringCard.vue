@@ -15,6 +15,9 @@
 
         <v-tab> Heatmap </v-tab>
         <v-tab-item> <HeatMap :cluster="cluster"/> </v-tab-item>
+
+        <v-tab> Cluster </v-tab>
+        <v-tab-item> <GraphTab :cluster="cluster"/> </v-tab-item>
       </v-tabs>
     </v-expansion-panel-content>
   </v-expansion-panel>
@@ -30,8 +33,9 @@ import {
 import { File } from "@/api/api";
 import HeatMap from "./HeatMap.vue";
 import DataTab from "./DataTab.vue";
+import GraphTab from "./GraphTab.vue";
 
-@Component({ components: { HeatMap, DataTab } })
+@Component({ components: { HeatMap, DataTab, GraphTab } })
 export default class ClusteringCard extends Vue {
   @Prop() cluster!: Cluster;
   @Prop() cutoff!: number;

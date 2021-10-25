@@ -72,7 +72,7 @@
 </template>
 
 <script lang="ts">
-import { Component } from "vue-property-decorator";
+import { Component, Watch } from "vue-property-decorator";
 import DataView from "@/views/DataView";
 import Graph from "../components/Graph.vue";
 
@@ -108,6 +108,11 @@ export default class PlagarismGraph extends DataView {
 
   private setSelectedInfo(v: SelectedInfo): void {
     this.selectedInfo = v;
+  }
+
+  @Watch("$route")
+  private onRouteChange(): void {
+    this.cutoff = +this.$route.query.cutoff || 0.25;
   }
 }
 </script>
