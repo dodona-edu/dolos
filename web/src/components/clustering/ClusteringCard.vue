@@ -11,7 +11,7 @@
     <v-expansion-panel-content>
       <v-tabs right>
         <v-tab>Similarity Data</v-tab>
-        <v-tab-item> <DataTab :cluster="cluster" /> </v-tab-item>
+        <v-tab-item> <DataTab :cluster="cluster" :cutoff="cutoff"/> </v-tab-item>
 
         <v-tab> Heatmap </v-tab>
         <v-tab-item> <HeatMap :cluster="cluster"/> </v-tab-item>
