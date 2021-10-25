@@ -3,6 +3,7 @@ import { Dolos } from "../dolos";
 import { File } from "../lib/file/file";
 import { Region } from "../lib/util/region";
 
+//TODO all these tests should be executed on a per index basis
 test("equal content should be a full match", async t => {
   const dolos = new Dolos();
   const content = `

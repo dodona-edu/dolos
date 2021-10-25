@@ -3,7 +3,7 @@ import { File } from "../lib/file/file";
 import { TokenizedFile } from "../lib/file/tokenizedFile";
 import { Pair } from "../lib/analyze/pair";
 import { Region } from "../lib/util/region";
-import { SharedWinnowingFingerprint } from "../lib/analyze/sharedWinnowingFingerprint";
+import { SharedWinnowingFingerprint } from "../lib/analyze/winnowing/sharedWinnowingFingerprint";
 import { PairedOccurrence } from "../lib/analyze/pairedOccurrence";
 
 function createFakeFile(name: string): TokenizedFile {

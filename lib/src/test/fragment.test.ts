@@ -4,7 +4,7 @@ import { Fingerprint } from "../lib/hashing/hashFilter";
 import { PairedOccurrence } from "../lib/analyze/pairedOccurrence";
 import { Fragment } from "../lib/analyze/fragment";
 import { Region } from "../lib/util/region";
-import { SharedWinnowingFingerprint } from "../lib/analyze/sharedWinnowingFingerprint";
+import { SharedWinnowingFingerprint } from "../lib/analyze/winnowing/sharedWinnowingFingerprint";
 import { CodeTokenizerTreeSitter } from "../lib/tokenizer/codeTokenizerTreeSitter";
 import { WinnowFilter } from "../lib/hashing/winnowFilter";
 

@@ -1,4 +1,4 @@
-import { SharedWinnowingFingerprint } from "./sharedWinnowingFingerprint";
+import { SharedWinnowingFingerprint } from "./winnowing/sharedWinnowingFingerprint";
 import { Region } from "../util/region";
 
 /**

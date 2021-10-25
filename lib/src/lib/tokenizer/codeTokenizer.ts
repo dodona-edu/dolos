@@ -1,7 +1,7 @@
 import { SyntaxNode } from "tree-sitter";
 import { Token, Tokenizer } from "./tokenizer";
 import { Region } from "../util/region";
-import { AstFileNotNull } from "../outputFormat/astFile";
+import { AstFileNotNull } from "../file/astFile";
 
 export abstract class CodeTokenizer extends Tokenizer<AstFileNotNull> {
 

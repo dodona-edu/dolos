@@ -1,5 +1,5 @@
-import { Report } from "./report";
 import { File } from "../file/file";
+import { Report } from "./report";
 
 export interface Index {
     compareFiles(

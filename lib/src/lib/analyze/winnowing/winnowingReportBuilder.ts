@@ -1,20 +1,20 @@
 import assert from "assert";
-import { Pair } from "./pair";
-import { DefaultMap } from "../util/defaultMap";
-import { File } from "../file/file";
-import { TokenizedFile } from "../file/tokenizedFile";
-import { PairedOccurrence, TokenStreamRegion } from "./pairedOccurrence";
-import { Range } from "../util/range";
-import { Options } from "../util/options";
+import { Pair } from "../pair";
+import { DefaultMap } from "../../util/defaultMap";
+import { File } from "../../file/file";
+import { TokenizedFile } from "../../file/tokenizedFile";
+import { PairedOccurrence, TokenStreamRegion } from "../pairedOccurrence";
+import { Range } from "../../util/range";
+import { Options } from "../../util/options";
 import { SharedWinnowingFingerprint } from "./sharedWinnowingFingerprint";
-import { closestMatch } from "../util/utils";
-import { SharedFingerprint } from "../outputFormat/exchangeData";
-import { Report } from "./report";
-import { AstFileNullable } from "../outputFormat/astFile";
+import { closestMatch } from "../../util/utils";
+import { Report, SharedFingerprint } from "../report";
+import { ReportBuilder } from "../reportBuilder";
+import { AstFileNullable } from "../../file/astFile";
 
 type Hash = number;
 
-export interface ScoredPairs {
+export interface ScoredPair {
   pair: Pair;
   overlap: number;
   longest: number;
@@ -26,11 +26,11 @@ export interface Occurrence {
   side: TokenStreamRegion;
 }
 
-export class WinnowingReport implements Report {
+export class WinnowingReportBuilder implements ReportBuilder {
 
   // computed list of scored pairs,
   // only defined after finished() is called
-  private scored?: Array<ScoredPairs>;
+  private scored?: Array<ScoredPair>;
 
   // collection of all shared fingerprints
   private fingerprints: Map<Hash, SharedWinnowingFingerprint> = new Map();
@@ -58,10 +58,10 @@ export class WinnowingReport implements Report {
    * Finish the report and apply postprocessing steps.
    * @param hashWhitelist: a list of all allowed hash values
    */
-  public finish(hashWhitelist?: Set<Hash>): void {
+  public build(hashWhitelist?: Set<Hash>): Report {
     assert(this.scored !== null, "this report is already finished");
 
-    type SortFn = (a: ScoredPairs, b: ScoredPairs) => number;
+    type SortFn = (a: ScoredPair, b: ScoredPair) => number;
     const sortfn = closestMatch<SortFn>(this.options.sortBy, {
       "total overlap": (a, b) => b.overlap - a.overlap,
       "longest fragment": (a, b) => b.longest - a.longest,
@@ -72,7 +72,7 @@ export class WinnowingReport implements Report {
       throw new Error(`${this.options.sortBy} is not a valid field to sort on`);
     }
 
-    let ints = this.build(hashWhitelist);
+    let ints = this.getPairs(hashWhitelist);
 
     ints = ints.map(pair => {
       pair.removeSmallerThan(this.options.minFragmentLength);
@@ -82,7 +82,7 @@ export class WinnowingReport implements Report {
 
     ints = ints.filter(i => i.fragmentCount > 0);
 
-    this.scored = ints.map(i => this.calculateScore(i));
+    this.scored = ints.map(i => WinnowingReportBuilder.calculateScore(i));
 
     this.scored = this.scored.filter(s =>
       s.similarity >= this.options.minSimilarity
@@ -96,9 +96,16 @@ export class WinnowingReport implements Report {
     }
 
     Object.freeze(this);
+
+    return {
+      files: this.files,
+      scoredPairs: this.scoredPairs,
+      fingerprints: this.sharedFingerprints(),
+      metadata: this.options
+    } as Report;
   }
 
-  public get scoredPairs(): Array<ScoredPairs> {
+  public get scoredPairs(): Array<ScoredPair> {
     if(this.scored) {
       return this.scored;
     } else {
@@ -120,7 +127,7 @@ export class WinnowingReport implements Report {
    * Combining all shared fingerprints and build pairs
    * @param hashWhitelist: a list of all allowed hash values
    */
-  private build(hashWhitelist?: Set<Hash>): Array<Pair> {
+  private getPairs(hashWhitelist?: Set<Hash>): Array<Pair> {
     const pairs:
       DefaultMap<TokenizedFile, Map<TokenizedFile, Pair>>
       = new DefaultMap(() => new Map());
@@ -178,7 +185,7 @@ export class WinnowingReport implements Report {
   }
 
 
-  private calculateScore(pair: Pair): ScoredPairs {
+  private static calculateScore(pair: Pair): ScoredPair {
     const fragments = pair.fragments();
     const leftCovered = Range.totalCovered(fragments.map(f => f.leftkgrams));
     const rightCovered = Range.totalCovered(fragments.map(f => f.rightkgrams));

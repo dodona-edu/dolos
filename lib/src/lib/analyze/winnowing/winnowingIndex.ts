@@ -1,14 +1,15 @@
 import assert from "assert";
-import { HashFilter } from "../hashing/hashFilter";
-import { Options } from "../util/options";
-import { Range } from "../util/range";
-import { Region } from "../util/region";
-import { Tokenizer } from "../tokenizer/tokenizer";
-import { WinnowFilter } from "../hashing/winnowFilter";
-import { File } from "../file/file";
-import { WinnowingReport, Occurrence } from "./winnowingReport";
-import { Index } from "./Index";
-import { AstFile, AstFileNullable } from "../outputFormat/astFile";
+import { HashFilter } from "../../hashing/hashFilter";
+import { Options } from "../../util/options";
+import { Range } from "../../util/range";
+import { Region } from "../../util/region";
+import { Tokenizer } from "../../tokenizer/tokenizer";
+import { WinnowFilter } from "../../hashing/winnowFilter";
+import { File } from "../../file/file";
+import { WinnowingReportBuilder, Occurrence } from "./winnowingReportBuilder";
+import { Index } from "../Index";
+import { AstFile, AstFileNullable } from "../../file/astFile";
+import { Report } from "../report";
 
 type Hash = number;
 
@@ -63,12 +64,12 @@ export class WinnowingIndex implements Index {
     files: File[],
     hashWhitelist?: Set<Hash>,
     hashFilter = this.hashFilter
-  ): Promise<WinnowingReport> {
+  ): Promise<Report> {
 
     const tokenizableFiles = files.map(f => this.tokenizer.toTokenizableFile(f));
     const tokenizedFiles = tokenizableFiles.map(f => this.tokenizer.tokenizeFile(f));
 
-    const report = new WinnowingReport(this.options, tokenizableFiles.map(f => AstFile.FromFile(f)));
+    const reportBuilder = new WinnowingReportBuilder(this.options, tokenizableFiles.map(f => AstFile.FromFile(f)));
 
     for (const file of tokenizedFiles) {
       let kgram = 0;
@@ -106,7 +107,7 @@ export class WinnowingIndex implements Index {
 
 
         if (matches) {
-          report.addOccurrences(hash, part, ...matches);
+          reportBuilder.addOccurrences(hash, part, ...matches);
 
           // add our matching part to the index
           matches.push(part);
@@ -119,8 +120,7 @@ export class WinnowingIndex implements Index {
         kgram += 1;
       }
     }
-    report.finish(hashWhitelist);
-    return report;
+    return reportBuilder.build(hashWhitelist);
   }
 
   /**
@@ -137,7 +137,7 @@ export class WinnowingIndex implements Index {
   public async compareFile(
     file: File,
     hashFilter = this.hashFilter
-  ): Promise<WinnowingReport> {
+  ): Promise<Report> {
     return this.compareFiles([file], undefined, hashFilter);
   }
 }

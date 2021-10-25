@@ -1,7 +1,7 @@
-import { Occurrence } from "./winnowingReport";
-import { DefaultMap } from "../util/defaultMap";
-import { TokenizedFile } from "../file/tokenizedFile";
-import Identifiable from "../util/identifiable";
+import { Occurrence } from "./winnowingReportBuilder";
+import { DefaultMap } from "../../util/defaultMap";
+import { TokenizedFile } from "../../file/tokenizedFile";
+import Identifiable from "../../util/identifiable";
 
 export class SharedWinnowingFingerprint extends Identifiable {
 

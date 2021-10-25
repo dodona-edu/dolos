@@ -1,4 +1,4 @@
-import { WinnowingIndex } from "./lib/analyze/winnowingIndex";
+import { WinnowingIndex } from "./lib/analyze/winnowing/winnowingIndex";
 import { CustomOptions, Options } from "./lib/util/options";
 import { CodeTokenizerTreeSitter } from "./lib/tokenizer/codeTokenizerTreeSitter";
 import { ExtraInfo, File } from "./lib/file/file";
@@ -8,11 +8,10 @@ import * as path from "path";
 import { Tokenizer } from "./lib/tokenizer/tokenizer";
 import { CharTokenizer } from "./lib/tokenizer/charTokenizer";
 import { default as fsWithCallbacks } from "fs";
-import { ExchangeData } from "./lib/outputFormat/exchangeData";
+import { Report } from "./lib/analyze/report";
 import { Fragment } from "./lib/analyze/fragment";
 import { CodeTokenizerFromAst } from "./lib/tokenizer/codeTokenizerFromAst";
-import { AstFileNullable, AstFileNotNull } from "./lib/outputFormat/astFile";
-import { Report } from "./lib/analyze/report";
+import { AstFileNullable, AstFileNotNull } from "./lib/file/astFile";
 import { Index } from "./lib/analyze/Index";
 const fs = fsWithCallbacks.promises;
 
@@ -84,7 +83,7 @@ export class Dolos {
     return this.index.compareFiles(files);
   }
 
-  public static async getFragments(outputFormat: ExchangeData, file1: AstFileNullable, file2: AstFileNullable):
+  public static async getFragments(outputFormat: Report, file1: AstFileNullable, file2: AstFileNullable):
       Promise<Fragment[]> {
     let tokenizer;
     if (outputFormat.metadata.language === "chars") {

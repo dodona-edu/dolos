@@ -1,6 +1,6 @@
 import { CodeTokenizer } from "./codeTokenizer";
 import { File } from "../file/file";
-import { AstFileNotNull } from "../outputFormat/astFile";
+import { AstFileNotNull } from "../file/astFile";
 
 export class CodeTokenizerFromAst extends CodeTokenizer {
   private fileToAstFile: Map<string, AstFileNotNull>;

@@ -1,11 +1,18 @@
-import { ScoredPairs } from "./winnowingReport";
 import { Options } from "../util/options";
-import { SharedFingerprint } from "../outputFormat/exchangeData";
-import { AstFileNullable } from "../outputFormat/astFile";
+import { ScoredPair } from "./winnowing/winnowingReportBuilder";
+import { AstFileNullable } from "../file/astFile";
 
 export interface Report {
-    get scoredPairs(): Array<ScoredPairs>;
-    get files(): Array<AstFileNullable>;
-    readonly options: Options;
-    sharedFingerprints(): Array<SharedFingerprint>
+   files: AstFileNullable[],
+   scoredPairs: ScoredPair[],
+   metadata: Options,
+   fingerprints: SharedFingerprint[]
+}
+
+
+export interface SharedFingerprint {
+   id: number
+   fingerprint: number
+   data: string | null
+   fileIds: number[]
 }
