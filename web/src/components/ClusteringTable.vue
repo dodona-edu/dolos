@@ -75,7 +75,7 @@ export default class ClusteringTable extends Vue {
 
   private sortedClustering(): Clustering {
     const sort: SortingFunction<Cluster> = (a, b) =>
-      getClusterElements(a).size - getClusterElements(b).size;
+      getClusterElements(b).size - getClusterElements(a).size;
 
     const toSort = [...this.clustering];
     toSort.sort(sort);

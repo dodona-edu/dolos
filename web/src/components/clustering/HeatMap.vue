@@ -1,5 +1,8 @@
 <template>
-  <div :id="svgId"></div>
+  <div>
+    <h2>Heatmap</h2>
+    <div :id="svgId" class="svg-container"></div>
+  </div>
 </template>
 
 <script lang="ts">
@@ -10,7 +13,7 @@ import DataView from "@/views/DataView";
 import * as d3 from "d3";
 import { ScaleBand, ScaleLinear } from "d3";
 import { getClusterElementsArray } from "@/util/clustering-algorithms/ClusterFunctions";
-import { Pair } from "@/api/api";
+import { File, Pair } from "@/api/api";
 
 @Component
 export default class HeatMap extends DataView {
@@ -46,7 +49,7 @@ export default class HeatMap extends DataView {
 
   private initializeSvg(): void {
     const [width, height] = this.dimensions;
-    const margin = 30;
+    const margin = 100;
     this.svg = d3
       .select(`#${this.svgId}`)
       .append("svg")
@@ -63,33 +66,50 @@ export default class HeatMap extends DataView {
     this.xBand = d3
       .scaleBand<number>()
       .range([0, width])
-      .domain(elements.map((f) => f.id))
+      .domain(elements.map((d) => d.id))
       .padding(0.01);
 
     this.yBand = d3
       .scaleBand<number>()
       .range([height, 0])
-      .domain(elements.map((f) => f.id))
+      .domain(elements.map((d) => d.id))
       .padding(0.01);
+
+    const xAxis = d3
+      .axisBottom(this.xBand)
+      .tickFormat(
+        (d) => `${this.files[d].extra?.full_name || this.files[d].path}`
+      );
 
     this.svg
       ?.append("g")
       .attr("transform", "translate(0," + height + ")")
-      .call(d3.axisBottom(this.xBand));
+      .call(xAxis)
+      .selectAll("text")
+      .style("text-anchor", "end")
+      .attr("dx", "-.8em")
+      .attr("dy", ".15em")
+      .attr("transform", "rotate(-65)");
 
-    this.svg?.append("g").call(d3.axisLeft(this.yBand));
+    const yAxis = d3
+      .axisLeft(this.yBand)
+      .tickFormat(
+        (d) => `${this.files[d].extra?.full_name || this.files[d].path}`
+      );
+
+    this.svg?.append("g").call(yAxis);
   }
 
   private initializeColorScale(): void {
     this.colorScale = d3
       .scaleLinear<string, number>()
       .domain([0, 1])
-      .range(["white", "#69b3a2"]);
+      .range(["white", "#1976D2"]);
   }
 
   @Watch("cluster")
   private initializeData(): void {
-    const elements = getClusterElementsArray(this.cluster).map((f) => f.id);
+    const elements = getClusterElementsArray(this.cluster);
     const pairs = d3.cross(elements, elements);
 
     const [xBand, yBand, colorScale] = [
@@ -107,8 +127,8 @@ export default class HeatMap extends DataView {
       .data(pairs)
       .enter()
       .append("rect")
-      .attr("x", ([first]) => xBand(first) || 0)
-      .attr("y", ([, second]) => yBand(second) || 0)
+      .attr("x", ([first]) => xBand(first.id) || 0)
+      .attr("y", ([, second]) => yBand(second.id) || 0)
       .attr("width", xBand.bandwidth())
       .attr("height", yBand.bandwidth())
       .attr(
@@ -121,19 +141,20 @@ export default class HeatMap extends DataView {
       .on("click", this.click.bind(this));
   }
 
-  private getPair(fileId1: number, fileId2: number): Pair | null {
+  private getPair(fileId1: File, fileId2: File): Pair | null {
     const allPairs = super.pairs as { [s: string]: Pair };
 
     return (
       Array.from(Object.values<Pair>(allPairs)).find(
         (pair: Pair) =>
-          (pair.leftFile.id === fileId1 && pair.rightFile.id === fileId2) ||
-          (pair.leftFile.id === fileId2 && pair.rightFile.id === fileId1)
+          (pair.leftFile.id === fileId1.id &&
+            pair.rightFile.id === fileId2.id) ||
+          (pair.leftFile.id === fileId2.id && pair.rightFile.id === fileId1.id)
       ) || null
     );
   }
 
-  private click(_: any, [first, second]: [number, number]): void {
+  private click(_: any, [first, second]: [File, File]): void {
     const pair = this.getPair(first, second);
 
     if (pair) {
@@ -147,5 +168,10 @@ export default class HeatMap extends DataView {
 div {
   cursor: pointer;
   pointer-events: auto;
+}
+.svg-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
 }
 </style>

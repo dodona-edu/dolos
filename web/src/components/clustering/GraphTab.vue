@@ -1,5 +1,6 @@
 <template>
   <div class="graph-container">
+    <h2>Graph</h2>
     <Graph
       :pairs="clusterPairs"
       :files="clusterFiles"
