@@ -105,7 +105,7 @@ export class WinnowingReportBuilder implements ReportBuilder {
     } as Report;
   }
 
-  public get scoredPairs(): Array<ScoredPair> {
+  private get scoredPairs(): Array<ScoredPair> {
     if(this.scored) {
       return this.scored;
     } else {
@@ -114,7 +114,7 @@ export class WinnowingReportBuilder implements ReportBuilder {
     }
   }
 
-  public sharedFingerprints(): Array<SharedFingerprint> {
+  private sharedFingerprints(): Array<SharedFingerprint> {
     return Array.of(...this.fingerprints.values()).map(swf => ({
       id: swf.id,
       fingerprint: swf.hash,
