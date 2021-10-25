@@ -24,7 +24,7 @@ for (const language of CodeTokenizerTreeSitter.supportedLanguages) {
       t.fail(`${language} doesn't have a sample file`);
     } else {
       const file = (await File.fromPath(sampleFile)).ok();
-      const tokens = (await tokenizer.tokenizeFile(file)).ast;
+      const tokens = (await tokenizer.tokenizeFile(file)).tokenStream;
       t.truthy(tokens);
       t.snapshot(tokens, "stable tokenization");
     }
@@ -49,6 +49,6 @@ test("tokenizer with or without location is equal", async t => {
 
   const tokenized = (await tokenizer.tokenizeFile(file));
 
-  t.snapshot(tokenized.ast);
+  t.snapshot(tokenized.tokenStream);
   t.snapshot(tokenized.mapping);
 });

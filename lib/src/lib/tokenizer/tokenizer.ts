@@ -33,8 +33,8 @@ export abstract class Tokenizer<TokenizableFile extends File> {
     } else {
       tokenizableFile = file as TokenizableFile;
     }
-    const [ast, mapping] = this.tokenizeWithMapping(tokenizableFile);
-    return new TokenizedFile(file, ast, mapping);
+    const [tokenStream, mapping] = this.tokenizeWithMapping(tokenizableFile);
+    return new TokenizedFile(file, tokenStream, mapping);
   }
 
   /**
@@ -49,6 +49,7 @@ export abstract class Tokenizer<TokenizableFile extends File> {
    * the corresponding token in the original buffer.
    *
    * @param tokenizableFile A tokenizable file for which the contents should be tokenized
+   * @return An array of tokens and the regions they correspond with in the original file.
    */
   public tokenizeWithMapping(tokenizableFile: TokenizableFile): [string[], Region[]] {
     const resultTokens: Array<string> = [];

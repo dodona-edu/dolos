@@ -74,7 +74,7 @@ export class WinnowingIndex implements Index {
       let kgram = 0;
       for await (
         const { data, hash, start, stop  }
-        of hashFilter.fingerprints(file.ast)
+        of hashFilter.fingerprints(file.tokenStream)
       ) {
 
         // add kgram to file
@@ -86,7 +86,7 @@ export class WinnowingIndex implements Index {
             file.mapping[start],
             file.mapping[stop]
           ),
-          `Invallid ordering:
+          `Invalid ordering:
             expected ${file.mapping[start]}
             to start be before the end of ${file.mapping[stop]}`
         );

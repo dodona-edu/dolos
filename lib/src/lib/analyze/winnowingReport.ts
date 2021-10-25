@@ -3,7 +3,7 @@ import { Pair } from "./pair";
 import { DefaultMap } from "../util/defaultMap";
 import { File } from "../file/file";
 import { TokenizedFile } from "../file/tokenizedFile";
-import { PairedOccurrence, ASTRegion } from "./pairedOccurrence";
+import { PairedOccurrence, TokenStreamRegion } from "./pairedOccurrence";
 import { Range } from "../util/range";
 import { Options } from "../util/options";
 import { SharedWinnowingFingerprint } from "./sharedWinnowingFingerprint";
@@ -23,7 +23,7 @@ export interface ScoredPairs {
 
 export interface Occurrence {
   file: TokenizedFile;
-  side: ASTRegion;
+  side: TokenStreamRegion;
 }
 
 export class WinnowingReport implements Report {

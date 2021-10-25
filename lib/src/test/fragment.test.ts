@@ -21,11 +21,11 @@ test("fragment should fully reconstruct matched kgrams when k > w", async t => {
   const filter = new WinnowFilter(10, 5, true);
 
   const f1Hashes = [];
-  for await (const hash of filter.fingerprints(f1.ast)) {
+  for await (const hash of filter.fingerprints(f1.tokenStream)) {
     f1Hashes.push(hash);
   }
   const f2Hashes = [];
-  for await (const hash of filter.fingerprints(f2.ast)) {
+  for await (const hash of filter.fingerprints(f2.tokenStream)) {
     f2Hashes.push(hash);
   }
   t.is(f1Hashes.length, f2Hashes.length);
@@ -54,7 +54,7 @@ test("fragment should fully reconstruct matched kgrams when k > w", async t => {
     const pair = createPair(i, f1Hashes[i], f2Hashes[i]);
     fragment.extendWith(pair);
   }
-  t.deepEqual(f1.ast, fragment.mergedData);
+  t.deepEqual(f1.tokenStream, fragment.mergedData);
 });
 
 test("fragment should partially reconstruct matched kgrams when k < w", async t => {
@@ -69,11 +69,11 @@ test("fragment should partially reconstruct matched kgrams when k < w", async t 
   const filter = new WinnowFilter(5, 10, true);
 
   const f1Hashes = [];
-  for await (const hash of filter.fingerprints(f1.ast)) {
+  for await (const hash of filter.fingerprints(f1.tokenStream)) {
     f1Hashes.push(hash);
   }
   const f2Hashes = [];
-  for await (const hash of filter.fingerprints(f2.ast)) {
+  for await (const hash of filter.fingerprints(f2.tokenStream)) {
     f2Hashes.push(hash);
   }
   t.is(f1Hashes.length, f2Hashes.length);
@@ -102,9 +102,9 @@ test("fragment should partially reconstruct matched kgrams when k < w", async t 
     const pair = createPair(i, f1Hashes[i], f2Hashes[i]);
     fragment.extendWith(pair);
   }
-  for (let i = 0; i < f1.ast.length; i++) {
+  for (let i = 0; i < f1.tokenStream.length; i++) {
     if (fragment.mergedData?.[i] !== "?") {
-      t.deepEqual(f1.ast[i], fragment.mergedData?.[i]);
+      t.deepEqual(f1.tokenStream[i], fragment.mergedData?.[i]);
     }
   }
 });

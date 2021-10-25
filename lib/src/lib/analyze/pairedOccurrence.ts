@@ -4,26 +4,26 @@ import { Region } from "../util/region";
 /**
  * The information that is needed for one side of a paired occurrence.
  */
-export interface ASTRegion {
+export interface TokenStreamRegion {
   /**
-   * Start index in the AST of this kgram.
+   * Start index in the token stream of this fingerprint.
    */
   start: number;
   /**
-   * Stop index (inclusive) in the AST of this kgram.
+   * Stop index (inclusive) in the token stream of this fingerprint.
    */
   stop: number;
   /**
-   * The index of when this kgram was outputted by the HashFilter.
-   * This differs of kgramStart if not all kgrams in a file are outputted.
+   * The index of when this fingerprint was outputted by the HashFilter.
+   * This differs of kgramStart if not all fingerprint in a file are outputted.
    */
   index: number;
   /**
-   * The selection in the actual file corrresponding to this kgram.
+   * The selection in the actual file corrresponding to this fingerprint.
    */
   location: Region;
   /**
-   * The AST data corresponding to this kgram.
+   * The AST data corresponding to this fingerprint.
    */
   data: Array<string> | null;
 }
@@ -36,8 +36,8 @@ export interface ASTRegion {
  */
 export class PairedOccurrence {
   constructor(
-    public readonly left: ASTRegion,
-    public readonly right: ASTRegion,
+    public readonly left: TokenStreamRegion,
+    public readonly right: TokenStreamRegion,
     public readonly fingerprint: SharedWinnowingFingerprint
   ) {
   }
