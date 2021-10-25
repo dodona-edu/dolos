@@ -83,10 +83,16 @@ export class Dolos {
     return this.index.compareFiles(files);
   }
 
-  public static async getFragments(outputFormat: Report, file1: AstFileNullable, file2: AstFileNullable):
+  /**
+   * Recalculate the {@see Fragment} for previously analyzed files. Only works with files that were previously analyzed.
+   * @param report A report containing all the needed information to re run the analysis.
+   * @param file1 A file that was originally analyzed in the report.
+   * @param file2 A file that was originally analyzed in the report.
+   */
+  public static async getFragments(report: Report, file1: AstFileNullable, file2: AstFileNullable):
       Promise<Fragment[]> {
     let tokenizer;
-    if (outputFormat.metadata.language === "chars") {
+    if (report.metadata.language === "chars") {
       tokenizer = new CharTokenizer();
     } else {
       if(file1.ast && file2.ast) {
@@ -95,13 +101,13 @@ export class Dolos {
           file2 as AstFileNotNull
         ]);
       } else {
-        throw Error("Files must contain non null ast trees!");
+        throw Error("Files must contain non null AST trees!");
       }
     }
-    const index = new WinnowingIndex(tokenizer, outputFormat.metadata);
-    const hashWhitelist = new Set(outputFormat.sharedFingerprints.map(fingerprint => fingerprint.fingerprint));
-    const report = await index.compareFiles([file1, file2], hashWhitelist);
-    const reportPair = report.scoredPairs[0];
+    const index = new WinnowingIndex(tokenizer, report.metadata);
+    const hashWhitelist = new Set(report.sharedFingerprints.map(fingerprint => fingerprint.fingerprint));
+    const newReport = await index.compareFiles([file1, file2], hashWhitelist);
+    const reportPair = newReport.scoredPairs[0];
     return reportPair.pair.fragments();
   }
 }
