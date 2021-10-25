@@ -53,7 +53,6 @@ import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
 import {
   getAverageClusterSimilarity,
   getClusterElements,
-  getClusterElementsArray,
 } from "@/util/clustering-algorithms/ClusterFunctions";
 import { File } from "@/api/api";
 import HeatMap from "./HeatMap.vue";
