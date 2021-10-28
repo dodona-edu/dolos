@@ -1,7 +1,46 @@
 <template>
   <div>
     <h2>Heatmap</h2>
-    <div :id="svgId" class="svg-container"></div>
+    <div class="d-flex justify-space-between flex-grow flex-wrap">
+      <div :id="svgId" class="svg-container"></div>
+      <div v-if="hoveredPair">
+        <div class="d-flex">
+          <v-icon>mdi-chevron-right</v-icon>
+          <h3>Files</h3>
+        </div>
+        <ul class="d-flex flex-wrap justify-space-between">
+          <v-list-item class="file-element">
+            <v-icon>mdi-menu-right</v-icon>
+
+            <v-list-item-title>{{
+              hoveredPair.leftFile.path.split("/").slice(-2).join("/")
+            }}</v-list-item-title>
+          </v-list-item>
+          <v-list-item class="file-element">
+            <v-icon>mdi-menu-right</v-icon>
+
+            <v-list-item-title>{{
+              hoveredPair.rightFile.path.split("/").slice(-2).join("/")
+            }}</v-list-item-title>
+          </v-list-item>
+        </ul>
+
+        <div class="d-flex">
+          <v-icon>mdi-chevron-right</v-icon>
+          <h3>Similarity</h3>
+        </div>
+        <ul class="d-flex flex-wrap justify-space-between">
+          <v-list-item class="file-element">
+            <v-icon>mdi-menu-right</v-icon>
+
+            <v-list-item-title
+              >Similarity between these files:
+              {{ Math.round(hoveredPair.similarity * 100) }}%
+            </v-list-item-title>
+          </v-list-item>
+        </ul>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -28,6 +67,8 @@ export default class HeatMap extends DataView {
   private colorScale: ScaleLinear<string, number> | null = null;
 
   private dimensions = [450, 450];
+
+  private hoveredPair: Pair | null = null;
 
   async mounted(): Promise<void> {
     await this.ensureData();
@@ -75,11 +116,7 @@ export default class HeatMap extends DataView {
       .domain(elements.map((d) => d.id))
       .padding(0.01);
 
-    const xAxis = d3
-      .axisBottom(this.xBand)
-      .tickFormat(
-        (d) => `${this.files[d].extra?.full_name || this.files[d].path}`
-      );
+    const xAxis = d3.axisBottom(this.xBand).tickFormat(() => "");
 
     this.svg
       ?.append("g")
@@ -91,11 +128,7 @@ export default class HeatMap extends DataView {
       .attr("dy", ".15em")
       .attr("transform", "rotate(-65)");
 
-    const yAxis = d3
-      .axisLeft(this.yBand)
-      .tickFormat(
-        (d) => `${this.files[d].extra?.full_name || this.files[d].path}`
-      );
+    const yAxis = d3.axisLeft(this.yBand).tickFormat(() => "");
 
     this.svg?.append("g").call(yAxis);
   }
@@ -138,7 +171,9 @@ export default class HeatMap extends DataView {
       .style("fill", ([first, second]) =>
         colorScale(this.getPair(first, second)?.similarity || 0)
       )
-      .on("click", this.click.bind(this));
+      .on("click", this.click.bind(this))
+      .on("mouseover", this.onEnter.bind(this))
+      .on("mouseout", this.onLeave.bind(this));
   }
 
   private getPair(fileId1: File, fileId2: File): Pair | null {
@@ -161,6 +196,15 @@ export default class HeatMap extends DataView {
       this.$router.push(`/compare/${pair.id}`);
     }
   }
+
+  private onEnter(_: unknown, [first, second]: [File, File]): void {
+    const pair = this.getPair(first, second);
+    this.hoveredPair = pair;
+  }
+
+  private onLeave(): void {
+    this.hoveredPair = null;
+  }
 }
 </script>
 
@@ -173,5 +217,6 @@ div {
   display: flex;
   flex-direction: row;
   justify-content: center;
+  min-width: 650px;
 }
 </style>
