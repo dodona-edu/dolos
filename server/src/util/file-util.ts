@@ -72,6 +72,7 @@ export async function anonymizeDirectory(folder: string): Promise<void> {
     () => fsWithCallbacks.existsSync(path.join(folder, "info.csv")),
     "Source CSV does not exist."
   );
+  console.log("anonymizing csv");
 
   const idMap = new Map();
   const usedNames = new Set();
@@ -134,4 +135,13 @@ function generateName(): string {
     dictionaries: [adjectives, colors, names],
     length: 2
   });
+}
+
+export async function fileReadable(file: string): Promise<boolean> {
+  try {
+    await fs.access(file);
+    return true;
+  } catch(e) {
+    return false;
+  }
 }
