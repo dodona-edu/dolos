@@ -1,4 +1,4 @@
-import { File, Pair } from "@/api/api";
+import { File, ObjMap, Pair } from "@/api/api";
 import { ListMap } from "../ListMap";
 import { Cluster, ClusteringGraph, Edge } from "./ClusterTypes";
 
@@ -22,42 +22,19 @@ export function getAverageClusterSimilarity(cluster: Cluster): number {
   );
 }
 
-/**
- * Returns a map that projects every file (node) to every edge (Pair) that it belongs.
- * @param pairs set of all pairs
- * @param similarity cutoff similarity that belongs to the graph. Default is 0: everything belongs to the graph.
- * @returns map of file => pair
- */
 export function getClusteringGraph(
-  pairs: Set<Pair>,
-  similarity = 0
+  pairs: ObjMap<Pair>,
+  similarity: number
 ): ClusteringGraph {
   const map = new ListMap<number, Edge>();
 
-  for (const pair of pairs) {
+  for (const pairIndex in pairs) {
+    const pair = pairs[pairIndex];
+
     if (pair.similarity >= similarity) {
       map.addValue(pair.leftFile.id, pair);
       map.addValue(pair.rightFile.id, pair);
     }
   }
   return map;
-}
-
-export function getClusterElementsSorted(cluster: Cluster): File[] {
-  const array = getClusterElementsArray(cluster);
-  const graph = getClusteringGraph(cluster);
-
-  const getAverageSimilarity = (f: File): number =>
-                    graph.get(f.id)!.reduce((a, b) => a + b.similarity, 0) / graph.get(f.id)!.length;
-
-  // Cache weights for use in sort function (for efficiency reasons)
-  const weights = new Map(array.map(f => [f.id, getAverageSimilarity(f)]));
-
-  const sortf = (a: File, b: File): number => weights.get(a.id)! - weights.get(b.id)!;
-
-  return array.sort(sortf);
-}
-
-export function getClusterIntersect(cluster1: Cluster, cluster2: Cluster): Cluster {
-  return new Set(Array.from(cluster1).filter(c => cluster2.has(c)));
 }

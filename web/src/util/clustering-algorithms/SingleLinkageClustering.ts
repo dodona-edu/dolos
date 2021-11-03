@@ -7,7 +7,7 @@ export function singleLinkageCluster(
   files: ObjMap<File>,
   similarity: number
 ): Clustering {
-  const clusterGraph = getClusteringGraph(new Set(Object.values(pairs)), similarity);
+  const clusterGraph = getClusteringGraph(pairs, similarity);
   const alreadySeenFileSet = new Set<number>();
 
   const clusters = [];
