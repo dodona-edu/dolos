@@ -1,7 +1,7 @@
 <template>
   <div>
     <h2>Heatmap</h2>
-    <div class="d-flex justify-space-between flex-grow flex-wrap">
+    <div class="d-flex justify-space-between flex-grow flex-nowrap">
       <div :id="svgId" class="svg-container"></div>
       <div v-if="hoveredPair">
         <div class="d-flex">
@@ -197,6 +197,7 @@ export default class HeatMap extends DataView {
 
   private onEnter(_: unknown, [first, second]: [File, File]): void {
     const pair = this.getPair(first, second);
+    console.log(pair);
     this.hoveredPair = pair;
   }
 
