@@ -16,16 +16,25 @@ export function getClusterElementsArray(cluster: Cluster): File[] {
 }
 
 export function getAverageClusterSimilarity(cluster: Cluster): number {
-  return Array.from(cluster).reduce((s, edge) => s + edge.similarity, 0) / cluster.size;
+  return (
+    Array.from(cluster).reduce((s, edge) => s + edge.similarity, 0) /
+    cluster.size
+  );
 }
 
-export function getClusteringGraph(pairs: ObjMap<Pair>): ClusteringGraph {
+export function getClusteringGraph(
+  pairs: ObjMap<Pair>,
+  similarity: number
+): ClusteringGraph {
   const map = new ListMap<number, Edge>();
 
   for (const pairIndex in pairs) {
     const pair = pairs[pairIndex];
-    map.addValue(pair.leftFile.id, pair);
-    map.addValue(pair.rightFile.id, pair);
+
+    if (pair.similarity >= similarity) {
+      map.addValue(pair.leftFile.id, pair);
+      map.addValue(pair.rightFile.id, pair);
+    }
   }
   return map;
 }
