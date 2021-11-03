@@ -1,16 +1,13 @@
-import { default as express, Express } from "express";
-import { default as fileUpload, UploadedFile } from "express-fileupload";
 import * as Eta from "eta";
-import { default as fs } from "fs";
-import path from "path";
-import { analyze } from "./analyzer";
-import { reportsDir, resultFiles, sourceZipfileFolder, sourceZipName } from "./constants";
-import { listReports } from "./reports";
-import sanitize from "sanitize-filename";
+import { default as express, Express } from "express";
+import { default as fileUpload } from "express-fileupload";
 import rateLimit from "express-rate-limit";
+import { getConfig } from "./config/configuration";
+import { router } from "./routes";
 
+const env = getConfig();
 const app: Express = express();
-const port = 3000;
+const port = env.port;
 
 
 app.engine("eta", Eta.renderFile);
@@ -32,46 +29,7 @@ const limiter = rateLimit({
 app.use(limiter);
 
 
-app.use("/css", express.static(path.join(__dirname, "../css")));
-
-
-app.get("/", async (_req, res) => {
-  res.render("index", { reports: await listReports() });
-});
-
-app.post<{ name: string }>("/upload", async (req, res) => {
-  if (!req.files || Object.keys(req.files).length === 0 || !req.files.zip) {
-    return res.status(400).send("No files were uploaded.");
-  }
-
-  const name = req.body.name;
-  const sanName = sanitize(name);
-  const destination = path.join(reportsDir, sanName, sourceZipfileFolder);
-
-  if (fs.existsSync(destination)) {
-    return res.status(400).send("There is already a report with the same name.");
-  }
-
-  const zipfile = req.files.zip as UploadedFile;
-  await zipfile.mv(path.join(destination, sourceZipName));
-
-  analyze(path.join(destination, sourceZipName), req.body.anonymize || false);
-  return res.status(202).send("File uploaded, will be analyzed. <a href='../'>Back to home</a>");
-});
-
-app.use("/reports/:reportname/data//:file/:fragment?", (req, res) => {
-  const [sanReportName, sanFile, sanFragment] = [
-    sanitize(req.params.reportname),
-    sanitize(req.params.file),
-    sanitize(req.params.fragment || "")
-  ];
-
-  const filePath = path.join(reportsDir, sanReportName, resultFiles, sanFile, sanFragment);
-  res.sendFile(filePath);
-});
-
-app.use("/reports/:reportname", express.static(path.dirname(require.resolve("@dodona/dolos-web"))));
-
+app.use(env.baseURI, router);
 
 
 app.listen(port, () => {
