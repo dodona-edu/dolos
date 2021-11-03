@@ -52,6 +52,8 @@ import DataView from "@/views/DataView";
 import * as d3 from "d3";
 import { ScaleBand, ScaleLinear } from "d3";
 import { getClusterElementsArray } from "@/util/clustering-algorithms/ClusterFunctions";
+import { pairsAsNestedMap } from "@/util/PairAsNestedMap";
+
 import { File, Pair } from "@/api/api";
 
 @Component
@@ -69,6 +71,7 @@ export default class HeatMap extends DataView {
   private dimensions = [450, 450];
 
   private hoveredPair: Pair | null = null;
+  private pairMap: Map<number, Map<number, Pair>> | null = null;
 
   async mounted(): Promise<void> {
     await this.ensureData();
@@ -177,16 +180,11 @@ export default class HeatMap extends DataView {
   }
 
   private getPair(fileId1: File, fileId2: File): Pair | null {
-    const allPairs = super.pairs as { [s: string]: Pair };
+    if (!this.pairMap) {
+      this.pairMap = pairsAsNestedMap(Object.values(super.pairs));
+    }
 
-    return (
-      Array.from(Object.values<Pair>(allPairs)).find(
-        (pair: Pair) =>
-          (pair.leftFile.id === fileId1.id &&
-            pair.rightFile.id === fileId2.id) ||
-          (pair.leftFile.id === fileId2.id && pair.rightFile.id === fileId1.id)
-      ) || null
-    );
+    return this.pairMap.get(fileId1.id)?.get(fileId2.id) || null;
   }
 
   private click(_: any, [first, second]: [File, File]): void {
