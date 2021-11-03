@@ -81,8 +81,8 @@ export default class PlagarismGraph {
     });
 
     this.resizeHandler = () => {
-      this.width = this.$refs.container.clientWidth;
-      this.height = this.$refs.container.clientHeight;
+      this.width = this.$refs.container.clientWidth || this.width;
+      this.height = this.$refs.container.clientHeight || this.height;
     };
     window.addEventListener("resize", this.resizeHandler);
     this.updateGraph();
