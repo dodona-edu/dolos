@@ -44,7 +44,7 @@ router.get("/upload-page", async (_req, res) => {
 });
 
 
-router.use("/reports/:reportname/data//:file/:fragment?", (req, res) => {
+router.use("/reports/:reportname/data/:file/:fragment?", (req, res) => {
   const [sanReportName, sanFile, sanFragment] = [
     sanitize(req.params.reportname),
     sanitize(req.params.file),
