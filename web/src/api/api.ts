@@ -27,7 +27,7 @@ export interface File {
   /* eslint-disable camelcase */
   extra: {
     timestamp?: Date;
-    full_name?: string;
+    fullName?: string;
     labels?: string;
   };
   /* eslint-enable camelcase */
