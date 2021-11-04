@@ -76,4 +76,10 @@ module.exports = {
         return opts;
       });
   }, */
+  configureWebpack: {
+    devServer: {
+      host: "localhost",
+      headers: { "Access-Control-Allow-Origin": "*" }
+    }
+  }
 };
