@@ -1,45 +1,22 @@
 <template>
   <div>
     <h2>Heatmap</h2>
-    <div class="d-flex justify-space-between flex-grow flex-nowrap">
+    <div class="d-flex flex-column align-center flex-grow flex-nowrap">
+      <v-alert color="#1976D2" v-if="!hoveredPair" class="extra-info-container" type="info"
+        >Hover over a pair to see extra data.</v-alert
+      >
+
+      <v-alert
+        v-if="!!hoveredPair"
+        color="#1976D2"
+        class="extra-info-container"
+        type="info"
+      >
+        <span>Similarity: {{ hoveredPair.similarity.toFixed(2) }}</span>
+        <span>Longest fragment: {{ hoveredPair.longestFragment }}</span>
+        <span>Common overlap: {{ hoveredPair.totalOverlap }}</span>
+      </v-alert>
       <div :id="svgId" class="svg-container"></div>
-      <div v-if="hoveredPair">
-        <div class="d-flex">
-          <v-icon>mdi-chevron-right</v-icon>
-          <h3>Files</h3>
-        </div>
-        <ul class="d-flex flex-wrap justify-space-between">
-          <v-list-item class="file-element">
-            <v-icon>mdi-menu-right</v-icon>
-
-            <v-list-item-title>{{
-              hoveredPair.leftFile.path.split("/").slice(-2).join("/")
-            }}</v-list-item-title>
-          </v-list-item>
-          <v-list-item class="file-element">
-            <v-icon>mdi-menu-right</v-icon>
-
-            <v-list-item-title>{{
-              hoveredPair.rightFile.path.split("/").slice(-2).join("/")
-            }}</v-list-item-title>
-          </v-list-item>
-        </ul>
-
-        <div class="d-flex">
-          <v-icon>mdi-chevron-right</v-icon>
-          <h3>Similarity</h3>
-        </div>
-        <ul class="d-flex flex-wrap justify-space-between">
-          <v-list-item class="file-element">
-            <v-icon>mdi-menu-right</v-icon>
-
-            <v-list-item-title
-              >Similarity between these files:
-              {{ Math.round(hoveredPair.similarity * 100) }}%
-            </v-list-item-title>
-          </v-list-item>
-        </ul>
-      </div>
     </div>
   </div>
 </template>
@@ -73,6 +50,8 @@ export default class HeatMap extends DataView {
   private hoveredPair: Pair | null = null;
   private pairMap: Map<number, Map<number, Pair>> | null = null;
 
+  private scale = 1.2;
+
   async mounted(): Promise<void> {
     await this.ensureData();
     this.initialize();
@@ -93,14 +72,19 @@ export default class HeatMap extends DataView {
 
   private initializeSvg(): void {
     const [width, height] = this.dimensions;
-    const margin = 100;
+    const topBottomMargin = 100;
+    const leftRightMargin = 300;
+
     this.svg = d3
       .select(`#${this.svgId}`)
       .append("svg")
-      .attr("width", width + 2 * margin)
-      .attr("height", height + 2 * margin)
+      .attr("width", width + 2 * leftRightMargin)
+      .attr("height", height + 2 * topBottomMargin)
       .append("g")
-      .attr("transform", `translate(${margin}, ${margin})`);
+      .attr(
+        "transform",
+        `translate(${leftRightMargin}, ${topBottomMargin / 2})`
+      );
   }
 
   private initializeAxes(): void {
@@ -119,7 +103,15 @@ export default class HeatMap extends DataView {
       .domain(elements.map((d) => d.id))
       .padding(0.01);
 
-    const xAxis = d3.axisBottom(this.xBand).tickFormat(() => "");
+    const xAxis = d3
+      .axisBottom(this.xBand)
+      .tickFormat(
+        (d) =>
+          `${
+            this.files[d].extra.fullName ||
+            this.files[d].path.split("/").slice(-1).join("")
+          }`
+      );
 
     this.svg
       ?.append("g")
@@ -129,9 +121,17 @@ export default class HeatMap extends DataView {
       .style("text-anchor", "end")
       .attr("dx", "-.8em")
       .attr("dy", ".15em")
-      .attr("transform", "rotate(-65)");
+      .attr("transform", "rotate(-35)");
 
-    const yAxis = d3.axisLeft(this.yBand).tickFormat(() => "");
+    const yAxis = d3
+      .axisLeft(this.yBand)
+      .tickFormat(
+        (d) =>
+          `${
+            this.files[d].extra.fullName ||
+            this.files[d].path.split("/").slice(-1).join("")
+          }`
+      );
 
     this.svg?.append("g").call(yAxis);
   }
@@ -169,10 +169,11 @@ export default class HeatMap extends DataView {
       .attr("height", yBand.bandwidth())
       .attr(
         "x-content",
-        ([first, second]) => this.getPair(first, second)?.similarity || 0
+        ([first, second]) => this.getPair(first, second)?.similarity || 1
       )
+      .attr("class", "square-element")
       .style("fill", ([first, second]) =>
-        colorScale(this.getPair(first, second)?.similarity || 0)
+        colorScale(this.getPair(first, second)?.similarity || 1)
       )
       .on("click", this.click.bind(this))
       .on("mouseover", this.onEnter.bind(this))
@@ -196,26 +197,81 @@ export default class HeatMap extends DataView {
   }
 
   private onEnter(_: unknown, [first, second]: [File, File]): void {
+    const [xBand, yBand] = [this.xBand, this.yBand];
+
+    if (!xBand || !yBand) {
+      return;
+    }
+
+    d3.select<any, [File, File]>(event?.currentTarget)
+      .attr("width", xBand.bandwidth() * this.scale)
+      .attr("height", yBand.bandwidth() * this.scale)
+      .attr(
+        "x",
+        ([first]) =>
+          (xBand(first.id) || 0) +
+          (xBand.bandwidth() - xBand.bandwidth() * this.scale) / 2
+      )
+      .attr(
+        "y",
+        ([, second]) =>
+          (yBand(second.id) || 0) +
+          (yBand.bandwidth() - yBand.bandwidth() * this.scale) / 2
+      )
+      .raise();
+
     const pair = this.getPair(first, second);
-    console.log(pair);
     this.hoveredPair = pair;
   }
 
-  private onLeave(): void {
+  private onLeave(_: unknown, [first, second]: [File, File]): void {
+    const [xBand, yBand] = [this.xBand, this.yBand];
+
+    if (xBand === null || yBand === null) {
+      return;
+    }
+
     this.hoveredPair = null;
+
+    d3.select<any, [File, File]>(event?.currentTarget as any)
+      .attr("width", xBand.bandwidth())
+      .attr("height", yBand.bandwidth())
+      .attr("x", ([first]) => xBand(first.id) || 0)
+      .attr("y", ([, second]) => yBand(second.id) || 0)
+      .lower();
   }
 }
 </script>
 
 <style scoped>
 div {
-  cursor: pointer;
   pointer-events: auto;
 }
+
 .svg-container {
   display: flex;
   flex-direction: row;
   justify-content: center;
   min-width: 650px;
+}
+
+.extra-info-container {
+  min-width: 600px;
+  width: 60%;
+  color: white;
+}
+</style>
+
+non-scoped style for svg styles
+<style>
+.square-element {
+  cursor: pointer;
+}
+
+.extra-info-container * * {
+  display: flex;
+  justify-content: space-between;
+  flex-direction: row;
+  text-align: center;
 }
 </style>
