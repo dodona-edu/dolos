@@ -4,11 +4,17 @@
       <v-card-text class="center-card-element title">
         <h1>DOLOS</h1>
         <span>Source code plagiarism detection</span>
+        <p>We analyzed {{ getNumberOfFiles() }} files for plagiarism.</p>
+        <p>
+          The highest similarity we found is
+          {{ getHighestSimilarity().toFixed(2) * 100 }}% and the longest common
+          part is {{ getHighestOverlap() }} tokens long.
+        </p>
       </v-card-text>
       <v-card-actions class="d-flex justify-space-around flex-wrap halfspan">
-        <v-btn color="success"> Pair View </v-btn>
-        <v-btn color="success"> Graph View </v-btn>
-        <v-btn color="success"> Clusters </v-btn>
+        <router-link to="/"><v-btn color="success"> Pair View </v-btn></router-link>
+        <router-link to="/graph"><v-btn color="success"> Graph View </v-btn></router-link>
+        <v-btn color="success"> Cluster View </v-btn>
       </v-card-actions>
     </v-card>
   </div>
@@ -16,12 +22,32 @@
 
 <script lang="ts">
 import { Component } from "vue-property-decorator";
+import { Pair } from "@/api/api";
+
 import DataView from "@/views/DataView";
 
 @Component({})
 export default class SummaryCard extends DataView {
   mounted(): void {
     super.ensureData();
+  }
+
+  getNumberOfFiles(): number {
+    return Object.keys(this.files || {}).length;
+  }
+
+  getHighestSimilarity(): number {
+    return Object.values(this.pairs || {}).reduce(
+      (a, b) => (a > b.similarity ? a : b.similarity),
+      0
+    );
+  }
+
+  getHighestOverlap(): number {
+    return Object.values(this.pairs || {}).reduce(
+      (a, b) => (a > b.longestFragment ? a : b.longestFragment),
+      0
+    );
   }
 }
 </script>
@@ -30,7 +56,6 @@ export default class SummaryCard extends DataView {
 .center-card {
   max-width: 600px;
   min-width: 60%;
-  margin: 20px;
   margin-top: 40px;
   display: flex;
   align-items: center;
@@ -47,6 +72,7 @@ export default class SummaryCard extends DataView {
 
 .center-card-element span {
   color: #6e8eaf;
+  margin-bottom: 20px;
 }
 
 .halfspan {
@@ -56,9 +82,5 @@ export default class SummaryCard extends DataView {
 
 .title h1 {
   margin-bottom: 0.6rem;
-}
-
-.title {
-  margin-bottom: 1.8rem;
 }
 </style>
