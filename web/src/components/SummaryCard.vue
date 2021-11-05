@@ -10,10 +10,18 @@
           {{ getHighestSimilarity().toFixed(2) * 100 }}% and the longest common
           part is {{ getHighestOverlap() }} tokens long.
         </p>
+        <small>
+          You can find more details on these files in the list below, or you can
+          explore the pair list and investigate the graph view.
+        </small>
       </v-card-text>
       <v-card-actions class="d-flex justify-space-around flex-wrap halfspan">
-        <router-link to="/"><v-btn color="success"> Pair View </v-btn></router-link>
-        <router-link to="/graph"><v-btn color="success"> Graph View </v-btn></router-link>
+        <router-link to="/"
+          ><v-btn color="success"> Pair View </v-btn></router-link
+        >
+        <router-link to="/graph"
+          ><v-btn color="success"> Graph View </v-btn></router-link
+        >
         <v-btn color="success"> Cluster View </v-btn>
       </v-card-actions>
     </v-card>
