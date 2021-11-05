@@ -15,7 +15,6 @@ export function pairsAsNestedMap(
   }
   return map;
 }
-
 let _pairsAsNestedMapCached: Map<number, Map<number, Pair>> | null = null;
 
 export function pairsAsNestedMapCached(pairs:() => Pair[]): Map<number, Map<number, Pair>> {
