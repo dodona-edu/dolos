@@ -10,8 +10,8 @@
 import { Component } from "vue-property-decorator";
 import { FileScoring, FileInterestingnessCalculator } from "@/util/FileInterestingness";
 import DataView from "@/views/DataView";
-import SummaryCard from "@/components/SummaryCard.vue";
-import FileCard from "@/components/FileCard.vue";
+import SummaryCard from "@/components/summary/SummaryCard.vue";
+import FileCard from "@/components/summary/FileCard.vue";
 
 @Component({
   components: { SummaryCard, FileCard }
