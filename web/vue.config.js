@@ -19,6 +19,10 @@ module.exports = {
   },
   // explicitly makes sure that tree sitter is not loaded as it does not work in browser environments
   configureWebpack: {
+    devServer: {
+      host: "localhost",
+      headers: { "Access-Control-Allow-Origin": "*" }
+    },
     plugins: [
       new webpack.IgnorePlugin({
         resourceRegExp: /tree-sitter/
@@ -90,10 +94,5 @@ module.exports = {
         return opts;
       });
   }, */
-  configureWebpack: {
-    devServer: {
-      host: "localhost",
-      headers: { "Access-Control-Allow-Origin": "*" }
-    }
-  }
+
 };

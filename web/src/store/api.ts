@@ -80,6 +80,7 @@ export default {
     ): Promise<void> {
       const file: File = getters.file(data.fileId);
       if (!file.astAndMappingLoaded) {
+        console.log(file);
         file.ast = JSON.parse(file.ast);
         file.mapping = JSON.parse(file.mapping);
       }
