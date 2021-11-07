@@ -2,7 +2,8 @@ import { Pair, File } from "@/api/api";
 import { pairsAsNestedMap } from "./PairAsNestedMap";
 
 type SimilarityScore = {
-  score: number;
+  similarity: number;
+  weightedScore: number;
   pair: Pair;
 };
 
@@ -10,12 +11,14 @@ type TotalOverlapScore = {
   totalOverlapTokens: number;
   totalOverlapWrtSize: number;
   pair: Pair;
+  weightedScore: number;
 };
 
 type LongestFragmentScore = {
   longestFragmentTokens: number;
   longestFragmentWrtSize: number;
   pair: Pair;
+  weightedScore: number;
 };
 
 export type FileScoring = {
@@ -29,6 +32,10 @@ export type FileScoring = {
 export class FileInterestingnessCalculator {
   private pairMap: Map<number, Map<number, Pair>>;
 
+  private longestFragmentWeight = 5 / 10;
+  private similarityWeight = 2 / 10;
+  private totalOverlapWeight = 3 / 10;
+
   constructor(private pairs: Pair[]) {
     this.pairMap = pairsAsNestedMap(pairs);
   }
@@ -39,11 +46,17 @@ export class FileInterestingnessCalculator {
     const longestFragmentScore = this.longestFragmentScore(file);
 
     const finalScore =
-      this.steepSquareScaling(similarityScore?.score || 0) +
-      this.steepSquareScaling(totalOverlapScore?.totalOverlapWrtSize || 0) * 3 +
-      this.steepSquareScaling(longestFragmentScore?.longestFragmentWrtSize || 0) * 5;
+      this.steepSquareScaling(similarityScore?.weightedScore || 0) +
+      this.steepSquareScaling(totalOverlapScore?.weightedScore || 0) +
+      this.steepSquareScaling(longestFragmentScore?.weightedScore || 0);
 
-    return { file, similarityScore, totalOverlapScore, longestFragmentScore, finalScore };
+    return {
+      file,
+      similarityScore,
+      totalOverlapScore,
+      longestFragmentScore,
+      finalScore
+    };
   }
 
   public calculateSimilarityScore(file: File): SimilarityScore | null {
@@ -57,7 +70,11 @@ export class FileInterestingnessCalculator {
       a.similarity > b.similarity ? a : b
     );
 
-    return { pair, score: pair.similarity };
+    return {
+      pair,
+      similarity: pair.similarity,
+      weightedScore: pair.similarity * this.similarityWeight
+    };
   }
 
   public totalOverlapScore(file: File): TotalOverlapScore | null {
@@ -75,7 +92,9 @@ export class FileInterestingnessCalculator {
       pair,
       totalOverlapTokens: pair.totalOverlap,
       // TODO: find out which unit the total overlap is in, and find the total of this file
-      totalOverlapWrtSize: pair.totalOverlap / file.content.length
+      totalOverlapWrtSize: pair.totalOverlap / file.content.length,
+      weightedScore:
+        (pair.totalOverlap / file.content.length) * this.totalOverlapWeight
     };
   }
 
@@ -93,7 +112,10 @@ export class FileInterestingnessCalculator {
     return {
       pair,
       longestFragmentTokens: pair.longestFragment,
-      longestFragmentWrtSize: pair.longestFragment / file.content.length
+      longestFragmentWrtSize: pair.longestFragment / file.content.length,
+      weightedScore:
+        (pair.longestFragment / file.content.length) *
+        this.longestFragmentWeight
     };
   }
 
