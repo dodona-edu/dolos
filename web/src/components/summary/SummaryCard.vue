@@ -45,15 +45,18 @@ export default class SummaryCard extends DataView {
   }
 
   getHighestSimilarity(): number {
-    return Object.values(this.pairs || {}).reduce(
-      (a, b) => (a > b.similarity ? a : b.similarity),
+    const pairs = Object.values(this.pairs || {}).map(a => a.similarity);
+    return pairs.reduce(
+      (a, b) => (a > b ? a : b),
       0
     );
   }
 
   getHighestOverlap(): number {
-    return Object.values(this.pairs || {}).reduce(
-      (a, b) => (a > b.longestFragment ? a : b.longestFragment),
+    const pairs = Object.values(this.pairs || {}).map(a => a.longestFragment);
+
+    return pairs.reduce(
+      (a, b) => (a > b ? a : b),
       0
     );
   }

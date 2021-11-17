@@ -1,0 +1,123 @@
+<template>
+  <div class="d-flex align-center flex-column extra-margin">
+    <v-form class="d-flex align-center flex-row extra-width">
+      <v-text-field class="search-field" :label="'Search for a file'" v-model="searchString">
+      </v-text-field>
+      <v-select
+      class='select-sort'
+        :items="sortOptions"
+        item-text="name"
+        :item-value="v => v"
+        v-model="selectedSortOption"
+      ></v-select>
+    </v-form>
+    <div class="d-flex align-center flex-column full-width">
+      <FileCard
+        v-for="scoredFile in sortedFiles.slice(
+          (page - 1) * cardsPerPage,
+          page * cardsPerPage
+        )"
+        :key="scoredFile.file.id"
+        :file="scoredFile"
+      />
+    </div>
+    <v-pagination
+      v-model="page"
+      :length="pageTotal"
+      :total-visible="7"
+    ></v-pagination>
+  </div>
+</template>
+<script lang="ts">
+import { Component, Watch } from "vue-property-decorator";
+import {
+  FileScoring,
+  FileInterestingnessCalculator,
+} from "@/util/FileInterestingness";
+import FileCard from "@/components/summary/FileCard.vue";
+import DataView from "@/views/DataView";
+
+@Component({ components: { FileCard } })
+export default class SummaryList extends DataView {
+  private scoredFiles: FileScoring[] = [];
+  private sortedFiles: FileScoring[] = [];
+  private page = 1;
+  private pageTotal = 1;
+  private cardsPerPage = 5;
+  private searchString = "";
+
+  private sortOptions = [
+    {
+      name: "Most interesting items",
+      sortFunc: (a: FileScoring, b: FileScoring) => b.finalScore - a.finalScore,
+    },
+    {
+      name: "Highest similarity",
+      sortFunc: (a: FileScoring, b: FileScoring) =>
+        (b.similarityScore?.similarity || 0) - (a.similarityScore?.similarity || 0),
+    },
+  ];
+
+  private selectedSortOption: {
+    name: string;
+    sortFunc: (a: FileScoring, b: FileScoring) => number;
+  };
+
+  constructor() {
+    super();
+    this.selectedSortOption = this.sortOptions[0];
+  }
+
+  @Watch("scoredFiles")
+  updatePageCount(): void {
+    this.page = 1;
+    this.pageTotal =
+      Math.ceil(this.scoredFiles.length / this.cardsPerPage) || 1;
+  }
+
+  @Watch("scoredFiles")
+  @Watch("searchString")
+  @Watch("selectedSortOption")
+  sortScoredFiles(): void {
+    this.sortedFiles = this.scoredFiles
+      .filter(f => f.file.path.includes(this.searchString))
+      .sort(this.selectedSortOption.sortFunc);
+  }
+
+  mounted(): void {
+    this.initializeData();
+  }
+
+  async initializeData(): Promise<void> {
+    await super.ensureData();
+    const scoringCalculator = new FileInterestingnessCalculator(
+      Array.from(Object.values(this.pairs))
+    );
+    const sortableFiles = Object.values(this.files).map(file =>
+      scoringCalculator.calculateFileScoring(file)
+    );
+    this.scoredFiles = sortableFiles;
+  }
+}
+</script>
+<style scoped>
+.extra-margin * {
+  margin: 1rem;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.extra-width {
+  width: 60%;
+}
+
+.search-field {
+  width: 45%;
+}
+
+.select-sort {
+  width: 15%;
+}
+</style>
