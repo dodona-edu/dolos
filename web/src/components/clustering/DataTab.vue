@@ -71,3 +71,8 @@ export default class DataTab extends Vue {
   }
 }
 </script>
+<style>
+.file-element {
+  flex: 0 1 calc(33% - 20px);
+}
+</style>
