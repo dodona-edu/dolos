@@ -7,7 +7,6 @@ import { Tokenizer } from "../tokenizer/tokenizer";
 import { WinnowFilter } from "../hashing/winnowFilter";
 import { File } from "../file/file";
 import { Report, Occurrence } from "./report";
-import { info } from "../util/utils";
 
 type Hash = number;
 
@@ -62,12 +61,10 @@ export class Index {
     hashFilter = this.hashFilter
   ): Promise<Report> {
 
-    info(`Tokenizing ${ files.length} files`);
     const tokenizedFiles = files.map(f => this.tokenizer.tokenizeFile(f));
     const report = new Report(this.options, tokenizedFiles);
 
     for (const file of tokenizedFiles) {
-      info(`Processing file ${file.path}`);
       let kgram = 0;
       for await (
         const { data, hash, start, stop  }
@@ -116,9 +113,7 @@ export class Index {
         kgram += 1;
       }
     }
-    info("Finishing report.");
     report.finish();
-    info("Done.");
     return report;
   }
 

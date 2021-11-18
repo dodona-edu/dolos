@@ -38,7 +38,7 @@ or by running `dolos help run`.
 
 ## Output format
 
-You can specify how Dolos reports its results by setting the `-f` or `--format` flag.
+You can specify how Dolos reports its results by setting the `-f` or `--output-format` flag.
 Formatting options are:
  - **terminal**: outputs plain text output in your terminal (default)
  - **web**: starts a webserver where you can interactively view results

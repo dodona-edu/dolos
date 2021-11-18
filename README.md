@@ -51,7 +51,7 @@ show the results in your browser.
 
 Launch Dolos using the following command in your terminal:
 ```shell
-dolos --format web --language <language> path/to/your/files/*
+dolos -f web --language <language> path/to/your/files/*
 ```
 The above command will launch a web interface with the analysis results at <http://localhost:3000>.
 

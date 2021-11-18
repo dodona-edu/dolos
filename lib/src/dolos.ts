@@ -4,14 +4,19 @@ import { CustomOptions, Options } from "./lib/util/options";
 import { CodeTokenizer } from "./lib/tokenizer/codeTokenizer";
 import { ExtraInfo, File } from "./lib/file/file";
 import { Result } from "./lib/util/result";
-import { info, error } from "./lib/util/utils";
 import { csvParse, DSVRowString } from "d3-dsv";
 import * as path from "path";
 import { Tokenizer } from "./lib/tokenizer/tokenizer";
 import { CharTokenizer } from "./lib/tokenizer/charTokenizer";
 import { default as fsWithCallbacks } from "fs";
-export { FileView } from "./cli/views/fileView";
 const fs = fsWithCallbacks.promises;
+
+export { Report, ScoredPairs } from "./lib/analyze/report";
+export { Fragment } from "./lib/analyze/fragment";
+export { Region } from "./lib/util/region";
+export { Pair } from "./lib/analyze/pair";
+export { Options } from "./lib/util/options";
+
 
 function newTokenizer(language: string): Tokenizer {
   if (language == "chars") {
@@ -34,12 +39,10 @@ export class Dolos {
   }
 
   public async analyzePaths(paths: string[]): Promise<Report> {
-    info("=== Starting report ===");
     let files = null;
     if(paths.length == 1) {
       const infoPath = paths[0];
       if(infoPath.toLowerCase().endsWith(".csv")) {
-        info("Reading info-file from Dodona");
         const dirname = path.dirname(infoPath);
         try {
           files = csvParse((await fs.readFile(infoPath)).toString())
@@ -57,14 +60,12 @@ export class Dolos {
             }))
             .map((row: ExtraInfo) => File.fromPath(path.join(dirname, row.filename), row));
         } catch(e) {
-          error(e);
           throw new Error("The given '.csv'-file could not be opened");
         }
       } else {
         throw new Error("You only gave one file wich is not a '.csv.'-file. ");
       }
     } else {
-      info(`Reading ${ paths.length} files`);
       files = paths.map(location => File.fromPath(location));
     }
     return this.analyze((await Result.all(files)).ok());
