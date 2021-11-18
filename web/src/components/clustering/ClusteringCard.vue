@@ -78,10 +78,6 @@ export default class ClusteringCard extends Vue {
 </script>
 
 <style scoped>
-.file-element {
-  flex: 0 1 calc(33% - 20px);
-}
-
 .empty-space {
   width: 50px
 }
