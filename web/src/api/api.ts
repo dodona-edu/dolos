@@ -91,32 +91,32 @@ export interface ApiData {
 }
 
 async function fetchFiles(
-  url = DATA_URL + "/files.csv"
+  url = DATA_URL + "files.csv"
 ): Promise<d3.DSVRowArray> {
   return await d3.csv(url);
 }
 
 async function fetchPairs(
-  url = DATA_URL + "/pairs.csv"
+  url = DATA_URL + "pairs.csv"
 ): Promise<d3.DSVRowArray> {
   return await d3.csv(url);
 }
 
 async function fetchKgrams(
-  url = DATA_URL + "/kgrams.csv"
+  url = DATA_URL + "kgrams.csv"
 ): Promise<d3.DSVRowArray> {
   return await d3.csv(url);
 }
 
 async function fetchMetadata(
-  url = DATA_URL + "/metadata.csv"
+  url = DATA_URL + "metadata.csv"
 ): Promise<d3.DSVRowArray> {
   return await d3.csv(url);
 }
 
 async function fetchFragments(
   pairId: number,
-  url = DATA_URL + "/fragments/"
+  url = DATA_URL + "fragments/"
 ): Promise<string> {
   return await d3.text(url + pairId + ".json");
 }
