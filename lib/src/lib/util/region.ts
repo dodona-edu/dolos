@@ -86,4 +86,53 @@ export class Region {
     return `Selection {${this.startRow}:${this.startCol} ` +
       `-> ${this.endRow}:${this.endCol}}`;
   }
+
+  public static diff(source: Region, ...other: Region[]) : Region[] {
+    type Point = [number, number]
+    const regionToPoints = (r: Region): [Point, Point] => [[r.startRow, r.startCol], [r.endRow, r.endCol]];
+    const [startPoint, endPoint] = regionToPoints(source);
+
+    const pointArray = other.map(regionToPoints);
+    const pointMap = new Map(pointArray);
+
+    const points = [startPoint, endPoint, ...pointMap.keys(), ...pointMap.values()];
+    const sortfunc = (a: Point, b: Point): number => a[0] == b[0] ? (a[1] - b[1]) : (a[0] - b[0]);  
+    points.sort(sortfunc);
+
+
+    const result: Region[] = [];
+    const stack: Set<Point> = new Set();
+    let hasStarted = false;
+    let currentIndex = 0;
+    let firstPoint: Point | null = null;
+
+    while (points[currentIndex] !== endPoint) {
+      const p = points[currentIndex];
+
+      if(p === startPoint)
+        hasStarted = true;
+
+
+      if(pointMap.has(p)) {
+
+        if(stack.size == 0 && hasStarted)
+          result.push(new Region(...firstPoint!, ...p));
+
+        stack.add(pointMap.get(p)!);
+
+      } else {
+        stack.delete(p);
+        if(stack.size == 0 && hasStarted)
+          firstPoint = p;
+      }
+
+      currentIndex += 1;
+    }
+
+    if(stack.size == 0) {
+      result.push(new Region(...firstPoint!, ...endPoint));
+    }
+
+    return result;
+  }
 }

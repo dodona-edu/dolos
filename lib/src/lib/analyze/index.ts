@@ -1,4 +1,3 @@
-import assert from "assert";
 import { HashFilter } from "../hashing/hashFilter";
 import { Options } from "../util/options";
 import { Range } from "../util/range";
@@ -74,16 +73,20 @@ export class Index {
         // add kgram to file
         file.kgrams.push(new Range(start, stop));
 
-        // sanity check
-        assert(
-          Region.isInOrder(
-            file.mapping[start],
-            file.mapping[stop]
-          ),
-          `Invallid ordering:
-            expected ${file.mapping[start]}
-            to start be before the end of ${file.mapping[stop]}`
-        );
+        if(!Region.isInOrder(file.mapping[start], file.mapping[stop])) {
+          console.log("ok");
+        }
+
+        // // sanity check
+        // assert(
+        //   Region.isInOrder(
+        //     file.mapping[start],
+        //     file.mapping[stop]
+        //   ),
+        //   `Invallid ordering:
+        //     expected ${file.mapping[start]}
+        //     to start be before the end of ${file.mapping[stop]}`
+        // );
 
         const location = Region.merge(
           file.mapping[start],
