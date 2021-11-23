@@ -107,6 +107,7 @@ export class FileView extends View {
         "path": f => f.path,
         "content": f => f.content,
         "ast": f => f.ast.join(" "),
+        "amountOfKgrams": f => f.kgrams.length,
         "extra": f => JSON.stringify(f.extra)
       });
   }

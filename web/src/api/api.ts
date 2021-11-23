@@ -24,6 +24,7 @@ export interface File {
   path: string;
   content: string;
   ast: string;
+  amountOfKgrams: number;
   /* eslint-disable camelcase */
   extra: {
     timestamp?: Date;
