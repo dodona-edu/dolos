@@ -44,6 +44,7 @@ interface FileIndeterminate {
   astAndMappingLoaded: boolean;
   ast: string[] | string;
   mapping: Selection[] | string;
+  amountOfKgrams: number;
   /* eslint-disable camelcase */
   extra: {
     timestamp?: Date;
