@@ -14890,7 +14890,7 @@ vuepress@^1.5.3:
     opencollective-postinstall "^2.0.2"
     update-notifier "^4.0.0"
 
-vuetify-loader@^1.7.2:
+vuetify-loader@^1.7.3:
   version "1.7.3"
   resolved "https://registry.yarnpkg.com/vuetify-loader/-/vuetify-loader-1.7.3.tgz#404657f4925c828f400fe3269003421d586835c6"
   integrity sha512-1Kt6Rfvuw3i9BBlxC9WTMnU3WEU7IBWQmDX+fYGAVGpzWCX7oHythUIwPCZGShHSYcPMKSDbXTPP8UvT5RNw8Q==
