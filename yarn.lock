@@ -14115,6 +14115,13 @@ tree-sitter-c@^0.19.0:
   dependencies:
     nan "^2.14.0"
 
+tree-sitter-c@^0.20.1:
+  version "0.20.1"
+  resolved "https://registry.yarnpkg.com/tree-sitter-c/-/tree-sitter-c-0.20.1.tgz#0f3b00f92ef8a67068e6a83fc066ca6dac029240"
+  integrity sha512-aKDkF8wj1dnAG4D4vSMYBF4Z2ALropFiVdbQbu8YpiQRFgc3wZtjGGowiwiBHaV+RqSF8x7JCek4+VqkBByW/Q==
+  dependencies:
+    nan "^2.14.0"
+
 tree-sitter-java@^0.19.1:
   version "0.19.1"
   resolved "https://registry.yarnpkg.com/tree-sitter-java/-/tree-sitter-java-0.19.1.tgz#c1bf59caaa81bf8a4a6dda99e7c97e51b3bd26d4"
