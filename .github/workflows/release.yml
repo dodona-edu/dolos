@@ -73,6 +73,13 @@ jobs:
         run: |
           cd web/
           yarn build
+      - name: Publish @dodona/dolos-lib to NPM
+        uses: JS-DevTools/npm-publish@v1
+        with:
+          token: ${{ secrets.NPM_AUTH_TOKEN }}
+          package: ./lib/package.json
+          check-version: true
+          access: public
       - name: Publish @dodona/dolos-web to NPM
         uses: JS-DevTools/npm-publish@v1
         with:
