@@ -65,6 +65,10 @@ jobs:
           version: ${{ steps.parse_tag.outputs.version }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build lib
+        run: |
+          cd lib/
+          yarn build
       - name: Build CLI
         run: |
           cd cli/
