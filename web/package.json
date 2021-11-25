@@ -1,7 +1,7 @@
 {
   "name": "@dodona/dolos-web",
   "description": "Web UI for the Dolos plagiarism detection tool.",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "main": "dist/index.html",
   "scripts": {
     "serve": "vue-cli-service serve",

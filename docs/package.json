@@ -1,6 +1,6 @@
 {
   "name": "dolos-docs",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "Dolos source code plagiarism detection: information & documentation",
   "main": "index.js",
   "authors": {

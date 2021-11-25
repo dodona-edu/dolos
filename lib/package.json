@@ -1,6 +1,6 @@
 {
   "name": "@dodona/dolos-lib",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "main": "dist/dolos.js",
   "description": "Code similarity detection based on the Winnowing algorithm",
   "types": "dist/dolos.d.ts",
