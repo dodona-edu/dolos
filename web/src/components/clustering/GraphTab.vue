@@ -5,20 +5,26 @@
       :pairs="clusterPairs"
       :files="clusterFiles"
       :cutoff="cutoff"
-    ></Graph>
+      :legend="legend"
+    >
+    <GraphLegend :files="clusterFiles" @legend="l => legend = l"></GraphLegend>
+
+    </Graph>
   </div>
 </template>
 
 <script lang='ts'>
 import { Component, Prop, Watch } from "vue-property-decorator";
-import Graph from "../Graph.vue";
+import Graph from "../graph/Graph.vue";
+import GraphLegend from "../graph/GraphLegend.vue";
+
 import DataView from "@/views/DataView";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
 import { getClusterElementsArray } from "@/util/clustering-algorithms/ClusterFunctions";
 import { Pair, File } from "@/api/api";
 
 @Component({
-  components: { Graph: Graph as any },
+  components: { Graph: Graph as any, GraphLegend },
 })
 export default class GraphTab extends DataView {
   @Prop() cluster!: Cluster;
@@ -27,6 +33,7 @@ export default class GraphTab extends DataView {
   clusterPairs: Pair[] = [];
 
   cutoff = 0;
+  legend = [];
 
   mounted(): void {
     this.ensureData();
