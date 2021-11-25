@@ -20,6 +20,7 @@ export default class PlagarismGraph {
   @Prop() pairs;
   @Prop() cutoff;
   @Prop() showSingletons;
+  @Prop({default: {}}) legend;
 
   created() {
     this.updateRoute();
@@ -94,7 +95,6 @@ export default class PlagarismGraph {
       links: [],
       width: 100,
       height: 100,
-      legend: [],
     };
   }
 
@@ -126,7 +126,9 @@ export default class PlagarismGraph {
   @Watch("cutoff")
   @Watch("files")
   @Watch("showSingletons")
+  @Watch("legend")
   updateGraph() {
+    console.log("updating");
     setTimeout(() => this.resizeHandler(), 50);
 
     if (this.delayUpdateGraph >= 0) clearTimeout(this.delayUpdateGraph);
@@ -134,11 +136,12 @@ export default class PlagarismGraph {
       this.delayUpdateGraph = -1;
       const nodeMap = this.getRawNodeMap();
       const labels = this.legend;
+      console.log(labels)
       Object.values(nodeMap).forEach((node) => {
         node.component = -1;
         node.neighbors = [];
         node.links = [];
-        node.visible = labels[node.label].selected;
+        node.visible = labels[node.label]? labels[node.label].selected:true;
       });
       this.links = Object.entries(this.pairs)
         .filter(([key, value]) => value.similarity >= this.cutoff)
@@ -202,9 +205,12 @@ export default class PlagarismGraph {
           }
         });
         node.source = outgoing > 1 && incoming === 0;
-        node.fillColor = this.queryColorMap?.has(+node.id)
+        node.fillColor =
+          this.queryColorMap.size > 0 ?
+        (this.queryColorMap?.has(+node.id)
           ? this.queryColorMap.get(+node.id)
-          : labels[node.label].color;
+          : 'grey')
+          : !labels[node.label] ? d3.schemeCategory10[0]:labels[node.label].color;
       });
     }, 50);
   }
@@ -251,7 +257,7 @@ export default class PlagarismGraph {
       selected: true,
       color: colorScale(p),
     }));
-    this.legend = Object.fromEntries(labels.map((p) => [p.label, p]));
+    // this.legend = Object.fromEntries(labels.map((p) => [p.label, p]));
     return (this._nodeMap = nodeMap);
   }
 
