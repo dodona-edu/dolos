@@ -1,0 +1,25 @@
+@font-face {
+  font-family: Roboto;
+  src: url(Roboto-Regular.ttf);
+}
+
+.navbar {
+  background-color: #1976D2;
+  height: 48px;
+  left: 0px;
+  right: 0px;
+  margin: 0;
+}
+.navbar .navbar-content {
+  padding: 16px;
+  color: white;
+}
+
+body {
+  font-family:"Roboto";
+  margin: 0;
+}
+
+.main-container {
+  padding: 10px;
+}

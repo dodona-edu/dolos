@@ -46,7 +46,7 @@ jobs:
           path: |
             ${{ github.workspace }}/node_modules
             ${{ github.workspace }}/*/node_modules
-          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('/yarn.lock') }}
+          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('/yarn.lock') }}-${{ hashFiles('/package.json') }}
       - name: Check if cache was hit
         if: steps.cache-dependencies.outputs.cache-hit != 'true'
         run: |
@@ -65,6 +65,10 @@ jobs:
           version: ${{ steps.parse_tag.outputs.version }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build lib
+        run: |
+          cd lib/
+          yarn build
       - name: Build CLI
         run: |
           cd cli/
@@ -73,6 +77,13 @@ jobs:
         run: |
           cd web/
           yarn build
+      - name: Publish @dodona/dolos-lib to NPM
+        uses: JS-DevTools/npm-publish@v1
+        with:
+          token: ${{ secrets.NPM_AUTH_TOKEN }}
+          package: ./lib/package.json
+          check-version: true
+          access: public
       - name: Publish @dodona/dolos-web to NPM
         uses: JS-DevTools/npm-publish@v1
         with:
