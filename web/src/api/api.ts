@@ -138,7 +138,7 @@ function parseFiles(fileData: d3.DSVRowArray): ObjMap<File> {
   );
 }
 
-function parseFragments(dolosFragments: DolosFragment[], kgrams: ObjMap<Kgram>): Fragment[] {
+function parseFragments(dolosFragments: DolosFragment[], hashToKmer: ObjMap<Kgram>): Fragment[] {
   // const parsed = JSON.parse(fragmentsJson);
   return dolosFragments.map((dolosFragment: DolosFragment): Fragment => {
     return {
@@ -149,7 +149,7 @@ function parseFragments(dolosFragments: DolosFragment[], kgrams: ObjMap<Kgram>):
       data: dolosFragment.mergedData!,
       occurrences: dolosFragment.pairs.map((occurrence): PairedOccurrence => {
         return {
-          kgram: kgrams[occurrence.fingerprint.id],
+          kgram: hashToKmer[occurrence.fingerprint.hash],
           left: occurrence.left,
           right: occurrence.right
         };
@@ -231,7 +231,12 @@ export async function loadFragments(pair: Pair, kmers: ObjMap<Kgram>, customOpti
     [fileToTokenizedFile(pair.leftFile), fileToTokenizedFile(pair.rightFile)]
   );
   const reportPair = report.scoredPairs[0].pair;
-  pair.fragments = parseFragments(reportPair.fragments(), kmers);
+  const hashToKmers: ObjMap<Kgram> = {};
+  for (const kmerKey in kmers) {
+    const kmer = kmers[kmerKey];
+    hashToKmers[kmer.hash] = kmer;
+  }
+  pair.fragments = parseFragments(reportPair.fragments(), hashToKmers);
 }
 
 export async function fetchData(): Promise<ApiData> {
