@@ -201,22 +201,19 @@ function parseKgrams(kgramData: d3.DSVRowArray, fileMap: ObjMap<File>): ObjMap<K
 
 type MetaRowType = { type: "string"; value: string } |
   { type: "boolean"; value: boolean } |
-  { type: "number"; value: number}
+  { type: "number"; value: number} |
+  { type: "object"; value: null }
 
 function castToType(row: d3.DSVRowString): MetaRowType {
   const rowValue = row.value;
   const rowType = row.type;
   const newRow = row as MetaRowType;
-  if (!rowValue) {
-    return newRow as MetaRowType;
-  }
-  switch (rowType) {
-  case "string":
+  if (rowType === "boolean") {
+    newRow.value = rowValue ? rowValue.toLowerCase() === "true" : false;
+  } else if (rowValue && rowType === "number") {
     newRow.value = Number.parseFloat(rowValue);
-    break;
-  case "boolean":
-    newRow.value = rowValue.toLowerCase() === "true";
-    break;
+  } else if (rowType === "object") {
+    newRow.value = null;
   }
   return newRow;
 }
