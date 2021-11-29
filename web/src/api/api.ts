@@ -20,7 +20,7 @@ function assertType<T>(item: T | undefined | null): T {
   }
   return item;
 }
-
+type Hash = number;
 /**
  * Simple interface for plain javascript objects with numeric keys.
  */
@@ -52,7 +52,7 @@ export interface File {
 
 export interface Kgram {
   id: number;
-  hash: number;
+  hash: Hash;
   data: string;
   files: File[];
 }
@@ -138,7 +138,7 @@ function parseFiles(fileData: d3.DSVRowArray): ObjMap<File> {
   );
 }
 
-function parseFragments(dolosFragments: DolosFragment[], hashToKmer: ObjMap<Kgram>): Fragment[] {
+function parseFragments(dolosFragments: DolosFragment[], kmersMap: Map<Hash, Kgram>): Fragment[] {
   // const parsed = JSON.parse(fragmentsJson);
   return dolosFragments.map((dolosFragment: DolosFragment): Fragment => {
     return {
@@ -149,7 +149,7 @@ function parseFragments(dolosFragments: DolosFragment[], hashToKmer: ObjMap<Kgra
       data: dolosFragment.mergedData!,
       occurrences: dolosFragment.pairs.map((occurrence): PairedOccurrence => {
         return {
-          kgram: hashToKmer[occurrence.fingerprint.hash],
+          kgram: assertType(kmersMap.get(occurrence.fingerprint.hash)),
           left: occurrence.left,
           right: occurrence.right
         };
@@ -237,12 +237,12 @@ export async function loadFragments(pair: Pair, kmers: ObjMap<Kgram>, customOpti
     [fileToTokenizedFile(pair.leftFile), fileToTokenizedFile(pair.rightFile)]
   );
   const reportPair = report.scoredPairs[0].pair;
-  const hashToKmers: ObjMap<Kgram> = {};
+  const kmersMap: Map<Hash, Kgram> = new Map();
   for (const kmerKey in kmers) {
     const kmer = kmers[kmerKey];
-    hashToKmers[kmer.hash] = kmer;
+    kmersMap.set(kmer.hash, kmer);
   }
-  pair.fragments = parseFragments(reportPair.fragments(), hashToKmers);
+  pair.fragments = parseFragments(reportPair.fragments(), kmersMap);
 }
 
 export async function fetchData(): Promise<ApiData> {
