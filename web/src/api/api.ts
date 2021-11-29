@@ -199,22 +199,31 @@ function parseKgrams(kgramData: d3.DSVRowArray, fileMap: ObjMap<File>): ObjMap<K
   }));
 }
 
-function castToType(rowValue: string | null, rowType: string): string | boolean | number | null {
-  if (rowValue && rowType === "string") {
-    return rowValue;
-  } else if (rowValue && rowType === "number") {
-    return Number.parseFloat(rowValue);
-  } else if (rowType === "boolean") {
-    if (!rowValue) return false;
-    if (rowValue.toLowerCase() === "true") return true;
-    if (rowValue.toLowerCase() === "false") return false;
+type MetaRowType = { type: "string"; value: string } |
+  { type: "boolean"; value: boolean } |
+  { type: "number"; value: number}
+
+function castToType(row: d3.DSVRowString): MetaRowType {
+  const rowValue = row.value;
+  const rowType = row.type;
+  const newRow = row as MetaRowType;
+  if (!rowValue) {
+    return newRow as MetaRowType;
   }
-  return null;
+  switch (rowType) {
+  case "string":
+    newRow.value = Number.parseFloat(rowValue);
+    break;
+  case "boolean":
+    newRow.value = rowValue.toLowerCase() === "true";
+    break;
+  }
+  return newRow;
 }
 
 function parseMetadata(data: d3.DSVRowArray): Metadata {
   return Object.fromEntries(
-    data.map(row => [row.property, castToType(row.value as string | null, row.type as string)])
+    data.map(row => [row.property, castToType(row).value])
   );
 }
 
