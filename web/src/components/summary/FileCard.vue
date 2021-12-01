@@ -6,7 +6,7 @@
     <div class="d-flex">
       <!-- Main part of the card -->
       <div class="half-size" v-if="dataLoaded">
-        <SimilarityHistogram />
+        <SimilarityHistogram :numberOfTicks="30" :extraLine="file.similarityScore.similarity" />
       </div>
       <!-- Aside with extra info -->
       <div>

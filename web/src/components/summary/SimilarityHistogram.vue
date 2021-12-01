@@ -2,7 +2,7 @@
   <div :id="getSvgId()"></div>
 </template>
 <script lang="ts">
-import { Component } from "vue-property-decorator";
+import { Component, Prop } from "vue-property-decorator";
 import { Pair, File } from "@/api/api";
 import { pairsAsNestedMap } from "@/util/PairAsNestedMap";
 import * as d3 from "d3";
@@ -11,6 +11,9 @@ import DataView from "@/views/DataView";
 
 @Component({})
 export default class SimilarityHistogram extends DataView {
+  @Prop({ default: 50 }) numberOfTicks!: number;
+  @Prop() extraLine: undefined | number;
+
   private maxFileData: number[] = [];
 
   private margin: { left: number; right: number; top: number; bottom: number };
@@ -35,7 +38,7 @@ export default class SimilarityHistogram extends DataView {
     const histogram = d3
       .bin()
       .domain(xScale.domain() as [number, number])
-      .thresholds(xScale.ticks(50));
+      .thresholds(xScale.ticks(this.numberOfTicks));
     const bins = histogram(this.maxFileData);
     const yScale = this.getYScale(bins);
 
@@ -104,7 +107,17 @@ export default class SimilarityHistogram extends DataView {
       .attr("height", function (d) {
         return h - yScale(d.length);
       })
-      .style("fill", "#1976D2");
+      .style("fill", d => this.getBinColor(d));
+
+    if (this.extraLine !== undefined) {
+      svg
+        .append("line")
+        .attr("x1", xScale(this.extraLine))
+        .attr("y1", 0)
+        .attr("x2", xScale(this.extraLine))
+        .attr("y2", this.height)
+        .attr("stroke", "black");
+    }
   }
 
   getMaxFileData(): number[] {
@@ -130,6 +143,20 @@ export default class SimilarityHistogram extends DataView {
     }
 
     return this._svgId;
+  }
+
+  getBinColor(d: d3.Bin<number, number>): string {
+    const defaultColor = "#1976D2";
+    const warningColor = "red";
+
+    if (
+      this.extraLine !== undefined &&
+      (d.x0 || 0) < this.extraLine &&
+      (d.x1 || 0) >= this.extraLine
+    ) {
+      return warningColor;
+    }
+    return defaultColor;
   }
 }
 </script>
