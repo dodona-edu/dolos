@@ -11,7 +11,8 @@
     "debug": "yarn build && node inspect dist/cli.js",
     "build": "tsc --build --verbose",
     "force-build": "tsc --build --verbose --force",
-    "lint": "eslint --ext .ts src/"
+    "lint": "eslint --ext .ts src/",
+    "run:watch": "npx nodemon -e \"ts\" -w ../lib/src/lib/ --exec \"clear && yarn run dolos run ../lib/samples/javascript/*.js\" "
   },
   "repository": {
     "type": "git",
