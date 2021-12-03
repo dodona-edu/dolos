@@ -71,7 +71,12 @@ export default class CompareSide extends Vue {
   }
 
   async mounted(): Promise<void> {
-    await this.highlight();
+    // await this.highlight();
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    const that = this;
+    setTimeout(async function () {
+      await that.highlight();
+    }, 50);
     this.emitLinesVisibleAmount();
     window.addEventListener("resize", this.emitLinesVisibleAmount);
   }
