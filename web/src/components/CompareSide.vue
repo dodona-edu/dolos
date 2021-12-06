@@ -71,11 +71,11 @@ export default class CompareSide extends Vue {
   }
 
   async mounted(): Promise<void> {
-    // await this.highlight();
-    // eslint-disable-next-line @typescript-eslint/no-this-alias
-    const that = this;
-    setTimeout(async function () {
-      await that.highlight();
+    // This timeout is needed to assure that the highlight function works. If this is not done then the first time
+    // component is loaded, the kmers will not be proberly highlighted. This is probably due to the `Prism.hooks.add`
+    // call in OccurrenceHighlight#registerFragmentHighlighting happening too early.
+    setTimeout(async () => {
+      await this.highlight();
     }, 50);
     this.emitLinesVisibleAmount();
     window.addEventListener("resize", this.emitLinesVisibleAmount);
