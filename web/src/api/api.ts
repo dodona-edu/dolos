@@ -1,12 +1,14 @@
 import * as d3 from "d3";
 
 import {
+  CustomOptions,
+  EmptyTokenizer,
   File as DolosFile,
-  Region,
-  TokenizedFile,
   Fragment as DolosFragment,
   Index,
-  EmptyTokenizer, CustomOptions, Options
+  Options,
+  Region,
+  TokenizedFile
 } from "@dodona/dolos-lib";
 // import { assertType } from "typescript-is";
 
@@ -35,12 +37,13 @@ export interface Selection {
   endCol: number;
 }
 
-export interface File {
+interface FileIndeterminate {
   id: number;
   path: string;
   content: string;
-  ast: string[];
-  mapping: Selection[];
+  astAndMappingLoaded: boolean;
+  ast: string[] | string;
+  mapping: Selection[] | string;
   /* eslint-disable camelcase */
   extra: {
     timestamp?: Date;
@@ -49,6 +52,20 @@ export interface File {
   };
   /* eslint-enable camelcase */
 }
+
+interface LoadedFile extends FileIndeterminate {
+  astAndMappingLoaded: true;
+  ast: string[];
+  mapping: Selection[];
+}
+
+interface UnloadedFile extends FileIndeterminate {
+  astAndMappingLoaded: false;
+  ast: string;
+  mapping: string;
+}
+
+export type File = LoadedFile | UnloadedFile;
 
 export interface Kgram {
   id: number;
@@ -126,13 +143,15 @@ async function fetchMetadata(
 }
 
 function parseFiles(fileData: d3.DSVRowArray): ObjMap<File> {
+  // const start = performance.now();
+  // console.log(performance.now() - start);
   return Object.fromEntries(
     fileData.map(row => {
       const extra = JSON.parse(row.extra || "{}");
       extra.timestamp = extra.createdAt && new Date(extra.createdAt);
       row.extra = extra;
-      row.mapping = JSON.parse(row.mapping || "[]");
-      row.ast = JSON.parse(row.ast || "[]");
+      // row.mapping = JSON.parse(row.mapping || "[]");
+      // row.ast = JSON.parse(row.ast || "[]");
       return [row.id, row];
     })
   );
@@ -226,7 +245,11 @@ function parseMetadata(data: d3.DSVRowArray): Metadata {
 
 function fileToTokenizedFile(file: File): TokenizedFile {
   const dolosFile = new DolosFile(file.path, file.content);
-  return new TokenizedFile(dolosFile, file.ast, file.mapping as Region[]);
+  if (file.astAndMappingLoaded) {
+    return new TokenizedFile(dolosFile, file.ast, file.mapping as Region[]);
+  } else {
+    throw new Error("File AST and mapping not parsed");
+  }
 }
 
 export async function loadFragments(pair: Pair, kmers: ObjMap<Kgram>, customOptions: CustomOptions): Promise<void> {
