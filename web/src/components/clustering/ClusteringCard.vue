@@ -19,7 +19,7 @@
 
         <v-tab :key="3">Time Chart</v-tab>
         <v-tab-item v-if="cluster">
-          <TimeSeries :cluster="cluster"/>
+          <TimeSeriesCard :cluster="cluster"/>
         </v-tab-item>
 
         <v-tab :key="4">Similarity Data</v-tab>
@@ -49,9 +49,9 @@ import { File } from "@/api/api";
 import HeatMap from "./HeatMap.vue";
 import DataTab from "./DataTab.vue";
 import GraphTab from "./GraphTab.vue";
-import TimeSeries from "./TimeSeries.vue";
+import TimeSeriesCard from "./TimeSeriesCard.vue";
 
-@Component({ components: { HeatMap, DataTab, GraphTab, TimeSeries } })
+@Component({ components: { HeatMap, DataTab, GraphTab, TimeSeriesCard } })
 export default class ClusteringCard extends Vue {
   @Prop() cluster!: Cluster;
   @Prop() cutoff!: number;
