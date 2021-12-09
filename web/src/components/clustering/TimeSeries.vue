@@ -42,20 +42,13 @@ export default class TimeSeriesDiagram extends Vue {
     const xScale = this.getXScale(data);
     this.applySimulation(xScale, data);
     const svg = this.addSVG(xScale, data);
+    this.addSelectionTool(svg, data);
 
     this.setLegend = (legend: Legend) => {
       this.legend = legend;
-      this.addSVG(xScale, data);
+      const svg = this.addSVG(xScale, data);
+      this.addSelectionTool(svg, data);
     };
-
-    if (this.selection) {
-      const selectionTool = new SelectionTool<TimeDataType>(
-        svg,
-        data,
-        () => ({ height: this.height, width: this.width, margin: this.margin }),
-        (d: TimeDataType[]) => this.$emit("filedata", d.map(f => f.file)),
-      );
-    }
   }
 
   private getXScale(files: TimeDataType[]): d3.ScaleTime<number, number> {
@@ -128,6 +121,20 @@ export default class TimeSeriesDiagram extends Vue {
           .attr("cx", (d: TimeDataType) => d?.x || 0)
           .attr("cy", (d: TimeDataType) => d?.y || 0)
       );
+  }
+
+  private addSelectionTool(
+    svg: d3.Selection<SVGSVGElement, TimeDataType, HTMLElement, unknown>,
+    data: {file: File}[]
+  ): void {
+    if (this.selection) {
+      const selectionTool = new SelectionTool<TimeDataType>(
+        svg,
+        data,
+        () => ({ height: this.height, width: this.width, margin: this.margin }),
+        (d: TimeDataType[]) => this.$emit("filedata", d.map(f => f.file)),
+      );
+    }
   }
 
   private _svgId: string | null = null;
