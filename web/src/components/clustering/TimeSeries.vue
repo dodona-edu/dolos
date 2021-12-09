@@ -1,16 +1,20 @@
 <template>
-  <div :id="getSvgId()"></div>
+  <div :id="getSvgId()">
+    <GraphLegend :files="legendData()" @legend="l => legend = l"/>
+  </div>
 </template>
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import { File } from "@/api/api";
 import * as d3 from "d3";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
 import { getClusterElementsArray } from "@/util/clustering-algorithms/ClusterFunctions";
 import { SelectionTool, xCoord } from "@/d3-tools/SelectionTool";
+import GraphLegend, { Legend } from "@/d3-tools/GraphLegend.vue";
+
 interface TimeDataType extends xCoord { file: File, y?: number }
 
-@Component({})
+@Component({ components: { GraphLegend } })
 export default class TimeSeriesDiagram extends Vue {
   @Prop() cluster!: Cluster;
   @Prop({ default: false }) selection!: boolean;
@@ -18,6 +22,7 @@ export default class TimeSeriesDiagram extends Vue {
   private margin: { left: number; right: number; top: number; bottom: number };
   private width: number;
   private height: number;
+  private legend: Legend | undefined;
 
   constructor() {
     super();
@@ -52,6 +57,7 @@ export default class TimeSeriesDiagram extends Vue {
       .range([0, this.width]);
   }
 
+  @Watch("legend")
   private addSVG(
     xScale: d3.ScaleTime<number, number>,
     data: TimeDataType[]
@@ -87,7 +93,7 @@ export default class TimeSeriesDiagram extends Vue {
       .attr("r", 5)
       .attr("cx", (d) => xScale(d.file.extra.timestamp!))
       .attr("cy", this.height / 2)
-      .attr("fill", "#1976D2");
+      .attr("fill", d => this.getColor((d.file)));
 
     return svg;
   }
@@ -123,6 +129,16 @@ export default class TimeSeriesDiagram extends Vue {
       this._svgId = `svg-file-histogram-${Math.round(Math.random() * 100000)}`;
     }
     return this._svgId;
+  }
+
+  legendData(): File[] {
+    return getClusterElementsArray(this.cluster);
+  }
+
+  getColor(f: File): string {
+    return f.extra?.labels && this.legend
+      ? this.legend[f.extra.labels].color
+      : "#1976D2";
   }
 }
 </script>

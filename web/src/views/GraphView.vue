@@ -54,7 +54,7 @@ import { Component, Watch } from "vue-property-decorator";
 import { File } from "@/api/api";
 import DataView from "@/views/DataView";
 import Graph from "../components/graph/Graph.vue";
-import GraphLegend from "../components/graph/GraphLegend.vue";
+import GraphLegend from "../d3-tools/GraphLegend.vue";
 
 type EmptySelectedInfo = {
   path: string;
