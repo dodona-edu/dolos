@@ -18,7 +18,7 @@
         <div class="empty-space"></div>
 
         <v-tab :key="3">Time Chart</v-tab>
-        <v-tab-item v-if="cluster">
+        <v-tab-item v-if="cluster && showClusterTimeline(cluster)">
           <TimeSeriesCard :cluster="cluster"/>
         </v-tab-item>
 
@@ -79,6 +79,10 @@ export default class ClusteringCard extends Vue {
       .join(",");
 
     this.$router.push(`/?showIds=${items}`);
+  }
+
+  public showClusterTimeline(cluster: Cluster): boolean {
+    return getClusterElementsArray(cluster).every(f => f.extra?.timestamp);
   }
 }
 </script>
