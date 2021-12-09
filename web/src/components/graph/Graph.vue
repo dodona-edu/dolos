@@ -106,7 +106,6 @@ export default class PlagarismGraph {
 
   @Watch("$refs.container")
   updateSize() {
-    console.log("refs");
     this.resizeHandler();
   }
 
@@ -128,7 +127,6 @@ export default class PlagarismGraph {
   @Watch("showSingletons")
   @Watch("legend")
   updateGraph() {
-    console.log("updating");
     setTimeout(() => this.resizeHandler(), 50);
 
     if (this.delayUpdateGraph >= 0) clearTimeout(this.delayUpdateGraph);
@@ -136,7 +134,6 @@ export default class PlagarismGraph {
       this.delayUpdateGraph = -1;
       const nodeMap = this.getRawNodeMap();
       const labels = this.legend;
-      console.log(labels)
       Object.values(nodeMap).forEach((node) => {
         node.component = -1;
         node.neighbors = [];
@@ -379,33 +376,6 @@ export default class PlagarismGraph {
   width: 100%;
   height: 100%;
   position: relative;
-
-  .legend {
-    position: absolute;
-    right: 0;
-    top: 0;
-    z-index: 4;
-    li {
-      display: block;
-
-      span.legend-color {
-        display: inline-block;
-        width: 1em;
-        height: 1em;
-        border: 2px white solid;
-      }
-
-      input.legend-checkbox {
-        display: none;
-
-        &:not(:checked) {
-          & + .legend-label {
-            opacity: 0.3;
-          }
-        }
-      }
-    }
-  }
 
   svg {
     position: absolute;

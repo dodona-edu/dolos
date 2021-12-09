@@ -30,6 +30,8 @@ import { Component, Vue, Prop, Watch } from "vue-property-decorator";
 import { File } from "@/api/api";
 import * as d3 from "d3";
 
+export type Legend = {[key: string]: { label: string; selected: boolean; color: string }};
+
 @Component({})
 export default class GraphLegend extends Vue {
   @Prop() files!: File[];
@@ -50,7 +52,7 @@ export default class GraphLegend extends Vue {
     this.$emit("legend", Object.assign({}, this.legend));
   }
 
-  createLegend(): {[key: string]: { label: string; selected: boolean; color: string }} {
+  createLegend(): Legend {
     const labels = new Set<string>();
 
     for (const file of this.files) {
@@ -70,3 +72,31 @@ export default class GraphLegend extends Vue {
   }
 }
 </script>
+<style scoped lang="scss">
+.legend {
+  position: absolute;
+  right: 0;
+  top: 0;
+  z-index: 4;
+  li {
+    display: block;
+
+  span.legend-color {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    border: 2px white solid;
+  }
+
+    input.legend-checkbox {
+      display: none;
+
+      &:not(:checked) {
+      & + .legend-label {
+          opacity: 0.3;
+        }
+      }
+    }
+  }
+}
+</style>

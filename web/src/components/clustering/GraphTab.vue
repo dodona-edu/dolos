@@ -16,7 +16,7 @@
 <script lang='ts'>
 import { Component, Prop, Watch } from "vue-property-decorator";
 import Graph from "../graph/Graph.vue";
-import GraphLegend from "../graph/GraphLegend.vue";
+import GraphLegend from "../../d3-tools/GraphLegend.vue";
 
 import DataView from "@/views/DataView";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
