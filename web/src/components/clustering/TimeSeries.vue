@@ -1,10 +1,10 @@
 <template>
   <div :id="getSvgId()">
-    <GraphLegend :files="legendData()" @legend="l => legend = l"/>
+    <GraphLegend :files="legendData()" @legend="setLegend"/>
   </div>
 </template>
 <script lang="ts">
-import { Component, Prop, Vue, Watch } from "vue-property-decorator";
+import { Component, Prop, Vue } from "vue-property-decorator";
 import { File } from "@/api/api";
 import * as d3 from "d3";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
@@ -23,12 +23,14 @@ export default class TimeSeriesDiagram extends Vue {
   private width: number;
   private height: number;
   private legend: Legend | undefined;
+  private setLegend: (l: Legend) => void;
 
   constructor() {
     super();
     this.margin = { top: 10, right: 30, bottom: 30, left: 40 };
     this.width = 1200 - this.margin.left - this.margin.right;
     this.height = 400 - this.margin.top - this.margin.bottom;
+    this.setLegend = l => { this.legend = l; };
   }
 
   mounted(): void {
@@ -40,6 +42,12 @@ export default class TimeSeriesDiagram extends Vue {
     const xScale = this.getXScale(data);
     this.applySimulation(xScale, data);
     const svg = this.addSVG(xScale, data);
+
+    this.setLegend = (legend: Legend) => {
+      this.legend = legend;
+      this.addSVG(xScale, data);
+    };
+
     if (this.selection) {
       const selectionTool = new SelectionTool<TimeDataType>(
         svg,
@@ -57,7 +65,6 @@ export default class TimeSeriesDiagram extends Vue {
       .range([0, this.width]);
   }
 
-  @Watch("legend")
   private addSVG(
     xScale: d3.ScaleTime<number, number>,
     data: TimeDataType[]
@@ -93,7 +100,8 @@ export default class TimeSeriesDiagram extends Vue {
       .attr("r", 5)
       .attr("cx", (d) => xScale(d.file.extra.timestamp!))
       .attr("cy", this.height / 2)
-      .attr("fill", d => this.getColor((d.file)));
+      .attr("fill", d => this.getColor((d.file)))
+      .attr("visibility", d => this.getVisibility(d.file));
 
     return svg;
   }
@@ -139,6 +147,12 @@ export default class TimeSeriesDiagram extends Vue {
     return f.extra?.labels && this.legend
       ? this.legend[f.extra.labels].color
       : "#1976D2";
+  }
+
+  getVisibility(f: File): string {
+    return f.extra?.labels && this.legend
+      ? this.legend[f.extra.labels].selected ? "visibile" : "hidden"
+      : "visible";
   }
 }
 </script>
