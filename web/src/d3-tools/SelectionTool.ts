@@ -125,7 +125,6 @@ export class SelectionTool<T extends xCoord> {
   }
 
   private getSelectionData(minCoord: number, maxCoord: number): T[] {
-    console.log(minCoord, maxCoord);
     const x = (d: T): number => d.x || 0;
     return this.data.filter(
       d => x(d) > minCoord - this.size().margin.left &&

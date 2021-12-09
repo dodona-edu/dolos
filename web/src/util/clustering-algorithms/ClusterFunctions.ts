@@ -1,5 +1,4 @@
 import { File, Pair } from "@/api/api";
-import { sum } from "d3-array";
 import { ListMap } from "../ListMap";
 import { Cluster, ClusteringGraph, Edge } from "./ClusterTypes";
 

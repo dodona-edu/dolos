@@ -30,7 +30,8 @@ export default class TimeSeriesDiagram extends Vue {
     this.margin = { top: 10, right: 30, bottom: 30, left: 40 };
     this.width = 1200 - this.margin.left - this.margin.right;
     this.height = 400 - this.margin.top - this.margin.bottom;
-    this.setLegend = l => { this.legend = l; };
+    // When the data has been computed, we will modify this function to also redraw the data
+    this.setLegend = function (l) { this.legend = l; };
   }
 
   mounted(): void {
@@ -44,10 +45,12 @@ export default class TimeSeriesDiagram extends Vue {
     const svg = this.addSVG(xScale, data);
     this.addSelectionTool(svg, data);
 
+    // When the data has been computed, make a new closure that encapsulates this data
     this.setLegend = (legend: Legend) => {
       this.legend = legend;
       const svg = this.addSVG(xScale, data);
       this.addSelectionTool(svg, data);
+      this.applySimulation(xScale, data);
     };
   }
 
@@ -65,7 +68,7 @@ export default class TimeSeriesDiagram extends Vue {
     d3.select(`#${this.getSvgId()}`).select("svg").remove();
 
     const svg = d3
-      .select<any, TimeDataType>(`#${this.getSvgId()}`)
+      .select<d3.BaseType, TimeDataType>(`#${this.getSvgId()}`)
       .append("svg")
       .attr("width", this.width + this.margin.left + this.margin.right)
       .attr(
@@ -128,7 +131,8 @@ export default class TimeSeriesDiagram extends Vue {
     data: {file: File}[]
   ): void {
     if (this.selection) {
-      const selectionTool = new SelectionTool<TimeDataType>(
+      // eslint-disable-next-line no-new
+      new SelectionTool<TimeDataType>(
         svg,
         data,
         () => ({ height: this.height, width: this.width, margin: this.margin }),
