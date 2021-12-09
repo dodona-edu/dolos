@@ -19,19 +19,16 @@ export default class TimeSeriesDiagram extends Vue {
   @Prop() cluster!: Cluster;
   @Prop({ default: false }) selection!: boolean;
 
-  private margin: { left: number; right: number; top: number; bottom: number };
-  private width: number;
-  private height: number;
+  private readonly margin: { left: number; right: number; top: number; bottom: number };
+  private readonly width: number;
+  private readonly height: number;
   private legend: Legend | undefined;
-  private setLegend: (l: Legend) => void;
 
   constructor() {
     super();
     this.margin = { top: 10, right: 30, bottom: 30, left: 40 };
     this.width = 1200 - this.margin.left - this.margin.right;
     this.height = 400 - this.margin.top - this.margin.bottom;
-    // When the data has been computed, we will modify this function to also redraw the data
-    this.setLegend = function (l) { this.legend = l; };
   }
 
   mounted(): void {
@@ -44,14 +41,6 @@ export default class TimeSeriesDiagram extends Vue {
     this.applySimulation(xScale, data);
     const svg = this.addSVG(xScale, data);
     this.addSelectionTool(svg, data);
-
-    // When the data has been computed, make a new closure that encapsulates this data
-    this.setLegend = (legend: Legend) => {
-      this.legend = legend;
-      const svg = this.addSVG(xScale, data);
-      this.addSelectionTool(svg, data);
-      this.applySimulation(xScale, data);
-    };
   }
 
   private getXScale(files: TimeDataType[]): d3.ScaleTime<number, number> {
@@ -164,6 +153,11 @@ export default class TimeSeriesDiagram extends Vue {
     return f.extra?.labels && this.legend
       ? this.legend[f.extra.labels].selected ? "visibile" : "hidden"
       : "visible";
+  }
+
+  private setLegend(l: Legend): void {
+    this.legend = l;
+    this.initialize();
   }
 }
 </script>
