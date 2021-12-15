@@ -2,7 +2,7 @@
   "name": "@dodona/dolos",
   "version": "1.4.0",
   "description": "Code similarity detection based on the Winnowing algorithm",
-  "main": "dist/cli.js",
+  "main": "dist/index.js",
   "bin": {
     "dolos": "dist/cli.js"
   },
