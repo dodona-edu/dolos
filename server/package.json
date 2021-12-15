@@ -2,15 +2,15 @@
   "name": "dolos-server",
   "version": "1.4.0",
   "description": "Prototype Dolos server",
-  "main": "index.ts",
+  "main": "dist/index.js",
   "license": "MIT",
   "private": true,
   "scripts": {
-    "serve": "tsc && node dist/index.js",
+    "serve": "tsc --build --verbose --force && node dist/index.js",
     "dev": "nodemon",
     "ts-node": "ts-node src/index.ts",
-    "build": "tsc --verbose --build",
-    "force-build": "tsc --verbose --build --force"
+    "build": "tsc --build --verbose ",
+    "force-build": "tsc --build --verbose  --force"
   },
   "devDependencies": {
     "@types/express": "^4.17.12",
