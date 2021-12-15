@@ -7,6 +7,6 @@ maxFingerprintPercentage,
 minFragmentLength,0
 limitResults,
 minSimilarity,0
-sortBy,total overlap
-fragmentSortBy,file order
+sortBy,total
+fragmentSortBy,none
 kgramData,
