@@ -28,7 +28,7 @@ import DataView from "@/views/DataView";
 
 import * as d3 from "d3";
 import { ScaleBand, ScaleLinear } from "d3";
-import { getClusterElementsArray } from "@/util/clustering-algorithms/ClusterFunctions";
+import { getClusterElementsArray, getClusterElementsSorted } from "@/util/clustering-algorithms/ClusterFunctions";
 import { pairsAsNestedMap } from "@/util/PairAsNestedMap";
 
 import { File, Pair } from "@/api/api";
@@ -89,7 +89,7 @@ export default class HeatMap extends DataView {
 
   private initializeAxes(): void {
     const [width, height] = this.dimensions;
-    const elements = getClusterElementsArray(this.cluster);
+    const elements = getClusterElementsSorted(this.cluster);
 
     this.xBand = d3
       .scaleBand<number>()

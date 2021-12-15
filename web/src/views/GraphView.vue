@@ -7,6 +7,7 @@
           :pairs="pairs"
           :cutoff="cutoff"
           :showSingletons="showSingletons"
+          :legend="legend"
           @selectedInfo="setSelectedInfo"
         >
           <!-- Extra UI elements to be added as overlay over the graph -->
@@ -30,32 +31,9 @@
               >
             </p>
           </form>
-          <div class="node-selected">
-            <ul v-if="Object.values(legend).length > 1" class="legend">
-              <li
-                v-for="legendDatum of Object.values(legend).sort()"
-                :key="legendDatum.label"
-              >
-                <label
-                  ><input
-                    type="checkbox"
-                    v-model="legendDatum.selected"
-                    class="legend-checkbox"
-                    @change="updateGraph"
-                  />
-                  <span class="legend-label"
-                    ><span
-                      class="legend-color"
-                      :style="{
-                        'background-color': legendDatum.color,
-                      }"
-                    ></span>
-                    {{ legendDatum.label }}
-                  </span></label
-                >
-              </li>
-            </ul>
 
+          <GraphLegend v-if="showLegend()" :files="fileArray" @legend="updateLegend"></GraphLegend>
+          <div class="node-selected">
             <!-- <span class="path">{{ selectedInfo.path }}</span> -->
             <ul v-if="selectedInfo.info !== undefined">
               <li v-if="selectedInfo.info.name !== undefined">
@@ -73,8 +51,10 @@
 
 <script lang="ts">
 import { Component, Watch } from "vue-property-decorator";
+import { File } from "@/api/api";
 import DataView from "@/views/DataView";
-import Graph from "../components/Graph.vue";
+import Graph from "../components/graph/Graph.vue";
+import GraphLegend from "../d3-tools/GraphLegend.vue";
 
 type EmptySelectedInfo = {
   path: string;
@@ -94,13 +74,19 @@ type FullSelectedInfo = {
 type SelectedInfo = EmptySelectedInfo | FullSelectedInfo;
 
 @Component({
-  components: { Graph: Graph as any },
+  components: { Graph: Graph as any, GraphLegend },
 })
 export default class PlagarismGraph extends DataView {
   public cutoff = 0.25;
   public showSingletons = false;
   public legend = [];
   public selectedInfo: SelectedInfo = { info: undefined, path: "" };
+  public fileArray: File[];
+
+  constructor() {
+    super();
+    this.fileArray = Array.from(Object.values(this.files));
+  }
 
   mounted(): void {
     this.ensureData();
@@ -110,9 +96,25 @@ export default class PlagarismGraph extends DataView {
     this.selectedInfo = v;
   }
 
+  updateLegend(l: never[]): void {
+    console.log(l);
+    this.legend = l;
+  }
+
+  @Watch("files")
+  initFileArray(): void {
+    this.fileArray = Array.from(Object.values(this.files));
+  }
+
   @Watch("$route")
   private onRouteChange(): void {
     this.cutoff = +this.$route.query.cutoff || 0.25;
+  }
+
+  showLegend(): boolean {
+    const { cutoff, ...colors } = this.$route.query;
+
+    return Array.from(Object.values(colors)).length === 0;
   }
 }
 </script>

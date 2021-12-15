@@ -17,15 +17,20 @@
 
         <div class="empty-space"></div>
 
-        <v-tab :key="3">Similarity Data</v-tab>
+        <v-tab :key="3">Time Chart</v-tab>
+        <v-tab-item v-if="cluster && showClusterTimeline(cluster)">
+          <TimeSeriesCard :cluster="cluster"/>
+        </v-tab-item>
+
+        <v-tab :key="4">Similarity Data</v-tab>
         <v-tab-item>
           <DataTab :cluster="cluster" :cutoff="cutoff" />
         </v-tab-item>
 
-        <v-tab :key="4"> Heatmap </v-tab>
+        <v-tab :key="5"> Heatmap </v-tab>
         <v-tab-item> <HeatMap :cluster="cluster" /> </v-tab-item>
 
-        <v-tab :key="5"> Cluster </v-tab>
+        <v-tab :key="6"> Cluster </v-tab>
         <v-tab-item> <GraphTab :cluster="cluster" /> </v-tab-item>
       </v-tabs>
     </v-expansion-panel-content>
@@ -44,12 +49,13 @@ import { File } from "@/api/api";
 import HeatMap from "./HeatMap.vue";
 import DataTab from "./DataTab.vue";
 import GraphTab from "./GraphTab.vue";
+import TimeSeriesCard from "./TimeSeriesCard.vue";
 
-@Component({ components: { HeatMap, DataTab, GraphTab } })
+@Component({ components: { HeatMap, DataTab, GraphTab, TimeSeriesCard } })
 export default class ClusteringCard extends Vue {
   @Prop() cluster!: Cluster;
   @Prop() cutoff!: number;
-  private activeTab = 4;
+  private activeTab = 5;
 
   averageSimilarity(cluster: Cluster): string {
     return getAverageClusterSimilarity(cluster).toFixed(2);
@@ -73,6 +79,10 @@ export default class ClusteringCard extends Vue {
       .join(",");
 
     this.$router.push(`/?showIds=${items}`);
+  }
+
+  public showClusterTimeline(cluster: Cluster): boolean {
+    return getClusterElementsArray(cluster).every(f => f.extra?.timestamp);
   }
 }
 </script>
