@@ -86,7 +86,7 @@ export class Index {
             // For example: the last token of every ast is ')', closing the program.
             // The location of this token is always (0, 0), since the program root is the first token.
             // In this way, the 'end' token is before any other token in the AST.
-            && file.ast[stop] !== ")",
+            || file.ast[stop] === ")" ,
           `Invalid ordering:
              expected ${file.mapping[start]}
              to start be before the end of ${file.mapping[stop]}`
