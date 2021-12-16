@@ -85,7 +85,7 @@ export async function anonymizeDirectory(folder: string): Promise<void> {
     if (stat.isDirectory()) {
       if (!idMap.has(content)) {
         let name = generateName();
-        while (name in usedNames)
+        while (usedNames.has(name))
           name = generateName();
 
         idMap.set(content, name);
