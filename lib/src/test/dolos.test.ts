@@ -33,8 +33,8 @@ test("equal content should be a full match", async t => {
   t.is(fragments.length, 1);
   const match = fragments[0];
 
-  t.deepEqual(new Region(2, 2, 11, 2), match.leftSelection);
-  t.deepEqual(new Region(2, 2, 11, 2), match.rightSelection);
+  t.deepEqual(new Region(2, 2, 9, 37), match.leftSelection);
+  t.deepEqual(new Region(2, 2, 9, 37), match.rightSelection);
 
   t.is(0, match.leftkgrams.from);
   t.is(0, match.rightkgrams.from);
@@ -86,8 +86,8 @@ test("renamed variables should be a full match", async t => {
   t.is(fragments.length, 1);
   const match = fragments[0];
 
-  t.deepEqual(new Region(2, 2, 11, 2), match.leftSelection);
-  t.deepEqual(new Region(2, 2, 11, 2), match.rightSelection);
+  t.deepEqual(new Region(2, 2, 9, 37), match.leftSelection);
+  t.deepEqual(new Region(2, 2, 9, 37), match.rightSelection);
 
   t.is(0, match.leftkgrams.from);
   t.is(0, match.rightkgrams.from);
