@@ -28,7 +28,7 @@ router.post<{ name: string }>("/upload", async (req, res) => {
   await zipfile.mv(path.join(destination, sourceZipName));
 
   analyze(path.join(destination, sourceZipName), req.body.anonymize || false);
-  return res.status(202).send("File uploaded, will be analyzed. <a href='../'>Back to home</a>");
+  return res.status(202).send("File uploaded, will be analyzed. <a href='./'>Back to home</a>");
 });
 
 router.use("/css", express.static(path.join(__dirname, "../css")));
