@@ -1,22 +1,27 @@
 <template>
   <div>
     <h2> Time Chart </h2>
-    <div class="d-flex flex-column justify-start align-center">
+    <div class="d-flex flex-column justify-start align-center" v-if="show">
       <TimeSeriesDiagram :cluster="cluster" :selection="true" @filedata="setNewFiles"/>
-      <div class="d-flex flex-row fileInfoContainer" >
+      <div class="d-flex flex-row flex-wrap fileInfoContainer" >
         <div v-for="file in files" :key="file.id">
 
           <v-alert
             border="left"
             color="blue-grey"
             dark
+            class="user-card"
           >
             {{file.extra.timestamp.toLocaleString()}} <br/>
-            {{file.extra.fullName}}
+            {{file.extra.fullName}} <br/>
+            {{file.extra.labels}}
           </v-alert>
 
         </div>
       </div>
+    </div>
+    <div v-if="!show">
+      <p>Your files do not all include a timestamp. The time series card is unavailable.</p>
     </div>
   </div>
 </template>
@@ -31,8 +36,11 @@ import { File } from "@/api/api";
 export default class TimeSeriesCard extends Vue {
   @Prop() cluster!: Cluster;
   private files: File[] = [];
+  private show = true;
 
   setNewFiles(files: File[]): void {
+    this.show = files.every(f => f.extra.timestamp);
+    if (!this.show) { return; }
     this.files = files.sort((a, b) => a.extra.timestamp!.valueOf() - b.extra.timestamp!.valueOf());
   }
 }
@@ -42,5 +50,8 @@ export default class TimeSeriesCard extends Vue {
 .fileInfoContainer {
   min-height: 100px;
   width: 80%;
+}
+.user-card {
+  margin: 5px;
 }
 </style>
