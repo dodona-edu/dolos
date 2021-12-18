@@ -11,6 +11,7 @@ import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
 import { getClusterElementsArray } from "@/util/clustering-algorithms/ClusterFunctions";
 import { SelectionTool, xCoord } from "@/d3-tools/SelectionTool";
 import GraphLegend, { Legend } from "@/d3-tools/GraphLegend.vue";
+import { TooltipTool } from "@/d3-tools/TooltipTool";
 
 interface TimeDataType extends xCoord { file: File, y?: number }
 
@@ -41,6 +42,7 @@ export default class TimeSeriesDiagram extends Vue {
     this.applySimulation(xScale, data);
     const svg = this.addSVG(xScale, data);
     this.addSelectionTool(svg, data);
+    this.addTooltipTool(svg);
   }
 
   private getXScale(files: TimeDataType[]): d3.ScaleTime<number, number> {
@@ -67,6 +69,7 @@ export default class TimeSeriesDiagram extends Vue {
 
     const svgg = svg
       .append("g")
+      .attr("class", "main-group")
       .attr(
         "transform",
         "translate(" + this.margin.left + "," + this.margin.top + ")"
@@ -128,6 +131,19 @@ export default class TimeSeriesDiagram extends Vue {
         (d: TimeDataType[]) => this.$emit("filedata", d.map(f => f.file)),
       );
     }
+  }
+
+  private addTooltipTool(svg: d3.Selection<SVGSVGElement, TimeDataType, HTMLElement, unknown>): void {
+    const tool = new TooltipTool<TimeDataType>(h => `
+      ${h.file.extra.timestamp?.toLocaleString()} <br/>
+      ${h.file.extra.fullName} <br/>
+      ${h.file.extra.labels}
+    `);
+    svg
+      .select(".main-group")
+      .selectAll("circle")
+      .on("mouseenter", (e, d) => tool.mouseEnter(e, d as TimeDataType))
+      .on("mouseleave", () => tool.mouseOut());
   }
 
   private _svgId: string | null = null;

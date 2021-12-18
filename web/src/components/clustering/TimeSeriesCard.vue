@@ -2,7 +2,7 @@
   <div>
     <h2> Time Chart </h2>
     <div class="d-flex flex-column justify-start align-center" v-if="show">
-      <TimeSeriesDiagram :cluster="cluster" :selection="true" @filedata="setNewFiles"/>
+      <TimeSeriesDiagram :cluster="cluster" :selection="false" @filedata="setNewFiles"/>
       <div class="d-flex flex-row flex-wrap fileInfoContainer" >
         <div v-for="file in files" :key="file.id">
 
