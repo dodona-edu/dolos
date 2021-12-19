@@ -16,6 +16,8 @@ export interface ScoredPairs {
   overlap: number;
   longest: number;
   similarity: number;
+  leftCovered: number;
+  rightCovered: number;
 }
 
 export interface Occurrence {
@@ -172,7 +174,9 @@ export class Report {
       pair: pair,
       overlap: leftCovered + rightCovered,
       longest: pair.longestFragment(),
-      similarity: (leftCovered + rightCovered) / (leftTotal + rightTotal)
+      similarity: (leftCovered + rightCovered) / (leftTotal + rightTotal),
+      leftCovered,
+      rightCovered
     };
   }
 }
