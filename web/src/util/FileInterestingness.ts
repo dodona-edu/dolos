@@ -114,9 +114,12 @@ export class FileInterestingnessCalculator {
       pair,
       longestFragmentTokens: pair.longestFragment,
       longestFragmentWrtSize: pair.longestFragment / file.amountOfKgrams,
-      weightedScore:
-        (pair.longestFragment / file.amountOfKgrams) *
-        this.longestFragmentWeight
+      // If the file is too small in total, we don't match it at all.
+      weightedScore: file.amountOfKgrams > 10
+        ? (
+          (pair.longestFragment / file.amountOfKgrams) *
+        this.longestFragmentWeight)
+        : (0)
     };
   }
 
