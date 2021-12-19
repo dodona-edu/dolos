@@ -78,6 +78,8 @@ export interface Pair {
   longestFragment: number;
   totalOverlap: number;
   fragments: Array<Fragment> | null;
+  leftCovered: number;
+  rightCovered: number;
 }
 
 export interface Metadata {
@@ -163,6 +165,8 @@ function parsePairs(
       const similarity = parseFloat(assertType(row.similarity));
       const longestFragment = parseFloat(assertType(row.longestFragment));
       const totalOverlap = parseFloat(assertType(row.totalOverlap));
+      const leftCovered = parseFloat(assertType((row.leftCovered)));
+      const rightCovered = parseFloat(assertType((row.rightCovered)));
 
       const diff = {
         id,
@@ -171,7 +175,9 @@ function parsePairs(
         totalOverlap,
         leftFile: files[parseInt(assertType(row.leftFileId))],
         rightFile: files[parseInt(assertType(row.rightFileId))],
-        fragments: null
+        fragments: null,
+        leftCovered,
+        rightCovered
       };
       return [id, diff];
     })

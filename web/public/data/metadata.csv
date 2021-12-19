@@ -1,7 +1,7 @@
 property,value
 kgramLength,23
 kgramsInWindow,17
-language,javascript
+language,python
 maxFingerprintCount,
 maxFingerprintPercentage,
 minFragmentLength,0

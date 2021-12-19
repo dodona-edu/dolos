@@ -88,13 +88,14 @@ export class FileInterestingnessCalculator {
       a.totalOverlap > b.totalOverlap ? a : b
     );
 
+    const fileOverlapTokens = pair.leftFile.id === file.id ? pair.leftCovered : pair.rightCovered;
+
     return {
       pair,
-      totalOverlapTokens: pair.totalOverlap,
-      // TODO: find out which unit the total overlap is in, and find the total of this file
-      totalOverlapWrtSize: pair.totalOverlap / file.content.length,
+      totalOverlapTokens: fileOverlapTokens,
+      totalOverlapWrtSize: fileOverlapTokens / file.amountOfKgrams,
       weightedScore:
-        (pair.totalOverlap / file.content.length) * this.totalOverlapWeight
+        (fileOverlapTokens / file.amountOfKgrams) * this.totalOverlapWeight
     };
   }
 
@@ -112,9 +113,9 @@ export class FileInterestingnessCalculator {
     return {
       pair,
       longestFragmentTokens: pair.longestFragment,
-      longestFragmentWrtSize: pair.longestFragment / file.content.length,
+      longestFragmentWrtSize: pair.longestFragment / file.amountOfKgrams,
       weightedScore:
-        (pair.longestFragment / file.content.length) *
+        (pair.longestFragment / file.amountOfKgrams) *
         this.longestFragmentWeight
     };
   }
