@@ -83,6 +83,8 @@ export class FileView extends View {
         "similarity": s => s.similarity,
         "totalOverlap": s => s.overlap,
         "longestFragment": s => s.longest,
+        "leftCovered": s => s.leftCovered,
+        "rightCovered": s => s.rightCovered
       });
   }
 
