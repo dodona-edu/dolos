@@ -72,11 +72,11 @@ export default class CompareSide extends Vue {
 
   async mounted(): Promise<void> {
     // This timeout is needed to assure that the highlight function works. If this is not done then the first time
-    // component is loaded, the kmers will not be proberly highlighted. This is probably due to the `Prism.hooks.add`
+    // component is loaded, the kmers will not be properly highlighted. This is probably due to the `Prism.hooks.add`
     // call in OccurrenceHighlight#registerFragmentHighlighting happening too early.
-    this.$nextTick(async () => {
+    setTimeout(async () => {
       await this.highlight();
-    });
+    }, 50);
     this.emitLinesVisibleAmount();
     window.addEventListener("resize", this.emitLinesVisibleAmount);
   }
