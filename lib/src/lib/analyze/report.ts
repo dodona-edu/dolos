@@ -1,5 +1,4 @@
 import assert from "assert";
-import { Pair } from "./pair";
 import { DefaultMap } from "../util/defaultMap";
 import { File } from "../file/file";
 import { TokenizedFile } from "../file/tokenizedFile";
@@ -9,6 +8,8 @@ import { Options } from "../util/options";
 import { SharedFingerprint } from "./sharedFingerprint";
 import { closestMatch } from "../util/utils";
 import { ScoredPairs, ReportInterface } from "./reportInterface";
+import { Pair } from "./pair";
+import { Fragment } from "./fragment";
 
 type Hash = number;
 
@@ -17,11 +18,18 @@ export interface Occurrence {
   side: ASTRegion;
 }
 
+export interface LocalScoredPairs extends ScoredPairs {
+  pair: Pair;
+  overlap: number;
+  longest: number;
+  similarity: number;
+}
+
 export class Report implements ReportInterface {
 
   // computed list of scored pairs,
   // only defined after finished() is called
-  private scored?: Array<ScoredPairs>;
+  private scored?: Array<LocalScoredPairs>;
 
   // collection of all shared fingerprints
   private fingerprints: Map<Hash, SharedFingerprint> = new Map();
@@ -156,10 +164,10 @@ export class Report implements ReportInterface {
   }
 
 
-  private calculateScore(pair: Pair): ScoredPairs {
+  private calculateScore(pair: Pair): LocalScoredPairs {
     const fragments = pair.fragments();
-    const leftCovered = Range.totalCovered(fragments.map(f => f.leftkgrams));
-    const rightCovered = Range.totalCovered(fragments.map(f => f.rightkgrams));
+    const leftCovered = Range.totalCovered(fragments.map((f:Fragment) => f.leftkgrams));
+    const rightCovered = Range.totalCovered(fragments.map((f:Fragment) => f.rightkgrams));
     const leftTotal = pair.leftFile.kgrams.length;
     const rightTotal = pair.rightFile.kgrams.length;
     return {

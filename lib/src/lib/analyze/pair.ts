@@ -2,7 +2,7 @@ import { Range } from "../util/range";
 import { PairedOccurrence } from "./pairedOccurrence";
 import { Fragment } from "./fragment";
 import { TokenizedFile } from "../file/tokenizedFile";
-import Identifiable from "../util/identifiable";
+import { PairInterface } from "./pairInterface";
 
 type LeftRight = string;
 
@@ -10,7 +10,7 @@ type LeftRight = string;
  * This class represents all the fragments between two files (i.e. the
  * pair of their hashes).
  */
-export class Pair extends Identifiable {
+export class Pair extends PairInterface {
 
   private fragmentStart: Map<LeftRight, Fragment> = new Map();
   private fragmentEnd: Map<LeftRight, Fragment> = new Map();

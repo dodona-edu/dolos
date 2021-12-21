@@ -5,14 +5,10 @@ import { TokenizedFile } from "../file/tokenizedFile";
 export class SimpleReport implements ReportInterface {
 
   constructor(
-      private readonly privateScoredPairs: Array<ScoredPairs>,
+      public readonly scoredPairs: Array<ScoredPairs>,
       public readonly options: Options,
       public readonly files: TokenizedFile[]
   ) {
-  }
-
-  get scoredPairs(): Array<ScoredPairs> {
-    return this.privateScoredPairs;
   }
 
 }

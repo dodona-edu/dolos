@@ -2,8 +2,9 @@ import { View } from "./view";
 import csvStringify from "csv-stringify";
 import { Writable } from "stream";
 import { createWriteStream, promises, promises as fs } from "fs";
-import { Fragment, Pair } from "@dodona/dolos-lib";
+import { PairInterface } from "@dodona/dolos-lib";
 import { ReportInterface } from "@dodona/dolos-lib/dist/lib/analyze/reportInterface";
+import { FragmentInterface } from "@dodona/dolos-lib/dist/lib/analyze/fragmentInterface";
 
 function writeCSVto<T>(
   out: Writable,
@@ -42,7 +43,7 @@ export class FileView extends View {
       options.outputDestination || `dolos-report-${ new Date().toISOString().replace(/[.:-]/g, "") }`;
   }
 
-  private convertFragmentsToJSON(fragments: Fragment[]): string {
+  private convertFragmentsToJSON(fragments: FragmentInterface[]): string {
     return JSON.stringify(fragments.map( fragment => {
       return {
         leftSelection: fragment.leftSelection,
@@ -67,7 +68,7 @@ export class FileView extends View {
     }), null, 2);
   }
 
-  public async writeFragments(out: promises.FileHandle, pair: Pair): Promise<void> {
+  public async writeFragments(out: promises.FileHandle, pair: PairInterface): Promise<void> {
     await out.write(this.convertFragmentsToJSON(pair.fragments()));
   }
 
@@ -87,7 +88,7 @@ export class FileView extends View {
       });
   }
 
-  //TODO different output format for trees
+  // TODO different output format for trees
   // public writekgrams(out: Writable): void {
   //   writeCSVto(
   //     out,
@@ -140,7 +141,7 @@ export class FileView extends View {
       await this.writeFragments(file, pair.pair);
       await file.close();
     }
-    //TODO different output format for trees
+    // TODO different output format for trees
     // console.log("Fragments written");
     // this.writekgrams(createWriteStream(`${dirName}/kgrams.csv`));
     console.log("kgrams written.");

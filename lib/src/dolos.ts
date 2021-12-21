@@ -12,14 +12,15 @@ import { TreeIndex } from "./lib/analyze/treeIndex";
 import { IndexInterface } from "./lib/analyze/indexInterface";
 import { ReportInterface } from "./lib/analyze/reportInterface";
 const fs = fsWithCallbacks.promises;
+
 export { ScoredPairs } from "./lib/analyze/reportInterface";
 export { TreeIndex } from "./lib/analyze/treeIndex";
-
 export { Report } from "./lib/analyze/report";
 export { Fragment } from "./lib/analyze/fragment";
 export { Region } from "./lib/util/region";
-export { Pair } from "./lib/analyze/pair";
+export { PairInterface } from "./lib/analyze/pairInterface";
 export { Options } from "./lib/util/options";
+export { Pair } from "./lib/analyze/pair";
 
 
 function newTokenizer(language: string): Tokenizer {

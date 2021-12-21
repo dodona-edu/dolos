@@ -1,10 +1,10 @@
 import test from "ava";
 import { File } from "../lib/file/file";
 import { TokenizedFile } from "../lib/file/tokenizedFile";
-import { Pair } from "../lib/analyze/pair";
 import { Region } from "../lib/util/region";
 import { SharedFingerprint } from "../lib/analyze/sharedFingerprint";
 import { PairedOccurrence } from "../lib/analyze/pairedOccurrence";
+import { Pair } from "../lib/analyze/pair";
 
 function createFakeFile(name: string): TokenizedFile {
   return new TokenizedFile(

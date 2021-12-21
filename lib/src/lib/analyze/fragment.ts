@@ -1,7 +1,8 @@
 import assert from "assert";
-import { PairedOccurrence } from "./pairedOccurrence";
-import { Region } from "../util/region";
-import { Range } from "../util/range";
+import {PairedOccurrence} from "./pairedOccurrence";
+import {Region} from "../util/region";
+import {Range} from "../util/range";
+import {FragmentInterface} from "./fragmentInterface";
 
 /**
  * A fragment is a collection of one or more consequent pairedOccurrences (kgrams).
@@ -9,13 +10,13 @@ import { Range } from "../util/range";
  * A fragment can be extended with a new PairedOccurence if its kgram indices in both
  * files are directly after that of the fragment.
  */
-export class Fragment {
+export class Fragment implements FragmentInterface {
 
-  public pairs: Array<PairedOccurrence>;
+  pairs: Array<PairedOccurrence>;
   public leftkgrams: Range;
   public rightkgrams: Range;
-  public leftSelection: Region;
-  public rightSelection: Region;
+  leftSelection: Region;
+  rightSelection: Region;
   public mergedData: Array<string> | null;
   private mergedStart: number;
   private mergedStop: number;

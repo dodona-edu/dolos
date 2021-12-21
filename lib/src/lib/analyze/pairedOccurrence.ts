@@ -1,10 +1,7 @@
 import { SharedFingerprint } from "./sharedFingerprint";
 import { Region } from "../util/region";
 
-/**
- * The information that is needed for one side of a paired occurrence.
- */
-export interface ASTRegion {
+export interface ASTRegionInterface {
   /**
    * Start index in the AST of this kgram.
    */
@@ -18,6 +15,12 @@ export interface ASTRegion {
    * This differs of kgramStart if not all kgrams in a file are outputted.
    */
   index: number;
+}
+
+/**
+ * The information that is needed for one side of a paired occurrence.
+ */
+export interface ASTRegion extends ASTRegionInterface {
   /**
    * The selection in the actual file corrresponding to this kgram.
    */
@@ -28,17 +31,23 @@ export interface ASTRegion {
   data: Array<string> | null;
 }
 
+export interface PairedOccurrenceInterface {
+  readonly fingerprint: SharedFingerprint;
+  readonly left: ASTRegionInterface;
+  readonly right: ASTRegionInterface;
+}
+
 /**
  * A paired occurrence represents a common fingerprint between two files.
  *
  * It keeps track of the kgram index in both files, the hashing of the kgram, and
  * the location with its data it represents.
  */
-export class PairedOccurrence {
+export class PairedOccurrence implements PairedOccurrenceInterface {
   constructor(
-    public readonly left: ASTRegion,
-    public readonly right: ASTRegion,
-    public readonly fingerprint: SharedFingerprint
+      public readonly left: ASTRegion,
+      public readonly right: ASTRegion,
+      readonly fingerprint: SharedFingerprint
   ) {
   }
 }

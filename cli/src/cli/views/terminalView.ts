@@ -6,9 +6,9 @@ import chalk from "chalk";
 import { Writable } from "stream";
 import { closestMatch } from "../../lib/util/utils";
 import { ScoredPairs } from "@dodona/dolos-lib";
-import { Fragment } from "@dodona/dolos-lib";
 import { Region } from "@dodona/dolos-lib";
 import { ReportInterface } from "@dodona/dolos-lib/dist/lib/analyze/reportInterface";
+import { FragmentInterface } from "@dodona/dolos-lib/dist/lib/analyze/fragmentInterface";
 
 /**
  * This {@link View} will print the results of an analysis to the terminal.
@@ -155,7 +155,7 @@ export class TerminalView extends View {
 
     const fragments = pair.fragments();
 
-    type FragmentSorter = (b1: Fragment, b2: Fragment) => number;
+    type FragmentSorter = (b1: FragmentInterface, b2: FragmentInterface) => number;
     const fragmentSorter = closestMatch<FragmentSorter | null>(
       this.fragmentSortBy || "file order",
       {

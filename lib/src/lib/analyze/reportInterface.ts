@@ -1,4 +1,4 @@
-import { Pair } from "./pair";
+import { PairInterface } from "./pairInterface";
 import { Options } from "../util/options";
 import { TokenizedFile } from "../file/tokenizedFile";
 
@@ -9,7 +9,7 @@ export interface ReportInterface {
 }
 
 export interface ScoredPairs {
-    pair: Pair;
+    pair: PairInterface;
     overlap: number;
     longest: number;
     similarity: number;

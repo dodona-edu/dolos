@@ -3,13 +3,18 @@ import { SimpleReport } from "./simpleReport";
 import { File } from "../file/file";
 import { CustomOptions, Options } from "../util/options";
 import { default as Parser, SyntaxNode, Tree, TreeCursor } from "tree-sitter";
+import { TokenizedFile } from "../file/tokenizedFile";
+import { ScoredPairs } from "./reportInterface";
+import { SimplePair } from "./simplePair";
+import { buildSimpleFragment } from "./simpleFragmentBuilder";
+import { SharedFingerprint } from "./sharedFingerprint";
 
-type Count = number;
+type Hash = number;
 
 export class TreeIndex implements IndexInterface {
   private parser?: Parser;
   // maps a stringified list to the number associated with it
-  private readonly listNumber: Map<string, Count> = new Map();
+  private readonly listNumber: Map<string, Hash> = new Map();
   // TODO could possibly be removed?
   // maps a root of a (sub)tree to it's size
   private readonly size: Map<SyntaxNode, number> = new Map();
@@ -17,9 +22,9 @@ export class TreeIndex implements IndexInterface {
   private readonly children: Map<SyntaxNode, number> = new Map();
   // a number, monotonically increases during the execution of the algorithm. If two roots of two sub-trees have the
   // same number assigned to them, then they are isomorphic
-  private count: Count = 0;
+  private count: Hash = 0;
   // maps a node to it's number
-  private readonly nodeNumber: Map<SyntaxNode, Count> = new Map();
+  private readonly nodeNumber: Map<SyntaxNode, Hash> = new Map();
 
   constructor(private options: CustomOptions) {}
 
@@ -39,7 +44,8 @@ export class TreeIndex implements IndexInterface {
   }
 
   async compareFiles(files: File[]): Promise<SimpleReport> {
-    const nodeMappedToFile: Map<SyntaxNode, string> = new Map();
+
+    const nodeMappedToFile: Map<SyntaxNode, TokenizedFile> = new Map();
     const forest: Tree[] = [];
 
     if(!this.parser){
@@ -51,7 +57,8 @@ export class TreeIndex implements IndexInterface {
       forest.push(tree);
 
       for (const node of TreeIndex.breadthFirstWalk(tree.rootNode)) {
-        nodeMappedToFile.set(node, file.path);
+
+        nodeMappedToFile.set(node, new TokenizedFile(file, [], []));
       }
     }
 
@@ -81,6 +88,7 @@ export class TreeIndex implements IndexInterface {
     const acceptedSet: Set<SyntaxNode> = new Set();
     // matches
     const grouped: SyntaxNode[][] = [];
+    const hashes: Set<Hash> = new Set();
     // Has to be breadth first so that parents are always first
     for (const node of TreeIndex.breadthFirstWalkForest(forest)) {
       if (acceptedSet.has(node)) {
@@ -88,8 +96,9 @@ export class TreeIndex implements IndexInterface {
       }
 
       const matchedNodes: SyntaxNode[] = numberToNodeList.get(
-          this.nodeNumber.get(node) as number
+          this.nodeNumber.get(node) as Hash
       ) as SyntaxNode[];
+      hashes.add(this.nodeNumber.get(node) as Hash);
 
       if (matchedNodes.length > 1) {
         grouped.push(matchedNodes);
@@ -104,19 +113,56 @@ export class TreeIndex implements IndexInterface {
     const filteredGroup = grouped.filter(group =>
       group.some(node => node.endPosition.row - node.startPosition.row > 0),
     );
-    for (const group of filteredGroup) {
-      console.log("new group");
-      for (const node of group) {
-        let str = "\t";
-        str += `{from: [${node.startPosition.row + 1}, ${node.startPosition.column}]`;
-        str += `, to: [${node.endPosition.row + 1}, ${node.endPosition.column}]}: => ${nodeMappedToFile.get(node)}`;
-        console.log(str);
-      }
-      console.log("");
+
+    const hashToFingerprint: Map<Hash, SharedFingerprint> = new Map();
+    for(const hash of hashes.values()) {
+      const fingerPrint = new SharedFingerprint(hash, null);
+      hashToFingerprint.set(hash, fingerPrint);
     }
 
-    // TODO
-    return new SimpleReport([], new Options(), []);
+    const pairs: Array<ScoredPairs> = [];
+    const pairDict: Map<[string, string], SimplePair> = new Map();
+    for (const group of filteredGroup) {
+      const hash = this.nodeNumber.get(group[0]) as Hash;
+      const fingerprint = hashToFingerprint.get(hash) as SharedFingerprint;
+      // console.log("new group");
+      for(let i = 0; i < group.length; i += 1) {
+        const leftNode = group[i];
+        const leftFile = nodeMappedToFile.get(leftNode) as TokenizedFile;
+        for(let j = i + 1; j < group.length; j += 1) {
+          const rightNode = group[j];
+          const rightFile = nodeMappedToFile.get(rightNode) as TokenizedFile;
+          const key = this.getKey(leftFile, rightFile);
+          let pair;
+          if(pairDict.has(key)) {
+            pair = pairDict.get(key) as SimplePair;
+          } else {
+            pair = new SimplePair(
+              leftFile,
+              rightFile,
+              []
+            );
+            pairDict.set(key, pair);
+          }
+          const fragment = buildSimpleFragment(leftNode, rightNode, fingerprint);
+          pair.fragmentList.push(fragment);
+        }
+      }
+      // console.log("new group");
+      // for (const node of group) {
+      //   // const pair = new SimplePair()
+      //   let str = "\t";
+      //   str += `{from: [${node.startPosition.row + 1}, ${node.startPosition.column}]`;
+      //   str += `, to: [${node.endPosition.row + 1}, ${node.endPosition.column}]}: => ${nodeMappedToFile.get(node)}`;
+      //   console.log(str);
+      // }
+      // console.log("");
+    }
+
+    const tokenizedFiles = files.map(file => new TokenizedFile(file, [], []));
+
+
+    return new SimpleReport(pairs, new Options(), tokenizedFiles);
   }
 
   private subTreeIsomorphism(forest: Tree[]): void {
@@ -146,6 +192,14 @@ export class TreeIndex implements IndexInterface {
     }
   }
 
+  private getKey(file1: TokenizedFile, file2: TokenizedFile): [string, string] {
+    if(file1.path < file2.path) {
+      return [file1.path, file2.path];
+    } else {
+      return [file2.path, file1.path];
+    }
+
+  }
 
   /**
    * Assigns a number to the subtree rooted at the given node.
