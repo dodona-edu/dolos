@@ -7,10 +7,10 @@ import { ASTRegionInterface, PairedOccurrenceInterface } from "./pairedOccurrenc
 
 function nodeToRegion(node: SyntaxNode): Region {
   return new Region(
-    node.startPosition.column,
     node.startPosition.row,
-    node.endPosition.column,
-    node.endPosition.row
+    node.startPosition.column,
+    node.endPosition.row,
+    node.endPosition.column
   );
 }
 
@@ -22,7 +22,7 @@ function nodeToAstRegion(node: SyntaxNode): ASTRegionInterface {
   return {
     start: node.startIndex,
     stop: node.endIndex,
-    index: Math.round((node.startIndex + node.startIndex) / 2)
+    index: Math.round((node.startIndex + node.endIndex) / 2)
   };
 }
 

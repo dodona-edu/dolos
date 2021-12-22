@@ -54,11 +54,12 @@ export class TreeIndex implements IndexInterface {
 
     for (const file of files) {
       const tree = this.parser.parse(file.content);
+      const tokenizedFile = new TokenizedFile(file, [], []);
       forest.push(tree);
 
       for (const node of TreeIndex.breadthFirstWalk(tree.rootNode)) {
 
-        nodeMappedToFile.set(node, new TokenizedFile(file, [], []));
+        nodeMappedToFile.set(node, tokenizedFile);
       }
     }
 
@@ -121,7 +122,7 @@ export class TreeIndex implements IndexInterface {
     }
 
     const pairs: Array<ScoredPairs> = [];
-    const pairDict: Map<[string, string], SimplePair> = new Map();
+    const pairDict: Map<string, SimplePair> = new Map();
     for (const group of filteredGroup) {
       const hash = this.nodeNumber.get(group[0]) as Hash;
       const fingerprint = hashToFingerprint.get(hash) as SharedFingerprint;
@@ -159,7 +160,17 @@ export class TreeIndex implements IndexInterface {
       // console.log("");
     }
 
-    const tokenizedFiles = files.map(file => new TokenizedFile(file, [], []));
+    // console.log(pairDict);
+    for (const pair of pairDict.values()) {
+      pairs.push({
+        pair: pair,
+        similarity: 0,
+        longest: 0,
+        overlap: 0,
+      });
+    }
+
+    const tokenizedFiles = [...new Set(nodeMappedToFile.values())];
 
 
     return new SimpleReport(pairs, new Options(), tokenizedFiles);
@@ -192,11 +203,11 @@ export class TreeIndex implements IndexInterface {
     }
   }
 
-  private getKey(file1: TokenizedFile, file2: TokenizedFile): [string, string] {
-    if(file1.path < file2.path) {
-      return [file1.path, file2.path];
+  private getKey(file1: TokenizedFile, file2: TokenizedFile): string {
+    if(file1.id < file2.id) {
+      return [file1.id, file2.id].toString();
     } else {
-      return [file2.path, file1.path];
+      return [file2.id, file1.id].toString();
     }
 
   }
