@@ -4,6 +4,8 @@ import {
   tryCatch,
   warning
 } from "../../lib/util/utils";
+
+import { DEFAULT_HOST, DEFAULT_PORT } from "../server";
 import { TerminalView } from "../views/terminalView";
 import { FileView } from "../views/fileView";
 import { WebView } from "../views/webView";
@@ -93,18 +95,17 @@ export function runCommand(program: Command): Command {
     .option(
       "-p, --port <port>",
       Utils.indent(
-        "Specifies on which port --output-format=web should be served.",
-        "3000"
+        "Specifies on which port the webserver should be served.",
+        DEFAULT_PORT
       ),
-      "3000"
+      x => parseInt(x)
     )
     .option(
       "-H, --host <host>",
       Utils.indent(
         "Specifies on which host --output-format=web should be served.",
-        "localhost"
-      ),
-      "localhost"
+        DEFAULT_HOST
+      )
     )
     .option(
       "-o, --output-destination <path>",

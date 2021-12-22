@@ -18,26 +18,25 @@ export function serveCommand(program: Command): Command {
     .option(
       "-p --port <port>",
       Utils.indent(
-        "TCP port to host the webserver on."
+        "Specifies on which port the webserver should be served.",
+        DEFAULT_PORT
       ),
       x => parseInt(x),
-      DEFAULT_PORT
     )
     .option(
       "-H --host <host>",
       Utils.indent(
-        "HOST to serve the webserver on."
-      ),
-      x => x,
-      DEFAULT_HOST
+        "Specifies on which host the webserver should be served.",
+        DEFAULT_HOST,
+      )
     )
     .action((reportDir, options) => serve(reportDir, { ...options, ...program.opts() }));
 }
 
 interface ServeOptions {
   open: boolean;
-  port: number;
-  host: string;
+  port?: number;
+  host?: string;
   verbose: boolean;
 }
 
