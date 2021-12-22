@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="similarity-score-container" v-if="displaySimilarity()">
-      <h5>
+      <h3>
         Biggest similarity:
         {{
           getOtherFile(file.similarityScore.pair)
@@ -9,17 +9,18 @@
             .slice(-2)
             .join("/")
         }}
-      </h5>
+      </h3>
       <span>
         The similarity of these files is
         <b>{{ convertToPercentageString(file.similarityScore.similarity) }}%</b>.
+        <br/>
         <router-link :to="getPairLink(file.similarityScore.pair)">
           <a>Compare these pairs</a>
         </router-link>
       </span>
     </div>
     <div class="largest-overlap-score-container" v-if="displayTotalOverlap()">
-      <h5>
+      <h3>
         Total overlap:
         {{
           getOtherFile(file.totalOverlapScore.pair)
@@ -27,7 +28,7 @@
             .slice(-2)
             .join("/")
         }}
-      </h5>
+      </h3>
       <span>
         These files have
         <b>{{ file.totalOverlapScore.totalOverlapTokens }}</b> tokens in common.
@@ -40,13 +41,14 @@
           }}%</b
         >
         of this file's total size.
+        <br/>
         <router-link :to="getPairLink(file.totalOverlapScore.pair)">
           <a>Compare these pairs</a>
         </router-link>
       </span>
     </div>
     <div class="longest-fragment-score-container" v-if="displayLongestFragment()">
-      <h5>
+      <h3>
         Longest Fragment:
         {{
           getOtherFile(file.longestFragmentScore.pair)
@@ -54,10 +56,10 @@
             .slice(-2)
             .join("/")
         }}
-      </h5>
+      </h3>
       <span>
         These files have
-        <b>{{ file.longestFragmentScore.longestFragmentTokens }}</b> tokens in
+        <b>{{ file.longestFragmentScore.longestFragmentTokens }}</b> consecutive tokens in
         common. That is
         <b>
           {{
@@ -67,6 +69,7 @@
           }}%</b
         >
         of this file's total size.
+        <br/>
         <router-link :to="getPairLink(file.longestFragmentScore.pair)">
           <a>Compare these pairs</a>
         </router-link>
@@ -84,9 +87,9 @@ import { File, Pair } from "@/api/api";
 export default class FileCardScore extends Vue {
   @Prop() file!: FileScoring;
 
-  private similarityCutoff = 0.8;
-  private longestFragmentCutoff = 0.15;
-  private totalOverlapCutoff = 0.7;
+  private similarityCutoff = 1;
+  private longestFragmentCutoff = 1;
+  private totalOverlapCutoff = 1;
 
   getOtherFile(pair: Pair): File {
     return pair.leftFile.id === this.file.file.id

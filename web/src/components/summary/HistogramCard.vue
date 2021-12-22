@@ -1,9 +1,9 @@
 <template>
   <div class="d-flex justify-center" v-if="files">
     <v-card class="center-card">
-      <v-card-text class="center-card-element title">
+      <v-card-text class="center-card-element title d-flex align-center">
         <h4>Similarity of files</h4>
-        <SimilarityHistogram />
+        <SimilarityHistogram class="full-width" />
       </v-card-text>
     </v-card>
   </div>
@@ -33,5 +33,9 @@ export default class HistogramCard extends DataView {}
   justify-content: center;
   flex-direction: column;
   align-items: center;
+}
+
+.full-width {
+  width: 100%
 }
 </style>

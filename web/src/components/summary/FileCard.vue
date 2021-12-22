@@ -3,11 +3,13 @@
     <v-card-title>
       {{ file.file.path.split("/").slice(-2).join("/") }}
     </v-card-title>
-    <div class="d-flex">
+    <div class="d-flex justify-space-between reason-container">
       <!-- Main part of the card -->
-      <div class="half-size" v-if="dataLoaded">
-        <SimilarityHistogram :numberOfTicks="30" :extraLine="file.similarityScore.similarity" />
+      <!-- Similarity -->
+      <div class="score-container">
+        <FileCardScore :file="file" />
       </div>
+
       <!-- Aside with extra info -->
       <div>
         <v-alert border="left" color="blue-grey" dark>
@@ -21,10 +23,10 @@
         </v-alert>
       </div>
     </div>
-    <div>
-      <!-- Similarity -->
-      <div class="score-container">
-        <FileCardScore :file="file" />
+    <div class="d-flex justify-center align-center">
+
+      <div class="half-size" v-if="dataLoaded">
+        <SimilarityHistogram :numberOfTicks="30" :extraLine="file.similarityScore.similarity" />
       </div>
     </div>
   </v-card>
@@ -56,9 +58,14 @@ export default class FileCard extends DataView {
 }
 
 .half-size {
-  width: 70%;
+  width: 80%;
+  margin: 15px;
 }
 .score-container {
+  padding: 10px;
+  padding-top: 0px;
+}
+.reason-container {
   padding: 20px;
 }
 </style>

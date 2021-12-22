@@ -23,12 +23,17 @@ export default class SimilarityHistogram extends DataView {
   constructor() {
     super();
     this.margin = { top: 10, right: 30, bottom: 30, left: 40 };
-    this.width = 750 - this.margin.left - this.margin.right;
-    this.height = 400 - this.margin.top - this.margin.bottom;
+    this.width = document.getElementById(this.getSvgId())?.clientWidth || 750 - this.margin.left - this.margin.right;
+    this.height = document.getElementById(this.getSvgId())?.clientHeight || 400 - this.margin.top - this.margin.bottom;
   }
 
   mounted(): void {
+    this.setSize();
     this.afterDataInit();
+    document.getElementById(this.getSvgId())!.onresize = () => {
+      this.setSize();
+      this.afterDataInit();
+    };
   }
 
   async afterDataInit(): Promise<void> {
@@ -38,7 +43,7 @@ export default class SimilarityHistogram extends DataView {
     const histogram = d3
       .bin()
       .domain(xScale.domain() as [number, number])
-      .thresholds(xScale.ticks(this.numberOfTicks));
+      .thresholds(xScale.ticks(this.numberOfTicks).slice(0, -1));
     const bins = histogram(this.maxFileData);
     const yScale = this.getYScale(bins);
 
@@ -157,6 +162,13 @@ export default class SimilarityHistogram extends DataView {
       return warningColor;
     }
     return defaultColor;
+  }
+
+  private setSize(): void {
+    this.width = (document.getElementById(this.getSvgId())?.clientWidth || 750) -
+      this.margin.left - this.margin.right;
+    this.height = (document.getElementById(this.getSvgId())?.clientHeight || 400) -
+      this.margin.top - this.margin.bottom;
   }
 }
 </script>
