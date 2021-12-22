@@ -45,10 +45,14 @@ export class FileInterestingnessCalculator {
     const totalOverlapScore = this.totalOverlapScore(file);
     const longestFragmentScore = this.longestFragmentScore(file);
 
+    // The smallest files have arbitrarily high scores. Therefore, we linearly adjust total weight
+    const smallFileWeight = file.amountOfKgrams < 15 ? (file.amountOfKgrams / 15) : 1;
+
     const finalScore =
-      this.steepSquareScaling(similarityScore?.weightedScore || 0) +
+      (this.steepSquareScaling(similarityScore?.weightedScore || 0) +
       this.steepSquareScaling(totalOverlapScore?.weightedScore || 0) +
-      this.steepSquareScaling(longestFragmentScore?.weightedScore || 0);
+      this.steepSquareScaling(longestFragmentScore?.weightedScore || 0)) *
+      smallFileWeight;
 
     return {
       file,
