@@ -18,9 +18,11 @@ function assets(): string {
 }
 
 export const DEFAULT_PORT = 3000;
+export const DEFAULT_HOST = "localhost";
 
 export interface Options {
   port?: number;
+  host?: string;
   open?: boolean;
 }
 
@@ -29,6 +31,7 @@ export default async function runServer(
   options: Options
 ): Promise<void> {
   const port = options.port || DEFAULT_PORT;
+  const host = options.host || DEFAULT_HOST;
   const openInBrowser = options.open == undefined ? true : options.open;
 
   const app: Express = express();
@@ -45,9 +48,9 @@ export default async function runServer(
     server.on("error", e);
   });
 
-  server.listen(port, "localhost");
+  server.listen(port, host);
 
-  const url = `http://localhost:${ port }`;
+  const url = `http://${ host }:${ port }`;
 
   await serverStarted;
   console.log(`Dolos is available on ${ url }`);

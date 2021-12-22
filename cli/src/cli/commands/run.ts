@@ -99,6 +99,14 @@ export function runCommand(program: Command): Command {
       "3000"
     )
     .option(
+      "-H, --host <host>",
+      Utils.indent(
+        "Specifies on which host --output-format=web should be served.",
+        "localhost"
+      ),
+      "localhost"
+    )
+    .option(
       "-o, --output-destination <path>",
       Utils.indent(
         "Path where to write the output report to. " +
@@ -153,6 +161,7 @@ interface RunOptions extends Options {
   compare: boolean;
   open: boolean;
   port: number;
+  host: string;
   outputFormat: string;
   outputDestination: string;
 }
