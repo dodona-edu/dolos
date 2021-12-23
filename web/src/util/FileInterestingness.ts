@@ -131,3 +131,9 @@ export class FileInterestingnessCalculator {
     return 5 * x * x;
   }
 }
+
+export function getLargestPairOfScore(scoredFile: FileScoring): Pair | null {
+  const scores = [scoredFile.similarityScore, scoredFile.longestFragmentScore, scoredFile.totalOverlapScore];
+
+  return scores.reduce((s, ns) => (s?.weightedScore || 0) > (ns?.weightedScore || 0) ? s : ns)?.pair || null;
+}
