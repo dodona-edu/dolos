@@ -6,7 +6,8 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "serve:watch": "vue-cli-service serve --watch"
   },
   "devDependencies": {
     "@mdi/font": "^5.9.55",
@@ -50,6 +51,9 @@
     "vuetify": "^2.5.3",
     "vuetify-loader": "^1.7.3",
     "vuex": "^3.6.2"
+  },
+  "dependencies": {
+    "@dodona/dolos-lib": "1.4.0"
   },
   "license": "MIT",
   "publishConfig": {

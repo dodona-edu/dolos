@@ -1,13 +1,12 @@
-property,value
-kgramLength,17
-kgramsInWindow,23
-language,javascript
-maxFingerprintCount,
-maxFingerprintPercentage,
-minFragmentLength,0
-limitResults,
-localPort,3000
-minSimilarity,0
-sortBy,total overlap
-fragmentSortBy,file order
-kgramData,
+property,value,type
+kgramLength,23,number
+kgramsInWindow,17,number
+language,javascript,string
+maxFingerprintCount,,object
+maxFingerprintPercentage,,object
+minFragmentLength,0,number
+limitResults,,object
+minSimilarity,0,number
+sortBy,total overlap,string
+fragmentSortBy,file order,string
+kgramData,,boolean

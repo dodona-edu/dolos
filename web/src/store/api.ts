@@ -33,8 +33,14 @@ export default {
     areFragmentsLoaded(state: State): (n: number) => boolean {
       return n => state.pairs[n]?.fragments != null;
     },
+    isFileLoaded(state: State): (n: (number | undefined)) => boolean {
+      return n => !n ? false : state.files[n]?.astAndMappingLoaded;
+    },
     pair(state: State): (n: number) => Pair {
       return n => state.pairs[n];
+    },
+    file(state: State): (n: number) => File {
+      return n => state.files[n];
     }
   },
   mutations: {
@@ -47,6 +53,9 @@ export default {
     },
     updatePair(state: State, pair: Pair): void {
       Vue.set(state.pairs, pair.id, pair);
+    },
+    updateFile(state: State, file: File): void {
+      Vue.set(state.files, file.id, file);
     }
   },
   actions: {
@@ -60,8 +69,22 @@ export default {
     ): Promise<void> {
       const pair = getters.pair(data.pairId);
       const kgrams = state.kgrams;
-      await loadFragments(pair, kgrams);
+      const customOptions = state.metadata;
+
+      await loadFragments(pair, kgrams, customOptions);
       commit("updatePair", pair);
+    },
+    async populateFile(
+      { commit, getters }: Context,
+      data: {fileId: number}
+    ): Promise<void> {
+      const file: File = getters.file(data.fileId);
+      if (!file.astAndMappingLoaded) {
+        file.ast = JSON.parse(file.ast);
+        file.mapping = JSON.parse(file.mapping);
+      }
+      file.astAndMappingLoaded = true;
+      commit("updateFile", file);
     }
   }
 };

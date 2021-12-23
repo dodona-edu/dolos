@@ -7,6 +7,7 @@ import { Tokenizer } from "../tokenizer/tokenizer";
 import { WinnowFilter } from "../hashing/winnowFilter";
 import { File } from "../file/file";
 import { Report, Occurrence } from "./report";
+import { TokenizedFile } from "../file/tokenizedFile";
 
 type Hash = number;
 
@@ -62,6 +63,27 @@ export class Index {
   ): Promise<Report> {
 
     const tokenizedFiles = files.map(f => this.tokenizer.tokenizeFile(f));
+    return this.compareTokenizedFiles(tokenizedFiles, hashFilter);
+  }
+
+
+  /**
+     * Same as {@link Index#compareFiles} but files are already tokenized
+     * Compare a list of files with each other and the files already stored in the
+     * index. The compared files are also added to the index.
+     *
+     * @param tokenizedFiles: the tokenized file objects which need to be compared to the index
+     * and each other. The file hashes will be added to the index.
+     * @param hashFilter: an optional HashFilter. By default the HashFilter of the
+     * Index object will be used.
+     * @return an Report object, which is a list of Pairs
+     * (containing all the pairedOccurrences between two files).
+     */
+  public async compareTokenizedFiles(
+    tokenizedFiles: TokenizedFile[],
+    hashFilter = this.hashFilter
+  ): Promise<Report> {
+
     const report = new Report(this.options, tokenizedFiles);
 
     for (const file of tokenizedFiles) {
@@ -122,6 +144,7 @@ export class Index {
     }
     report.finish();
     return report;
+
   }
 
   /**
@@ -132,7 +155,7 @@ export class Index {
    * @param file The file to query
    * @param hashFilter An optional HashFilter. By default the HashFilter of the
    * Index object will be used.
-   * @return report wuth the results of the comparison
+   * @return report with the results of the comparison
    * contains the common hashes (occurrences) between two files.
    */
   public async compareFile(

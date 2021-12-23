@@ -6,7 +6,7 @@
     "cli/",
     "web/",
     "docs/",
-    "server/",
-    "lib/"
+    "lib/",
+    "server/"
   ]
 }
