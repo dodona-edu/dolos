@@ -2,7 +2,7 @@ import { IndexInterface } from "./indexInterface";
 import { SimpleReport } from "./simpleReport";
 import { File } from "../file/file";
 import { CustomOptions, Options } from "../util/options";
-import { default as Parser, SyntaxNode, Tree, TreeCursor } from "tree-sitter";
+import { default as Parser, SyntaxNode, Tree } from "tree-sitter";
 import { TokenizedFile } from "../file/tokenizedFile";
 import { ScoredPairs } from "./reportInterface";
 import { SimplePair } from "./simplePair";
@@ -24,7 +24,7 @@ export class TreeIndex implements IndexInterface {
   // same number assigned to them, then they are isomorphic
   private count: Hash = 0;
   // maps a node to it's number
-  private readonly nodeNumber: Map<SyntaxNode, Hash> = new Map();
+  private readonly nodeToHash: Map<SyntaxNode, Hash> = new Map();
 
   constructor(private options: CustomOptions) {}
 
@@ -68,74 +68,40 @@ export class TreeIndex implements IndexInterface {
     // console.log(this.listNumber);
 
     // const grouped = this.listNumber.ent
-    const numberToNodeList: Map<number, SyntaxNode[]> = new Map();
-
-    for (const node of TreeIndex.breadthFirstWalkForest(forest)) {
-      // // leave matches are not useful information
-      // if(node.childCount == 0) {
-      //   continue;
-      // }
-      const integer: number = this.nodeNumber.get(node) as number;
-      const matchedNodes = numberToNodeList.get(integer);
-      if (matchedNodes !== undefined) {
-        matchedNodes.push(node);
-      } else {
-        numberToNodeList.set(integer, [node]);
-      }
-    }
+    const hashToNodeList = this.mapHashToNodeList(forest);
 
     // nodes that have either already been looked at or it's a root of a subtree to which this node belongs has been
     // accepted
-    const acceptedSet: Set<SyntaxNode> = new Set();
-    // matches
-    const grouped: SyntaxNode[][] = [];
-    const hashes: Set<Hash> = new Set();
-    // Has to be breadth first so that parents are always first
-    for (const node of TreeIndex.breadthFirstWalkForest(forest)) {
-      if (acceptedSet.has(node)) {
-        continue;
-      }
+    const [filteredGroup, hashes] = this.groupNodes(forest, hashToNodeList);
+    const hashToFingerprint = this.mapHashToFingerprint(hashes);
+    const pairs = this.makeScoredPairs(filteredGroup, hashToFingerprint, nodeMappedToFile);
 
-      const matchedNodes: SyntaxNode[] = numberToNodeList.get(
-          this.nodeNumber.get(node) as Hash
-      ) as SyntaxNode[];
-      hashes.add(this.nodeNumber.get(node) as Hash);
+    const tokenizedFiles = [...new Set(nodeMappedToFile.values())];
 
-      if (matchedNodes.length > 1) {
-        grouped.push(matchedNodes);
-        for (const matchedNode of matchedNodes) {
-          for (const child of TreeIndex.breadthFirstWalk(matchedNode)) {
-            acceptedSet.add(child);
-          }
-        }
-      }
-    }
 
-    const filteredGroup = grouped.filter(group =>
-      group.some(node => node.endPosition.row - node.startPosition.row > 0),
-    );
+    return new SimpleReport(pairs, new Options(), tokenizedFiles);
+  }
 
-    const hashToFingerprint: Map<Hash, SharedFingerprint> = new Map();
-    for(const hash of hashes.values()) {
-      const fingerPrint = new SharedFingerprint(hash, null);
-      hashToFingerprint.set(hash, fingerPrint);
-    }
-
+  private makeScoredPairs(
+    filteredGroup: SyntaxNode[][],
+    hashToFingerprint: Map<Hash, SharedFingerprint>,
+    nodeMappedToFile: Map<SyntaxNode, TokenizedFile>
+  ): Array<ScoredPairs> {
     const pairs: Array<ScoredPairs> = [];
     const pairDict: Map<string, SimplePair> = new Map();
     for (const group of filteredGroup) {
-      const hash = this.nodeNumber.get(group[0]) as Hash;
+      const hash = this.nodeToHash.get(group[0]) as Hash;
       const fingerprint = hashToFingerprint.get(hash) as SharedFingerprint;
       // console.log("new group");
-      for(let i = 0; i < group.length; i += 1) {
+      for (let i = 0; i < group.length; i += 1) {
         const leftNode = group[i];
         const leftFile = nodeMappedToFile.get(leftNode) as TokenizedFile;
-        for(let j = i + 1; j < group.length; j += 1) {
+        for (let j = i + 1; j < group.length; j += 1) {
           const rightNode = group[j];
           const rightFile = nodeMappedToFile.get(rightNode) as TokenizedFile;
           const key = this.getKey(leftFile, rightFile);
           let pair;
-          if(pairDict.has(key)) {
+          if (pairDict.has(key)) {
             pair = pairDict.get(key) as SimplePair;
           } else {
             pair = new SimplePair(
@@ -169,11 +135,67 @@ export class TreeIndex implements IndexInterface {
         overlap: 0,
       });
     }
+    return pairs;
+  }
 
-    const tokenizedFiles = [...new Set(nodeMappedToFile.values())];
+  private mapHashToFingerprint(hashes: Set<Hash>): Map<Hash, SharedFingerprint> {
+    const hashToFingerprint: Map<Hash, SharedFingerprint> = new Map();
+    for (const hash of hashes.values()) {
+      const fingerPrint = new SharedFingerprint(hash, null);
+      hashToFingerprint.set(hash, fingerPrint);
+    }
+    return hashToFingerprint;
+  }
 
+  private groupNodes(forest: Tree[], hashToNodeList: Map<Hash, Array<SyntaxNode>>): [SyntaxNode[][], Set<Hash>] {
+    const acceptedSet: Set<SyntaxNode> = new Set();
+    // matches
+    const grouped: SyntaxNode[][] = [];
+    const hashes: Set<Hash> = new Set();
+    // Has to be breadth first so that parents are always first
+    for (const node of TreeIndex.breadthFirstWalkForest(forest)) {
+      if (acceptedSet.has(node)) {
+        continue;
+      }
 
-    return new SimpleReport(pairs, new Options(), tokenizedFiles);
+      const matchedNodes: SyntaxNode[] = hashToNodeList.get(
+        this.nodeToHash.get(node) as Hash
+      ) as SyntaxNode[];
+      hashes.add(this.nodeToHash.get(node) as Hash);
+
+      if (matchedNodes.length > 1) {
+        grouped.push(matchedNodes);
+        for (const matchedNode of matchedNodes) {
+          for (const child of TreeIndex.breadthFirstWalk(matchedNode)) {
+            acceptedSet.add(child);
+          }
+        }
+      }
+    }
+
+    const filteredGroup = grouped.filter(group =>
+      group.some(node => node.endPosition.row - node.startPosition.row > 0),
+    );
+    return [filteredGroup, hashes];
+  }
+
+  private mapHashToNodeList(forest: Tree[]): Map<Hash, Array<SyntaxNode>> {
+    const numberToNodeList: Map<number, SyntaxNode[]> = new Map();
+
+    for (const node of TreeIndex.breadthFirstWalkForest(forest)) {
+      // // leave matches are not useful information
+      // if(node.childCount == 0) {
+      //   continue;
+      // }
+      const integer: number = this.nodeToHash.get(node) as number;
+      const matchedNodes = numberToNodeList.get(integer);
+      if (matchedNodes !== undefined) {
+        matchedNodes.push(node);
+      } else {
+        numberToNodeList.set(integer, [node]);
+      }
+    }
+    return numberToNodeList;
   }
 
   private subTreeIsomorphism(forest: Tree[]): void {
@@ -220,7 +242,7 @@ export class TreeIndex implements IndexInterface {
   private assignNumberToSubTree(v: SyntaxNode): void {
     const nodeNumberList = [];
     for (const child of TreeIndex.walkOverChildren(v)) {
-      nodeNumberList.push(this.nodeNumber.get(child) as number);
+      nodeNumberList.push(this.nodeToHash.get(child) as number);
     }
     //TODO use bucket sort
     nodeNumberList.sort((e1, e2) => e1 - e2);
@@ -228,11 +250,11 @@ export class TreeIndex implements IndexInterface {
     nodeNumberList.unshift(v.type);
     const listKey = nodeNumberList.toString();
     if (this.listNumber.has(listKey)) {
-      this.nodeNumber.set(v, this.listNumber.get(listKey) as number);
+      this.nodeToHash.set(v, this.listNumber.get(listKey) as number);
     } else {
       this.count += 1;
       this.listNumber.set(listKey, this.count);
-      this.nodeNumber.set(v, this.count);
+      this.nodeToHash.set(v, this.count);
     }
   }
 
@@ -256,12 +278,18 @@ export class TreeIndex implements IndexInterface {
   }
 
   private static* walkOverChildren(node: SyntaxNode): IterableIterator<SyntaxNode> {
-    const cursor: TreeCursor = node.walk();
-    if (cursor.gotoFirstChild()) {
-      yield cursor.currentNode;
-      while (cursor.gotoNextSibling()) {
-        yield cursor.currentNode;
-      }
+    // const cursor: TreeCursor = node.walk();
+    // if (cursor.gotoFirstChild()) {
+    //   yield cursor.currentNode;
+    //   while (cursor.gotoNextSibling()) {
+    //     if(!cursor.currentNode.isNamed) {
+    //       continue;
+    //     }
+    //     yield cursor.currentNode;
+    //   }
+    // }
+    for (const child of node.children) {
+      yield child;
     }
   }
 }
