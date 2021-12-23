@@ -33,9 +33,11 @@ import { Component, Watch } from "vue-property-decorator";
 import {
   FileScoring,
   FileInterestingnessCalculator,
+  getLargestPairOfScore,
 } from "@/util/FileInterestingness";
 import FileCard from "@/components/summary/FileCard.vue";
 import DataView from "@/views/DataView";
+import { Pair } from "@/api/api";
 
 @Component({ components: { FileCard } })
 export default class SummaryList extends DataView {
@@ -78,10 +80,21 @@ export default class SummaryList extends DataView {
   @Watch("scoredFiles")
   @Watch("searchString")
   @Watch("selectedSortOption")
-  sortScoredFiles(): void {
-    this.sortedFiles = this.scoredFiles
+  sortAndFilterScoredFiles(): void {
+    const sorted = this.scoredFiles
       .filter(f => f.file.path.includes(this.searchString))
       .sort(this.selectedSortOption.sortFunc);
+
+    // Deduplicate the pairs. This avoids having the same pair from different perspectives multiple times
+    this.sortedFiles = [];
+    const pairSet = new Set<Pair>();
+    for (const scF of sorted) {
+      const p = getLargestPairOfScore(scF);
+      if (p && !pairSet.has(p)) {
+        this.sortedFiles.push(scF);
+        pairSet.add(p);
+      }
+    }
   }
 
   mounted(): void {
