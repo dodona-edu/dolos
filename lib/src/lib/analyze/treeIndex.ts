@@ -17,7 +17,7 @@ export class TreeIndex implements IndexInterface {
   private readonly listNumber: Map<string, Hash> = new Map();
   // TODO could possibly be removed?
   // maps a root of a (sub)tree to it's size
-  private readonly size: Map<SyntaxNode, number> = new Map();
+  private readonly nodeToTreeSize: Map<SyntaxNode, number> = new Map();
   // maps a syntax node to it's amount of children that are not yet processed by the algorithm
   private readonly children: Map<SyntaxNode, number> = new Map();
   // a number, monotonically increases during the execution of the algorithm. If two roots of two sub-trees have the
@@ -63,22 +63,27 @@ export class TreeIndex implements IndexInterface {
       }
     }
 
+    console.log("Here");
     this.subTreeIsomorphism(forest);
+    console.log("Here2");
 
     // console.log(this.listNumber);
 
     // const grouped = this.listNumber.ent
     const hashToNodeList = this.mapHashToNodeList(forest);
+    console.log("Here3");
 
     // nodes that have either already been looked at or it's a root of a subtree to which this node belongs has been
     // accepted
-    const [filteredGroup, hashes] = this.groupNodes(forest, hashToNodeList);
+    const [grouped, hashes] = this.groupNodes(forest, hashToNodeList);
+    const filteredGroup = this.filterGroups(grouped);
+    console.log("Here4");
     const hashToFingerprint = this.mapHashToFingerprint(hashes);
+    console.log("Here5");
     const pairs = this.makeScoredPairs(filteredGroup, hashToFingerprint, nodeMappedToFile);
-
+    console.log("Here6");
     const tokenizedFiles = [...new Set(nodeMappedToFile.values())];
-
-
+    console.log("Here7");
     return new SimpleReport(pairs, new Options(), tokenizedFiles);
   }
 
@@ -172,11 +177,7 @@ export class TreeIndex implements IndexInterface {
         }
       }
     }
-
-    const filteredGroup = grouped.filter(group =>
-      group.some(node => node.endPosition.row - node.startPosition.row > 0),
-    );
-    return [filteredGroup, hashes];
+    return [grouped, hashes];
   }
 
   private mapHashToNodeList(forest: Tree[]): Map<Hash, Array<SyntaxNode>> {
@@ -201,9 +202,9 @@ export class TreeIndex implements IndexInterface {
   private subTreeIsomorphism(forest: Tree[]): void {
     const queue: SyntaxNode[] = [];
     for (const syntaxNode of TreeIndex.breadthFirstWalkForest(forest)) {
-      this.size.set(syntaxNode, 1);
-      this.children.set(syntaxNode, syntaxNode.childCount);
-      if (syntaxNode.childCount === 0) {
+      this.nodeToTreeSize.set(syntaxNode, 1);
+      this.children.set(syntaxNode, syntaxNode.namedChildCount);
+      if (syntaxNode.namedChildCount === 0) {
         queue.push(syntaxNode);
       }
     }
@@ -214,8 +215,8 @@ export class TreeIndex implements IndexInterface {
       this.assignNumberToSubTree(node);
       if (node.parent !== null) {
         const parent: SyntaxNode = node.parent as SyntaxNode;
-        const sizeParent: number = this.size.get(parent) as number;
-        this.size.set(parent, sizeParent + (this.size.get(node) as number));
+        const sizeParent: number = this.nodeToTreeSize.get(parent) as number;
+        this.nodeToTreeSize.set(parent, sizeParent + (this.nodeToTreeSize.get(node) as number));
 
         this.children.set(parent, (this.children.get(parent) as number) - 1);
         if ((this.children.get(parent) as number) === 0) {
@@ -288,8 +289,26 @@ export class TreeIndex implements IndexInterface {
     //     yield cursor.currentNode;
     //   }
     // }
-    for (const child of node.children) {
+    for (const child of node.namedChildren) {
+      // console.log(node.type, child.type);
       yield child;
     }
+  }
+
+  private filterGroups(grouped: SyntaxNode[][]): SyntaxNode[][] {
+    const filteredGroup = grouped.filter(group =>
+      group.some(node => node.endPosition.row - node.startPosition.row > 0),
+    );
+    // for (const group of grouped) {
+      // console.log(group.some(node => !node));
+      // console.log(
+      //   group.length,
+      //   group[0].type,
+      //   this.nodeToTreeSize.get(group[0]),
+      //   group[0].endPosition.row - group[0].startPosition.row
+      // );
+    // }
+
+    return filteredGroup;
   }
 }
