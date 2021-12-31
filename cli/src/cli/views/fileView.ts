@@ -89,17 +89,27 @@ export class FileView extends View {
   }
 
   // TODO different output format for trees
-  // public writekgrams(out: Writable): void {
-  //   writeCSVto(
-  //     out,
-  //     this.report.sharedFingerprints(),
-  //     {
-  //       "id": s => s.id,
-  //       "hash": s => s.hash,
-  //       "data": s => s.kgram?.join(" ") || null,
-  //       "files": s => JSON.stringify(s.files().map(f => f.id))
-  //     });
-  // }
+  public writekgrams(out: Writable): void {
+    // writeCSVto(out, )
+    writeCSVto(
+      out,
+      // this.report.sharedFingerprints(),
+      [],
+      {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        "id": s => s.id,
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        "hash": s => s.hash,
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        "data": s => s.kgram?.join(" ") || null,
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        "files": s => JSON.stringify(s.files().map(f => f.id))
+      });
+  }
 
   public writeFiles(out: Writable): void {
     writeCSVto(
@@ -143,7 +153,7 @@ export class FileView extends View {
     }
     // TODO different output format for trees
     // console.log("Fragments written");
-    // this.writekgrams(createWriteStream(`${dirName}/kgrams.csv`));
+    this.writekgrams(createWriteStream(`${dirName}/kgrams.csv`));
     console.log("kgrams written.");
     this.writeFiles(createWriteStream(`${dirName}/files.csv`));
     console.log("Files written.");
