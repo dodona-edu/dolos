@@ -3,7 +3,7 @@ export class TooltipTool<T> {
   private div: d3.Selection<any, unknown, HTMLElement, any>;
 
   constructor(private getHtml: (a: T) => string) {
-    d3.select(".tooltip").remove();
+    // d3.select(".tooltip").remove();
     this.div = d3.select("body").append("div")
       .attr("class", "tooltip")
       .style("padding", "10px 18px")
@@ -20,10 +20,17 @@ export class TooltipTool<T> {
       .style("transform", "translateY(-100%)");
   }
 
-  mouseEnter(o: MouseEvent, data: T): void {
+  mouseEnter(o: MouseEvent, data: T, relativeToTarget = false): void {
+    const target: HTMLElement | null = o.target as HTMLElement;
+    const relativeX = scrollX + (target?.getBoundingClientRect().left || 0);
+    const relativeY = scrollY + (target?.getBoundingClientRect().top || 0);
+
+    const x = relativeToTarget ? relativeX : o.pageX;
+    const y = relativeToTarget ? relativeY : o.pageY;
+
     this.div
-      .style("left", (o.pageX) + "px")
-      .style("top", (o.pageY - 10) + "px")
+      .style("left", x + "px")
+      .style("top", y + "px")
       .style("opacity", 0.9)
       .html(this.getHtml(data));
   }
