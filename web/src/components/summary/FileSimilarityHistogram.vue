@@ -9,6 +9,7 @@ import { pairsAsNestedMapCached } from "@/util/PairAsNestedMap";
 import * as d3 from "d3";
 import { ScaleBand, ScaleLinear } from "d3";
 import { File, Pair } from "@/api/api";
+import { TooltipTool } from "@/d3-tools/TooltipTool";
 
 /**
  * Code inspired by https://www.d3-graph-gallery.com/graph/barplot_basic.html
@@ -40,6 +41,7 @@ export default class FileSimilarityHistogram extends DataView {
     this.setupXScale();
     this.setupYScale();
     this.drawBars();
+    this.addTooltipTool();
   }
 
   attachSvg(): void {
@@ -117,6 +119,20 @@ export default class FileSimilarityHistogram extends DataView {
     candiadateArray.sort((a, b) => b.similarity - a.similarity);
 
     return candiadateArray.slice(0, 25);
+  }
+
+  private addTooltipTool(): void {
+    if (!this.svg) { return; }
+
+    console.log("tooltip tool");
+    const tool = new TooltipTool<Pair>(h => `
+      ${h.similarity}
+    `);
+    this.svg
+      .select(".main-group")
+      .selectAll("circle")
+      .on("mouseenter", (e, d) => tool.mouseEnter(e, d as Pair))
+      .on("mouseleave", () => tool.mouseOut());
   }
 
   private _svgId: string | null = null;

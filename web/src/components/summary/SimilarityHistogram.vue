@@ -8,6 +8,7 @@ import { pairsAsNestedMap } from "@/util/PairAsNestedMap";
 import * as d3 from "d3";
 
 import DataView from "@/views/DataView";
+import { TooltipTool } from "@/d3-tools/TooltipTool";
 
 @Component({})
 export default class SimilarityHistogram extends DataView {
@@ -47,7 +48,8 @@ export default class SimilarityHistogram extends DataView {
     const bins = histogram(this.maxFileData);
     const yScale = this.getYScale(bins);
 
-    this.addSVG(xScale, yScale, bins);
+    const svg = this.addSVG(xScale, yScale, bins);
+    this.addTooltipTool(svg, yScale);
   }
 
   private getXScale(): d3.ScaleLinear<number, number> {
@@ -76,7 +78,7 @@ export default class SimilarityHistogram extends DataView {
     xScale: d3.ScaleLinear<number, number>,
     yScale: d3.ScaleLinear<number, number>,
     data: d3.Bin<number, number>[]
-  ): void {
+  ): d3.Selection<any, unknown, HTMLElement, any> {
     d3.select(`#${this.getSvgId()}`).select("svg").remove();
     const svg = d3
       .select(`#${this.getSvgId()}`)
@@ -123,6 +125,8 @@ export default class SimilarityHistogram extends DataView {
         .attr("y2", this.height)
         .attr("stroke", "black");
     }
+
+    return svg;
   }
 
   getMaxFileData(): number[] {
@@ -162,6 +166,20 @@ export default class SimilarityHistogram extends DataView {
       return warningColor;
     }
     return defaultColor;
+  }
+
+  private addTooltipTool(
+    svg: d3.Selection<any, unknown, HTMLElement, any>,
+    yScale: d3.ScaleLinear<number, number>
+  ): void {
+    const tool = new TooltipTool<d3.Bin<number, number>>(h => `
+      There are <b>${h.length}</b> files that have a similarity between <b>${h.x0}</b> and <b>${h.x1}</b>
+    `);
+    svg
+      .selectAll("rect")
+      .on("mouseenter", (e, d) =>
+        tool.mouseEnter(e, d as d3.Bin<number, number>, true))
+      .on("mouseleave", () => tool.mouseOut());
   }
 
   private setSize(): void {
