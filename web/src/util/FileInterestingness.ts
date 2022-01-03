@@ -137,3 +137,13 @@ export function getLargestPairOfScore(scoredFile: FileScoring): Pair | null {
 
   return scores.reduce((s, ns) => (s?.weightedScore || 0) > (ns?.weightedScore || 0) ? s : ns)?.pair || null;
 }
+
+type PairField = "similarity" | "longestFragment" | "totalOverlap"
+export function getLargestFieldOfScore(scoredFile: FileScoring): PairField {
+  const scores = [scoredFile.similarityScore?.weightedScore || 0, scoredFile.longestFragmentScore?.weightedScore || 0,
+    scoredFile.totalOverlapScore?.weightedScore || 0];
+
+  const i = scores.indexOf(Math.max(...scores));
+  const a: Array<PairField> = ["similarity", "longestFragment", "totalOverlap"];
+  return a[i];
+}

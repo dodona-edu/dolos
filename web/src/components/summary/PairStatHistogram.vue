@@ -3,17 +3,18 @@
 </template>
 <script lang="ts">
 import { Component, Prop } from "vue-property-decorator";
-import { Pair, File } from "@/api/api";
-import { pairsAsNestedMap } from "@/util/PairAsNestedMap";
+import { File } from "@/api/api";
 import * as d3 from "d3";
 
 import DataView from "@/views/DataView";
 import { TooltipTool } from "@/d3-tools/TooltipTool";
+import { FileInterestingnessCalculator, FileScoring } from "@/util/FileInterestingness";
 
 @Component({})
-export default class SimilarityHistogram extends DataView {
+export default class PairStatHistogram extends DataView {
   @Prop({ default: 50 }) numberOfTicks!: number;
   @Prop() extraLine: undefined | number;
+  @Prop({ default: "similarity" }) pairField!: "similarity" | "longestFragment" | "totalOverlap";
 
   private maxFileData: number[] = [];
 
@@ -41,10 +42,13 @@ export default class SimilarityHistogram extends DataView {
     await this.ensureData();
     this.maxFileData = this.getMaxFileData();
     const xScale = this.getXScale();
+    const domain = xScale.domain();
+    const ticks = xScale.ticks(this.numberOfTicks);
+    const adjustedTicks = ticks[ticks.length - 1] === domain[1] ? ticks.slice(0, -1) : ticks;
     const histogram = d3
       .bin()
       .domain(xScale.domain() as [number, number])
-      .thresholds(xScale.ticks(this.numberOfTicks).slice(0, -1));
+      .thresholds(adjustedTicks);
     const bins = histogram(this.maxFileData);
     const yScale = this.getYScale(bins);
 
@@ -131,18 +135,25 @@ export default class SimilarityHistogram extends DataView {
 
   getMaxFileData(): number[] {
     const files: File[] = Array.from(Object.values(this.files));
-    const pairMap = pairsAsNestedMap(Object.values(this.pairs));
+    const pairs = Array.from(Object.values(this.pairs));
 
-    const maxFunction = (a: number, b: number): number => (a > b ? a : b);
-    const getPairs = (f: File): Pair[] =>
-      Array.from(pairMap.get(f.id)?.values() || []);
-    const maxFileData = files.map((f: File) =>
-      getPairs(f)
-        .map((p: Pair) => p.similarity)
-        .reduce(maxFunction, 0)
+    const scoringCalculator = new FileInterestingnessCalculator(pairs);
+
+    const scoredFiles = files.map(file =>
+      scoringCalculator.calculateFileScoring(file)
     );
 
-    return maxFileData;
+    return scoredFiles.map(f => this.mapScoreToField(f));
+  }
+
+  private mapScoreToField(score: FileScoring): number {
+    if (this.pairField === "similarity") { return score.similarityScore?.similarity || 0; }
+
+    if (this.pairField === "totalOverlap") { return score.totalOverlapScore?.totalOverlapWrtSize || 0; }
+
+    if (this.pairField === "longestFragment") { return score.longestFragmentScore?.longestFragmentWrtSize || 0; }
+
+    return 0;
   }
 
   private _svgId: string | null = null;
@@ -173,7 +184,7 @@ export default class SimilarityHistogram extends DataView {
     yScale: d3.ScaleLinear<number, number>
   ): void {
     const tool = new TooltipTool<d3.Bin<number, number>>(h => `
-      There are <b>${h.length}</b> files that have a similarity between <b>${h.x0}</b> and <b>${h.x1}</b>
+      There are <b>${h.length}</b> files that have a value between <b>${h.x0}</b> and <b>${h.x1}</b>
     `);
     svg
       .selectAll("rect")
