@@ -17,7 +17,7 @@
 
         <div class="empty-space"></div>
 
-        <v-tab :key="3">Time Chart</v-tab>
+        <v-tab v-if="cluster && showClusterTimeline(cluster)" :key="3">Time Chart</v-tab>
         <v-tab-item v-if="cluster && showClusterTimeline(cluster)">
           <TimeSeriesCard :cluster="cluster"/>
         </v-tab-item>
