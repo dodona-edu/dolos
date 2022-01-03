@@ -10,11 +10,11 @@
 </template>
 <script lang="ts">
 import { Component } from "vue-property-decorator";
-import SimilarityHistogram from "./SimilarityHistogram.vue";
+import PairStatHistogram from "./PairStatHistogram.vue";
 
 import DataView from "@/views/DataView";
 
-@Component({ components: { SimilarityHistogram } })
+@Component({ components: { SimilarityHistogram: PairStatHistogram } })
 export default class HistogramCard extends DataView {}
 </script>
 <style scoped>
