@@ -44,14 +44,17 @@ Next, we can start looking for similarities in the submitted files.
 ## Fingerprinting
 
 To measure similarities between (converted) files, Dolos tries to find common
-substrings between them. We use substrings of a fixed length called k-grams.
-To efficiently make these comparisons and reduce the memory usage, all k-grams
+substrings between them. We use substrings of a fixed length called _k_-grams.
+To efficiently make these comparisons and reduce the memory usage, all _k_-grams
 are hashed using a rolling hash function (the one used by Rabin-Karp in their
-string matching algorithm).
+string matching algorithm). The length _k_ of _k_-grams can be with the `-k`
+option.
 
 To further reduce the memory usage, only a subset of all hashes are stored. The
 selection of which hashes to store is done by the Winnowing algorithm as
-described by [(Schleimer, Wilkerson and Aiken)](http://theory.stanford.edu/~aiken/publications/papers/sigmod03.pdf).
+described by [(Schleimer, Wilkerson and Aiken)](http://theory.stanford.edu/~aiken/publications/papers/sigmod03.pdf). In short: only the hash with the smallest numerical
+value is kept for each window. The window length (in _k_-grams) can be altered
+with the `-w` option.
 
 The remaining hashes are the **fingerprints** of the analyzed files. Internally,
 these are stored as simple integers.
