@@ -42,11 +42,11 @@ The analysis parameters can be altered by passing the relevant program
 arguments. For more information about the impact of these parameters you can
 read the section describing [how Dolos works](./algorithm.html).
 
-If you are having performance issues with Dolos, it can help to alter these
-parameters. It is recommended to increase the Window length (`-w`) first before
-altering the _k_-gram length (`-k`).
+If a Dolos analysis is taking too long or consuming too much memory, it can
+help to alter these parameters. It is recommended to increase the Window length
+(`-w`) first before altering the _k_-gram length (`-k`).
 
-### Kgram length
+### _k_-gram length
 
 Short: `-k <integer>`, long: `--kgram-length <integer>`, default: `23`.
 
