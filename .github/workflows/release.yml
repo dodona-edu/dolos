@@ -23,12 +23,20 @@ jobs:
               echo "CLI package has invalid version string"
               valid=false
           fi
-          if ! jq -e '.optionalDependencies."@dodona/dolos-web" | test("^[0-9.]+$")' cli/package.json >/dev/null; then
+          if ! jq -e '.dependencies."@dodona/dolos-web" | test("^[0-9.]+$")' cli/package.json >/dev/null; then
               echo "CLI dependency dolos-web has invalid version string"
+              valid=false
+          fi
+          if ! jq -e '.dependencies."@dodona/dolos-lib" | test("^[0-9.]+$")' cli/package.json >/dev/null; then
+              echo "CLI dependency dolos-lib has invalid version string"
               valid=false
           fi
           if ! jq -e '.version | test("^[0-9.]+$")' web/package.json >/dev/null; then
               echo "Web package has invalid version string"
+              valid=false
+          fi
+          if ! jq -e '.version | test("^[0-9.]+$")' lib/package.json >/dev/null; then
+              echo "Lib package has invalid version string"
               valid=false
           fi
           if ! $valid; then
