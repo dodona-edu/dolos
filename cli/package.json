@@ -40,6 +40,7 @@
   },
   "dependencies": {
     "@dodona/dolos-lib": "1.4.0",
+    "@dodona/dolos-web": "1.4.0",
     "chalk": "^4.1.1",
     "cliui": "^7.0.4",
     "commander": "^8.1.0",
@@ -54,9 +55,6 @@
     "tree-sitter-java": "^0.19.1",
     "tree-sitter-javascript": "^0.19.0",
     "tree-sitter-python": "^0.19.0"
-  },
-  "optionalDependencies": {
-    "@dodona/dolos-web": "1.4.0"
   },
   "bugs": {
     "url": "https://github.com/dodona-edu/dolos/issues"
