@@ -34,7 +34,7 @@
     "np": "^7.5.0",
     "nyc": "^15.0.1",
     "ts-node": "^10.2.1",
-    "typescript": "^4.3.2"
+    "typescript": "^4.5.5"
   },
   "dependencies": {
   },
