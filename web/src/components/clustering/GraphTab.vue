@@ -32,7 +32,6 @@ export default class GraphTab extends DataView {
   clusterFiles: File[] = [];
   clusterPairs: Pair[] = [];
 
-  cutoff = 0;
   legend = [];
 
   mounted(): void {

@@ -14,7 +14,7 @@
           <form class="settings">
             <p>
               <label>
-                Similarity ≥ {{ cutoff }}<br />
+                Similarity ≥ {{ getCutoff() }}<br />
                 <input
                   type="range"
                   min="0.25"
@@ -77,7 +77,6 @@ type SelectedInfo = EmptySelectedInfo | FullSelectedInfo;
   components: { Graph: Graph as any, GraphLegend },
 })
 export default class PlagarismGraph extends DataView {
-  public cutoff = 0.25;
   public showSingletons = false;
   public legend = [];
   public selectedInfo: SelectedInfo = { info: undefined, path: "" };
@@ -96,19 +95,17 @@ export default class PlagarismGraph extends DataView {
     this.selectedInfo = v;
   }
 
+  getCutoff(): number {
+    return this.cutoff;
+  }
+
   updateLegend(l: never[]): void {
-    console.log(l);
     this.legend = l;
   }
 
   @Watch("files")
   initFileArray(): void {
     this.fileArray = Array.from(Object.values(this.files));
-  }
-
-  @Watch("$route")
-  private onRouteChange(): void {
-    this.cutoff = +this.$route.query.cutoff || 0.25;
   }
 
   showLegend(): boolean {

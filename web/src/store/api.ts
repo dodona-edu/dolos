@@ -17,6 +17,7 @@ interface State {
   pairs: ObjMap<Pair>;
   metadata: Metadata;
   isLoaded: boolean;
+  cutoff: number;
 }
 
 type Context = ActionContext<State, Record<string, never>>;
@@ -28,6 +29,7 @@ export default {
     pairs: {},
     metadata: {},
     isLoaded: false,
+    cutoff: 0.75,
   }),
   getters: {
     areFragmentsLoaded(state: State): (n: number) => boolean {
@@ -41,6 +43,9 @@ export default {
     },
     file(state: State): (n: number) => File {
       return n => state.files[n];
+    },
+    cutoff(state: State): number {
+      return state.cutoff;
     }
   },
   mutations: {
@@ -56,6 +61,9 @@ export default {
     },
     updateFile(state: State, file: File): void {
       Vue.set(state.files, file.id, file);
+    },
+    updateCutoff(state: State, cutoff: number) {
+      state.cutoff = cutoff;
     }
   },
   actions: {
@@ -76,6 +84,7 @@ export default {
     },
     async populateFile(
       { commit, getters }: Context,
+
       data: {fileId: number}
     ): Promise<void> {
       const file: File = getters.file(data.fileId);
@@ -85,6 +94,12 @@ export default {
       }
       file.astAndMappingLoaded = true;
       commit("updateFile", file);
+    },
+
+    updateCutoff(
+      { commit }: Context,
+      cutoff: number) {
+      commit("updateCutoff", cutoff);
     }
   }
 };
