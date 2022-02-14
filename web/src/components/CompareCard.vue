@@ -361,7 +361,7 @@ export default class CompareCard extends Vue {
     this.reset();
   }
 
-  updated(): void {
+  mounted(): void {
     this.initialize();
   }
 

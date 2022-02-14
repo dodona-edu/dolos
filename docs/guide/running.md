@@ -36,6 +36,45 @@ You can show all the command-line options by passing the `-h` or `--help` flag
 or by running `dolos help run`.
 :::
 
+## Modifying analysis parameters
+
+The analysis parameters can be altered by passing the relevant program
+arguments. For more information about the impact of these parameters you can
+read the section describing [how Dolos works](./algorithm.html).
+
+If a Dolos analysis is taking too long or consuming too much memory, it can
+help to alter these parameters. It is recommended to increase the Window length
+(`-w`) first before altering the _k_-gram length (`-k`).
+
+### _k_-gram length
+
+Short: `-k <integer>`, long: `--kgram-length <integer>`, default: `23`.
+
+This changes the number of of _tokens_ contained in a single _k_-gram. This is the
+minimum matchable unit: corresponding fragments in two files smaller than this
+value will not be found.
+
+Larger values decrease memory usage and decrease running time, but will result
+in fewer detections.
+
+### Window length
+
+Short: `-w <integer>`, long: `--kgrams-in-window <integer>`, default: `17`.
+
+This changes window length (in _k_-grams) used by the Winnowing algorithm. The
+algorithm will pick one out of every `w` subsequent _k_-grams. This will
+therefore reduce memory usage `w` times.
+
+Larger values decrease memory usage and decrease running time, but will result
+in fewer detections.
+
+### Other parameters
+
+Dolos includes other parameters that can be used to finetune the analysis. A
+more detailed listing of these parameters and their function can be viewed by
+running `dolos --help`.
+
+
 ## Output format
 
 You can specify how Dolos reports its results by setting the `-f` or `--output-format` flag.

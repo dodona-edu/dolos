@@ -236,7 +236,9 @@ jobs:
           false
       - name: Build
         run: |
-          cd web/
+          cd lib/
+          yarn build
+          cd ../web/
           yarn build
 
   web-lint:

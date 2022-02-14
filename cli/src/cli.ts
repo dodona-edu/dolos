@@ -5,8 +5,6 @@ import { runCommand } from "./cli/commands/run";
 import { serveCommand } from "./cli/commands/serve";
 import * as path from "path";
 
-export { FileView } from "./cli/views/fileView";
-
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const pkg = require("../package.json");
 // eslint-disable-next-line @typescript-eslint/no-var-requires

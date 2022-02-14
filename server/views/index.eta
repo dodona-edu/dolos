@@ -3,33 +3,64 @@
 <head>
 <meta charset=utf-8>
 <title>Dolos server</title>
+
+<link rel="stylesheet" href="./css/main.css">
 </head>
 <body>
-<div>
-<form action="/upload" method="post" encType="multipart/form-data">
-    <h4>Upload & analyze</h4>
-    <div>
-    <label for="name">
-        Upload name:
-    </label>
-    <input type="text" name="name">
-    </div>
-    <div>
-    <label for="zip">
-        Upload a Dodona export zip:
-    </label>
-    <input type="file" id="zip" name="zip"
+<div class="navbar">
+  <div class="navbar-content">
+    <span> DOLOS </span>  
+
+  </div>
+</div>
+<div class="main-container">
+    <form action="./upload" method="post" encType="multipart/form-data">
+        <h4>Upload & analyze</h4>
+        <div>
+          <label for="name">
+              Upload name:
+          </label>
+          <input type="text" name="name">
+        </div>
+
+        <div>
+          <label for="zip">
+              Upload a Dodona export zip:
+          </label>
+          <input type="file" id="zip" name="zip"
+              
+              accept="application/zip, application/octet-stream, application/x-zip-compressed, multipart/x-zip">
+        </div>
+
+        <div>
+          <label for="zip">
+              Anonymize the directory?
+          </label>
+          <input type="checkbox" id="anonymize" name="anonymize" checked/>
+        </div>
         
-        accept="application/zip, application/octet-stream, application/x-zip-compressed, multipart/x-zip">
-    </div>
-    <div>
-        <input type="submit" value="Analyze">
-    </div>
-</form>
+        <div>
+         <label for="language">
+          Select a language
+         </label>
+         <select name="language" id="languageSelect">
+           <option value="python">python</option>
+           <option value="javascript">javascript</option>
+           <option value="java">java</option>
+           <option value="c">c</option>
+         </select> 
+        </div>
+        <div>
+            <input type="submit" value="Analyze">
+        </div>
+    </form>
     <h4>Look at previous reports</h4>
+    <ul>
     <% for(let report of it.reports) { %>
-    <a href="./reports/<%= report %>"><%= report %></a>
+    <li><a href="./reports/<%= report %>"><%= report %></a></li>
     <% } %>
+
+    </ul>
 
 </div>
 </body>

@@ -86,4 +86,78 @@ export class Region {
     return `Selection {${this.startRow}:${this.startCol} ` +
       `-> ${this.endRow}:${this.endCol}}`;
   }
+
+  /**
+   * This function takes the 'difference' of one region with a list of other regions.
+   * The 'difference' of a region is every interval [(x1,y1), (x2, y2)] that is only covered by the source region.
+   *
+   * In this case, this is useful for determining the region a node covers without taking its children into account.
+   *
+   * Every region that belongs to the diff (that is covered by source, and not by any other) is called a 'good' region.
+   * @param source
+   * @param other
+   */
+  public static diff(source: Region, ...other: Region[]) : Region[] {
+    type Point = [number, number]
+    const regionToPoints = (r: Region): [Point, Point] => [[r.startRow, r.startCol], [r.endRow, r.endCol]];
+    const [startPoint, endPoint] = regionToPoints(source);
+
+    const pointArray = other.map(regionToPoints);
+    // This map contains all the startpoints mapped to their respective endpoints.
+    // This is how we will identify the closing point of this token
+    const pointMap = new Map(pointArray);
+
+    const points = [startPoint, endPoint, ...pointMap.keys(), ...pointMap.values()];
+    const sortfunc = (a: Point, b: Point): number => a[0] == b[0] ? (a[1] - b[1]) : (a[0] - b[0]);  
+    points.sort(sortfunc);
+
+    // The "points" array now contains all the points (both opening and closing) sorted by their position.
+    // We will traverse this array from left to right (beginning of region to end of region) to evaluate whether
+    // a spot is covered by the source region and/or other regions.
+
+
+    const result: Region[] = [];
+    // This stack contains all regions that are 'active' or cover this interval
+    // (at the current point in the traversal process)
+    const stack: Set<Point> = new Set();
+    let hasStarted = false;
+    let currentIndex = 0;
+    let firstPoint: Point | null = null;
+
+    // Traversing the points list
+    while (points[currentIndex] !== endPoint) {
+      const p = points[currentIndex];
+
+      // Extra boolean to check whether we are currently covering the source interval
+      if(p === startPoint)
+        hasStarted = true;
+
+
+      // If this point is a starting point of a child region
+      if(pointMap.has(p)) {
+        // If we used to be covered by the source region (hasStarted) and by no child regions (stack size == 0)
+        // then this region is 'good'.
+        if(stack.size == 0 && hasStarted)
+          result.push(new Region(...firstPoint!, ...p));
+
+        // Register that the current region is covered by a child
+        stack.add(pointMap.get(p)!);
+
+      } else {
+        // If this point is the end point of a region, then we remove the end point of this region from the stack.
+        // We also register the current point as the starting point of a 'good' region
+        stack.delete(p);
+        if(stack.size == 0 && hasStarted)
+          firstPoint = p;
+      }
+
+      currentIndex += 1;
+    }
+
+    if(stack.size == 0) {
+      result.push(new Region(...firstPoint!, ...endPoint));
+    }
+
+    return result;
+  }
 }

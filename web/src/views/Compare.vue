@@ -36,9 +36,17 @@ export default class Compare extends DataView {
     }
   }
 
+  async ensureFilesLoaded(): Promise<void> {
+    if (!this.dataLoaded) {
+      await this.$store.dispatch("populateFile", { fileId: this.pair?.rightFile.id });
+      await this.$store.dispatch("populateFile", { fileId: this.pair?.leftFile.id });
+    }
+  }
+
   @Watch("pairId")
   async ensureData(): Promise<void> {
     await super.ensureData();
+    await this.ensureFilesLoaded();
     await this.ensureFragments();
   }
 
@@ -51,7 +59,9 @@ export default class Compare extends DataView {
   }
 
   get dataLoaded(): boolean {
-    return super.dataLoaded && this.$store.getters.areFragmentsLoaded(this.pairId);
+    return super.dataLoaded && this.$store.getters.areFragmentsLoaded(this.pairId) &&
+      this.$store.getters.isFileLoaded(this.pair?.leftFile.id) &&
+      this.$store.getters.isFileLoaded(this.pair?.rightFile.id);
   }
 }
 </script>

@@ -83,13 +83,15 @@ export class CodeTokenizer extends Tokenizer {
   }
 
   private *tokenizeNode(node: SyntaxNode): IterableIterator<Token> {
-    const location = new Region(
+    const fullSpan = new Region(
       node.startPosition.row,
       node.startPosition.column,
       node.endPosition.row,
       node.endPosition.column
     );
 
+    const location = Region.diff(fullSpan, ...this.getChildrenRegions(node))[0];
+    
     yield this.newToken("(", location);
 
     // "(node.type child1 child2 ...)"
@@ -99,5 +101,20 @@ export class CodeTokenizer extends Tokenizer {
       yield* this.tokenizeNode(child);
     }
     yield this.newToken(")", location);
+  }
+
+  private getChildrenRegions(node: SyntaxNode): Region[] {
+    const nodeToRegion = (node: SyntaxNode):Region => new Region(
+      node.startPosition.row,
+      node.startPosition.column,
+      node.endPosition.row,
+      node.endPosition.column
+    );
+
+    const getChildrenRegion = 
+    (node: SyntaxNode): Region[] =>
+      node.children.reduce<Region[]>((list, child) => [...list, ...getChildrenRegion(child), nodeToRegion(node)], []);
+
+    return node.children.map(getChildrenRegion).flat();
   }
 }

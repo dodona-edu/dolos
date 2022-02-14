@@ -24,3 +24,10 @@ For example: the command to analyze and view the samples shown in the section
 docker run --init --network host -v "$PWD:/dolos" \
     ghcr.io/dodona-edu/dolos -l javascript -f web *.js
 ```
+
+:::: tip
+If you do not want to bind the docker container to the host network, you can
+omit `--network host` argument from **docker** and add pass `--host 0.0.0.0` to
+**dolos**. You can then visit the Dolos UI at the IP address or hostname of the
+docker container.
+::::

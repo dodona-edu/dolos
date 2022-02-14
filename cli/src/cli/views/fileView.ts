@@ -2,7 +2,9 @@ import { View } from "./view";
 import csvStringify from "csv-stringify";
 import { Writable } from "stream";
 import { createWriteStream, promises, promises as fs } from "fs";
-import { Fragment, Pair, Report } from "@dodona/dolos-lib";
+import { Fragment, Pair, Report, ScoredPairs, TokenizedFile } from "@dodona/dolos-lib";
+import { PairedOccurrence } from "@dodona/dolos-lib/dist/lib/analyze/pairedOccurrence";
+import { SharedFingerprint } from "@dodona/dolos-lib/dist/lib/analyze/sharedFingerprint";
 
 function writeCSVto<T>(
   out: Writable,
@@ -47,7 +49,7 @@ export class FileView extends View {
         leftSelection: fragment.leftSelection,
         rightSelection: fragment.rightSelection,
         data: fragment.mergedData,
-        pairedOccurrences: fragment.pairs.map(pair => {
+        pairedOccurrences: fragment.pairs.map((pair: PairedOccurrence) => {
           return {
             sharedFingerprint: pair.fingerprint.id,
             left: {
@@ -71,7 +73,7 @@ export class FileView extends View {
   }
 
   public writePairs(out: Writable): void {
-    writeCSVto(
+    writeCSVto<ScoredPairs>(
       out,
       this.report.scoredPairs,
       {
@@ -89,7 +91,7 @@ export class FileView extends View {
   }
 
   public writekgrams(out: Writable): void {
-    writeCSVto(
+    writeCSVto<SharedFingerprint>(
       out,
       this.report.sharedFingerprints(),
       {
@@ -101,31 +103,33 @@ export class FileView extends View {
   }
 
   public writeFiles(out: Writable): void {
-    writeCSVto(
+    writeCSVto<TokenizedFile>(
       out,
       this.report.files(),
       {
         "id": f => f.id,
         "path": f => f.path,
         "content": f => f.content,
-        "ast": f => f.ast.join(" "),
         "amountOfKgrams": f => f.kgrams.length,
+        "ast": f => JSON.stringify(f.ast),
+        "mapping": f => JSON.stringify(f.mapping),
         "extra": f => JSON.stringify(f.extra)
       });
   }
 
   public writeMetadata(out: Writable): void {
     const metaData = this.report.options.asObject();
-    writeCSVto(
+    writeCSVto<[string, string]>(
       out,
       Object.entries(metaData),
       {
         "property": ([k ]) => k,
         "value": ([, v]) => v,
+        "type": ([, v]) => typeof v
       });
   }
 
-  async writeToDirectory(): Promise<string> {
+  async writeToDirectory(writeFragments = false): Promise<string> {
     const dirName = this.outputDestination;
     await fs.mkdir(dirName, { recursive: true });
 
@@ -134,14 +138,18 @@ export class FileView extends View {
     console.log("Metadata written.");
     this.writePairs(createWriteStream(`${dirName}/pairs.csv`));
     console.log("Pairs written.");
-    await fs.mkdir(`${dirName}/fragments`);
-    for (const pair of this.report.scoredPairs) {
-      const id = pair.pair.id;
-      const file = await fs.open(`${dirName}/fragments/${id}.json`, "w");
-      await this.writeFragments(file, pair.pair);
-      await file.close();
+    if (writeFragments) {
+
+      await fs.mkdir(`${dirName}/fragments`);
+      for (const pair of this.report.scoredPairs) {
+        const id = pair.pair.id;
+        const file = await fs.open(`${dirName}/fragments/${id}.json`, "w");
+        await this.writeFragments(file, pair.pair);
+        await file.close();
+      }
+      console.log("Fragments written");
+
     }
-    console.log("Fragments written");
     this.writekgrams(createWriteStream(`${dirName}/kgrams.csv`));
     console.log("kgrams written.");
     this.writeFiles(createWriteStream(`${dirName}/files.csv`));
@@ -151,7 +159,7 @@ export class FileView extends View {
   }
 
   async show(): Promise<void> {
-    await this.writeToDirectory();
+    await this.writeToDirectory(true);
   }
 
 }

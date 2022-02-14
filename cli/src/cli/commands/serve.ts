@@ -1,7 +1,7 @@
 import { Command } from "commander";
 import { promises as fs, constants } from "fs";
 import * as path from "path";
-import runServer, { DEFAULT_PORT } from "../server";
+import runServer, { DEFAULT_HOST, DEFAULT_PORT } from "../server";
 import * as Utils from "../../lib/util/utils";
 import { tryCatch, error, setLogging } from "../../lib/util/utils";
 
@@ -18,17 +18,25 @@ export function serveCommand(program: Command): Command {
     .option(
       "-p --port <port>",
       Utils.indent(
-        "TCP port to host the webserver on."
+        "Specifies on which port the webserver should be served.",
+        DEFAULT_PORT
       ),
       x => parseInt(x),
-      DEFAULT_PORT
+    )
+    .option(
+      "-H --host <host>",
+      Utils.indent(
+        "Specifies on which host the webserver should be served.",
+        DEFAULT_HOST,
+      )
     )
     .action((reportDir, options) => serve(reportDir, { ...options, ...program.opts() }));
 }
 
 interface ServeOptions {
   open: boolean;
-  port: number;
+  port?: number;
+  host?: string;
   verbose: boolean;
 }
 
