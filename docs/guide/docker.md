@@ -21,8 +21,7 @@ For example: the command to analyze and view the samples shown in the section
 [Running Dolos](./running.html) using the docker container is:
 
 ```shell
-docker run --init --network host -v "$PWD:/dolos" \
-    ghcr.io/dodona-edu/dolos -l javascript -f web *.js
+docker run --init --network host -v "$PWD:/dolos" ghcr.io/dodona-edu/dolos -l javascript -f web *.js
 ```
 
 :::: tip
