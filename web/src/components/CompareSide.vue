@@ -24,6 +24,9 @@
     <pre v-scroll.self="onScroll" ref="pre" :id="identifier" class="line-numbers highlighted-code"><code
       ref="codeblock" :class="`language-${language}`"></code>
     </pre>
+    <p>
+      {{semanticMatches.map(v => v.ownNodes.map(u => this.file.ast[u])).flat()}}
+    </p>
   </div>
 </template>
 
@@ -36,6 +39,7 @@ import "prismjs/themes/prism.css";
 import "prismjs/plugins/line-numbers/prism-line-numbers.js";
 import "prismjs/plugins/line-numbers/prism-line-numbers.css";
 import { ID_START, registerFragmentHighlighting } from "@/util/OccurenceHighlight";
+import { LevelStats } from "@dodona/dolos-lib/dist/lib/analyze/SemanticAnalyzer";
 
 @Component
 export default class CompareSide extends Vue {
@@ -46,6 +50,7 @@ export default class CompareSide extends Vue {
   @Prop({ required: true }) hoveringSelections!: Array<string>;
   @Prop({ required: true }) activeSelections!: Array<string>;
   @Prop({ required: true }) selectedSelections!: Array<string>;
+  @Prop({ required: true }) semanticMatches!: Array<LevelStats>;
 
   get content(): string {
     return this.file.content;

@@ -10,7 +10,7 @@ import {
   Region,
   TokenizedFile
 } from "@dodona/dolos-lib";
-import {LevelStats, SemanticAnalyzer} from "@dodona/dolos-lib/dist/lib/analyze/SemanticAnalyzer";
+import { LevelStats, SemanticAnalyzer } from "@dodona/dolos-lib/dist/lib/analyze/SemanticAnalyzer";
 // import { assertType } from "typescript-is";
 
 const DATA_URL = "./data/";
