@@ -10,6 +10,7 @@ import {
   Region,
   TokenizedFile
 } from "@dodona/dolos-lib";
+import {LevelStats, SemanticAnalyzer} from "@dodona/dolos-lib/dist/lib/analyze/SemanticAnalyzer";
 // import { assertType } from "typescript-is";
 
 const DATA_URL = "./data/";
@@ -105,6 +106,8 @@ export interface Pair {
   longestFragment: number;
   totalOverlap: number;
   fragments: Array<Fragment> | null;
+  leftMatches: LevelStats[];
+  rightMatches: LevelStats[];
   leftCovered: number;
   rightCovered: number;
 }
@@ -202,6 +205,8 @@ function parsePairs(
         leftFile: files[parseInt(assertType(row.leftFileId))],
         rightFile: files[parseInt(assertType(row.rightFileId))],
         fragments: null,
+        leftMatches: [],
+        rightMatches: [],
         leftCovered,
         rightCovered
       };
@@ -267,6 +272,15 @@ export async function loadFragments(pair: Pair, kmers: ObjMap<Kgram>, customOpti
     [fileToTokenizedFile(pair.leftFile), fileToTokenizedFile(pair.rightFile)]
   );
   const reportPair = report.scoredPairs[0].pair;
+  const semanticAnalysis = new SemanticAnalyzer(index);
+  const results =
+    await semanticAnalysis.semanticAnalysis(
+      [fileToTokenizedFile(pair.leftFile), fileToTokenizedFile(pair.rightFile)],
+    );
+
+  pair.leftMatches = results[0];
+  pair.rightMatches = results[1];
+
   const kmersMap: Map<Hash, Kgram> = new Map();
   for (const kmerKey in kmers) {
     const kmer = kmers[kmerKey];
