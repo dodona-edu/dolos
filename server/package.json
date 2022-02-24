@@ -29,7 +29,7 @@
     "@dodona/dolos-lib": "1.5.1",
     "eta": "^1.12.3",
     "express": "^4.17.1",
-    "express-fileupload": "^1.2.1",
+    "express-fileupload": "^1.3.1",
     "sanitize-filename": "^1.6.3",
     "unzipper": "^0.10.11",
     "express-rate-limit": "^5.4.0",
