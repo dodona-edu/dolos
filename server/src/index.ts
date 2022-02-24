@@ -8,7 +8,7 @@ import { router } from "./routes";
 const env = getConfig();
 const app: Express = express();
 const port = env.port;
-
+const host = env.host;
 
 app.engine("eta", Eta.renderFile);
 app.set("view engine", "eta");
@@ -28,10 +28,9 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
-
 app.use(env.baseURI, router);
 
 
 app.listen(port, () => {
-  console.log(`Dolos-server is listening on http://localhost:${port}`);
+  console.log(`Dolos-server is listening on http://${host}:${port}`);
 });

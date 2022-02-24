@@ -14,7 +14,7 @@
   </div>
 </div>
 <div class="main-container">
-    <form action="/upload" method="post" encType="multipart/form-data">
+    <form action="./upload" method="post" encType="multipart/form-data">
         <h4>Upload & analyze</h4>
         <div>
           <label for="name">
@@ -37,6 +37,18 @@
               Anonymize the directory?
           </label>
           <input type="checkbox" id="anonymize" name="anonymize" checked/>
+        </div>
+        
+        <div>
+         <label for="language">
+          Select a language
+         </label>
+         <select name="language" id="languageSelect">
+           <option value="python">python</option>
+           <option value="javascript">javascript</option>
+           <option value="java">java</option>
+           <option value="c">c</option>
+         </select> 
         </div>
         <div>
             <input type="submit" value="Analyze">

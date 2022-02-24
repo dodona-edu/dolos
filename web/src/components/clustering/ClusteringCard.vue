@@ -17,7 +17,11 @@
 
         <div class="empty-space"></div>
 
+<<<<<<< HEAD
         <v-tab :key="3">Time Chart</v-tab>
+=======
+        <v-tab v-if="cluster && showClusterTimeline(cluster)" :key="3">Time Chart</v-tab>
+>>>>>>> feature/641-clustering
         <v-tab-item v-if="cluster && showClusterTimeline(cluster)">
           <TimeSeriesCard :cluster="cluster"/>
         </v-tab-item>
@@ -67,7 +71,7 @@ export default class ClusteringCard extends Vue {
 
   public graphView(cluster: Cluster): void {
     const items = getClusterElementsArray(cluster)
-      .map((c) => c.id)
+      .map(c => c.id)
       .join(",");
 
     this.$router.push(`/graph?cutoff=${this.cutoff}&red=${items}`);
@@ -75,7 +79,7 @@ export default class ClusteringCard extends Vue {
 
   public pairView(cluster: Cluster): void {
     const items = Array.from(cluster)
-      .map((v) => v.id)
+      .map(v => v.id)
       .join(",");
 
     this.$router.push(`/?showIds=${items}`);

@@ -7,6 +7,7 @@ import { reportsDir, resultFiles, sourceZipfileFolder, sourceZipName } from "./c
 import { default as fs } from "fs";
 import { listReports } from "./reports";
 import { getConfig } from "./config/configuration";
+import assert from "assert";
 
 
 export const router = Router();
@@ -15,6 +16,8 @@ router.post<{ name: string }>("/upload", async (req, res) => {
   if (!req.files || Object.keys(req.files).length === 0 || !req.files.zip) {
     return res.status(400).send("No files were uploaded.");
   }
+  
+  console.log(req.body);
 
   const name = req.body.name;
   const sanName = sanitize(name);
@@ -27,8 +30,9 @@ router.post<{ name: string }>("/upload", async (req, res) => {
   const zipfile = req.files.zip as UploadedFile;
   await zipfile.mv(path.join(destination, sourceZipName));
 
-  analyze(path.join(destination, sourceZipName), req.body.anonymize || false);
-  return res.status(202).send("File uploaded, will be analyzed. <a href='../'>Back to home</a>");
+  assert(!req.body.language || ["javascript", "python", "java", "c"].includes(req.body.language));
+  analyze(path.join(destination, sourceZipName), req.body.anonymize || false, req.body.language);
+  return res.status(202).send("File uploaded, will be analyzed. <a href='./'>Back to home</a>");
 });
 
 router.use("/css", express.static(path.join(__dirname, "../css")));

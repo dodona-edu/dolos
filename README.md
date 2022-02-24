@@ -32,7 +32,7 @@ Dolos aims to be:
 Dolos is a command-line (CLI) tool that analyses source code files for similarities between them.
 It is able to show an interactive user interface in your browser by launching a local webserver.
 The analysis results are available in machine readable CSV files and Dolos can be integrated as a
-[JavaScript library](https://www.npmjs.com/package/@dodona/dolos) in other applications empowering
+[JavaScript library](https://www.npmjs.com/package/@dodona/dolos-lib) in other applications empowering
 users to integrate plagiarism detection in their personal workflow.
 
 ## Installation
@@ -51,7 +51,7 @@ show the results in your browser.
 
 Launch Dolos using the following command in your terminal:
 ```shell
-dolos -f web --language <language> path/to/your/files/*
+dolos run -f web --language <language> path/to/your/files/*
 ```
 The above command will launch a web interface with the analysis results at <http://localhost:3000>.
 
@@ -73,15 +73,18 @@ running `yarn install`. This will install all dependencies and link them in each
 project's `node_modules`. You should **not** run `yarn install` in each
 project's directory separately.
 
-This will also link the `dist` folder from the web project as `dolos-web` in the
-CLI project as long as the `cli/package.json` mentions `dolos-web` with the
-correct version as a dependency. This allows you to simultaneously develop the
-CLI and the Web project together.
+This will also link the `dist` folder from the web and lib projects as
+`dolos-web` and `dolos-lib` in the CLI project as long as the
+`cli/package.json` mentions `@dodona/dolos-web` and `@dodona/dolos-lib` with
+the correct version as a dependency. This allows you to simultaneously develop
+the CLI, lib and the web project together.
 
 Each project has its own build instructions in its own directory.
 
 ## Projects
 
-- [CLI](https://github.com/dodona-edu/dolos/tree/main/cli): the core library and command-line interface
+- [CLI](https://github.com/dodona-edu/dolos/tree/main/cli): the command-line interface
+- [Lib](https://github.com/dodona-edu/dolos/tree/main/lib): the core library
 - [Web](https://github.com/dodona-edu/dolos/tree/main/web): the graphical user interface in your browser which can be launched using the CLI
 - [Docs](https://github.com/dodona-edu/dolos/tree/main/docs): the source code of <https://dolos.ugent.be>
+- [Server](https://github.com/dodona-edu/dolos/tree/main/server): (experimental) a webserver exposing Dolos as a web application

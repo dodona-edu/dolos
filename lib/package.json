@@ -1,9 +1,9 @@
 {
   "name": "@dodona/dolos-lib",
-  "version": "1.3.0",
+  "version": "1.5.1",
   "main": "dist/index.js",
   "description": "Code similarity detection based on the Winnowing algorithm",
-  "types": "dist/dolos.d.ts",
+  "types": "dist/index.d.ts",
   "scripts": {
     "hash": "tsc && node dist/bin/hash.js",
     "test-hash-performance": "tsc && time head -c 1000000 /dev/random | node dist/bin/hash.js > /dev/null",
@@ -34,12 +34,14 @@
     "np": "^7.5.0",
     "nyc": "^15.0.1",
     "ts-node": "^10.2.1",
-    "typescript": "^4.3.2"
+    "typescript": "^4.5.5"
   },
   "dependencies": {
-    "tree-sitter": "^0.19.0",
+  },
+  "optionalDependencies": {
+    "tree-sitter": "^0.20.0",
     "tree-sitter-bash": "^0.19.0",
-    "tree-sitter-c": "^0.19.0",
+    "tree-sitter-c": "^0.20.1",
     "tree-sitter-c-sharp": "^0.19.0",
     "tree-sitter-java": "^0.19.1",
     "tree-sitter-javascript": "^0.19.0",

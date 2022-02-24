@@ -1,7 +1,6 @@
 import { Index } from "./lib/analyze";
 import { Report } from "./lib/analyze/report";
 import { CustomOptions, Options } from "./lib/util/options";
-import { CodeTokenizer } from "./lib/tokenizer/codeTokenizer";
 import { ExtraInfo, File } from "./lib/file/file";
 import { Result } from "./lib/util/result";
 import { csvParse, DSVRowString } from "d3-dsv";
@@ -11,20 +10,14 @@ import { CharTokenizer } from "./lib/tokenizer/charTokenizer";
 import { default as fsWithCallbacks } from "fs";
 const fs = fsWithCallbacks.promises;
 
-export { Report, ScoredPairs } from "./lib/analyze/report";
-export { Fragment } from "./lib/analyze/fragment";
-export { Region } from "./lib/util/region";
-export { Pair } from "./lib/analyze/pair";
-export { Options } from "./lib/util/options";
-
-
 function newTokenizer(language: string): Tokenizer {
   if (language == "chars") {
     return new CharTokenizer();
-  } else if (CodeTokenizer.supportedLanguages.includes(language)) {
+  } else {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const CodeTokenizer = require("./lib/tokenizer/codeTokenizer").CodeTokenizer;
     return new CodeTokenizer(language);
   }
-  throw new Error(`No tokenizer found for ${language}`);
 }
 
 export class Dolos {

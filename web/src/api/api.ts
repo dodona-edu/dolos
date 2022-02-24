@@ -1,4 +1,15 @@
 import * as d3 from "d3";
+
+import {
+  CustomOptions,
+  EmptyTokenizer,
+  File as DolosFile,
+  Fragment as DolosFragment,
+  Index,
+  Options,
+  Region,
+  TokenizedFile
+} from "@dodona/dolos-lib";
 // import { assertType } from "typescript-is";
 
 const DATA_URL = "./data/";
@@ -11,26 +22,12 @@ function assertType<T>(item: T | undefined | null): T {
   }
   return item;
 }
-
+type Hash = number;
 /**
  * Simple interface for plain javascript objects with numeric keys.
  */
 export interface ObjMap<T> {
   [id: number]: T;
-}
-
-export interface File {
-  id: number;
-  path: string;
-  content: string;
-  ast: string;
-  /* eslint-disable camelcase */
-  extra: {
-    timestamp?: Date;
-    fullName?: string;
-    labels?: string;
-  };
-  /* eslint-enable camelcase */
 }
 
 export interface Selection {
@@ -40,9 +37,39 @@ export interface Selection {
   endCol: number;
 }
 
+interface FileIndeterminate {
+  id: number;
+  path: string;
+  content: string;
+  astAndMappingLoaded: boolean;
+  ast: string[] | string;
+  mapping: Selection[] | string;
+  /* eslint-disable camelcase */
+  extra: {
+    timestamp?: Date;
+    fullName?: string;
+    labels?: string;
+  };
+  /* eslint-enable camelcase */
+}
+
+interface LoadedFile extends FileIndeterminate {
+  astAndMappingLoaded: true;
+  ast: string[];
+  mapping: Selection[];
+}
+
+interface UnloadedFile extends FileIndeterminate {
+  astAndMappingLoaded: false;
+  ast: string;
+  mapping: string;
+}
+
+export type File = LoadedFile | UnloadedFile;
+
 export interface Kgram {
   id: number;
-  hash: number;
+  hash: Hash;
   data: string;
   files: File[];
 }
@@ -64,7 +91,7 @@ export interface PairedOccurrence {
 export interface Fragment {
   left: Selection;
   right: Selection;
-  data: string;
+  data: string[];
   occurrences: PairedOccurrence[];
   active: boolean;
 }
@@ -88,6 +115,7 @@ export interface ApiData {
   pairs: ObjMap<Pair>;
   kgrams: ObjMap<Kgram>;
   metadata: Metadata;
+
 }
 
 async function fetchFiles(
@@ -114,35 +142,33 @@ async function fetchMetadata(
   return await d3.csv(url);
 }
 
-async function fetchFragments(
-  pairId: number,
-  url = DATA_URL + "fragments/"
-): Promise<string> {
-  return await d3.text(url + pairId + ".json");
-}
-
 function parseFiles(fileData: d3.DSVRowArray): ObjMap<File> {
+  // const start = performance.now();
+  // console.log(performance.now() - start);
   return Object.fromEntries(
     fileData.map(row => {
       const extra = JSON.parse(row.extra || "{}");
       extra.timestamp = extra.createdAt && new Date(extra.createdAt);
       row.extra = extra;
+      // row.mapping = JSON.parse(row.mapping || "[]");
+      // row.ast = JSON.parse(row.ast || "[]");
       return [row.id, row];
     })
   );
 }
 
-function parseFragments(fragmentsJson: string, kgrams: ObjMap<Kgram>): Fragment[] {
-  const parsed = JSON.parse(fragmentsJson);
-  return parsed.map((fragmentData: any): Fragment => {
+function parseFragments(dolosFragments: DolosFragment[], kmersMap: Map<Hash, Kgram>): Fragment[] {
+  // const parsed = JSON.parse(fragmentsJson);
+  return dolosFragments.map((dolosFragment: DolosFragment): Fragment => {
     return {
       active: true,
-      left: fragmentData.leftSelection,
-      right: fragmentData.rightSelection,
-      data: fragmentData.data,
-      occurrences: fragmentData.pairedOccurrences.map((occurrence: any): PairedOccurrence => {
+      left: dolosFragment.leftSelection,
+      right: dolosFragment.rightSelection,
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      data: dolosFragment.mergedData!,
+      occurrences: dolosFragment.pairs.map((occurrence): PairedOccurrence => {
         return {
-          kgram: kgrams[occurrence.sharedFingerprint],
+          kgram: assertType(kmersMap.get(occurrence.fingerprint.hash)),
           left: occurrence.left,
           right: occurrence.right
         };
@@ -192,15 +218,54 @@ function parseKgrams(kgramData: d3.DSVRowArray, fileMap: ObjMap<File>): ObjMap<K
   }));
 }
 
+type MetaRowType = { type: "string"; value: string } |
+  { type: "boolean"; value: boolean } |
+  { type: "number"; value: number} |
+  { type: "object"; value: null }
+
+function castToType(row: d3.DSVRowString): MetaRowType {
+  const rowValue = row.value;
+  const rowType = row.type;
+  const newRow = row as MetaRowType;
+  if (rowType === "boolean") {
+    newRow.value = rowValue ? rowValue.toLowerCase() === "true" : false;
+  } else if (rowValue && rowType === "number") {
+    newRow.value = Number.parseFloat(rowValue);
+  } else if (rowType === "object") {
+    newRow.value = null;
+  }
+  return newRow;
+}
+
 function parseMetadata(data: d3.DSVRowArray): Metadata {
   return Object.fromEntries(
-    data.map(row => [row.property, row.value])
+    data.map(row => [row.property, castToType(row).value])
   );
 }
 
-export async function loadFragments(pair: Pair, kmers: ObjMap<Kgram>): Promise<void> {
-  const fragments = fetchFragments(pair.id);
-  pair.fragments = parseFragments(await fragments, kmers);
+function fileToTokenizedFile(file: File): TokenizedFile {
+  const dolosFile = new DolosFile(file.path, file.content);
+  if (file.astAndMappingLoaded) {
+    return new TokenizedFile(dolosFile, file.ast, file.mapping as Region[]);
+  } else {
+    throw new Error("File AST and mapping not parsed");
+  }
+}
+
+export async function loadFragments(pair: Pair, kmers: ObjMap<Kgram>, customOptions: CustomOptions): Promise<void> {
+  const emptyTokenizer = new EmptyTokenizer();
+  const options = new Options(customOptions);
+  const index = new Index(emptyTokenizer, options);
+  const report = await index.compareTokenizedFiles(
+    [fileToTokenizedFile(pair.leftFile), fileToTokenizedFile(pair.rightFile)]
+  );
+  const reportPair = report.scoredPairs[0].pair;
+  const kmersMap: Map<Hash, Kgram> = new Map();
+  for (const kmerKey in kmers) {
+    const kmer = kmers[kmerKey];
+    kmersMap.set(kmer.hash, kmer);
+  }
+  pair.fragments = parseFragments(reportPair.fragments(), kmersMap);
 }
 
 export async function fetchData(): Promise<ApiData> {

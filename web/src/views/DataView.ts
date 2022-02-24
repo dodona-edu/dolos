@@ -23,4 +23,12 @@ export default abstract class DataView extends Vue {
   get dataLoaded(): boolean {
     return this.$store.state.api.isLoaded;
   }
+
+  get cutoff(): number {
+    return this.$store.state.api.cutoff;
+  }
+
+  set cutoff(value:number) {
+    this.$store.commit("updateCutoff", value);
+  }
 }
