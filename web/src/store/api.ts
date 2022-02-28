@@ -10,6 +10,7 @@ import {
 } from "@/api/api";
 import Vue from "vue";
 import { ActionContext } from "vuex";
+import { local } from "d3";
 
 interface State {
   kgrams: ObjMap<Kgram>;
@@ -55,6 +56,7 @@ export default {
       state.pairs = data.pairs;
       state.metadata = data.metadata;
       state.isLoaded = true;
+      state.cutoff = getInterpolatedSimilarity(Object.values(data.pairs));
     },
     updatePair(state: State, pair: Pair): void {
       Vue.set(state.pairs, pair.id, pair);
@@ -103,3 +105,53 @@ export default {
     }
   }
 };
+
+function getInterpolatedSimilarity(pairs: Pair[], step = 0.03): number {
+  pairs.sort((p1, p2) => p1.similarity - p2.similarity);
+  const binnedCount = getBinnedCount(pairs, step);
+
+  const localMinima = (getLocalMinima(binnedCount));
+  const weightedLocalMinima = localMinima.map(v => weightedDistributionIndex(v * step));
+  const indexMin = weightedLocalMinima.reduce((prev, curr, ind) => weightedLocalMinima[prev] > curr ? prev : ind);
+
+  return localMinima[indexMin] * step;
+}
+
+function getBinnedCount(pairs: Pair[], step = 0.05): number[] {
+  const results = [];
+  for (let i = 0; i <= 1; i += step) {
+    const min = i - step;
+    const max = i + step;
+    results.push(getCountByMinmax(pairs, min, max));
+  }
+
+  return results;
+}
+
+function getCountByMinmax(pairs: Pair[], min: number, max:number): number {
+  return pairs.filter(p => p.similarity >= min).filter(p => p.similarity < max).length;
+}
+
+function getLocalMinima(array: number[]): number[] {
+  const results = [];
+  let currentDirection = array[0] < array[1];
+
+  let i = 0;
+  while (i < array.length - 1) {
+    i++;
+    const direction = array[i] < array[i + 1];
+    if (direction !== currentDirection) {
+      if (!currentDirection) { results.push(i); }
+      currentDirection = direction;
+    }
+  }
+
+  return results;
+}
+
+function weightedDistributionIndex(index: number, top = 0.7): number {
+  const a = -2 / (2 * top - 2 / 3);
+  const b = 2 * (1 - a / 3);
+
+  return a * index * index + b * index;
+}
