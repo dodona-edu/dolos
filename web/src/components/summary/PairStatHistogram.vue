@@ -40,6 +40,7 @@ export default class PairStatHistogram extends DataView {
 
   async afterDataInit(): Promise<void> {
     await this.ensureData();
+    console.log(Object.values(this.pairs).map(p => p.similarity));
     this.maxFileData = this.getMaxFileData();
     const xScale = this.getXScale();
     const domain = xScale.domain();
@@ -47,7 +48,7 @@ export default class PairStatHistogram extends DataView {
     const adjustedTicks = ticks[ticks.length - 1] === domain[1] ? ticks.slice(0, -1) : ticks;
     const histogram = d3
       .bin()
-      .domain(xScale.domain() as [number, number])
+      .domain([0, 1])
       .thresholds(adjustedTicks);
     const bins = histogram(this.maxFileData);
     const yScale = this.getYScale(bins);
@@ -59,7 +60,7 @@ export default class PairStatHistogram extends DataView {
   private getXScale(): d3.ScaleLinear<number, number> {
     const xScale = d3
       .scaleLinear()
-      .domain([0, d3.max(this.maxFileData)] as [number, number])
+      .domain([0, 1] as [number, number])
       .range([0, this.width]);
 
     return xScale;
