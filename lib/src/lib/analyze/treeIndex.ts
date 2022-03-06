@@ -63,27 +63,20 @@ export class TreeIndex implements IndexInterface {
       }
     }
 
-    console.log("Here");
     this.subTreeIsomorphism(forest);
-    console.log("Here2");
 
     // console.log(this.listNumber);
 
     // const grouped = this.listNumber.ent
     const hashToNodeList = this.mapHashToNodeList(forest);
-    console.log("Here3");
 
     // nodes that have either already been looked at or it's a root of a subtree to which this node belongs has been
     // accepted
     const [grouped, hashes] = this.groupNodes(forest, hashToNodeList);
     const filteredGroup = this.filterGroups(grouped);
-    console.log("Here4");
     const hashToFingerprint = this.mapHashToFingerprint(hashes);
-    console.log("Here5");
     const pairs = this.makeScoredPairs(filteredGroup, hashToFingerprint, nodeMappedToFile);
-    console.log("Here6");
     const tokenizedFiles = [...new Set(nodeMappedToFile.values())];
-    console.log("Here7");
     return new SimpleReport(pairs, new Options(), tokenizedFiles);
   }
 
