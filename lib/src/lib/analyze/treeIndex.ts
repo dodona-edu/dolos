@@ -193,8 +193,10 @@ export class TreeIndex implements IndexInterface {
             const sim = TreeIndex.similarity(vec, n);
             const others = vecToNode.get(n) as SyntaxNode[];
             for(const other of others) {
-              let nodePath = nodeMappedToFile.get(node)?.path as string;
-              let otherPath = nodeMappedToFile.get(other)?.path as string;
+              const nodeFile = nodeMappedToFile.get(node) as TokenizedFile;
+              const otherFile = nodeMappedToFile.get(other) as TokenizedFile;
+              let nodePath = nodeFile?.path as string;
+              let otherPath = otherFile?.path as string;
               if(nodePath >= otherPath) {
                 continue;
               }
@@ -207,9 +209,20 @@ export class TreeIndex implements IndexInterface {
               let str = "";
               str += `{from: [${node.startPosition.row + 1}, ${node.startPosition.column}]`;
               str += `, to: [${node.endPosition.row + 1}, ${node.endPosition.column}]}`;
-              str += `\n{from: [${other.startPosition.row + 1}, ${other.startPosition.column}]`;
+              console.log("+++++++++++++++++++++++++++++++++++++++" + str);
+
+              for(let i = node.startPosition.row; i <= node.endPosition.row; i += 1) {
+                console.log(nodeFile.lines[i]);
+              }
+
+              str = "";
+              str += `{from: [${other.startPosition.row + 1}, ${other.startPosition.column}]`;
               str += `, to: [${other.endPosition.row + 1}, ${other.endPosition.column}]}`;
-              console.log(str);
+              console.log("+++++++++++++++++++++++++++++++++++++++" + str);
+
+              for(let i = other.startPosition.row; i <= other.endPosition.row; i += 1) {
+                console.log(otherFile.lines[i]);
+              }
 
             }
           }
