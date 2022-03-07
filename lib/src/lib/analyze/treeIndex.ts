@@ -8,6 +8,7 @@ import { makeScoredPairs, mapHashToFingerprint, mapHashToNodeList } from "./tree
 import { TreeIsomorphism } from "./treeMatching/treeIsomorphism";
 import { breadthFirstWalk, groupNodes } from "./treeMatching/treeUtils";
 import * as console from "console";
+import * as path from "path";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const createKDTree = require("static-kdtree");
 
@@ -183,22 +184,30 @@ export class TreeIndex implements IndexInterface {
         for(const ni of neibours) {
           const n = vecList[ni];
           const sim = TreeIndex.similarity(vec, n);
+          if(sim === 1) {
+            continue;
+          }
           similarities.push(sim);
           if(TreeIndex.similarity(vec, n) > SIMILARITY_THRESHOLD) {
             //TODO add to equivalence class
             const sim = TreeIndex.similarity(vec, n);
             const others = vecToNode.get(n) as SyntaxNode[];
             for(const other of others) {
-              const nodePath = nodeMappedToFile.get(node)?.path as string;
-              const otherPath = nodeMappedToFile.get(other)?.path as string;
+              let nodePath = nodeMappedToFile.get(node)?.path as string;
+              let otherPath = nodeMappedToFile.get(other)?.path as string;
+              if(nodePath >= otherPath) {
+                continue;
+              }
+              //TODO remove this
+              nodePath = path.basename(nodePath);
+              otherPath = path.basename(otherPath);
+
               console.log("========================================================================");
-              console.log(`${nodePath} <==(${sim})==> ${otherPath}`);
+              console.log(`${nodePath}\t <==(${sim.toFixed(2)})==>\t ${otherPath}`);
               let str = "";
               str += `{from: [${node.startPosition.row + 1}, ${node.startPosition.column}]`;
               str += `, to: [${node.endPosition.row + 1}, ${node.endPosition.column}]}`;
-              console.log(str);
-              str = "";
-              str += `{from: [${other.startPosition.row + 1}, ${other.startPosition.column}]`;
+              str += `\n{from: [${other.startPosition.row + 1}, ${other.startPosition.column}]`;
               str += `, to: [${other.endPosition.row + 1}, ${other.endPosition.column}]}`;
               console.log(str);
 
