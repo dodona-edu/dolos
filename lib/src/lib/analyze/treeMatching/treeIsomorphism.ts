@@ -8,7 +8,7 @@ export class TreeIsomorphism {
   private readonly listNumber: Map<string, Hash> = new Map();
   // TODO could possibly be removed?
   // maps a root of a (sub)tree to it's size
-  private readonly nodeToTreeSize: Map<SyntaxNode, number> = new Map();
+  public readonly nodeToTreeSize: Map<SyntaxNode, number> = new Map();
   // maps a syntax node to it's amount of children that are not yet processed by the algorithm
   private readonly children: Map<SyntaxNode, number> = new Map();
   // a number, monotonically increases during the execution of the algorithm. If two roots of two sub-trees have the

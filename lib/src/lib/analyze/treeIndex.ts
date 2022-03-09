@@ -67,7 +67,7 @@ export class TreeIndex implements IndexInterface {
     // accepted
     const [grouped, hashes] = groupNodes(forest, hashToNodeList, nodeToHash);
     //TODO
-    this.extention1(nodeToHash, grouped, nodeMappedToFile);
+    this.extention1(nodeToHash, grouped, nodeMappedToFile, treeIsomorphism.nodeToTreeSize);
 
     const filteredGroup = this.filterGroups(grouped);
 
@@ -94,11 +94,13 @@ export class TreeIndex implements IndexInterface {
   private extention1(
     nodeToHash: Map<SyntaxNode, Hash>,
     grouped: SyntaxNode[][],
-    nodeMappedToFile: Map<SyntaxNode, TokenizedFile>
+    nodeMappedToFile: Map<SyntaxNode, TokenizedFile>,
+    nodeToTreeSize: Map<SyntaxNode, number>
   ) {
 
     const NEAR_MISS_TRESHOLD = 0; // TODO
     const SIMILARITY_THRESHOLD = 0.5;
+    const MINIMUM_LINES = 2;
 
     const matchedChildCount: Map<SyntaxNode, number> = new Map();
 
@@ -106,7 +108,7 @@ export class TreeIndex implements IndexInterface {
     for(const group of grouped) {
       for(const node of group) {
         //
-        if(node.parent == null) {
+        if(node.parent == null || node.parent.endPosition.row - node.parent.startPosition.row < MINIMUM_LINES) {
           continue;
         }
 
@@ -138,16 +140,20 @@ export class TreeIndex implements IndexInterface {
 
     {
       let i = 0;
-      for(const hash of hashSet.values()) {
+      for (const hash of hashSet.values()) {
         hashToIndex.set(hash, i);
         i += 1;
       }
     }
+    const weights = Array(hashCount).fill(0);
     const toVec = (node: SyntaxNode): Vector => {
       // no new keyword is needed https://262.ecma-international.org/6.0/#sec-array-constructor
       const list = Array(hashCount).fill(0);
       for(const child of node.namedChildren) {
-        list[hashToIndex.get(nodeToHash.get(child) as Hash) as number] += 1;
+        const index = hashToIndex.get(nodeToHash.get(child) as Hash) as number;
+        const weight = nodeToTreeSize.get(child);
+        list[index] += weight;
+        weights[index] = weight;
       }
       return list;
     };
@@ -171,6 +177,7 @@ export class TreeIndex implements IndexInterface {
       vecList.push(vec);
       nodesList.push(nodes);
     }
+
     const tree = createKDTree(vecList);
     const similarities = [];
     for(let vecIndex = 0; vecIndex < vecList.length; vecIndex += 1) {
