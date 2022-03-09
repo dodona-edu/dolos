@@ -221,31 +221,49 @@ export class TreeIndex implements IndexInterface {
               str += `, to: [${node.endPosition.row + 1}, ${node.endPosition.column}]}`;
               console.log("+++++++++++++++++++++++++++++++++++++++" + str);
 
-              // for(let i = node.startPosition.row; i <= node.endPosition.row; i += 1) {
-              //   console.log(nodeFile.lines[i]);
-              // }
+              for(let i = node.startPosition.row; i <= node.endPosition.row; i += 1) {
+                console.log(nodeFile.lines[i]);
+              }
 
               str = "";
               str += `{from: [${other.startPosition.row + 1}, ${other.startPosition.column}]`;
               str += `, to: [${other.endPosition.row + 1}, ${other.endPosition.column}]}`;
               console.log("+++++++++++++++++++++++++++++++++++++++" + str);
 
-              // for(let i = other.startPosition.row; i <= other.endPosition.row; i += 1) {
-              //   console.log(otherFile.lines[i]);
-              // }
+              for(let i = other.startPosition.row; i <= other.endPosition.row; i += 1) {
+                console.log(otherFile.lines[i]);
+              }
 
+              if (nodePath == "dead_code_02.py" && otherPath == "outlining.py") {
+                const nodeChildren = [];
+                for(const child of node.namedChildren){
+                  nodeChildren.push([child, TreeIndex.nodeToInfo(child), nodeToHash.get(child)]);
+                }
+                const otherChildren = [];
+                for(const child of other.namedChildren) {
+                  otherChildren.push([child, TreeIndex.nodeToInfo(child), nodeToHash.get(child)]);
+                }
+                console.log("");
+              }
             }
           }
         }
-
       }
-
     }
     tree.dispose();
 
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     // const fs = require("fs");
     // fs.writeFileSync("./positions.json", JSON.stringify(vecList), "utf-8");
+  }
+
+  private static nodeToInfo(node: SyntaxNode): any {
+    return {
+      "start_row": node.startPosition.row,
+      "start_col": node.startPosition.column,
+      "end_row": node.endPosition.row,
+      "end_col": node.endPosition.column,
+    };
   }
 
   private static similarity(n1: Vector, n2: Vector): number {
