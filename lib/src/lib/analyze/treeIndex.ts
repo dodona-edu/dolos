@@ -4,13 +4,16 @@ import { File } from "../file/file";
 import { CustomOptions, Options } from "../util/options";
 import { default as Parser, SyntaxNode, Tree } from "tree-sitter";
 import { TokenizedFile } from "../file/tokenizedFile";
-import { makeScoredPairs, mapHashToFingerprint, mapHashToNodeList } from "./treeMatching/TreeReportUtils";
+import { makeScoredPairs, mapHashToSharedFingerprint, mapHashToNodeList } from "./treeMatching/TreeReportUtils";
 import { TreeIsomorphism } from "./treeMatching/treeIsomorphism";
 import { breadthFirstWalk, groupNodes } from "./treeMatching/treeUtils";
 import * as console from "console";
 import * as path from "path";
+// import * as path from "path";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const createKDTree = require("static-kdtree");
+// const createKDTree = require("static-kdtree");
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+// const clustering = require("density-clustering");
 
 export type Hash = number;
 type Vector = Array<number>;
@@ -67,13 +70,13 @@ export class TreeIndex implements IndexInterface {
     // accepted
     const [grouped, hashes] = groupNodes(forest, hashToNodeList, nodeToHash);
     //TODO
-    this.extention1(nodeToHash, grouped, nodeMappedToFile, treeIsomorphism.nodeToTreeSize);
+    const groupedExtended = this.extention1(nodeToHash, grouped, nodeMappedToFile, treeIsomorphism.nodeToTreeSize);
 
-    const filteredGroup = this.filterGroups(grouped);
+    const filteredGroup = this.filterGroups(groupedExtended);
 
 
     // adapt data to current output format
-    const hashToFingerprint = mapHashToFingerprint(hashes);
+    const hashToFingerprint = mapHashToSharedFingerprint(hashes);
     const pairs = makeScoredPairs(filteredGroup, hashToFingerprint, nodeMappedToFile, nodeToHash);
     const tokenizedFiles = [...new Set(nodeMappedToFile.values())];
     return new SimpleReport(pairs, new Options(), tokenizedFiles);
@@ -96,10 +99,10 @@ export class TreeIndex implements IndexInterface {
     grouped: SyntaxNode[][],
     nodeMappedToFile: Map<SyntaxNode, TokenizedFile>,
     nodeToTreeSize: Map<SyntaxNode, number>
-  ) {
+  ): Array<SyntaxNode[]> {
 
     const NEAR_MISS_TRESHOLD = 0; // TODO
-    const SIMILARITY_THRESHOLD = 0.5;
+    // const SIMILARITY_THRESHOLD = 0.5;
     const MINIMUM_LINES = 2;
 
     const matchedChildCount: Map<SyntaxNode, number> = new Map();
@@ -131,7 +134,6 @@ export class TreeIndex implements IndexInterface {
         for(const child of node.namedChildren) {
           hashSet.add(nodeToHash.get(child) as Hash);
         }
-
       }
     }
 
@@ -178,118 +180,161 @@ export class TreeIndex implements IndexInterface {
       nodesList.push(nodes);
     }
 
-    const tree = createKDTree(vecList);
-    const similarities = [];
-    for(let vecIndex = 0; vecIndex < vecList.length; vecIndex += 1) {
-      const vec = vecList[vecIndex];
-      const nodes = nodesList[vecIndex] as SyntaxNode[];
-      // const root = nodes[0];
-      // nodes that have the same position are in the same equivalence class
-      // for(const node of nodes) {
-      //   if(nodeToGroupRoot.has(node)) {
-      //     const newRoot = TreeIndex.getRoot(node, nodeToGroupRoot) as SyntaxNode;
-      //     nodeToGroupRoot.set(node, newRoot);
-      //     nodeToGroupRoot.set(root, newRoot);
-      //   } else {
-      //     nodeToGroupRoot.set(node, root);
-      //   }
-      // }
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const fs = require("fs");
+    fs.writeFileSync("./positions.json", JSON.stringify(vecList), "utf-8");
+    console.log("positions_written");
 
+    const labels = JSON.parse(fs.readFileSync("./labels.json").toString("utf-8"));
+    const labelToGroup: Map<number, SyntaxNode[]> = new Map();
+    for(let i = 0; i < labels.length; i += 1) {
+      const label = labels[i];
+      let group: SyntaxNode[];
+      if(labelToGroup.has(label)) {
+        group = labelToGroup.get(label) as SyntaxNode[];
+      } else {
+        group = [];
+        labelToGroup.set(label, group);
+      }
+      const nodes = nodesList[i];
       for(const node of nodes) {
+        group.push(node);
+      }
+    }
+
+    const groupsList = [];
+    for(const group of labelToGroup.values()) {
+      groupsList.push(group);
+      console.log("=============================================================");
+      for (const node of group) {
         const nodeFile = nodeMappedToFile.get(node) as TokenizedFile;
-        const k = 4;
-        const neighbourIndices = tree.knn(vec, k);
-        for(const neighbourIndex of neighbourIndices) {
-          const neighbourVec = vecList[neighbourIndex];
-          const sim = TreeIndex.similarity(vec, neighbourVec);
-          if(sim === 1) {
-            continue;
-          }
-          similarities.push(sim);
-          if(TreeIndex.similarity(vec, neighbourVec) > SIMILARITY_THRESHOLD) {
-            //TODO add to equivalence class
-            const sim = TreeIndex.similarity(vec, neighbourVec);
-            const others = nodesList[neighbourIndex];
-            for(const other of others) {
-              const otherFile = nodeMappedToFile.get(other) as TokenizedFile;
-              let nodePath = nodeFile?.path as string;
-              let otherPath = otherFile?.path as string;
-              if(nodePath >= otherPath) {
-                continue;
-              }
-              //TODO remove this
-              nodePath = path.basename(nodePath);
-              otherPath = path.basename(otherPath);
+        let str = `[ ${path.basename(nodeFile.path)} ] `;
+        str += `{from: [${node.startPosition.row + 1}, ${node.startPosition.column}]`;
+        str += `, to: [${node.endPosition.row + 1}, ${node.endPosition.column}]}`;
+        console.log("+++++++++++++++++++++++++++++++++++++++" + str);
 
-              console.log("========================================================================");
-              console.log(`${nodePath}\t <==(${sim.toFixed(2)})==>\t ${otherPath}`);
-              let str = "";
-              str += `{from: [${node.startPosition.row + 1}, ${node.startPosition.column}]`;
-              str += `, to: [${node.endPosition.row + 1}, ${node.endPosition.column}]}`;
-              console.log("+++++++++++++++++++++++++++++++++++++++" + str);
-
-              for(let i = node.startPosition.row; i <= node.endPosition.row; i += 1) {
-                console.log(nodeFile.lines[i]);
-              }
-
-              str = "";
-              str += `{from: [${other.startPosition.row + 1}, ${other.startPosition.column}]`;
-              str += `, to: [${other.endPosition.row + 1}, ${other.endPosition.column}]}`;
-              console.log("+++++++++++++++++++++++++++++++++++++++" + str);
-
-              for(let i = other.startPosition.row; i <= other.endPosition.row; i += 1) {
-                console.log(otherFile.lines[i]);
-              }
-
-              if (nodePath == "dead_code_02.py" && otherPath == "outlining.py") {
-                const nodeChildren = [];
-                for(const child of node.namedChildren){
-                  nodeChildren.push([child, TreeIndex.nodeToInfo(child), nodeToHash.get(child)]);
-                }
-                const otherChildren = [];
-                for(const child of other.namedChildren) {
-                  otherChildren.push([child, TreeIndex.nodeToInfo(child), nodeToHash.get(child)]);
-                }
-                console.log("");
-              }
-            }
-          }
+        for(let i = node.startPosition.row; i <= node.endPosition.row; i += 1) {
+          console.log(nodeFile.lines[i]);
         }
       }
+      console.log("");
     }
-    tree.dispose();
 
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    // const fs = require("fs");
-    // fs.writeFileSync("./positions.json", JSON.stringify(vecList), "utf-8");
+    return groupsList;
+    // console.log(labels);
+
+    // const optics = new clustering.OPTICS();
+    // const clusters = optics.run
+    //
+    // const tree = createKDTree(vecList);
+    // const similarities = [];
+    // for(let vecIndex = 0; vecIndex < vecList.length; vecIndex += 1) {
+    //   const vec = vecList[vecIndex];
+    //   const nodes = nodesList[vecIndex] as SyntaxNode[];
+    // const root = nodes[0];
+    // nodes that have the same position are in the same equivalence class
+    // for(const node of nodes) {
+    //   if(nodeToGroupRoot.has(node)) {
+    //     const newRoot = TreeIndex.getRoot(node, nodeToGroupRoot) as SyntaxNode;
+    //     nodeToGroupRoot.set(node, newRoot);
+    //     nodeToGroupRoot.set(root, newRoot);
+    //   } else {
+    //     nodeToGroupRoot.set(node, root);
+    //   }
+    // }
+
+    // for(const node of nodes) {
+    //   const nodeFile = nodeMappedToFile.get(node) as TokenizedFile;
+    //   const k = 4;
+    //   const neighbourIndices = tree.knn(vec, k);
+    //   for(const neighbourIndex of neighbourIndices) {
+    //     const neighbourVec = vecList[neighbourIndex];
+    //     const sim = TreeIndex.similarity(vec, neighbourVec);
+    //     if(sim === 1) {
+    //       continue;
+    //     }
+    //     similarities.push(sim);
+    //     if(TreeIndex.similarity(vec, neighbourVec) > SIMILARITY_THRESHOLD) {
+    //       //TODO add to equivalence class
+    //       const sim = TreeIndex.similarity(vec, neighbourVec);
+    //       const others = nodesList[neighbourIndex];
+    //       for(const other of others) {
+    //         const otherFile = nodeMappedToFile.get(other) as TokenizedFile;
+    //         let nodePath = nodeFile?.path as string;
+    //         let otherPath = otherFile?.path as string;
+    //         if(nodePath >= otherPath) {
+    //           continue;
+    //         }
+    //         //TODO remove this
+    //         nodePath = path.basename(nodePath);
+    //         otherPath = path.basename(otherPath);
+    //
+    //         console.log("========================================================================");
+    //         console.log(`${nodePath}\t <==(${sim.toFixed(2)})==>\t ${otherPath}`);
+    //         let str = "";
+    //         str += `{from: [${node.startPosition.row + 1}, ${node.startPosition.column}]`;
+    //         str += `, to: [${node.endPosition.row + 1}, ${node.endPosition.column}]}`;
+    //         console.log("+++++++++++++++++++++++++++++++++++++++" + str);
+    //
+    //         for(let i = node.startPosition.row; i <= node.endPosition.row; i += 1) {
+    //           console.log(nodeFile.lines[i]);
+    //         }
+    //
+    //         str = "";
+    //         str += `{from: [${other.startPosition.row + 1}, ${other.startPosition.column}]`;
+    //         str += `, to: [${other.endPosition.row + 1}, ${other.endPosition.column}]}`;
+    //         console.log("+++++++++++++++++++++++++++++++++++++++" + str);
+    //
+    //         for(let i = other.startPosition.row; i <= other.endPosition.row; i += 1) {
+    //           console.log(otherFile.lines[i]);
+    //         }
+    //
+    //         if (nodePath == "dead_code_02.py" && otherPath == "outlining.py") {
+    //           const nodeChildren = [];
+    //           for(const child of node.namedChildren){
+    //             nodeChildren.push([child, TreeIndex.nodeToInfo(child), nodeToHash.get(child)]);
+    //           }
+    //           const otherChildren = [];
+    //           for(const child of other.namedChildren) {
+    //             otherChildren.push([child, TreeIndex.nodeToInfo(child), nodeToHash.get(child)]);
+    //           }
+    //           console.log("");
+    //         }
+    //       }
+    //     }
+    //   }
+    // }
+    // }
+    // tree.dispose();
+
   }
 
-  private static nodeToInfo(node: SyntaxNode): any {
-    return {
-      "start_row": node.startPosition.row,
-      "start_col": node.startPosition.column,
-      "end_row": node.endPosition.row,
-      "end_col": node.endPosition.column,
-    };
-  }
-
-  private static similarity(n1: Vector, n2: Vector): number {
-    let n1Count = 0;
-    let n2Count = 0;
-    let overlapCount = 0;
-    for(let i = 0; i < n1.length; i += 1) {
-      if(n1[i] != 0) {
-        n1Count += n1[i];
-      }
-      if(n2[i] != 0) {
-        n2Count += n2[i];
-      }
-      if(n1[i] != 0 && n2[i] != 0) {
-        overlapCount += n1[i] + n2[i];
-      }
-    }
-    return overlapCount / (n1Count + n2Count);
-  }
+  // private static nodeToInfo(node: SyntaxNode): any {
+  //   return {
+  //     "start_row": node.startPosition.row,
+  //     "start_col": node.startPosition.column,
+  //     "end_row": node.endPosition.row,
+  //     "end_col": node.endPosition.column,
+  //   };
+  // }
+  //
+  // private static similarity(n1: Vector, n2: Vector): number {
+  //   let n1Count = 0;
+  //   let n2Count = 0;
+  //   let overlapCount = 0;
+  //   for(let i = 0; i < n1.length; i += 1) {
+  //     if(n1[i] != 0) {
+  //       n1Count += n1[i];
+  //     }
+  //     if(n2[i] != 0) {
+  //       n2Count += n2[i];
+  //     }
+  //     if(n1[i] != 0 && n2[i] != 0) {
+  //       overlapCount += n1[i] + n2[i];
+  //     }
+  //   }
+  //   return overlapCount / (n1Count + n2Count);
+  // }
 
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
