@@ -58,11 +58,11 @@ export function groupNodes(
     if (acceptedSet.has(node)) {
       continue;
     }
+    hashes.add(nodeToHash.get(node) as Hash);
 
     const matchedNodes: SyntaxNode[] = hashToNodeList.get(
       nodeToHash.get(node) as Hash
     ) as SyntaxNode[];
-    hashes.add(nodeToHash.get(node) as Hash);
 
     if (matchedNodes.length > 1) {
       grouped.push(matchedNodes);

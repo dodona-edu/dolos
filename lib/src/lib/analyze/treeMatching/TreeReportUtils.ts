@@ -29,7 +29,7 @@ export function mapHashToNodeList(
   return numberToNodeList;
 }
 
-export function mapHashToFingerprint(hashes: Set<Hash>): Map<Hash, SharedFingerprint> {
+export function mapHashToSharedFingerprint(hashes: Set<Hash>): Map<Hash, SharedFingerprint> {
   const hashToFingerprint: Map<Hash, SharedFingerprint> = new Map();
   for (const hash of hashes.values()) {
     const fingerPrint = new SharedFingerprint(hash, null);
