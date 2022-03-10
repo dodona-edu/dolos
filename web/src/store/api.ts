@@ -109,10 +109,15 @@ export default {
 function getInterpolatedSimilarity(pairs: Pair[], step = 0.03): number {
   pairs.sort((p1, p2) => p1.similarity - p2.similarity);
   const binnedCount = getBinnedCount(pairs, step);
+  console.log(binnedCount);
 
   const localMinima = (getLocalMinima(binnedCount));
-  const weightedLocalMinima = localMinima.map(v => weightedDistributionIndex(v * step));
-  const indexMin = weightedLocalMinima.reduce((prev, curr, ind) => weightedLocalMinima[prev] > curr ? prev : ind);
+  console.log(localMinima);
+  const weightedLocalMinima = localMinima.map(v =>
+    (Math.sqrt(binnedCount[v]) + 1) * weightedDistributionIndex(v * step));
+  const indexMin = weightedLocalMinima.reduce((prev, curr, ind) => weightedLocalMinima[prev] < curr ? prev : ind);
+
+  console.log(localMinima[indexMin]);
 
   return localMinima[indexMin] * step;
 }
@@ -149,9 +154,10 @@ function getLocalMinima(array: number[]): number[] {
   return results;
 }
 
-function weightedDistributionIndex(index: number, top = 0.7): number {
-  const a = -2 / (2 * top - 2 / 3);
-  const b = 2 * (1 - a / 3);
+function weightedDistributionIndex(index: number, top = 0.8): number {
+  const a = 0.9 / (1 / 3 - top + top * top);
+  const b = -2 * top * a;
+  const c = -top * top * a - top * b + 0.1;
 
-  return a * index * index + b * index;
+  return Math.round((a * index * index + b * index + c) * 1000) / 1000;
 }

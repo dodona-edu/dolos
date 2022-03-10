@@ -36,16 +36,16 @@ import {
 } from "@/util/clustering-algorithms/ClusterFunctions";
 import { Clustering, Cluster } from "@/util/clustering-algorithms/ClusterTypes";
 import { SortingFunction } from "@/util/Types";
-import { Component, Prop, Vue, Watch } from "vue-property-decorator";
+import { Component, Prop, Watch } from "vue-property-decorator";
+import DataView from "@/views/DataView";
 
 @Component({
   components: { ClusteringCard },
 })
-export default class ClusteringTable extends Vue {
+export default class ClusteringTable extends DataView {
   @Prop() loaded!: boolean;
   @Prop() clustering!: Clustering;
   @Prop({ default: "" }) search!: string;
-  public cutoff = 0.5;
 
   headers = [
     { text: "Cluster Id", value: "id", sortable: true },
