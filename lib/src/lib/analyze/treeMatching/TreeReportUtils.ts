@@ -73,7 +73,14 @@ export function makeScoredPairs(
           );
           pairDict.set(key, pair);
         }
-        const fragment = buildSimpleFragment(leftNode, rightNode, fingerprint);
+        let fragment;
+        if(pair.leftFile.id == leftFile.id && pair.rightFile.id == rightFile.id) {
+          fragment = buildSimpleFragment(leftNode, rightNode, fingerprint);
+        } else if (pair.leftFile.id == rightFile.id && pair.rightFile.id == leftFile.id) {
+          fragment = buildSimpleFragment(rightNode, leftNode, fingerprint);
+        } else {
+          throw new Error("received pair does not match required pair");
+        }
         pair.fragmentList.push(fragment);
       }
     }
@@ -98,4 +105,12 @@ export function makeScoredPairs(
     });
   }
   return pairs;
+}
+export function nodeToInfo(node: SyntaxNode): any {
+  return {
+    "start_row": node.startPosition.row,
+    "start_col": node.startPosition.column,
+    "end_row": node.endPosition.row,
+    "end_col": node.endPosition.column,
+  };
 }
