@@ -189,6 +189,10 @@ export class TreeIndex implements IndexInterface {
     const labelToGroup: Map<number, SyntaxNode[]> = new Map();
     for(let i = 0; i < labels.length; i += 1) {
       const label = labels[i];
+      if(label === -1) {
+        continue;
+      }
+
       let group: SyntaxNode[];
       if(labelToGroup.has(label)) {
         group = labelToGroup.get(label) as SyntaxNode[];
