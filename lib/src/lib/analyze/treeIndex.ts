@@ -8,8 +8,6 @@ import { makeScoredPairs, mapHashToSharedFingerprint, mapHashToNodeList } from "
 import { TreeIsomorphism } from "./treeMatching/treeIsomorphism";
 import { breadthFirstWalk, groupNodes } from "./treeMatching/treeUtils";
 import * as console from "console";
-import * as path from "path";
-// import * as path from "path";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 // const createKDTree = require("static-kdtree");
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -72,11 +70,16 @@ export class TreeIndex implements IndexInterface {
     //TODO
     const groupedExtended = this.extention1(nodeToHash, grouped, nodeMappedToFile, treeIsomorphism.nodeToTreeSize);
 
-    const filteredGroup = this.filterGroups(groupedExtended);
+    // TODO more intelligent merging
+    const groupMerged = [...grouped, ...groupedExtended];
+
+    const filteredGroup = this.filterGroups(groupMerged);
 
 
     // adapt data to current output format
     const hashToFingerprint = mapHashToSharedFingerprint(hashes);
+
+
     const pairs = makeScoredPairs(filteredGroup, hashToFingerprint, nodeMappedToFile, nodeToHash);
     const tokenizedFiles = [...new Set(nodeMappedToFile.values())];
     return new SimpleReport(pairs, new Options(), tokenizedFiles);
@@ -97,7 +100,7 @@ export class TreeIndex implements IndexInterface {
   private extention1(
     nodeToHash: Map<SyntaxNode, Hash>,
     grouped: SyntaxNode[][],
-    nodeMappedToFile: Map<SyntaxNode, TokenizedFile>,
+    _nodeMappedToFile: Map<SyntaxNode, TokenizedFile>,
     nodeToTreeSize: Map<SyntaxNode, number>
   ): Array<SyntaxNode[]> {
 
@@ -209,19 +212,19 @@ export class TreeIndex implements IndexInterface {
     const groupsList = [];
     for(const group of labelToGroup.values()) {
       groupsList.push(group);
-      console.log("=============================================================");
-      for (const node of group) {
-        const nodeFile = nodeMappedToFile.get(node) as TokenizedFile;
-        let str = `[ ${path.basename(nodeFile.path)} ] `;
-        str += `{from: [${node.startPosition.row + 1}, ${node.startPosition.column}]`;
-        str += `, to: [${node.endPosition.row + 1}, ${node.endPosition.column}]}`;
-        console.log("+++++++++++++++++++++++++++++++++++++++" + str);
-
-        for(let i = node.startPosition.row; i <= node.endPosition.row; i += 1) {
-          console.log(nodeFile.lines[i]);
-        }
-      }
-      console.log("");
+      // console.log("=============================================================");
+      // for (const node of group) {
+      //   const nodeFile = nodeMappedToFile.get(node) as TokenizedFile;
+      //   let str = `[ ${path.basename(nodeFile.path)} ] `;
+      //   str += `{from: [${node.startPosition.row + 1}, ${node.startPosition.column}]`;
+      //   str += `, to: [${node.endPosition.row + 1}, ${node.endPosition.column}]}`;
+      //   console.log("+++++++++++++++++++++++++++++++++++++++" + str);
+      //
+      //   for(let i = node.startPosition.row; i <= node.endPosition.row; i += 1) {
+      //     console.log(nodeFile.lines[i]);
+      //   }
+      // }
+      // console.log("");
     }
 
     return groupsList;

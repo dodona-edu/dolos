@@ -48,7 +48,12 @@ export function makeScoredPairs(
   const pairDict: Map<string, SimplePair> = new Map();
   for (const group of filteredGroup) {
     const hash = nodeToHash.get(group[0]) as Hash;
-    const fingerprint = hashToFingerprint.get(hash) as SharedFingerprint;
+    let fingerprint = hashToFingerprint.get(hash) as SharedFingerprint;
+    // TODO figure out shared fingerprint for near miss groups, which don't share a isomorphic tree "hash"
+    if(!fingerprint) {
+      const dummyHash = Math.floor(Math.random() * Number.MAX_SAFE_INTEGER);
+      fingerprint = new SharedFingerprint(dummyHash, null);
+    }
     // console.log("new group");
     for (let i = 0; i < group.length; i += 1) {
       const leftNode = group[i];
