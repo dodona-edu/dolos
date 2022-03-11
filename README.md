@@ -88,3 +88,9 @@ Each project has its own build instructions in its own directory.
 - [Web](https://github.com/dodona-edu/dolos/tree/main/web): the graphical user interface in your browser which can be launched using the CLI
 - [Docs](https://github.com/dodona-edu/dolos/tree/main/docs): the source code of <https://dolos.ugent.be>
 - [Server](https://github.com/dodona-edu/dolos/tree/main/server): (experimental) a webserver exposing Dolos as a web application
+
+## Who made this software?
+
+Dolos is an active research project by [Team Dodona](https://dodona.ugent.be/en/about/) at Ghent University. If you use this software for your research, please cite:
+
+- Maertens et. al. (2022) J. Computer Assisted Learning [doi:10.1111/jcal.12662](https://doi.org/10.1111/jcal.12662)
