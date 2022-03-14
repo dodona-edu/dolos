@@ -187,14 +187,22 @@
           </v-btn>
         </template>
       </FragmentList>
+      <SemanticList
+        :semantic-matches="rightMatches"
+        :file="activePair.rightFile"
+        :selected-item-sync.sync="selectedItem"
+      >
+
+      </SemanticList>
     </v-navigation-drawer>
   </v-container>
 </template>
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
-import { Fragment, Metadata, Pair, Selection } from "@/api/api";
+import { fileToTokenizedFile, Fragment, Metadata, Pair, Selection } from "@/api/api";
 import CompareSide from "@/components/CompareSide.vue";
 import BarcodeChart from "@/components/BarcodeChart.vue";
+import SemanticList from "@/components/SemanticList.vue";
 import { constructID, SelectionId } from "@/util/OccurenceHighlight";
 import * as d3 from "d3";
 import FragmentList from "@/components/FragmentList.vue";
@@ -205,11 +213,13 @@ import {
   mdiFileDocumentMultipleOutline,
   mdiSwapHorizontalBold,
 } from "@mdi/js";
+import { LevelStats, SemanticAnalyzer } from "@dodona/dolos-lib/dist/lib/analyze/SemanticAnalyzer";
 
 export enum SideID {
   leftSideId = "leftSideId",
   rightSideId = "rightSideId",
 }
+export type SemanticMatch = LevelStats & { active: boolean };
 
 @Component({
   data: () => ({
@@ -220,7 +230,7 @@ export enum SideID {
     mdiFileDocumentMultipleOutline,
     mdiSwapHorizontalBold,
   }),
-  components: { CompareSide, BarcodeChart, FragmentList },
+  components: { CompareSide, BarcodeChart, FragmentList, SemanticList },
 })
 export default class CompareCard extends Vue {
   @Prop({ default: false, required: true }) loaded!: boolean;
@@ -282,6 +292,9 @@ export default class CompareCard extends Vue {
   rightScrollFraction = 0;
   linesVisible = 0;
 
+  _leftMatches: Array<SemanticMatch> | null = null;
+  _rightMatches: Array<SemanticMatch> | null = null;
+
   get language(): string {
     return this.metadata.language as string;
   }
@@ -307,7 +320,9 @@ export default class CompareCard extends Vue {
               left: occurence.right,
               right: occurence.left,
             }))
-          }))
+          })),
+        leftMatches: this.pair.rightMatches,
+        rightMatches: this.pair.leftMatches,
       };
     } else {
       return this.pair;
@@ -342,20 +357,66 @@ export default class CompareCard extends Vue {
     return this.activePair.fragments!.filter(fragment => fragment.active);
   }
 
+  get leftMatches(): Array<SemanticMatch> {
+    if (!this._leftMatches) {
+      this._leftMatches = this.activePair.leftMatches.map(match => ({ ...match, active: false }));
+    }
+
+    return this._leftMatches;
+  }
+
+  get rightMatches(): Array<SemanticMatch> {
+    if (!this._rightMatches) {
+      this._rightMatches = this.activePair.rightMatches.map(match => ({ ...match, active: false }));
+    }
+
+    return this._rightMatches;
+  }
+
+  getActiveLeftMatches(): Array<SemanticMatch> {
+    return this.leftMatches.filter(v => v.active);
+  }
+
+  getActiveRightMatches(): Array<SemanticMatch> {
+    return this.rightMatches.filter(v => v.active);
+  }
+
   get leftActiveSelectionIds(): Array<SelectionId> {
-    return this.activeFragments.map(fragment => constructID(fragment.left));
+    const fragments = this.activeFragments.map(fragment => constructID(fragment.left));
+
+    const file = fileToTokenizedFile(this.activePair.leftFile);
+    const regions = this.getActiveLeftMatches().map(rm => SemanticAnalyzer.getFullRange(file, rm));
+    const semanticMatches = regions.map(m => constructID(m));
+
+    console.log(semanticMatches, fragments);
+    return [...fragments, ...semanticMatches];
   }
 
   get rightActiveSelectionIds(): Array<SelectionId> {
-    return this.activeFragments.map(fragment => constructID(fragment.right));
+    const fragments = this.activeFragments.map(fragment => constructID(fragment.right));
+
+    const file = fileToTokenizedFile(this.activePair.rightFile);
+    const regions = this.getActiveRightMatches().map(rm => SemanticAnalyzer.getFullRange(file, rm));
+    const semanticMatches = regions.map(m => constructID(m));
+
+    return [...fragments, ...semanticMatches];
   }
 
   get leftSelections(): Array<Selection> {
-    return this.activePair.fragments!.map(fragment => fragment.left);
+    const file = fileToTokenizedFile(this.activePair.leftFile);
+    const regions = this.leftMatches.map(rm => SemanticAnalyzer.getFullRange(file, rm));
+    console.log(this.leftMatches);
+
+    return [...this.activePair.fragments!.map(fragment => fragment.left),
+      ...regions];
   }
 
   get rightSelections(): Array<Selection> {
-    return this.activePair.fragments!.map(fragment => fragment.right);
+    const file = fileToTokenizedFile(this.activePair.rightFile);
+    const regions = this.rightMatches.map(rm => SemanticAnalyzer.getFullRange(file, rm));
+
+    return [...this.activePair.fragments!.map(fragment => fragment.right),
+      ...regions];
   }
 
   swapFiles(): void {

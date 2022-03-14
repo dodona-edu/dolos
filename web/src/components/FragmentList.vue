@@ -1,5 +1,5 @@
 <template>
-  <div style="height: 100%">
+  <div>
     <v-row no-gutters>
       <v-col>
         <v-container>
@@ -83,7 +83,6 @@
         @click:row="onRowClick"
         disable-pagination
         fixed-header
-        height="71vh"
         hide-default-footer
         id="fragmentList"
         item-key="id"
@@ -316,9 +315,9 @@ export default class FragmentList extends Vue {
   @Watch("selectedItem")
   onSelectedItemChange(newVal: number): void {
     if (newVal === -1) {
-      this.dataTableSelection = [];
+      // this.dataTableSelection = [];
     } else {
-      this.dataTableSelection = [this.fragmentsWithId[newVal]];
+      // this.dataTableSelection = [this.fragmentsWithId[newVal]];
     }
   }
 }

@@ -255,7 +255,7 @@ function parseMetadata(data: d3.DSVRowArray): Metadata {
   );
 }
 
-function fileToTokenizedFile(file: File): TokenizedFile {
+export function fileToTokenizedFile(file: File): TokenizedFile {
   const dolosFile = new DolosFile(file.path, file.content);
   if (file.astAndMappingLoaded) {
     return new TokenizedFile(dolosFile, file.ast, file.mapping as Region[]);
@@ -278,6 +278,7 @@ export async function loadFragments(pair: Pair, kmers: ObjMap<Kgram>, customOpti
       [fileToTokenizedFile(pair.leftFile), fileToTokenizedFile(pair.rightFile)],
     );
 
+  console.log(results);
   pair.leftMatches = results[0];
   pair.rightMatches = results[1];
 
