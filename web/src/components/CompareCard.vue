@@ -213,13 +213,13 @@ import {
   mdiFileDocumentMultipleOutline,
   mdiSwapHorizontalBold,
 } from "@mdi/js";
-import { LevelStats, SemanticAnalyzer } from "@dodona/dolos-lib/dist/lib/analyze/SemanticAnalyzer";
+import { NodeStats, SemanticAnalyzer } from "@dodona/dolos-lib/dist/lib/analyze/SemanticAnalyzer";
 
 export enum SideID {
   leftSideId = "leftSideId",
   rightSideId = "rightSideId",
 }
-export type SemanticMatch = LevelStats & { active: boolean };
+export type SemanticMatch = NodeStats & { active: boolean };
 
 @Component({
   data: () => ({
@@ -362,6 +362,7 @@ export default class CompareCard extends Vue {
       this._leftMatches = this.activePair.leftMatches.map(match => ({ ...match, active: false }));
     }
 
+    console.log(this.activePair);
     return this._leftMatches;
   }
 
@@ -388,7 +389,6 @@ export default class CompareCard extends Vue {
     const regions = this.getActiveLeftMatches().map(rm => SemanticAnalyzer.getFullRange(file, rm));
     const semanticMatches = regions.map(m => constructID(m));
 
-    console.log(semanticMatches, fragments);
     return [...fragments, ...semanticMatches];
   }
 
@@ -405,7 +405,6 @@ export default class CompareCard extends Vue {
   get leftSelections(): Array<Selection> {
     const file = fileToTokenizedFile(this.activePair.leftFile);
     const regions = this.leftMatches.map(rm => SemanticAnalyzer.getFullRange(file, rm));
-    console.log(this.leftMatches);
 
     return [...this.activePair.fragments!.map(fragment => fragment.left),
       ...regions];

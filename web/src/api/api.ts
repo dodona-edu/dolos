@@ -10,7 +10,7 @@ import {
   Region,
   TokenizedFile
 } from "@dodona/dolos-lib";
-import { LevelStats, SemanticAnalyzer } from "@dodona/dolos-lib/dist/lib/analyze/SemanticAnalyzer";
+import { NodeStats, SemanticAnalyzer } from "@dodona/dolos-lib/dist/lib/analyze/SemanticAnalyzer";
 // import { assertType } from "typescript-is";
 
 const DATA_URL = "./data/";
@@ -106,8 +106,8 @@ export interface Pair {
   longestFragment: number;
   totalOverlap: number;
   fragments: Array<Fragment> | null;
-  leftMatches: LevelStats[];
-  rightMatches: LevelStats[];
+  leftMatches: NodeStats[];
+  rightMatches: NodeStats[];
   leftCovered: number;
   rightCovered: number;
 }
@@ -256,7 +256,7 @@ function parseMetadata(data: d3.DSVRowArray): Metadata {
 }
 
 export function fileToTokenizedFile(file: File): TokenizedFile {
-  const dolosFile = new DolosFile(file.path, file.content);
+  const dolosFile = new DolosFile(file.path, file.content, undefined, file.id);
   if (file.astAndMappingLoaded) {
     return new TokenizedFile(dolosFile, file.ast, file.mapping as Region[]);
   } else {
@@ -278,9 +278,8 @@ export async function loadFragments(pair: Pair, kmers: ObjMap<Kgram>, customOpti
       [fileToTokenizedFile(pair.leftFile), fileToTokenizedFile(pair.rightFile)],
     );
 
-  console.log(results);
-  pair.leftMatches = results[0];
-  pair.rightMatches = results[1];
+  pair.leftMatches = results[0].get(pair.rightFile.id) || [];
+  pair.rightMatches = results[1].get(pair.leftFile.id) || [];
 
   const kmersMap: Map<Hash, Kgram> = new Map();
   for (const kmerKey in kmers) {

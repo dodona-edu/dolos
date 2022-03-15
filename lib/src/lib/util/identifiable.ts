@@ -5,7 +5,10 @@ export default abstract class Identifiable {
 
   public readonly id: number;
 
-  protected constructor() {
-    this.id = Identifiable.nextId++;
+  protected constructor(id?: number) {
+    if(id !== undefined)
+      this.id = id;
+    else
+      this.id = Identifiable.nextId++;
   }
 }

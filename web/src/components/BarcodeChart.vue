@@ -91,8 +91,6 @@ export default class BarcodeChart extends Vue {
       map[i] = [];
     }
 
-    console.log(this.selections);
-
     for (const selection of this.selections) {
       for (let i = selection.startRow; i <= selection.endRow; i += 1) {
         const id = constructID(selection);

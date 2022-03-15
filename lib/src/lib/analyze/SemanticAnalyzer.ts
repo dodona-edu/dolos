@@ -10,17 +10,25 @@ import { TokenizedFile } from "../file/tokenizedFile";
 import { Index } from "./index";
 import { DefaultMap } from "../util/defaultMap";
 import { HashFilter } from "../hashing/hashFilter";
+import { Region } from "../util/region";
+import { Occurrence } from "./report";
+import { countByKey, sumByKey } from "../util/utils";
 
-type AnnotatedAst = DefaultMap<number, boolean>;
-export type LevelStats = {
+type AstWithMatches = DefaultMap<number, Occurrence[]>;
+// type AnnotatedAst = Map<number, NodeStats>;
+
+export type NodeStats = {
     ownNodes: number[],
-    matchedNodeAmount: number,
-    childrenMatch: number,
+    matchedNodeAmount: Map<number, number>,
+    childrenMatch: Map<number, number>,
     childrenTotal: number,
     depth: number,
-    currentI: number,
-    lastMatchedLevels?: LevelStats[],
-    matches?: boolean
+}
+
+type ReturnData = {
+  nodeStats: NodeStats;
+  currentI: number;
+  lastMatchedLevels: Map<number, NodeStats[]>;
 }
 
 export class SemanticAnalyzer {
@@ -30,41 +38,44 @@ export class SemanticAnalyzer {
   public async semanticAnalysis(
     tokenizedFiles: TokenizedFile[],
     hashFilter?: HashFilter
-  ) {
+  ): Promise<Array<Map<number, NodeStats[]>>> {
+    console.log(tokenizedFiles);
     const results = [];
-    const astMap = await this.setupASTMatching(tokenizedFiles, hashFilter);
+    const astMap = await this.astWithMatches(tokenizedFiles, hashFilter);
     for(const tokenizedFile of tokenizedFiles) {
       results.push(await this.semanticAnalysisOneFile(tokenizedFile, astMap.get(tokenizedFile)));
     }
+
     return results;
   }
 
   private async semanticAnalysisOneFile(
     tokenizedFile: TokenizedFile,
-    matchedAST: AnnotatedAst,
-  ): Promise<LevelStats[]> {
-    const last = this.recurse(0, tokenizedFile.ast, matchedAST, 0);
+    matchedAST: AstWithMatches,
+  ): Promise<Map<number, NodeStats[]>> {
+    const last = this.recurse(tokenizedFile.id, 0, tokenizedFile.ast, matchedAST, 0);
     const matchedLevels = last.lastMatchedLevels;
     if(!matchedLevels)
-      return [];
+      return new Map();
 
-    return matchedLevels.filter(lm => lm.childrenTotal + lm.ownNodes.length > 10);
+    return matchedLevels;
   }
 
-  private recurse(i: number, ast: string[], matchedAST: AnnotatedAst, depth: number): LevelStats {
-    const currentNodelist: number[] = [];
-    const currentChildren: LevelStats[] = [];
+  private recurse(fileId: number, i: number, ast: string[], matchedAST: AstWithMatches, depth: number): ReturnData {
+    const ownNodes: number[] = [];
+    const currentChildren: ReturnData[] = [];
 
+    // Parsing the AST tree and getting the data from the children
     let index = i;
     let currentNode = ast[index];
     while(currentNode != ")" && index < ast.length) {
       if(currentNode !== "(" && currentNode !== ")") {
         // Handle node
-        currentNodelist.push(index);
+        ownNodes.push(index);
 
       } else if (currentNode == "(") {
         // Handle start of child
-        const r = (this.recurse(index+1, ast, matchedAST, depth+1));
+        const r = (this.recurse(fileId,index+1, ast, matchedAST, depth+1));
         index = r.currentI;
         currentChildren.push(r);
       }
@@ -73,51 +84,123 @@ export class SemanticAnalyzer {
       currentNode = ast[index];
     }
 
-    const matchedNodeAmount = currentNodelist.filter(i => matchedAST.get(i)).length;
 
-    const levelData: LevelStats = {
-      ownNodes: currentNodelist,
-      matchedNodeAmount,
-      childrenMatch: currentChildren.reduce((a, b) => a + b.matchedNodeAmount + b.childrenMatch, 0),
-      childrenTotal:
-                    currentChildren.reduce((a, b) => a + b.childrenTotal + b.ownNodes.length, 0),
+    const ownMatchesCountByFile = countByKey(
+      ownNodes.map(n => matchedAST.get(n)).flat().map(n => n.file.id).filter(n => n !== fileId)
+    );
+
+    const totalChildrenMatchByFile = currentChildren
+      .map(c => sumByKey(c.nodeStats.childrenMatch, c.nodeStats.matchedNodeAmount))
+      .reduce(sumByKey, new Map());
+
+    const totalChildrenCount = currentChildren.reduce(
+      (a, b)  => a + b.nodeStats.childrenTotal + b.nodeStats.ownNodes.length, 0);
+
+
+    const nodeStats = {
+      ownNodes,
+      matchedNodeAmount: ownMatchesCountByFile,
+      childrenTotal: totalChildrenCount,
+      childrenMatch: totalChildrenMatchByFile,
       depth,
-      currentI: index
     };
 
-    levelData.matches = this.doesLevelMatch(levelData);
 
-    levelData.lastMatchedLevels = levelData.matches ?
-      [levelData] :
-      currentChildren.map(c => c.lastMatchedLevels).filter((e): e is LevelStats[] => !!e).flat();
+    
+    const candidateFiles = [
+      ...ownMatchesCountByFile.keys(),
+      ...currentChildren.map(c => [...c.lastMatchedLevels.keys()]).flat()
+    ];
 
-    return levelData;
-  }
+    const lastMatchedLevels = new Map();
+    
+    for(const candidateFile of candidateFiles) {
+      const thisMatches = this.doesLevelMatch(
+        ownNodes, 
+        ownMatchesCountByFile.get(candidateFile) || 0,
+        totalChildrenMatchByFile.get(candidateFile) || 0,
+        totalChildrenCount);
 
-  private doesLevelMatch(level: LevelStats): boolean {
 
-    return level.childrenMatch > level.childrenTotal * 0.7  ||
-            (level.childrenMatch  > level.childrenTotal * 0.6 && level.matchedNodeAmount> level.ownNodes.length * 0.6);
-  }
+      const levelStats = thisMatches ? 
+        [nodeStats]
+        :
+        currentChildren.reduce<NodeStats[]>((prev, ch) =>
+          [...prev, ...(ch.lastMatchedLevels.get(candidateFile) || [])], []);
 
-  private async setupASTMatching(
-    tokenizedFiles: TokenizedFile[],
-    hashFilter?: HashFilter
-  ): Promise<DefaultMap<TokenizedFile, AnnotatedAst>> {
 
-    const astMap = new DefaultMap<TokenizedFile, AnnotatedAst>(() => new DefaultMap(() => false));
-
-    const occurrenceMap = await this.index.createMatches(tokenizedFiles, hashFilter);
-    const occurrences = [...occurrenceMap.values()].filter(u => u.length > 1).flat();
-
-    for(const occurence of occurrences) {
-      const matchMap = astMap.get(occurence.file);
-      for(let i = occurence.side.start; i <= occurence.side.stop; i++) {
-        matchMap.set(i, true);
-      }
+      lastMatchedLevels.set(candidateFile, levelStats);
     }
 
+    return {
+      currentI: index,
+      nodeStats,
+      lastMatchedLevels
+    };
+
+  }
+
+  private doesLevelMatch(ownNodes: number[], ownMatch: number, childrenMatch: number, childrenTotal: number): boolean {
+    if(childrenTotal == 0) {
+      return ownMatch === ownNodes.length;
+    }
+
+    return childrenMatch > childrenTotal * 0.7 ||
+        (childrenMatch > childrenTotal * 0.6 && ownMatch > ownNodes.length * 0.6);
+  }
+
+
+  private async astWithMatches(
+    tokenizedFiles: TokenizedFile[],
+    hashFilter?: HashFilter
+  ): Promise<DefaultMap<TokenizedFile, AstWithMatches>> {
+
+    const astMap = new DefaultMap<TokenizedFile, AstWithMatches>(() => new DefaultMap(() => []));
+
+    const occurrenceMap = await this.index.createMatches(tokenizedFiles, hashFilter);
+    const groupedOccurences = [...occurrenceMap.values()];
+
+    for(const occurenceGroup of groupedOccurences) {
+      if(occurenceGroup.length > 1)
+        for (const occurence of occurenceGroup) {
+          const matchMap = astMap.get(occurence.file);
+          for (let i = occurence.side.start; i <= occurence.side.stop; i++) {
+            matchMap.set(i, occurenceGroup);
+          }
+        }
+    }
     return astMap;
+  }
+
+  public static getFullRange(file: TokenizedFile, match: NodeStats): Region {
+    const ast = file.ast;
+    const mapping = file.mapping;
+
+    let currentRegion = mapping[match.ownNodes[0]];
+
+    for(const ownNode of match.ownNodes) {
+      let i = ownNode;
+      let done = false;
+      let counter = 1;
+
+
+      while(i < ast.length && !done) {
+        if(ast[i] == ")") {
+          counter -= 1;
+        } else if (ast[i] == "(") {
+          counter += 1;
+        } else {
+          currentRegion = Region.merge(currentRegion, mapping[i]);
+        }
+
+        if(counter == 0 && i != ownNode)
+          done = true;
+        i += 1;
+      }
+
+    }
+
+    return currentRegion;
   }
 
 }

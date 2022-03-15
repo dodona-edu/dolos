@@ -8,7 +8,7 @@ import { WinnowFilter } from "../hashing/winnowFilter";
 import { File } from "../file/file";
 import { Report, Occurrence } from "./report";
 import { TokenizedFile } from "../file/tokenizedFile";
-import {SemanticAnalyzer} from "./SemanticAnalyzer";
+import { SemanticAnalyzer } from "./SemanticAnalyzer";
 
 type Hash = number;
 
@@ -100,30 +100,30 @@ export class Index {
   }
 
   public async createMatches(
-      tokenizedFiles: TokenizedFile[],
-      hashFilter = this.hashFilter
+    tokenizedFiles: TokenizedFile[],
+    hashFilter = this.hashFilter
   ): Promise<Map<Hash, Array<Occurrence>>> {
     const index = new Map();
 
     // TODO REMOVE TEST
-    tokenizedFiles.forEach(t => t.kgrams.splice(0, t.kgrams.length))
+    tokenizedFiles.forEach(t => t.kgrams.splice(0, t.kgrams.length));
 
     for (const file of tokenizedFiles) {
       let kgram = 0;
       for await (
-          const { data, hash, start, stop  }
-          of hashFilter.fingerprints(file.ast)
-          ) {
+        const { data, hash, start, stop  }
+        of hashFilter.fingerprints(file.ast)
+      ) {
 
         // add kgram to file
         file.kgrams.push(new Range(start, stop));
 
         // sanity check
         assert(
-            Region.isInOrder(
-                file.mapping[start],
-                file.mapping[stop]
-            )
+          Region.isInOrder(
+            file.mapping[start],
+            file.mapping[stop]
+          )
             // If we end our kgram on a ')', the location of the opening token is used.
             // However, the location of this token in the file might be before
             // the location of the starting token of the kmer
@@ -131,14 +131,14 @@ export class Index {
             // The location of this token is always (0, 0), since the program root is the first token.
             // In this way, the 'end' token is before any other token in the AST.
             || file.ast[stop] === ")" ,
-            `Invalid ordering:
+          `Invalid ordering:
              expected ${file.mapping[start]}
              to start be before the end of ${file.mapping[stop]}`
         );
 
         const location = Region.merge(
-            file.mapping[start],
-            file.mapping[stop]
+          file.mapping[start],
+          file.mapping[stop]
         );
 
         const part: Occurrence = {
@@ -151,7 +151,7 @@ export class Index {
 
 
         if (matches) {
-         // report.addOccurrences(hash, part, ...matches);
+          // report.addOccurrences(hash, part, ...matches);
 
           // add our matching part to the index
           matches.push(part);

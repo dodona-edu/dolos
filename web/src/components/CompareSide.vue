@@ -39,7 +39,7 @@ import "prismjs/themes/prism.css";
 import "prismjs/plugins/line-numbers/prism-line-numbers.js";
 import "prismjs/plugins/line-numbers/prism-line-numbers.css";
 import { ID_START, registerFragmentHighlighting } from "@/util/OccurenceHighlight";
-import { LevelStats } from "@dodona/dolos-lib/dist/lib/analyze/SemanticAnalyzer";
+import { NodeStats } from "@dodona/dolos-lib/dist/lib/analyze/SemanticAnalyzer";
 
 @Component
 export default class CompareSide extends Vue {
@@ -50,7 +50,7 @@ export default class CompareSide extends Vue {
   @Prop({ required: true }) hoveringSelections!: Array<string>;
   @Prop({ required: true }) activeSelections!: Array<string>;
   @Prop({ required: true }) selectedSelections!: Array<string>;
-  @Prop({ required: true }) semanticMatches!: Array<LevelStats>;
+  @Prop({ required: true }) semanticMatches!: Array<NodeStats>;
 
   get content(): string {
     return this.file.content;
