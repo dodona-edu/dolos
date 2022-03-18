@@ -11,10 +11,13 @@ import { Index } from "./index";
 import { DefaultMap } from "../util/defaultMap";
 import { HashFilter } from "../hashing/hashFilter";
 import { Region } from "../util/region";
+import { countByKey, intersect, sumByKey } from "../util/utils";
 import { Occurrence } from "./report";
-import { countByKey, sumByKey } from "../util/utils";
 
-type AstWithMatches = DefaultMap<number, Occurrence[]>;
+type AstWithMatches = {
+  tokenToGroup: Map<number, number>,
+  groups: Occurrence[][]
+};
 // type AnnotatedAst = Map<number, NodeStats>;
 
 export type NodeStats = {
@@ -23,7 +26,26 @@ export type NodeStats = {
     childrenMatch: Map<number, number>,
     childrenTotal: number,
     depth: number,
+    occurrences: Set<number>
 }
+
+export type PairedNodeStats = {
+  rightMatch: NodeStats;
+  leftMatch: NodeStats;
+}
+
+export type LeftOnly = {
+  leftMatch: NodeStats;
+  occurrences: Occurrence[];
+}
+
+export type RightOnly = {
+  rightMatch: NodeStats;
+  occurrences: Occurrence[];
+
+}
+
+export type UnpairedNodeStats = LeftOnly | RightOnly;
 
 type ReturnData = {
   nodeStats: NodeStats;
@@ -38,15 +60,14 @@ export class SemanticAnalyzer {
   public async semanticAnalysis(
     tokenizedFiles: TokenizedFile[],
     hashFilter?: HashFilter
-  ): Promise<Array<Map<number, NodeStats[]>>> {
-    console.log(tokenizedFiles);
+  ): Promise<[Occurrence[][], Array<Map<number, NodeStats[]>>]> {
     const results = [];
     const astMap = await this.astWithMatches(tokenizedFiles, hashFilter);
     for(const tokenizedFile of tokenizedFiles) {
       results.push(await this.semanticAnalysisOneFile(tokenizedFile, astMap.get(tokenizedFile)));
     }
 
-    return results;
+    return [astMap.get(tokenizedFiles[0]).groups, results];
   }
 
   private async semanticAnalysisOneFile(
@@ -84,9 +105,15 @@ export class SemanticAnalyzer {
       currentNode = ast[index];
     }
 
-
+    const occurrenceGroups = matchedAST.groups;
     const ownMatchesCountByFile = countByKey(
-      ownNodes.map(n => matchedAST.get(n)).flat().map(n => n.file.id).filter(n => n !== fileId)
+      ownNodes
+        .map(n => matchedAST.tokenToGroup.get(n))
+        .filter((n): n is number => n !== undefined)
+        .map(n => occurrenceGroups[n])
+        .flat()
+        .map(n => n.file.id)
+        .filter(n => n !== fileId)
     );
 
     const totalChildrenMatchByFile = currentChildren
@@ -96,6 +123,12 @@ export class SemanticAnalyzer {
     const totalChildrenCount = currentChildren.reduce(
       (a, b)  => a + b.nodeStats.childrenTotal + b.nodeStats.ownNodes.length, 0);
 
+    const childrenOccurrences = currentChildren.map(c => c.nodeStats.occurrences);
+    const currentOccurrences = ownNodes
+      .map(n => matchedAST.tokenToGroup.get(n))
+      .filter((n): n is number => n !== undefined);
+
+    const occurrences = new Set([...childrenOccurrences.map(v => [...v]), ...currentOccurrences].flat());
 
     const nodeStats = {
       ownNodes,
@@ -103,6 +136,7 @@ export class SemanticAnalyzer {
       childrenTotal: totalChildrenCount,
       childrenMatch: totalChildrenMatchByFile,
       depth,
+      occurrences
     };
 
 
@@ -155,17 +189,19 @@ export class SemanticAnalyzer {
     hashFilter?: HashFilter
   ): Promise<DefaultMap<TokenizedFile, AstWithMatches>> {
 
-    const astMap = new DefaultMap<TokenizedFile, AstWithMatches>(() => new DefaultMap(() => []));
-
     const occurrenceMap = await this.index.createMatches(tokenizedFiles, hashFilter);
-    const groupedOccurences = [...occurrenceMap.values()];
+    const groupedOccurrences = [...occurrenceMap.values()];
+    const getDefault = (): AstWithMatches => ({ tokenToGroup: new Map(), groups: groupedOccurrences });
+    const astMap = new DefaultMap<TokenizedFile, AstWithMatches>(getDefault);
 
-    for(const occurenceGroup of groupedOccurences) {
-      if(occurenceGroup.length > 1)
-        for (const occurence of occurenceGroup) {
+
+    for(let i = 0; i < groupedOccurrences.length; i++) {
+      const occurrenceGroup = groupedOccurrences[i];
+      if(occurrenceGroup.length > 1)
+        for (const occurence of occurrenceGroup) {
           const matchMap = astMap.get(occurence.file);
-          for (let i = occurence.side.start; i <= occurence.side.stop; i++) {
-            matchMap.set(i, occurenceGroup);
+          for (let j = occurence.side.start; j <= occurence.side.stop;   j++) {
+            matchMap.tokenToGroup.set(j, i);
           }
         }
     }
@@ -201,6 +237,53 @@ export class SemanticAnalyzer {
     }
 
     return currentRegion;
+  }
+
+  public static pairMatches(
+    fileLeft: TokenizedFile,
+    fileRight: TokenizedFile,
+    leftMatches: NodeStats[],
+    rightMatches: NodeStats[],
+    occurrenceGroups: Occurrence[][]
+  ): [PairedNodeStats[], UnpairedNodeStats[]] {
+    const pairs: PairedNodeStats[] = [];
+    const notPaired: UnpairedNodeStats[] = [];
+    
+    const pairedRightMatches = new Set();
+    
+    for(const leftMatch of leftMatches) {
+      let assigned = false;
+      
+      for(const rightMatch of rightMatches) {
+        const is = intersect(leftMatch.occurrences, rightMatch.occurrences);
+        if(is.size > leftMatch.occurrences.size*0.7 || is.size > rightMatch.occurrences.size * 0.7) {
+          pairs.push({ leftMatch, rightMatch });
+          assigned = true;
+          pairedRightMatches.add(rightMatch);
+        }
+      }
+      
+      if(!assigned) {
+        const occs = new Array(...leftMatch.occurrences)
+          .map(n => occurrenceGroups[n])
+          .flat()
+          .filter(o => o.file.id === fileRight.id);
+        notPaired.push({ leftMatch, occurrences: occs });
+      }
+    }
+    
+    
+    for(const rightMatch of rightMatches) {
+      if(!pairedRightMatches.has(rightMatch)) {
+        const occs = new Array(...rightMatch.occurrences)
+          .map(n => occurrenceGroups[n])
+          .flat()
+          .filter(o => o.file.id === fileLeft.id);
+        notPaired.push({ rightMatch, occurrences: occs });
+      }
+    }
+
+    return [pairs, notPaired];
   }
 
 }

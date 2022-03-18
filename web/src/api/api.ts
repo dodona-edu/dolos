@@ -10,7 +10,12 @@ import {
   Region,
   TokenizedFile
 } from "@dodona/dolos-lib";
-import { NodeStats, SemanticAnalyzer } from "@dodona/dolos-lib/dist/lib/analyze/SemanticAnalyzer";
+import {
+  NodeStats,
+  PairedNodeStats,
+  SemanticAnalyzer,
+  UnpairedNodeStats
+} from "@dodona/dolos-lib/dist/lib/analyze/SemanticAnalyzer";
 // import { assertType } from "typescript-is";
 
 const DATA_URL = "./data/";
@@ -106,8 +111,8 @@ export interface Pair {
   longestFragment: number;
   totalOverlap: number;
   fragments: Array<Fragment> | null;
-  leftMatches: NodeStats[];
-  rightMatches: NodeStats[];
+  pairedMatches: PairedNodeStats[];
+  unpairedMatches: UnpairedNodeStats[];
   leftCovered: number;
   rightCovered: number;
 }
@@ -205,8 +210,8 @@ function parsePairs(
         leftFile: files[parseInt(assertType(row.leftFileId))],
         rightFile: files[parseInt(assertType(row.rightFileId))],
         fragments: null,
-        leftMatches: [],
-        rightMatches: [],
+        pairedMatches: [],
+        unpairedMatches: [],
         leftCovered,
         rightCovered
       };
@@ -268,18 +273,28 @@ export async function loadFragments(pair: Pair, kmers: ObjMap<Kgram>, customOpti
   const emptyTokenizer = new EmptyTokenizer();
   const options = new Options(customOptions);
   const index = new Index(emptyTokenizer, options);
+  const leftFile = fileToTokenizedFile(pair.leftFile);
+  const rightFile = fileToTokenizedFile(pair.rightFile);
   const report = await index.compareTokenizedFiles(
-    [fileToTokenizedFile(pair.leftFile), fileToTokenizedFile(pair.rightFile)]
+    [leftFile, rightFile]
   );
   const reportPair = report.scoredPairs[0].pair;
   const semanticAnalysis = new SemanticAnalyzer(index);
-  const results =
+  const [occurrences, results] =
     await semanticAnalysis.semanticAnalysis(
-      [fileToTokenizedFile(pair.leftFile), fileToTokenizedFile(pair.rightFile)],
+      [leftFile, rightFile],
     );
 
-  pair.leftMatches = results[0].get(pair.rightFile.id) || [];
-  pair.rightMatches = results[1].get(pair.leftFile.id) || [];
+  const [pairedMatches, unpairedMatches] = SemanticAnalyzer.pairMatches(
+    leftFile,
+    rightFile,
+    results[0].get(pair.rightFile.id) || [],
+    results[1].get(pair.leftFile.id) || [],
+    occurrences
+  );
+
+  pair.pairedMatches = pairedMatches;
+  pair.unpairedMatches = unpairedMatches;
 
   const kmersMap: Map<Hash, Kgram> = new Map();
   for (const kmerKey in kmers) {

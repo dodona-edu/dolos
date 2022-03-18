@@ -36,3 +36,15 @@ export function combineByKey<K, V>(dict1: Map<K, V[]>, dict2: Map<K, V[]>)  {
 
   return copy;
 }
+
+export function intersect<T>(set1: Set<T>, set2: Set<T>) {
+  const copy = new Set(set1);
+    
+  for(const el of set1) {
+    if(!set2.has(el)) {
+      copy.delete(el);
+    }
+  }
+    
+  return copy;
+}

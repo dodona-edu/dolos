@@ -25,7 +25,7 @@
       ref="codeblock" :class="`language-${language}`"></code>
     </pre>
     <p>
-      {{semanticMatches.map(v => v.ownNodes.map(u => this.file.ast[u])).flat()}}
+      <!-- {{semanticMatches.map(v => v.ownNodes.map(u => this.file.ast[u])).flat()}} -->
     </p>
   </div>
 </template>

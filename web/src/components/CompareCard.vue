@@ -188,8 +188,8 @@
         </template>
       </FragmentList>
       <SemanticList
-        :semantic-matches="rightMatches"
-        :file="activePair.rightFile"
+        :semantic-matches="pairedMatches"
+        :file="activePair.leftFile"
         :selected-item-sync.sync="selectedItem"
       >
 
@@ -213,13 +213,13 @@ import {
   mdiFileDocumentMultipleOutline,
   mdiSwapHorizontalBold,
 } from "@mdi/js";
-import { NodeStats, SemanticAnalyzer } from "@dodona/dolos-lib/dist/lib/analyze/SemanticAnalyzer";
+import { PairedNodeStats, SemanticAnalyzer } from "@dodona/dolos-lib/dist/lib/analyze/SemanticAnalyzer";
 
 export enum SideID {
   leftSideId = "leftSideId",
   rightSideId = "rightSideId",
 }
-export type SemanticMatch = NodeStats & { active: boolean };
+export type SemanticMatch = PairedNodeStats & { active: boolean };
 
 @Component({
   data: () => ({
@@ -292,7 +292,7 @@ export default class CompareCard extends Vue {
   rightScrollFraction = 0;
   linesVisible = 0;
 
-  _leftMatches: Array<SemanticMatch> | null = null;
+  _pairedMatches: Array<SemanticMatch> | null = null;
   _rightMatches: Array<SemanticMatch> | null = null;
 
   get language(): string {
@@ -321,8 +321,8 @@ export default class CompareCard extends Vue {
               right: occurence.left,
             }))
           })),
-        leftMatches: this.pair.rightMatches,
-        rightMatches: this.pair.leftMatches,
+        pairedMatches: this.pair.pairedMatches.map(u => ({ leftMatch: u.rightMatch, rightMatch: u.leftMatch })),
+        unpairedMatches: this.pair.unpairedMatches,
       };
     } else {
       return this.pair;
@@ -357,36 +357,23 @@ export default class CompareCard extends Vue {
     return this.activePair.fragments!.filter(fragment => fragment.active);
   }
 
-  get leftMatches(): Array<SemanticMatch> {
-    if (!this._leftMatches) {
-      this._leftMatches = this.activePair.leftMatches.map(match => ({ ...match, active: false }));
+  get pairedMatches(): Array<SemanticMatch> {
+    if (!this._pairedMatches) {
+      this._pairedMatches = this.activePair.pairedMatches.map(match => ({ ...match, active: false }));
     }
 
-    console.log(this.activePair);
-    return this._leftMatches;
+    return this._pairedMatches;
   }
 
-  get rightMatches(): Array<SemanticMatch> {
-    if (!this._rightMatches) {
-      this._rightMatches = this.activePair.rightMatches.map(match => ({ ...match, active: false }));
-    }
-
-    return this._rightMatches;
-  }
-
-  getActiveLeftMatches(): Array<SemanticMatch> {
-    return this.leftMatches.filter(v => v.active);
-  }
-
-  getActiveRightMatches(): Array<SemanticMatch> {
-    return this.rightMatches.filter(v => v.active);
+  getActivePairedMatches(): Array<SemanticMatch> {
+    return this.pairedMatches.filter(v => v.active);
   }
 
   get leftActiveSelectionIds(): Array<SelectionId> {
     const fragments = this.activeFragments.map(fragment => constructID(fragment.left));
 
     const file = fileToTokenizedFile(this.activePair.leftFile);
-    const regions = this.getActiveLeftMatches().map(rm => SemanticAnalyzer.getFullRange(file, rm));
+    const regions = this.getActivePairedMatches().map(rm => SemanticAnalyzer.getFullRange(file, rm.leftMatch));
     const semanticMatches = regions.map(m => constructID(m));
 
     return [...fragments, ...semanticMatches];
@@ -396,7 +383,7 @@ export default class CompareCard extends Vue {
     const fragments = this.activeFragments.map(fragment => constructID(fragment.right));
 
     const file = fileToTokenizedFile(this.activePair.rightFile);
-    const regions = this.getActiveRightMatches().map(rm => SemanticAnalyzer.getFullRange(file, rm));
+    const regions = this.getActivePairedMatches().map(rm => SemanticAnalyzer.getFullRange(file, rm.rightMatch));
     const semanticMatches = regions.map(m => constructID(m));
 
     return [...fragments, ...semanticMatches];
@@ -404,7 +391,7 @@ export default class CompareCard extends Vue {
 
   get leftSelections(): Array<Selection> {
     const file = fileToTokenizedFile(this.activePair.leftFile);
-    const regions = this.leftMatches.map(rm => SemanticAnalyzer.getFullRange(file, rm));
+    const regions = this.pairedMatches.map(rm => SemanticAnalyzer.getFullRange(file, rm.leftMatch));
 
     return [...this.activePair.fragments!.map(fragment => fragment.left),
       ...regions];
@@ -412,7 +399,7 @@ export default class CompareCard extends Vue {
 
   get rightSelections(): Array<Selection> {
     const file = fileToTokenizedFile(this.activePair.rightFile);
-    const regions = this.rightMatches.map(rm => SemanticAnalyzer.getFullRange(file, rm));
+    const regions = this.pairedMatches.map(rm => SemanticAnalyzer.getFullRange(file, rm.rightMatch));
 
     return [...this.activePair.fragments!.map(fragment => fragment.right),
       ...regions];
