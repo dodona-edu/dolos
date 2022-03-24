@@ -10,6 +10,7 @@ import {
 } from "@/api/api";
 import Vue from "vue";
 import { ActionContext } from "vuex";
+import { Occurrence } from "@dodona/dolos-lib";
 
 interface State {
   kgrams: ObjMap<Kgram>;
@@ -17,6 +18,7 @@ interface State {
   pairs: ObjMap<Pair>;
   metadata: Metadata;
   isLoaded: boolean;
+  occurrences: Occurrence[][];
 }
 
 type Context = ActionContext<State, Record<string, never>>;
@@ -28,6 +30,7 @@ export default {
     pairs: {},
     metadata: {},
     isLoaded: false,
+    occurrences: []
   }),
   getters: {
     areFragmentsLoaded(state: State): (n: number) => boolean {
@@ -49,6 +52,7 @@ export default {
       state.files = data.files;
       state.pairs = data.pairs;
       state.metadata = data.metadata;
+      state.occurrences = data.occurrences;
       state.isLoaded = true;
     },
     updatePair(state: State, pair: Pair): void {
@@ -59,8 +63,9 @@ export default {
     }
   },
   actions: {
-    async loadData({ commit }: Context): Promise<void> {
-      const data = await fetchData();
+    async loadData({ commit, state }: Context): Promise<void> {
+      const customOptions = state.metadata;
+      const data = await fetchData(customOptions);
       commit("setData", data);
     },
     async populateFragments(

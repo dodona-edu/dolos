@@ -75,6 +75,26 @@
         </router-link>
       </span>
     </div>
+    <div class="longest-fragment-score-container" v-if="displaySemantic()">
+      <h3>
+        Semantic match:
+        {{
+          getOtherFile(file.semanticMatchScore.pair)
+            .path.split("/")
+            .slice(-2)
+            .join("/")
+        }}
+      </h3>
+      <span>
+        These files have part of their structure in common: they have the same {{
+        file.semanticMatchScore.match.ownNodes.map(n => file.file.ast[n]).join(" and ")}}.
+        <br/>
+        <router-link :to="getPairLink(file.longestFragmentScore.pair)">
+          <a>Compare these pairs</a>
+        </router-link>
+      </span>
+    </div>
+
   </div>
 </template>
 
@@ -109,7 +129,8 @@ export default class FileCardScore extends Vue {
     const largestElementOfScore = Math.max(
       this.file.similarityScore?.weightedScore || 0,
       this.file.totalOverlapScore?.weightedScore || 0,
-      this.file.longestFragmentScore?.weightedScore || 0
+      this.file.longestFragmentScore?.weightedScore || 0,
+      this.file.semanticMatchScore?.weightedScore || 0
     );
 
     // Display if similarity is unusually big
@@ -124,7 +145,8 @@ export default class FileCardScore extends Vue {
     const largestElementOfScore = Math.max(
       this.file.similarityScore?.weightedScore || 0,
       this.file.totalOverlapScore?.weightedScore || 0,
-      this.file.longestFragmentScore?.weightedScore || 0
+      this.file.longestFragmentScore?.weightedScore || 0,
+      this.file.semanticMatchScore?.weightedScore || 0
     );
 
     // Display if longest fragment is unusually big
@@ -139,7 +161,8 @@ export default class FileCardScore extends Vue {
     const largestElementOfScore = Math.max(
       this.file.similarityScore?.weightedScore || 0,
       this.file.totalOverlapScore?.weightedScore || 0,
-      this.file.longestFragmentScore?.weightedScore || 0
+      this.file.longestFragmentScore?.weightedScore || 0,
+      this.file.semanticMatchScore?.weightedScore || 0
     );
 
     // Display if longest fragment is unusually big
@@ -147,6 +170,19 @@ export default class FileCardScore extends Vue {
     return (
       (this.file.totalOverlapScore?.totalOverlapWrtSize || 0) > this.totalOverlapCutoff ||
       this.file.totalOverlapScore?.weightedScore === largestElementOfScore
+    );
+  }
+
+  displaySemantic(): boolean {
+    const largestElementOfScore = Math.max(
+      this.file.similarityScore?.weightedScore || 0,
+      this.file.totalOverlapScore?.weightedScore || 0,
+      this.file.longestFragmentScore?.weightedScore || 0,
+      this.file.semanticMatchScore?.weightedScore || 0
+    );
+
+    return (
+      this.file.semanticMatchScore?.weightedScore === largestElementOfScore
     );
   }
 }

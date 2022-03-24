@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div style="height: 100%">
     <component :is="'style'" type="text/css">
 
       <template v-for="item in activeSelections">
@@ -21,12 +21,13 @@
         }
       </template>
     </component>
-    <pre v-scroll.self="onScroll" ref="pre" :id="identifier" class="line-numbers highlighted-code"><code
+    <pre v-scroll.self="onScroll"
+         ref="pre"
+         :id="identifier"
+         class="line-numbers highlighted-code"
+        :data-start="startRow"><code
       ref="codeblock" :class="`language-${language}`"></code>
     </pre>
-    <p>
-      <!-- {{semanticMatches.map(v => v.ownNodes.map(u => this.file.ast[u])).flat()}} -->
-    </p>
   </div>
 </template>
 
@@ -51,9 +52,11 @@ export default class CompareSide extends Vue {
   @Prop({ required: true }) activeSelections!: Array<string>;
   @Prop({ required: true }) selectedSelections!: Array<string>;
   @Prop({ required: true }) semanticMatches!: Array<NodeStats>;
+  @Prop({ default: 0 }) startRow!: number;
+  @Prop({ }) endRow?: number;
 
   get content(): string {
-    return this.file.content;
+    return this.file.content.split("\n").slice(this.startRow, this.endRow).join("\n");
   }
 
   onScroll(e: Event): void {
@@ -143,7 +146,6 @@ export default class CompareSide extends Vue {
 @use 'variables';
 
 .highlighted-code {
-    height: var(--code-height);
     min-height: 100%;
     max-height: 100%;
     overflow-y: scroll;

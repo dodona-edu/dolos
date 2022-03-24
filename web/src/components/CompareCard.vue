@@ -60,7 +60,7 @@
               </v-card-title>
               <v-card-text>
                 <v-container fluid>
-                  <v-row justify="center" no-gutters v-if="loaded">
+                  <v-row class="compare-container" justify="center" no-gutters v-if="loaded">
                     <v-col md="6" sm="12">
                       <v-row class="flex-nowrap" no-gutters>
                         <v-col cols="11">
@@ -650,5 +650,9 @@ export default class CompareCard extends Vue {
 .no-y-padding {
   padding-bottom: 0;
   padding-top: 0;
+}
+
+.compare-container {
+  height: var(--code-height);
 }
 </style>

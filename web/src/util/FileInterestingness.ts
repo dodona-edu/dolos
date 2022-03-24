@@ -1,5 +1,6 @@
 import { Pair, File } from "@/api/api";
 import { pairsAsNestedMap } from "./PairAsNestedMap";
+import { NodeStats } from "@dodona/dolos-lib/dist/lib/analyze/SemanticAnalyzer";
 
 type SimilarityScore = {
   similarity: number;
@@ -21,19 +22,26 @@ type LongestFragmentScore = {
   weightedScore: number;
 };
 
+type SemanticMatchingScore = {
+  pair: Pair;
+  weightedScore: number;
+  match: NodeStats
+}
+
 export type FileScoring = {
   file: File;
   similarityScore: SimilarityScore | null;
   totalOverlapScore: TotalOverlapScore | null;
   longestFragmentScore: LongestFragmentScore | null;
+  semanticMatchScore: SemanticMatchingScore | null;
   finalScore: number;
 };
 
 export class FileInterestingnessCalculator {
   private pairMap: Map<number, Map<number, Pair>>;
 
-  private longestFragmentWeight = 5 / 10;
-  private similarityWeight = 2 / 10;
+  private longestFragmentWeight = 4 / 10;
+  private similarityWeight = 3 / 10;
   private totalOverlapWeight = 3 / 10;
 
   constructor(private pairs: Pair[]) {
@@ -44,6 +52,7 @@ export class FileInterestingnessCalculator {
     const similarityScore = this.calculateSimilarityScore(file);
     const totalOverlapScore = this.totalOverlapScore(file);
     const longestFragmentScore = this.longestFragmentScore(file);
+    const semanticMatchScore = this.semanticMatchingScore(file);
 
     // The smallest files have arbitrarily high scores. Therefore, we linearly adjust total weight
     const smallFileWeight = file.amountOfKgrams < 15 ? (file.amountOfKgrams / 15) : 1;
@@ -51,7 +60,8 @@ export class FileInterestingnessCalculator {
     const finalScore =
       (this.steepSquareScaling(similarityScore?.weightedScore || 0) +
       this.steepSquareScaling(totalOverlapScore?.weightedScore || 0) +
-      this.steepSquareScaling(longestFragmentScore?.weightedScore || 0)) *
+      this.steepSquareScaling(longestFragmentScore?.weightedScore || 0) +
+      this.steepSquareScaling(semanticMatchScore?.weightedScore || 0)) *
       smallFileWeight;
 
     return {
@@ -59,6 +69,7 @@ export class FileInterestingnessCalculator {
       similarityScore,
       totalOverlapScore,
       longestFragmentScore,
+      semanticMatchScore,
       finalScore
     };
   }
@@ -127,6 +138,39 @@ export class FileInterestingnessCalculator {
     };
   }
 
+  public semanticMatchingScore(file: File): SemanticMatchingScore | null {
+    const pairArray = Array.from(this.pairMap.get(file.id)?.values() || []);
+    const matchSize = (m: NodeStats): number => m.ownNodes.length + m.childrenTotal;
+    const matchContainsFunction = (m: NodeStats): boolean =>
+      m.ownNodes.map(n => file.ast[n]).some(v => v.includes("fun"));
+    const matchScore = (m: NodeStats): number => matchContainsFunction(m) ? matchSize(m) * 2 : matchSize(m);
+
+    let maxScore = 0;
+    let maxFileId: number | null = null;
+    let maxMatch = null;
+    for (const [fileid, matches] of file.semanticMap) {
+      const filteredMatches = matches.filter(m => m.ownNodes.length + m.childrenTotal > 15);
+      for (const match of filteredMatches) {
+        if (matchScore(match) > maxScore) {
+          maxScore = matchScore(match);
+          maxFileId = fileid;
+          maxMatch = match;
+        }
+      }
+    }
+
+    return maxFileId === null || maxMatch === null
+      ? null
+      : {
+        pair: pairArray.filter(p =>
+          (p.leftFile.id === file.id && p.rightFile.id === maxFileId) ||
+          (p.leftFile.id === maxFileId && p.rightFile.id === file.id)
+        )[0],
+        match: maxMatch,
+        weightedScore: matchContainsFunction(maxMatch) ? 0.8 : 0.6,
+      };
+  }
+
   private steepSquareScaling(x: number): number {
     return 5 * x * x;
   }
@@ -138,12 +182,12 @@ export function getLargestPairOfScore(scoredFile: FileScoring): Pair | null {
   return scores.reduce((s, ns) => (s?.weightedScore || 0) > (ns?.weightedScore || 0) ? s : ns)?.pair || null;
 }
 
-type PairField = "similarity" | "longestFragment" | "totalOverlap"
+type PairField = "similarity" | "longestFragment" | "totalOverlap" | "semanticMatching"
 export function getLargestFieldOfScore(scoredFile: FileScoring): PairField {
   const scores = [scoredFile.similarityScore?.weightedScore || 0, scoredFile.longestFragmentScore?.weightedScore || 0,
-    scoredFile.totalOverlapScore?.weightedScore || 0];
+    scoredFile.totalOverlapScore?.weightedScore || 0, scoredFile.semanticMatchScore?.weightedScore || 0];
 
   const i = scores.indexOf(Math.max(...scores));
-  const a: Array<PairField> = ["similarity", "longestFragment", "totalOverlap"];
+  const a: Array<PairField> = ["similarity", "longestFragment", "totalOverlap", "semanticMatching"];
   return a[i];
 }
