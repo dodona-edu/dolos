@@ -1,6 +1,6 @@
 import { Hash } from "../treeIndex";
 import { SyntaxNode, Tree } from "tree-sitter";
-import { breadthFirstWalkForest, walkOverChildren } from "./treeUtils";
+import { breadthFirstWalk, walkOverChildren } from "./treeUtils";
 
 export class TreeIsomorphism {
 
@@ -13,10 +13,11 @@ export class TreeIsomorphism {
   private readonly children: Map<SyntaxNode, number> = new Map();
   // a number, monotonically increases during the execution of the algorithm. If two roots of two sub-trees have the
   // same number assigned to them, then they are isomorphic
-  private count: Hash = 0;
+  public count: Hash = 0;
   // maps a node to it's number
   private readonly nodeToHash: Map<SyntaxNode, Hash> = new Map();
 
+  // private isProcessed = new Map<SyntaxNode, boolean>();
   public constructor(forest: Tree[]) {
     this.subTreeIsomorphism(forest);
   }
@@ -24,17 +25,24 @@ export class TreeIsomorphism {
 
   private subTreeIsomorphism(forest: Tree[]): void {
     const queue: SyntaxNode[] = [];
-    for (const syntaxNode of breadthFirstWalkForest(forest)) {
-      this.nodeToTreeSize.set(syntaxNode, 1);
-      this.children.set(syntaxNode, syntaxNode.namedChildCount);
-      if (syntaxNode.namedChildCount === 0) {
-        queue.push(syntaxNode);
+    for (const tree of forest) {
+      for (const syntaxNode of breadthFirstWalk(tree.rootNode)) {
+        this.nodeToTreeSize.set(syntaxNode, 1);
+        this.children.set(syntaxNode, syntaxNode.namedChildCount);
+        // // TODO delete
+        // this.isProcessed.set(syntaxNode, false);
+        if (syntaxNode.namedChildCount === 0) {
+          queue.push(syntaxNode);
+        }
       }
+
     }
 
     this.count = 0;
     while (queue.length > 0) {
       const node: SyntaxNode = queue.shift() as SyntaxNode;
+      // // TODO delete
+      // this.isProcessed.set(node, true);
       this.assignNumberToSubTree(node);
       if (node.parent !== null) {
         const parent: SyntaxNode = node.parent as SyntaxNode;
@@ -47,6 +55,48 @@ export class TreeIsomorphism {
         }
       }
     }
+
+    // // TODO delete
+    // const testSet = new Set();
+    // const testList = [];
+    // for(const tree of [forest[0]]){
+    //   let node = tree.rootNode;
+    //   while(this.nodeToHash.get(node) === undefined) {
+    //     const temp = node.namedChildren.map(child => [
+    //       child.type,
+    //       this.nodeToHash.get(child),
+    //       this.children.get(child),
+    //       this.isProcessed.get(child),
+    //       child.startIndex,
+    //       child.endIndex,
+    //       child.parent == node
+    //     ]);
+    //     console.log(temp);
+    //
+    //     if(testSet.has(node)) {
+    //       console.log("loop detected?");
+    //       break;
+    //     }
+    //     testSet.add(node);
+    //     testList.push(node);
+    //
+    //     let found = false;
+    //     for(const child of walkOverChildren(node)) {
+    //       if(child.startIndex == 2481) {
+    //         console.log("here");
+    //       }
+    //       if(this.nodeToHash.get(child) == undefined) {
+    //         node = child;
+    //         found = true;
+    //         break;
+    //       }
+    //     }
+    //     if(!found) {
+    //       break;
+    //     }
+    //   }
+    //
+    // }
   }
 
   /**

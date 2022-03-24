@@ -54,24 +54,27 @@ export function groupNodes(
   const grouped: SyntaxNode[][] = [];
   const hashes: Set<Hash> = new Set();
   // Has to be breadth first so that parents are always first
-  for (const node of breadthFirstWalkForest(forest)) {
-    if (acceptedSet.has(node)) {
-      continue;
-    }
-    hashes.add(nodeToHash.get(node) as Hash);
+  for(const tree of forest){
+    for (const node of breadthFirstWalk(tree.rootNode)) {
+      if (acceptedSet.has(node)) {
+        continue;
+      }
+      hashes.add(nodeToHash.get(node) as Hash);
 
-    const matchedNodes: SyntaxNode[] = hashToNodeList.get(
-      nodeToHash.get(node) as Hash
-    ) as SyntaxNode[];
+      const matchedNodes: SyntaxNode[] = hashToNodeList.get(
+        nodeToHash.get(node) as Hash
+      ) as SyntaxNode[];
 
-    if (matchedNodes.length > 1) {
-      grouped.push(matchedNodes);
-      for (const matchedNode of matchedNodes) {
-        for (const child of breadthFirstWalk(matchedNode)) {
-          acceptedSet.add(child);
+      if (matchedNodes.length > 1) {
+        grouped.push(matchedNodes);
+        for (const matchedNode of matchedNodes) {
+          for (const child of breadthFirstWalk(matchedNode)) {
+            acceptedSet.add(child);
+          }
         }
       }
     }
+
   }
   return [grouped, hashes];
 }

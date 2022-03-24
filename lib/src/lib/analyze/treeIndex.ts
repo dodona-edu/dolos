@@ -6,12 +6,12 @@ import { default as Parser, SyntaxNode, Tree } from "tree-sitter";
 import { TokenizedFile } from "../file/tokenizedFile";
 import { makeScoredPairs, mapHashToSharedFingerprint, mapHashToNodeList } from "./treeMatching/TreeReportUtils";
 import { TreeIsomorphism } from "./treeMatching/treeIsomorphism";
-import { breadthFirstWalk, groupNodes } from "./treeMatching/treeUtils";
+import { breadthFirstWalk, groupNodes, walkOverChildren } from "./treeMatching/treeUtils";
 import * as console from "console";
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-// const createKDTree = require("static-kdtree");
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-// const clustering = require("density-clustering");
+import * as path from "path";
+// import * as process from "process";
+import * as child_process from "child_process";
+import { promisify } from "util";
 
 export type Hash = number;
 type Vector = Array<number>;
@@ -68,7 +68,7 @@ export class TreeIndex implements IndexInterface {
     // accepted
     const [grouped, hashes] = groupNodes(forest, hashToNodeList, nodeToHash);
     //TODO
-    const groupedExtended = this.extention1(nodeToHash, grouped, nodeMappedToFile, treeIsomorphism.nodeToTreeSize);
+    const groupedExtended = await this.extention1(nodeToHash, grouped, nodeMappedToFile, treeIsomorphism.nodeToTreeSize);
 
     // TODO more intelligent merging
     const groupMerged = [...grouped, ...groupedExtended];
@@ -97,16 +97,17 @@ export class TreeIndex implements IndexInterface {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-  private extention1(
+  private async extention1(
     nodeToHash: Map<SyntaxNode, Hash>,
     grouped: SyntaxNode[][],
     _nodeMappedToFile: Map<SyntaxNode, TokenizedFile>,
     nodeToTreeSize: Map<SyntaxNode, number>
-  ): Array<SyntaxNode[]> {
+  ): Promise<Array<SyntaxNode[]>> {
 
-    const NEAR_MISS_TRESHOLD = 0; // TODO
+    const NEAR_MISS_COUNT_THRESHOLD = 2; // TODO
+    const NEAR_MISS_CHILD_THRESHOLD = 2;
     // const SIMILARITY_THRESHOLD = 0.5;
-    const MINIMUM_LINES = 2;
+    const MINIMUM_LINES = 0;
 
     const matchedChildCount: Map<SyntaxNode, number> = new Map();
 
@@ -132,9 +133,9 @@ export class TreeIndex implements IndexInterface {
 
     const hashSet: Set<Hash> = new Set();
     for(const [node, count] of matchedChildCount.entries()) {
-      if(count > NEAR_MISS_TRESHOLD) {
+      if(count > NEAR_MISS_COUNT_THRESHOLD && node.namedChildCount > NEAR_MISS_CHILD_THRESHOLD) {
         potentialNearMisses.push(node);
-        for(const child of node.namedChildren) {
+        for(const child of walkOverChildren(node)) {
           hashSet.add(nodeToHash.get(child) as Hash);
         }
       }
@@ -154,7 +155,7 @@ export class TreeIndex implements IndexInterface {
     const toVec = (node: SyntaxNode): Vector => {
       // no new keyword is needed https://262.ecma-international.org/6.0/#sec-array-constructor
       const list = Array(hashCount).fill(0);
-      for(const child of node.namedChildren) {
+      for(const child of walkOverChildren(node)) {
         const index = hashToIndex.get(nodeToHash.get(child) as Hash) as number;
         const weight = nodeToTreeSize.get(child);
         list[index] += weight;
@@ -185,10 +186,17 @@ export class TreeIndex implements IndexInterface {
 
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const fs = require("fs");
-    fs.writeFileSync("./positions.json", JSON.stringify(vecList), "utf-8");
-    console.log("positions_written");
+    const file = "./temp.json";
+    fs.writeFileSync(file, JSON.stringify(vecList), "utf-8");
+    console.log("positions written to: " + file);
 
-    const labels = JSON.parse(fs.readFileSync("./labels.json").toString("utf-8"));
+    const pexec = promisify(child_process.exec);
+    await pexec(
+      `cat ./temp.json | /home/steam/mount/secondary/UGent/2021-2022/thesis/clustering_script/PCA.py positions1.json`,
+    );
+
+
+    const labels = JSON.parse(fs.readFileSync("./positions1.json").toString("utf-8"));
     const labelToGroup: Map<number, SyntaxNode[]> = new Map();
     for(let i = 0; i < labels.length; i += 1) {
       const label = labels[i];
@@ -212,19 +220,34 @@ export class TreeIndex implements IndexInterface {
     const groupsList = [];
     for(const group of labelToGroup.values()) {
       groupsList.push(group);
-      // console.log("=============================================================");
-      // for (const node of group) {
-      //   const nodeFile = nodeMappedToFile.get(node) as TokenizedFile;
-      //   let str = `[ ${path.basename(nodeFile.path)} ] `;
-      //   str += `{from: [${node.startPosition.row + 1}, ${node.startPosition.column}]`;
-      //   str += `, to: [${node.endPosition.row + 1}, ${node.endPosition.column}]}`;
-      //   console.log("+++++++++++++++++++++++++++++++++++++++" + str);
-      //
-      //   for(let i = node.startPosition.row; i <= node.endPosition.row; i += 1) {
-      //     console.log(nodeFile.lines[i]);
-      //   }
-      // }
-      // console.log("");
+      console.log("=============================================================");
+      for (const node of group) {
+        const nodeFile = _nodeMappedToFile.get(node) as TokenizedFile;
+        let str = `[ ${path.basename(nodeFile.path)} ] `;
+        str += `{from: [${node.startPosition.row + 1}, ${node.startPosition.column}]`;
+        str += `, to: [${node.endPosition.row + 1}, ${node.endPosition.column}]}`;
+
+        const childrenSet = new Set();
+        for(const child of walkOverChildren(node)) {
+          if(nodeToHash.get(child) === undefined) {
+            console.log("welp");
+            process.exit(100000);
+          }
+          childrenSet.add({
+            "n": nodeToHash.get(child),
+            "w": nodeToTreeSize.get(child)
+          });
+        }
+        if(childrenSet.size < 2) {
+          continue;
+        }
+        console.log("+++++++++++++++++++++++++++++++++++++++" + str, childrenSet);
+
+        for(let i = node.startPosition.row; i <= node.endPosition.row; i += 1) {
+          console.log(nodeFile.lines[i]);
+        }
+      }
+      console.log("");
     }
 
     return groupsList;
