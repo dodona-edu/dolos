@@ -108,6 +108,7 @@ export class TreeIndex implements IndexInterface {
     const NEAR_MISS_CHILD_THRESHOLD = 2;
     // const SIMILARITY_THRESHOLD = 0.5;
     const MINIMUM_LINES = 0;
+    const MAX_CLUSTER_SIZE = 20;
 
     const matchedChildCount: Map<SyntaxNode, number> = new Map();
 
@@ -192,15 +193,23 @@ export class TreeIndex implements IndexInterface {
 
     const pexec = promisify(child_process.exec);
     await pexec(
-      `cat ./temp.json | /home/steam/mount/secondary/UGent/2021-2022/thesis/clustering_script/PCA.py positions1.json`,
+      `cat ./temp.json | /home/steam/mount/secondary/UGent/2021-2022/thesis/clustering_script/PCA.py labels1.json`
     );
 
 
-    const labels = JSON.parse(fs.readFileSync("./positions1.json").toString("utf-8"));
+    const labels = JSON.parse(fs.readFileSync("./labels1.json").toString("utf-8"));
+    const clusterToSize = new Map();
+    for (const label of labels) {
+      if(!clusterToSize.has(label)) {
+        clusterToSize.set(label, 0);
+      }
+      clusterToSize.set(label, clusterToSize.get(label)+1);
+    }
+
     const labelToGroup: Map<number, SyntaxNode[]> = new Map();
     for(let i = 0; i < labels.length; i += 1) {
       const label = labels[i];
-      if(label === -1) {
+      if(label === -1 || clusterToSize.get(label) > MAX_CLUSTER_SIZE){
         continue;
       }
 
@@ -221,8 +230,20 @@ export class TreeIndex implements IndexInterface {
     for(const group of labelToGroup.values()) {
       groupsList.push(group);
       console.log("=============================================================");
+
+      // const files = group.map(node => (_nodeMappedToFile.get(node) as TokenizedFile).path);
+      // const b1 = files.some(path => path.includes("main_A") || path.includes("function_rename"));
+      // const b2 = group.some(node => _nodeMappedToFile.get(node)?.path.includes("function_rename") && node.endPosition.row > 260);
+      //
+      // if(!(b1 && b2)) {
+      //   continue;
+      // }
       for (const node of group) {
         const nodeFile = _nodeMappedToFile.get(node) as TokenizedFile;
+        // if( !(nodeFile.path.includes("main_A") || nodeFile.path.includes("function_rename"))) {
+        //   continue;
+        // }
+
         let str = `[ ${path.basename(nodeFile.path)} ] `;
         str += `{from: [${node.startPosition.row + 1}, ${node.startPosition.column}]`;
         str += `, to: [${node.endPosition.row + 1}, ${node.endPosition.column}]}`;
