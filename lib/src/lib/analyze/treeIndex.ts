@@ -73,9 +73,9 @@ export class TreeIndex implements IndexInterface {
 
 
 
-  private filterGroups(grouped: SyntaxNode[][]): SyntaxNode[][] {
-    return grouped.filter(group =>
-      group.some(node => node.endPosition.row - node.startPosition.row > 0),
-    );
+  private filterGroups(grouped: SyntaxNode[][], minRows= 1): SyntaxNode[][] {
+    return grouped
+      .map(group => group.filter(node => node.endPosition.row - node.startPosition.row > minRows))
+      .filter(group => group.length > 1);
   }
 }
