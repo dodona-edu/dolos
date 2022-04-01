@@ -92,11 +92,25 @@ export function makeScoredPairs(
 
   // console.log(pairDict);
   for (const pair of pairDict.values()) {
+    let longest = 0;
+    let total = 0;
+    for(const fragment of pair.fragmentList) {
+      let length = fragment.leftSelection.endRow - fragment.leftSelection.startRow;
+      total += length;
+      if(length > longest) {
+        longest = length;
+      }
+      length = fragment.rightSelection.endRow - fragment.rightSelection.startRow;
+      total += length;
+      if(length > longest) {
+        longest = length;
+      }
+    }
     pairs.push({
       pair: pair,
       similarity: 0,
-      longest: 0,
-      overlap: 0,
+      longest: longest,
+      overlap: total,
     });
   }
   return pairs;
