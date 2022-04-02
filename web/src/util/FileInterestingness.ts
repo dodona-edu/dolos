@@ -172,7 +172,7 @@ export class FileInterestingnessCalculator {
   }
 
   private steepSquareScaling(x: number): number {
-    return 5 * x * x;
+    return 3 * x * x;
   }
 }
 
