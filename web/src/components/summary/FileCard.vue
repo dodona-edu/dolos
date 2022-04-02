@@ -23,29 +23,58 @@
         </v-alert>
       </div>
     </div>
-    <div class="d-flex justify-center align-center">
+    <div >
 
-      <div class="half-size" v-if="dataLoaded">
-        <PairStatHistogram :numberOfTicks="25"
-                           :extraLine="getLineSpot(file)"
-                           :pair-field="getLargestFieldOfScore(file)" />
-      </div>
+      <v-tabs v-model="tab" grow>
+        <v-tab href="#tab-0">Similarity</v-tab>
+        <v-tab href="#tab-1">Longest Fragment</v-tab>
+        <v-tab href="#tab-2">Total overlap</v-tab>
+      </v-tabs>
+
+      <v-tabs-items v-model="tab">
+        <v-tab-item value="tab-0" :key="0">
+          <div class="graph-wrapper">
+            <PairStatHistogram :numberOfTicks="25"
+                               :extraLine="getLineSpot(file, 'similarity')"
+                               :pair-field="'similarity'" />
+          </div>
+        </v-tab-item >
+        <v-tab-item value="tab-1" :key="1">
+          <div class="graph-wrapper">
+            <PairStatHistogram :numberOfTicks="25"
+                               :extraLine="getLineSpot(file, 'longestFragment')"
+                               :pair-field="'longestFragment'" />
+          </div>
+        </v-tab-item>
+        <v-tab-item value="tab-2" :key="2">
+          <div class="graph-wrapper" >
+            <PairStatHistogram :numberOfTicks="25"
+                               :extraLine="getLineSpot(file, 'totalOverlap')"
+                               :pair-field="'totalOverlap'" />
+          </div>
+        </v-tab-item>
+      </v-tabs-items>
     </div>
   </v-card>
 </template>
 
 <script lang="ts">
-import { Component, Prop } from "vue-property-decorator";
+import { Component, Prop, Watch } from "vue-property-decorator";
 import { File } from "@/api/api";
 import DataView from "@/views/DataView";
 import FileSimilarityHistogram from "./FileSimilarityHistogram.vue";
 import FileCardScore from "./FileCardScore.vue";
 import PairStatHistogram from "./PairStatHistogram.vue";
-import { FileScoring, getLargestFieldOfScore, getLargestPairOfScore } from "@/util/FileInterestingness";
+import { FileScoring, getLargestFieldOfScore } from "@/util/FileInterestingness";
 
 @Component({ components: { FileSimilarityHistogram, FileCardScore, PairStatHistogram } })
 export default class FileCard extends DataView {
   @Prop() file!: FileScoring;
+  tab = "";
+
+  created(): void {
+    this.setBestTab();
+  }
 
   getTimestampText(file: File): string {
     return file.extra.timestamp?.toLocaleString() || "unknown";
@@ -53,29 +82,40 @@ export default class FileCard extends DataView {
 
   getLargestFieldOfScore = getLargestFieldOfScore
 
-  getLineSpot(file: FileScoring): number {
-    const score = getLargestFieldOfScore(file);
+  getLineSpot(file: FileScoring, score = "totalOverlap"): number {
+    const largestField = getLargestFieldOfScore(file);
 
-    if (score === "totalOverlap") { return file.totalOverlapScore?.totalOverlapWrtSize || 0; }
+    const pair = largestField === "similarity"
+      ? file.similarityScore?.pair
+      : (largestField === "totalOverlap" ? file.totalOverlapScore?.pair : file.longestFragmentScore?.pair);
 
-    if (score === "longestFragment") { return file.longestFragmentScore?.longestFragmentWrtSize || 0; }
+    if (score === "totalOverlap") {
+      const covered = file.file.id === pair?.leftFile.id ? pair.leftCovered : pair?.rightCovered;
+      return (covered || 0) / file.file.amountOfKgrams;
+    }
 
-    if (score === "similarity") { return file.similarityScore?.similarity || 0; }
+    if (score === "longestFragment") { return (pair?.longestFragment || 0) / file.file.amountOfKgrams; }
+
+    if (score === "similarity") { return pair?.similarity || 0; }
 
     return 0;
+  }
+
+  @Watch("dataLoaded")
+  @Watch("file")
+  setBestTab(): void {
+    const tabOrder = ["similarity", "longestFragment", "totalOverlap"];
+    const largestField = getLargestFieldOfScore(this.file);
+
+    this.tab = `tab-${tabOrder.indexOf(largestField)}`;
   }
 }
 </script>
 
 <style scoped>
-.v-card {
-  width: 60%;
-  min-width: 650px;
-}
-
-.half-size {
-  width: 80%;
-  margin: 15px;
+.graph-wrapper {
+  padding: 10px;
+  margin-top: 20px;
 }
 .score-container {
   padding: 10px;
