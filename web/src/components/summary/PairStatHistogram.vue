@@ -40,7 +40,6 @@ export default class PairStatHistogram extends DataView {
 
   async afterDataInit(): Promise<void> {
     await this.ensureData();
-    console.log(Object.values(this.pairs).map(p => p.similarity));
     this.maxFileData = this.getMaxFileData();
     const xScale = this.getXScale();
     const domain = xScale.domain();
@@ -55,6 +54,7 @@ export default class PairStatHistogram extends DataView {
 
     const svg = this.addSVG(xScale, yScale, bins);
     this.addTooltipTool(svg, yScale);
+    this.addLine(svg, xScale);
   }
 
   private getXScale(): d3.ScaleLinear<number, number> {
@@ -89,22 +89,23 @@ export default class PairStatHistogram extends DataView {
       .select(`#${this.getSvgId()}`)
       .append("svg")
       .attr("width", this.width + this.margin.left + this.margin.right)
-      .attr("height", this.height + this.margin.top + this.margin.bottom)
-      .append("g")
+      .attr("height", this.height + this.margin.top + this.margin.bottom);
+
+    const g = svg.append("g")
       .attr(
         "transform",
         "translate(" + this.margin.left + "," + this.margin.top + ")"
       );
 
-    svg
+    g
       .append("g")
       .attr("transform", "translate(0," + this.height + ")")
       .call(d3.axisBottom(xScale));
 
-    svg.append("g").call(d3.axisLeft(yScale));
+    g.append("g").call(d3.axisLeft(yScale));
 
     const h = this.height;
-    svg
+    g
       .selectAll("rect")
       .data<d3.Bin<number, number>>(data)
       .enter()
@@ -122,7 +123,7 @@ export default class PairStatHistogram extends DataView {
       .style("fill", d => this.getBinColor(d));
 
     if (this.extraLine !== undefined) {
-      svg
+      g
         .append("line")
         .attr("x1", xScale(this.extraLine))
         .attr("y1", 0)
@@ -187,11 +188,43 @@ export default class PairStatHistogram extends DataView {
     const tool = new TooltipTool<d3.Bin<number, number>>(h => `
       There are <b>${h.length}</b> files that have a value between <b>${h.x0}</b> and <b>${h.x1}</b>
     `);
-    svg
+    svg.select("g")
       .selectAll("rect")
       .on("mouseenter", (e, d) =>
         tool.mouseEnter(e, d as d3.Bin<number, number>, true))
       .on("mouseleave", () => tool.mouseOut());
+  }
+
+  private addLine(
+    svg: d3.Selection<any, unknown, HTMLElement, any>,
+    xScale: d3.ScaleLinear<number, number>
+  ): void {
+    const line = svg
+      .select("g")
+      .append("line")
+      .attr("x1", xScale(0.5))
+      .attr("y1", 0)
+      .attr("x2", xScale(0.5))
+      .attr("y2", this.height)
+      .attr("stroke", "black")
+      .attr("visibility", "hidden");
+    const number = svg.select("g")
+      .append("text")
+      .attr("x", xScale(0.5))
+      .attr("y", this.height + 8)
+      .attr("dy", "0.71em")
+      .attr("font-size", 15)
+      .attr("visibility", "hidden");
+
+    svg.on("mouseenter", () => { line.attr("visibility", "visible"); number.attr("visibility", "visible"); });
+    svg.on("mousemove", o => {
+      const xCoord = d3.pointer(o)[0] - this.margin.left;
+      line.attr("x1", xCoord);
+      line.attr("x2", xCoord);
+      number.attr("x", xCoord);
+      number.text(xScale.invert(xCoord).toFixed(2));
+    });
+    svg.on("mouseleave", () => { line.attr("visibility", "hidden"); number.attr("visibility", "hidden"); });
   }
 
   private setSize(): void {
