@@ -12,7 +12,7 @@
 
       <!-- Aside with extra info -->
       <div>
-        <v-alert border="left" color="blue-grey" dark>
+        <v-alert border="left" color="blue-grey" dark v-if="file.file.extra && file.file.extra.fullName">
           <span>Author: {{ file.file.extra.fullName }}</span>
           <br />
           <span>Handin Date: {{ getTimestampText(file.file) }}</span>
