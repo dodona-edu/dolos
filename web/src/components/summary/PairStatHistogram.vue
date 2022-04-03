@@ -201,7 +201,7 @@ export default class PairStatHistogram extends DataView {
   ): void {
     const line = svg
       .select("g")
-      .append("line")
+      .insert("line", "rect")
       .attr("x1", xScale(0.5))
       .attr("y1", 0)
       .attr("x2", xScale(0.5))
