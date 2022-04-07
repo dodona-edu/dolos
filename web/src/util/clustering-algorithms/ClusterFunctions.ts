@@ -57,3 +57,7 @@ export function getClusterElementsSorted(cluster: Cluster): File[] {
 
   return array.sort(sortf);
 }
+
+export function getClusterIntersect(cluster1: Cluster, cluster2: Cluster): Cluster {
+  return new Set(Array.from(cluster1).filter(c => cluster2.has(c)));
+}

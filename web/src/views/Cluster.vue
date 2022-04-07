@@ -4,7 +4,7 @@
       <v-row justify="center">
         <v-col cols="10">
           <ClusteringTable
-            :clustering="cluster"
+            :current-clustering="cluster"
             :loaded="dataLoaded"
             @cutoffChange="cutoffChange"
           />

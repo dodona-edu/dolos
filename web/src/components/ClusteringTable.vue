@@ -10,7 +10,7 @@
         </label>
       </form>
     </v-card-title>
-    <v-expansion-panels>
+    <v-expansion-panels v-model="panel">
       <ClusteringCard
         v-for="(cluster, index) in sortedClustering()"
         :key="index"
@@ -36,16 +36,18 @@ import {
 } from "@/util/clustering-algorithms/ClusterFunctions";
 import { Clustering, Cluster } from "@/util/clustering-algorithms/ClusterTypes";
 import { SortingFunction } from "@/util/Types";
-import { Component, Prop, Vue, Watch } from "vue-property-decorator";
+import { Component, Prop, Watch } from "vue-property-decorator";
+import DataView from "@/views/DataView";
 
 @Component({
   components: { ClusteringCard },
 })
-export default class ClusteringTable extends Vue {
+export default class ClusteringTable extends DataView {
   @Prop() loaded!: boolean;
-  @Prop() clustering!: Clustering;
+  @Prop() currentClustering!: Clustering;
   @Prop({ default: "" }) search!: string;
-  public cutoff = 0.5;
+
+  public panel = -1;
 
   headers = [
     { text: "Cluster Id", value: "id", sortable: true },
@@ -60,7 +62,7 @@ export default class ClusteringTable extends Vue {
   };
 
   get items(): Array<{ id: number; size: number; similarity: string }> {
-    return Object.values(this.clustering).map((cluster, id) => ({
+    return Object.values(this.currentClustering).map((cluster, id) => ({
       id,
       size: getClusterElements(cluster).size,
       similarity: getAverageClusterSimilarity(cluster).toFixed(2),
@@ -77,7 +79,7 @@ export default class ClusteringTable extends Vue {
     const sort: SortingFunction<Cluster> = (a, b) =>
       getClusterElements(b).size - getClusterElements(a).size;
 
-    const toSort = [...this.clustering];
+    const toSort = [...this.currentClustering];
     toSort.sort(sort);
     return toSort;
   }

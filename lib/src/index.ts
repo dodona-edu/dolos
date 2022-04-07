@@ -8,4 +8,4 @@ export { TokenizedFile } from "./lib/file/tokenizedFile";
 export { Index } from "./lib/analyze/index";
 export { Dolos } from "./dolos";
 export { EmptyTokenizer } from "./lib/tokenizer/emptyTokenizer";
-
+export { DefaultMap } from "./lib/util/defaultMap";

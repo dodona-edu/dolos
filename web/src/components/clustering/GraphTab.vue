@@ -6,6 +6,7 @@
       :files="clusterFiles"
       :cutoff="cutoff"
       :legend="legend"
+      :polygon="false"
     >
     <GraphLegend :files="clusterFiles" @legend="l => legend = l"></GraphLegend>
 
