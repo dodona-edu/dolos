@@ -24,7 +24,7 @@
         You can investigate this cluster further by following the link below.
       </v-card-text>
       <v-card-actions>
-      <v-btn color="success" text>More information</v-btn>
+      <v-btn color="success" text :href="`/#/graph#${this.getClusterIndex()}`">More information</v-btn>
       </v-card-actions>
     </v-card>
 
@@ -36,7 +36,7 @@
 import { Component, Vue, Prop, Watch } from "vue-property-decorator";
 import { File } from "@/api/api";
 import * as d3 from "d3";
-import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
+import { Cluster, Clustering } from "@/util/clustering-algorithms/ClusterTypes";
 import { SelectedNodeInfo } from "@/views/GraphView.vue";
 import { getAverageClusterSimilarity, getClusterElements } from "@/util/clustering-algorithms/ClusterFunctions";
 
@@ -44,10 +44,17 @@ import { getAverageClusterSimilarity, getClusterElements } from "@/util/clusteri
 export default class GraphSelectedInfo extends Vue {
   @Prop() selectedNodeInfo!: SelectedNodeInfo;
   @Prop() selectedCluster! : Cluster | null;
+  @Prop() currentClustering!: Clustering;
 
   getClusterElements = getClusterElements
 
   getAverageClusterSimilarity = getAverageClusterSimilarity
+
+  getClusterIndex(): number {
+    const sortf = (a: Cluster, b:Cluster): number => getClusterElements(a).size - getClusterElements(b).size;
+    const sortedClustering = Array.from(this.currentClustering).sort(sortf);
+    return sortedClustering.indexOf(this.selectedCluster!);
+  }
 }
 </script>
 <style>

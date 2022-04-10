@@ -25,6 +25,7 @@ export default class PlagarismGraph {
   @Prop() showSingletons;
   @Prop({default: {}}) legend;
   @Prop({default: true}) polygon;
+  @Prop() clustering;
 
 
   created() {
@@ -36,7 +37,7 @@ export default class PlagarismGraph {
     });
     svg.call(this.zoom);
 
-    svg.on("click", () => this.selectCluster(null, null))
+    svg.on("mousedown.s", () => {this.selectCluster(null, null); this.removeSelectedNode();})
 
     const defs = svg.append("svg:defs");
     defs
@@ -114,6 +115,7 @@ export default class PlagarismGraph {
       this.height = this.$refs.container.clientHeight || this.height;
     };
     window.addEventListener("resize", this.resizeHandler);
+    this.recluster();
     this.updateGraph();
   }
   data() {
@@ -276,8 +278,8 @@ export default class PlagarismGraph {
     }, 50);
   }
 
+  @Watch("clustering")
   recluster() {
-    this.clustering = singleLinkageCluster(this.pairs, this.files, this.cutoff);
     this.setupClusterColors(this.clustering);
 
     if(this.selectedCluster) {

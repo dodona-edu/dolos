@@ -16,6 +16,7 @@
         :key="index"
         :cluster="cluster"
         :cutoff="cutoff"
+        :id="`clustering-card-${index}`"
       ></ClusteringCard>
     </v-expansion-panels>
   </v-card>
@@ -82,6 +83,19 @@ export default class ClusteringTable extends DataView {
     const toSort = [...this.currentClustering];
     toSort.sort(sort);
     return toSort;
+  }
+
+  @Watch("$route")
+  private onRouteChange(): void {
+    if (this.$route.hash) {
+      const hit = /[0-9]+/.exec(this.$route.hash)?.[0];
+      if (hit !== undefined) {
+        this.panel = +hit;
+        setTimeout(() => {
+          this.$vuetify.goTo(`#clustering-card-${this.panel}`);
+        }, 500);
+      }
+    }
   }
 }
 </script>

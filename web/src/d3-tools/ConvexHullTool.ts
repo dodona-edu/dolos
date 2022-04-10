@@ -44,8 +44,10 @@ export class ConvexHullTool<T> {
       .style("fill-opacity", 0.05)
       .attr("stroke-linejoin", "round");
 
-    path.on("mousedown", () => {
+    path.on("mousedown", (e: Event) => {
       if (this.onClick) { this.onClick(data, coordinates); }
+
+      e.preventDefault();
     });
   }
 

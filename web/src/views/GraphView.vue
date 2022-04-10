@@ -8,6 +8,7 @@
           :cutoff="cutoff"
           :showSingletons="showSingletons"
           :legend="legend"
+          :clustering="currentCluster"
           @selectedNodeInfo="setSelectedNodeInfo"
           @selectedClusterInfo="setClusterInfo"
         >
@@ -28,14 +29,14 @@
             <p>
               <label
                 ><input type="checkbox" v-model="showSingletons" /> Display
-                singletons</label
-              >
+                singletons</label>
             </p>
           </form>
 
           <GraphLegend v-if="showLegend()" :files="fileArray" @legend="updateLegend"></GraphLegend>
 
-          <GraphSelectedInfo :selected-node-info="selectedNodeInfo" :selected-cluster="selectedCluster">
+          <GraphSelectedInfo :current-clustering="currentCluster" :selected-node-info="selectedNodeInfo"
+                             :selected-cluster="selectedCluster">
 
           </GraphSelectedInfo>
         </Graph>
@@ -44,7 +45,7 @@
     <v-row>
       <v-col cols="11">
         <ClusteringTable
-          :current-clustering="clustering"
+          :current-clustering="currentCluster"
           :loaded="dataLoaded"
         />
       </v-col>
@@ -88,14 +89,16 @@ export default class PlagarismGraph extends DataView {
   public selectedNodeInfo: SelectedNodeInfo = { info: undefined, path: "" };
   public selectedCluster: Cluster | null = null;
   public fileArray: File[];
+  public currentCluster;
 
   constructor() {
     super();
     this.fileArray = Array.from(Object.values(this.files));
+    this.currentCluster = this.clustering;
   }
 
   mounted(): void {
-    this.ensureData();
+    this.ensureData().then(() => { this.currentCluster = this.clustering; });
   }
 
   private setSelectedNodeInfo(v: SelectedNodeInfo): void {

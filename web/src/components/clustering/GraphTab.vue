@@ -7,6 +7,7 @@
       :cutoff="cutoff"
       :legend="legend"
       :polygon="false"
+      :clustering="clustering"
     >
     <GraphLegend :files="clusterFiles" @legend="l => legend = l"></GraphLegend>
 
