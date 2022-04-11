@@ -31,13 +31,14 @@ export default class PlagarismGraph {
   created() {
     this.updateRoute();
     const svg = d3.create("svg").attr("viewBox", [0, 0, 500, 500]);
+    svg.on("mousedown.s", () => {this.selectCluster(null, null); this.removeSelectedNode();})
+
     const container = svg.append("g");
     this.zoom = d3.zoom().on("zoom", (event) => {
       container.attr("transform", event.transform);
     });
     svg.call(this.zoom);
 
-    svg.on("mousedown.s", () => {this.selectCluster(null, null); this.removeSelectedNode();})
 
     const defs = svg.append("svg:defs");
     defs
@@ -407,7 +408,7 @@ export default class PlagarismGraph {
       return {
         path: file.path,
         info: {
-          file: file.path,
+          file: file,
           name: file.extra.fullName || "Unavailable",
           timestamp: file.extra.timestamp?.toLocaleString() || "Unavailable",
           label: file.extra.labels || "Unavailable",

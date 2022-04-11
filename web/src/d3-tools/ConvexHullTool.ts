@@ -46,8 +46,8 @@ export class ConvexHullTool<T> {
 
     path.on("mousedown", (e: Event) => {
       if (this.onClick) { this.onClick(data, coordinates); }
-
       e.preventDefault();
+      e.stopPropagation();
     });
   }
 

@@ -8,9 +8,12 @@
       :legend="legend"
       :polygon="false"
       :clustering="clustering"
+      @selectedNodeInfo="setSelectedNodeInfo"
     >
     <GraphLegend :files="clusterFiles" @legend="l => legend = l"></GraphLegend>
-
+    <GraphElementList :cluster="cluster"
+                      :hovering-file="(selectedNode && selectedNode.info) ?
+              selectedNode.info.file : null"></GraphElementList>
     </Graph>
   </div>
 </template>
@@ -24,15 +27,19 @@ import DataView from "@/views/DataView";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
 import { getClusterElementsArray } from "@/util/clustering-algorithms/ClusterFunctions";
 import { Pair, File } from "@/api/api";
+import GraphElementList from "@/d3-tools/GraphElementList.vue";
+import { SelectedNodeInfo } from "@/views/GraphView.vue";
 
 @Component({
-  components: { Graph: Graph as any, GraphLegend },
+  components: { GraphElementList, Graph: Graph as any, GraphLegend },
 })
 export default class GraphTab extends DataView {
   @Prop() cluster!: Cluster;
 
   clusterFiles: File[] = [];
   clusterPairs: Pair[] = [];
+
+  selectedNode: SelectedNodeInfo | null = null;
 
   legend = [];
 
@@ -50,6 +57,11 @@ export default class GraphTab extends DataView {
       this.clusterFiles = [];
       this.clusterPairs = [];
     }
+  }
+
+  setSelectedNodeInfo(s: SelectedNodeInfo): void {
+    console.log(s);
+    this.selectedNode = s;
   }
 }
 </script>

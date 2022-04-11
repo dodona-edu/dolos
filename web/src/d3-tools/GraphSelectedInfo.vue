@@ -21,7 +21,14 @@
       <v-card-text>
         You selected a cluster of size <b>{{getClusterElements(selectedCluster).size}}</b>, which has an average
         similarity of  <b>{{getAverageClusterSimilarity(selectedCluster).toFixed(2) * 100}}%</b>.
-        You can investigate this cluster further by following the link below.
+      </v-card-text>
+      <v-card-text class="namecontainer">
+        These files are present in the cluster:
+        <ul>
+          <li v-for="el of getClusterElements(selectedCluster)" :key="el.id">
+            {{el.path.split("/").slice(-2).join("/")}}
+          </li>
+        </ul>
       </v-card-text>
       <v-card-actions>
       <v-btn color="success" text :href="`/#/graph#${this.getClusterIndex()}`">More information</v-btn>
@@ -51,7 +58,7 @@ export default class GraphSelectedInfo extends Vue {
   getAverageClusterSimilarity = getAverageClusterSimilarity
 
   getClusterIndex(): number {
-    const sortf = (a: Cluster, b:Cluster): number => getClusterElements(a).size - getClusterElements(b).size;
+    const sortf = (a: Cluster, b:Cluster): number => getClusterElements(b).size - getClusterElements(a).size;
     const sortedClustering = Array.from(this.currentClustering).sort(sortf);
     return sortedClustering.indexOf(this.selectedCluster!);
   }
@@ -62,5 +69,10 @@ export default class GraphSelectedInfo extends Vue {
   max-width: 350px;
   position: absolute;
   z-index: 5;
+}
+
+.namecontainer {
+  max-height: 35vh;
+  overflow-y: auto;
 }
 </style>

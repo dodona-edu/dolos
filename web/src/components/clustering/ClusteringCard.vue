@@ -10,27 +10,25 @@
     </v-expansion-panel-header>
     <v-expansion-panel-content>
       <v-tabs right v-model="activeTab">
-        <v-tab @click="graphView(cluster)" :key="1">Graph view</v-tab>
-        <v-tab-item></v-tab-item>
-        <v-tab @click="pairView(cluster)" :key="2">Pair view</v-tab>
+        <v-tab @click="pairView(cluster)" :key="1">Pair view</v-tab>
         <v-tab-item ></v-tab-item>
 
         <div class="empty-space"></div>
 
-        <v-tab v-if="cluster && showClusterTimeline(cluster)" :key="3">Time Chart</v-tab>
+        <v-tab v-if="cluster && showClusterTimeline(cluster)" :key="2">Time Chart</v-tab>
         <v-tab-item v-if="cluster && showClusterTimeline(cluster)">
           <TimeSeriesCard :cluster="cluster"/>
         </v-tab-item>
 
-        <v-tab :key="4">Similarity Data</v-tab>
+        <v-tab :key="3">Similarity Data</v-tab>
         <v-tab-item>
           <DataTab :cluster="cluster" :cutoff="cutoff" />
         </v-tab-item>
 
-        <v-tab :key="5"> Heatmap </v-tab>
+        <v-tab :key="4"> Heatmap </v-tab>
         <v-tab-item> <HeatMap :cluster="cluster" /> </v-tab-item>
 
-        <v-tab :key="6"> Cluster </v-tab>
+        <v-tab :key="5"> Cluster </v-tab>
         <v-tab-item> <GraphTab :cluster="cluster" /> </v-tab-item>
       </v-tabs>
     </v-expansion-panel-content>
@@ -55,7 +53,7 @@ import TimeSeriesCard from "./TimeSeriesCard.vue";
 export default class ClusteringCard extends Vue {
   @Prop() cluster!: Cluster;
   @Prop() cutoff!: number;
-  private activeTab = 5;
+  private activeTab = 4;
 
   averageSimilarity(cluster: Cluster): string {
     return getAverageClusterSimilarity(cluster).toFixed(2);
