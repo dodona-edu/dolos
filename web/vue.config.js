@@ -32,11 +32,6 @@ module.exports = {
         contextRegExp: /library/
       })
     ],
-    devServer: {
-      host: "localhost",
-      headers: { "Access-Control-Allow-Origin": "*" }
-    }
-
   },
   /*
   chainWebpack: config => {
