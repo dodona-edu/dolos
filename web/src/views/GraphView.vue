@@ -9,6 +9,7 @@
           :showSingletons="showSingletons"
           :legend="legend"
           :clustering="currentCluster"
+          :zoomTo="'#clustering-table'"
           @selectedNodeInfo="setSelectedNodeInfo"
           @selectedClusterInfo="setClusterInfo"
         >
@@ -45,6 +46,7 @@
     <v-row>
       <v-col cols="11">
         <ClusteringTable
+          id="clustering-table"
           :current-clustering="currentCluster"
           :loaded="dataLoaded"
         />
@@ -102,7 +104,6 @@ export default class PlagarismGraph extends DataView {
   }
 
   private setSelectedNodeInfo(v: SelectedNodeInfo): void {
-    console.log("setting");
     this.selectedNodeInfo = v;
   }
 

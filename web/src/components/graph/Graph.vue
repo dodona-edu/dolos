@@ -26,6 +26,7 @@ export default class PlagarismGraph {
   @Prop({default: {}}) legend;
   @Prop({default: true}) polygon;
   @Prop() clustering;
+  @Prop() zoomTo;
 
 
   created() {
@@ -38,6 +39,9 @@ export default class PlagarismGraph {
       container.attr("transform", event.transform);
     });
     svg.call(this.zoom);
+
+    if(this.zoomTo)
+      this.drawChevron(svg);
 
 
     const defs = svg.append("svg:defs");
@@ -178,6 +182,10 @@ export default class PlagarismGraph {
       .force("center")
       .x(this.width / 2)
       .y(this.height / 2);
+
+    const scale =  this.height / 1080;
+
+    this.svg.select(".chevron").attr("transform", `translate(${this.width / 2 - 150}, ${this.height - 200}) scale(${scale})`);
   }
 
   @Watch("cutoff")
@@ -315,6 +323,26 @@ export default class PlagarismGraph {
 
       this.clusterColors.set(cluster, this.legend[maxKey]);
     }
+  }
+
+  drawChevron(svg) {
+    const chevron = svg
+      .append("g")
+      .attr("class", "chevron")
+      .append("path")
+      .attr("d", d3.line()([[0,0], [125,75 ], [250,0]]))
+      .attr("stroke", "black")
+      .attr("fill", "none")
+      .style("stroke-width", 15)
+      .style("stroke-opacity", 0.1)
+      .style("cursor", "pointer")
+      .attr("stroke-linecap", "round")
+      .attr("stroke-linejoin", "round");
+
+    chevron.on("mouseenter", () => chevron.style("stroke-opacity", 0.2));
+    chevron.on("mouseleave", () => chevron.style("stroke-opacity", 0.1));
+
+    chevron.on("click", () => this.$vuetify.goTo(this.zoomTo));
   }
 
   @Watch("pairs")
