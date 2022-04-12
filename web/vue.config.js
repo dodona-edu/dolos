@@ -27,7 +27,12 @@ module.exports = {
         resourceRegExp: /codeTokenizer/,
         contextRegExp: /library/
       })
-    ]
+    ],
+    devServer: {
+      host: "localhost",
+      headers: { "Access-Control-Allow-Origin": "*" }
+    }
+
   },
   /*
   chainWebpack: config => {
@@ -90,10 +95,4 @@ module.exports = {
         return opts;
       });
   }, */
-  configureWebpack: {
-    devServer: {
-      host: "localhost",
-      headers: { "Access-Control-Allow-Origin": "*" }
-    }
-  }
 };

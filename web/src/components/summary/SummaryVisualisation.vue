@@ -50,7 +50,7 @@ import PairStatHistogram from "@/components/summary/PairStatHistogram.vue";
 import { FileScoring, getLargestFieldOfScore } from "@/util/FileInterestingness";
 import CompareSide from "../CompareSide.vue";
 import { Region, PairedNodeStats, SemanticAnalyzer, NodeStats } from "@dodona/dolos-lib";
-import { fileToTokenizedFile } from "@/api/api";
+import { fileToTokenizedFile, File } from "@/api/api";
 import DataView from "@/views/DataView";
 
 @Component({
@@ -66,7 +66,7 @@ export default class SummaryVisualisation extends DataView {
     this.init();
   }
 
-  async init(): void {
+  async init(): Promise<void> {
     await this.ensureData();
     this.getPairedMatch();
   }
