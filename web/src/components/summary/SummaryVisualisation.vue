@@ -7,7 +7,7 @@
       :pair-field="getLargestFieldOfScore(file)"
       :extra-line="getLineSpot(file)"></PairStatHistogram>
 
-    <div v-if="!showBarChart() && this.currentFiles !== null" class="compare-container">
+    <div v-if="!showBarChart() && this.currentFiles !== null" class="compare-containers">
       <div class="side-container">
         <h3 class="fileTitle">{{currentFiles.leftFile.path}}</h3>
         <CompareSide
@@ -122,9 +122,10 @@ export default class SummaryVisualisation extends DataView {
 }
 </script>
 <style>
-.compare-container {
+.compare-containers {
   display: flex;
   font-size: 0.875rem;
+  height: 100%;
 }
 .half-size {
   width: 80%;
@@ -133,6 +134,7 @@ export default class SummaryVisualisation extends DataView {
 
 .side-container {
   width: 50%;
+  height: 100%;
 }
 
 .fileTitle {
