@@ -1,14 +1,15 @@
 <template>
-  <div class="d-flex justify-center">
-    <v-card class="center-card">
+  <div class="d-flex justify-center" :set="similarityPair = getHighestSimilarityPair()">
+    <v-card class="center-card" :set="highestOverlapPair = getHighestOverlapPair()">
       <v-card-text class="center-card-element title">
         <h1>DOLOS</h1>
         <span>Source code plagiarism detection</span>
         <p>We analyzed {{ getNumberOfFiles() }} files for plagiarism.</p>
-        <p>
-          The highest similarity we found is
-          {{ getHighestSimilarity().toFixed(2) * 100 }}% and the longest common
-          part is {{ getHighestOverlap() }} tokens long.
+        <p  >
+          The <a :href="`#/compare/${(similarityPair || {}).id}`">highest similarity we found</a> is
+          {{ (similarityOfPair(similarityPair).toFixed(2) * 100 ) }}% and
+          <a :href="`#/compare/${(highestOverlapPair || {}).id}`">the longest common
+          part</a> is {{ highestOverlapOfPair(highestOverlapPair) }} tokens long.
         </p>
         <small>
           You can find more details on these files in the list below, or you can
@@ -44,21 +45,29 @@ export default class SummaryCard extends DataView {
     return Object.keys(this.files || {}).length;
   }
 
-  getHighestSimilarity(): number {
-    const pairs = Object.values(this.pairs || {}).map(a => a.similarity);
+  getHighestSimilarityPair(): Pair {
+    const pairs = Object.values(this.pairs || {});
     return pairs.reduce(
-      (a, b) => (a > b ? a : b),
-      0
+      (a, b) => ((a?.similarity || 0) > b.similarity ? a : b),
+      null
     );
   }
 
-  getHighestOverlap(): number {
-    const pairs = Object.values(this.pairs || {}).map(a => a.longestFragment);
+  getHighestOverlapPair(): Pair {
+    const pairs = Object.values(this.pairs || {});
 
     return pairs.reduce(
-      (a, b) => (a > b ? a : b),
-      0
+      (a, b) => ((a?.longestFragment || 0) > b.longestFragment ? a : b),
+      null
     );
+  }
+
+  similarityOfPair(p: Pair | null): number {
+    return p?.similarity || 0;
+  }
+
+  highestOverlapOfPair(p: Pair | null): number {
+    return p?.longestFragment || 0;
   }
 }
 </script>

@@ -113,6 +113,7 @@ export class FileView extends View {
         "amountOfKgrams": f => f.kgrams.length,
         "ast": f => JSON.stringify(f.ast),
         "mapping": f => JSON.stringify(f.mapping),
+        "amountOfKgrams": f => f.kgrams.length,
         "extra": f => JSON.stringify(f.extra)
       });
   }

@@ -1,7 +1,7 @@
 <template>
   <div class="d-flex align-center flex-column extra-margin">
     <v-form class="d-flex align-center flex-row extra-width">
-      <v-text-field class="search-field" :label="'Search for a file'" v-model="searchString">
+      <v-text-field class="search-field" :label="'Search for a file'" v-model="searchString" ref="toScroll">
       </v-text-field>
       <v-select
       class='select-sort'
@@ -21,6 +21,7 @@
         :file="scoredFile"
       />
     </div>
+    <v-btn color="success"  @click="page += 1">Next Cards</v-btn>
     <v-pagination
       v-model="page"
       :length="pageTotal"
@@ -29,7 +30,7 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Watch } from "vue-property-decorator";
+import { Component, Watch, Vue } from "vue-property-decorator";
 import {
   FileScoring,
   FileInterestingnessCalculator,
@@ -111,6 +112,13 @@ export default class SummaryList extends DataView {
     );
     this.scoredFiles = sortableFiles;
   }
+
+  @Watch("page")
+  onPageChange(): void {
+    console.log(this.$refs.toScroll);
+
+    ((this.$refs.toScroll as Vue).$el as Element)?.scrollIntoView();
+  }
 }
 </script>
 <style scoped>
@@ -119,6 +127,7 @@ export default class SummaryList extends DataView {
 }
 
 .full-width {
+  min-width: 1000px;
   width: 100%;
 }
 

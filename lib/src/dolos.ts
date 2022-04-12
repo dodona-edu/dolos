@@ -16,11 +16,8 @@ function newTokenizer(language: string): Tokenizer {
   } else {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const CodeTokenizer = require("./lib/tokenizer/codeTokenizer").CodeTokenizer;
-    if (CodeTokenizer.supportedLanguages.includes(language)) {
-      return new CodeTokenizer(language);
-    }
+    return new CodeTokenizer(language);
   }
-  throw new Error(`No tokenizer found for ${language}`);
 }
 
 export class Dolos {
