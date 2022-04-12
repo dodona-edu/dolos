@@ -34,4 +34,8 @@ export class DefaultMap<K, V> {
   public values(): IterableIterator<V> {
     return this.map.values();
   }
+
+  public entries(): IterableIterator<[K, V]> {
+    return this.map.entries();
+  }
 }

@@ -1,6 +1,6 @@
 <template>
   <v-container fluid fill-height>
-    <v-row style="height: 100%">
+    <v-row style="height: 100vh">
       <v-col cols="12" class="no-y-padding">
         <Graph
           :files="files"
@@ -8,7 +8,10 @@
           :cutoff="cutoff"
           :showSingletons="showSingletons"
           :legend="legend"
-          @selectedInfo="setSelectedInfo"
+          :clustering="currentCluster"
+          :zoomTo="'#clustering-table'"
+          @selectedNodeInfo="setSelectedNodeInfo"
+          @selectedClusterInfo="setClusterInfo"
         >
           <!-- Extra UI elements to be added as overlay over the graph -->
           <form class="settings">
@@ -27,23 +30,26 @@
             <p>
               <label
                 ><input type="checkbox" v-model="showSingletons" /> Display
-                singletons</label
-              >
+                singletons</label>
             </p>
           </form>
 
           <GraphLegend v-if="showLegend()" :files="fileArray" @legend="updateLegend"></GraphLegend>
-          <div class="node-selected">
-            <!-- <span class="path">{{ selectedInfo.path }}</span> -->
-            <ul v-if="selectedInfo.info !== undefined">
-              <li v-if="selectedInfo.info.name !== undefined">
-                Name: {{ selectedInfo.info.name }}
-              </li>
-              <li>Timestamp: {{ selectedInfo.info.timestamp }}</li>
-              <li>Label: {{ selectedInfo.info.label }}</li>
-            </ul>
-          </div>
+
+          <GraphSelectedInfo :current-clustering="currentCluster" :selected-node-info="selectedNodeInfo"
+                             :selected-cluster="selectedCluster">
+
+          </GraphSelectedInfo>
         </Graph>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col cols="11">
+        <ClusteringTable
+          id="clustering-table"
+          :current-clustering="currentCluster"
+          :loaded="dataLoaded"
+        />
       </v-col>
     </v-row>
   </v-container>
@@ -55,13 +61,16 @@ import { File } from "@/api/api";
 import DataView from "@/views/DataView";
 import Graph from "../components/graph/Graph.vue";
 import GraphLegend from "../d3-tools/GraphLegend.vue";
+import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
+import GraphSelectedInfo from "@/d3-tools/GraphSelectedInfo.vue";
+import ClusteringTable from "@/components/ClusteringTable.vue";
 
-type EmptySelectedInfo = {
+type EmptySelectedNodeInfo = {
   path: string;
   info: undefined;
 };
 
-type FullSelectedInfo = {
+type FullSelectedNodeInfo = {
   path: string;
   info: {
     file: string;
@@ -71,28 +80,35 @@ type FullSelectedInfo = {
   };
 };
 
-type SelectedInfo = EmptySelectedInfo | FullSelectedInfo;
+export type SelectedNodeInfo = EmptySelectedNodeInfo | FullSelectedNodeInfo;
 
 @Component({
-  components: { Graph: Graph as any, GraphLegend },
+  components: { Graph: Graph as any, GraphLegend, GraphSelectedInfo, ClusteringTable },
 })
 export default class PlagarismGraph extends DataView {
   public showSingletons = false;
   public legend = [];
-  public selectedInfo: SelectedInfo = { info: undefined, path: "" };
+  public selectedNodeInfo: SelectedNodeInfo = { info: undefined, path: "" };
+  public selectedCluster: Cluster | null = null;
   public fileArray: File[];
+  public currentCluster;
 
   constructor() {
     super();
     this.fileArray = Array.from(Object.values(this.files));
+    this.currentCluster = this.clustering;
   }
 
   mounted(): void {
-    this.ensureData();
+    this.ensureData().then(() => { this.currentCluster = this.clustering; });
   }
 
-  private setSelectedInfo(v: SelectedInfo): void {
-    this.selectedInfo = v;
+  private setSelectedNodeInfo(v: SelectedNodeInfo): void {
+    this.selectedNodeInfo = v;
+  }
+
+  private setClusterInfo(c: Cluster | null): void {
+    this.selectedCluster = c;
   }
 
   getCutoff(): number {

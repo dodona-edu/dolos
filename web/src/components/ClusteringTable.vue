@@ -10,12 +10,13 @@
         </label>
       </form>
     </v-card-title>
-    <v-expansion-panels>
+    <v-expansion-panels v-model="panel">
       <ClusteringCard
         v-for="(cluster, index) in sortedClustering()"
         :key="index"
         :cluster="cluster"
         :cutoff="cutoff"
+        :id="`clustering-card-${index}`"
       ></ClusteringCard>
     </v-expansion-panels>
   </v-card>
@@ -44,8 +45,10 @@ import DataView from "@/views/DataView";
 })
 export default class ClusteringTable extends DataView {
   @Prop() loaded!: boolean;
-  @Prop() clustering!: Clustering;
+  @Prop() currentClustering!: Clustering;
   @Prop({ default: "" }) search!: string;
+
+  public panel = -1;
 
   headers = [
     { text: "Cluster Id", value: "id", sortable: true },
@@ -60,7 +63,7 @@ export default class ClusteringTable extends DataView {
   };
 
   get items(): Array<{ id: number; size: number; similarity: string }> {
-    return Object.values(this.clustering).map((cluster, id) => ({
+    return Object.values(this.currentClustering).map((cluster, id) => ({
       id,
       size: getClusterElements(cluster).size,
       similarity: getAverageClusterSimilarity(cluster).toFixed(2),
@@ -77,9 +80,22 @@ export default class ClusteringTable extends DataView {
     const sort: SortingFunction<Cluster> = (a, b) =>
       getClusterElements(b).size - getClusterElements(a).size;
 
-    const toSort = [...this.clustering];
+    const toSort = [...this.currentClustering];
     toSort.sort(sort);
     return toSort;
+  }
+
+  @Watch("$route")
+  private onRouteChange(): void {
+    if (this.$route.hash) {
+      const hit = /[0-9]+/.exec(this.$route.hash)?.[0];
+      if (hit !== undefined) {
+        this.panel = +hit;
+        setTimeout(() => {
+          this.$vuetify.goTo(`#clustering-card-${this.panel}`);
+        }, 500);
+      }
+    }
   }
 }
 </script>

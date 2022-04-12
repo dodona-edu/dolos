@@ -9,9 +9,12 @@
 <script>
 /* eslint-disable */
 
-import { Component, Watch, Prop } from "vue-property-decorator";
-import DataView from "@/views/DataView";
+import {Component, Prop, Watch} from "vue-property-decorator";
 import * as d3 from "d3";
+import {ConvexHullTool} from "@/d3-tools/ConvexHullTool";
+import {singleLinkageCluster} from "@/util/clustering-algorithms/SingleLinkageClustering";
+import {getClusterElements, getClusterIntersect} from "@/util/clustering-algorithms/ClusterFunctions";
+import {DefaultMap} from "@dodona/dolos-lib";
 
 @Component()
 export default class PlagarismGraph {
@@ -21,14 +24,26 @@ export default class PlagarismGraph {
   @Prop() cutoff;
   @Prop() showSingletons;
   @Prop({default: {}}) legend;
+  @Prop({default: true}) polygon;
+  @Prop() clustering;
+  @Prop() zoomTo;
+
 
   created() {
     this.updateRoute();
     const svg = d3.create("svg").attr("viewBox", [0, 0, 500, 500]);
+    svg.on("mousedown.s", () => {this.selectCluster(null, null); this.removeSelectedNode();})
+
     const container = svg.append("g");
-    d3.zoom().on("zoom", (event) => {
+    this.zoom = d3.zoom().on("zoom", (event) => {
       container.attr("transform", event.transform);
-    })(svg);
+    });
+    svg.call(this.zoom);
+
+    if(this.zoomTo)
+      this.drawChevron(svg);
+
+
     const defs = svg.append("svg:defs");
     defs
       .append("svg:marker")
@@ -62,7 +77,7 @@ export default class PlagarismGraph {
               )
           )
       )
-      .force("charge", d3.forceManyBody().distanceMax(200).strength(-10))
+      .force("charge", d3.forceManyBody().distanceMax(200).strength(-20))
       .force("center", d3.forceCenter(this.width / 2, this.height / 2))
       .force("compact_x", d3.forceX(this.width / 2).strength(0.01))
       .force("compact_y", d3.forceY(this.height / 2).strength(0.01));
@@ -79,6 +94,25 @@ export default class PlagarismGraph {
 
       if (this.svgNode)
         this.svgNode.attr("cx", (d) => d.x || 0).attr("cy", (d) => d.y || 0);
+
+      if(this.hullTool && this.nodes.length && this.clustering) {
+        this.hullTool.clear();
+
+        for(const cluster of this.clustering) {
+          // If any cluster is selected, make sure only the selected cluster is colored.
+          // Else, color the cluster in the most appropriate color.
+          const color = this.selectedCluster ?
+            (this.selectedCluster === cluster ? (this.clusterColors.get(cluster)?.color || "blue") : "grey") :
+            this.clusterColors.get(cluster)?.color || "blue";
+
+          const elements = getClusterElements(cluster);
+          this.hullTool.addConvexHullFromNodes(
+            this.nodes.filter(n => elements.has(n.file)),
+            color,
+              cluster);
+        }
+      }
+
     });
 
     this.resizeHandler = () => {
@@ -86,6 +120,7 @@ export default class PlagarismGraph {
       this.height = this.$refs.container.clientHeight || this.height;
     };
     window.addEventListener("resize", this.resizeHandler);
+    this.recluster();
     this.updateGraph();
   }
   data() {
@@ -95,7 +130,34 @@ export default class PlagarismGraph {
       links: [],
       width: 100,
       height: 100,
+      selectedCluster: undefined,
     };
+  }
+
+  selectCluster(cluster, coordinates) {
+    this.selectedCluster = cluster;
+    this.updateGraph(false);
+
+    if(cluster) {
+      this.zoomToCenter(coordinates);
+    }
+  }
+
+  zoomToCenter(coordinates) {
+    const d3Coordinates = coordinates.map(v => [v.x, v.y]);
+
+    if(d3Coordinates.length > 2) {
+      const polygon = d3.polygonHull(d3Coordinates);
+      polygon.push(polygon[0]);
+      const [cx, cy] = d3.polygonCentroid(polygon);
+
+      this.zoom.translateTo(this.svg, cx , cy )
+    } else if (d3Coordinates.length === 2) {
+      const [[x1, y1], [x2, y2]] = d3Coordinates;
+      const [cx, cy] = [(x1 + x2) / 2, (y1 + y2) / 2];
+
+      this.zoom.translateTo(this.svg, cx , cy )
+    }
   }
 
   @Watch("$route")
@@ -120,6 +182,10 @@ export default class PlagarismGraph {
       .force("center")
       .x(this.width / 2)
       .y(this.height / 2);
+
+    const scale =  this.height / 1080;
+
+    this.svg.select(".chevron").attr("transform", `translate(${this.width / 2 - 150}, ${this.height - 200}) scale(${scale})`);
   }
 
   @Watch("cutoff")
@@ -185,7 +251,7 @@ export default class PlagarismGraph {
           }
         }
       });
-      this.removeSelectedNode();
+
       this.nodes = Object.values(nodeMap).filter((n) => n.visible);
       if (!this.showSingletons) {
         this.nodes = this.nodes.filter((n) => n.neighbors.length);
@@ -202,21 +268,81 @@ export default class PlagarismGraph {
           }
         });
         node.source = outgoing > 1 && incoming === 0;
-        node.fillColor =
-          this.queryColorMap.size > 0 ?
-        (this.queryColorMap?.has(+node.id)
-          ? this.queryColorMap.get(+node.id)
-          : 'grey')
-          : !labels[node.label] ? d3.schemeCategory10[0]:labels[node.label].color;
+
+
+        const getDefaultNodeColor = (n) =>  !labels[n.label] ? d3.schemeCategory10[0]:labels[n.label].color
+        let color;
+        if(this.selectedCluster) {
+          color = getClusterElements(this.selectedCluster).has(node.file) ? getDefaultNodeColor(node) : "grey";
+        } else {
+          color = getDefaultNodeColor(node)
+        }
+        node.fillColor = color;
       });
+
+      this.recluster();
+
+      if(this.hullTool)
+        this.hullTool.clear();
     }, 50);
   }
+
+  @Watch("clustering")
+  recluster() {
+    this.setupClusterColors(this.clustering);
+
+    if(this.selectedCluster) {
+      const intersects = this.clustering.filter(c => getClusterIntersect(c, this.selectedCluster).size > 0);
+      if(intersects.length > 0)
+        this.selectedCluster = intersects[0];
+    }
+  }
+
   removeSelectedNode() {
     if (this.selectedNode >= 0) {
       this.svgNodes.select("circle.node.selected").classed("selected", false);
       this.nodes[this.selectedNode].selected = false;
       this.selectedNode = -1;
     }
+  }
+
+  setupClusterColors(clustering) {
+    this.clusterColors = new Map();
+    for(const cluster of clustering) {
+      const els = getClusterElements(cluster);
+      const counter = new DefaultMap(() => 0);
+      for (const el of els) {
+        counter.set(el.extra.labels, counter.get(el.extra.labels) + 1)
+      }
+
+      let maxKey = undefined;
+      for ( const [key, count] of counter.entries()) {
+        if(count > counter.get(maxKey))
+          maxKey = key;
+      }
+
+      this.clusterColors.set(cluster, this.legend[maxKey]);
+    }
+  }
+
+  drawChevron(svg) {
+    const chevron = svg
+      .append("g")
+      .attr("class", "chevron")
+      .append("path")
+      .attr("d", d3.line()([[0,0], [125,75 ], [250,0]]))
+      .attr("stroke", "black")
+      .attr("fill", "none")
+      .style("stroke-width", 15)
+      .style("stroke-opacity", 0.1)
+      .style("cursor", "pointer")
+      .attr("stroke-linecap", "round")
+      .attr("stroke-linejoin", "round");
+
+    chevron.on("mouseenter", () => chevron.style("stroke-opacity", 0.2));
+    chevron.on("mouseleave", () => chevron.style("stroke-opacity", 0.1));
+
+    chevron.on("click", () => this.$vuetify.goTo(this.zoomTo));
   }
 
   @Watch("pairs")
@@ -227,7 +353,7 @@ export default class PlagarismGraph {
 
   getRawNodeMap() {
     if (this._nodeMap) return this._nodeMap;
-    if (Object.entries(this.files).length == 0) return {};
+    if (Object.entries(this.files).length === 0) return {};
 
     const nodeMap = {};
     let labels = new Set();
@@ -280,7 +406,7 @@ export default class PlagarismGraph {
       .classed("link", true)
       .classed("directed", (d) => d.directed)
       .attr("stroke-width", (d) => d.linkWidth)
-      .on("click", (event, d) => this.toCompareView(d));
+      ;
 
     this.svgNode = this.svgNodes
       .selectAll("circle")
@@ -291,6 +417,12 @@ export default class PlagarismGraph {
       .attr("r", 5)
       .attr("fill", (d) => d.fillColor)
       .call(this.drag());
+
+    if(this.hullTool)
+      this.hullTool.clear();
+
+    if(this.polygon)
+      this.hullTool = new ConvexHullTool(this.svg.select("g"), this.selectCluster);
 
     this.simulation.nodes(this.nodes);
     this.simulation.alpha(0.5).alphaTarget(0.3).restart();
@@ -304,8 +436,8 @@ export default class PlagarismGraph {
       return {
         path: file.path,
         info: {
-          file: file.path,
-          name: file.extra.full_name || "Unavailable",
+          file: file,
+          name: file.extra.fullName || "Unavailable",
           timestamp: file.extra.timestamp?.toLocaleString() || "Unavailable",
           label: file.extra.labels || "Unavailable",
         },
@@ -320,11 +452,16 @@ export default class PlagarismGraph {
 
   @Watch("selectedNode")
   emitInfo() {
-    this.$emit("selectedInfo", this.selectedInfo);
+    this.$emit("selectedNodeInfo", this.selectedInfo);
+  }
+
+  @Watch("selectedCluster")
+  emitCluster() {
+    this.$emit("selectedClusterInfo", this.selectedCluster);
   }
 
   mounted() {
-    this.$refs.container.appendChild(this.svg.node());
+    this.$refs.container.prepend(this.svg.node());
     this.resizeHandler();
   }
 
@@ -426,7 +563,7 @@ export default class PlagarismGraph {
   .settings {
     position: absolute;
     right: 0;
-    bottom: 0;
+    bottom: 25px;
     z-index: 5;
   }
 }
