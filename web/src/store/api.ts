@@ -10,7 +10,6 @@ import {
 } from "@/api/api";
 import Vue from "vue";
 import { ActionContext } from "vuex";
-import { local } from "d3";
 
 interface State {
   kgrams: ObjMap<Kgram>;
