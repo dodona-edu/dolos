@@ -31,7 +31,7 @@
         </ul>
       </v-card-text>
       <v-card-actions>
-      <v-btn color="success" text :href="`/#/graph#${this.getClusterIndex()}`">More information</v-btn>
+      <v-btn color="success" text :href="`./graph#${this.getClusterIndex()}`">More information</v-btn>
       </v-card-actions>
     </v-card>
 
