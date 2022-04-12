@@ -106,19 +106,34 @@ export default {
   }
 };
 
+/**
+ * Perform an interpolation for a good 'cutoff' similarity value, which is used to perform clustering later.
+ * This algorithm is based upon a few rules of intuition:
+ * 1. The correct value is generally quite high (between 0.6 and 0.85)
+ * 2. The correct value is usually around a local minimum, because the dataset is
+ * split between plagiarised pairs and non-plagiarised pairs, which should be on opposite sides of the graph (therefore
+ * with a local minimum separating them).
+ * 3. This local minimum should be relatively significant.
+ * @param pairs
+ * @param step
+ */
 function getInterpolatedSimilarity(pairs: Pair[], step = 0.03): number {
   pairs.sort((p1, p2) => p1.similarity - p2.similarity);
+  // Put the pairs in bins of similarity 'step'.
   const binnedCount = getBinnedCount(pairs, step);
-  console.log(binnedCount);
 
+  // Get an array of which bins are local minima (essentially: which bins have a higher neighbour on both sides)
   const localMinima = (getLocalMinima(binnedCount));
-  console.log(localMinima);
+
+  // Each of these bins have a weight based on the square root of their own value (we devalue 'big' local minima)
+  // and also based on an approximate chance function which is centered around 0.75.
   const weightedLocalMinima = localMinima.map(v =>
     (Math.sqrt(binnedCount[v]) + 1) * weightedDistributionIndex(v * step));
+
+  // We pick the lowest weighted index as the interpolated value
   const indexMin = weightedLocalMinima.reduce((prev, curr, ind) => weightedLocalMinima[prev] < curr ? prev : ind);
 
-  console.log(localMinima[indexMin]);
-
+  // Convert the bin index with the lowest weight back to the similarity value this index represents
   return localMinima[indexMin] * step;
 }
 
