@@ -179,8 +179,8 @@ export class SemanticAnalyzer {
       return ownMatch === ownNodes.length;
     }
 
-    return childrenMatch > childrenTotal * 0.7 ||
-        (childrenMatch > childrenTotal * 0.6 && ownMatch > ownNodes.length * 0.6);
+    return childrenMatch > childrenTotal * 0.9 ||
+        (childrenMatch > childrenTotal * 0.8 && ownMatch > ownNodes.length * 0.8);
   }
 
 
@@ -212,7 +212,9 @@ export class SemanticAnalyzer {
     const ast = file.ast;
     const mapping = file.mapping;
 
-    let currentRegion = mapping[match.ownNodes[0]];
+    let currentRegion = mapping[match.ownNodes[0]] ||
+        new Region(0,0,file.lines.length,file.lines[file.lines.length-1].length);
+
 
     for(const ownNode of match.ownNodes) {
       let i = ownNode;
@@ -256,7 +258,8 @@ export class SemanticAnalyzer {
       
       for(const rightMatch of rightMatches) {
         const is = intersect(leftMatch.occurrences, rightMatch.occurrences);
-        if(is.size > leftMatch.occurrences.size*0.7 || is.size > rightMatch.occurrences.size * 0.7) {
+        if(is.size > leftMatch.occurrences.size*0.7
+          && is.size > rightMatch.occurrences.size * 0.7) {
           pairs.push({ leftMatch, rightMatch });
           assigned = true;
           pairedRightMatches.add(rightMatch);

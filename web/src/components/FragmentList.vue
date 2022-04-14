@@ -194,8 +194,8 @@ export default class FragmentList extends Vue {
 
       return this.pair.fragments
         .filter(f =>
-          leftCovers.some(lc => this.isContainedIn(f.left, lc)) &&
-          rightCovers.some(rc => this.isContainedIn(f.right, rc)))
+          !(leftCovers.some(lc => this.isContainedIn(f.left, lc)) &&
+          rightCovers.some(rc => this.isContainedIn(f.right, rc))))
 
         .map((fragment, index) => {
           const fragmentWithId = (fragment as FragmentWithId);
@@ -206,8 +206,7 @@ export default class FragmentList extends Vue {
   }
 
   isContainedIn(s1: Selection, s2: Region): boolean {
-    return s1.startRow <= s2.startRow && s1.startCol <= s2.startCol &&
-     s1.endRow >= s2.endRow;
+    return Region.diff(new Region(s1.startRow, s1.startCol, s1.endRow, s2.endCol), s2).length === 0;
   }
 
   applyMinFragmentLength(value: number): void {

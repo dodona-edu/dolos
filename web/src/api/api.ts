@@ -311,7 +311,10 @@ export async function loadFragments(pair: Pair, kmers: ObjMap<Kgram>, customOpti
     occurrences
   );
 
-  pair.pairedMatches = pairedMatches;
+  const totalMatch = (s: NodeStats): number =>
+    (s.matchedNodeAmount.get(pair.leftFile.id) || 0) + (s.childrenMatch.get(pair.leftFile.id) || 0);
+
+  pair.pairedMatches = pairedMatches.filter(pm => totalMatch(pm.rightMatch) >= 5);
   pair.unpairedMatches = unpairedMatches;
 
   const kmersMap: Map<Hash, Kgram> = new Map();

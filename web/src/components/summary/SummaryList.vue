@@ -96,6 +96,8 @@ export default class SummaryList extends DataView {
         pairSet.add(p);
       }
     }
+
+    console.log(this.sortedFiles);
   }
 
   mounted(): void {
@@ -105,11 +107,12 @@ export default class SummaryList extends DataView {
   async initializeData(): Promise<void> {
     await super.ensureData();
     const scoringCalculator = new FileInterestingnessCalculator(
-      Array.from(Object.values(this.pairs))
+      Array.from(Object.values(this.pairs)),
+      this.$store
     );
-    const sortableFiles = Object.values(this.files).map(file =>
-      scoringCalculator.calculateFileScoring(file)
-    );
+    const sortableFiles = await Promise.all(Object.values(this.files).map(async file =>
+      await scoringCalculator.calculateFileScoring(file)
+    ));
     this.scoredFiles = sortableFiles;
   }
 

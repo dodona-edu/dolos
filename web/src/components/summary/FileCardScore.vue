@@ -89,7 +89,7 @@
         These files have part of their structure in common: they have the same {{
         file.semanticMatchScore.match.ownNodes.map(n => file.file.ast[n]).join(" and ")}}.
         <br/>
-        <router-link :to="getPairLink(file.longestFragmentScore.pair)">
+        <router-link :to="getPairLink(file.semanticMatchScore.pair)">
           <a>Compare these pairs</a>
         </router-link>
       </span>
@@ -181,6 +181,7 @@ export default class FileCardScore extends Vue {
       this.file.semanticMatchScore?.weightedScore || 0
     );
 
+    console.log(this.file.semanticMatchScore);
     return (
       this.file.semanticMatchScore?.weightedScore === largestElementOfScore
     );

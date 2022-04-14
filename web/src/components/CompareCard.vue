@@ -356,8 +356,9 @@ export default class CompareCard extends Vue {
 
   get activeFragments(): Array<Fragment> {
     const isContained = (s1: Selection, s2: Region): boolean =>
-      s1.startRow <= s2.startRow && s1.startCol <= s2.startCol && s1.endRow >= s2.endRow;
+      Region.diff(new Region(s1.startRow, s1.startCol, s1.endRow, s2.endCol), s2).length === 0;
 
+    console.log(this.pair.pairedMatches);
     const leftCovers = this.pair.pairedMatches.map(p =>
       SemanticAnalyzer.getFullRange(fileToTokenizedFile(this.pair.leftFile), p.leftMatch));
     const rightCovers = this.pair.pairedMatches.map(p =>
@@ -366,8 +367,8 @@ export default class CompareCard extends Vue {
     return this.activePair.fragments!
       .filter(fragment => fragment.active)
       .filter(f =>
-        leftCovers.some(lc => isContained(f.left, lc)) &&
-        rightCovers.some(rc => isContained(f.right, rc)));
+        !(leftCovers.some(lc => isContained(f.left, lc)) &&
+          rightCovers.some(rc => isContained(f.right, rc))));
   }
 
   get pairedMatches(): Array<SemanticMatch> {

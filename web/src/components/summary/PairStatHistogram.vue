@@ -41,7 +41,7 @@ export default class PairStatHistogram extends DataView {
 
   async afterDataInit(): Promise<void> {
     await this.ensureData();
-    this.maxFileData = this.getMaxFileData();
+    this.maxFileData = await this.getMaxFileData();
     const xScale = this.getXScale();
     const domain = xScale.domain();
     const ticks = xScale.ticks(this.numberOfTicks);
@@ -135,15 +135,15 @@ export default class PairStatHistogram extends DataView {
     return g;
   }
 
-  getMaxFileData(): number[] {
+  async getMaxFileData(): Promise<number[]> {
     const files: File[] = Array.from(Object.values(this.files));
     const pairs = Array.from(Object.values(this.pairs));
 
-    const scoringCalculator = new FileInterestingnessCalculator(pairs);
+    const scoringCalculator = new FileInterestingnessCalculator(pairs, this.$store);
 
-    const scoredFiles = files.map(file =>
-      scoringCalculator.calculateFileScoring(file)
-    );
+    const scoredFiles = await Promise.all(files.map(async file =>
+      await scoringCalculator.calculateFileScoring(file)
+    ));
 
     return scoredFiles.map(f => this.mapScoreToField(f));
   }

@@ -1,6 +1,7 @@
 import { Pair, File } from "@/api/api";
 import { pairsAsNestedMap } from "./PairAsNestedMap";
 import { NodeStats } from "@dodona/dolos-lib/dist/lib/analyze/SemanticAnalyzer";
+import Store from "@/store";
 
 type SimilarityScore = {
   similarity: number;
@@ -44,15 +45,15 @@ export class FileInterestingnessCalculator {
   private similarityWeight = 3 / 10;
   private totalOverlapWeight = 3 / 10;
 
-  constructor(private pairs: Pair[]) {
+  constructor(private pairs: Pair[], private $store: any) {
     this.pairMap = pairsAsNestedMap(pairs);
   }
 
-  public calculateFileScoring(file: File): FileScoring {
+  public async calculateFileScoring(file: File): Promise<FileScoring> {
     const similarityScore = this.calculateSimilarityScore(file);
     const totalOverlapScore = this.totalOverlapScore(file);
     const longestFragmentScore = this.longestFragmentScore(file);
-    const semanticMatchScore = this.semanticMatchingScore(file);
+    const semanticMatchScore = await this.semanticMatchingScore(file);
 
     // The smallest files have arbitrarily high scores. Therefore, we linearly adjust total weight
     const smallFileWeight = file.amountOfKgrams < 15 ? (file.amountOfKgrams / 15) : 1;
@@ -138,7 +139,7 @@ export class FileInterestingnessCalculator {
     };
   }
 
-  public semanticMatchingScore(file: File): SemanticMatchingScore | null {
+  public async semanticMatchingScore(file: File): Promise<SemanticMatchingScore | null> {
     const pairArray = Array.from(this.pairMap.get(file.id)?.values() || []);
     const matchSize = (m: NodeStats): number => m.ownNodes.length + m.childrenTotal;
     const matchContainsFunction = (m: NodeStats): boolean =>
@@ -159,16 +160,26 @@ export class FileInterestingnessCalculator {
       }
     }
 
-    return maxFileId === null || maxMatch === null
-      ? null
-      : {
-        pair: pairArray.filter(p =>
-          (p.leftFile.id === file.id && p.rightFile.id === maxFileId) ||
-          (p.leftFile.id === maxFileId && p.rightFile.id === file.id)
-        )[0],
-        match: maxMatch,
-        weightedScore: matchContainsFunction(maxMatch) ? 0.8 : 0.6,
-      };
+    if (maxFileId === null || maxMatch === null) {
+      return null;
+    }
+
+    const pair = pairArray.filter(p =>
+      (p.leftFile.id === file.id && p.rightFile.id === maxFileId) ||
+      (p.leftFile.id === maxFileId && p.rightFile.id === file.id)
+    )[0];
+
+    await this.$store.dispatch("populateFragments", { pairId: pair.id });
+
+    if (pair.pairedMatches.length === 0) { return null; }
+
+    if (pair.id === 3484) { console.log(pair.pairedMatches, maxMatch); }
+
+    return {
+      pair,
+      match: maxMatch,
+      weightedScore: matchContainsFunction(maxMatch) ? 0.8 : 0.6,
+    };
   }
 
   private steepSquareScaling(x: number): number {

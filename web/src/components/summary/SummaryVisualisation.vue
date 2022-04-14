@@ -101,21 +101,11 @@ export default class SummaryVisualisation extends DataView {
     const node = this.file.semanticMatchScore;
 
     if (node) {
-      const leftFile = node.pair.leftFile;
-      const rightFile = node.pair.rightFile;
-
-      const leftFileMatches = leftFile.semanticMap.get(rightFile.id) || [];
-      const rightFileMatches = rightFile.semanticMap.get(leftFile.id) || [];
-
-      const [paired] = SemanticAnalyzer.pairMatches(
-        fileToTokenizedFile(leftFile), fileToTokenizedFile(rightFile),
-        leftFileMatches, rightFileMatches,
-        this.occurrences);
-
-      this.match = paired[0];
+      this.match =
+        node.pair.pairedMatches.reduce((a, b) => a.leftMatch.childrenTotal > b.leftMatch.childrenTotal ? a : b);
       this.currentFiles = {
-        leftFile,
-        rightFile
+        leftFile: node.pair.leftFile,
+        rightFile: node.pair.rightFile
       };
     }
   }

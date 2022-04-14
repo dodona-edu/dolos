@@ -85,7 +85,7 @@ export default class SemanticList extends Vue {
 
     return this.semanticMatches.map(v => {
       const m = v as SemanticMatch & { tokenName: string };
-      m.tokenName = `${fileAst[v.leftMatch.ownNodes[0]]}`;
+      m.tokenName = `${fileAst[v.leftMatch.ownNodes[0]] || "Full file"}`;
       return m;
     });
   }
