@@ -36,7 +36,7 @@ export default class TimeSeriesDiagram extends Vue {
   }
 
   private initialize(): void {
-    const data = getClusterElementsArray(this.cluster).map((file) => ({ file }));
+    const data = getClusterElementsArray(this.cluster).map(file => ({ file }));
     const xScale = this.getXScale(data);
     this.applySimulation(xScale, data);
     const svg = this.addSVG(xScale, data);
@@ -46,7 +46,7 @@ export default class TimeSeriesDiagram extends Vue {
   private getXScale(files: TimeDataType[]): d3.ScaleTime<number, number> {
     return d3
       .scaleTime<number, number>()
-      .domain(d3.extent(files.map((f) => f.file.extra.timestamp!)) as [Date, Date])
+      .domain(d3.extent(files.map(f => f.file.extra.timestamp!)) as [Date, Date])
       .range([0, this.width]);
   }
 
@@ -83,7 +83,7 @@ export default class TimeSeriesDiagram extends Vue {
       .enter()
       .append("circle")
       .attr("r", 5)
-      .attr("cx", (d) => xScale(d.file.extra.timestamp!))
+      .attr("cx", d => xScale(d.file.extra.timestamp!))
       .attr("cy", this.height / 2)
       .attr("fill", d => this.getColor((d.file)))
       .attr("visibility", d => this.getVisibility(d.file));
@@ -99,7 +99,7 @@ export default class TimeSeriesDiagram extends Vue {
       .force(
         "x",
         d3
-          .forceX<TimeDataType>((d) => {
+          .forceX<TimeDataType>(d => {
             return xScale(d?.file?.extra?.timestamp || new Date());
           })
           .strength(1)

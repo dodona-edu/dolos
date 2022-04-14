@@ -94,19 +94,19 @@ export default class HeatMap extends DataView {
     this.xBand = d3
       .scaleBand<number>()
       .range([0, width])
-      .domain(elements.map((d) => d.id))
+      .domain(elements.map(d => d.id))
       .padding(0.01);
 
     this.yBand = d3
       .scaleBand<number>()
       .range([height, 0])
-      .domain(elements.map((d) => d.id))
+      .domain(elements.map(d => d.id))
       .padding(0.01);
 
     const xAxis = d3
       .axisBottom(this.xBand)
       .tickFormat(
-        (d) =>
+        d =>
           `${
             this.files[d].extra.fullName ||
             this.files[d].path.split("/").slice(-1).join("")
@@ -126,7 +126,7 @@ export default class HeatMap extends DataView {
     const yAxis = d3
       .axisLeft(this.yBand)
       .tickFormat(
-        (d) =>
+        d =>
           `${
             this.files[d].extra.fullName ||
             this.files[d].path.split("/").slice(-1).join("")
