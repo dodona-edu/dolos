@@ -111,6 +111,11 @@ export default class PlagarismGraph extends DataView {
     this.selectedCluster = c;
   }
 
+  @Watch("cutoff")
+  refreshClustering(): void {
+    this.currentCluster = this.clustering;
+  }
+
   getCutoff(): number {
     return this.cutoff;
   }
