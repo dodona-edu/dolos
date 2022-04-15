@@ -10,8 +10,8 @@ import { breadthFirstWalk, groupNodes, walkOverChildren } from "./treeMatching/t
 import * as console from "console";
 import * as path from "path";
 // import * as process from "process";
-import * as child_process from "child_process";
-import { promisify } from "util";
+// import * as child_process from "child_process";
+// import { promisify } from "util";
 
 export type Hash = number;
 type Vector = Array<number>;
@@ -68,7 +68,12 @@ export class TreeIndex implements IndexInterface {
     // accepted
     const [grouped, hashes] = groupNodes(forest, hashToNodeList, nodeToHash);
     //TODO
-    const groupedExtended = await this.extention1(nodeToHash, grouped, nodeMappedToFile, treeIsomorphism.nodeToTreeSize);
+    const groupedExtended = await this.extention1(
+      nodeToHash,
+      grouped,
+      nodeMappedToFile,
+      treeIsomorphism.nodeToTreeSize
+    );
 
     // TODO more intelligent merging
     const groupMerged = [...grouped, ...groupedExtended];
@@ -191,10 +196,10 @@ export class TreeIndex implements IndexInterface {
     fs.writeFileSync(file, JSON.stringify(vecList), "utf-8");
     console.log("positions written to: " + file);
 
-    const pexec = promisify(child_process.exec);
-    await pexec(
-      `cat ./temp.json | /home/steam/mount/secondary/UGent/2021-2022/thesis/clustering_script/PCA.py labels1.json`
-    );
+    // const pexec = promisify(child_process.exec);
+    // await pexec(
+    //   `cat ./temp.json | /home/steam/mount/secondary/UGent/2021-2022/thesis/clustering_script/PCA.py labels1.json`
+    // );
 
 
     const labels = JSON.parse(fs.readFileSync("./labels1.json").toString("utf-8"));
@@ -233,16 +238,18 @@ export class TreeIndex implements IndexInterface {
 
       // const files = group.map(node => (_nodeMappedToFile.get(node) as TokenizedFile).path);
       // const b1 = files.some(path => path.includes("main_A") || path.includes("function_rename"));
-      // const b2 = group.some(node => _nodeMappedToFile.get(node)?.path.includes("function_rename") && node.endPosition.row > 260);
+      // const b2 = group
+      //   .some(node => _nodeMappedToFile.get(node)?.path.includes("function_rename") &&
+      //     node.endPosition.row > 260);
       //
       // if(!(b1 && b2)) {
       //   continue;
       // }
       for (const node of group) {
         const nodeFile = _nodeMappedToFile.get(node) as TokenizedFile;
-        // if( !(nodeFile.path.includes("main_A") || nodeFile.path.includes("function_rename"))) {
-        //   continue;
-        // }
+        if( !(nodeFile.path.includes("063") || nodeFile.path.includes("048") || nodeFile.path.includes("051"))) {
+          continue;
+        }
 
         let str = `[ ${path.basename(nodeFile.path)} ] `;
         str += `{from: [${node.startPosition.row + 1}, ${node.startPosition.column}]`;
@@ -256,7 +263,9 @@ export class TreeIndex implements IndexInterface {
           }
           childrenSet.add({
             "n": nodeToHash.get(child),
-            "w": nodeToTreeSize.get(child)
+            "w": nodeToTreeSize.get(child),
+            "t": child.type,
+            "text": child.text
           });
         }
         if(childrenSet.size < 2) {
