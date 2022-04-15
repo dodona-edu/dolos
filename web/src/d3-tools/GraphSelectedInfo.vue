@@ -40,9 +40,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop, Watch } from "vue-property-decorator";
-import { File } from "@/api/api";
-import * as d3 from "d3";
+import { Component, Prop, Vue } from "vue-property-decorator";
 import { Cluster, Clustering } from "@/util/clustering-algorithms/ClusterTypes";
 import { SelectedNodeInfo } from "@/views/GraphView.vue";
 import { getAverageClusterSimilarity, getClusterElements } from "@/util/clustering-algorithms/ClusterFunctions";

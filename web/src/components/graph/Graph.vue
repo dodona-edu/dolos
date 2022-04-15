@@ -12,7 +12,6 @@
 import {Component, Prop, Watch} from "vue-property-decorator";
 import * as d3 from "d3";
 import {ConvexHullTool} from "@/d3-tools/ConvexHullTool";
-import {singleLinkageCluster} from "@/util/clustering-algorithms/SingleLinkageClustering";
 import {getClusterElements, getClusterIntersect} from "@/util/clustering-algorithms/ClusterFunctions";
 import {DefaultMap} from "@dodona/dolos-lib";
 
