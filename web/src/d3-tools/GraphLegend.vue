@@ -26,15 +26,13 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop, Watch } from "vue-property-decorator";
+import { Component, Prop, Watch } from "vue-property-decorator";
 import { File } from "@/api/api";
-import * as d3 from "d3";
-
-export type Legend = {[key: string]: { label: string; selected: boolean; color: string }};
+import DataView, { Legend } from "@/views/DataView";
 
 @Component({})
-export default class GraphLegend extends Vue {
-  @Prop() files!: File[];
+export default class GraphLegend extends DataView {
+  @Prop() currentFiles!: File[];
 
   public legend: {[key: string]: { label: string; selected: boolean; color: string }} = {};
 
@@ -42,9 +40,14 @@ export default class GraphLegend extends Vue {
     this.init();
   }
 
-  @Watch("files")
+  @Watch("currentFiles")
   init(): void {
-    this.legend = this.createLegend();
+    const fullLegend = this.createLegend();
+    const partLegend: Legend = {};
+    for (const key of new Set(this.currentFiles.map(cf => cf.extra.labels)).values()) {
+      if (key) { partLegend[key] = fullLegend[key]; }
+    }
+    this.legend = partLegend;
     this.$emit("legend", this.legend);
   }
 
@@ -53,22 +56,7 @@ export default class GraphLegend extends Vue {
   }
 
   createLegend(): Legend {
-    const labels = new Set<string>();
-
-    for (const file of this.files) {
-      labels.add(file.extra.labels || "N/A");
-    }
-
-    const colorScale = d3
-      .scaleOrdinal(d3.schemeCategory10.filter(c => c !== "#7f7f7f"))
-      .domain([...labels].reverse());
-    const legend = [...labels].sort().map((p) => ({
-      label: p,
-      selected: true,
-      color: colorScale(p),
-    }));
-
-    return Object.fromEntries(legend.map(l => [l.label, l]));
+    return super.createLegend();
   }
 }
 </script>

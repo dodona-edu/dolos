@@ -1,6 +1,5 @@
 <template>
   <div>
-    <h2>Heatmap</h2>
     <div class="d-flex flex-column align-center flex-grow flex-nowrap">
       <v-alert color="#1976D2" v-if="!hoveredPair" class="extra-info-container" type="info"
         >Hover over a pair to see extra data.</v-alert

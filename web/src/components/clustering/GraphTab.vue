@@ -1,6 +1,5 @@
 <template>
   <div class="graph-container">
-    <h2>Graph</h2>
     <Graph
       :pairs="clusterPairs"
       :files="clusterFiles"
@@ -10,7 +9,7 @@
       :clustering="clustering"
       @selectedNodeInfo="setSelectedNodeInfo"
     >
-    <GraphLegend :files="clusterFiles" @legend="l => legend = l"></GraphLegend>
+    <GraphLegend :current-files="clusterFiles" @legend="l => legend = l"></GraphLegend>
     <GraphElementList :cluster="cluster"
                       :hovering-file="(selectedNode && selectedNode.info) ?
               selectedNode.info.file : null"></GraphElementList>

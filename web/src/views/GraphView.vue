@@ -34,7 +34,7 @@
             </p>
           </form>
 
-          <GraphLegend v-if="showLegend()" :files="fileArray" @legend="updateLegend"></GraphLegend>
+          <GraphLegend v-if="showLegend()" :current-files="fileArray" @legend="updateLegend"></GraphLegend>
 
           <GraphSelectedInfo :current-clustering="currentCluster" :selected-node-info="selectedNodeInfo"
                              :selected-cluster="selectedCluster">

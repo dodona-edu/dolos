@@ -1,16 +1,15 @@
 <template>
   <v-expansion-panel>
-    <v-expansion-panel-header>
-      Cluster
-      <small></small>
-      <small>Size: {{ getClusterElements(cluster).size }}</small>
-      <small>Similarity: {{ averageSimilarity(cluster) }}</small>
-
-      <v-spacer></v-spacer>
+    <v-expansion-panel-header class="noflex">
+      <div class="clustering-tag-container">
+        <ClusteringFileTag :file="file" :key="file.id" v-for="file of getClusterElements(cluster)"></ClusteringFileTag>
+      </div>
     </v-expansion-panel-header>
     <v-expansion-panel-content>
       <v-tabs right v-model="activeTab">
-        <v-tab @click="pairView(cluster)" :key="1">Pair view</v-tab>
+        <v-tab :key="1">
+          <a class="no-markup" target="_blank" :href="`../?showIds=${pairViewItems(cluster)}`">Pair view</a>
+        </v-tab>
         <v-tab-item ></v-tab-item>
 
         <div class="empty-space"></div>
@@ -48,8 +47,9 @@ import HeatMap from "./HeatMap.vue";
 import DataTab from "./DataTab.vue";
 import GraphTab from "./GraphTab.vue";
 import TimeSeriesCard from "./TimeSeriesCard.vue";
+import ClusteringFileTag from "@/components/clustering/ClusteringFileTag.vue";
 
-@Component({ components: { HeatMap, DataTab, GraphTab, TimeSeriesCard } })
+@Component({ components: { HeatMap, DataTab, GraphTab, TimeSeriesCard, ClusteringFileTag } })
 export default class ClusteringCard extends Vue {
   @Prop() cluster!: Cluster;
   @Prop() cutoff!: number;
@@ -71,22 +71,39 @@ export default class ClusteringCard extends Vue {
     this.$router.push(`/graph?cutoff=${this.cutoff}&red=${items}`);
   }
 
-  public pairView(cluster: Cluster): void {
+  public pairViewItems(cluster: Cluster): string {
     const items = Array.from(cluster)
       .map(v => v.id)
       .join(",");
 
-    this.$router.push(`/?showIds=${items}`);
+    return items;
   }
 
   public showClusterTimeline(cluster: Cluster): boolean {
     return getClusterElementsArray(cluster).every(f => f.extra?.timestamp);
   }
+
+  public clusterFiles = getClusterElements;
 }
 </script>
 
 <style scoped>
 .empty-space {
   width: 50px
+}
+
+.noflex > * {
+  flex: none;
+}
+
+.clustering-tag-container {
+  width: 70%;
+  display: flex;
+  justify-content: flex-start;
+  overflow: hidden;
+}
+
+.no-markup {
+  color: inherit;
 }
 </style>

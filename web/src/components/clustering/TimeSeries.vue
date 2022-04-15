@@ -1,6 +1,6 @@
 <template>
   <div :id="getSvgId()">
-    <GraphLegend :files="legendData()" @legend="setLegend"/>
+    <GraphLegend :current-files="legendData()" @legend="setLegend"/>
   </div>
 </template>
 <script lang="ts">
@@ -10,7 +10,8 @@ import * as d3 from "d3";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
 import { getClusterElementsArray } from "@/util/clustering-algorithms/ClusterFunctions";
 import { SelectionTool, xCoord } from "@/d3-tools/SelectionTool";
-import GraphLegend, { Legend } from "@/d3-tools/GraphLegend.vue";
+import GraphLegend from "@/d3-tools/GraphLegend.vue";
+import { Legend } from "@/views/DataView";
 
 interface TimeDataType extends xCoord { file: File, y?: number }
 
