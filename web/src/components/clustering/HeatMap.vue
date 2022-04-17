@@ -15,7 +15,10 @@
         <span>Longest fragment: {{ hoveredPair.longestFragment }}</span>
         <span>Common overlap: {{ hoveredPair.totalOverlap }}</span>
       </v-alert>
+      <div class="d-flex flex-row justify-center">
       <div :id="svgId" class="svg-container"></div>
+      <div :id="`${svgId}-legend`"></div>
+      </div>
     </div>
   </div>
 </template>
@@ -72,17 +75,18 @@ export default class HeatMap extends DataView {
   private initializeSvg(): void {
     const [width, height] = this.dimensions;
     const topBottomMargin = 100;
-    const leftRightMargin = 300;
+    const leftMargin = 250;
+    const rightMargin = 30;
 
     this.svg = d3
       .select(`#${this.svgId}`)
       .append("svg")
-      .attr("width", width + 2 * leftRightMargin)
+      .attr("width", width + leftMargin + rightMargin)
       .attr("height", height + 2 * topBottomMargin)
       .append("g")
       .attr(
         "transform",
-        `translate(${leftRightMargin}, ${topBottomMargin / 2})`
+        `translate(${leftMargin}, ${topBottomMargin / 2})`
       );
   }
 
@@ -93,7 +97,7 @@ export default class HeatMap extends DataView {
     this.xBand = d3
       .scaleBand<number>()
       .range([0, width])
-      .domain(elements.map(d => d.id))
+      .domain(elements.map(d => d.id).reverse())
       .padding(0.01);
 
     this.yBand = d3
@@ -136,16 +140,71 @@ export default class HeatMap extends DataView {
   }
 
   private initializeColorScale(): void {
+    const scale = ["#e6f2ff", "#1976D2"];
+
     this.colorScale = d3
       .scaleLinear<string, number>()
-      .domain([0, 1])
-      .range(["white", "#1976D2"]);
+      .domain([this.cutoff, 1])
+      .range(scale);
+
+    // Legend code inspired by https://bl.ocks.org/starcalibre/6cccfa843ed254aa0a0d
+
+    const legendSvg = d3.select(`#${this.svgId}-legend`)
+      .append("svg")
+      .attr("width", 50)
+      .attr("height", 300)
+      .append("g").attr("transform", "rotate(-90) translate(-250, 0)");
+
+    const gradient = legendSvg.append("defs")
+      .append("linearGradient")
+      .attr("id", "gradient")
+      .attr("x1", "0%") // bottom
+      .attr("y1", "0%")
+      .attr("x2", "100%") // to top
+      .attr("y2", "0%")
+      .attr("spreadMethod", "pad");
+
+    gradient.append("stop")
+      .attr("offset", "0%")
+      .attr("stop-color", scale[0])
+      .attr("stop-opacity", 1);
+
+    gradient.append("stop")
+      .attr("offset", "100%")
+      .attr("stop-color", scale[1])
+      .attr("stop-opacity", 1);
+
+    legendSvg.append("rect")
+      .attr("x1", 100)
+      .attr("y1", 0)
+      .attr("width", 200)
+      .attr("height", 25)
+      .style("fill", "url(#gradient)");
+
+    const legendScale = d3.scaleLinear()
+      .domain([this.cutoff, 1])
+      .range([0, 200]);
+
+    const legendAxis = d3.axisBottom(legendScale).tickValues([this.cutoff, 1]);
+
+    const g = legendSvg.append("g")
+      .attr("class", "legend axis")
+      .attr("transform", "translate(" + 0 + ", 30)")
+      .call(legendAxis);
+
+    legendSvg.append("text")
+      .attr("class", "x label")
+      .attr("text-anchor", "end")
+      .attr("x", 175)
+      .attr("y", 50)
+      .attr("font-size", 15)
+      .text("Similarity cutoff value");
   }
 
   @Watch("cluster")
   private initializeData(): void {
     const elements = getClusterElementsArray(this.cluster);
-    const pairs = d3.cross(elements, elements);
+    const pairs = d3.cross(elements, elements.reverse());
 
     const [xBand, yBand, colorScale] = [
       this.xBand,

@@ -1,5 +1,5 @@
 <template>
-  <div class="circle" :style="`background-color: ${getColor()}`">
+  <div class="circle" :style="`background-color: ${getColor()}; border-color: ${getColor()}`">
     <span>{{getInitials()}}</span>
   </div>
 </template>

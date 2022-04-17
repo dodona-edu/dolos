@@ -53,7 +53,7 @@ export function getClusterElementsSorted(cluster: Cluster): File[] {
   // Cache weights for use in sort function (for efficiency reasons)
   const weights = new Map(array.map(f => [f.id, getAverageSimilarity(f)]));
 
-  const sortf = (a: File, b: File): number => weights.get(b.id)! - weights.get(a.id)!;
+  const sortf = (a: File, b: File): number => weights.get(a.id)! - weights.get(b.id)!;
 
   return array.sort(sortf);
 }
