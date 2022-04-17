@@ -31,7 +31,7 @@
         </ul>
       </v-card-text>
       <v-card-actions>
-      <v-btn color="success" text :href="`./graph#${this.getClusterIndex()}`">More information</v-btn>
+      <v-btn color="success" text @click="goToInfo">More information</v-btn>
       </v-card-actions>
     </v-card>
 
@@ -59,6 +59,11 @@ export default class GraphSelectedInfo extends Vue {
     const sortf = (a: Cluster, b:Cluster): number => getClusterElements(b).size - getClusterElements(a).size;
     const sortedClustering = Array.from(this.currentClustering).sort(sortf);
     return sortedClustering.indexOf(this.selectedCluster!);
+  }
+
+  goToInfo():void {
+    this.$router.replace("#");
+    this.$router.replace(`#${this.getClusterIndex()}`);
   }
 }
 </script>
