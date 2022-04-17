@@ -2,7 +2,7 @@
   <v-expansion-panel>
     <v-expansion-panel-header class="noflex">
       <div class="clustering-tag-container">
-        <ClusteringFileTag :file="file" :key="file.id" v-for="file of getClusterElements(cluster)"></ClusteringFileTag>
+        <FileTagList :current-files="clusterFiles(cluster)"></FileTagList>
       </div>
     </v-expansion-panel-header>
     <v-expansion-panel-content>
@@ -48,8 +48,9 @@ import DataTab from "./DataTab.vue";
 import GraphTab from "./GraphTab.vue";
 import TimeSeriesCard from "./TimeSeriesCard.vue";
 import ClusteringFileTag from "@/components/clustering/ClusteringFileTag.vue";
+import FileTagList from "@/components/clustering/FileTagList.vue";
 
-@Component({ components: { HeatMap, DataTab, GraphTab, TimeSeriesCard, ClusteringFileTag } })
+@Component({ components: { HeatMap, DataTab, GraphTab, TimeSeriesCard, ClusteringFileTag, FileTagList } })
 export default class ClusteringCard extends Vue {
   @Prop() cluster!: Cluster;
   @Prop() cutoff!: number;
@@ -83,7 +84,7 @@ export default class ClusteringCard extends Vue {
     return getClusterElementsArray(cluster).every(f => f.extra?.timestamp);
   }
 
-  public clusterFiles = getClusterElements;
+  public clusterFiles = getClusterElementsArray;
 }
 </script>
 
