@@ -1,5 +1,5 @@
 <template>
-  <div :id="svgId">
+  <div :id="svgId" class="svg-container" ref="container">
 
   </div>
 </template>
@@ -27,10 +27,12 @@ export default class FileTagList extends DataView {
 
   mounted(): void {
     this.initialize();
+    window.addEventListener("resize", this.initialize);
   }
 
   @Watch("currentFiles")
   initialize(): void {
+    this.width = (this.$refs.container! as HTMLElement).clientWidth;
     this.legend = this.createLegend();
     const svg = this.initializeSvg();
     const scale = this.createScale();
@@ -106,17 +108,8 @@ export default class FileTagList extends DataView {
 }
 </script>
 <style>
-.circle {
-  border-radius: 50%;
-  background-color: lightblue;
-  text-align: center;
-  width: 40px;
-  height: 40px;
-  line-height: 40px;
-  font-size: 16px;
-  font-weight: 600;
-  color: white;
-  margin: 0 3px;
+.svg-container {
+  width: 100%;
 }
 
 </style>
