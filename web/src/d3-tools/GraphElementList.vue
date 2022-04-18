@@ -5,10 +5,24 @@
     </v-card-title>
 
     <v-card-text>
-      <div v-for="el of getElements()" :key="el.id" :id="`graph-element-list-${el.id}`"
-           v-bind:class="{ active: hoveringFile && el.id === hoveringFile.id }" class="element">
-        {{el.path.split("/").slice(-2).join("/")}}
-      </div>
+      <v-simple-table>
+        <template v-slot:default>
+          <thead>
+            <tr>
+              <th class="text-left">Name</th>
+              <th class="text-left">Timestamp</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr
+          v-for="element in getElements()"
+          :key="element.id">
+            <td>{{ element.path.split("/").slice(-2).join("/") }}</td>
+            <td>{{ formatTime(element.extra.timestamp) }}</td>
+          </tr>
+          </tbody>
+        </template>
+      </v-simple-table>
     </v-card-text>
   </v-card>
 </template>
@@ -17,17 +31,21 @@
 import { Component, Vue, Prop, Watch } from "vue-property-decorator";
 import { File } from "@/api/api";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
-import { getClusterElements } from "@/util/clustering-algorithms/ClusterFunctions";
-
-export type Legend = {[key: string]: { label: string; selected: boolean; color: string }};
+import { getClusterElementsArray } from "@/util/clustering-algorithms/ClusterFunctions";
+import { DateTime } from "luxon";
 
 @Component({})
 export default class GraphElementList extends Vue {
   @Prop() cluster!: Cluster;
   @Prop({ default: null }) hoveringFile!: File | null;
 
-  getElements(): Set<File> {
-    return getClusterElements(this.cluster);
+  getElements(): Array<File> {
+    return getClusterElementsArray(this.cluster)
+      .sort((a, b) =>
+        a.extra.timestamp && b.extra.timestamp
+          ? (DateTime.fromJSDate(a.extra.timestamp) < DateTime.fromJSDate(b.extra.timestamp) ? -1 : 1)
+          : 1
+      );
   }
 
   @Watch("hoveringFile")
@@ -39,11 +57,15 @@ export default class GraphElementList extends Vue {
       }
     }
   }
+
+  formatTime(time: Date): string {
+    return DateTime.fromJSDate(time).toLocaleString();
+  }
 }
 </script>
 <style scoped lang="scss">
 .selected-info {
-  max-width: 350px;
+  max-width: 1000px;
   max-height: 350px;
   overflow: auto;
   position: absolute;
