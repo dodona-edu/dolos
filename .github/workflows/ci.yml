@@ -18,7 +18,7 @@ jobs:
           path: |
             ${{ github.workspace }}/node_modules
             ${{ github.workspace }}/*/node_modules
-          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('/yarn.lock') }}-${{ hashFiles('/package.json') }}
+          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('**/yarn.lock') }}-${{ hashFiles('**/package.json') }}
       - name: Setup Node
         if: steps.cache-dependencies.outputs.cache-hit != 'true'
         uses: actions/setup-node@v2
@@ -49,7 +49,7 @@ jobs:
           path: |
             ${{ github.workspace }}/node_modules
             ${{ github.workspace }}/*/node_modules
-          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('/yarn.lock') }}-${{ hashFiles('/package.json') }}
+          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('**/yarn.lock') }}-${{ hashFiles('**/package.json') }}
       - name: Check if cache was hit
         if: steps.cache-dependencies.outputs.cache-hit != 'true'
         run: |
@@ -99,7 +99,7 @@ jobs:
           path: |
             ${{ github.workspace }}/node_modules
             ${{ github.workspace }}/*/node_modules
-          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('/yarn.lock') }}-${{ hashFiles('/package.json') }}
+          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('**/yarn.lock') }}-${{ hashFiles('**/package.json') }}
       - name: Check if cache was hit
         if: steps.cache-dependencies.outputs.cache-hit != 'true'
         run: |
@@ -131,7 +131,7 @@ jobs:
           path: |
             ${{ github.workspace }}/node_modules
             ${{ github.workspace }}/*/node_modules
-          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('/yarn.lock') }}-${{ hashFiles('/package.json') }}
+          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('**/yarn.lock') }}-${{ hashFiles('**/package.json') }}
       - name: Check if cache was hit
         if: steps.cache-dependencies.outputs.cache-hit != 'true'
         run: |
@@ -164,7 +164,7 @@ jobs:
           path: |
             ${{ github.workspace }}/node_modules
             ${{ github.workspace }}/*/node_modules
-          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('/yarn.lock') }}-${{ hashFiles('/package.json') }}
+          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('**/yarn.lock') }}-${{ hashFiles('**/package.json') }}
       - name: Check if cache was hit
         if: steps.cache-dependencies.outputs.cache-hit != 'true'
         run: |
@@ -196,7 +196,7 @@ jobs:
           path: |
             ${{ github.workspace }}/node_modules
             ${{ github.workspace }}/*/node_modules
-          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('/yarn.lock') }}-${{ hashFiles('/package.json') }}
+          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('**/yarn.lock') }}-${{ hashFiles('**/package.json') }}
       - name: Check if cache was hit
         if: steps.cache-dependencies.outputs.cache-hit != 'true'
         run: |
@@ -229,7 +229,7 @@ jobs:
           path: |
             ${{ github.workspace }}/node_modules
             ${{ github.workspace }}/*/node_modules
-          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('/yarn.lock') }}-${{ hashFiles('/package.json') }}
+          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('**/yarn.lock') }}-${{ hashFiles('**/package.json') }}
       - name: Check if cache was hit
         if: steps.cache-dependencies.outputs.cache-hit != 'true'
         run: |
@@ -284,7 +284,7 @@ jobs:
           path: |
             ${{ github.workspace }}/node_modules
             ${{ github.workspace }}/*/node_modules
-          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('/yarn.lock') }}-${{ hashFiles('/package.json') }}
+          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('**/yarn.lock') }}-${{ hashFiles('**/package.json') }}
       - name: Check if cache was hit
         if: steps.cache-dependencies.outputs.cache-hit != 'true'
         run: |
