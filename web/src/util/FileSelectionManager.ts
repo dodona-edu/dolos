@@ -5,10 +5,8 @@ type SelectedChangeListener = (fl : File[]) => void;
 export class SelectionManager {
   private currentSelection: File[] = [];
 
-  private readonly limit: number;
-
-  constructor(limit = 1, private selectedChangeListener?: SelectedChangeListener) {
-    this.limit = limit;
+  constructor(private readonly limit = 1, private readonly selectedChangeListener?: SelectedChangeListener) {
+    console.assert(limit > 0, "The limit needs to be larger than zero.");
   }
 
   currentSelections(): File[] {

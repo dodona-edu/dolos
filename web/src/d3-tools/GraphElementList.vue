@@ -48,24 +48,29 @@ import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
 import { getClusterElementsArray } from "@/util/clustering-algorithms/ClusterFunctions";
 import { DateTime } from "luxon";
 import DataView, { Legend } from "@/views/DataView";
+import { booleanSort, chainSort, reverseSort, timestampSort } from "@/util/SortingFunctions";
 
 @Component({})
 export default class GraphElementList extends DataView {
   @Prop() cluster!: Cluster;
   private legend: Legend | null = null;
   @Prop({ default: [] }) private selectedFiles!: File[];
+  @Prop({ default: false }) private sortBySelected!: boolean;
 
   mounted(): void {
     this.legend = this.createLegend();
   }
 
   getElements(): Array<File> {
+    const sortBySelectedFunction = chainSort<File>(
+      reverseSort(booleanSort(f => this.selectedFiles.includes(f))),
+      timestampSort(f => f.extra.timestamp || new Date())
+    );
+
+    const sortByTimestampFunction = timestampSort<File>(f => f.extra.timestamp || new Date());
+
     return getClusterElementsArray(this.cluster)
-      .sort((a, b) =>
-        a.extra.timestamp && b.extra.timestamp
-          ? (DateTime.fromJSDate(a.extra.timestamp) < DateTime.fromJSDate(b.extra.timestamp) ? -1 : 1)
-          : 1
-      );
+      .sort(this.sortBySelected ? sortBySelectedFunction : sortByTimestampFunction);
   }
 
   formatTime(time: Date): string {
