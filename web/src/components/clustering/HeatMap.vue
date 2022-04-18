@@ -61,7 +61,8 @@ export default class HeatMap extends DataView {
 
   @Watch("cluster")
   redraw(): void {
-    d3.select(`#${this.svgId}`).select("svg").remove();
+    d3.select(`#${this.svgId}`).selectAll("svg").remove();
+    d3.select(`#${this.svgId}-legend`).selectAll("svg").remove();
     this.initialize();
   }
 
