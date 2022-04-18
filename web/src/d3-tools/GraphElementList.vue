@@ -9,6 +9,7 @@
         <template v-slot:default>
           <thead>
             <tr>
+              <th></th>
               <th class="text-left">Name</th>
               <th class="text-left">Timestamp</th>
           </tr>
@@ -17,6 +18,16 @@
           <tr
           v-for="element in getElements()"
           :key="element.id">
+            <td>
+              <v-tooltip top>
+                <template v-slot:activator="{ on, attrs }">
+                  <span class="tiny-color" :style="`background-color: ${getColor(element)}`"
+                        v-bind="attrs"
+                        v-on="on"></span>
+                </template>
+                <span>{{element.extra.labels || "No label"}}</span>
+              </v-tooltip>
+            </td>
             <td>{{ element.path.split("/").slice(-2).join("/") }}</td>
             <td>{{ formatTime(element.extra.timestamp) }}</td>
           </tr>
@@ -28,16 +39,22 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop, Watch } from "vue-property-decorator";
+import { Component, Prop, Watch } from "vue-property-decorator";
 import { File } from "@/api/api";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
 import { getClusterElementsArray } from "@/util/clustering-algorithms/ClusterFunctions";
 import { DateTime } from "luxon";
+import DataView, { Legend } from "@/views/DataView";
 
 @Component({})
-export default class GraphElementList extends Vue {
+export default class GraphElementList extends DataView {
   @Prop() cluster!: Cluster;
   @Prop({ default: null }) hoveringFile!: File | null;
+  private legend: Legend | null = null;
+
+  mounted(): void {
+    this.legend = this.createLegend();
+  }
 
   getElements(): Array<File> {
     return getClusterElementsArray(this.cluster)
@@ -61,11 +78,17 @@ export default class GraphElementList extends Vue {
   formatTime(time: Date): string {
     return DateTime.fromJSDate(time).toLocaleString();
   }
+
+  getColor(file: File): string {
+    if (!this.legend || !file.extra.labels || !this.legend[file.extra.labels]) { return ""; }
+
+    return this.legend[file.extra.labels].color;
+  }
 }
 </script>
 <style scoped lang="scss">
 .selected-info {
-  max-width: 1000px;
+  max-width: 500px;
   max-height: 350px;
   overflow: auto;
   position: absolute;
@@ -82,5 +105,13 @@ export default class GraphElementList extends Vue {
   border-radius: 10px;
   margin: 5px;
   padding: 5px;
+}
+
+.tiny-color {
+  background-color: grey;
+  width: 7px;
+  height: 7px;
+  display: block;
+  border-radius: 50%;
 }
 </style>
