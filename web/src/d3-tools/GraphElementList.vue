@@ -1,5 +1,5 @@
 <template>
-  <v-card elevation="2" outlined class="selected-info">
+  <v-card elevation="2" outlined class="graph-element-list">
     <v-card-title>
       Files in this cluster
     </v-card-title>
@@ -54,7 +54,7 @@ import { booleanSort, chainSort, reverseSort, timestampSort } from "@/util/Sorti
 export default class GraphElementList extends DataView {
   @Prop() cluster!: Cluster;
   private legend: Legend | null = null;
-  @Prop({ default: [] }) private selectedFiles!: File[];
+  @Prop({ default: () => [] }) private selectedFiles!: File[];
   @Prop({ default: false }) private sortBySelected!: boolean;
 
   mounted(): void {
@@ -89,13 +89,10 @@ export default class GraphElementList extends DataView {
 }
 </script>
 <style scoped lang="scss">
-.selected-info {
+.graph-element-list {
   max-width: 500px;
   max-height: 350px;
   overflow: auto;
-  position: absolute;
-  z-index: 5;
-  top: 20px;
 }
 
 .active {

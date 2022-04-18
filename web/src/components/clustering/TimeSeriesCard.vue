@@ -1,8 +1,10 @@
 <template>
   <div>
-    <div class="d-flex flex-column justify-start align-center" v-if="show">
+    <div class="d-flex flex-row justify-center align-center" v-if="show">
+      <GraphElementList :cluster="cluster" :selected-files="files" :sort-by-selected="true"></GraphElementList>
       <TimeSeriesDiagram :cluster="cluster" :selection="true" @filedata="setNewFiles"/>
-      <div class="d-flex flex-row flex-wrap fileInfoContainer" >
+
+      <!-- <div class="d-flex flex-row flex-wrap fileInfoContainer" >
         <div v-for="file in files" :key="file.id">
 
           <v-alert
@@ -17,7 +19,7 @@
           </v-alert>
 
         </div>
-      </div>
+      </div> -->
     </div>
     <div v-if="!show">
       <p>Your files do not all include a timestamp. The time series card is unavailable.</p>
@@ -30,8 +32,9 @@ import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
 import { Component, Vue, Prop } from "vue-property-decorator";
 import TimeSeriesDiagram from "@/components/clustering/TimeSeries.vue";
 import { File } from "@/api/api";
+import GraphElementList from "@/d3-tools/GraphElementList.vue";
 
-@Component({ components: { TimeSeriesDiagram } })
+@Component({ components: { TimeSeriesDiagram, GraphElementList } })
 export default class TimeSeriesCard extends Vue {
   @Prop() cluster!: Cluster;
   private files: File[] = [];

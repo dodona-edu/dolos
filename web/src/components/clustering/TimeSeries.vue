@@ -28,7 +28,7 @@ export default class TimeSeriesDiagram extends Vue {
   constructor() {
     super();
     this.margin = { top: 10, right: 30, bottom: 30, left: 40 };
-    this.width = 1200 - this.margin.left - this.margin.right;
+    this.width = 900 - this.margin.left - this.margin.right;
     this.height = 400 - this.margin.top - this.margin.bottom;
   }
 
