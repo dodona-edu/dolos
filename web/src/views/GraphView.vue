@@ -10,6 +10,7 @@
           :legend="legend"
           :clustering="currentCluster"
           :zoomTo="'#clustering-table'"
+          :selected-node="selectedNodeInfo"
           @selectedNodeInfo="setSelectedNodeInfo"
           @selectedClusterInfo="setClusterInfo"
         >
@@ -65,30 +66,13 @@ import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
 import GraphSelectedInfo from "@/d3-tools/GraphSelectedInfo.vue";
 import ClusteringTable from "@/components/ClusteringTable.vue";
 
-type EmptySelectedNodeInfo = {
-  path: string;
-  info: undefined;
-};
-
-type FullSelectedNodeInfo = {
-  path: string;
-  info: {
-    file: string;
-    name: string;
-    timestamp: string;
-    label: string;
-  };
-};
-
-export type SelectedNodeInfo = EmptySelectedNodeInfo | FullSelectedNodeInfo;
-
 @Component({
   components: { Graph: Graph as any, GraphLegend, GraphSelectedInfo, ClusteringTable },
 })
 export default class PlagarismGraph extends DataView {
   public showSingletons = false;
   public legend = [];
-  public selectedNodeInfo: SelectedNodeInfo = { info: undefined, path: "" };
+  public selectedNodeInfo: File | null = null;
   public selectedCluster: Cluster | null = null;
   public fileArray: File[];
   public currentCluster;
@@ -103,7 +87,7 @@ export default class PlagarismGraph extends DataView {
     this.ensureData().then(() => { this.currentCluster = this.clustering; });
   }
 
-  private setSelectedNodeInfo(v: SelectedNodeInfo): void {
+  private setSelectedNodeInfo(v: File): void {
     this.selectedNodeInfo = v;
   }
 

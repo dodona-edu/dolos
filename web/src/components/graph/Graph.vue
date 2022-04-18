@@ -26,6 +26,7 @@ export default class PlagarismGraph {
   @Prop({default: true}) polygon;
   @Prop() clustering;
   @Prop() zoomTo;
+  @Prop({ default: null }) selectedNode;
 
 
   created() {
@@ -125,7 +126,6 @@ export default class PlagarismGraph {
   data() {
     return {
       nodes: [],
-      selectedNode: -1,
       links: [],
       width: 100,
       height: 100,
@@ -298,10 +298,8 @@ export default class PlagarismGraph {
   }
 
   removeSelectedNode() {
-    if (this.selectedNode >= 0) {
-      this.svgNodes.select("circle.node.selected").classed("selected", false);
-      this.nodes[this.selectedNode].selected = false;
-      this.selectedNode = -1;
+    if (this.selectedNode !== null) {
+      this.emitSelectedNode(null);
     }
   }
 
@@ -415,6 +413,7 @@ export default class PlagarismGraph {
       .classed("source", (d) => d.source)
       .attr("r", 5)
       .attr("fill", (d) => d.fillColor)
+      .attr("id", n => `circle-${n.file.id}`)
       .call(this.drag());
 
     if(this.hullTool)
@@ -428,35 +427,24 @@ export default class PlagarismGraph {
     this.simulation.force("link").links(this.links);
   }
 
-  get selectedInfo() {
-    if (this.selectedNode >= 0) {
-      const node = this.nodes[this.selectedNode];
-      const file = node.file;
-      return {
-        path: file.path,
-        info: {
-          file: file,
-          name: file.extra.fullName || "Unavailable",
-          timestamp: file.extra.timestamp?.toLocaleString() || "Unavailable",
-          label: file.extra.labels || "Unavailable",
-        },
-      };
-    } else {
-      return {
-        path: "Nothing selected",
-        info: undefined,
-      };
-    }
-  }
-
-  @Watch("selectedNode")
-  emitInfo() {
-    this.$emit("selectedNodeInfo", this.selectedInfo);
+  emitSelectedNode(node) {
+      this.$emit("selectedNodeInfo", node);
   }
 
   @Watch("selectedCluster")
   emitCluster() {
     this.$emit("selectedClusterInfo", this.selectedCluster);
+  }
+
+  @Watch("selectedNode")
+  onSelectedNode() {
+    this.nodes.forEach(v => v.selected = false);
+    this.svg.select(".selected").classed("selected", false);
+    if(this.selectedNode) {
+
+      this.nodes.find(n => n.file.id === this.selectedNode.id).selected = true;
+      this.svgNodes.select(`#circle-${this.selectedNode.id}`).classed("selected", true);
+    }
   }
 
   mounted() {
@@ -484,13 +472,10 @@ export default class PlagarismGraph {
         event.subject.fy = null;
         if (!event.subject.justDragged) {
           // clicked
-          if (event.subject.index === this.selectedNode) {
+          if (event.subject.file && this.selectedNode && (event.subject.file.id === this.selectedNode.id)) {
             this.removeSelectedNode();
           } else {
-            this.removeSelectedNode();
-            d3.select(event.sourceEvent.target).classed("selected", true);
-            event.subject.selected = true;
-            this.selectedNode = event.subject.index;
+            this.emitSelectedNode(event.subject.file);
           }
         }
       });

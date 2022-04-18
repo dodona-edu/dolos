@@ -17,7 +17,10 @@
           <tbody>
           <tr
           v-for="element in getElements()"
-          :key="element.id">
+          :key="element.id"
+          @click="rowClick(element)"
+          v-bind:class="{ selected: selectedFiles.includes(element) }"
+          >
             <td>
               <v-tooltip top>
                 <template v-slot:activator="{ on, attrs }">
@@ -49,8 +52,8 @@ import DataView, { Legend } from "@/views/DataView";
 @Component({})
 export default class GraphElementList extends DataView {
   @Prop() cluster!: Cluster;
-  @Prop({ default: null }) hoveringFile!: File | null;
   private legend: Legend | null = null;
+  @Prop({ default: [] }) private selectedFiles!: File[];
 
   mounted(): void {
     this.legend = this.createLegend();
@@ -65,16 +68,6 @@ export default class GraphElementList extends DataView {
       );
   }
 
-  @Watch("hoveringFile")
-  hoveringFileChange(): void {
-    if (this.hoveringFile) {
-      const el = document.getElementById(`graph-element-list-${this.hoveringFile.id}`);
-      if (el) {
-        el.scrollIntoView({ block: "nearest", inline: "nearest" });
-      }
-    }
-  }
-
   formatTime(time: Date): string {
     return DateTime.fromJSDate(time).toLocaleString();
   }
@@ -83,6 +76,10 @@ export default class GraphElementList extends DataView {
     if (!this.legend || !file.extra.labels || !this.legend[file.extra.labels]) { return ""; }
 
     return this.legend[file.extra.labels].color;
+  }
+
+  rowClick(file: File): void {
+    this.$emit("select-file", file);
   }
 }
 </script>
@@ -113,5 +110,9 @@ export default class GraphElementList extends DataView {
   height: 7px;
   display: block;
   border-radius: 50%;
+}
+
+.selected {
+  background-color: #f0f0f0;
 }
 </style>

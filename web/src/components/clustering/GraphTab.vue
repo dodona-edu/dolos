@@ -7,12 +7,14 @@
       :legend="legend"
       :polygon="false"
       :clustering="clustering"
+      :selected-node="selectionManager.currentSelections()[0]"
       @selectedNodeInfo="setSelectedNodeInfo"
     >
     <GraphLegend :current-files="clusterFiles" @legend="l => legend = l"></GraphLegend>
     <GraphElementList :cluster="cluster"
-                      :hovering-file="(selectedNode && selectedNode.info) ?
-              selectedNode.info.file : null"></GraphElementList>
+                      :selected-files="selectedFiles"
+                      @select-file="setSelectedNodeInfo"
+    ></GraphElementList>
     </Graph>
   </div>
 </template>
@@ -27,7 +29,7 @@ import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
 import { getClusterElementsArray } from "@/util/clustering-algorithms/ClusterFunctions";
 import { Pair, File } from "@/api/api";
 import GraphElementList from "@/d3-tools/GraphElementList.vue";
-import { SelectedNodeInfo } from "@/views/GraphView.vue";
+import { SelectionManager } from "@/util/FileSelectionManager";
 
 @Component({
   components: { GraphElementList, Graph: Graph as any, GraphLegend },
@@ -38,13 +40,18 @@ export default class GraphTab extends DataView {
   clusterFiles: File[] = [];
   clusterPairs: Pair[] = [];
 
-  selectedNode: SelectedNodeInfo | null = null;
+  private selectionManager = new SelectionManager(1);
+  selectedFiles: File[] = [];
 
   legend = [];
 
   mounted(): void {
     this.ensureData();
     this.updateClusterValues();
+
+    this.selectionManager = new SelectionManager(1, v => {
+      this.selectedFiles = v;
+    });
   }
 
   @Watch("cluster")
@@ -58,9 +65,8 @@ export default class GraphTab extends DataView {
     }
   }
 
-  setSelectedNodeInfo(s: SelectedNodeInfo): void {
-    console.log(s);
-    this.selectedNode = s;
+  setSelectedNodeInfo(s: File): void {
+    this.selectionManager.select(s);
   }
 }
 </script>

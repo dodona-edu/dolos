@@ -1,14 +1,14 @@
 <template>
 <div class="selected-info">
-  <div v-if="selectedNodeInfo.info && !selectedCluster">
+  <div v-if="selectedNodeInfo && !selectedCluster">
     <v-card elevation="2" outlined>
       <v-card-title>
         Selected node
       </v-card-title>
 
       <v-card-text>
-        The author of this submission is <b>{{selectedNodeInfo.info.name || "unknown"}}</b>, belonging to group
-        <b>{{selectedNodeInfo.info.label}}</b>. The last hand-in date was <b>{{selectedNodeInfo.info.timestamp}}</b>.
+        The author of this submission is <b>{{selectedNodeInfo.extra.fullName || "unknown"}}</b>, belonging to group
+        <b>{{selectedNodeInfo.extra.labels}}</b>. The last hand-in date was <b>{{selectedNodeInfo.extra.timestamp}}</b>.
       </v-card-text>
     </v-card>
   </div>
@@ -42,12 +42,12 @@
 <script lang="ts">
 import { Component, Prop, Vue } from "vue-property-decorator";
 import { Cluster, Clustering } from "@/util/clustering-algorithms/ClusterTypes";
-import { SelectedNodeInfo } from "@/views/GraphView.vue";
 import { getAverageClusterSimilarity, getClusterElements } from "@/util/clustering-algorithms/ClusterFunctions";
+import { File } from "@/api/api";
 
 @Component({})
 export default class GraphSelectedInfo extends Vue {
-  @Prop() selectedNodeInfo!: SelectedNodeInfo;
+  @Prop() selectedNodeInfo!: File;
   @Prop() selectedCluster! : Cluster | null;
   @Prop() currentClustering!: Clustering;
 
