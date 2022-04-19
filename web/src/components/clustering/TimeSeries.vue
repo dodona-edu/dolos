@@ -4,7 +4,7 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import { File } from "@/api/api";
 import * as d3 from "d3";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
@@ -19,6 +19,7 @@ interface TimeDataType extends xCoord { file: File, y?: number }
 export default class TimeSeriesDiagram extends Vue {
   @Prop() cluster!: Cluster;
   @Prop({ default: false }) selection!: boolean;
+  @Prop({ default: [] }) selectedFiles!: File[];
 
   private readonly margin: { left: number; right: number; top: number; bottom: number };
   private readonly width: number;
@@ -83,7 +84,7 @@ export default class TimeSeriesDiagram extends Vue {
       .data(data)
       .enter()
       .append("circle")
-      .attr("r", 5)
+      .attr("r", 6.5)
       .attr("cx", d => xScale(d.file.extra.timestamp!))
       .attr("cy", this.height / 2)
       .attr("fill", d => this.getColor((d.file)))
@@ -129,6 +130,14 @@ export default class TimeSeriesDiagram extends Vue {
         (d: TimeDataType[]) => this.$emit("filedata", d.map(f => f.file)),
       );
     }
+  }
+
+  @Watch("selectedFiles")
+  private updateSelectedFiles(): void {
+    d3.select(`#${this.getSvgId()}`).selectAll<any, TimeDataType>("circle").style("stroke",
+      d => {
+        return d.file && this.selectedFiles.map(f => f.id).includes(d.file.id) ? "red" : "";
+      });
   }
 
   private _svgId: string | null = null;

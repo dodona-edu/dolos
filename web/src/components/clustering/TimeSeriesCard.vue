@@ -1,8 +1,10 @@
 <template>
   <div>
     <div class="d-flex flex-row justify-center align-center" v-if="show">
-      <GraphElementList :cluster="cluster" :selected-files="files" :sort-by-selected="true"></GraphElementList>
-      <TimeSeriesDiagram :cluster="cluster" :selection="true" @filedata="setNewFiles"/>
+      <GraphElementList :cluster="cluster" :selected-files="files" :scroll="true" @select-file="selectFile">
+
+      </GraphElementList>
+      <TimeSeriesDiagram :cluster="cluster" :selection="true" @filedata="setNewFiles" :selected-files="files"/>
 
       <!-- <div class="d-flex flex-row flex-wrap fileInfoContainer" >
         <div v-for="file in files" :key="file.id">
@@ -44,6 +46,14 @@ export default class TimeSeriesCard extends Vue {
     this.show = files.every(f => f.extra.timestamp);
     if (!this.show) { return; }
     this.files = files.sort((a, b) => a.extra.timestamp!.valueOf() - b.extra.timestamp!.valueOf());
+  }
+
+  selectFile(file: File): void {
+    if (this.files.includes(file)) {
+      this.files = this.files.filter(f => f.id !== file.id);
+    } else {
+      this.files = [...this.files, file];
+    }
   }
 }
 </script>

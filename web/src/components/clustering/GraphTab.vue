@@ -14,6 +14,7 @@
     <GraphElementList :cluster="cluster"
                       :selected-files="selectedFiles"
                       @select-file="setSelectedNodeInfo"
+                      :scroll="true"
     ></GraphElementList>
     </Graph>
   </div>

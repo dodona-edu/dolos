@@ -18,6 +18,7 @@
           <tr
           v-for="element in getElements()"
           :key="element.id"
+          :id="`element-${element.id}`"
           @click="rowClick(element)"
           v-bind:class="{ selected: selectedFiles.includes(element) }"
           >
@@ -56,6 +57,7 @@ export default class GraphElementList extends DataView {
   private legend: Legend | null = null;
   @Prop({ default: () => [] }) private selectedFiles!: File[];
   @Prop({ default: false }) private sortBySelected!: boolean;
+  @Prop({ default: false }) private scroll!: boolean;
 
   mounted(): void {
     this.legend = this.createLegend();
@@ -86,6 +88,14 @@ export default class GraphElementList extends DataView {
   rowClick(file: File): void {
     this.$emit("select-file", file);
   }
+
+  @Watch("selectedFiles")
+  scrollToSelected(): void {
+    if (this.selectedFiles.length > 0 && this.scroll) {
+      const element = this.selectedFiles[0];
+      this.$vuetify.goTo(`#element-${element.id}`, { container: ".graph-element-list" });
+    }
+  }
 }
 </script>
 <style scoped lang="scss">
@@ -93,6 +103,7 @@ export default class GraphElementList extends DataView {
   max-width: 500px;
   max-height: 350px;
   overflow: auto;
+  z-index: 5;
 }
 
 .active {
@@ -108,8 +119,8 @@ export default class GraphElementList extends DataView {
 
 .tiny-color {
   background-color: grey;
-  width: 7px;
-  height: 7px;
+  width: 10px;
+  height: 10px;
   display: block;
   border-radius: 50%;
 }

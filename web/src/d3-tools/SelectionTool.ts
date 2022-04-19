@@ -68,6 +68,7 @@ export class SelectionTool<T extends xCoord> {
         this.svg.select(".selectionSquare").attr("visibility", "hidden");
         this.svg.select(".selectionLine2").attr("visibility", "hidden");
         this.onMouseMove(o);
+        this.selectionListener([]);
       }
     });
 
@@ -93,7 +94,7 @@ export class SelectionTool<T extends xCoord> {
       .attr("x2", xCoord)
       .attr("y2", this.size().height)
       .attr("visibility", "visible");
-    this.selectionListener(this.getSelectionData(xCoord - this.selectionMargin, xCoord + this.selectionMargin));
+    // this.selectionListener(this.getSelectionData(xCoord - this.selectionMargin, xCoord + this.selectionMargin));
   }
 
   private onDrag(o: Event): void {
