@@ -36,7 +36,6 @@
               <v-list-item-title>Plagiarism graph</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
-<<<<<<< HEAD
           <v-list-item @click="toSummary" link>
             <v-list-item-icon>
               <v-icon>
@@ -45,8 +44,6 @@
             </v-list-item-icon>
             <v-list-item-content>File Analysis</v-list-item-content>
           </v-list-item>
-=======
-
           <v-list-item @click="toClusterView" link>
             <v-list-item-icon>
               <v-icon>mdi-arrow-top-right-bottom-left</v-icon>
@@ -55,8 +52,6 @@
               <v-list-item-title>Cluster list</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
-
->>>>>>> 4298060 (Adding clustering list & algorithm)
         </v-list>
       </v-navigation-drawer>
 
