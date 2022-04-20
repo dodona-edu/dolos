@@ -134,10 +134,11 @@ export default class TimeSeriesDiagram extends Vue {
 
   @Watch("selectedFiles")
   private updateSelectedFiles(): void {
-    d3.select(`#${this.getSvgId()}`).selectAll<any, TimeDataType>("circle").style("stroke",
-      d => {
-        return d.file && this.selectedFiles.map(f => f.id).includes(d.file.id) ? "red" : "";
-      });
+    d3.select(`#${this.getSvgId()}`).selectAll<any, TimeDataType>("circle")
+      .style("stroke",
+        d => d.file && this.selectedFiles.map(f => f.id).includes(d.file.id) ? "red" : "")
+      .attr("r", d => d.file && this.selectedFiles.map(f => f.id).includes(d.file.id) ? 8.5 : 6.5)
+    ;
   }
 
   private _svgId: string | null = null;
