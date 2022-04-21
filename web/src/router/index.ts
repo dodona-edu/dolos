@@ -52,12 +52,20 @@ const routes: Array<RouteConfig> = [
     component: () => import(/* webpackChunkName: "graph" */ "../views/Cluster.vue")
   },
   {
-    path: "/summary/",
-    name: "Summary",
+    path: "/fileanalysis/",
+    name: "File Analysis",
     // route level code-splitting
     // this generates a separate chunk (compare.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "graph" */ "../views/Summary.vue")
+    component: () => import(/* webpackChunkName: "graph" */ "../views/FileAnalysis.vue")
+  },
+  {
+    path: "/",
+    name: "Overview",
+    // route level code-splitting
+    // this generates a separate chunk (compare.[hash].js) for this route
+    // which is lazy-loaded when the route is visited.
+    component: () => import(/* webpackChunkName: "graph" */ "../views/Overview.vue")
   }
 ];
 

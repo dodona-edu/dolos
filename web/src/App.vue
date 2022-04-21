@@ -45,7 +45,7 @@
               mdi-clipboard-text-outline
               </v-icon>
             </v-list-item-icon>
-            <v-list-item-content>Summary</v-list-item-content>
+            <v-list-item-content>File Analysis</v-list-item-content>
           </v-list-item>
 >>>>>>> ad7a17f (adding link to factoids)
         </v-list>
@@ -89,7 +89,7 @@ export default class App extends Vue {
   }
 
   toSummary(): void {
-    this.navigateTo("/summary/");
+    this.navigateTo("/fileanalysis/");
   }
 }
 </script>
