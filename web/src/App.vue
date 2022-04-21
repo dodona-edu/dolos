@@ -42,7 +42,7 @@
               mdi-clipboard-text-outline
               </v-icon>
             </v-list-item-icon>
-            <v-list-item-content>Summary</v-list-item-content>
+            <v-list-item-content>File Analysis</v-list-item-content>
           </v-list-item>
         </v-list>
       </v-navigation-drawer>
@@ -81,7 +81,7 @@ export default class App extends Vue {
   }
 
   toSummary(): void {
-    this.navigateTo("/summary/");
+    this.navigateTo("/fileanalysis/");
   }
 }
 </script>

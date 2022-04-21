@@ -15,7 +15,7 @@ import HistogramCard from "@/components/summary/HistogramCard.vue";
 @Component({
   components: { SummaryCard, SummaryList, HistogramCard }
 })
-export default class Summary extends DataView {
+export default class FileAnalysis extends DataView {
 
 }
 </script>
