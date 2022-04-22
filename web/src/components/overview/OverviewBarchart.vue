@@ -24,7 +24,7 @@ export default class OverviewBarchart extends DataView {
 
   constructor() {
     super();
-    this.margin = { top: 10, right: 40, bottom: 30, left: 50 };
+    this.margin = { top: 10, right: 60, bottom: 50, left: 50 };
     this.width = (document.getElementById(this.getSvgId())?.clientWidth || 750) - this.margin.left - this.margin.right;
     this.height = (document.getElementById(this.getSvgId())?.clientHeight || 400) -
       this.margin.top - this.margin.bottom;
@@ -97,14 +97,26 @@ export default class OverviewBarchart extends DataView {
         "translate(" + this.margin.left + "," + this.margin.top + ")"
       );
 
-    g
+    const bottomAxis = g
       .append("g")
       .attr("transform", "translate(0," + this.height + ")")
       .call(d3.axisBottom(yScale));
 
-    g.append("g")
+    bottomAxis.append("text")
+      .text("Amount of pairs")
+      .attr("font-size", 15)
+      .attr("fill", "black")
+      .attr("transform", `translate(${this.width / 2}, 35)`);
+
+    const rightAxis = g.append("g")
       .attr("transform", `translate(${this.width}, 0)`)
       .call(d3.axisRight(xScale));
+
+    rightAxis.append("text")
+      .text("Similarity")
+      .attr("font-size", 15)
+      .attr("fill", "black")
+      .attr("transform", `translate(42, ${this.height / 2 + 35}) rotate(-90)`);
 
     const h = this.width;
     g

@@ -36,9 +36,6 @@
               <v-list-item-title>Plagiarism graph</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
-<<<<<<< HEAD
-
-=======
           <v-list-item @click="toSummary" link>
             <v-list-item-icon>
               <v-icon>
@@ -47,7 +44,6 @@
             </v-list-item-icon>
             <v-list-item-content>File Analysis</v-list-item-content>
           </v-list-item>
->>>>>>> ad7a17f (adding link to factoids)
         </v-list>
       </v-navigation-drawer>
 

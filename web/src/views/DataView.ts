@@ -51,7 +51,7 @@ export default abstract class DataView extends Vue {
     const colorScale = d3
       .scaleOrdinal(d3.schemeCategory10.filter(c => c !== "#7f7f7f"))
       .domain([...labels].reverse());
-    const legend = [...labels].sort().map((p) => ({
+    const legend = [...labels].sort().map(p => ({
       label: p,
       selected: true,
       color: colorScale(p),
