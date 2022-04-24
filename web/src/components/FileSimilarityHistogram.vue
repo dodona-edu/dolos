@@ -131,7 +131,8 @@ export default class FileSimilarityHistogram extends DataView {
   getOtherFileName(pair: Pair): string {
     const otherFile = this.file.id === pair.leftFile.id ? pair.rightFile : pair.leftFile;
 
-    return otherFile.extra?.full_name || otherFile.path.split("/").splice(-2).join("/");
+    return otherFile.extra?.fullName
+      || otherFile.path.split("/").splice(-2).join("/");
   }
 }
 </script>
