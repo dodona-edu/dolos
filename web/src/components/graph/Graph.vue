@@ -9,12 +9,7 @@
 <script>
 /* eslint-disable */
 
-<<<<<<<< HEAD:web/src/components/graph/Graph.vue
 import {Component, Prop, Watch} from "vue-property-decorator";
-========
-import { Component, Watch, Prop } from "vue-property-decorator";
-import DataView from "@/views/DataView";
->>>>>>>> 05cfdeb (Refactoring the Graph.vue component to be more abstract, which should enable reuse on the cluster screen):web/src/components/Graph.vue
 import * as d3 from "d3";
 import {ConvexHullTool} from "@/d3-tools/ConvexHullTool";
 import {getClusterElements, getClusterIntersect} from "@/util/clustering-algorithms/ClusterFunctions";
@@ -27,15 +22,12 @@ export default class PlagarismGraph {
   @Prop() pairs;
   @Prop() cutoff;
   @Prop() showSingletons;
-<<<<<<<< HEAD:web/src/components/graph/Graph.vue
   @Prop({default: {}}) legend;
   @Prop({default: true}) polygon;
   @Prop() clustering;
   @Prop() zoomTo;
   @Prop({ default: null }) selectedNode;
 
-========
->>>>>>>> 05cfdeb (Refactoring the Graph.vue component to be more abstract, which should enable reuse on the cluster screen):web/src/components/Graph.vue
 
   created() {
     this.updateRoute();
@@ -43,11 +35,7 @@ export default class PlagarismGraph {
     svg.on("mousedown.s", () => {this.selectCluster(null, null); this.removeSelectedNode();})
 
     const container = svg.append("g");
-<<<<<<<< HEAD:web/src/components/graph/Graph.vue
     this.zoom = d3.zoom().on("zoom", (event) => {
-========
-    d3.zoom().on("zoom", (event) => {
->>>>>>>> 05cfdeb (Refactoring the Graph.vue component to be more abstract, which should enable reuse on the cluster screen):web/src/components/Graph.vue
       container.attr("transform", event.transform);
     });
     //svg.call(this.zoom);
@@ -121,7 +109,7 @@ export default class PlagarismGraph {
           this.hullTool.addConvexHullFromNodes(
             this.nodes.filter(n => elements.has(n.file)),
             color,
-              cluster);
+            cluster);
         }
       }
 
@@ -141,7 +129,6 @@ export default class PlagarismGraph {
       links: [],
       width: 100,
       height: 100,
-<<<<<<<< HEAD:web/src/components/graph/Graph.vue
       selectedCluster: undefined,
     };
   }
@@ -171,11 +158,6 @@ export default class PlagarismGraph {
       this.zoom.translateTo(this.svg, cx , cy )
     }
   }
-========
-      legend: [],
-    };
-  }
->>>>>>>> 05cfdeb (Refactoring the Graph.vue component to be more abstract, which should enable reuse on the cluster screen):web/src/components/Graph.vue
 
   @Watch("$route")
   updateRoute() {
@@ -183,13 +165,9 @@ export default class PlagarismGraph {
     if (this.resizeHandler) this.resizeHandler();
   }
 
-<<<<<<<< HEAD:web/src/components/graph/Graph.vue
   @Watch("$refs.container")
   updateSize() {
     this.resizeHandler();
-========
-    if (this.resizeHandler) this.resizeHandler();
->>>>>>>> 05cfdeb (Refactoring the Graph.vue component to be more abstract, which should enable reuse on the cluster screen):web/src/components/Graph.vue
   }
 
   @Watch("width")
@@ -272,11 +250,7 @@ export default class PlagarismGraph {
           }
         }
       });
-<<<<<<<< HEAD:web/src/components/graph/Graph.vue
 
-========
-      this.removeSelectedNode();
->>>>>>>> 05cfdeb (Refactoring the Graph.vue component to be more abstract, which should enable reuse on the cluster screen):web/src/components/Graph.vue
       this.nodes = Object.values(nodeMap).filter((n) => n.visible);
       if (!this.showSingletons) {
         this.nodes = this.nodes.filter((n) => n.neighbors.length);
@@ -293,7 +267,6 @@ export default class PlagarismGraph {
           }
         });
         node.source = outgoing > 1 && incoming === 0;
-<<<<<<<< HEAD:web/src/components/graph/Graph.vue
 
 
         const getDefaultNodeColor = (n) =>  !labels[n.label] ? d3.schemeCategory10[0]:labels[n.label].color
@@ -310,12 +283,6 @@ export default class PlagarismGraph {
 
       if(this.hullTool)
         this.hullTool.clear();
-========
-        node.fillColor = this.queryColorMap?.has(+node.id)
-          ? this.queryColorMap.get(+node.id)
-          : labels[node.label].color;
-      });
->>>>>>>> 05cfdeb (Refactoring the Graph.vue component to be more abstract, which should enable reuse on the cluster screen):web/src/components/Graph.vue
     }, 50);
   }
 
@@ -383,11 +350,7 @@ export default class PlagarismGraph {
 
   getRawNodeMap() {
     if (this._nodeMap) return this._nodeMap;
-<<<<<<<< HEAD:web/src/components/graph/Graph.vue
     if (Object.entries(this.files).length === 0) return {};
-========
-    if (Object.entries(this.files).length == 0) return {};
->>>>>>>> 05cfdeb (Refactoring the Graph.vue component to be more abstract, which should enable reuse on the cluster screen):web/src/components/Graph.vue
 
     const nodeMap = {};
     let labels = new Set();
@@ -440,7 +403,7 @@ export default class PlagarismGraph {
       .classed("link", true)
       .classed("directed", (d) => d.directed)
       .attr("stroke-width", (d) => d.linkWidth)
-      ;
+    ;
 
     this.svgNode = this.svgNodes
       .selectAll("circle")
@@ -464,9 +427,8 @@ export default class PlagarismGraph {
     this.simulation.force("link").links(this.links);
   }
 
-<<<<<<<< HEAD:web/src/components/graph/Graph.vue
   emitSelectedNode(node) {
-      this.$emit("selectedNodeInfo", node);
+    this.$emit("selectedNodeInfo", node);
   }
 
   @Watch("selectedCluster")
@@ -487,36 +449,6 @@ export default class PlagarismGraph {
 
   mounted() {
     this.$refs.container.prepend(this.svg.node());
-========
-  get selectedInfo() {
-    if (this.selectedNode >= 0) {
-      const node = this.nodes[this.selectedNode];
-      const file = node.file;
-      return {
-        path: file.path,
-        info: {
-          file: file.path,
-          name: file.extra.full_name || "Unavailable",
-          timestamp: file.extra.timestamp?.toLocaleString() || "Unavailable",
-          label: file.extra.labels || "Unavailable",
-        },
-      };
-    } else {
-      return {
-        path: "Nothing selected",
-        info: undefined,
-      };
-    }
-  }
-
-  @Watch("selectedNode")
-  emitInfo() {
-    this.$emit("selectedInfo", this.selectedInfo);
-  }
-
-  mounted() {
-    this.$refs.container.appendChild(this.svg.node());
->>>>>>>> 05cfdeb (Refactoring the Graph.vue component to be more abstract, which should enable reuse on the cluster screen):web/src/components/Graph.vue
     this.resizeHandler();
   }
 

@@ -57,7 +57,7 @@
           </v-card-title>
         <div>
           <label>
-            <span class="label-text">Similarity ≥ {{ cutoff }}<br /></span>
+            <span class="label-text">Similarity ≥ {{ cutoff.toFixed(2) }}<br /></span>
 
             <input
               type="range"
