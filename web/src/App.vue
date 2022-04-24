@@ -22,6 +22,15 @@
         <v-list nav>
           <v-list-item @click="toHomeScreen" link>
             <v-list-item-icon>
+              <v-icon>mdi-home</v-icon>
+            </v-list-item-icon>
+            <v-list-item-content>
+              <v-list-item-title>Home</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+
+          <v-list-item @click="toPairScreen" link>
+            <v-list-item-icon>
               <v-icon>mdi-format-list-bulleted-square</v-icon>
             </v-list-item-icon>
             <v-list-item-content>
@@ -74,6 +83,10 @@ export default class App extends Vue {
 
   toHomeScreen(): void {
     this.navigateTo("/");
+  }
+
+  toPairScreen(): void {
+    this.navigateTo("/pairs/");
   }
 
   toGraphView(): void {
