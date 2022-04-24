@@ -50,7 +50,7 @@ export default class PlagarismGraph {
 >>>>>>>> 05cfdeb (Refactoring the Graph.vue component to be more abstract, which should enable reuse on the cluster screen):web/src/components/Graph.vue
       container.attr("transform", event.transform);
     });
-    svg.call(this.zoom);
+    //svg.call(this.zoom);
 
     if(this.zoomTo)
       this.drawChevron(svg);

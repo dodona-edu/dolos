@@ -3,9 +3,9 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop } from "vue-property-decorator";
+import { Component, Prop, Watch } from "vue-property-decorator";
 import DataView from "@/views/DataView";
-import { File, Pair } from "@/api/api";
+import { File } from "@/api/api";
 import * as d3 from "d3";
 import { FileInterestingnessCalculator, FileScoring } from "@/util/FileInterestingness";
 import { TooltipTool } from "@/d3-tools/TooltipTool";
@@ -22,9 +22,11 @@ export default class OverviewBarchart extends DataView {
   private width: number;
   private height: number;
 
+  private xScale?: any;
+
   constructor() {
     super();
-    this.margin = { top: 10, right: 60, bottom: 50, left: 50 };
+    this.margin = { top: 10, right: 40, bottom: 50, left: 70 };
     this.width = (document.getElementById(this.getSvgId())?.clientWidth || 750) - this.margin.left - this.margin.right;
     this.height = (document.getElementById(this.getSvgId())?.clientHeight || 400) -
       this.margin.top - this.margin.bottom;
@@ -43,6 +45,7 @@ export default class OverviewBarchart extends DataView {
     await this.ensureData();
     this.maxFileData = this.getMaxFileData();
     const xScale = this.getXScale();
+    this.xScale = xScale;
     const domain = xScale.domain();
     const ticks = xScale.ticks(this.numberOfTicks);
     const adjustedTicks = ticks[ticks.length - 1] === domain[1] ? ticks.slice(0, -1) : ticks;
@@ -109,14 +112,14 @@ export default class OverviewBarchart extends DataView {
       .attr("transform", `translate(${this.width / 2}, 35)`);
 
     const rightAxis = g.append("g")
-      .attr("transform", `translate(${this.width}, 0)`)
-      .call(d3.axisRight(xScale));
+      .attr("transform", "translate(0, 0)")
+      .call(d3.axisLeft(xScale));
 
     rightAxis.append("text")
       .text("Similarity")
       .attr("font-size", 15)
       .attr("fill", "black")
-      .attr("transform", `translate(42, ${this.height / 2 + 35}) rotate(-90)`);
+      .attr("transform", `translate(-50, ${this.height / 2 + 35}) rotate(90)`);
 
     const h = this.width;
     g
@@ -126,7 +129,7 @@ export default class OverviewBarchart extends DataView {
       .append("rect")
       .attr("x", 0)
       .attr("transform", function (d) {
-        return "translate(" + yScale(d.length) + "," + xScale(d.x0 || 0) + ")";
+        return "translate(" + 0 + "," + xScale(d.x0 || 0) + ")";
       })
       .attr("height", function (d) {
         return xScale(d.x1 || 0) - xScale(d.x0 || 0) - 1;
@@ -139,10 +142,11 @@ export default class OverviewBarchart extends DataView {
     if (this.extraLine !== undefined) {
       g
         .append("line")
-        .attr("x1", xScale(this.extraLine))
-        .attr("y1", 0)
-        .attr("x2", xScale(this.extraLine))
-        .attr("y2", this.height)
+        .attr("class", "extra-line")
+        .attr("x1", 0)
+        .attr("y1", xScale(this.extraLine))
+        .attr("x2", this.width)
+        .attr("y2", xScale(this.extraLine))
         .attr("stroke", "black");
     }
 
@@ -172,6 +176,15 @@ export default class OverviewBarchart extends DataView {
     return 0;
   }
 
+  @Watch("extraLine")
+  updateExtraline(): void {
+    if (this.xScale) {
+      d3.select(`#${this.getSvgId()}`).select("svg").select(".extra-line")
+        .attr("y1", this.xScale(this.extraLine))
+        .attr("y2", this.xScale(this.extraLine));
+    }
+  }
+
   private _svgId: string | null = null;
   getSvgId(): string {
     if (!this._svgId) {
@@ -182,17 +195,7 @@ export default class OverviewBarchart extends DataView {
   }
 
   getBinColor(d: d3.Bin<number, number>): string {
-    const defaultColor = "#1976D2";
-    const warningColor = "red";
-
-    if (
-      this.extraLine !== undefined &&
-      (d.x0 || 0) < this.extraLine &&
-      (d.x1 || 0) >= this.extraLine
-    ) {
-      return warningColor;
-    }
-    return defaultColor;
+    return "#1976D2";
   }
 
   private addTooltipTool(

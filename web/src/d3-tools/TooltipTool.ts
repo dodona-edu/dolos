@@ -36,6 +36,6 @@ export class TooltipTool<T> {
   }
 
   mouseOut(): void {
-    this.div.style("opacity", 0);
+    this.div.style("opacity", 0).style("left", 0).style("top", 0);
   }
 }
