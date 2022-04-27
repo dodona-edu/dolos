@@ -117,12 +117,7 @@
     <div>
       <v-card>
         <div class="d-flex flex-no-wrap justify-start">
-          <v-avatar
-            size="270"
-            tile
-          >
-            <v-img src="https://dolos.ugent.be/images/soco-java-graph.png"></v-img>
-          </v-avatar>
+            <v-img contain max-width="270" src="../assets/file-comparison.png"></v-img>
           <div>
             <v-card-title>
               File Analysis
