@@ -70,6 +70,7 @@ import { FileScoring, getLargestFieldOfScore } from "@/util/FileInterestingness"
 @Component({ components: { FileSimilarityHistogram, FileCardScore, PairStatHistogram } })
 export default class FileCard extends DataView {
   @Prop() file!: FileScoring;
+  @Prop() selectedValue!: number | null;
   tab = "";
 
   created(): void {
@@ -108,6 +109,13 @@ export default class FileCard extends DataView {
     const largestField = getLargestFieldOfScore(this.file);
 
     this.tab = `tab-${tabOrder.indexOf(largestField)}`;
+  }
+
+  @Watch("selectedValue")
+  setThisTab(): void {
+    if (this.selectedValue === null) { return this.setBestTab(); }
+
+    this.tab = `tab-${this.selectedValue}`;
   }
 }
 </script>

@@ -2,29 +2,21 @@
   <div class="d-flex justify-center" :set="similarityPair = getHighestSimilarityPair()">
     <v-card class="center-card" :set="highestOverlapPair = getHighestOverlapPair()">
       <v-card-text class="center-card-element title">
-        <h1>DOLOS</h1>
-        <span>Source code plagiarism detection</span>
-        <p>We analyzed {{ getNumberOfFiles() }} files for plagiarism.</p>
-        <p  >
-          The <a :href="`#/compare/${(similarityPair || {}).id}`">highest similarity we found</a> is
-          {{ (similarityOfPair(similarityPair).toFixed(2) * 100 ) }}% and
-          <a :href="`#/compare/${(highestOverlapPair || {}).id}`">the longest common
-          part</a> is {{ highestOverlapOfPair(highestOverlapPair) }} tokens long.
-        </p>
-        <small>
-          You can find more details on these files in the list below, or you can
-          explore the pair list and investigate the graph view.
-        </small>
+        <h1>File analysis</h1>
+        <div>
+          <p class="text">
+            This page lists the most relevant pairs of files in your dataset. This is useful in particular when you
+            are looking for any plagiarism that may exist. </p><p class="text">
+
+            By default, a mix of different metrics is suggested. You can change the metrics of interest by selecting
+            a specific metric from the dropdown box.
+
+            </p><p class="text">
+          If you found a pair that looks interesting metric-wise, you can use the compare view to examine the files
+          in more detail.
+          </p>
+        </div>
       </v-card-text>
-      <v-card-actions class="d-flex justify-space-around flex-wrap halfspan">
-        <router-link to="/"
-          ><v-btn color="success"> Pair View </v-btn></router-link
-        >
-        <router-link to="/graph"
-          ><v-btn color="success"> Graph View </v-btn></router-link
-        >
-        <v-btn color="success"> Cluster View </v-btn>
-      </v-card-actions>
     </v-card>
   </div>
 </template>
@@ -95,12 +87,14 @@ export default class SummaryCard extends DataView {
   margin-bottom: 20px;
 }
 
-.halfspan {
-  width: 60%;
-  min-width: 192px;
+.text {
+  color: black;
+  font-size: 16px;
+  line-height: 24px;
+  font-family: "Roboto", sans-serif;
 }
 
 .title h1 {
-  margin-bottom: 0.6rem;
+  margin-bottom: 2rem;
 }
 </style>
