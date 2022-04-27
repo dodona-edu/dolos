@@ -1,7 +1,7 @@
 <template>
   <div>
     <SummaryCard/>
-    <HistogramCard/>
+    <!--<HistogramCard/> -->
     <SummaryList />
   </div>
 </template>
