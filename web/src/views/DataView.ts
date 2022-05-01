@@ -34,7 +34,7 @@ export default abstract class DataView extends Vue {
   }
 
   set cutoff(value:number) {
-    this.$store.commit("updateCutoff", value);
+    this.$store.commit("updateCutoff", +value);
   }
 
   get clustering(): Clustering {
