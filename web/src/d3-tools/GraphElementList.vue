@@ -101,7 +101,7 @@ export default class GraphElementList extends DataView {
 <style scoped lang="scss">
 .graph-element-list {
   max-width: 500px;
-  max-height: 350px;
+  max-height: 100%;
   overflow: auto;
   z-index: 5;
 }

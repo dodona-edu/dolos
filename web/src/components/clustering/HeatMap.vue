@@ -15,9 +15,14 @@
         <span>Longest fragment: {{ hoveredPair.longestFragment }}</span>
         <span>Common overlap: {{ hoveredPair.totalOverlap }}</span>
       </v-alert>
-      <div class="d-flex flex-row justify-center">
-      <div :id="svgId" class="svg-container"></div>
-      <div :id="`${svgId}-legend`"></div>
+      <div class="d-flex flex-row justify-space-around fullwidth">
+        <div class="gel-list">
+          <GraphElementList :selected-files="selectedFiles"  :cluster="cluster"></GraphElementList>
+        </div>
+        <div class="d-flex">
+        <div :id="svgId" class="svg-container"></div>
+        <div :id="`${svgId}-legend`"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -34,8 +39,10 @@ import { getClusterElementsArray, getClusterElementsSorted } from "@/util/cluste
 import { pairsAsNestedMap } from "@/util/PairAsNestedMap";
 
 import { File, Pair } from "@/api/api";
-
-@Component
+import GraphElementList from "@/d3-tools/GraphElementList.vue";
+@Component({
+  components: { GraphElementList }
+})
 export default class HeatMap extends DataView {
   @Prop() cluster!: Cluster;
 
@@ -53,6 +60,8 @@ export default class HeatMap extends DataView {
   private pairMap: Map<number, Map<number, Pair>> | null = null;
 
   private scale = 1.2;
+
+  private selectedFiles: File[] = [];
 
   async mounted(): Promise<void> {
     await this.ensureData();
@@ -76,7 +85,7 @@ export default class HeatMap extends DataView {
   private initializeSvg(): void {
     const [width, height] = this.dimensions;
     const topBottomMargin = 100;
-    const leftMargin = 250;
+    const leftMargin = 125;
     const rightMargin = 30;
 
     this.svg = d3
@@ -280,6 +289,9 @@ export default class HeatMap extends DataView {
       .raise();
 
     const pair = this.getPair(first, second);
+    if (pair) {
+      this.selectedFiles = [pair.leftFile, pair.rightFile];
+    }
     this.hoveredPair = pair;
   }
 
@@ -291,6 +303,7 @@ export default class HeatMap extends DataView {
     }
 
     this.hoveredPair = null;
+    this.selectedFiles = [];
 
     d3.select<any, [File, File]>(event?.currentTarget as any)
       .attr("width", xBand.bandwidth())
@@ -311,13 +324,22 @@ div {
   display: flex;
   flex-direction: row;
   justify-content: center;
-  min-width: 650px;
+  min-width: 400px;
 }
 
 .extra-info-container {
-  min-width: 600px;
+  min-width: 400px;
   width: 60%;
   color: white;
+}
+
+.gel-list {
+  min-width: 400px;
+  max-height: 80%;
+}
+
+.fullwidth {
+  width: 100%;
 }
 </style>
 
