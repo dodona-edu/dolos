@@ -47,7 +47,7 @@ export async function serve(reportDir: string, options: ServeOptions): Promise<v
 
   tryCatch(options.verbose, async () => {
     try {
-      for (const file of ["files.csv", "kgrams.csv", "metadata.csv", "pairs.csv", "fragments"]) {
+      for (const file of ["files.csv", "kgrams.csv", "metadata.csv", "pairs.csv"]) {
         await fs.access(path.join(reportDir, file), constants.R_OK);
       }
     } catch (e) {
