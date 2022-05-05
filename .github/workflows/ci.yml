@@ -10,7 +10,7 @@ jobs:
         node: ["12", "14", "16"]
       fail-fast: false
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Cache Yarn dependencies
         id: cache-dependencies
         uses: actions/cache@v2
@@ -37,7 +37,7 @@ jobs:
         node: ["16"]
       fail-fast: false
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Setup Node
         uses: actions/setup-node@v2
         with:
@@ -91,7 +91,7 @@ jobs:
         node: ["16"]
       fail-fast: false
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Setup Node
         uses: actions/setup-node@v2
         with:
@@ -123,7 +123,7 @@ jobs:
         node: ["12", "14", "16"]
       fail-fast: false
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Setup Node
         uses: actions/setup-node@v2
         with:
@@ -156,7 +156,7 @@ jobs:
         node: ["12", "14", "16"]
       fail-fast: false
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Setup Node
         uses: actions/setup-node@v2
         with:
@@ -188,7 +188,7 @@ jobs:
         node: ["16"]
       fail-fast: false
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Setup Node
         uses: actions/setup-node@v2
         with:
@@ -221,7 +221,7 @@ jobs:
         node: ["12", "14", "16"]
       fail-fast: false
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Setup Node
         uses: actions/setup-node@v2
         with:
@@ -280,7 +280,7 @@ jobs:
         node: ["16"]
       fail-fast: false
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Setup Node
         uses: actions/setup-node@v2
         with:
