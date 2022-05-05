@@ -62,17 +62,21 @@ jobs:
       - name: Deploy site
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: |
-          cd docs/
-          mkdir -p ~/.ssh
-          echo "$SSH_KEY" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          echo "$KNOWN_HOSTS" > ~/.ssh/known_hosts
-          chmod 600 ~/.ssh/known_hosts
-          rsync -glpPrtvz \
-                --delete  \
-                -e 'ssh -p 4840' \
-                .vuepress/dist/ \
-                dodona@dolos.ugent.be:docs
+          if [ -n "$KNOWN_HOSTS" ]; then
+            cd docs/
+            mkdir -p ~/.ssh
+            echo "$SSH_KEY" > ~/.ssh/id_rsa
+            chmod 600 ~/.ssh/id_rsa
+            echo "$KNOWN_HOSTS" > ~/.ssh/known_hosts
+            chmod 600 ~/.ssh/known_hosts
+            rsync -glpPrtvz \
+                  --delete  \
+                  -e 'ssh -p 4840' \
+                  .vuepress/dist/ \
+                  dodona@dolos.ugent.be:docs
+          else
+            echo "Skipping deploy because secrets are not available"
+          fi
         env:
           SSH_KEY: ${{ secrets.SSH_KEY }}
           KNOWN_HOSTS: ${{ secrets.KNOWN_HOSTS }}
@@ -242,22 +246,26 @@ jobs:
           cd ../web/
           yarn build
       - name: Deploy to staging
-        if: matrix.node == '16'
+        if: ${{ matrix.node == '16' }}
         run: |
-          cd web/
-          mkdir -p ~/.ssh
-          echo "$SSH_KEY" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          echo "$KNOWN_HOSTS" > ~/.ssh/known_hosts
-          chmod 600 ~/.ssh/known_hosts
-          mkdir -p "deploy/$REF"
-          cp -a dist/. "deploy/$REF"
-          rsync -glpPrtvz \
-                --relative \
-                --delete  \
-                -e 'ssh -p 4840' \
-                "deploy/./$REF" \
-                "dodona@dolos.ugent.be:web/"
+          if [ -n "$KNOWN_HOSTS" ]; then
+            cd web/
+            mkdir -p ~/.ssh
+            echo "$SSH_KEY" > ~/.ssh/id_rsa
+            chmod 600 ~/.ssh/id_rsa
+            echo "$KNOWN_HOSTS" > ~/.ssh/known_hosts
+            chmod 600 ~/.ssh/known_hosts
+            mkdir -p "deploy/$REF"
+            cp -a dist/. "deploy/$REF"
+            rsync -glpPrtvz \
+                  --relative \
+                  --delete  \
+                  -e 'ssh -p 4840' \
+                  "deploy/./$REF" \
+                  "dodona@dolos.ugent.be:web/"
+          else
+            echo "Skipping deploy because secrets are not available"
+          fi
         env:
           SSH_KEY: ${{ secrets.SSH_KEY }}
           KNOWN_HOSTS: ${{ secrets.KNOWN_HOSTS }}
