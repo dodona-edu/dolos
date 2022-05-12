@@ -41,9 +41,10 @@ export type FileScoring = {
 export class FileInterestingnessCalculator {
   private pairMap: Map<number, Map<number, Pair>>;
 
-  private longestFragmentWeight = 4 / 10;
-  private similarityWeight = 3 / 10;
-  private totalOverlapWeight = 3 / 10;
+  private longestFragmentWeight = 4 / 12;
+  private similarityWeight = 3 / 12;
+  private totalOverlapWeight = 2 / 12;
+  private semanticWeight = 3 / 12;
 
   constructor(private pairs: Pair[], private $store: any) {
     this.pairMap = pairsAsNestedMap(pairs);
@@ -178,7 +179,7 @@ export class FileInterestingnessCalculator {
     return {
       pair,
       match: maxMatch,
-      weightedScore: matchContainsFunction(maxMatch) ? 0.8 : 0.6,
+      weightedScore: (matchContainsFunction(maxMatch) ? 0.7 : 0.6) * this.semanticWeight,
     };
   }
 
