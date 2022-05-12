@@ -58,11 +58,11 @@ export class CodeTokenizer extends Tokenizer {
 
     this.language = language;
     this.parser = new Parser();
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
     let languageModule;
     if (language === "elm") {
       languageModule = require("@elm-tooling/tree-sitter-elm");
     } else {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
       languageModule = require("tree-sitter-" + language);
     }
     this.parser.setLanguage(languageModule);
