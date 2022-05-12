@@ -1071,6 +1071,14 @@
   dependencies:
     "@cspotcode/source-map-consumer" "0.8.0"
 
+"@elm-tooling/tree-sitter-elm@^5.5.1":
+  version "5.5.1"
+  resolved "https://registry.yarnpkg.com/@elm-tooling/tree-sitter-elm/-/tree-sitter-elm-5.5.1.tgz#510b177d3ccd7e86c68a039d74507d50378ffb77"
+  integrity sha512-IqJibZorVTae0G5EixHIX+FIU41gXdS5zJ4l8W+TBGYbfPv40pJH9ZufSl2ebqHCCTdBCrpFtRqu5XC/A3yLLA==
+  dependencies:
+    nan "^2.15.0"
+    prebuild-install "^6.1.4"
+
 "@eslint/eslintrc@^0.4.3":
   version "0.4.3"
   resolved "https://registry.yarnpkg.com/@eslint/eslintrc/-/eslintrc-0.4.3.tgz#9e42981ef035beb3dd49add17acb96e8ff6f394c"
@@ -10674,7 +10682,7 @@ mz@^2.4.0:
     object-assign "^4.0.1"
     thenify-all "^1.0.0"
 
-nan@^2.12.1, nan@^2.14.0, nan@^2.14.1:
+nan@^2.12.1, nan@^2.14.0, nan@^2.14.1, nan@^2.15.0:
   version "2.15.0"
   resolved "https://registry.yarnpkg.com/nan/-/nan-2.15.0.tgz#3f34a473ff18e15c1b5626b62903b5ad6e665fee"
   integrity sha512-8ZtvEnA2c5aYCZYd1cvgdnU6cqwixRoYg70xPLWUws5ORTa/lnw+u4amixRS/Ac5U5mQVgp9pnlSUnbNWFaWZQ==
@@ -12246,7 +12254,7 @@ prebuild-install@^5.3.3:
     tunnel-agent "^0.6.0"
     which-pm-runs "^1.0.0"
 
-prebuild-install@^6.0.1:
+prebuild-install@^6.0.1, prebuild-install@^6.1.4:
   version "6.1.4"
   resolved "https://registry.yarnpkg.com/prebuild-install/-/prebuild-install-6.1.4.tgz#ae3c0142ad611d58570b89af4986088a4937e00f"
   integrity sha512-Z4vpywnK1lBg+zdPCVCsKq0xO66eEV9rWo2zrROGGiRS4JtueBOdlB1FnY8lcy7JsUud/Q3ijUxyWN26Ika0vQ==
