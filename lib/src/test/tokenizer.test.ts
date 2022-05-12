@@ -11,6 +11,7 @@ const languageFiles = {
   "bash": "../samples/bash/caesar.sh",
   "char": "../samples/char/caesar.txt",
   "c": "../samples/c/caesar.c",
+  "elm": "../samples/elm/Caesar.elm",
 } as {[key: string]: string};
 
 for (const language of CodeTokenizer.supportedLanguages) {

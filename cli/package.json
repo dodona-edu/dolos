@@ -41,6 +41,7 @@
   "dependencies": {
     "@dodona/dolos-lib": "1.5.1",
     "@dodona/dolos-web": "1.5.1",
+    "@elm-tooling/tree-sitter-elm": "^5.5.1",
     "chalk": "^4.1.1",
     "cliui": "^7.0.4",
     "commander": "^8.1.0",
