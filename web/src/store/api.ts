@@ -56,6 +56,7 @@ export default {
       state.metadata = data.metadata;
       state.isLoaded = true;
       state.cutoff = getInterpolatedSimilarity(Object.values(data.pairs));
+      console.log(state.cutoff);
     },
     updatePair(state: State, pair: Pair): void {
       Vue.set(state.pairs, pair.id, pair);
@@ -64,6 +65,7 @@ export default {
       Vue.set(state.files, file.id, file);
     },
     updateCutoff(state: State, cutoff: number) {
+      console.log(cutoff);
       state.cutoff = cutoff;
     }
   },
@@ -101,6 +103,7 @@ export default {
     updateCutoff(
       { commit }: Context,
       cutoff: number) {
+      console.log(cutoff);
       commit("updateCutoff", cutoff);
     }
   }
@@ -115,7 +118,7 @@ export default {
  * with a local minimum separating them).
  * 3. This local minimum should be relatively significant.
  * @param pairs
- * @param step
+ * @param stept
  */
 function getInterpolatedSimilarity(pairs: Pair[], step = 0.03): number {
   pairs.sort((p1, p2) => p1.similarity - p2.similarity);
@@ -131,7 +134,8 @@ function getInterpolatedSimilarity(pairs: Pair[], step = 0.03): number {
     (Math.sqrt(binnedCount[v]) + 1) * weightedDistributionIndex(v * step));
 
   // We pick the lowest weighted index as the interpolated value
-  const indexMin = weightedLocalMinima.reduce((prev, curr, ind) => weightedLocalMinima[prev] < curr ? prev : ind);
+  const indexMin = weightedLocalMinima.reduce(
+    (prev, curr, ind) => weightedLocalMinima[prev] < curr ? prev : ind, 0);
 
   // Convert the bin index with the lowest weight back to the similarity value this index represents
   return localMinima[indexMin] * step;
