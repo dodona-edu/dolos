@@ -20,6 +20,7 @@
         :key="scoredFile.file.id"
         :file="scoredFile"
         :selected-value="selectedSortOption && selectedSortOption.selectedValue"
+        class="file-card"
       />
     </div>
     <v-btn color="success"  @click="page += 1">Next Cards</v-btn>
@@ -156,5 +157,9 @@ export default class SummaryList extends DataView {
 
 .select-sort {
   width: 15%;
+}
+
+.file-card {
+  min-width: 80%;
 }
 </style>
