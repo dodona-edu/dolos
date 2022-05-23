@@ -1,13 +1,6 @@
 <template>
   <div style="width: 100%">
-    <PairStatHistogram
-      class="half-size"
-      v-if="showBarChart()"
-      :number-of-ticks="25"
-      :pair-field="getLargestFieldOfScore(file)"
-      :extra-line="getLineSpot(file)"></PairStatHistogram>
-
-    <div v-if="!showBarChart() && this.currentFiles !== null" class="compare-containers">
+    <div v-if=" this.currentFiles !== null" class="compare-containers">
       <div class="side-container">
         <h3 class="fileTitle">{{currentFiles.leftFile.path}}</h3>
         <CompareSide
@@ -20,7 +13,7 @@
           :selected-selections="[]"
           :semantic-matches="[]"
           :start-row="getMatchSpan(currentFiles.leftFile, match.leftMatch).startRow"
-          :end-row="getMatchSpan(currentFiles.leftFile, match.leftMatch).endRow"
+          :end-row="getMatchSpan(currentFiles.leftFile, match.leftMatch).endRow + 1"
         />
 
       </div>
@@ -37,7 +30,7 @@
         :selected-selections="[]"
         :semantic-matches="[]"
         :start-row="getMatchSpan(currentFiles.rightFile, match.rightMatch).startRow"
-        :end-row="getMatchSpan(currentFiles.rightFile, match.rightMatch).endRow"
+        :end-row="getMatchSpan(currentFiles.rightFile, match.rightMatch).endRow + 1"
       />
       </div>
     </div>
@@ -85,15 +78,12 @@ export default class SummaryVisualisation extends DataView {
 
   getLargestFieldOfScore = getLargestFieldOfScore;
 
-  showBarChart(): boolean {
-    return getLargestFieldOfScore(this.file) !== "semanticMatching";
-  }
-
   getMatchSpan(file: File, match: NodeStats): Region {
     const tokenized = fileToTokenizedFile(file);
-    return SemanticAnalyzer.getFullRange(
+    const r = SemanticAnalyzer.getFullRange(
       tokenized, match
     );
+    return this.normalizeRegion(r);
   }
 
   @Watch("file")
@@ -108,6 +98,17 @@ export default class SummaryVisualisation extends DataView {
         rightFile: node.pair.rightFile
       };
     }
+  }
+
+  /**
+   * This function serves to change detected regions so that they are neat in display for the summary cards
+   */
+  normalizeRegion(region: Region): Region {
+    region.endRow = Math.min(region.endRow, region.startRow + 20);
+
+    if (region.endRow === region.startRow) { region.endRow += 1; }
+
+    return region;
   }
 }
 </script>

@@ -149,7 +149,7 @@ export class FileInterestingnessCalculator {
 
     let maxScore = 0;
     let maxFileId: number | null = null;
-    let maxMatch = null;
+    let maxMatch: NodeStats | null = null;
     for (const [fileid, matches] of file.semanticMap) {
       const filteredMatches = matches.filter(m => m.ownNodes.length + m.childrenTotal > 15);
       for (const match of filteredMatches) {
@@ -174,7 +174,11 @@ export class FileInterestingnessCalculator {
 
     if (pair.pairedMatches.length === 0) { return null; }
 
-    if (pair.id === 3484) { console.log(pair.pairedMatches, maxMatch); }
+    if ((!pair.pairedMatches.some(
+      m => m.leftMatch.childrenTotal === maxMatch?.childrenTotal ||
+        m.rightMatch.childrenTotal === maxMatch?.childrenTotal))) {
+      return null;
+    }
 
     return {
       pair,

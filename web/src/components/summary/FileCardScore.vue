@@ -181,7 +181,6 @@ export default class FileCardScore extends Vue {
       this.file.semanticMatchScore?.weightedScore || 0
     );
 
-    console.log(this.file.semanticMatchScore);
     return (
       this.file.semanticMatchScore?.weightedScore === largestElementOfScore
     );
