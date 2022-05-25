@@ -88,7 +88,7 @@ export default class SummaryCard extends DataView {
 }
 
 .text {
-  color: black;
+  color: rgba(0,0,0,0.8);
   font-size: 16px;
   line-height: 24px;
   font-family: "Roboto", sans-serif;
