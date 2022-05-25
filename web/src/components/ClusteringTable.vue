@@ -1,43 +1,54 @@
 <template>
   <v-card>
     <v-card-title>
-      File pairs
+      Clusters
       <v-spacer></v-spacer>
-      <v-text-field
-        v-model="search"
-        append-icon="mdi-magnify"
-        label="Search"
-        single-line
-        hide-details
-      ></v-text-field>
+      <form>
+        <label>
+          <div class="title-slider">Similarity ≥ {{ cutoff.toFixed(2) }}</div>
+          <input type="range" min="0.25" max="1" step="0.01" v-model="cutoff" />
+        </label>
+      </form>
     </v-card-title>
-    <v-data-table
-      :headers="headers"
-      :items="items"
-      :must-sort="true"
-      :sort-by="'similarity'"
-      :sort-desc="true"
-      :items-per-page="15"
-      :search="search"
-      :loading="!loaded"
-      class="elevation-1"
-      :footer-props="footerprops"
-      @click:row="rowClicked"
-    >
-    </v-data-table>
+    <v-expansion-panels v-model="panel">
+      <ClusteringCard
+        v-for="(cluster, index) in sortedClustering()"
+        :key="index"
+        :cluster="cluster"
+        :cutoff="cutoff"
+        :id="`clustering-card-${index}`"
+      ></ClusteringCard>
+    </v-expansion-panels>
   </v-card>
 </template>
 
-<script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
-import { Pair } from "@/api/api";
-import { Clustering } from "@/util/Clustering";
+<style scoped>
+.title-slider {
+  font-weight: 400;
+  font-size: 1rem;
+}
+</style>
 
-@Component
-export default class ClusteringTable extends Vue {
+<script lang="ts">
+import ClusteringCard from "@/components/clustering/ClusteringCard.vue";
+import {
+  getAverageClusterSimilarity,
+  getClusterElements
+} from "@/util/clustering-algorithms/ClusterFunctions";
+import { Clustering, Cluster } from "@/util/clustering-algorithms/ClusterTypes";
+import { SortingFunction } from "@/util/Types";
+import { Component, Prop, Watch } from "vue-property-decorator";
+import DataView from "@/views/DataView";
+
+@Component({
+  components: { ClusteringCard },
+})
+export default class ClusteringTable extends DataView {
   @Prop() loaded!: boolean;
-  @Prop() clustering!: Clustering;
+  @Prop() currentClustering!: Clustering;
   @Prop({ default: "" }) search!: string;
+
+  public panel = -1;
 
   headers = [
     { text: "Cluster Id", value: "id", sortable: true },
@@ -51,22 +62,46 @@ export default class ClusteringTable extends Vue {
     showFirstLastPage: true,
   };
 
-  get items(): Array<{id: number, size:number, similarity: string}> {
-    return Object.values(this.clustering).map((cluster, id) => ({
+  get items(): Array<{ id: number; size: number; similarity: string }> {
+    return Object.values(this.currentClustering).map((cluster, id) => ({
       id,
-      size: cluster.getElementSize(),
-      similarity: cluster.getAverageSimilarity().toFixed(2),
+      size: getClusterElements(cluster).size,
+      similarity: getAverageClusterSimilarity(cluster).toFixed(2),
+      cluster,
     }));
   }
 
-  public rowClicked(item: {pair: Pair}): void {
-    // this.$router.push(`/compare/${item.pair.id}`);
+  @Watch("cutoff")
+  private emitCutoff(): void {
+    this.$emit("cutoffChange", this.cutoff);
+  }
+
+  private sortedClustering(): Clustering {
+    const sort: SortingFunction<Cluster> = (a, b) =>
+      getClusterElements(b).size - getClusterElements(a).size;
+
+    const toSort = [...this.currentClustering];
+    toSort.sort(sort);
+    return toSort;
+  }
+
+  @Watch("$route")
+  private onRouteChange(): void {
+    if (this.$route.hash) {
+      const hit = /[0-9]+/.exec(this.$route.hash)?.[0];
+      if (hit !== undefined) {
+        this.panel = +hit;
+        setTimeout(() => {
+          this.$vuetify.goTo(`#clustering-card-${this.panel}`);
+        }, 500);
+      }
+    }
   }
 }
 </script>
 
 <style scoped>
-  .v-data-table >>> tr:hover {
-    cursor: pointer;
-  }
+.v-data-table >>> tr:hover {
+  cursor: pointer;
+}
 </style>

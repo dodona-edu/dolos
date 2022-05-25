@@ -1,9 +1,11 @@
 <template>
   <div>
     <div class="d-flex flex-row justify-center align-center" v-if="show">
-      <GraphElementList :cluster="cluster" :selected-files="files" :scroll="true" @select-file="selectFile">
+      <div class="d-flex gel-items">
+        <GraphElementList :cluster="cluster" :selected-files="files" :scroll="true" @select-file="selectFile">
 
-      </GraphElementList>
+        </GraphElementList>
+      </div>
       <TimeSeriesDiagram :cluster="cluster" :selection="true" @filedata="setNewFiles" :selected-files="files"/>
 
       <!-- <div class="d-flex flex-row flex-wrap fileInfoContainer" >
@@ -65,5 +67,9 @@ export default class TimeSeriesCard extends Vue {
 }
 .user-card {
   margin: 5px;
+}
+
+.gel-items {
+  max-height: 375px;
 }
 </style>

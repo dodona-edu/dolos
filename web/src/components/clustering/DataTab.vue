@@ -55,9 +55,8 @@ import {
   getClusterElements,
 } from "@/util/clustering-algorithms/ClusterFunctions";
 import { File } from "@/api/api";
-import HeatMap from "./HeatMap.vue";
 
-@Component({ components: { HeatMap } })
+@Component({ })
 export default class DataTab extends Vue {
   @Prop() cluster!: Cluster;
   @Prop() cutoff!: number;

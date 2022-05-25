@@ -11,11 +11,13 @@
       @selectedNodeInfo="setSelectedNodeInfo"
     >
     <GraphLegend :current-files="clusterFiles" @legend="l => legend = l"></GraphLegend>
+      <div class="d-flex gel-items">
     <GraphElementList :cluster="cluster"
                       :selected-files="selectedFiles"
                       @select-file="setSelectedNodeInfo"
                       :scroll="true"
     ></GraphElementList>
+      </div>
     </Graph>
   </div>
 </template>
@@ -75,5 +77,8 @@ export default class GraphTab extends DataView {
 <style scoped>
 .graph-container {
   min-height: 400px;
+}
+.gel-items {
+  max-height: 375px;
 }
 </style>

@@ -1,36 +1,33 @@
 <template>
   <v-expansion-panel>
-    <v-expansion-panel-header>
-      Cluster
-      <small></small>
-      <small>Size: {{ getClusterElements(cluster).size }}</small>
-      <small>Similarity: {{ averageSimilarity(cluster) }}</small>
-
-      <v-spacer></v-spacer>
+    <v-expansion-panel-header class="noflex">
+      <div class="clustering-tag-container">
+        <FileTagList :current-files="clusterFiles(cluster)"></FileTagList>
+      </div>
     </v-expansion-panel-header>
     <v-expansion-panel-content>
       <v-tabs right v-model="activeTab">
-        <v-tab @click="graphView(cluster)" :key="1">Graph view</v-tab>
-        <v-tab-item></v-tab-item>
-        <v-tab @click="pairView(cluster)" :key="2">Pair view</v-tab>
+        <v-tab :key="1">
+          <a class="no-markup" target="_blank" :href="`../?showIds=${pairViewItems(cluster)}`">Pair view</a>
+        </v-tab>
         <v-tab-item ></v-tab-item>
 
         <div class="empty-space"></div>
 
-        <v-tab :key="3">Time Chart</v-tab>
-        <v-tab-item v-if="cluster">
-          <TimeSeries :cluster="cluster"/>
+        <v-tab v-if="cluster && showClusterTimeline(cluster)" :key="2">Time Chart</v-tab>
+        <v-tab-item v-if="cluster && showClusterTimeline(cluster)">
+          <TimeSeriesCard :cluster="cluster"/>
         </v-tab-item>
 
-        <v-tab :key="4">Similarity Data</v-tab>
+        <!-- <v-tab :key="3">Similarity Data</v-tab>
         <v-tab-item>
           <DataTab :cluster="cluster" :cutoff="cutoff" />
-        </v-tab-item>
+        </v-tab-item> -->
 
-        <v-tab :key="5"> Heatmap </v-tab>
+        <v-tab :key="4"> Heatmap </v-tab>
         <v-tab-item> <HeatMap :cluster="cluster" /> </v-tab-item>
 
-        <v-tab :key="6"> Cluster </v-tab>
+        <v-tab :key="5"> Cluster </v-tab>
         <v-tab-item> <GraphTab :cluster="cluster" /> </v-tab-item>
       </v-tabs>
     </v-expansion-panel-content>
@@ -49,13 +46,15 @@ import { File } from "@/api/api";
 import HeatMap from "./HeatMap.vue";
 import DataTab from "./DataTab.vue";
 import GraphTab from "./GraphTab.vue";
-import TimeSeries from "./TimeSeries.vue";
+import TimeSeriesCard from "./TimeSeriesCard.vue";
+import ClusteringFileTag from "@/components/clustering/ClusteringFileTag.vue";
+import FileTagList from "@/components/clustering/FileTagList.vue";
 
-@Component({ components: { HeatMap, DataTab, GraphTab, TimeSeries } })
+@Component({ components: { HeatMap, DataTab, GraphTab, TimeSeriesCard, ClusteringFileTag, FileTagList } })
 export default class ClusteringCard extends Vue {
   @Prop() cluster!: Cluster;
   @Prop() cutoff!: number;
-  private activeTab = 5;
+  private activeTab = 1;
 
   averageSimilarity(cluster: Cluster): string {
     return getAverageClusterSimilarity(cluster).toFixed(2);
@@ -67,24 +66,45 @@ export default class ClusteringCard extends Vue {
 
   public graphView(cluster: Cluster): void {
     const items = getClusterElementsArray(cluster)
-      .map((c) => c.id)
+      .map(c => c.id)
       .join(",");
 
     this.$router.push(`/graph?cutoff=${this.cutoff}&red=${items}`);
   }
 
-  public pairView(cluster: Cluster): void {
+  public pairViewItems(cluster: Cluster): string {
     const items = Array.from(cluster)
-      .map((v) => v.id)
+      .map(v => v.id)
       .join(",");
 
-    this.$router.push(`/?showIds=${items}`);
+    return items;
   }
+
+  public showClusterTimeline(cluster: Cluster): boolean {
+    return getClusterElementsArray(cluster).every(f => f.extra?.timestamp);
+  }
+
+  public clusterFiles = getClusterElementsArray;
 }
 </script>
 
 <style scoped>
 .empty-space {
   width: 50px
+}
+
+.noflex > * {
+  flex: none;
+}
+
+.clustering-tag-container {
+  width: 70%;
+  display: flex;
+  justify-content: flex-start;
+  overflow: hidden;
+}
+
+.no-markup {
+  color: inherit;
 }
 </style>

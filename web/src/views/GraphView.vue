@@ -18,7 +18,7 @@
           <form class="settings">
             <p>
               <label>
-                Similarity ≥ {{ getCutoff() }}<br />
+                Similarity ≥ {{ getCutoff().toFixed(2) }}<br />
                 <input
                   type="range"
                   min="0.25"
