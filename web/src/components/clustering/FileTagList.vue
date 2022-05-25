@@ -9,6 +9,7 @@ import { Component, Prop, Watch } from "vue-property-decorator";
 import { File } from "@/api/api";
 import DataView, { Legend } from "@/views/DataView";
 import * as d3 from "d3";
+import { TooltipTool } from "@/d3-tools/TooltipTool";
 
 type SVGSelection = d3.Selection<SVGSVGElement, unknown, HTMLElement, unknown>;
 type WidthScale = d3.ScaleLinear<number, number>;
@@ -24,6 +25,12 @@ export default class FileTagList extends DataView {
   private width = 870;
   private height = 40;
   private legend: Legend | null = null;
+
+  private tooltipTool;
+  constructor() {
+    super();
+    this.tooltipTool = new TooltipTool<File>(v => this.getFullName(v));
+  }
 
   mounted(): void {
     this.initialize();
@@ -76,14 +83,18 @@ export default class FileTagList extends DataView {
       .attr("text-anchor", "middle")
       .attr("dy", "0.3em");
 
-    groups.on("mouseenter", function () {
+    // eslint-disable-next-line
+    const that = this;
+    groups.on("mouseenter", function (o, d) {
       // eslint-disable-next-line no-invalid-this
       d3.select(this).raise();
+      that.tooltipTool.mouseEnter(o, d);
     });
 
     groups.on("mouseleave", function () {
       // eslint-disable-next-line no-invalid-this
       groups.order();
+      that.tooltipTool.mouseOut();
     });
   }
 
@@ -104,6 +115,12 @@ export default class FileTagList extends DataView {
       const path = file.path.split("/");
       return path[path.length - 1][0].toUpperCase();
     }
+  }
+
+  getFullName(file: File): string {
+    if (file.extra.fullName) { return file.extra.fullName; }
+
+    return file.path.split("/").splice(-2).join("/");
   }
 }
 </script>
