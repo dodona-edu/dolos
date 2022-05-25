@@ -160,6 +160,7 @@ export default class SummaryList extends DataView {
 }
 
 .file-card {
-  min-width: 80%;
+  width: 80%;
+  max-width: 1600px;
 }
 </style>
