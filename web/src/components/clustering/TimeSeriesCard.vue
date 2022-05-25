@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="d-flex flex-row justify-center align-center" v-if="show">
+    <div class="d-flex flex-row justify-space-around align-center" v-if="show">
       <div class="d-flex gel-items">
         <GraphElementList :cluster="cluster" :selected-files="files" :scroll="true" @select-file="selectFile">
 
@@ -8,22 +8,6 @@
       </div>
       <TimeSeriesDiagram :cluster="cluster" :selection="true" @filedata="setNewFiles" :selected-files="files"/>
 
-      <!-- <div class="d-flex flex-row flex-wrap fileInfoContainer" >
-        <div v-for="file in files" :key="file.id">
-
-          <v-alert
-            border="left"
-            color="blue-grey"
-            dark
-            class="user-card"
-          >
-            {{file.extra.timestamp.toLocaleString()}} <br/>
-            {{file.extra.fullName}} <br/>
-            {{file.extra.labels}}
-          </v-alert>
-
-        </div>
-      </div> -->
     </div>
     <div v-if="!show">
       <p>Your files do not all include a timestamp. The time series card is unavailable.</p>

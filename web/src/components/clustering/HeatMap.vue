@@ -335,7 +335,7 @@ div {
 
 .gel-list {
   min-width: 400px;
-  max-height: 80%;
+  max-height: 570px;
 }
 
 .fullwidth {
