@@ -49,9 +49,9 @@ export class FileInterestingnessCalculator {
     const smallFileWeight = file.amountOfKgrams < 15 ? (file.amountOfKgrams / 15) : 1;
 
     const finalScore =
-      (this.steepSquareScaling(similarityScore?.weightedScore || 0) +
-      this.steepSquareScaling(totalOverlapScore?.weightedScore || 0) +
-      this.steepSquareScaling(longestFragmentScore?.weightedScore || 0)) *
+      ((similarityScore?.weightedScore || 0) +
+      (totalOverlapScore?.weightedScore || 0) +
+      (longestFragmentScore?.weightedScore || 0)) *
       smallFileWeight;
 
     return {
@@ -77,7 +77,7 @@ export class FileInterestingnessCalculator {
     return {
       pair,
       similarity: pair.similarity,
-      weightedScore: pair.similarity * this.similarityWeight
+      weightedScore: this.steepSquareScaling(pair.similarity) * this.similarityWeight
     };
   }
 
@@ -99,7 +99,7 @@ export class FileInterestingnessCalculator {
       totalOverlapTokens: fileOverlapTokens,
       totalOverlapWrtSize: fileOverlapTokens / file.amountOfKgrams,
       weightedScore:
-        (fileOverlapTokens / file.amountOfKgrams) * this.totalOverlapWeight
+        this.steepSquareScaling(fileOverlapTokens / file.amountOfKgrams) * this.totalOverlapWeight
     };
   }
 
@@ -121,7 +121,7 @@ export class FileInterestingnessCalculator {
       // If the file is too small in total, we don't match it at all.
       weightedScore: file.amountOfKgrams > 10
         ? (
-          (pair.longestFragment / file.amountOfKgrams) *
+          this.steepSquareScaling(pair.longestFragment / file.amountOfKgrams) *
         this.longestFragmentWeight)
         : (0)
     };
