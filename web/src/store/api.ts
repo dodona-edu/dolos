@@ -18,6 +18,7 @@ interface State {
   metadata: Metadata;
   isLoaded: boolean;
   cutoff: number;
+  isAnonymous: boolean;
 }
 
 type Context = ActionContext<State, Record<string, never>>;
@@ -30,6 +31,7 @@ export default {
     metadata: {},
     isLoaded: false,
     cutoff: 0.75,
+    isAnonymous: false,
   }),
   getters: {
     areFragmentsLoaded(state: State): (n: number) => boolean {
@@ -46,6 +48,9 @@ export default {
     },
     cutoff(state: State): number {
       return state.cutoff;
+    },
+    isAnonymous(state: State): boolean {
+      return state.isAnonymous;
     }
   },
   mutations: {
@@ -56,7 +61,6 @@ export default {
       state.metadata = data.metadata;
       state.isLoaded = true;
       state.cutoff = getInterpolatedSimilarity(Object.values(data.pairs));
-      console.log(state.cutoff);
     },
     updatePair(state: State, pair: Pair): void {
       Vue.set(state.pairs, pair.id, pair);
@@ -64,9 +68,11 @@ export default {
     updateFile(state: State, file: File): void {
       Vue.set(state.files, file.id, file);
     },
-    updateCutoff(state: State, cutoff: number) {
-      console.log(cutoff);
+    updateCutoff(state: State, cutoff: number): void {
       state.cutoff = cutoff;
+    },
+    updateAnonymous(state: State, anonymous: boolean): void {
+      state.isAnonymous = anonymous;
     }
   },
   actions: {
@@ -99,11 +105,14 @@ export default {
       file.astAndMappingLoaded = true;
       commit("updateFile", file);
     },
-
+    async setAnonymous({ commit, state }: Context, data: {anonymous: boolean}): Promise<void> {
+      const results = await fetchData(data.anonymous);
+      commit("updateAnonymous", data.anonymous);
+      commit("setData", results);
+    },
     updateCutoff(
       { commit }: Context,
       cutoff: number) {
-      console.log(cutoff);
       commit("updateCutoff", cutoff);
     }
   }

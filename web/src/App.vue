@@ -11,6 +11,10 @@
             v-if="$vuetify.breakpoint.mobile"
             @click.stop="drawerEnabled = !drawerEnabled"></v-app-bar-nav-icon>
         <v-toolbar-title @click="toHomeScreen">DOLOS</v-toolbar-title>
+        <v-spacer></v-spacer>
+        <div>
+          <v-switch class="navbar-switch" v-model="anonymous"></v-switch>
+        </div>
       </v-app-bar>
 
       <v-navigation-drawer
@@ -66,9 +70,10 @@
 
 <script lang="ts">
 import { Vue, Component } from "vue-property-decorator";
+import DataView from "@/views/DataView";
 
 @Component({})
-export default class App extends Vue {
+export default class App extends DataView {
   drawerEnabled = true;
 
   created(): void {
@@ -102,3 +107,9 @@ export default class App extends Vue {
   }
 }
 </script>
+
+<style>
+.v-messages {
+  display: none;
+}
+</style>

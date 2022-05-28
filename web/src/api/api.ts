@@ -10,7 +10,12 @@ import {
   Region,
   TokenizedFile
 } from "@dodona/dolos-lib";
-// import { assertType } from "typescript-is";
+import {
+  adjectives,
+  colors,
+  names,
+  uniqueNamesGenerator
+} from "unique-names-generator";
 
 const DATA_URL = "./data/";
 
@@ -145,14 +150,32 @@ async function fetchMetadata(
   return await d3.csv(url);
 }
 
-function parseFiles(fileData: d3.DSVRowArray): ObjMap<File> {
-  // const start = performance.now();
-  // console.log(performance.now() - start);
+function parseFiles(fileData: d3.DSVRowArray, anonymize = false): ObjMap<File> {
+  const randomNameGenerator = (): string => uniqueNamesGenerator({ dictionaries: [colors, names], length: 2 });
+  const labelMap: Map<string, number> = new Map();
+  const timeOffset = Math.random() * 1000 * 60 * 60 * 24 * 20;
+  let labelCounter = 1;
+
   return Object.fromEntries(
     fileData.map(row => {
       const extra = JSON.parse(row.extra || "{}");
       extra.timestamp = extra.createdAt && new Date(extra.createdAt);
       row.extra = extra;
+
+      if (anonymize) {
+        const split = row.path!.split(".");
+        const extension = split[split.length - 1];
+        const name = randomNameGenerator();
+        row.path = `${name}/exercise.${extension}`;
+        extra.fullName = name;
+
+        const label = labelMap.get(extra.labels) || labelCounter;
+        if (!labelMap.has(extra.labels)) { labelCounter += 1; }
+        labelMap.set(extra.labels, label);
+        extra.labels = label;
+
+        if (extra.timestamp) { extra.timestamp = new Date(extra.timestamp.getTime() + timeOffset); }
+      }
       // row.mapping = JSON.parse(row.mapping || "[]");
       // row.ast = JSON.parse(row.ast || "[]");
       return [row.id, row];
@@ -275,13 +298,13 @@ export async function loadFragments(pair: Pair, kmers: ObjMap<Kgram>, customOpti
   pair.fragments = parseFragments(reportPair.fragments(), kmersMap);
 }
 
-export async function fetchData(): Promise<ApiData> {
+export async function fetchData(anonymize = false): Promise<ApiData> {
   const kgramPromise = fetchKgrams();
   const filePromise = fetchFiles();
   const metadataPromise = fetchMetadata();
   const pairPromise = fetchPairs();
 
-  const files = parseFiles(await filePromise);
+  const files = parseFiles(await filePromise, anonymize);
   const kgrams = parseKgrams(await kgramPromise, files);
   const pairs = parsePairs(await pairPromise, files, kgrams);
   const metadata = parseMetadata(await metadataPromise);
