@@ -1,6 +1,6 @@
 <template>
 <div class="selected-info">
-  <div v-if="selectedNodeInfo && !selectedCluster">
+  <div v-if="selectedNodeInfo">
     <v-card elevation="2" outlined>
       <v-card-title>
         Selected node
@@ -8,7 +8,12 @@
 
       <v-card-text>
         The author of this submission is <b>{{selectedNodeInfo.extra.fullName || "unknown"}}</b>, belonging to group
-        <b>{{selectedNodeInfo.extra.labels}}</b>. The last hand-in date was <b>{{selectedNodeInfo.extra.timestamp}}</b>.
+        <b>{{selectedNodeInfo.extra.labels}}</b>. The last hand-in date was <b>{{
+          selectedNodeInfo.extra.timestamp ?
+            DateTime.fromJSDate(selectedNodeInfo.extra.timestamp).toLocaleString(DateTime.DATETIME_MED)
+            :
+            "not available."
+        }}</b>.
       </v-card-text>
     </v-card>
   </div>
@@ -44,6 +49,7 @@ import { Component, Prop, Vue } from "vue-property-decorator";
 import { Cluster, Clustering } from "@/util/clustering-algorithms/ClusterTypes";
 import { getAverageClusterSimilarity, getClusterElements } from "@/util/clustering-algorithms/ClusterFunctions";
 import { File } from "@/api/api";
+import { DateTime } from "luxon";
 
 @Component({})
 export default class GraphSelectedInfo extends Vue {
@@ -54,6 +60,8 @@ export default class GraphSelectedInfo extends Vue {
   getClusterElements = getClusterElements
 
   getAverageClusterSimilarity = getAverageClusterSimilarity
+
+  DateTime = DateTime
 
   getClusterIndex(): number {
     const sortf = (a: Cluster, b:Cluster): number => getClusterElements(b).size - getClusterElements(a).size;
