@@ -37,6 +37,23 @@
             <PairStatHistogram :numberOfTicks="25"
                                :extraLine="getLineSpot(file, 'similarity')"
                                :pair-field="'similarity'" />
+            <div class="more-info">
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on, attrs }">
+                  <v-icon v-bind="attrs" v-on="on">
+                    mdi-information
+                  </v-icon>
+                </template>
+                <span class="tooltip-span">
+                    This tab of the card shows a bar chart of all the pairs in this dataset. The similarity value
+                  of the pair of files this card is about is marked by a line intersecting a bar with a red color.
+                  This should help you see whether or not this pair of files is exceptionally similar or not.<br/>
+
+                  The similarity metric is a global size-independent metric, and often used as the main metric to
+                  measure how alike two files are.
+                 </span>
+              </v-tooltip>
+            </div>
           </div>
         </v-tab-item >
         <v-tab-item value="tab-1" :key="1">
@@ -45,12 +62,48 @@
                                :extraLine="getLineSpot(file, 'longestFragment')"
                                :pair-field="'longestFragment'" />
           </div>
+          <div class="more-info">
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on, attrs }">
+                <v-icon v-bind="attrs" v-on="on">
+                  mdi-information
+                </v-icon>
+              </template>
+              <span class="tooltip-span">
+                This tab of the card shows a bar chart of all the pairs in this dataset. The longest fragment value
+                  of the pair of files this card is about is marked by a line intersecting a bar with a red color.
+                  This should help you see whether or not this pair of files is exceptionally similar or not.<br/>
+
+                  The longest consecutive fragment is a local size-independent metric, and roughly correlates to the
+                longest amount of lines in one block that are the same in both files. If this is very high, then it's
+                likely (part of) these files was literally copied.
+
+                 </span>
+            </v-tooltip>
+          </div>
         </v-tab-item>
         <v-tab-item value="tab-2" :key="2">
           <div class="graph-wrapper" >
             <PairStatHistogram :numberOfTicks="25"
                                :extraLine="getLineSpot(file, 'totalOverlap')"
                                :pair-field="'totalOverlap'" />
+          </div>
+          <div class="more-info">
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on, attrs }">
+                <v-icon v-bind="attrs" v-on="on">
+                  mdi-information
+                </v-icon>
+              </template>
+              <span class="tooltip-span">
+                This tab of the card shows a bar chart of all the pairs in this dataset. The total overlap value
+                  of the pair of files this card is about is marked by a line intersecting a bar with a red color.
+                  This should help you see whether or not this pair of files is exceptionally similar or not. <br/>
+
+                  The total overlap is a global size-dependent metric of equality in the files. It roughly counts
+                how many lines of both files are similiar.
+                 </span>
+            </v-tooltip>
           </div>
         </v-tab-item>
       </v-tabs-items>
@@ -132,4 +185,16 @@ export default class FileCard extends DataView {
 .reason-container {
   padding: 20px;
 }
+
+.more-info {
+  position: absolute;
+  right: 30px;
+  top: 0;
+}
+
+.tooltip-span {
+  display: block;
+  max-width: 400px;
+}
+
 </style>
