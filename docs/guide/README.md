@@ -9,6 +9,22 @@ parser library, to support a broad range of programming languages.
 - [Install Dolos](/guide/installation.html)
 - [How to use Dolos](/guide/running.html)
 
+By using powerful visualizations, you can see in a glance how similar the analyzed files are. See for example the difference between the submissions for the same exercise used for an exam (left) and later as a normal exercise (right):
+
+![Two plagiarism graphs. The first plagiarism graph is of an evaluation exercise in academic year 2018-2019 with no connected nodes on the graph. The second plagiarism graph is of the same exercise given as a normal exercises in the academic year 2019-2020 and shows a lot of connected nodes, indicating a lot of plagiarism.](/images/figure08.png)
+
+## Why a new tool?
+
+We noticed that existing tools were lacking in a lot of ways. Some of them are provided as a website only, which was often offline and had an archaic interface. Others did not support the programming languages we wanted to use or were simply too difficult to get up and running ...
+
+With Dolos, we want to provide an **open-source** tool which you can easily extend and integrate in your own workflow. It should be **easy to install** and have a **modern user interface**. Finally, we want teachers to be **as effective as possible** in detecting and preventing plagiarism, giving them more time do do what they do best: teaching.
+
+## Who made this software?
+
+Dolos is an active research project by [Team Dodona](https://dodona.ugent.be/en/about/) at Ghent University. If you use this software for your research, please cite:
+
+- Maertens et. al. (2022) J. Computer Assisted Learning [doi:10.1111/jcal.12662](https://doi.org/10.1111/jcal.12662)
+
 
 ## What's in a name?
 

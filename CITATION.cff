@@ -1,0 +1,41 @@
+cff-version: 1.2.0
+title: "Dolos"
+url: "https://dolos.ugent.be"
+abstract: "Dolos is a source code plagiarism detection tool designed to be as effective as possible to use."
+message: "If you use this software in your research, please cite it as below."
+authors: &AUTHORS
+  - family-names: "Maertens"
+    given-names: "Rien"
+    orcid: "https://orcid.org/0000-0002-2927-3032"
+  - family-names: "Van Petegem"
+    given-names: "Charlotte"
+    orcid: "https://orcid.org/0000-0003-0779-4897"
+  - family-names: "Strijbol"
+    given-names: "Niko"
+    orcid: "https://orcid.org/0000-0002-3161-174X"
+  - family-names: "Baeyens"
+    given-names: "Toon"
+    orcid: "https://orcid.org/0000-0002-2069-7824"
+  - family-names: "Jacobs"
+    given-names: "Arne Carla"
+    orcid: "https://orcid.org/0000-0003-0412-9648"
+  - family-names: "Dawyndt"
+    given-names: "Peter"
+    orcid: "https://orcid.org/0000-0002-1623-9070"
+  - family-names: "Mesuere"
+    given-names: "Bart"
+    orcid: "https://orcid.org/0000-0003-0610-3441"
+preferred-citation:
+  type: article
+  doi: "10.1111/jcal.12662"
+  journal: "Journal of Computer Assisted Learning"
+  title: "Dolos: Language-agnostic plagiarism detection in source code"
+  authors: *AUTHORS
+  year: 2022
+repository-code: "https://github.com/dodona-edu/dolos"
+license: "MIT"
+keywords:
+  - plagiarism detection
+  - source code analysis
+  - education
+  - code similarity
