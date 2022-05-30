@@ -24,7 +24,7 @@
           >
             <td>
               <v-tooltip top>
-                <template v-slot:activator="{ on, attrs }">
+                <template v-slot:activator="{ on, attrs }" >
                   <span class="tiny-color" :style="`background-color: ${getColor(element)}`"
                         v-bind="attrs"
                         v-on="on"></span>
@@ -33,7 +33,16 @@
               </v-tooltip>
             </td>
             <td>{{ element.path.split("/").slice(-2).join("/") }}</td>
-            <td>{{ formatTime(element.extra.timestamp) }}</td>
+            <td>
+              <v-tooltip top>
+                <template v-slot:activator="{ on, attrs }">
+                  <span class="short-timestamp" v-bind="attrs"
+                  v-on="on">{{ formatTime(element.extra.timestamp) }}</span>
+                </template>
+
+                {{ formatTimeLong(element.extra.timestamp) }}
+              </v-tooltip>
+              </td>
           </tr>
           </tbody>
         </template>
@@ -77,6 +86,10 @@ export default class GraphElementList extends DataView {
 
   formatTime(time: Date): string {
     return DateTime.fromJSDate(time).toLocaleString();
+  }
+
+  formatTimeLong(time: Date): string {
+    return DateTime.fromJSDate(time).toLocaleString(DateTime.DATETIME_MED);
   }
 
   getColor(file: File): string {
@@ -127,5 +140,9 @@ export default class GraphElementList extends DataView {
 
 .selected {
   background-color: #f0f0f0;
+}
+
+.short-timestamp {
+  text-decoration: underline dotted;
 }
 </style>
