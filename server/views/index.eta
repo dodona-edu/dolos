@@ -55,12 +55,24 @@
         </div>
     </form>
     <h4>Look at previous reports</h4>
+       <select name="branch" id="branchSelect">
+         <option value="main">main</option>
+         <option value="feature/global-overview">Clustering & Individual detection</option>
+         <option value="enchancement/semantic-analysis">Semantic matching</option>
+       </select> 
     <ul>
     <% for(let report of it.reports) { %>
-    <li><a href="./reports/<%= report %>"><%= report %></a></li>
+    <li><a href="#" onclick="clicked('<%=report%>')"><%= report %></a></li>
     <% } %>
 
     </ul>
+    
+    <script>
+     function clicked(report) {
+     const select = document.getElementById("branchSelect");
+      window.location.href = `./reports/${report}/branch/${select.value}/#`
+     }
+    </script>
 
 </div>
 </body>
