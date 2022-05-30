@@ -11,10 +11,6 @@
             v-if="$vuetify.breakpoint.mobile"
             @click.stop="drawerEnabled = !drawerEnabled"></v-app-bar-nav-icon>
         <v-toolbar-title @click="toHomeScreen">DOLOS</v-toolbar-title>
-        <v-spacer></v-spacer>
-        <div>
-          <v-switch class="navbar-switch" v-model="anonymous"></v-switch>
-        </div>
       </v-app-bar>
 
       <v-navigation-drawer
@@ -22,6 +18,7 @@
           clipped
           app
           :expand-on-hover="!$vuetify.breakpoint.mobile"
+          :mini-variant.sync="isCollapsed"
       >
         <v-list nav>
           <v-list-item @click="toHomeScreen" link>
@@ -58,6 +55,13 @@
             <v-list-item-content>File Analysis</v-list-item-content>
           </v-list-item>
         </v-list>
+
+        <template v-slot:append>
+          <div class="pa-2" v-if="!isCollapsed">
+            <v-switch class="navbar-switch" v-model="anonymous" label="Anonymize"></v-switch>
+          </div>
+        </template>
+
       </v-navigation-drawer>
 
       <v-main>
@@ -75,6 +79,7 @@ import DataView from "@/views/DataView";
 @Component({})
 export default class App extends DataView {
   drawerEnabled = true;
+  isCollapsed = true;
 
   created(): void {
     this.drawerEnabled = !this.$vuetify.breakpoint.mobile;
