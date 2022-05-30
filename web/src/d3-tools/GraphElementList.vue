@@ -85,10 +85,12 @@ export default class GraphElementList extends DataView {
   }
 
   formatTime(time: Date): string {
+    if (!time) { return ""; }
     return DateTime.fromJSDate(time).toLocaleString();
   }
 
   formatTimeLong(time: Date): string {
+    if (!time) { return ""; }
     return DateTime.fromJSDate(time).toLocaleString(DateTime.DATETIME_MED);
   }
 
