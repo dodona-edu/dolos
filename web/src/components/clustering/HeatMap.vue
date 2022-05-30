@@ -25,6 +25,21 @@
         </div>
       </div>
     </div>
+    <div class="more-info">
+      <v-tooltip bottom>
+        <template v-slot:activator="{ on, attrs }">
+          <v-icon v-bind="attrs" v-on="on">
+            mdi-information
+          </v-icon>
+        </template>
+        <span class="tooltip-span">
+        The heatmap visualizes the details of each of the pairs of files in this cluster. You can use this to examine
+          the connections between the files in detail. This can be useful in particular for identifying files which
+          do not belong in the cluster, when certain rows and columns are colored too light. You can use this to modify
+          the cutoff value.
+          </span>
+      </v-tooltip>
+    </div>
   </div>
 </template>
 
@@ -354,5 +369,16 @@ non-scoped style for svg styles
   justify-content: space-between;
   flex-direction: row;
   text-align: center;
+}
+
+.more-info {
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+.tooltip-span {
+  display: block;
+  max-width: 400px;
 }
 </style>
