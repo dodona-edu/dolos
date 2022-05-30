@@ -1,8 +1,9 @@
 <template>
   <div class="main-container d-flex flex-column">
     <div class="d-flex flex-row flex-wrap justify-space-between">
-      <v-card class="main-card center-card">
-        <v-card-text class="center-card-element title">
+      <v-card class="main-card center-card" :loading="!dataLoaded">
+        <v-card-text class="center-card-element title"
+                     :class="{invisible: !dataLoaded }">
           <h1>DOLOS</h1>
           <span class="subtitle">Source code plagiarism detection</span>
           <p>We analyzed <b>{{ getNumberOfFiles() }}</b> files for plagiarism, using
@@ -36,8 +37,12 @@
             of which the biggest consists of <b>{{getLargestCluster()}}</b> files.
           </p>
         </v-card-text>
+
+        <div class="progress-container" v-if="!dataLoaded">
+          <v-progress-circular indeterminate ></v-progress-circular>
+        </div>
       </v-card>
-      <v-card class="second-card">
+      <v-card class="second-card" :loading="!dataLoaded">
         <div class="d-flex flex-row flex-nowrap justify-space-between">
           <v-card-title>Similarity Distribution &nbsp;
             <v-tooltip top>
@@ -70,7 +75,13 @@
         </div>
         </div>
 
-        <OverviewBarchart :number-of-ticks="10" :extra-line="cutoff"></OverviewBarchart>
+        <OverviewBarchart :number-of-ticks="10" :extra-line="cutoff" :class="{invisible: !dataLoaded }">
+
+        </OverviewBarchart>
+        <div class="progress-container" v-if="!dataLoaded">
+          <v-progress-circular indeterminate ></v-progress-circular>
+        </div>
+
       </v-card>
   </div>
     <div>
@@ -280,5 +291,17 @@ export default class Overview extends DataView {
 label {
   margin: 5px 5px 0 0
 ;
+}
+.progress-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  top: 0;
+}
+.invisible {
+  visibility: hidden;
 }
 </style>
