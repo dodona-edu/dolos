@@ -57,7 +57,7 @@
     <h4>Look at previous reports</h4>
        <select name="branch" id="branchSelect">
          <option value="main">main</option>
-         <option value="feature/global-overview">Clustering & Individual detection</option>
+         <option value="feature/general-overview">Clustering & Individual detection</option>
          <option value="enchancement/semantic-analysis">Semantic matching</option>
        </select> 
     <ul>
