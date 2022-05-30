@@ -9,6 +9,20 @@
       <TimeSeriesDiagram :cluster="cluster" :selection="true" @filedata="setNewFiles" :selected-files="files"/>
 
     </div>
+    <div v-if="show" class="more-info">
+      <v-tooltip bottom>
+        <template v-slot:activator="{ on, attrs }">
+          <v-icon v-bind="attrs" v-on="on">
+            mdi-information
+          </v-icon>
+        </template>
+        <span class="tooltip-span">
+        The timeline representation places each of the files in this cluster on the timeline, allowing you to see
+        suspicious activity based on the handin times (such as many people copying at the last minute). You can select
+        files by clicking and dragging on the timeline, or selecting the files in the file list.
+          </span>
+      </v-tooltip>
+    </div>
     <div v-if="!show">
       <p>Your files do not all include a timestamp. The time series card is unavailable.</p>
     </div>
@@ -55,5 +69,16 @@ export default class TimeSeriesCard extends Vue {
 
 .gel-items {
   max-height: 375px;
+}
+
+.more-info {
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+.tooltip-span {
+  display: block;
+  max-width: 400px;
 }
 </style>
