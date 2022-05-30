@@ -36,6 +36,14 @@
               <v-list-item-title>Plagiarism graph</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
+          <v-list-item @click="toSummary" link>
+            <v-list-item-icon>
+              <v-icon>
+              mdi-clipboard-text-outline
+              </v-icon>
+            </v-list-item-icon>
+            <v-list-item-content>Summary</v-list-item-content>
+          </v-list-item>
         </v-list>
       </v-navigation-drawer>
 
@@ -70,6 +78,10 @@ export default class App extends Vue {
 
   toGraphView(): void {
     this.navigateTo("/graph/");
+  }
+
+  toSummary(): void {
+    this.navigateTo("/summary/");
   }
 }
 </script>

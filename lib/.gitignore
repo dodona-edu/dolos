@@ -8,3 +8,4 @@ dolos-report-*
 .nyc_output
 *.tgz
 *.tsbuildinfo
+../cli/data/testfiles

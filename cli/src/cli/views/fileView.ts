@@ -2,7 +2,9 @@ import { View } from "./view";
 import csvStringify from "csv-stringify";
 import { Writable } from "stream";
 import { createWriteStream, promises, promises as fs } from "fs";
-import { Fragment, Pair, Report } from "@dodona/dolos-lib";
+import { Fragment, Pair, Report, ScoredPairs, TokenizedFile } from "@dodona/dolos-lib";
+import { PairedOccurrence } from "@dodona/dolos-lib/dist/lib/analyze/pairedOccurrence";
+import { SharedFingerprint } from "@dodona/dolos-lib/dist/lib/analyze/sharedFingerprint";
 
 function writeCSVto<T>(
   out: Writable,
@@ -47,7 +49,7 @@ export class FileView extends View {
         leftSelection: fragment.leftSelection,
         rightSelection: fragment.rightSelection,
         data: fragment.mergedData,
-        pairedOccurrences: fragment.pairs.map(pair => {
+        pairedOccurrences: fragment.pairs.map((pair: PairedOccurrence) => {
           return {
             sharedFingerprint: pair.fingerprint.id,
             left: {
@@ -71,7 +73,7 @@ export class FileView extends View {
   }
 
   public writePairs(out: Writable): void {
-    writeCSVto(
+    writeCSVto<ScoredPairs>(
       out,
       this.report.scoredPairs,
       {
@@ -83,11 +85,13 @@ export class FileView extends View {
         "similarity": s => s.similarity,
         "totalOverlap": s => s.overlap,
         "longestFragment": s => s.longest,
+        "leftCovered": s => s.leftCovered,
+        "rightCovered": s => s.rightCovered
       });
   }
 
   public writekgrams(out: Writable): void {
-    writeCSVto(
+    writeCSVto<SharedFingerprint>(
       out,
       this.report.sharedFingerprints(),
       {
@@ -99,13 +103,14 @@ export class FileView extends View {
   }
 
   public writeFiles(out: Writable): void {
-    writeCSVto(
+    writeCSVto<TokenizedFile>(
       out,
       this.report.files(),
       {
         "id": f => f.id,
         "path": f => f.path,
         "content": f => f.content,
+        "amountOfKgrams": f => f.kgrams.length,
         "ast": f => JSON.stringify(f.ast),
         "mapping": f => JSON.stringify(f.mapping),
         "extra": f => JSON.stringify(f.extra)
@@ -114,7 +119,7 @@ export class FileView extends View {
 
   public writeMetadata(out: Writable): void {
     const metaData = this.report.options.asObject();
-    writeCSVto(
+    writeCSVto<[string, string]>(
       out,
       Object.entries(metaData),
       {

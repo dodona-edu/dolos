@@ -1,5 +1,5 @@
 <template>
-  <div style="height: 100%">
+  <div>
     <v-row no-gutters>
       <v-col>
         <v-container>
@@ -83,7 +83,6 @@
         @click:row="onRowClick"
         disable-pagination
         fixed-header
-        height="71vh"
         hide-default-footer
         id="fragmentList"
         item-key="id"
@@ -110,10 +109,11 @@
 
 <script lang="ts">
 import FragmentItem from "@/components/FragmentItem.vue";
-import { Fragment, Pair } from "@/api/api";
+import { fileToTokenizedFile, Fragment, Pair, Selection } from "@/api/api";
 import { Component, Prop, PropSync, Vue, Watch } from "vue-property-decorator";
 import { constructID, SelectionId } from "@/util/OccurenceHighlight";
 import { SideID } from "@/components/CompareCard.vue";
+import { Region, SemanticAnalyzer } from "@dodona/dolos-lib";
 
 interface FragmentWithId extends Fragment {
   index: number;
@@ -187,12 +187,26 @@ export default class FragmentList extends Vue {
     if (this.pair.fragments === null) {
       return [];
     } else {
-      return this.pair.fragments.map((fragment, index) => {
-        const fragmentWithId = (fragment as FragmentWithId);
-        fragmentWithId.index = index;
-        return fragmentWithId;
-      });
+      const leftCovers = this.pair.pairedMatches.map(p =>
+        SemanticAnalyzer.getFullRange(fileToTokenizedFile(this.pair.leftFile), p.leftMatch));
+      const rightCovers = this.pair.pairedMatches.map(p =>
+        SemanticAnalyzer.getFullRange(fileToTokenizedFile(this.pair.rightFile), p.rightMatch));
+
+      return this.pair.fragments
+        .filter(f =>
+          !(leftCovers.some(lc => this.isContainedIn(f.left, lc)) &&
+          rightCovers.some(rc => this.isContainedIn(f.right, rc))))
+
+        .map((fragment, index) => {
+          const fragmentWithId = (fragment as FragmentWithId);
+          fragmentWithId.index = index;
+          return fragmentWithId;
+        });
     }
+  }
+
+  isContainedIn(s1: Selection, s2: Region): boolean {
+    return Region.diff(new Region(s1.startRow, s1.startCol, s1.endRow, s2.endCol), s2).length === 0;
   }
 
   applyMinFragmentLength(value: number): void {
@@ -316,9 +330,9 @@ export default class FragmentList extends Vue {
   @Watch("selectedItem")
   onSelectedItemChange(newVal: number): void {
     if (newVal === -1) {
-      this.dataTableSelection = [];
+      // this.dataTableSelection = [];
     } else {
-      this.dataTableSelection = [this.fragmentsWithId[newVal]];
+      // this.dataTableSelection = [this.fragmentsWithId[newVal]];
     }
   }
 }

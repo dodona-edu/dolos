@@ -8,15 +8,16 @@ import { WinnowFilter } from "../hashing/winnowFilter";
 import { File } from "../file/file";
 import { Report, Occurrence } from "./report";
 import { TokenizedFile } from "../file/tokenizedFile";
+import { SemanticAnalyzer } from "./SemanticAnalyzer";
 
 type Hash = number;
 
 export class Index {
   private readonly kgramLength: number;
   private readonly kgramsInWindow: number;
-  private readonly index: Map<Hash, Array<Occurrence>> = new Map();
+  //private readonly index: Map<Hash, Array<Occurrence>> = new Map();
   private readonly tokenizer: Tokenizer;
-  private readonly hashFilter: HashFilter;
+  protected readonly hashFilter: HashFilter;
 
   /**
    * Creates a Index object with a given Tokenizer , an optional Options
@@ -84,7 +85,28 @@ export class Index {
     hashFilter = this.hashFilter
   ): Promise<Report> {
 
+    await new SemanticAnalyzer(this).semanticAnalysis(tokenizedFiles, this.hashFilter);
+
     const report = new Report(this.options, tokenizedFiles);
+    const map = await this.createMatches(tokenizedFiles, hashFilter);
+
+    for(const [hash, occurrences] of map.entries()) {
+      report.addOccurrences(hash, ...occurrences);
+    }
+
+    report.finish();
+    return report;
+
+  }
+
+  public async createMatches(
+    tokenizedFiles: TokenizedFile[],
+    hashFilter = this.hashFilter
+  ): Promise<Map<Hash, Array<Occurrence>>> {
+    const index = new Map();
+
+    // TODO REMOVE TEST
+    tokenizedFiles.forEach(t => t.kgrams.splice(0, t.kgrams.length));
 
     for (const file of tokenizedFiles) {
       let kgram = 0;
@@ -125,26 +147,24 @@ export class Index {
         };
 
         // look if the index already contains the given hashing
-        const matches = this.index.get(hash);
+        const matches = index.get(hash);
 
 
         if (matches) {
-          report.addOccurrences(hash, part, ...matches);
+          // report.addOccurrences(hash, part, ...matches);
 
           // add our matching part to the index
           matches.push(part);
         } else {
 
           // if the hashing does not yet exist in the index, add it
-          this.index.set(hash, [part]);
+          index.set(hash, [part]);
         }
 
         kgram += 1;
       }
     }
-    report.finish();
-    return report;
-
+    return index;
   }
 
   /**

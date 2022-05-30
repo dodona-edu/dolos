@@ -8,8 +8,15 @@ import {
   Index,
   Options,
   Region,
-  TokenizedFile
+  TokenizedFile,
+  Occurrence
 } from "@dodona/dolos-lib";
+import {
+  NodeStats,
+  PairedNodeStats,
+  SemanticAnalyzer,
+  UnpairedNodeStats
+} from "@dodona/dolos-lib/dist/lib/analyze/SemanticAnalyzer";
 // import { assertType } from "typescript-is";
 
 const DATA_URL = "./data/";
@@ -44,6 +51,7 @@ interface FileIndeterminate {
   astAndMappingLoaded: boolean;
   ast: string[] | string;
   mapping: Selection[] | string;
+  amountOfKgrams: number;
   /* eslint-disable camelcase */
   extra: {
     timestamp?: Date;
@@ -57,12 +65,14 @@ interface LoadedFile extends FileIndeterminate {
   astAndMappingLoaded: true;
   ast: string[];
   mapping: Selection[];
+  semanticMap: Map<number, NodeStats[]>;
 }
 
 interface UnloadedFile extends FileIndeterminate {
   astAndMappingLoaded: false;
   ast: string;
   mapping: string;
+  semanticMap: Map<number, NodeStats[]>;
 }
 
 export type File = LoadedFile | UnloadedFile;
@@ -104,6 +114,10 @@ export interface Pair {
   longestFragment: number;
   totalOverlap: number;
   fragments: Array<Fragment> | null;
+  pairedMatches: PairedNodeStats[];
+  unpairedMatches: UnpairedNodeStats[];
+  leftCovered: number;
+  rightCovered: number;
 }
 
 export interface Metadata {
@@ -115,7 +129,7 @@ export interface ApiData {
   pairs: ObjMap<Pair>;
   kgrams: ObjMap<Kgram>;
   metadata: Metadata;
-
+  occurrences: Occurrence[][];
 }
 
 async function fetchFiles(
@@ -142,19 +156,34 @@ async function fetchMetadata(
   return await d3.csv(url);
 }
 
-function parseFiles(fileData: d3.DSVRowArray): ObjMap<File> {
+type ParseFilesReturn = {fileMap: ObjMap<File>, occurrences: Occurrence[][]}
+async function parseFiles(fileData: d3.DSVRowArray, customOptions: CustomOptions): Promise<ParseFilesReturn> {
   // const start = performance.now();
   // console.log(performance.now() - start);
-  return Object.fromEntries(
-    fileData.map(row => {
-      const extra = JSON.parse(row.extra || "{}");
-      extra.timestamp = extra.createdAt && new Date(extra.createdAt);
-      row.extra = extra;
-      // row.mapping = JSON.parse(row.mapping || "[]");
-      // row.ast = JSON.parse(row.ast || "[]");
-      return [row.id, row];
-    })
-  );
+  const files = fileData.map((row: any) => {
+    const file = row as File;
+    const extra = JSON.parse(row.extra || "{}");
+    extra.timestamp = extra.createdAt && new Date(extra.createdAt);
+    file.extra = extra;
+    file.ast = JSON.parse(row.ast);
+    file.mapping = JSON.parse(row.mapping);
+    file.astAndMappingLoaded = true;
+
+    return file;
+  });
+
+  const emptyTokenizer = new EmptyTokenizer();
+  const options = new Options(customOptions);
+  const index = new Index(emptyTokenizer, options);
+
+  const semanticAnalyzer = new SemanticAnalyzer(index);
+  const [occurrences, results] = await semanticAnalyzer.semanticAnalysis(files.map(f => fileToTokenizedFile(f)));
+
+  for (let i = 0; i < files.length; i++) {
+    files[i].semanticMap = results[i];
+  }
+
+  return { fileMap: Object.fromEntries(files.map(f => [f.id, f])), occurrences };
 }
 
 function parseFragments(dolosFragments: DolosFragment[], kmersMap: Map<Hash, Kgram>): Fragment[] {
@@ -188,6 +217,8 @@ function parsePairs(
       const similarity = parseFloat(assertType(row.similarity));
       const longestFragment = parseFloat(assertType(row.longestFragment));
       const totalOverlap = parseFloat(assertType(row.totalOverlap));
+      const leftCovered = parseFloat(assertType((row.leftCovered)));
+      const rightCovered = parseFloat(assertType((row.rightCovered)));
 
       const diff = {
         id,
@@ -196,7 +227,11 @@ function parsePairs(
         totalOverlap,
         leftFile: files[parseInt(assertType(row.leftFileId))],
         rightFile: files[parseInt(assertType(row.rightFileId))],
-        fragments: null
+        fragments: null,
+        pairedMatches: [],
+        unpairedMatches: [],
+        leftCovered,
+        rightCovered
       };
       return [id, diff];
     })
@@ -243,8 +278,8 @@ function parseMetadata(data: d3.DSVRowArray): Metadata {
   );
 }
 
-function fileToTokenizedFile(file: File): TokenizedFile {
-  const dolosFile = new DolosFile(file.path, file.content);
+export function fileToTokenizedFile(file: File): TokenizedFile {
+  const dolosFile = new DolosFile(file.path, file.content, undefined, file.id);
   if (file.astAndMappingLoaded) {
     return new TokenizedFile(dolosFile, file.ast, file.mapping as Region[]);
   } else {
@@ -256,10 +291,32 @@ export async function loadFragments(pair: Pair, kmers: ObjMap<Kgram>, customOpti
   const emptyTokenizer = new EmptyTokenizer();
   const options = new Options(customOptions);
   const index = new Index(emptyTokenizer, options);
+  const leftFile = fileToTokenizedFile(pair.leftFile);
+  const rightFile = fileToTokenizedFile(pair.rightFile);
   const report = await index.compareTokenizedFiles(
-    [fileToTokenizedFile(pair.leftFile), fileToTokenizedFile(pair.rightFile)]
+    [leftFile, rightFile]
   );
   const reportPair = report.scoredPairs[0].pair;
+  const semanticAnalysis = new SemanticAnalyzer(index);
+  const [occurrences, results] =
+    await semanticAnalysis.semanticAnalysis(
+      [leftFile, rightFile],
+    );
+
+  const [pairedMatches, unpairedMatches] = SemanticAnalyzer.pairMatches(
+    leftFile,
+    rightFile,
+    results[0].get(pair.rightFile.id) || [],
+    results[1].get(pair.leftFile.id) || [],
+    occurrences
+  );
+
+  const totalMatch = (s: NodeStats): number =>
+    (s.matchedNodeAmount.get(pair.leftFile.id) || 0) + (s.childrenMatch.get(pair.leftFile.id) || 0);
+
+  pair.pairedMatches = pairedMatches.filter(pm => totalMatch(pm.rightMatch) >= 5);
+  pair.unpairedMatches = unpairedMatches;
+
   const kmersMap: Map<Hash, Kgram> = new Map();
   for (const kmerKey in kmers) {
     const kmer = kmers[kmerKey];
@@ -268,16 +325,16 @@ export async function loadFragments(pair: Pair, kmers: ObjMap<Kgram>, customOpti
   pair.fragments = parseFragments(reportPair.fragments(), kmersMap);
 }
 
-export async function fetchData(): Promise<ApiData> {
+export async function fetchData(customOptions: CustomOptions): Promise<ApiData> {
   const kgramPromise = fetchKgrams();
   const filePromise = fetchFiles();
   const metadataPromise = fetchMetadata();
   const pairPromise = fetchPairs();
 
-  const files = parseFiles(await filePromise);
-  const kgrams = parseKgrams(await kgramPromise, files);
-  const pairs = parsePairs(await pairPromise, files, kgrams);
+  const { fileMap, occurrences } = await parseFiles(await filePromise, customOptions);
+  const kgrams = parseKgrams(await kgramPromise, fileMap);
+  const pairs = parsePairs(await pairPromise, fileMap, kgrams);
   const metadata = parseMetadata(await metadataPromise);
 
-  return { files, kgrams, pairs, metadata };
+  return { files: fileMap, kgrams, pairs, metadata, occurrences };
 }
