@@ -82,7 +82,7 @@
        <select name="branch" id="branchSelect">
          <option value="main">main</option>
          <option value="feature/general-overview">Clustering & Individual detection</option>
-         <option value="enchancement/semantic-analysis">Semantic matching</option>
+         <option value="enchancement/semantic-matching">Semantic matching</option>
        </select> 
     <ul>
     <% for(let report of it.reports) { %>

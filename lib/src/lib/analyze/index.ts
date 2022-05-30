@@ -8,7 +8,6 @@ import { WinnowFilter } from "../hashing/winnowFilter";
 import { File } from "../file/file";
 import { Report, Occurrence } from "./report";
 import { TokenizedFile } from "../file/tokenizedFile";
-import { SemanticAnalyzer } from "./SemanticAnalyzer";
 
 type Hash = number;
 
@@ -84,9 +83,6 @@ export class Index {
     tokenizedFiles: TokenizedFile[],
     hashFilter = this.hashFilter
   ): Promise<Report> {
-
-    await new SemanticAnalyzer(this).semanticAnalysis(tokenizedFiles, this.hashFilter);
-
     const report = new Report(this.options, tokenizedFiles);
     const map = await this.createMatches(tokenizedFiles, hashFilter);
 
