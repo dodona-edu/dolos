@@ -8,6 +8,7 @@ import { default as fs } from "fs";
 import { listReports } from "./reports";
 import { getConfig } from "./config/configuration";
 import assert from "assert";
+import { unzip } from "./util/file-util";
 
 
 export const router = Router();
@@ -33,6 +34,27 @@ router.post<{ name: string }>("/upload", async (req, res) => {
   assert(!req.body.language || ["javascript", "python", "java", "c"].includes(req.body.language));
   analyze(path.join(destination, sourceZipName), req.body.anonymize || false, req.body.language);
   return res.status(202).send("File uploaded, will be analyzed. <a href='./'>Back to home</a>");
+});
+
+router.post<{name: string}>("/upload-results", async (req, res) => {
+  if (!req.files || Object.keys(req.files).length === 0 || !req.files.zip) {
+    return res.status(400).send("No files were uploaded.");
+  }
+
+  const name = req.body.name;
+  const sanName = sanitize(name);
+  const destination = path.join(reportsDir, sanName, sourceZipfileFolder);
+
+  if (fs.existsSync(destination)) {
+    return res.status(400).send("There is already a report with the same name.");
+  }
+
+  const zipfile = req.files.zip as UploadedFile;
+  const sourceZipPath = path.join(destination, sourceZipName);
+  await zipfile.mv(sourceZipPath);
+
+  await unzip(sourceZipPath, path.join(sourceZipPath, "../..", resultFiles));
+  return res.status(200).send("File uploaded and has been unpacked. <a href='./'>Back to home</a>");
 });
 
 router.use("/css", express.static(path.join(__dirname, "../css")));
