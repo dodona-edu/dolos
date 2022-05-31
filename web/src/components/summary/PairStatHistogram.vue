@@ -37,8 +37,11 @@ export default class PairStatHistogram extends ResizableD3Viz {
   }
 
   resize(width: number, height: number): void {
-    this.setSize();
-    this.draw();
+    if ((this.height + this.margin.top + this.margin.bottom) !== height) {
+      console.log(this.height + this.margin.top + this.margin.bottom, height);
+      this.setSize();
+      this.draw();
+    }
   }
 
   mounted(): void {
@@ -90,6 +93,7 @@ export default class PairStatHistogram extends ResizableD3Viz {
     data: d3.Bin<number, number>[]
   ): d3.Selection<any, unknown, HTMLElement, any> {
     d3.select(`#${this.getSvgId()}`).select("svg").remove();
+
     const svg = d3
       .select(`#${this.getSvgId()}`)
       .append("svg")
@@ -226,7 +230,7 @@ export default class PairStatHistogram extends ResizableD3Viz {
   private setSize(): void {
     this.width = (document.getElementById(this.getSvgId())?.clientWidth || 750) -
       this.margin.left - this.margin.right;
-    this.height = (document.getElementById(this.getSvgId())?.clientHeight || 400) -
+    this.height = 400 -
       this.margin.top - this.margin.bottom;
   }
 }

@@ -10,17 +10,13 @@ export abstract class ResizableD3Viz extends DataView {
     return this.svgId;
   }
 
-  constructor() {
-    super();
+  mounted(): void {
+    const div = document.getElementById(this.getSvgId());
+    if (div) { this.setupResize(div); }
     (async () => {
       await this.ensureData();
       this.initialize();
     })();
-  }
-
-  mounted(): void {
-    const div = document.getElementById(this.getSvgId());
-    if (div) { this.setupResize(div); }
   }
 
   private setupResize(parentRef: HTMLElement): void {
