@@ -75,7 +75,7 @@ export default class TimeSeriesCard extends Vue {
 
 .more-info {
   position: absolute;
-  right: 0;
+  right: 80px;
   top: 0;
 }
 

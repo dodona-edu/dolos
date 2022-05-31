@@ -29,7 +29,7 @@ export default class TimeSeriesDiagram extends ResizableD3Viz {
 
   constructor() {
     super();
-    this.margin = { top: 10, right: 30, bottom: 30, left: 40 };
+    this.margin = { top: 10, right: 30, bottom: 30, left: 60 };
     this.width = 900 - this.margin.left - this.margin.right;
     this.height = 400 - this.margin.top - this.margin.bottom;
   }
