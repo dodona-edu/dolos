@@ -177,6 +177,7 @@ export default class FileCard extends DataView {
 .graph-wrapper {
   padding: 10px;
   margin-top: 20px;
+  max-height: 500px;
 }
 .score-container {
   padding: 10px;

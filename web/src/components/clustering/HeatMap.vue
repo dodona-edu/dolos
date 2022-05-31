@@ -20,8 +20,8 @@
           <GraphElementList :selected-files="selectedFiles"  :cluster="cluster"></GraphElementList>
         </div>
         <div class="d-flex">
-          <div :id="svgId" class="svg-container"></div>
-          <div :id="`${svgId}-legend`"></div>
+          <div :id="getSvgId()" class="svg-container"></div>
+          <div :id="`${getSvgId()}-legend`"></div>
         </div>
       </div>
     </div>
@@ -55,13 +55,13 @@ import { pairsAsNestedMap } from "@/util/PairAsNestedMap";
 
 import { File, Pair } from "@/api/api";
 import GraphElementList from "@/d3-tools/GraphElementList.vue";
+import { ResizableD3Viz } from "@/d3-tools/ResizableD3Viz";
 @Component({
   components: { GraphElementList }
 })
-export default class HeatMap extends DataView {
+export default class HeatMap extends ResizableD3Viz {
   @Prop() cluster!: Cluster;
 
-  private svgId = `heatmap_${Math.round(Math.random() * 10000)}`;
   private svg: d3.Selection<SVGGElement, unknown, HTMLElement, unknown> | null =
     null;
 
@@ -78,19 +78,14 @@ export default class HeatMap extends DataView {
 
   private selectedFiles: File[] = [];
 
-  async mounted(): Promise<void> {
-    await this.ensureData();
-    this.initialize();
-  }
-
   @Watch("cluster")
   redraw(): void {
-    d3.select(`#${this.svgId}`).selectAll("svg").remove();
-    d3.select(`#${this.svgId}-legend`).selectAll("svg").remove();
+    d3.select(`#${this.getSvgId()}`).selectAll("svg").remove();
+    d3.select(`#${this.getSvgId()}-legend`).selectAll("svg").remove();
     this.initialize();
   }
 
-  private initialize(): void {
+  initialize(): void {
     this.initializeSvg();
     this.initializeAxes();
     this.initializeColorScale();
@@ -104,7 +99,7 @@ export default class HeatMap extends DataView {
     const rightMargin = 30;
 
     this.svg = d3
-      .select(`#${this.svgId}`)
+      .select(`#${this.getSvgId()}`)
       .append("svg")
       .attr("width", width + leftMargin + rightMargin)
       .attr("height", height + 2 * topBottomMargin)
@@ -174,7 +169,7 @@ export default class HeatMap extends DataView {
 
     // Legend code inspired by https://bl.ocks.org/starcalibre/6cccfa843ed254aa0a0d
 
-    const legendSvg = d3.select(`#${this.svgId}-legend`)
+    const legendSvg = d3.select(`#${this.getSvgId()}-legend`)
       .append("svg")
       .attr("width", 50)
       .attr("height", 300)

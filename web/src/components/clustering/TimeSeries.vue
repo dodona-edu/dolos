@@ -1,5 +1,5 @@
 <template>
-  <div :id="getSvgId()">
+  <div  :id="getSvgId()">
     <GraphLegend :current-files="legendData()" @legend="setLegend"/>
   </div>
 </template>
@@ -12,18 +12,19 @@ import { getClusterElementsArray } from "@/util/clustering-algorithms/ClusterFun
 import { SelectionTool, xCoord } from "@/d3-tools/SelectionTool";
 import GraphLegend from "@/d3-tools/GraphLegend.vue";
 import { Legend } from "@/views/DataView";
+import { ResizableD3Viz } from "@/d3-tools/ResizableD3Viz";
 
 interface TimeDataType extends xCoord { file: File, y?: number }
 
 @Component({ components: { GraphLegend } })
-export default class TimeSeriesDiagram extends Vue {
+export default class TimeSeriesDiagram extends ResizableD3Viz {
   @Prop() cluster!: Cluster;
   @Prop({ default: false }) selection!: boolean;
   @Prop({ default: [] }) selectedFiles!: File[];
 
   private readonly margin: { left: number; right: number; top: number; bottom: number };
-  private readonly width: number;
-  private readonly height: number;
+  private width: number;
+  private height: number;
   private legend: Legend | undefined;
 
   constructor() {
@@ -34,15 +35,21 @@ export default class TimeSeriesDiagram extends Vue {
   }
 
   mounted(): void {
-    this.initialize();
+    super.mounted();
   }
 
-  private initialize(): void {
+  initialize(): void {
     const data = getClusterElementsArray(this.cluster).map(file => ({ file }));
     const xScale = this.getXScale(data);
     this.applySimulation(xScale, data);
     const svg = this.addSVG(xScale, data);
     this.addSelectionTool(svg, data);
+  }
+
+  resize(width: number, height: number): void {
+    this.width = width - this.margin.left - this.margin.right;
+
+    this.initialize();
   }
 
   private getXScale(files: TimeDataType[]): d3.ScaleTime<number, number> {
@@ -139,15 +146,6 @@ export default class TimeSeriesDiagram extends Vue {
         d => d.file && this.selectedFiles.map(f => f.id).includes(d.file.id) ? "red" : "")
       .attr("r", d => d.file && this.selectedFiles.map(f => f.id).includes(d.file.id) ? 8.5 : 6.5)
     ;
-  }
-
-  private _svgId: string | null = null;
-
-  getSvgId(): string {
-    if (!this._svgId) {
-      this._svgId = `svg-file-histogram-${Math.round(Math.random() * 100000)}`;
-    }
-    return this._svgId;
   }
 
   legendData(): File[] {
