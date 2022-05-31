@@ -1,6 +1,6 @@
 <template>
   <div class="main-container d-flex flex-column">
-    <div class="d-flex flex-row flex-wrap justify-space-between">
+    <div class="d-flex flex-row justify-space-between flex-wrap align-content-center">
       <v-card class="main-card center-card" :loading="!dataLoaded">
         <v-card-text class="center-card-element title"
                      :class="{invisible: !dataLoaded }">
@@ -233,8 +233,9 @@ export default class Overview extends DataView {
 }
 
 .second-card {
-  min-width: 40%;
+  width: 40%;
   margin-top: 40px;
+  min-width: 500px;
 }
 
 .center-card {

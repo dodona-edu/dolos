@@ -9,9 +9,10 @@ import { File } from "@/api/api";
 import * as d3 from "d3";
 import { FileInterestingnessCalculator, FileScoring } from "@/util/FileInterestingness";
 import { TooltipTool } from "@/d3-tools/TooltipTool";
+import { ResizableD3Viz } from "@/d3-tools/ResizableD3Viz";
 
 @Component({})
-export default class OverviewBarchart extends DataView {
+export default class OverviewBarchart extends ResizableD3Viz {
   @Prop({ default: 50 }) numberOfTicks!: number;
   @Prop() extraLine: undefined | number;
   @Prop({ default: "similarity" }) pairField!: "similarity" | "longestFragment" | "totalOverlap";
@@ -27,23 +28,26 @@ export default class OverviewBarchart extends DataView {
   constructor() {
     super();
     this.margin = { top: 10, right: 40, bottom: 50, left: 70 };
-    this.width = (document.getElementById(this.getSvgId())?.clientWidth || 750) - this.margin.left - this.margin.right;
+    this.width = (document.getElementById(this.getSvgId())?.clientWidth || 600) - this.margin.left - this.margin.right;
     this.height = (document.getElementById(this.getSvgId())?.clientHeight || 400) -
       this.margin.top - this.margin.bottom;
   }
 
   mounted(): void {
-    this.setSize();
-    this.afterDataInit();
-    document.getElementById(this.getSvgId())!.onresize = () => {
-      this.setSize();
-      this.afterDataInit();
-    };
+    super.mounted();
   }
 
-  async afterDataInit(): Promise<void> {
-    await this.ensureData();
+  initialize(): void {
     this.maxFileData = this.getMaxFileData();
+    this.draw();
+  }
+
+  resize(): void {
+    this.setSize();
+    this.draw();
+  }
+
+  draw(): void {
     const xScale = this.getXScale();
     this.xScale = xScale;
     const domain = xScale.domain();
@@ -74,7 +78,7 @@ export default class OverviewBarchart extends DataView {
   ): d3.ScaleLinear<number, number> {
     const yScale = d3
       .scaleLinear()
-      .range([this.width, 0])
+      .range([0, this.width])
       .domain([
         0,
         d3.max<d3.Bin<number, number>, number>(bins, ({ length }) => length),
@@ -135,7 +139,7 @@ export default class OverviewBarchart extends DataView {
         return xScale(d.x1 || 0) - xScale(d.x0 || 0) - 1;
       })
       .attr("width", function (d) {
-        return h - yScale(d.length);
+        return yScale(d.length);
       })
       .style("fill", d => this.getBinColor(d));
 
@@ -213,9 +217,9 @@ export default class OverviewBarchart extends DataView {
   }
 
   private setSize(): void {
-    this.width = (document.getElementById(this.getSvgId())?.clientWidth || 750) -
+    this.width = (document.getElementById(this.getSvgId())?.clientWidth || 600) -
       this.margin.left - this.margin.right;
-    this.height = (document.getElementById(this.getSvgId())?.clientHeight || 400) -
+    this.height = 400 -
       this.margin.top - this.margin.bottom;
   }
 }
