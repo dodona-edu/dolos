@@ -78,6 +78,10 @@ export default class HeatMap extends ResizableD3Viz {
 
   private selectedFiles: File[] = [];
 
+  mounted(): void {
+    super.mounted();
+  }
+
   @Watch("cluster")
   redraw(): void {
     d3.select(`#${this.getSvgId()}`).selectAll("svg").remove();
@@ -98,6 +102,7 @@ export default class HeatMap extends ResizableD3Viz {
     const leftMargin = 125;
     const rightMargin = 30;
 
+    console.log(this.getSvgId());
     this.svg = d3
       .select(`#${this.getSvgId()}`)
       .append("svg")
