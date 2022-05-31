@@ -1,17 +1,17 @@
 <template>
-  <div :id="getSvgId()"></div>
+  <div class="svg-container" :id="getSvgId()"></div>
 </template>
 <script lang="ts">
 import { Component, Prop } from "vue-property-decorator";
 import { File } from "@/api/api";
 import * as d3 from "d3";
 
-import DataView from "@/views/DataView";
 import { TooltipTool } from "@/d3-tools/TooltipTool";
 import { FileInterestingnessCalculator, FileScoring } from "@/util/FileInterestingness";
+import { ResizableD3Viz } from "@/d3-tools/ResizableD3Viz";
 
 @Component({})
-export default class PairStatHistogram extends DataView {
+export default class PairStatHistogram extends ResizableD3Viz {
   @Prop({ default: 50 }) numberOfTicks!: number;
   @Prop() extraLine: undefined | number;
   @Prop({ default: "similarity" }) pairField!: "similarity" | "longestFragment" | "totalOverlap";
@@ -21,6 +21,7 @@ export default class PairStatHistogram extends DataView {
   private margin: { left: number; right: number; top: number; bottom: number };
   private width: number;
   private height: number;
+  static x = 0;
 
   constructor() {
     super();
@@ -29,18 +30,22 @@ export default class PairStatHistogram extends DataView {
     this.height = document.getElementById(this.getSvgId())?.clientHeight || 400 - this.margin.top - this.margin.bottom;
   }
 
-  mounted(): void {
+  initialize(): void {
     this.setSize();
-    this.afterDataInit();
-    document.getElementById(this.getSvgId())!.onresize = () => {
-      this.setSize();
-      this.afterDataInit();
-    };
+    this.maxFileData = this.getMaxFileData();
+    this.draw();
   }
 
-  async afterDataInit(): Promise<void> {
-    await this.ensureData();
-    this.maxFileData = this.getMaxFileData();
+  resize(width: number, height: number): void {
+    this.setSize();
+    this.draw();
+  }
+
+  mounted(): void {
+    super.mounted();
+  }
+
+  draw(): void {
     const xScale = this.getXScale();
     const domain = xScale.domain();
     const ticks = xScale.ticks(this.numberOfTicks);
@@ -158,15 +163,6 @@ export default class PairStatHistogram extends DataView {
     return 0;
   }
 
-  private _svgId: string | null = null;
-  getSvgId(): string {
-    if (!this._svgId) {
-      this._svgId = `svg-file-histogram-${Math.round(Math.random() * 100000)}`;
-    }
-
-    return this._svgId;
-  }
-
   getBinColor(d: d3.Bin<number, number>): string {
     const defaultColor = "#1976D2";
     const warningColor = "red";
@@ -236,4 +232,7 @@ export default class PairStatHistogram extends DataView {
 }
 </script>
 <style scoped>
+.svg-container {
+  max-height: 500px;
+}
 </style>

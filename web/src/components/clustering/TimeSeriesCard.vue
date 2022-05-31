@@ -6,7 +6,9 @@
 
         </GraphElementList>
       </div>
-      <TimeSeriesDiagram :cluster="cluster" :selection="true" @filedata="setNewFiles" :selected-files="files"/>
+      <div class="graph-wrapper flex-grow-1">
+        <TimeSeriesDiagram :cluster="cluster" :selection="true" @filedata="setNewFiles" :selected-files="files"/>
+      </div>
 
     </div>
     <div v-if="show" class="more-info">
@@ -80,5 +82,9 @@ export default class TimeSeriesCard extends Vue {
 .tooltip-span {
   display: block;
   max-width: 400px;
+}
+
+.graph-wrapper {
+  width: 80%;
 }
 </style>

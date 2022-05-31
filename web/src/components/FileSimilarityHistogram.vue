@@ -3,18 +3,18 @@
 </template>
 
 <script lang="ts">
-import DataView from "@/views/DataView";
 import { Component, Prop } from "vue-property-decorator";
 import { pairsAsNestedMapCached } from "@/util/PairAsNestedMap";
 import * as d3 from "d3";
 import { ScaleBand, ScaleLinear } from "d3";
 import { File, Pair } from "@/api/api";
+import { ResizableD3Viz } from "@/d3-tools/ResizableD3Viz";
 
 /**
  * Code inspired by https://www.d3-graph-gallery.com/graph/barplot_basic.html
  */
 @Component({})
-export default class FileSimilarityHistogram extends DataView {
+export default class FileSimilarityHistogram extends ResizableD3Viz {
   @Prop() file!: File;
 
   private height: number;
@@ -34,12 +34,18 @@ export default class FileSimilarityHistogram extends DataView {
     this.height = 250 - this.margin.top - this.margin.bottom;
   }
 
-  mounted(): void {
-    super.ensureData();
+  initialize(): void {
     this.attachSvg();
     this.setupXScale();
     this.setupYScale();
     this.drawBars();
+  }
+
+  resize(width: number, height: number): void {
+    this.width = width - this.margin.left - this.margin.right;
+    this.height = height - this.margin.top - this.margin.bottom;
+
+    this.initialize();
   }
 
   attachSvg(): void {
@@ -119,20 +125,11 @@ export default class FileSimilarityHistogram extends DataView {
     return candiadateArray.slice(0, 25);
   }
 
-  private _svgId: string | null = null;
-  getSvgId(): string {
-    if (!this._svgId) {
-      this._svgId = `svg-file-histogram-${Math.round(Math.random() * 100000)}`;
-    }
-
-    return this._svgId;
-  }
-
   getOtherFileName(pair: Pair): string {
     const otherFile = this.file.id === pair.leftFile.id ? pair.rightFile : pair.leftFile;
 
-    return otherFile.extra?.fullName
-      || otherFile.path.split("/").splice(-2).join("/");
+    return otherFile.extra?.fullName ||
+      otherFile.path.split("/").splice(-2).join("/");
   }
 }
 </script>

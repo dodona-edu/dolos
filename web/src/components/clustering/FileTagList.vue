@@ -1,5 +1,5 @@
 <template>
-  <div :id="svgId" class="svg-container" ref="container">
+  <div :id="getSvgId()" class="svg-container" ref="container">
 
   </div>
 </template>
@@ -7,17 +7,17 @@
 <script lang="ts">
 import { Component, Prop, Watch } from "vue-property-decorator";
 import { File } from "@/api/api";
-import DataView, { Legend } from "@/views/DataView";
+import { Legend } from "@/views/DataView";
 import * as d3 from "d3";
 import { TooltipTool } from "@/d3-tools/TooltipTool";
+import { ResizableD3Viz } from "@/d3-tools/ResizableD3Viz";
 
 type SVGSelection = d3.Selection<SVGSVGElement, unknown, HTMLElement, unknown>;
 type WidthScale = d3.ScaleLinear<number, number>;
 
 @Component({})
-export default class FileTagList extends DataView {
+export default class FileTagList extends ResizableD3Viz {
   @Prop({ required: true }) currentFiles!: File[];
-  private svgId = `file_tag_list_${Math.round(Math.random() * 10000)}`;
 
   private idealElementWidth = 46;
   private elementMargin = 6;
@@ -33,8 +33,11 @@ export default class FileTagList extends DataView {
   }
 
   mounted(): void {
+    super.mounted();
+  }
+
+  resize(): void {
     this.initialize();
-    window.addEventListener("resize", this.initialize);
   }
 
   @Watch("currentFiles")
@@ -47,8 +50,8 @@ export default class FileTagList extends DataView {
   }
 
   initializeSvg(): SVGSelection {
-    d3.select(`#${this.svgId}`).selectAll("svg").remove();
-    return d3.select(`#${this.svgId}`).append("svg")
+    d3.select(`#${this.getSvgId()}`).selectAll("svg").remove();
+    return d3.select(`#${this.getSvgId()}`).append("svg")
       .attr("width", this.width).attr("height", this.height);
   }
 
