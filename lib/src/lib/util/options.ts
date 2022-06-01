@@ -10,6 +10,8 @@ export interface DolosOptions {
   sortBy: string | null;
   fragmentSortBy: string | null;
   kgramData: boolean;
+  minLines: number;
+  minDepth: number;
 }
 
 export type CustomOptions = Partial<DolosOptions>;
@@ -53,6 +55,8 @@ export class Options implements DolosOptions {
   public static defaultMinSimilarity = 0;
   public static defaultSortBy = "total";
   public static defaultFragmentSortBy = "none";
+  public static defaultMinLines = 1;
+  public static defaultMinDepth = 1;
 
   private custom: CustomOptions = {};
 
@@ -69,6 +73,8 @@ export class Options implements DolosOptions {
       validatePositiveInteger("limitResults", this.limitResults),
       validatePositiveInteger("kgramLength", this.kgramLength),
       validatePositiveInteger("kgramsInWindow", this.kgramsInWindow),
+      validatePositiveInteger("minLines", this.minLines),
+      validatePositiveInteger("minDepth", this.minDepth),
     ].filter(err => err !== null);
 
     if (errors.length > 0) {
@@ -137,6 +143,14 @@ export class Options implements DolosOptions {
     return definedOrDefault(this.custom.fragmentSortBy, Options.defaultFragmentSortBy);
   }
 
+  get minDepth(): number {
+    return definedOrDefault(this.custom.minDepth, Options.defaultMinDepth);
+  }
+
+  get minLines(): number {
+    return definedOrDefault(this.custom.minLines, Options.defaultMinLines);
+  }
+
   public asObject(): DolosOptions {
     return {
       kgramLength: this.kgramLength,
@@ -149,7 +163,9 @@ export class Options implements DolosOptions {
       minSimilarity: this.minSimilarity,
       sortBy: this.sortBy,
       fragmentSortBy: this.fragmentSortBy,
-      kgramData: this.kgramData
+      kgramData: this.kgramData,
+      minDepth: this.minDepth,
+      minLines: this.minLines,
     };
   }
 

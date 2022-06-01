@@ -78,7 +78,7 @@ export class TreeIndex implements IndexInterface {
     // TODO more intelligent merging
     const groupMerged = [...grouped, ...groupedExtended];
 
-    const filteredGroup = this.filterGroups(groupMerged);
+    const filteredGroup = this.filterGroups(groupMerged, this.options.minLines, this.options.minDepth);
 
 
     // adapt data to current output format
@@ -91,10 +91,29 @@ export class TreeIndex implements IndexInterface {
   }
 
 
+  private getDepth(node: SyntaxNode, depthMap: Map<SyntaxNode, number>): number {
+    if(node.childCount == 0) {
+      return 0;
+    } else if( depthMap.has(node) ) {
+      return depthMap.get(node) as number;
+    }
+    let depth = 0;
+    for (const child of node.children) {
+      const newDepth = this.getDepth(child, depthMap) + 1;
+      if( newDepth > depth) {
+        depth = newDepth;
+      }
+    }
+    depthMap.set(node, depth);
 
-  private filterGroups(grouped: SyntaxNode[][], minRows= 1): SyntaxNode[][] {
+    return depth;
+  }
+
+  private filterGroups(grouped: SyntaxNode[][], minRows= 1, minDepth = 1): SyntaxNode[][] {
+    const map = new Map();
     return grouped
       .map(group => group.filter(node => node.endPosition.row - node.startPosition.row > minRows))
+      .map(group => group.filter(node => this.getDepth(node, map) > minDepth ))
       .filter(group => group.length > 1);
   }
 
