@@ -27,8 +27,9 @@ export abstract class ResizableD3Viz extends DataView {
           parentRef.clientHeight || 0);
       }
     };
-    // window.addEventListener("resize", resizeHandler);
-    new ResizeObserver(resizeHandler).observe(parentRef);
+    if (ResizeObserver) {
+      new ResizeObserver(resizeHandler).observe(parentRef);
+    }
     resizeHandler();
   }
 
