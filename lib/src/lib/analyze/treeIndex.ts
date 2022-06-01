@@ -8,10 +8,10 @@ import { makeScoredPairs, mapHashToSharedFingerprint, mapHashToNodeList } from "
 import { TreeIsomorphism } from "./treeMatching/treeIsomorphism";
 import { breadthFirstWalk, groupNodes, walkOverChildren } from "./treeMatching/treeUtils";
 import * as console from "console";
-import * as path from "path";
+// import * as path from "path";
 // import * as process from "process";
-// import * as child_process from "child_process";
-// import { promisify } from "util";
+import * as child_process from "child_process";
+import { promisify } from "util";
 
 export type Hash = number;
 type Vector = Array<number>;
@@ -215,10 +215,10 @@ export class TreeIndex implements IndexInterface {
     fs.writeFileSync(file, JSON.stringify(vecList), "utf-8");
     console.log("positions written to: " + file);
 
-    // const pexec = promisify(child_process.exec);
-    // await pexec(
-    //   `cat ./temp.json | /home/steam/mount/secondary/UGent/2021-2022/thesis/clustering_script/PCA.py labels1.json`
-    // );
+    const pexec = promisify(child_process.exec);
+    await pexec(
+      "cat ./temp.json | /home/steam/mount/secondary/UGent/2021-2022/thesis/clustering_script/PCA.py labels1.json"
+    );
 
 
     const labels = JSON.parse(fs.readFileSync("./labels1.json").toString("utf-8"));
@@ -253,7 +253,7 @@ export class TreeIndex implements IndexInterface {
     const groupsList = [];
     for(const group of labelToGroup.values()) {
       groupsList.push(group);
-      console.log("=============================================================");
+      // console.log("=============================================================");
 
       // const files = group.map(node => (_nodeMappedToFile.get(node) as TokenizedFile).path);
       // const b1 = files.some(path => path.includes("main_A") || path.includes("function_rename"));
@@ -264,39 +264,39 @@ export class TreeIndex implements IndexInterface {
       // if(!(b1 && b2)) {
       //   continue;
       // }
-      for (const node of group) {
-        const nodeFile = _nodeMappedToFile.get(node) as TokenizedFile;
-        if( !(nodeFile.path.includes("063") || nodeFile.path.includes("048") || nodeFile.path.includes("051"))) {
-          continue;
-        }
-
-        let str = `[ ${path.basename(nodeFile.path)} ] `;
-        str += `{from: [${node.startPosition.row + 1}, ${node.startPosition.column}]`;
-        str += `, to: [${node.endPosition.row + 1}, ${node.endPosition.column}]}`;
-
-        const childrenSet = new Set();
-        for(const child of walkOverChildren(node)) {
-          if(nodeToHash.get(child) === undefined) {
-            console.log("welp");
-            process.exit(100000);
-          }
-          childrenSet.add({
-            "n": nodeToHash.get(child),
-            "w": nodeToTreeSize.get(child),
-            "t": child.type,
-            "text": child.text
-          });
-        }
-        if(childrenSet.size < 2) {
-          continue;
-        }
-        console.log("+++++++++++++++++++++++++++++++++++++++" + str, childrenSet);
-
-        for(let i = node.startPosition.row; i <= node.endPosition.row; i += 1) {
-          console.log(nodeFile.lines[i]);
-        }
-      }
-      console.log("");
+      // for (const node of group) {
+      //   const nodeFile = _nodeMappedToFile.get(node) as TokenizedFile;
+      //   if( !(nodeFile.path.includes("063") || nodeFile.path.includes("048") || nodeFile.path.includes("051"))) {
+      //     continue;
+      //   }
+      //
+      //   let str = `[ ${path.basename(nodeFile.path)} ] `;
+      //   str += `{from: [${node.startPosition.row + 1}, ${node.startPosition.column}]`;
+      //   str += `, to: [${node.endPosition.row + 1}, ${node.endPosition.column}]}`;
+      //
+      //   const childrenSet = new Set();
+      //   for(const child of walkOverChildren(node)) {
+      //     if(nodeToHash.get(child) === undefined) {
+      //       console.log("welp");
+      //       process.exit(100000);
+      //     }
+      //     childrenSet.add({
+      //       "n": nodeToHash.get(child),
+      //       "w": nodeToTreeSize.get(child),
+      //       "t": child.type,
+      //       "text": child.text
+      //     });
+      //   }
+      //   if(childrenSet.size < 2) {
+      //     continue;
+      //   }
+      //   console.log("+++++++++++++++++++++++++++++++++++++++" + str, childrenSet);
+      //
+      //   for(let i = node.startPosition.row; i <= node.endPosition.row; i += 1) {
+      //     console.log(nodeFile.lines[i]);
+      //   }
+      // }
+      // console.log("");
     }
 
     return groupsList;
