@@ -145,6 +145,18 @@ export function runCommand(program: Command): Command {
       x => parseFloat(x),
       Options.defaultKgramsInWindow
     )
+    .option(
+      "--min-lines <integer>",
+      Utils.indent("The minimum amount of lines a subtree needs to span", Options.defaultMinLines),
+      x => parseFloat(x),
+      Options.defaultMinLines
+    )
+    .option(
+      "--min-depth <integer>",
+      Utils.indent("The minimum depth a subtree needs to have", Options.defaultMinDepth),
+      x => parseFloat(x),
+      Options.defaultMinDepth
+    )
     .action(async (locations, options) => run(locations, { ...options , ...program.opts() }));
 }
 
@@ -181,6 +193,8 @@ export async function run(locations: string[], options: RunOptions): Promise<voi
       limitResults: options.limitResults,
       sortBy: options.sortBy,
       fragmentSortBy: options.fragmentSortBy,
+      minDepth: options.minDepth,
+      minLines: options.minLines,
     });
     const report = await dolos.analyzePaths(locations);
 
