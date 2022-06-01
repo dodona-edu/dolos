@@ -58,6 +58,7 @@ export class TreeIndex implements IndexInterface {
 
     const treeIsomorphism = new TreeIsomorphism(forest);
     const nodeToHash = treeIsomorphism.getMapping();
+    const nodeToTreeSize = treeIsomorphism.getNodeToTreeSize();
 
     // console.log(this.listNumber);
 
@@ -85,7 +86,7 @@ export class TreeIndex implements IndexInterface {
     const hashToFingerprint = mapHashToSharedFingerprint(hashes);
 
 
-    const pairs = makeScoredPairs(filteredGroup, hashToFingerprint, nodeMappedToFile, nodeToHash);
+    const pairs = makeScoredPairs(filteredGroup, hashToFingerprint, nodeMappedToFile, nodeToHash, nodeToTreeSize);
     const tokenizedFiles = [...new Set(nodeMappedToFile.values())];
     return new SimpleReport(pairs, new Options(), tokenizedFiles);
   }

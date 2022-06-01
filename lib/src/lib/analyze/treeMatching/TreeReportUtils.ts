@@ -1,6 +1,6 @@
 import { SyntaxNode, Tree } from "tree-sitter";
 import { Hash } from "../treeIndex";
-import { breadthFirstWalkForest, getKey } from "./treeUtils";
+import { breadthFirstWalk, breadthFirstWalkForest, getKey} from "./treeUtils";
 import { SharedFingerprint } from "../sharedFingerprint";
 import { TokenizedFile } from "../../file/tokenizedFile";
 import { ScoredPairs } from "../reportInterface";
@@ -42,10 +42,12 @@ export function makeScoredPairs(
   filteredGroup: SyntaxNode[][],
   hashToFingerprint: Map<Hash, SharedFingerprint>,
   nodeMappedToFile: Map<SyntaxNode, TokenizedFile>,
-  nodeToHash: Map<SyntaxNode, Hash>
+  nodeToHash: Map<SyntaxNode, Hash>,
+  nodeToTreeSize: Map<SyntaxNode, number>
 ): Array<ScoredPairs> {
   const pairs: Array<ScoredPairs> = [];
   const pairDict: Map<string, SimplePair> = new Map();
+  const pairToNodePairs: Map<string, Array<[SyntaxNode, SyntaxNode]>> = new Map();
   for (const group of filteredGroup) {
     const hash = nodeToHash.get(group[0]) as Hash;
     let fingerprint = hashToFingerprint.get(hash) as SharedFingerprint;
@@ -63,15 +65,24 @@ export function makeScoredPairs(
         const rightFile = nodeMappedToFile.get(rightNode) as TokenizedFile;
         const key = getKey(leftFile, rightFile);
         let pair;
+        let nodePairList: Array<[SyntaxNode, SyntaxNode]>;
         if (pairDict.has(key)) {
           pair = pairDict.get(key) as SimplePair;
+          nodePairList = pairToNodePairs.get(key) as Array<[SyntaxNode, SyntaxNode]>;
         } else {
           pair = new SimplePair(
             leftFile,
             rightFile,
             []
           );
+          nodePairList = [];
+          pairToNodePairs.set(key, nodePairList);
           pairDict.set(key, pair);
+        }
+        if (leftFile.id < rightFile.id) {
+          nodePairList.push([leftNode,  rightNode]);
+        } else {
+          nodePairList.push([rightNode, leftNode]);
         }
         let fragment;
         if(pair.leftFile.id == leftFile.id && pair.rightFile.id == rightFile.id) {
@@ -96,7 +107,8 @@ export function makeScoredPairs(
   }
 
   // console.log(pairDict);
-  for (const pair of pairDict.values()) {
+  for (const [key, pair] of pairDict.entries()) {
+
     let longest = 0;
     let total = 0;
     for(const fragment of pair.fragmentList) {
@@ -113,12 +125,44 @@ export function makeScoredPairs(
     }
     pairs.push({
       pair: pair,
-      similarity: 0,
+      similarity: getSimilarity(pairToNodePairs.get(key) as Array<[SyntaxNode, SyntaxNode]>, nodeToTreeSize),
       longest: longest,
       overlap: total,
     });
   }
   return pairs;
+}
+
+function totalCovered(nodes: Array<SyntaxNode>): number {
+  const seenSet = new Set();
+  let count = 0;
+  for( const node of nodes) {
+    for(const descendant of breadthFirstWalk(node)) {
+      if(seenSet.has(descendant)) {
+        continue;
+      }
+      count += 1;
+      seenSet.add(descendant);
+    }
+  }
+  return count;
+}
+
+
+function getSimilarity(nodePairList: Array<[SyntaxNode, SyntaxNode]>, nodeToTreeSize: Map<SyntaxNode, number>): number {
+  // const leftCountMap = getCountMap()
+  const [tempLeft, tempRight] = nodePairList[0];
+  const leftRoot = tempLeft.tree.rootNode;
+  const rightRoot = tempRight.tree.rootNode;
+
+  const leftTotal = nodeToTreeSize.get(leftRoot) as number;
+  const rightTotal = nodeToTreeSize.get(rightRoot) as number;
+
+  const leftCount = totalCovered(nodePairList.map(([_rightNode, leftNode]) => leftNode));
+  const rightCount = totalCovered(nodePairList.map(([rightNode, _leftNode]) => rightNode));
+
+
+  return (rightCount + leftCount) / (leftTotal + rightTotal);
 }
 export function nodeToInfo(node: SyntaxNode): any {
   return {

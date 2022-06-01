@@ -126,4 +126,8 @@ export class TreeIsomorphism {
   public getMapping(): Map<SyntaxNode, Hash> {
     return this.nodeToHash;
   }
+
+  public getNodeToTreeSize(): Map<SyntaxNode, number> {
+    return this.nodeToTreeSize;
+  }
 }
