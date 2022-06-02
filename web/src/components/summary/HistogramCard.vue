@@ -3,19 +3,22 @@
     <v-card class="center-card">
       <v-card-text class="center-card-element title d-flex align-center">
         <h4>Similarity of files</h4>
-        <SimilarityHistogram class="full-width" />
+        <SimilarityHistogram class="full-width" :scored-files="fileScoring" />
       </v-card-text>
     </v-card>
   </div>
 </template>
 <script lang="ts">
-import { Component } from "vue-property-decorator";
+import { Component, Prop } from "vue-property-decorator";
 import PairStatHistogram from "./PairStatHistogram.vue";
 
 import DataView from "@/views/DataView";
+import { FileScoring } from "@/util/FileInterestingness";
 
 @Component({ components: { SimilarityHistogram: PairStatHistogram } })
-export default class HistogramCard extends DataView {}
+export default class HistogramCard extends DataView {
+  @Prop() fileScoring!: FileScoring[];
+}
 </script>
 <style scoped>
 .center-card {

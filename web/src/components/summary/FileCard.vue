@@ -38,21 +38,27 @@
           <div class="graph-wrapper">
             <PairStatHistogram :numberOfTicks="25"
                                :extraLine="getLineSpot(file, 'similarity')"
-                               :pair-field="'similarity'" />
+                               :pair-field="'similarity'"
+                               :scored-files="scoredFiles"
+            />
           </div>
         </v-tab-item >
         <v-tab-item value="tab-1" :key="1">
           <div class="graph-wrapper">
             <PairStatHistogram :numberOfTicks="25"
                                :extraLine="getLineSpot(file, 'longestFragment')"
-                               :pair-field="'longestFragment'" />
+                               :pair-field="'longestFragment'"
+                               :scored-files="scoredFiles"
+            />
           </div>
         </v-tab-item>
         <v-tab-item value="tab-2" :key="2">
           <div class="graph-wrapper" >
             <PairStatHistogram :numberOfTicks="25"
                                :extraLine="getLineSpot(file, 'totalOverlap')"
-                               :pair-field="'totalOverlap'" />
+                               :pair-field="'totalOverlap'"
+                               :scored-files="scoredFiles"
+            />
           </div>
         </v-tab-item>
         <v-tab-item value="tab-3" :key="3">
@@ -79,6 +85,7 @@ import SummaryVisualisation from "@/components/summary/SummaryVisualisation.vue"
 @Component({ components: { SummaryVisualisation, FileSimilarityHistogram, FileCardScore, PairStatHistogram } })
 export default class FileCard extends DataView {
   @Prop() file!: FileScoring;
+  @Prop({ required: true }) scoredFiles!: FileScoring[];
   tab = "";
 
   created(): void {

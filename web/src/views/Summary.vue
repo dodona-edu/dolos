@@ -1,7 +1,6 @@
 <template>
   <div>
     <SummaryCard/>
-    <HistogramCard/>
     <SummaryList />
   </div>
 </template>

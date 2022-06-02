@@ -16,6 +16,7 @@ export default class PairStatHistogram extends DataView {
   @Prop({ default: 50 }) numberOfTicks!: number;
   @Prop() extraLine: undefined | number;
   @Prop({ default: "similarity" }) pairField!: "similarity" | "longestFragment" | "totalOverlap";
+  @Prop({ required: true }) scoredFiles!: FileScoring[];
 
   private maxFileData: number[] = [];
 
@@ -41,6 +42,7 @@ export default class PairStatHistogram extends DataView {
 
   async afterDataInit(): Promise<void> {
     await this.ensureData();
+    console.log("my await gets resolved");
     this.maxFileData = await this.getMaxFileData();
     const xScale = this.getXScale();
     const domain = xScale.domain();
@@ -136,16 +138,7 @@ export default class PairStatHistogram extends DataView {
   }
 
   async getMaxFileData(): Promise<number[]> {
-    const files: File[] = Array.from(Object.values(this.files));
-    const pairs = Array.from(Object.values(this.pairs));
-
-    const scoringCalculator = new FileInterestingnessCalculator(pairs, this.$store);
-
-    const scoredFiles = await Promise.all(files.map(async file =>
-      await scoringCalculator.calculateFileScoring(file)
-    ));
-
-    return scoredFiles.map(f => this.mapScoreToField(f));
+    return this.scoredFiles.map(f => this.mapScoreToField(f));
   }
 
   private mapScoreToField(score: FileScoring): number {

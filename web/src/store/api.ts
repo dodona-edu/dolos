@@ -6,7 +6,8 @@ import {
   Metadata,
   ObjMap,
   Pair,
-  loadFragments
+  loadFragments,
+  loadSemantic
 } from "@/api/api";
 import Vue from "vue";
 import { ActionContext } from "vuex";
@@ -19,6 +20,7 @@ interface State {
   metadata: Metadata;
   isLoaded: boolean;
   occurrences: Occurrence[][];
+  loading: Promise<unknown> | null;
 }
 
 type Context = ActionContext<State, Record<string, never>>;
@@ -30,6 +32,7 @@ export default {
     pairs: {},
     metadata: {},
     isLoaded: false,
+    loading: null,
     occurrences: []
   }),
   getters: {
@@ -60,13 +63,23 @@ export default {
     },
     updateFile(state: State, file: File): void {
       Vue.set(state.files, file.id, file);
+    },
+    setLoading(state: State, loading: Promise<unknown>): void {
+      state.loading = loading;
     }
   },
   actions: {
     async loadData({ commit, state }: Context): Promise<void> {
       const customOptions = state.metadata;
-      const data = await fetchData(customOptions);
-      commit("setData", data);
+      if (!state.loading) {
+        console.log("loading once");
+        const promise = fetchData(customOptions);
+        commit("setLoading", promise);
+        const data = await promise;
+        commit("setData", data);
+      } else {
+        return state.loading as Promise<void>;
+      }
     },
     async populateFragments(
       { commit, getters, state }: Context,
@@ -76,9 +89,19 @@ export default {
       const kgrams = state.kgrams;
       const customOptions = state.metadata;
 
-      await loadFragments(pair, kgrams, customOptions);
+      await loadFragments(pair, kgrams, customOptions, state.occurrences);
       commit("updatePair", pair);
     },
+    async populateSemantic(
+      { commit, getters, state }: Context,
+      data: { pairId: number}
+    ): Promise<void> {
+      const pair = getters.pair(data.pairId);
+
+      await loadSemantic(pair, state.occurrences);
+      commit("updatePair", pair);
+    },
+
     async populateFile(
       { commit, getters }: Context,
       data: {fileId: number}

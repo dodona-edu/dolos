@@ -182,7 +182,6 @@ async function parseFiles(fileData: d3.DSVRowArray, customOptions: CustomOptions
   for (let i = 0; i < files.length; i++) {
     files[i].semanticMap = results[i];
   }
-
   return { fileMap: Object.fromEntries(files.map(f => [f.id, f])), occurrences };
 }
 
@@ -287,7 +286,9 @@ export function fileToTokenizedFile(file: File): TokenizedFile {
   }
 }
 
-export async function loadFragments(pair: Pair, kmers: ObjMap<Kgram>, customOptions: CustomOptions): Promise<void> {
+export async function loadFragments(
+  pair: Pair, kmers: ObjMap<Kgram>, customOptions: CustomOptions, occurrences: Occurrence[][]
+): Promise<void> {
   const emptyTokenizer = new EmptyTokenizer();
   const options = new Options(customOptions);
   const index = new Index(emptyTokenizer, options);
@@ -297,17 +298,12 @@ export async function loadFragments(pair: Pair, kmers: ObjMap<Kgram>, customOpti
     [leftFile, rightFile]
   );
   const reportPair = report.scoredPairs[0].pair;
-  const semanticAnalysis = new SemanticAnalyzer(index);
-  const [occurrences, results] =
-    await semanticAnalysis.semanticAnalysis(
-      [leftFile, rightFile],
-    );
 
   const [pairedMatches, unpairedMatches] = SemanticAnalyzer.pairMatches(
     leftFile,
     rightFile,
-    results[0].get(pair.rightFile.id) || [],
-    results[1].get(pair.leftFile.id) || [],
+    pair.leftFile.semanticMap.get(pair.rightFile.id) || [],
+    pair.rightFile.semanticMap.get(pair.leftFile.id) || [],
     occurrences
   );
 
@@ -323,6 +319,27 @@ export async function loadFragments(pair: Pair, kmers: ObjMap<Kgram>, customOpti
     kmersMap.set(kmer.hash, kmer);
   }
   pair.fragments = parseFragments(reportPair.fragments(), kmersMap);
+}
+
+export async function loadSemantic(
+  pair: Pair, occurrences: Occurrence[][]
+): Promise<void> {
+  const leftFile = fileToTokenizedFile(pair.leftFile);
+  const rightFile = fileToTokenizedFile(pair.rightFile);
+
+  const [pairedMatches, unpairedMatches] = SemanticAnalyzer.pairMatches(
+    leftFile,
+    rightFile,
+    pair.leftFile.semanticMap.get(pair.rightFile.id) || [],
+    pair.rightFile.semanticMap.get(pair.leftFile.id) || [],
+    occurrences
+  );
+
+  const totalMatch = (s: NodeStats): number =>
+    (s.matchedNodeAmount.get(pair.leftFile.id) || 0) + (s.childrenMatch.get(pair.leftFile.id) || 0);
+
+  pair.pairedMatches = pairedMatches.filter(pm => totalMatch(pm.rightMatch) >= 5);
+  pair.unpairedMatches = unpairedMatches;
 }
 
 export async function fetchData(customOptions: CustomOptions): Promise<ApiData> {

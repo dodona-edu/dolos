@@ -19,6 +19,7 @@
         )"
         :key="scoredFile.file.id"
         :file="scoredFile"
+        :scoredFiles="scoredFiles"
       />
     </div>
     <v-btn color="success"  @click="page += 1">Next Cards</v-btn>
@@ -30,12 +31,8 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Watch, Vue } from "vue-property-decorator";
-import {
-  FileScoring,
-  FileInterestingnessCalculator,
-  getLargestPairOfScore,
-} from "@/util/FileInterestingness";
+import { Component, Vue, Watch } from "vue-property-decorator";
+import { FileInterestingnessCalculator, FileScoring, getLargestPairOfScore } from "@/util/FileInterestingness";
 import FileCard from "@/components/summary/FileCard.vue";
 import DataView from "@/views/DataView";
 import { Pair } from "@/api/api";
@@ -96,8 +93,6 @@ export default class SummaryList extends DataView {
         pairSet.add(p);
       }
     }
-
-    console.log(this.sortedFiles);
   }
 
   mounted(): void {
@@ -110,16 +105,13 @@ export default class SummaryList extends DataView {
       Array.from(Object.values(this.pairs)),
       this.$store
     );
-    const sortableFiles = await Promise.all(Object.values(this.files).map(async file =>
+    this.scoredFiles = await Promise.all(Object.values(this.files).map(async file =>
       await scoringCalculator.calculateFileScoring(file)
     ));
-    this.scoredFiles = sortableFiles;
   }
 
   @Watch("page")
   onPageChange(): void {
-    console.log(this.$refs.toScroll);
-
     ((this.$refs.toScroll as Vue).$el as Element)?.scrollIntoView();
   }
 }
