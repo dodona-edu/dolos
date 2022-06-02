@@ -9,10 +9,9 @@ import { Component } from "vue-property-decorator";
 import DataView from "@/views/DataView";
 import SummaryCard from "@/components/summary/SummaryCard.vue";
 import SummaryList from "@/components/summary/SummaryList.vue";
-import HistogramCard from "@/components/summary/HistogramCard.vue";
 
 @Component({
-  components: { SummaryCard, SummaryList, HistogramCard }
+  components: { SummaryCard, SummaryList }
 })
 export default class FileAnalysis extends DataView {
 

@@ -19,11 +19,6 @@
           <TimeSeriesCard :cluster="cluster"/>
         </v-tab-item>
 
-        <!-- <v-tab :key="3">Similarity Data</v-tab>
-        <v-tab-item>
-          <DataTab :cluster="cluster" :cutoff="cutoff" />
-        </v-tab-item> -->
-
         <v-tab :key="4"> Heatmap </v-tab>
         <v-tab-item> <HeatMap :cluster="cluster" /> </v-tab-item>
 
@@ -90,7 +85,7 @@ export default class ClusteringCard extends Vue {
 
 <style scoped>
 .empty-space {
-  width: 50px
+  width: 50px;
 }
 
 .noflex > * {

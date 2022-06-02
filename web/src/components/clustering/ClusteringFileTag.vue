@@ -24,20 +24,6 @@ export default class ClusteringFileTag extends DataView {
     this.legend = this.createLegend();
   }
 
-  getInitials(): string {
-    if (this.file.extra.fullName) {
-      const splitName = this.file.extra.fullName.split(" ");
-      if (splitName.length === 2) {
-        return (splitName[0][0] + splitName[1][0]).toUpperCase();
-      } else {
-        return this.file.extra.fullName[0].toUpperCase();
-      }
-    } else {
-      const path = this.file.path.split("/");
-      return path[path.length - 1][0].toUpperCase();
-    }
-  }
-
   getColor(): string {
     if (!this.legend || !this.file.extra.labels) { return "blue"; }
     return this.legend[this.file.extra.labels].color;

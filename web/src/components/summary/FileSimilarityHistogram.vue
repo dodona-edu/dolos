@@ -111,20 +111,19 @@ export default class FileSimilarityHistogram extends DataView {
 
     if (!pairMap) return [];
 
-    const candiadateArray = Array.from(
+    const candidates = Array.from(
       pairMap
         .values()
     );
 
-    candiadateArray.sort((a, b) => b.similarity - a.similarity);
+    candidates.sort((a, b) => b.similarity - a.similarity);
 
-    return candiadateArray.slice(0, 25);
+    return candidates.slice(0, 25);
   }
 
   private addTooltipTool(): void {
     if (!this.svg) { return; }
 
-    console.log("tooltip tool");
     const tool = new TooltipTool<Pair>(h => `
       ${h.similarity}
     `);

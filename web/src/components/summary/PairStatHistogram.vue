@@ -15,6 +15,7 @@ export default class PairStatHistogram extends ResizableD3Viz {
   @Prop({ default: 50 }) numberOfTicks!: number;
   @Prop() extraLine: undefined | number;
   @Prop({ default: "similarity" }) pairField!: "similarity" | "longestFragment" | "totalOverlap";
+  @Prop({ required: true }) scoredFiles!: FileScoring[];
 
   private maxFileData: number[] = [];
 
@@ -145,16 +146,7 @@ export default class PairStatHistogram extends ResizableD3Viz {
   }
 
   getMaxFileData(): number[] {
-    const files: File[] = Array.from(Object.values(this.files));
-    const pairs = Array.from(Object.values(this.pairs));
-
-    const scoringCalculator = new FileInterestingnessCalculator(pairs);
-
-    const scoredFiles = files.map(file =>
-      scoringCalculator.calculateFileScoring(file)
-    );
-
-    return scoredFiles.map(f => this.mapScoreToField(f));
+    return this.scoredFiles.map(f => this.mapScoreToField(f));
   }
 
   private mapScoreToField(score: FileScoring): number {
