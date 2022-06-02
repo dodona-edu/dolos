@@ -42,7 +42,6 @@ export default class PairStatHistogram extends DataView {
 
   async afterDataInit(): Promise<void> {
     await this.ensureData();
-    console.log("my await gets resolved");
     this.maxFileData = await this.getMaxFileData();
     const xScale = this.getXScale();
     const domain = xScale.domain();
