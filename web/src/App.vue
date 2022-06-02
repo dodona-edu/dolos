@@ -97,16 +97,6 @@ export default class App extends DataView {
     }
   }
 
-  setCollapsed(o: boolean):void {
-    console.log(o);
-    this.isCollapsed = o;
-  }
-
-  @Watch("isCollapsed")
-  print():void {
-    console.log(this.isCollapsed);
-  }
-
   toHomeScreen(): void {
     this.navigateTo("/");
   }
