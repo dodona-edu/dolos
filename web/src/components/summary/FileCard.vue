@@ -36,7 +36,9 @@
           <div class="graph-wrapper">
             <PairStatHistogram :numberOfTicks="25"
                                :extraLine="getLineSpot(file, 'similarity')"
-                               :pair-field="'similarity'" />
+                               :pair-field="'similarity'"
+                               :scored-files="fileScorings"
+            />
             <div class="more-info">
               <v-tooltip bottom>
                 <template v-slot:activator="{ on, attrs }">
@@ -60,7 +62,9 @@
           <div class="graph-wrapper">
             <PairStatHistogram :numberOfTicks="25"
                                :extraLine="getLineSpot(file, 'longestFragment')"
-                               :pair-field="'longestFragment'" />
+                               :pair-field="'longestFragment'"
+                               :scored-files="fileScorings"
+            />
           </div>
           <div class="more-info">
             <v-tooltip bottom>
@@ -86,7 +90,9 @@
           <div class="graph-wrapper" >
             <PairStatHistogram :numberOfTicks="25"
                                :extraLine="getLineSpot(file, 'totalOverlap')"
-                               :pair-field="'totalOverlap'" />
+                               :pair-field="'totalOverlap'"
+                               :scored-files="fileScorings"
+            />
           </div>
           <div class="more-info">
             <v-tooltip bottom>
@@ -124,6 +130,7 @@ import { FileScoring, getLargestFieldOfScore } from "@/util/FileInterestingness"
 export default class FileCard extends DataView {
   @Prop() file!: FileScoring;
   @Prop() selectedValue!: number | null;
+  @Prop({ required: true }) fileScorings!: FileScoring[];
   tab = "";
 
   created(): void {

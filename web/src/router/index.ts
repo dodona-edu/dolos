@@ -43,14 +43,6 @@ const routes: Array<RouteConfig> = [
     // which is lazy-loaded when the route is visited.
     component: () => import(/* webpackChunkName: "graph" */ "../views/Overview.vue")
   },
-  {
-    path: "/cluster/",
-    name: "Cluster",
-    // route level code-splitting
-    // this generates a separate chunk (compare.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "graph" */ "../views/Cluster.vue")
-  },
 ];
 
 const router = new VueRouter({

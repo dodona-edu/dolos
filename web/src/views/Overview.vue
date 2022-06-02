@@ -91,7 +91,7 @@
         size="270"
         tile
       >
-        <v-img src="https://dolos.ugent.be/images/soco-java-graph.png"></v-img>
+        <v-img src="../assets/soco-java-graph.png"></v-img>
       </v-avatar>
         <div>
           <v-card-title>

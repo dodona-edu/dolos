@@ -20,6 +20,7 @@
         :key="scoredFile.file.id"
         :file="scoredFile"
         :selected-value="selectedSortOption && selectedSortOption.selectedValue"
+        :file-scorings="scoredFiles"
         class="file-card"
       />
     </div>
