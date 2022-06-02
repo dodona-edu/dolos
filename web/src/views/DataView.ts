@@ -59,4 +59,12 @@ export default abstract class DataView extends Vue {
 
     return Object.fromEntries(legend.map(l => [l.label, l]));
   }
+
+  get anonymous(): boolean {
+    return this.$store.state.api.isAnonymous;
+  }
+
+  set anonymous(anonymous: boolean) {
+    this.$store.dispatch("setAnonymous", { anonymous });
+  }
 }

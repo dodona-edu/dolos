@@ -62,16 +62,8 @@ export default class ClusteringTable extends DataView {
     showFirstLastPage: true,
   };
 
-  get items(): Array<{ id: number; size: number; similarity: string }> {
-    return Object.values(this.currentClustering).map((cluster, id) => ({
-      id,
-      size: getClusterElements(cluster).size,
-      similarity: getAverageClusterSimilarity(cluster).toFixed(2),
-      cluster,
-    }));
-  }
-
   @Watch("cutoff")
+  @Watch("files")
   private emitCutoff(): void {
     this.$emit("cutoffChange", this.cutoff);
   }

@@ -1,15 +1,15 @@
 import { ObjMap, Pair, File } from "@/api/api";
 import { Cluster, Edge } from "./Cluster";
 import { ListMap } from "./ListMap";
+import { Clustering } from "@/util/clustering-algorithms/ClusterTypes";
 
-export type Clustering = Cluster[];
 type ClusteringGraph = ListMap<number, Edge>;
 
 export function cluster(
   pairs: ObjMap<Pair>,
   files: ObjMap<File>,
   similarity: number
-): Clustering {
+): void {
   const clusterGraph = getGraph(pairs);
   const alreadySeenFileSet = new Set<number>();
 
@@ -29,8 +29,6 @@ export function cluster(
       }
     }
   }
-
-  return clusters;
 }
 
 function exploreCluster(

@@ -44,6 +44,7 @@ export default class Compare extends DataView {
   }
 
   @Watch("pairId")
+  @Watch("files")
   async ensureData(): Promise<void> {
     await super.ensureData();
     await this.ensureFilesLoaded();

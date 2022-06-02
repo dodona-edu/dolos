@@ -120,6 +120,7 @@ export default class SummaryList extends DataView {
     this.initializeData();
   }
 
+  @Watch("files")
   async initializeData(): Promise<void> {
     await super.ensureData();
     const scoringCalculator = new FileInterestingnessCalculator(

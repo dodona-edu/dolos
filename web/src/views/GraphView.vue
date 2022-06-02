@@ -96,6 +96,7 @@ export default class PlagarismGraph extends DataView {
   }
 
   @Watch("cutoff")
+  @Watch("files")
   refreshClustering(): void {
     this.currentCluster = this.clustering;
   }

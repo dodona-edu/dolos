@@ -85,6 +85,25 @@
                  </span>
             </v-tooltip>
           </div>
+          <div class="more-info">
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on, attrs }">
+                <v-icon v-bind="attrs" v-on="on">
+                  mdi-information
+                </v-icon>
+              </template>
+              <span class="tooltip-span">
+                This tab of the card shows a bar chart of all the pairs in this dataset. The longest fragment value
+                  of the pair of files this card is about is marked by a line intersecting a bar with a red color.
+                  This should help you see whether or not this pair of files is exceptionally similar or not.<br/>
+
+                  The longest consecutive fragment is a local size-independent metric, and roughly correlates to the
+                longest amount of lines in one block that are the same in both files. If this is very high, then it's
+                likely (part of) these files was literally copied.
+
+                 </span>
+            </v-tooltip>
+          </div>
         </v-tab-item>
         <v-tab-item value="tab-2" :key="2">
           <div class="graph-wrapper" >
@@ -93,6 +112,23 @@
                                :pair-field="'totalOverlap'"
                                :scored-files="fileScorings"
             />
+          </div>
+          <div class="more-info">
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on, attrs }">
+                <v-icon v-bind="attrs" v-on="on">
+                  mdi-information
+                </v-icon>
+              </template>
+              <span class="tooltip-span">
+                This tab of the card shows a bar chart of all the pairs in this dataset. The total overlap value
+                  of the pair of files this card is about is marked by a line intersecting a bar with a red color.
+                  This should help you see whether or not this pair of files is exceptionally similar or not. <br/>
+
+                  The total overlap is a global size-dependent metric of equality in the files. It roughly counts
+                how many lines of both files are similiar.
+                 </span>
+            </v-tooltip>
           </div>
           <div class="more-info">
             <v-tooltip bottom>
