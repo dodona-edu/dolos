@@ -168,6 +168,7 @@ async function parseFiles(fileData: d3.DSVRowArray, customOptions: CustomOptions
     file.ast = JSON.parse(row.ast);
     file.mapping = JSON.parse(row.mapping);
     file.astAndMappingLoaded = true;
+    file.amountOfKgrams = file.amountOfKgrams || file.ast.length;
 
     return file;
   });
