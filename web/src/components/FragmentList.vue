@@ -326,15 +326,6 @@ export default class FragmentList extends Vue {
       }
     }
   }
-
-  @Watch("selectedItem")
-  onSelectedItemChange(newVal: number): void {
-    if (newVal === -1) {
-      // this.dataTableSelection = [];
-    } else {
-      // this.dataTableSelection = [this.fragmentsWithId[newVal]];
-    }
-  }
 }
 </script>
 

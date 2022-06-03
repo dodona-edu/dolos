@@ -8,5 +8,6 @@ export { TokenizedFile } from "./lib/file/tokenizedFile";
 export { Index } from "./lib/analyze/index";
 export { Dolos } from "./dolos";
 export { EmptyTokenizer } from "./lib/tokenizer/emptyTokenizer";
-export { SemanticAnalyzer, PairedNodeStats, NodeStats } from "./lib/analyze/SemanticAnalyzer";
-
+export { SemanticAnalyzer, PairedNodeStats, NodeStats, UnpairedNodeStats } from "./lib/analyze/SemanticAnalyzer";
+export { SharedFingerprint } from "./lib/analyze/sharedFingerprint";
+export { PairedOccurrence } from "./lib/analyze/pairedOccurrence";

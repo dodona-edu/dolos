@@ -6,8 +6,10 @@ export default abstract class Identifiable {
   public readonly id: number;
 
   protected constructor(id?: number) {
-    if(id !== undefined)
+    if(id !== undefined) {
       this.id = id;
+      Identifiable.nextId = Math.max(Identifiable.nextId, id);
+    }
     else
       this.id = Identifiable.nextId++;
   }

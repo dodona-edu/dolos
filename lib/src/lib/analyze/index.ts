@@ -14,7 +14,6 @@ type Hash = number;
 export class Index {
   private readonly kgramLength: number;
   private readonly kgramsInWindow: number;
-  //private readonly index: Map<Hash, Array<Occurrence>> = new Map();
   private readonly tokenizer: Tokenizer;
   protected readonly hashFilter: HashFilter;
 
@@ -101,7 +100,6 @@ export class Index {
   ): Promise<Map<Hash, Array<Occurrence>>> {
     const index = new Map();
 
-    // TODO REMOVE TEST
     tokenizedFiles.forEach(t => t.kgrams.splice(0, t.kgrams.length));
 
     for (const file of tokenizedFiles) {
@@ -147,8 +145,6 @@ export class Index {
 
 
         if (matches) {
-          // report.addOccurrences(hash, part, ...matches);
-
           // add our matching part to the index
           matches.push(part);
         } else {

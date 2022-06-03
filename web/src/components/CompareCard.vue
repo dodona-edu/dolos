@@ -358,7 +358,6 @@ export default class CompareCard extends Vue {
     const isContained = (s1: Selection, s2: Region): boolean =>
       Region.diff(new Region(s1.startRow, s1.startCol, s1.endRow, s2.endCol), s2).length === 0;
 
-    console.log(this.pair.pairedMatches);
     const leftCovers = this.pair.pairedMatches.map(p =>
       SemanticAnalyzer.getFullRange(fileToTokenizedFile(this.pair.leftFile), p.leftMatch));
     const rightCovers = this.pair.pairedMatches.map(p =>

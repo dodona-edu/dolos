@@ -2,9 +2,15 @@ import { View } from "./view";
 import csvStringify from "csv-stringify";
 import { Writable } from "stream";
 import { createWriteStream, promises, promises as fs } from "fs";
-import { Fragment, Pair, Report, ScoredPairs, TokenizedFile } from "@dodona/dolos-lib";
-import { PairedOccurrence } from "@dodona/dolos-lib/dist/lib/analyze/pairedOccurrence";
-import { SharedFingerprint } from "@dodona/dolos-lib/dist/lib/analyze/sharedFingerprint";
+import {
+    Fragment,
+    Pair,
+    PairedOccurrence,
+    Report,
+    ScoredPairs,
+    SharedFingerprint,
+    TokenizedFile
+} from "@dodona/dolos-lib";
 
 function writeCSVto<T>(
   out: Writable,

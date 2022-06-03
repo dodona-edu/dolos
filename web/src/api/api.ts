@@ -9,16 +9,12 @@ import {
   Options,
   Region,
   TokenizedFile,
-  Occurrence
-} from "@dodona/dolos-lib";
-import {
+  Occurrence,
   NodeStats,
   PairedNodeStats,
   SemanticAnalyzer,
   UnpairedNodeStats
-} from "@dodona/dolos-lib/dist/lib/analyze/SemanticAnalyzer";
-// import { assertType } from "typescript-is";
-
+} from "@dodona/dolos-lib";
 const DATA_URL = "./data/";
 
 // TODO: replace with actual assertion

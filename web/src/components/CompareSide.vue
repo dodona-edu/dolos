@@ -1,5 +1,5 @@
 <template>
-  <div style="height: 100%">
+  <div class="main-container">
     <component :is="'style'" type="text/css">
 
       <template v-for="item in activeSelections">
@@ -163,6 +163,10 @@ pre.highlighted-code {
   code {
     padding-left: 0 !important;
   }
+}
+
+.main-container {
+  height: 100%;
 }
 
 // /* hides the scrollbar */
