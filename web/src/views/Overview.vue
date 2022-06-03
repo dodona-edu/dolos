@@ -228,7 +228,6 @@ export default class Overview extends DataView {
 
 <style scoped>
 .main-card {
-  min-width: 58%;
   margin-top: 40px;
 }
 
@@ -236,14 +235,16 @@ export default class Overview extends DataView {
   width: 40%;
   margin-top: 40px;
   min-width: 500px;
+  flex: 1 0 40%;
 }
 
 .center-card {
-  max-width: 600px;
+  flex: 1 0 58%;
   display: flex;
   align-items: center;
   flex-direction: column;
   padding: 25px;
+  margin-right: 2%;
 }
 
 .center-card-element {
