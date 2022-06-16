@@ -3,13 +3,13 @@ import csvStringify from "csv-stringify";
 import { Writable } from "stream";
 import { createWriteStream, promises, promises as fs } from "fs";
 import {
-    Fragment,
-    Pair,
-    PairedOccurrence,
-    Report,
-    ScoredPairs,
-    SharedFingerprint,
-    TokenizedFile
+  Fragment,
+  Pair,
+  PairedOccurrence,
+  Report,
+  ScoredPairs,
+  SharedFingerprint,
+  TokenizedFile
 } from "@dodona/dolos-lib";
 
 function writeCSVto<T>(

@@ -1,0 +1,2 @@
+id,leftFileId,leftFilePath,rightFileId,rightFilePath,similarity,totalOverlap,longestFragment,leftCovered,rightCovered
+47,0,./data/testfiles/match/file1.py,1,./data/testfiles/match/file2.py,0.2,10,5,5,5

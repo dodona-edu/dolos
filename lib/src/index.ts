@@ -11,3 +11,4 @@ export { EmptyTokenizer } from "./lib/tokenizer/emptyTokenizer";
 export { SemanticAnalyzer, PairedNodeStats, NodeStats, UnpairedNodeStats } from "./lib/analyze/SemanticAnalyzer";
 export { SharedFingerprint } from "./lib/analyze/sharedFingerprint";
 export { PairedOccurrence } from "./lib/analyze/pairedOccurrence";
+export { DefaultMap } from "./lib/util/defaultMap";

@@ -20,6 +20,8 @@
         :key="scoredFile.file.id"
         :file="scoredFile"
         :scoredFiles="scoredFiles"
+        :selected-value="selectedSortOption && selectedSortOption.selectedValue"
+        class="file-card"
       />
     </div>
     <v-btn color="success"  @click="page += 1">Next Cards</v-btn>
@@ -50,17 +52,32 @@ export default class SummaryList extends DataView {
     {
       name: "Most interesting items",
       sortFunc: (a: FileScoring, b: FileScoring) => b.finalScore - a.finalScore,
+      selectedValue: null
     },
     {
       name: "Highest similarity",
       sortFunc: (a: FileScoring, b: FileScoring) =>
         (b.similarityScore?.similarity || 0) - (a.similarityScore?.similarity || 0),
+      selectedValue: 0
     },
+    {
+      name: "Longest possible match",
+      sortFunc: (a: FileScoring, b: FileScoring) =>
+        (b.longestFragmentScore?.longestFragmentWrtSize || 0) - (a.longestFragmentScore?.longestFragmentWrtSize || 0),
+      selectedValue: 1
+    },
+    {
+      name: "Most overlap",
+      sortFunc: (a: FileScoring, b: FileScoring) =>
+        (b.totalOverlapScore?.totalOverlapWrtSize || 0) - (a.totalOverlapScore?.totalOverlapWrtSize || 0),
+      selectedValue: 2
+    }
   ];
 
   private selectedSortOption: {
     name: string;
     sortFunc: (a: FileScoring, b: FileScoring) => number;
+    selectedValue: number | null
   };
 
   constructor() {
@@ -99,6 +116,7 @@ export default class SummaryList extends DataView {
     this.initializeData();
   }
 
+  @Watch("files")
   async initializeData(): Promise<void> {
     await super.ensureData();
     const scoringCalculator = new FileInterestingnessCalculator(
@@ -136,5 +154,10 @@ export default class SummaryList extends DataView {
 
 .select-sort {
   width: 15%;
+}
+
+.file-card {
+  width: 80%;
+  max-width: 1600px;
 }
 </style>

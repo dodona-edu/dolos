@@ -18,9 +18,19 @@
           clipped
           app
           :expand-on-hover="!$vuetify.breakpoint.mobile"
+          :mini-variant.sync="isCollapsed"
       >
         <v-list nav>
           <v-list-item @click="toHomeScreen" link>
+            <v-list-item-icon>
+              <v-icon>mdi-home</v-icon>
+            </v-list-item-icon>
+            <v-list-item-content>
+              <v-list-item-title>Home</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+
+          <v-list-item @click="toPairScreen" link>
             <v-list-item-icon>
               <v-icon>mdi-format-list-bulleted-square</v-icon>
             </v-list-item-icon>
@@ -42,12 +52,25 @@
               mdi-clipboard-text-outline
               </v-icon>
             </v-list-item-icon>
-            <v-list-item-content>Summary</v-list-item-content>
+            <v-list-item-content>File Analysis</v-list-item-content>
           </v-list-item>
         </v-list>
+
+        <template v-slot:append>
+          <div class="pa-2" >
+            <v-switch v-if="!isCollapsed" class="navbar-switch" v-model="anonymous" label="Anonymize"></v-switch>
+          </div>
+          <div class="pa-2" v-if="isCollapsed">
+            <v-icon>mdi-incognito</v-icon>
+          </div>
+        </template>
+
       </v-navigation-drawer>
 
-      <v-main>
+      <!-- This style is normally automatically set when the 'mini-variant' prop is not set. However,
+       if we want to receive the sync events when it opens and closes we need to set the mini-variant prop ourselves
+       and this breaks the style if we don't manually adjust it.-->
+      <v-main style="padding-left: 256px">
         <keep-alive exclude="Compare">
           <router-view />
         </keep-alive>
@@ -56,11 +79,13 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component } from "vue-property-decorator";
+import { Component, Watch } from "vue-property-decorator";
+import DataView from "@/views/DataView";
 
 @Component({})
-export default class App extends Vue {
+export default class App extends DataView {
   drawerEnabled = true;
+  isCollapsed = true;
 
   created(): void {
     this.drawerEnabled = !this.$vuetify.breakpoint.mobile;
@@ -76,12 +101,26 @@ export default class App extends Vue {
     this.navigateTo("/");
   }
 
+  toPairScreen(): void {
+    this.navigateTo("/pairs/");
+  }
+
   toGraphView(): void {
     this.navigateTo("/graph/");
   }
 
+  toClusterView(): void {
+    this.navigateTo("/cluster/");
+  }
+
   toSummary(): void {
-    this.navigateTo("/summary/");
+    this.navigateTo("/fileanalysis/");
   }
 }
 </script>
+
+<style>
+.v-messages {
+  display: none;
+}
+</style>

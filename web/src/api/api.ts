@@ -15,6 +15,12 @@ import {
   SemanticAnalyzer,
   UnpairedNodeStats
 } from "@dodona/dolos-lib";
+import {
+  colors,
+  names,
+  uniqueNamesGenerator
+} from "unique-names-generator";
+
 const DATA_URL = "./data/";
 
 // TODO: replace with actual assertion
@@ -51,7 +57,7 @@ interface FileIndeterminate {
   /* eslint-disable camelcase */
   extra: {
     timestamp?: Date;
-    full_name?: string;
+    fullName?: string;
     labels?: string;
   };
   /* eslint-enable camelcase */
@@ -153,9 +159,15 @@ async function fetchMetadata(
 }
 
 type ParseFilesReturn = {fileMap: ObjMap<File>, occurrences: Occurrence[][]}
-async function parseFiles(fileData: d3.DSVRowArray, customOptions: CustomOptions): Promise<ParseFilesReturn> {
+async function parseFiles(fileData: d3.DSVRowArray, customOptions: CustomOptions, anonymize = false):
+  Promise<ParseFilesReturn> {
   // const start = performance.now();
   // console.log(performance.now() - start);
+  const randomNameGenerator = (): string => uniqueNamesGenerator({ dictionaries: [colors, names], length: 2 });
+  const labelMap: Map<string, number> = new Map();
+  const timeOffset = Math.random() * 1000 * 60 * 60 * 24 * 20;
+  let labelCounter = 1;
+
   const files = fileData.map((row: any) => {
     const file = row as File;
     const extra = JSON.parse(row.extra || "{}");
@@ -166,7 +178,22 @@ async function parseFiles(fileData: d3.DSVRowArray, customOptions: CustomOptions
     file.astAndMappingLoaded = true;
     file.amountOfKgrams = file.amountOfKgrams || file.ast.length;
 
-    return file;
+    if (anonymize) {
+      const split = row.path!.split(".");
+      const extension = split[split.length - 1];
+      const name = randomNameGenerator();
+      row.path = `${name}/exercise.${extension}`;
+      extra.fullName = name;
+
+      const label = labelMap.get(extra.labels) || labelCounter;
+      if (!labelMap.has(extra.labels)) { labelCounter += 1; }
+      labelMap.set(extra.labels, label);
+      extra.labels = label;
+
+      if (extra.timestamp) { extra.timestamp = new Date(extra.timestamp.getTime() + timeOffset); }
+    }
+
+    return [row.id, row];
   });
 
   const emptyTokenizer = new EmptyTokenizer();
@@ -174,12 +201,12 @@ async function parseFiles(fileData: d3.DSVRowArray, customOptions: CustomOptions
   const index = new Index(emptyTokenizer, options);
 
   const semanticAnalyzer = new SemanticAnalyzer(index);
-  const [occurrences, results] = await semanticAnalyzer.semanticAnalysis(files.map(f => fileToTokenizedFile(f)));
+  const [occurrences, results] = await semanticAnalyzer.semanticAnalysis(files.map(f => fileToTokenizedFile(f[1])));
 
   for (let i = 0; i < files.length; i++) {
-    files[i].semanticMap = results[i];
+    files[i][1].semanticMap = results[i];
   }
-  return { fileMap: Object.fromEntries(files.map(f => [f.id, f])), occurrences };
+  return { fileMap: Object.fromEntries(files), occurrences };
 }
 
 function parseFragments(dolosFragments: DolosFragment[], kmersMap: Map<Hash, Kgram>): Fragment[] {
@@ -215,6 +242,11 @@ function parsePairs(
       const totalOverlap = parseFloat(assertType(row.totalOverlap));
       const leftCovered = parseFloat(assertType((row.leftCovered)));
       const rightCovered = parseFloat(assertType((row.rightCovered)));
+
+      console.assert(files[parseInt(assertType(row.leftFileId))] !== undefined,
+        "The left file id is undefined");
+      console.assert(files[parseInt(assertType(row.rightFileId))] !== undefined,
+        "The right file id is undefined");
 
       const diff = {
         id,
@@ -339,13 +371,13 @@ export async function loadSemantic(
   pair.unpairedMatches = unpairedMatches;
 }
 
-export async function fetchData(customOptions: CustomOptions): Promise<ApiData> {
+export async function fetchData(customOptions: CustomOptions, anonymize = false): Promise<ApiData> {
   const kgramPromise = fetchKgrams();
   const filePromise = fetchFiles();
   const metadataPromise = fetchMetadata();
   const pairPromise = fetchPairs();
 
-  const { fileMap, occurrences } = await parseFiles(await filePromise, customOptions);
+  const { fileMap, occurrences } = await parseFiles(await filePromise, customOptions, anonymize);
   const kgrams = parseKgrams(await kgramPromise, fileMap);
   const pairs = parsePairs(await pairPromise, fileMap, kgrams);
   const metadata = parseMetadata(await metadataPromise);

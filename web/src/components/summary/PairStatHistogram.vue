@@ -1,18 +1,18 @@
 
 <template>
-  <div :id="getSvgId()"></div>
+  <div class="svg-container" :id="getSvgId()"></div>
 </template>
 <script lang="ts">
 import { Component, Prop } from "vue-property-decorator";
 import { File } from "@/api/api";
 import * as d3 from "d3";
 
-import DataView from "@/views/DataView";
 import { TooltipTool } from "@/d3-tools/TooltipTool";
 import { FileInterestingnessCalculator, FileScoring } from "@/util/FileInterestingness";
+import { ResizableD3Viz } from "@/d3-tools/ResizableD3Viz";
 
 @Component({})
-export default class PairStatHistogram extends DataView {
+export default class PairStatHistogram extends ResizableD3Viz {
   @Prop({ default: 50 }) numberOfTicks!: number;
   @Prop() extraLine: undefined | number;
   @Prop({ default: "similarity" }) pairField!: "similarity" | "longestFragment" | "totalOverlap";
@@ -23,6 +23,7 @@ export default class PairStatHistogram extends DataView {
   private margin: { left: number; right: number; top: number; bottom: number };
   private width: number;
   private height: number;
+  static x = 0;
 
   constructor() {
     super();
@@ -31,18 +32,24 @@ export default class PairStatHistogram extends DataView {
     this.height = document.getElementById(this.getSvgId())?.clientHeight || 400 - this.margin.top - this.margin.bottom;
   }
 
-  mounted(): void {
+  initialize(): void {
     this.setSize();
-    this.afterDataInit();
-    document.getElementById(this.getSvgId())!.onresize = () => {
-      this.setSize();
-      this.afterDataInit();
-    };
+    this.maxFileData = this.getMaxFileData();
+    this.draw();
   }
 
-  async afterDataInit(): Promise<void> {
-    await this.ensureData();
-    this.maxFileData = await this.getMaxFileData();
+  resize(width: number, height: number): void {
+    if ((this.height + this.margin.top + this.margin.bottom) !== height) {
+      this.setSize();
+      this.draw();
+    }
+  }
+
+  mounted(): void {
+    super.mounted();
+  }
+
+  draw(): void {
     const xScale = this.getXScale();
     const domain = xScale.domain();
     const ticks = xScale.ticks(this.numberOfTicks);
@@ -87,7 +94,8 @@ export default class PairStatHistogram extends DataView {
     data: d3.Bin<number, number>[]
   ): d3.Selection<any, unknown, HTMLElement, any> {
     d3.select(`#${this.getSvgId()}`).select("svg").remove();
-    const g = d3
+
+    const svg = d3
       .select(`#${this.getSvgId()}`)
       .append("svg")
       .attr("width", this.width + this.margin.left + this.margin.right)
@@ -98,15 +106,15 @@ export default class PairStatHistogram extends DataView {
         "translate(" + this.margin.left + "," + this.margin.top + ")"
       );
 
-    g
+    svg
       .append("g")
       .attr("transform", "translate(0," + this.height + ")")
       .call(d3.axisBottom(xScale));
 
-    g.append("g").call(d3.axisLeft(yScale));
+    svg.append("g").call(d3.axisLeft(yScale));
 
     const h = this.height;
-    g
+    svg
       .selectAll("rect")
       .data<d3.Bin<number, number>>(data)
       .enter()
@@ -124,7 +132,7 @@ export default class PairStatHistogram extends DataView {
       .style("fill", d => this.getBinColor(d));
 
     if (this.extraLine !== undefined) {
-      g
+      svg
         .append("line")
         .attr("x1", xScale(this.extraLine))
         .attr("y1", 0)
@@ -133,10 +141,10 @@ export default class PairStatHistogram extends DataView {
         .attr("stroke", "black");
     }
 
-    return g;
+    return svg;
   }
 
-  async getMaxFileData(): Promise<number[]> {
+  getMaxFileData(): number[] {
     return this.scoredFiles.map(f => this.mapScoreToField(f));
   }
 
@@ -148,15 +156,6 @@ export default class PairStatHistogram extends DataView {
     if (this.pairField === "longestFragment") { return score.longestFragmentScore?.longestFragmentWrtSize || 0; }
 
     return 0;
-  }
-
-  private _svgId: string | null = null;
-  getSvgId(): string {
-    if (!this._svgId) {
-      this._svgId = `svg-file-histogram-${Math.round(Math.random() * 100000)}`;
-    }
-
-    return this._svgId;
   }
 
   getBinColor(d: d3.Bin<number, number>): string {
@@ -222,10 +221,13 @@ export default class PairStatHistogram extends DataView {
   private setSize(): void {
     this.width = (document.getElementById(this.getSvgId())?.clientWidth || 750) -
       this.margin.left - this.margin.right;
-    this.height = (document.getElementById(this.getSvgId())?.clientHeight || 400) -
+    this.height = 400 -
       this.margin.top - this.margin.bottom;
   }
 }
 </script>
 <style scoped>
+.svg-container {
+  max-height: 500px;
+}
 </style>

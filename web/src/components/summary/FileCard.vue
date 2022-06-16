@@ -29,7 +29,7 @@
         <v-tab href="#tab-0">Similarity</v-tab>
         <v-tab href="#tab-1">Longest Fragment</v-tab>
         <v-tab href="#tab-2">Total overlap</v-tab>
-        <v-tab href="#tab-3">Semantic Match</v-tab>
+        <v-tab href="#tab-3" :disabled="file.semanticMatchScore === null">Semantic Match</v-tab>
 
       </v-tabs>
 
@@ -41,6 +41,23 @@
                                :pair-field="'similarity'"
                                :scored-files="scoredFiles"
             />
+            <div class="more-info">
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on, attrs }">
+                  <v-icon v-bind="attrs" v-on="on">
+                    mdi-information
+                  </v-icon>
+                </template>
+                <span class="tooltip-span">
+                    This tab of the card shows a bar chart of all the pairs in this dataset. The similarity value
+                  of the pair of files this card is about is marked by a line intersecting a bar with a red color.
+                  This should help you see whether or not this pair of files is exceptionally similar or not.<br/>
+
+                  The similarity metric is a global size-independent metric, and often used as the main metric to
+                  measure how alike two files are.
+                 </span>
+              </v-tooltip>
+            </div>
           </div>
         </v-tab-item >
         <v-tab-item value="tab-1" :key="1">
@@ -50,6 +67,44 @@
                                :pair-field="'longestFragment'"
                                :scored-files="scoredFiles"
             />
+          </div>
+          <div class="more-info">
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on, attrs }">
+                <v-icon v-bind="attrs" v-on="on">
+                  mdi-information
+                </v-icon>
+              </template>
+              <span class="tooltip-span">
+                This tab of the card shows a bar chart of all the pairs in this dataset. The longest fragment value
+                  of the pair of files this card is about is marked by a line intersecting a bar with a red color.
+                  This should help you see whether or not this pair of files is exceptionally similar or not.<br/>
+
+                  The longest consecutive fragment is a local size-independent metric, and roughly correlates to the
+                longest amount of lines in one block that are the same in both files. If this is very high, then it's
+                likely (part of) these files was literally copied.
+
+                 </span>
+            </v-tooltip>
+          </div>
+          <div class="more-info">
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on, attrs }">
+                <v-icon v-bind="attrs" v-on="on">
+                  mdi-information
+                </v-icon>
+              </template>
+              <span class="tooltip-span">
+                This tab of the card shows a bar chart of all the pairs in this dataset. The longest fragment value
+                  of the pair of files this card is about is marked by a line intersecting a bar with a red color.
+                  This should help you see whether or not this pair of files is exceptionally similar or not.<br/>
+
+                  The longest consecutive fragment is a local size-independent metric, and roughly correlates to the
+                longest amount of lines in one block that are the same in both files. If this is very high, then it's
+                likely (part of) these files was literally copied.
+
+                 </span>
+            </v-tooltip>
           </div>
         </v-tab-item>
         <v-tab-item value="tab-2" :key="2">
@@ -65,6 +120,40 @@
           <div v-if="dataLoaded" style="width: 100%">
             <SummaryVisualisation
               :file="file" />
+          </div>
+          <div class="more-info">
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on, attrs }">
+                <v-icon v-bind="attrs" v-on="on">
+                  mdi-information
+                </v-icon>
+              </template>
+              <span class="tooltip-span">
+                This tab of the card shows a bar chart of all the pairs in this dataset. The total overlap value
+                  of the pair of files this card is about is marked by a line intersecting a bar with a red color.
+                  This should help you see whether or not this pair of files is exceptionally similar or not. <br/>
+
+                  The total overlap is a global size-dependent metric of equality in the files. It roughly counts
+                how many lines of both files are similiar.
+                 </span>
+            </v-tooltip>
+          </div>
+          <div class="more-info">
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on, attrs }">
+                <v-icon v-bind="attrs" v-on="on">
+                  mdi-information
+                </v-icon>
+              </template>
+              <span class="tooltip-span">
+                This tab of the card shows a bar chart of all the pairs in this dataset. The total overlap value
+                  of the pair of files this card is about is marked by a line intersecting a bar with a red color.
+                  This should help you see whether or not this pair of files is exceptionally similar or not. <br/>
+
+                  The total overlap is a global size-dependent metric of equality in the files. It roughly counts
+                how many lines of both files are similiar.
+                 </span>
+            </v-tooltip>
           </div>
         </v-tab-item>
       </v-tabs-items>
@@ -86,10 +175,12 @@ import SummaryVisualisation from "@/components/summary/SummaryVisualisation.vue"
 export default class FileCard extends DataView {
   @Prop() file!: FileScoring;
   @Prop({ required: true }) scoredFiles!: FileScoring[];
+  @Prop() selectedValue!: number | null;
   tab = "";
 
   created(): void {
     this.setBestTab();
+    console.log(this.file);
   }
 
   getTimestampText(file: File): string {
@@ -125,6 +216,13 @@ export default class FileCard extends DataView {
 
     this.tab = `tab-${tabOrder.indexOf(largestField)}`;
   }
+
+  @Watch("selectedValue")
+  setThisTab(): void {
+    if (this.selectedValue === null) { return this.setBestTab(); }
+
+    this.tab = `tab-${this.selectedValue}`;
+  }
 }
 </script>
 
@@ -132,6 +230,7 @@ export default class FileCard extends DataView {
 .graph-wrapper {
   padding: 10px;
   margin-top: 20px;
+  max-height: 500px;
 }
 .score-container {
   padding: 10px;
@@ -144,4 +243,15 @@ export default class FileCard extends DataView {
 .file-card {
   width: 60%;
 }
+.more-info {
+  position: absolute;
+  right: 30px;
+  top: 0;
+}
+
+.tooltip-span {
+  display: block;
+  max-width: 400px;
+}
+
 </style>
