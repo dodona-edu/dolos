@@ -7,7 +7,8 @@ import { PairedOccurrence, ASTRegion } from "./pairedOccurrence";
 import { Range } from "../util/range";
 import { Options } from "../util/options";
 import { SharedFingerprint } from "./sharedFingerprint";
-import { closestMatch } from "../util/utils";
+import { closestMatch, mapValues } from "../util/utils";
+import { NodeStats } from "./SemanticAnalyzer";
 
 type Hash = number;
 
@@ -35,6 +36,9 @@ export class Report {
   private fingerprints: Map<Hash, SharedFingerprint> = new Map();
 
   private readonly fileSet: Set<TokenizedFile>;
+
+  public occurrences: Occurrence[][] = [];
+  public results: Map<number, Map<number, NodeStats[]>> = new Map();
 
   constructor(
     public readonly options: Options,
@@ -79,6 +83,12 @@ export class Report {
     });
 
     ints = ints.filter(i => i.fragmentCount > 0);
+    
+    const sizeFilter = (ns: NodeStats): boolean => ns.ownNodes.length + ns.childrenTotal > 30;
+    this.results = mapValues( m =>
+      mapValues(v => v.filter(sizeFilter),
+        m)
+    , this.results);
 
     this.scored = ints.map(i => this.calculateScore(i));
 

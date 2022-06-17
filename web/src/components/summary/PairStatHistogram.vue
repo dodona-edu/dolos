@@ -4,11 +4,10 @@
 </template>
 <script lang="ts">
 import { Component, Prop } from "vue-property-decorator";
-import { File } from "@/api/api";
 import * as d3 from "d3";
 
 import { TooltipTool } from "@/d3-tools/TooltipTool";
-import { FileInterestingnessCalculator, FileScoring } from "@/util/FileInterestingness";
+import { FileScoring } from "@/util/FileInterestingness";
 import { ResizableD3Viz } from "@/d3-tools/ResizableD3Viz";
 
 @Component({})

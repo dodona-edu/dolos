@@ -12,3 +12,4 @@ export { SemanticAnalyzer, PairedNodeStats, NodeStats, UnpairedNodeStats } from 
 export { SharedFingerprint } from "./lib/analyze/sharedFingerprint";
 export { PairedOccurrence } from "./lib/analyze/pairedOccurrence";
 export { DefaultMap } from "./lib/util/defaultMap";
+export * from "./lib/util/utils";

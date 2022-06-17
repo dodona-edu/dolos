@@ -3,7 +3,7 @@ import { Index } from "./index";
 import { DefaultMap } from "../util/defaultMap";
 import { HashFilter } from "../hashing/hashFilter";
 import { Region } from "../util/region";
-import { countByKey, intersect, sumByKey } from "../util/utils";
+import { countByKey, intersect, mapValues, sumByKey } from "../util/utils";
 import { Occurrence } from "./report";
 
 // The AST needs to be annotated with the matching information gotten from @link{Index} to produce information on
@@ -35,12 +35,12 @@ export type PairedNodeStats = {
 // file. In that case, the group only exists in either the left file or the right file.
 export type LeftOnly = {
   leftMatch: NodeStats;
-  occurrences: Occurrence[];
+  occurrences: TokenizedFile[];
 }
 
 export type RightOnly = {
   rightMatch: NodeStats;
-  occurrences: Occurrence[];
+  occurrences: TokenizedFile[];
 
 }
 
@@ -60,12 +60,13 @@ export class SemanticAnalyzer {
   public async semanticAnalysis(
     tokenizedFiles: TokenizedFile[],
     hashFilter?: HashFilter
-  ): Promise<[Occurrence[][], Array<Map<number, NodeStats[]>>]> {
-    const results = [];
+  ): Promise<[Occurrence[][], Map<number, Map<number, NodeStats[]>>]> {
+    const results = new Map();
     const astMap = await this.astWithMatches(tokenizedFiles, hashFilter);
     for(const tokenizedFile of tokenizedFiles) {
-      results.push(await this.semanticAnalysisOneFile(tokenizedFile, astMap.get(tokenizedFile)));
+      results.set(tokenizedFile.id, await this.semanticAnalysisOneFile(tokenizedFile, astMap.get(tokenizedFile)));
     }
+
 
     return [astMap.get(tokenizedFiles[0]).groups, results];
   }
@@ -79,7 +80,10 @@ export class SemanticAnalyzer {
     if(!matchedLevels)
       return new Map();
 
-    return matchedLevels;
+    const filterNodeList = (list: NodeStats[]): NodeStats[] => 
+      list.filter(p => p.ownNodes.length + p.childrenTotal > 15);
+
+    return mapValues(filterNodeList, matchedLevels);
   }
 
   private recurse(fileId: number, i: number, ast: string[], matchedAST: AstWithMatches, depth: number): ReturnData {
@@ -318,7 +322,7 @@ export class SemanticAnalyzer {
     fileRight: TokenizedFile,
     leftMatches: NodeStats[],
     rightMatches: NodeStats[],
-    occurrenceGroups: Occurrence[][]
+    occurrenceGroups: TokenizedFile[][]
   ): [PairedNodeStats[], UnpairedNodeStats[]] {
     const pairs: PairedNodeStats[] = [];
     const notPaired: UnpairedNodeStats[] = [];

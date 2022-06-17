@@ -165,10 +165,11 @@ export class FileInterestingnessCalculator {
     }
 
     const pair = pairArray.filter(p =>
-      (p.leftFile.id === file.id && p.rightFile.id === maxFileId) ||
-      (p.leftFile.id === maxFileId && p.rightFile.id === file.id)
+      (+p.leftFile.id === +file.id && +p.rightFile.id === +(maxFileId || 0)) ||
+      (+p.leftFile.id === +(maxFileId || 0) && +p.rightFile.id === +file.id)
     )[0];
 
+    if (!pair) { return null; }
     this.counter++;
     await this.$store.dispatch("populateSemantic", { pairId: pair.id });
 

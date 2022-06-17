@@ -3,11 +3,11 @@ import csvStringify from "csv-stringify";
 import { Writable } from "stream";
 import { createWriteStream, promises, promises as fs } from "fs";
 import {
-  Fragment,
+  Fragment, NodeStats,
   Pair,
   PairedOccurrence,
   Report,
-  ScoredPairs,
+  ScoredPairs, serializeMap, serializeMapC,
   SharedFingerprint,
   TokenizedFile
 } from "@dodona/dolos-lib";
@@ -134,6 +134,26 @@ export class FileView extends View {
         "type": ([, v]) => typeof v
       });
   }
+  
+  public writeSemantic(out: Writable): void {
+
+    const serializeNodeStats = (a: NodeStats): unknown => ({
+      ...a,
+      matchedNodeAmount: serializeMap(a.matchedNodeAmount),
+      childrenMatch: serializeMap(a.childrenMatch),
+      occurrences: [...a.occurrences]
+    });
+
+    out.write(
+      JSON.stringify({
+        occurrences: this.report.occurrences.map(o => o.map(f => f.file.id)),
+        semanticMapResults: serializeMapC(this.report.results, 
+          i => serializeMapC(i,
+            nodes => nodes.map(serializeNodeStats))
+        )
+      })
+    );
+  }
 
   async writeToDirectory(writeFragments = false): Promise<string> {
     const dirName = this.outputDestination;
@@ -144,6 +164,9 @@ export class FileView extends View {
     console.log("Metadata written.");
     this.writePairs(createWriteStream(`${dirName}/pairs.csv`));
     console.log("Pairs written.");
+    this.writeSemantic(createWriteStream(`${dirName}/semantic.json`));
+    console.log("Semantic output written.");
+
     if (writeFragments) {
 
       await fs.mkdir(`${dirName}/fragments`);
