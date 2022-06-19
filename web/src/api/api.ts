@@ -65,14 +65,14 @@ interface LoadedFile extends FileIndeterminate {
   astAndMappingLoaded: true;
   ast: string[];
   mapping: Selection[];
-  semanticMap: DecodedSemanticResult[];
+  semanticMap?: DecodedSemanticResult[];
 }
 
 interface UnloadedFile extends FileIndeterminate {
   astAndMappingLoaded: false;
   ast: string;
   mapping: string;
-  semanticMap: DecodedSemanticResult[];
+  semanticMap?: DecodedSemanticResult[];
 }
 
 export type File = LoadedFile | UnloadedFile;
@@ -347,16 +347,18 @@ export async function loadFragments(
   );
   const reportPair = report.scoredPairs[0].pair;
 
-  const [pairedMatches, unpairedMatches] = SemanticAnalyzer.pairMatches(
-    leftFile,
-    rightFile,
-    pair.leftFile.semanticMap,
-    pair.rightFile.semanticMap,
-    occurrences
-  );
+  if (pair.leftFile.semanticMap && pair.rightFile.semanticMap) {
+    const [pairedMatches, unpairedMatches] = SemanticAnalyzer.pairMatches(
+      leftFile,
+      rightFile,
+      pair.leftFile.semanticMap,
+      pair.rightFile.semanticMap,
+      occurrences
+    );
 
-  pair.pairedMatches = pairedMatches;
-  pair.unpairedMatches = unpairedMatches;
+    pair.pairedMatches = pairedMatches;
+    pair.unpairedMatches = unpairedMatches;
+  }
 
   const kmersMap: Map<Hash, Kgram> = new Map();
   for (const kmerKey in kmers) {
@@ -371,6 +373,7 @@ export function loadSemantic(
 ): void {
   const leftFile = fileToTokenizedFile(pair.leftFile);
   const rightFile = fileToTokenizedFile(pair.rightFile);
+  if (!pair.leftFile.semanticMap || !pair.rightFile.semanticMap) { return; }
 
   const [pairedMatches, unpairedMatches] = SemanticAnalyzer.pairMatches(
     leftFile,
@@ -396,8 +399,13 @@ export async function fetchData(customOptions: CustomOptions, anonymize = false)
   const pairs = parsePairs(await pairPromise, fileMap, kgrams);
   const metadata = parseMetadata(await metadataPromise);
 
-  const sp = await semanticPromise;
-  const occurrences = parseSemantic(sp, fileMap).occurrences;
+  let occurrences: number[][] = [];
+  try {
+    const sp = await semanticPromise;
+    occurrences = parseSemantic(sp, fileMap).occurrences;
+  } catch {
+    // There's no semantic file present, running without semantics
+  }
 
   return { files: fileMap, kgrams, pairs, metadata, occurrences };
 }

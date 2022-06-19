@@ -29,7 +29,9 @@
         <v-tab href="#tab-0">Similarity</v-tab>
         <v-tab href="#tab-1">Longest Fragment</v-tab>
         <v-tab href="#tab-2">Total overlap</v-tab>
-        <v-tab href="#tab-3" :disabled="file.semanticMatchScore === null">Semantic Match</v-tab>
+        <v-tab href="#tab-3"
+               v-if="semantic"
+               :disabled="file.semanticMatchScore === null">Semantic Match</v-tab>
 
       </v-tabs>
 

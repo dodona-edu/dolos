@@ -141,6 +141,8 @@ export class FileInterestingnessCalculator {
 
   public counter = 0;
   public async semanticMatchingScore(file: File): Promise<SemanticMatchingScore | null> {
+    if (!file.semanticMap) { return null; }
+
     const pairArray = Array.from(this.pairMap.get(file.id)?.values() || []);
     const matchSize = (m: DecodedSemanticResult): number => m.ownNodes.length + m.childrenTotal;
     const matchContainsFunction = (m: DecodedSemanticResult): boolean =>

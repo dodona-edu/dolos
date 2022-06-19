@@ -154,8 +154,10 @@ export class FileView extends View {
     console.log("Metadata written.");
     this.writePairs(createWriteStream(`${dirName}/pairs.csv`));
     console.log("Pairs written.");
-    this.writeSemantic(createWriteStream(`${dirName}/semantic.json`));
-    console.log("Semantic output written.");
+    if(this.report.options.semantic) {
+      this.writeSemantic(createWriteStream(`${dirName}/semantic.json`));
+      console.log("Semantic output written.");
+    }
 
     if (writeFragments) {
 

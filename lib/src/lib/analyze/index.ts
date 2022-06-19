@@ -89,13 +89,15 @@ export class Index {
     for(const [hash, occurrences] of map.entries()) {
       report.addOccurrences(hash, ...occurrences);
     }
+  
+    if(this.options.semantic) {
+      const semanticAnalyzer = new SemanticAnalyzer(this);
+      const [occurrences, result] = await semanticAnalyzer.semanticAnalysis(
+        tokenizedFiles, hashFilter);
 
-    const semanticAnalyzer = new SemanticAnalyzer(this);
-    const [occurrences, result] = await semanticAnalyzer.semanticAnalysis(
-      tokenizedFiles, hashFilter);
-
-    report.occurrences = occurrences;
-    report.results = result;
+      report.occurrences = occurrences;
+      report.results = result;
+    }
 
     report.finish();
     return report;

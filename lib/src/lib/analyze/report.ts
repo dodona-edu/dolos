@@ -209,7 +209,7 @@ export class Report {
     for(const [id1, map] of results.entries()) {
       for(const [id2, nodestats] of map.entries()) {
         const filtered = nodestats
-          .filter(n => n.childrenTotal > 30);
+          .filter(n => n.childrenTotal > this.options.semanticLength);
         
         if(filtered.length === 0)
           continue;

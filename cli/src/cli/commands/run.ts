@@ -154,6 +154,23 @@ export function runCommand(program: Command): Command {
       x => parseFloat(x),
       Options.defaultKgramsInWindow
     )
+    .option(
+      "--semantic",
+      Utils.indent(
+        "Using the semantic analysis augment in Dolos",
+        Options.defaultSemantic
+      ),
+      Options.defaultSemantic
+    )
+    .option(
+      "--semantic-match-length <number>",
+      Utils.indent(
+        "Length of the smallest semantic match",
+        Options.defaultSemanticLength
+      ),
+      x => parseInt(x),
+      Options.defaultSemanticLength
+    )
     .action(async (locations, options) => run(locations, { ...options , ...program.opts() }));
 }
 
@@ -191,6 +208,8 @@ export async function run(locations: string[], options: RunOptions): Promise<voi
       limitResults: options.limitResults,
       sortBy: options.sortBy,
       fragmentSortBy: options.fragmentSortBy,
+      semantic: options.semantic,
+      semanticLength: options.semanticLength
     });
     const report = await dolos.analyzePaths(locations);
 
