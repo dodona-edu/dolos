@@ -1,4 +1,4 @@
-import { Pair, File } from "@/api/api";
+import { Pair, File, loadSemantic } from "@/api/api";
 import { pairsAsNestedMap } from "./PairAsNestedMap";
 import { NodeStats } from "@dodona/dolos-lib/dist/lib/analyze/SemanticAnalyzer";
 import Store from "@/store";
@@ -158,7 +158,7 @@ export class FileInterestingnessCalculator {
 
     if (!pair) { return null; }
 
-    if (pair.pairedMatches.length === 0) { await this.$store.dispatch("populateSemantic", { pairId: pair.id }); }
+    if (pair.pairedMatches.length === 0) { loadSemantic(pair, this.$store.state.api.occurrences); }
 
     if (pair.pairedMatches.length === 0) { return null; }
 

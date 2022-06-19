@@ -113,7 +113,7 @@ export default {
     ): Promise<void> {
       const pair = getters.pair(data.pairId);
 
-      await loadSemantic(pair, state.occurrences);
+      loadSemantic(pair, state.occurrences);
       commit("updatePair", pair);
     },
 

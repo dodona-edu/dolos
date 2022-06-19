@@ -366,9 +366,9 @@ export async function loadFragments(
   pair.fragments = parseFragments(reportPair.fragments(), kmersMap);
 }
 
-export async function loadSemantic(
+export function loadSemantic(
   pair: Pair, occurrences: number[][]
-): Promise<void> {
+): void {
   const leftFile = fileToTokenizedFile(pair.leftFile);
   const rightFile = fileToTokenizedFile(pair.rightFile);
 
