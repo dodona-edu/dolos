@@ -164,10 +164,10 @@ export default class OverviewBarchart extends ResizableD3Viz {
     const scoringCalculator = new FileInterestingnessCalculator(pairs, this.$store);
 
     const scoredFiles = await Promise.all(files.map(async (file) =>
-      await scoringCalculator.calculateFileScoring(file)
+      await scoringCalculator.calculateSimilarityScore(file)
     ));
 
-    return scoredFiles.map(f => this.mapScoreToField(f));
+    return scoredFiles.map(f => f?.similarity || 0);
   }
 
   private mapScoreToField(score: FileScoring): number {

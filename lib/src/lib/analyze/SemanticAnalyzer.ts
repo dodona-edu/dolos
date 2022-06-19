@@ -3,7 +3,7 @@ import { Index } from "./index";
 import { DefaultMap } from "../util/defaultMap";
 import { HashFilter } from "../hashing/hashFilter";
 import { Region } from "../util/region";
-import { countByKey, intersect, sumByKey } from "../util/utils";
+import { countByKey, intersect, mapValues, sumByKey } from "../util/utils";
 import { Occurrence } from "./report";
 
 // The AST needs to be annotated with the matching information gotten from @link{Index} to produce information on
@@ -26,25 +26,29 @@ export type NodeStats = {
 }
 
 // If two semantic groups are alike in two files, we can pair them
-export type PairedNodeStats = {
-  rightMatch: NodeStats;
-  leftMatch: NodeStats;
+export type PairedSemanticGroups<T> = {
+  rightMatch: T;
+  leftMatch: T;
 }
 
 // In some cases, a contiguous semantic group in one file cannot be linked to a contiguous semantic group in another
 // file. In that case, the group only exists in either the left file or the right file.
-export type LeftOnly = {
-  leftMatch: NodeStats;
-  occurrences: Occurrence[];
+export type LeftOnlySemanticGroup<T> = {
+  leftMatch: T;
+  occurrences: number[];
 }
 
-export type RightOnly = {
-  rightMatch: NodeStats;
-  occurrences: Occurrence[];
+export type RightOnlySemanticGroup<T> = {
+  rightMatch: T;
+  occurrences: number[];
 
 }
 
-export type UnpairedNodeStats = LeftOnly | RightOnly;
+export type UnpairedSemanticGroups<T> = LeftOnlySemanticGroup<T> | RightOnlySemanticGroup<T>;
+
+export type Pairable = {
+  occurrences: Set<number>;
+}
 
 // Additional helper type for the return value of 'recurse'.
 type ReturnData = {
@@ -60,12 +64,13 @@ export class SemanticAnalyzer {
   public async semanticAnalysis(
     tokenizedFiles: TokenizedFile[],
     hashFilter?: HashFilter
-  ): Promise<[Occurrence[][], Array<Map<number, NodeStats[]>>]> {
-    const results = [];
+  ): Promise<[Occurrence[][], Map<number, Map<number, NodeStats[]>>]> {
+    const results = new Map();
     const astMap = await this.astWithMatches(tokenizedFiles, hashFilter);
     for(const tokenizedFile of tokenizedFiles) {
-      results.push(await this.semanticAnalysisOneFile(tokenizedFile, astMap.get(tokenizedFile)));
+      results.set(tokenizedFile.id, await this.semanticAnalysisOneFile(tokenizedFile, astMap.get(tokenizedFile)));
     }
+
 
     return [astMap.get(tokenizedFiles[0]).groups, results];
   }
@@ -79,7 +84,10 @@ export class SemanticAnalyzer {
     if(!matchedLevels)
       return new Map();
 
-    return matchedLevels;
+    const filterNodeList = (list: NodeStats[]): NodeStats[] => 
+      list.filter(p => p.ownNodes.length + p.childrenTotal > 15);
+
+    return mapValues(filterNodeList, matchedLevels);
   }
 
   private recurse(fileId: number, i: number, ast: string[], matchedAST: AstWithMatches, depth: number): ReturnData {
@@ -272,7 +280,7 @@ export class SemanticAnalyzer {
     return astMap;
   }
 
-  public static getFullRange(file: TokenizedFile, match: NodeStats): Region {
+  public static getFullRange(file: TokenizedFile, match: { ownNodes: number[] }): Region {
     const ast = file.ast;
     const mapping = file.mapping;
 
@@ -313,15 +321,15 @@ export class SemanticAnalyzer {
   static readonly  PAIRING_TOLERANCE = 0.7;
 
 
-  public static pairMatches(
+  public static pairMatches<T extends Pairable>(
     fileLeft: TokenizedFile,
     fileRight: TokenizedFile,
-    leftMatches: NodeStats[],
-    rightMatches: NodeStats[],
-    occurrenceGroups: Occurrence[][]
-  ): [PairedNodeStats[], UnpairedNodeStats[]] {
-    const pairs: PairedNodeStats[] = [];
-    const notPaired: UnpairedNodeStats[] = [];
+    leftMatches: T[],
+    rightMatches: T[],
+    occurrenceGroups: number[][]
+  ): [PairedSemanticGroups<T>[], UnpairedSemanticGroups<T>[]] {
+    const pairs: PairedSemanticGroups<T>[] = [];
+    const notPaired: UnpairedSemanticGroups<T>[] = [];
     
     const pairedRightMatches = new Set();
     
@@ -345,7 +353,7 @@ export class SemanticAnalyzer {
         const occs = new Array(...leftMatch.occurrences)
           .map(n => occurrenceGroups[n])
           .flat()
-          .filter(o => o.file.id === fileRight.id);
+          .filter(o => o === fileRight.id);
         notPaired.push({ leftMatch, occurrences: occs });
       }
     }
@@ -357,7 +365,7 @@ export class SemanticAnalyzer {
         const occs = new Array(...rightMatch.occurrences)
           .map(n => occurrenceGroups[n])
           .flat()
-          .filter(o => o.file.id === fileLeft.id);
+          .filter(o => o === fileLeft.id);
         notPaired.push({ rightMatch, occurrences: occs });
       }
     }

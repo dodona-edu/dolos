@@ -8,6 +8,7 @@ import { WinnowFilter } from "../hashing/winnowFilter";
 import { File } from "../file/file";
 import { Report, Occurrence } from "./report";
 import { TokenizedFile } from "../file/tokenizedFile";
+import { SemanticAnalyzer } from "./SemanticAnalyzer";
 
 type Hash = number;
 
@@ -87,6 +88,15 @@ export class Index {
 
     for(const [hash, occurrences] of map.entries()) {
       report.addOccurrences(hash, ...occurrences);
+    }
+  
+    if(this.options.semantic) {
+      const semanticAnalyzer = new SemanticAnalyzer(this);
+      const [occurrences, result] = await semanticAnalyzer.semanticAnalysis(
+        tokenizedFiles, hashFilter);
+
+      report.occurrences = occurrences;
+      report.results = result;
     }
 
     report.finish();

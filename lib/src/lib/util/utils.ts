@@ -48,3 +48,30 @@ export function intersect<T>(set1: Set<T>, set2: Set<T>): Set<T> {
     
   return copy;
 }
+
+export function mapValues<K, V1, V2>(mapper: (a: V1) => V2, map: Map<K, V1>): Map<K, V2> {
+  return new Map(
+    [...map.entries()].map(([key, val]) => [key, mapper(val)])
+  );
+}
+
+export function serializeMap<K, V>(map: Map<K, V>): Array<[K, V]> {
+  return serializeMapC(map, v => v);
+}
+
+export function serializeMapC<K, V, R>(map: Map<K, V>, internalMapper: (a: V) => R): Array<[K, R]> {
+  const workingMap: Map<K, R> = mapValues(internalMapper, map);
+
+
+  return [...workingMap.entries()];
+}
+
+export function deserializeMapC<K, V, R>(map: Array<[K, V]>, internalMapper: (a: V) => R): Map<K, R> {
+  const workingArray = map.map(([key, value]): [K, R] => [key, internalMapper(value)]);
+
+  return new Map(workingArray);
+}
+
+export function deserializeMap<K, V>(map: Array<[K, V]>): Map<K, V> {
+  return deserializeMapC(map, v => v);
+}

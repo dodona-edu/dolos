@@ -40,9 +40,9 @@
 <script lang="ts">
 import { Component, Watch, Prop } from "vue-property-decorator";
 import PairStatHistogram from "@/components/summary/PairStatHistogram.vue";
-import { FileScoring, getLargestFieldOfScore } from "@/util/FileInterestingness";
+import { FileScoring } from "@/util/FileInterestingness";
 import CompareSide from "../CompareSide.vue";
-import { Region, PairedNodeStats, SemanticAnalyzer, NodeStats } from "@dodona/dolos-lib";
+import { DecodedSemanticResult, PairedSemanticGroups, Region, SemanticAnalyzer } from "@dodona/dolos-lib";
 import { fileToTokenizedFile, File } from "@/api/api";
 import DataView from "@/views/DataView";
 
@@ -51,7 +51,7 @@ import DataView from "@/views/DataView";
 })
 export default class SummaryVisualisation extends DataView {
   @Prop({ required: true }) file!: FileScoring;
-  private match?: PairedNodeStats;
+  private match?: PairedSemanticGroups<DecodedSemanticResult>;
   private currentFiles: { leftFile: File; rightFile: File } | null = null;
 
   constructor() {
@@ -64,21 +64,7 @@ export default class SummaryVisualisation extends DataView {
     this.getPairedMatch();
   }
 
-  getLineSpot(file: FileScoring): number {
-    const score = getLargestFieldOfScore(file);
-
-    if (score === "totalOverlap") { return file.totalOverlapScore?.totalOverlapWrtSize || 0; }
-
-    if (score === "longestFragment") { return file.longestFragmentScore?.longestFragmentWrtSize || 0; }
-
-    if (score === "similarity") { return file.similarityScore?.similarity || 0; }
-
-    return 0;
-  }
-
-  getLargestFieldOfScore = getLargestFieldOfScore;
-
-  getMatchSpan(file: File, match: NodeStats): Region {
+  getMatchSpan(file: File, match: DecodedSemanticResult): Region {
     const tokenized = fileToTokenizedFile(file);
     const r = SemanticAnalyzer.getFullRange(
       tokenized, match

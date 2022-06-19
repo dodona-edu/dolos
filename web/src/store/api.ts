@@ -11,7 +11,6 @@ import {
 } from "@/api/api";
 import Vue from "vue";
 import { ActionContext } from "vuex";
-import { Occurrence } from "@dodona/dolos-lib";
 
 interface State {
   kgrams: ObjMap<Kgram>;
@@ -19,7 +18,7 @@ interface State {
   pairs: ObjMap<Pair>;
   metadata: Metadata;
   isLoaded: boolean;
-  occurrences: Occurrence[][];
+  occurrences: number[][];
   loading: Promise<unknown> | null;
   cutoff: number;
   isAnonymous: boolean;
@@ -114,7 +113,7 @@ export default {
     ): Promise<void> {
       const pair = getters.pair(data.pairId);
 
-      await loadSemantic(pair, state.occurrences);
+      loadSemantic(pair, state.occurrences);
       commit("updatePair", pair);
     },
 

@@ -46,6 +46,10 @@ export default abstract class DataView extends Vue {
     return singleLinkageCluster(this.pairs, this.files, this.cutoff);
   }
 
+  get semantic(): boolean {
+    return this.$store.state.api.occurrences.length > 0;
+  }
+
   createLegend(): Legend {
     const labels = new Set<string>();
 
