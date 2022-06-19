@@ -213,14 +213,14 @@ import {
   mdiFileDocumentMultipleOutline,
   mdiSwapHorizontalBold,
 } from "@mdi/js";
-import { PairedNodeStats, SemanticAnalyzer } from "@dodona/dolos-lib/dist/lib/analyze/SemanticAnalyzer";
-import { Region } from "@dodona/dolos-lib";
+import { SemanticAnalyzer } from "@dodona/dolos-lib/dist/lib/analyze/SemanticAnalyzer";
+import { DecodedSemanticResult, PairedSemanticGroups, Region } from "@dodona/dolos-lib";
 
 export enum SideID {
   leftSideId = "leftSideId",
   rightSideId = "rightSideId",
 }
-export type SemanticMatch = PairedNodeStats & { active: boolean };
+export type SemanticMatch = PairedSemanticGroups<DecodedSemanticResult> & { active: boolean };
 
 @Component({
   data: () => ({

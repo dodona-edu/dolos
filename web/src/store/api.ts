@@ -11,7 +11,6 @@ import {
 } from "@/api/api";
 import Vue from "vue";
 import { ActionContext } from "vuex";
-import { TokenizedFile } from "@dodona/dolos-lib";
 
 interface State {
   kgrams: ObjMap<Kgram>;
@@ -19,7 +18,7 @@ interface State {
   pairs: ObjMap<Pair>;
   metadata: Metadata;
   isLoaded: boolean;
-  occurrences: TokenizedFile[][];
+  occurrences: number[][];
   loading: Promise<unknown> | null;
   cutoff: number;
   isAnonymous: boolean;

@@ -3,11 +3,11 @@ import csvStringify from "csv-stringify";
 import { Writable } from "stream";
 import { createWriteStream, promises, promises as fs } from "fs";
 import {
-  Fragment, NodeStats,
+  Fragment,
   Pair,
   PairedOccurrence,
   Report,
-  ScoredPairs, serializeMap, serializeMapC,
+  ScoredPairs,
   SharedFingerprint,
   TokenizedFile
 } from "@dodona/dolos-lib";
@@ -137,20 +137,10 @@ export class FileView extends View {
   
   public writeSemantic(out: Writable): void {
 
-    const serializeNodeStats = (a: NodeStats): unknown => ({
-      ...a,
-      matchedNodeAmount: serializeMap(a.matchedNodeAmount),
-      childrenMatch: serializeMap(a.childrenMatch),
-      occurrences: [...a.occurrences]
-    });
-
     out.write(
       JSON.stringify({
+        semanticMapResults: this.report.semanticResults,
         occurrences: this.report.occurrences.map(o => o.map(f => f.file.id)),
-        semanticMapResults: serializeMapC(this.report.results, 
-          i => serializeMapC(i,
-            nodes => nodes.map(serializeNodeStats))
-        )
       })
     );
   }

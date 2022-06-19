@@ -7,7 +7,7 @@ import { PairedOccurrence, ASTRegion } from "./pairedOccurrence";
 import { Range } from "../util/range";
 import { Options } from "../util/options";
 import { SharedFingerprint } from "./sharedFingerprint";
-import { closestMatch, mapValues } from "../util/utils";
+import { closestMatch } from "../util/utils";
 import { NodeStats } from "./SemanticAnalyzer";
 
 type Hash = number;
@@ -26,6 +26,22 @@ export interface Occurrence {
   side: ASTRegion;
 }
 
+export interface SemanticResult {
+  left: number,
+  right: number,
+  childrenTotal: number,
+  ownNodes: Array<number>
+  childrenMatch: number;
+}
+
+export interface EncodedSemanticResult extends SemanticResult {
+  occurrences: Array<number>;
+}
+
+export interface DecodedSemanticResult extends SemanticResult {
+  occurrences: Set<number>;
+}
+
 export class Report {
 
   // computed list of scored pairs,
@@ -39,6 +55,7 @@ export class Report {
 
   public occurrences: Occurrence[][] = [];
   public results: Map<number, Map<number, NodeStats[]>> = new Map();
+  public semanticResults: Array<SemanticResult> = [];
 
   constructor(
     public readonly options: Options,
@@ -84,11 +101,7 @@ export class Report {
 
     ints = ints.filter(i => i.fragmentCount > 0);
     
-    const sizeFilter = (ns: NodeStats): boolean => ns.ownNodes.length + ns.childrenTotal > 30;
-    this.results = mapValues( m =>
-      mapValues(v => v.filter(sizeFilter),
-        m)
-    , this.results);
+    this.semanticResults = this.encodeSemanticResults(this.results);
 
     this.scored = ints.map(i => this.calculateScore(i));
 
@@ -188,5 +201,34 @@ export class Report {
       leftCovered,
       rightCovered
     };
+  }
+
+  private encodeSemanticResults(results: Map<number, Map<number, NodeStats[]>>): EncodedSemanticResult[] {
+    const encodedResults: EncodedSemanticResult[] = [];
+
+    for(const [id1, map] of results.entries()) {
+      for(const [id2, nodestats] of map.entries()) {
+        const filtered = nodestats
+          .filter(n => n.childrenTotal > 30);
+        
+        if(filtered.length === 0)
+          continue;
+        
+
+        for(const nodeStat of filtered) {
+          encodedResults.push({
+            left: id1,
+            right: id2,
+            childrenTotal: nodeStat.childrenTotal,
+            occurrences: [...nodeStat.occurrences],
+            ownNodes: nodeStat.ownNodes,
+            childrenMatch: nodeStat.childrenMatch.get(id2) || 0,
+          });
+
+        }
+      }
+    }
+
+    return encodedResults;
   }
 }

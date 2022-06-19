@@ -2,6 +2,7 @@ import { Pair, File } from "@/api/api";
 import { pairsAsNestedMap } from "./PairAsNestedMap";
 import { NodeStats } from "@dodona/dolos-lib/dist/lib/analyze/SemanticAnalyzer";
 import Store from "@/store";
+import { DecodedSemanticResult } from "@dodona/dolos-lib";
 
 type SimilarityScore = {
   similarity: number;
@@ -26,7 +27,7 @@ type LongestFragmentScore = {
 type SemanticMatchingScore = {
   pair: Pair;
   weightedScore: number;
-  match: NodeStats
+  match: DecodedSemanticResult
 }
 
 export type FileScoring = {
@@ -141,37 +142,23 @@ export class FileInterestingnessCalculator {
   public counter = 0;
   public async semanticMatchingScore(file: File): Promise<SemanticMatchingScore | null> {
     const pairArray = Array.from(this.pairMap.get(file.id)?.values() || []);
-    const matchSize = (m: NodeStats): number => m.ownNodes.length + m.childrenTotal;
-    const matchContainsFunction = (m: NodeStats): boolean =>
+    const matchSize = (m: DecodedSemanticResult): number => m.ownNodes.length + m.childrenTotal;
+    const matchContainsFunction = (m: DecodedSemanticResult): boolean =>
       m.ownNodes.map(n => file.ast[n]).some(v => v.includes("fun"));
-    const matchScore = (m: NodeStats): number => matchContainsFunction(m) ? matchSize(m) * 2 : matchSize(m);
+    const matchScore = (m: DecodedSemanticResult): number => matchContainsFunction(m) ? matchSize(m) * 2 : matchSize(m);
 
-    let maxScore = 0;
-    let maxFileId: number | null = null;
-    let maxMatch: NodeStats | null = null;
-    for (const [fileid, matches] of file.semanticMap) {
-      const filteredMatches = matches.filter(m => m.ownNodes.length + m.childrenTotal > 15);
-      for (const match of filteredMatches) {
-        if (matchScore(match) > maxScore) {
-          maxScore = matchScore(match);
-          maxFileId = fileid;
-          maxMatch = match;
-        }
-      }
-    }
+    if (file.semanticMap.length === 0) { return null; }
 
-    if (maxFileId === null || maxMatch === null) {
-      return null;
-    }
+    const maxMatch = file.semanticMap.reduce((a, b) => matchScore(a) > matchScore(b) ? a : b);
 
     const pair = pairArray.filter(p =>
-      (+p.leftFile.id === +file.id && +p.rightFile.id === +(maxFileId || 0)) ||
-      (+p.leftFile.id === +(maxFileId || 0) && +p.rightFile.id === +file.id)
+      (+p.leftFile.id === +maxMatch.left && +p.rightFile.id === maxMatch.right) ||
+      (+p.leftFile.id === +maxMatch.right && +p.rightFile.id === +maxMatch.left)
     )[0];
 
     if (!pair) { return null; }
-    this.counter++;
-    await this.$store.dispatch("populateSemantic", { pairId: pair.id });
+
+    if (pair.pairedMatches.length === 0) { await this.$store.dispatch("populateSemantic", { pairId: pair.id }); }
 
     if (pair.pairedMatches.length === 0) { return null; }
 

@@ -9,17 +9,15 @@ import {
   Options,
   Region,
   TokenizedFile,
-  Occurrence,
-  NodeStats,
-  PairedNodeStats,
   SemanticAnalyzer,
-  UnpairedNodeStats, deserializeMapC, deserializeMap
+  DecodedSemanticResult, EncodedSemanticResult, PairedSemanticGroups, UnpairedSemanticGroups,
 } from "@dodona/dolos-lib";
 import {
   colors,
   names,
   uniqueNamesGenerator
 } from "unique-names-generator";
+import { ListMap } from "@/util/ListMap";
 
 const DATA_URL = "./data/";
 
@@ -67,14 +65,14 @@ interface LoadedFile extends FileIndeterminate {
   astAndMappingLoaded: true;
   ast: string[];
   mapping: Selection[];
-  semanticMap: Map<number, NodeStats[]>;
+  semanticMap: DecodedSemanticResult[];
 }
 
 interface UnloadedFile extends FileIndeterminate {
   astAndMappingLoaded: false;
   ast: string;
   mapping: string;
-  semanticMap: Map<number, NodeStats[]>;
+  semanticMap: DecodedSemanticResult[];
 }
 
 export type File = LoadedFile | UnloadedFile;
@@ -116,8 +114,8 @@ export interface Pair {
   longestFragment: number;
   totalOverlap: number;
   fragments: Array<Fragment> | null;
-  pairedMatches: PairedNodeStats[];
-  unpairedMatches: UnpairedNodeStats[];
+  pairedMatches: PairedSemanticGroups<DecodedSemanticResult>[];
+  unpairedMatches: UnpairedSemanticGroups<DecodedSemanticResult>[];
   leftCovered: number;
   rightCovered: number;
 }
@@ -131,7 +129,7 @@ export interface ApiData {
   pairs: ObjMap<Pair>;
   kgrams: ObjMap<Kgram>;
   metadata: Metadata;
-  occurrences: TokenizedFile[][];
+  occurrences: number[][];
 }
 
 async function fetchFiles(
@@ -145,13 +143,10 @@ async function fetchPairs(
 ): Promise<d3.DSVRowArray> {
   return await d3.csv(url);
 }
-type EncodedMap<A, B> = Array<[A, B]>;
-type EncodedSemanticMap = EncodedMap<number, Array<any>>;
-type EncodedSemanticMapResults = EncodedMap<number, EncodedSemanticMap>;
 
 async function fetchSemantic(
   url = DATA_URL + "semantic.json"
-): Promise<{ "occurrences": number[][], "semanticMapResults": EncodedSemanticMapResults }> {
+): Promise<{ "occurrences": number[][], "semanticMapResults": EncodedSemanticResult[] }> {
   return await fetch(url).then(r => r.json());
 }
 
@@ -281,27 +276,28 @@ function parseKgrams(kgramData: d3.DSVRowArray, fileMap: ObjMap<File>): ObjMap<K
 }
 
 function parseSemantic(
-  semantic: { "occurrences": number[][], "semanticMapResults": EncodedSemanticMapResults },
-  files: ObjMap<File>): {occurrences: TokenizedFile[][]} {
-  const occurrences = semantic.occurrences.map(o => o.map(f => fileToTokenizedFile(files[f])));
+  semantic: { "occurrences": number[][], "semanticMapResults": EncodedSemanticResult[] },
+  files: ObjMap<File>): {occurrences: number[][]} {
+  const occurrences = semantic.occurrences;
 
-  const deserializeNodeStats = (a: any): NodeStats => ({
+  const deserializeNodeStats = (a: EncodedSemanticResult): DecodedSemanticResult => ({
     ...a,
-    matchedNodeAmount: deserializeMap(a.matchedNodeAmount),
-    childrenMatch: deserializeMap(a.childrenMatch),
     occurrences: new Set(a.occurrences)
   });
 
-  const results = deserializeMapC(semantic.semanticMapResults,
-    (im) =>
-      deserializeMapC(im, v => v.map(deserializeNodeStats))
-  );
+  const results = semantic.semanticMapResults.map(mr => deserializeNodeStats(mr));
 
-  for (const fid of results.keys()) {
-    files[fid].semanticMap = results.get(fid)!;
+  const map = new ListMap<number, DecodedSemanticResult>();
+
+  for (const semanticResult of results) {
+    map.addValue(semanticResult.left, semanticResult);
   }
 
-  return { occurrences };
+  for (const fid of Object.keys(files)) {
+    files[+fid].semanticMap = map.get(+fid) || [];
+  }
+
+  return { occurrences: occurrences };
 }
 
 type MetaRowType = { type: "string"; value: string } |
@@ -339,7 +335,7 @@ export function fileToTokenizedFile(file: File): TokenizedFile {
 }
 
 export async function loadFragments(
-  pair: Pair, kmers: ObjMap<Kgram>, customOptions: CustomOptions, occurrences: TokenizedFile[][]
+  pair: Pair, kmers: ObjMap<Kgram>, customOptions: CustomOptions, occurrences: number[][]
 ): Promise<void> {
   const emptyTokenizer = new EmptyTokenizer();
   const options = new Options(customOptions);
@@ -354,15 +350,12 @@ export async function loadFragments(
   const [pairedMatches, unpairedMatches] = SemanticAnalyzer.pairMatches(
     leftFile,
     rightFile,
-    pair.leftFile.semanticMap.get(+pair.rightFile.id) || [],
-    pair.rightFile.semanticMap.get(+pair.leftFile.id) || [],
+    pair.leftFile.semanticMap,
+    pair.rightFile.semanticMap,
     occurrences
   );
 
-  const totalMatch = (s: NodeStats): number =>
-    (s.matchedNodeAmount.get(pair.leftFile.id) || 0) + (s.childrenMatch.get(pair.leftFile.id) || 0);
-
-  pair.pairedMatches = pairedMatches.filter(pm => totalMatch(pm.rightMatch) >= 5);
+  pair.pairedMatches = pairedMatches;
   pair.unpairedMatches = unpairedMatches;
 
   const kmersMap: Map<Hash, Kgram> = new Map();
@@ -374,7 +367,7 @@ export async function loadFragments(
 }
 
 export async function loadSemantic(
-  pair: Pair, occurrences: TokenizedFile[][]
+  pair: Pair, occurrences: number[][]
 ): Promise<void> {
   const leftFile = fileToTokenizedFile(pair.leftFile);
   const rightFile = fileToTokenizedFile(pair.rightFile);
@@ -382,14 +375,12 @@ export async function loadSemantic(
   const [pairedMatches, unpairedMatches] = SemanticAnalyzer.pairMatches(
     leftFile,
     rightFile,
-    pair.leftFile.semanticMap.get(+pair.rightFile.id) || [],
-    pair.rightFile.semanticMap.get(+pair.leftFile.id) || [],
+    pair.leftFile.semanticMap,
+    pair.rightFile.semanticMap,
     occurrences
   );
-  const totalMatch = (s: NodeStats): number =>
-    (s.matchedNodeAmount.get(+pair.leftFile.id) || 0) + (s.childrenMatch.get(+pair.leftFile.id) || 0);
 
-  pair.pairedMatches = pairedMatches.filter(pm => totalMatch(pm.rightMatch) >= 5);
+  pair.pairedMatches = pairedMatches;
   pair.unpairedMatches = unpairedMatches;
 }
 
@@ -400,13 +391,13 @@ export async function fetchData(customOptions: CustomOptions, anonymize = false)
   const pairPromise = fetchPairs();
   const semanticPromise = fetchSemantic();
 
-  const p = performance.now();
   const { fileMap } = await parseFiles(await filePromise, customOptions, anonymize);
   const kgrams = parseKgrams(await kgramPromise, fileMap);
   const pairs = parsePairs(await pairPromise, fileMap, kgrams);
   const metadata = parseMetadata(await metadataPromise);
-  const occurrences = parseSemantic(await semanticPromise, fileMap).occurrences;
-  console.log(`Parsing the semantics took ${performance.now() - p} miliseconds.`);
+
+  const sp = await semanticPromise;
+  const occurrences = parseSemantic(sp, fileMap).occurrences;
 
   return { files: fileMap, kgrams, pairs, metadata, occurrences };
 }
