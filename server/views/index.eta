@@ -54,13 +54,49 @@
             <input type="submit" value="Analyze">
         </div>
     </form>
+        <form action="./upload-results" method="post" encType="multipart/form-data">
+            <h4>Upload results of previous analysis</h4>
+            <div>
+              <label for="name">
+                  Upload name:
+              </label>
+              <input type="text" name="name">
+            </div>
+    
+            <div>
+              <label for="zip">
+                  Upload a zip of previously analyzed results:
+              </label>
+              <input type="file" id="zip" name="zip"
+                  
+                  accept="application/zip, application/octet-stream, application/x-zip-compressed, multipart/x-zip">
+            </div>
+    
+            
+             <div>
+                <input type="submit" value="Analyze">
+            </div>
+        </form>
+
     <h4>Look at previous reports</h4>
+       <select name="branch" id="branchSelect">
+         <option value="main">main</option>
+         <option value="feature/general-overview">Clustering & Individual detection</option>
+         <option value="enchancement/semantic-matching">Semantic matching</option>
+       </select> 
     <ul>
     <% for(let report of it.reports) { %>
-    <li><a href="./reports/<%= report %>"><%= report %></a></li>
+    <li><a href="#" onclick="clicked('<%=report%>')"><%= report %></a></li>
     <% } %>
 
     </ul>
+    
+    <script>
+     function clicked(report) {
+     const select = document.getElementById("branchSelect");
+      window.location.href = `./reports/${report}/branch/${select.value}/#`
+     }
+    </script>
 
 </div>
 </body>

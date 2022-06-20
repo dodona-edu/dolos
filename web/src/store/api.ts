@@ -6,7 +6,8 @@ import {
   Metadata,
   ObjMap,
   Pair,
-  loadFragments
+  loadFragments,
+  loadSemantic
 } from "@/api/api";
 import Vue from "vue";
 import { ActionContext } from "vuex";
@@ -17,6 +18,8 @@ interface State {
   pairs: ObjMap<Pair>;
   metadata: Metadata;
   isLoaded: boolean;
+  occurrences: number[][];
+  loading: Promise<unknown> | null;
   cutoff: number;
   isAnonymous: boolean;
 }
@@ -30,6 +33,8 @@ export default {
     pairs: {},
     metadata: {},
     isLoaded: false,
+    loading: null,
+    occurrences: [],
     cutoff: 0.75,
     isAnonymous: false,
   }),
@@ -59,6 +64,7 @@ export default {
       state.files = data.files;
       state.pairs = data.pairs;
       state.metadata = data.metadata;
+      state.occurrences = data.occurrences;
       state.isLoaded = true;
       state.cutoff = getInterpolatedSimilarity(Object.values(data.pairs));
     },
@@ -68,6 +74,9 @@ export default {
     updateFile(state: State, file: File): void {
       Vue.set(state.files, file.id, file);
     },
+    setLoading(state: State, loading: Promise<unknown>): void {
+      state.loading = loading;
+    },
     updateCutoff(state: State, cutoff: number): void {
       state.cutoff = cutoff;
     },
@@ -76,9 +85,16 @@ export default {
     }
   },
   actions: {
-    async loadData({ commit }: Context): Promise<void> {
-      const data = await fetchData();
-      commit("setData", data);
+    async loadData({ commit, state }: Context): Promise<void> {
+      const customOptions = state.metadata;
+      if (!state.loading) {
+        const promise = fetchData(customOptions, state.isAnonymous);
+        commit("setLoading", promise);
+        const data = await promise;
+        commit("setData", data);
+      } else {
+        return state.loading as Promise<void>;
+      }
     },
     async populateFragments(
       { commit, getters, state }: Context,
@@ -88,9 +104,20 @@ export default {
       const kgrams = state.kgrams;
       const customOptions = state.metadata;
 
-      await loadFragments(pair, kgrams, customOptions);
+      console.log("population");
+      await loadFragments(pair, kgrams, customOptions, state.occurrences);
       commit("updatePair", pair);
     },
+    async populateSemantic(
+      { commit, getters, state }: Context,
+      data: { pairId: number}
+    ): Promise<void> {
+      const pair = getters.pair(data.pairId);
+
+      loadSemantic(pair, state.occurrences);
+      commit("updatePair", pair);
+    },
+
     async populateFile(
       { commit, getters }: Context,
 
@@ -98,7 +125,6 @@ export default {
     ): Promise<void> {
       const file: File = getters.file(data.fileId);
       if (!file.astAndMappingLoaded) {
-        console.log(file);
         file.ast = JSON.parse(file.ast);
         file.mapping = JSON.parse(file.mapping);
       }
@@ -106,7 +132,7 @@ export default {
       commit("updateFile", file);
     },
     async setAnonymous({ commit, state }: Context, data: {anonymous: boolean}): Promise<void> {
-      const results = await fetchData(data.anonymous);
+      const results = await fetchData(state.metadata, data.anonymous);
       commit("updateAnonymous", data.anonymous);
       commit("setData", results);
     },

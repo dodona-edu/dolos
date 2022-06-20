@@ -31,8 +31,8 @@ module.exports = {
         resourceRegExp: /codeTokenizer/,
         contextRegExp: /library/
       })
-    ]
-  }
+    ],
+  },
   /*
   chainWebpack: config => {
     config.module

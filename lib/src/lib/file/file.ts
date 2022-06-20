@@ -67,9 +67,10 @@ export class File extends Identifiable {
   constructor(
     public readonly path: string,
     content: string,
-    extra?: ExtraInfo
+    extra?: ExtraInfo,
+    id?: number
   ) {
-    super();
+    super(id);
     this.charCount = content.length;
     this.lines = content.split("\n");
     this.lineCount = this.lines.length;

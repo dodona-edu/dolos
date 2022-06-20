@@ -1,13 +1,13 @@
+
 <template>
   <div class="svg-container" :id="getSvgId()"></div>
 </template>
 <script lang="ts">
 import { Component, Prop } from "vue-property-decorator";
-import { File } from "@/api/api";
 import * as d3 from "d3";
 
 import { TooltipTool } from "@/d3-tools/TooltipTool";
-import { FileInterestingnessCalculator, FileScoring } from "@/util/FileInterestingness";
+import { FileScoring } from "@/util/FileInterestingness";
 import { ResizableD3Viz } from "@/d3-tools/ResizableD3Viz";
 
 @Component({})
@@ -39,7 +39,6 @@ export default class PairStatHistogram extends ResizableD3Viz {
 
   resize(width: number, height: number): void {
     if ((this.height + this.margin.top + this.margin.bottom) !== height) {
-      console.log(this.height + this.margin.top + this.margin.bottom, height);
       this.setSize();
       this.draw();
     }
@@ -100,20 +99,16 @@ export default class PairStatHistogram extends ResizableD3Viz {
       .append("svg")
       .attr("width", this.width + this.margin.left + this.margin.right)
       .attr("height", this.height + this.margin.top + this.margin.bottom);
-
     const g = svg.append("g")
       .attr(
         "transform",
         "translate(" + this.margin.left + "," + this.margin.top + ")"
       );
-
     g
       .append("g")
       .attr("transform", "translate(0," + this.height + ")")
       .call(d3.axisBottom(xScale));
-
     g.append("g").call(d3.axisLeft(yScale));
-
     const h = this.height;
     g
       .selectAll("rect")
@@ -131,7 +126,6 @@ export default class PairStatHistogram extends ResizableD3Viz {
         return h - yScale(d.length);
       })
       .style("fill", d => this.getBinColor(d));
-
     if (this.extraLine !== undefined) {
       g
         .append("line")
@@ -141,7 +135,6 @@ export default class PairStatHistogram extends ResizableD3Viz {
         .attr("y2", this.height)
         .attr("stroke", "black");
     }
-
     return svg;
   }
 

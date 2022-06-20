@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="main-container">
     <component :is="'style'" type="text/css">
 
       <template v-for="item in activeSelections">
@@ -21,7 +21,11 @@
         }
       </template>
     </component>
-    <pre v-scroll.self="onScroll" ref="pre" :id="identifier" class="line-numbers highlighted-code"><code
+    <pre v-scroll.self="onScroll"
+         ref="pre"
+         :id="identifier"
+         class="line-numbers highlighted-code"
+        :data-start="startRow"><code
       ref="codeblock" :class="`language-${language}`"></code>
     </pre>
   </div>
@@ -36,6 +40,7 @@ import "prismjs/themes/prism.css";
 import "prismjs/plugins/line-numbers/prism-line-numbers.js";
 import "prismjs/plugins/line-numbers/prism-line-numbers.css";
 import { ID_START, registerFragmentHighlighting } from "@/util/OccurenceHighlight";
+import { NodeStats } from "@dodona/dolos-lib";
 
 @Component
 export default class CompareSide extends Vue {
@@ -46,9 +51,12 @@ export default class CompareSide extends Vue {
   @Prop({ required: true }) hoveringSelections!: Array<string>;
   @Prop({ required: true }) activeSelections!: Array<string>;
   @Prop({ required: true }) selectedSelections!: Array<string>;
+  @Prop({ required: true }) semanticMatches!: Array<NodeStats>;
+  @Prop({ default: 0 }) startRow!: number;
+  @Prop({ }) endRow?: number;
 
   get content(): string {
-    return this.file.content;
+    return this.file.content.split("\n").slice(this.startRow, this.endRow).join("\n");
   }
 
   onScroll(e: Event): void {
@@ -138,7 +146,6 @@ export default class CompareSide extends Vue {
 @use 'variables';
 
 .highlighted-code {
-    height: var(--code-height);
     min-height: 100%;
     max-height: 100%;
     overflow-y: scroll;
@@ -156,6 +163,10 @@ pre.highlighted-code {
   code {
     padding-left: 0 !important;
   }
+}
+
+.main-container {
+  height: 100%;
 }
 
 // /* hides the scrollbar */
