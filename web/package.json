@@ -13,6 +13,7 @@
     "@mdi/font": "^6.5.95",
     "@mdi/js": "^6.5.95",
     "@types/d3": "^7.0.0",
+    "@types/luxon": "^2.3.1",
     "@types/prismjs": "^1.16.5",
     "@typescript-eslint/eslint-plugin": "^4.33.0",
     "@typescript-eslint/parser": "^4.33.0",
@@ -33,6 +34,7 @@
     "eslint-plugin-promise": "^5.1.0",
     "eslint-plugin-standard": "^5.0.0",
     "eslint-plugin-vue": "^7.20.0",
+    "luxon": "^2.3.1",
     "np": "^7.5.0",
     "prismjs": "^1.20.0",
     "reflect-metadata": "^0.1.13",
@@ -50,12 +52,11 @@
     "vue-template-compiler": "^2.6.13",
     "vuetify": "^2.5.3",
     "vuetify-loader": "^1.7.3",
-    "vuex": "^3.6.2",
-    "luxon": "^2.3.1",
-    "@types/luxon": "^2.3.1"
+    "vuex": "^3.6.2"
   },
   "dependencies": {
-    "@dodona/dolos-lib": "1.5.1"
+    "@dodona/dolos-lib": "1.5.1",
+    "@vue/composition-api": "^1.6.2"
   },
   "license": "MIT",
   "publishConfig": {
