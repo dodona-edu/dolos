@@ -356,6 +356,7 @@ export default class CompareCard extends Vue {
 
   get activeFragments(): Array<Fragment> {
     const isContained = (s1: Selection, s2: Region): boolean =>
+      Region.valid(s1.startRow, s1.startCol, s1.endRow, s2.endCol) &&
       Region.diff(new Region(s1.startRow, s1.startCol, s1.endRow, s2.endCol), s2).length === 0;
 
     const leftCovers = this.pair.pairedMatches.map(p =>
@@ -371,11 +372,7 @@ export default class CompareCard extends Vue {
   }
 
   get pairedMatches(): Array<SemanticMatch> {
-    if (!this._pairedMatches) {
-      this._pairedMatches = this.activePair.pairedMatches.map(match => ({ ...match, active: true }));
-    }
-
-    return this._pairedMatches;
+    return this.activePair.pairedMatches.map(match => ({ ...match, active: true }));
   }
 
   getActivePairedMatches(): Array<SemanticMatch> {

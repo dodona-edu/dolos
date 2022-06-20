@@ -188,6 +188,7 @@ export async function run(locations: string[], options: RunOptions): Promise<voi
   if (options.verbose) {
     setLogging("info");
   }
+  console.log(options);
 
   if (locations.length < 3 && options.maxFingerprintPercentage) {
     warning("You have given a maximum fingerprint percentage (with -M), but " +
@@ -209,7 +210,7 @@ export async function run(locations: string[], options: RunOptions): Promise<voi
       sortBy: options.sortBy,
       fragmentSortBy: options.fragmentSortBy,
       semantic: options.semantic,
-      semanticLength: options.semanticLength
+      semanticMatchLength: options.semanticMatchLength
     });
     const report = await dolos.analyzePaths(locations);
 

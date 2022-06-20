@@ -351,10 +351,12 @@ export async function loadFragments(
     const [pairedMatches, unpairedMatches] = SemanticAnalyzer.pairMatches(
       leftFile,
       rightFile,
-      pair.leftFile.semanticMap,
-      pair.rightFile.semanticMap,
+      pair.leftFile.semanticMap.filter(f => +f.right === +pair.rightFile.id),
+      pair.rightFile.semanticMap.filter(f => +f.right === +pair.leftFile.id),
       occurrences
     );
+
+    console.log(pair.pairedMatches);
 
     pair.pairedMatches = pairedMatches;
     pair.unpairedMatches = unpairedMatches;

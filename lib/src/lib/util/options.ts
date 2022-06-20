@@ -11,7 +11,7 @@ export interface DolosOptions {
   fragmentSortBy: string | null;
   kgramData: boolean;
   semantic: boolean;
-  semanticLength: number;
+  semanticMatchLength: number;
 }
 
 export type CustomOptions = Partial<DolosOptions>;
@@ -145,8 +145,8 @@ export class Options implements DolosOptions {
     return definedOrDefault(this.custom.semantic, Options.defaultSemantic);
   }
 
-  get semanticLength(): number {
-    return definedOrDefault(this.custom.semanticLength, Options.defaultSemanticLength);
+  get semanticMatchLength(): number {
+    return definedOrDefault(this.custom.semanticMatchLength, Options.defaultSemanticLength);
 
   }
 
@@ -164,7 +164,7 @@ export class Options implements DolosOptions {
       fragmentSortBy: this.fragmentSortBy,
       kgramData: this.kgramData,
       semantic: this.semantic,
-      semanticLength: this.semanticLength,
+      semanticMatchLength: this.semanticMatchLength,
     };
   }
 

@@ -10,3 +10,5 @@ minSimilarity,0,number
 sortBy,total overlap,string
 fragmentSortBy,file order,string
 kgramData,,boolean
+semantic,1,boolean
+semanticMatchLength,5,number

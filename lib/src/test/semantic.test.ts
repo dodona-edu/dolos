@@ -3,7 +3,7 @@ import { Dolos } from "../dolos";
 import { File } from "../lib/file/file";
 
 test("equal content should match on the module level", async t => {
-  const dolos = new Dolos({ semantic: true, semanticLength: 10 });
+  const dolos = new Dolos({ semantic: true, semanticMatchLength: 10 });
   const content = `
 
   function hello() {

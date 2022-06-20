@@ -104,6 +104,7 @@ export default {
       const kgrams = state.kgrams;
       const customOptions = state.metadata;
 
+      console.log("population");
       await loadFragments(pair, kgrams, customOptions, state.occurrences);
       commit("updatePair", pair);
     },

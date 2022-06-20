@@ -31,6 +31,7 @@ export default class Compare extends DataView {
   @Prop({ required: true }) pairId!: number;
 
   async ensureFragments(): Promise<void> {
+    console.log("ensured", this.dataLoaded);
     if (!this.dataLoaded) {
       await this.$store.dispatch("populateFragments", { pairId: this.pairId });
     }

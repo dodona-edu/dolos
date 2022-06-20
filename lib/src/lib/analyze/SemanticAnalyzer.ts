@@ -340,7 +340,7 @@ export class SemanticAnalyzer {
       for(const rightMatch of rightMatches) {
         const is = intersect(leftMatch.occurrences, rightMatch.occurrences);
         if(is.size > leftMatch.occurrences.size * this.PAIRING_TOLERANCE
-          && is.size > rightMatch.occurrences.size * this.PAIRING_TOLERANCE) {
+          || is.size > rightMatch.occurrences.size * this.PAIRING_TOLERANCE) {
           pairs.push({ leftMatch, rightMatch }); // if a corresponding right match is found, we add it to the array
           assigned = true;
           pairedRightMatches.add(rightMatch);

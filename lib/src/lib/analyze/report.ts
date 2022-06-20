@@ -206,11 +206,13 @@ export class Report {
   private encodeSemanticResults(results: Map<number, Map<number, NodeStats[]>>): EncodedSemanticResult[] {
     const encodedResults: EncodedSemanticResult[] = [];
 
+    console.log(results);
     for(const [id1, map] of results.entries()) {
       for(const [id2, nodestats] of map.entries()) {
         const filtered = nodestats
-          .filter(n => n.childrenTotal > this.options.semanticLength);
-        
+          .filter(n => n.childrenTotal > this.options.semanticMatchLength);
+        if(id1 === 1)
+          console.log(id1, id2, nodestats, filtered);
         if(filtered.length === 0)
           continue;
         

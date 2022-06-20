@@ -206,7 +206,8 @@ export default class FragmentList extends Vue {
   }
 
   isContainedIn(s1: Selection, s2: Region): boolean {
-    return Region.diff(new Region(s1.startRow, s1.startCol, s1.endRow, s2.endCol), s2).length === 0;
+    return Region.valid(s1.startRow, s1.startCol, s1.endRow, s2.endCol) &&
+    Region.diff(new Region(s1.startRow, s1.startCol, s1.endRow, s2.endCol), s2).length === 0;
   }
 
   applyMinFragmentLength(value: number): void {
