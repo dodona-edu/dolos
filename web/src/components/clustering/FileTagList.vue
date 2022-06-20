@@ -1,0 +1,135 @@
+<template>
+  <div :id="getSvgId()" class="svg-container" ref="container">
+
+  </div>
+</template>
+
+<script lang="ts">
+import { Component, Prop, Watch } from "vue-property-decorator";
+import { File } from "@/api/api";
+import { Legend } from "@/views/DataView";
+import * as d3 from "d3";
+import { TooltipTool } from "@/d3-tools/TooltipTool";
+import { ResizableD3Viz } from "@/d3-tools/ResizableD3Viz";
+
+type SVGSelection = d3.Selection<SVGSVGElement, unknown, HTMLElement, unknown>;
+type WidthScale = d3.ScaleLinear<number, number>;
+
+@Component({})
+export default class FileTagList extends ResizableD3Viz {
+  @Prop({ required: true }) currentFiles!: File[];
+
+  private idealElementWidth = 46;
+  private elementMargin = 6;
+
+  private width = 870;
+  private height = 40;
+  private legend: Legend | null = null;
+
+  private tooltipTool;
+  constructor() {
+    super();
+    this.tooltipTool = new TooltipTool<File>(v => this.getFullName(v));
+  }
+
+  mounted(): void {
+    super.mounted();
+  }
+
+  resize(): void {
+    this.initialize();
+  }
+
+  @Watch("currentFiles")
+  initialize(): void {
+    this.width = (this.$refs.container! as HTMLElement).clientWidth;
+    this.legend = this.createLegend();
+    const svg = this.initializeSvg();
+    const scale = this.createScale();
+    this.addSvgElements(svg, scale);
+  }
+
+  initializeSvg(): SVGSelection {
+    d3.select(`#${this.getSvgId()}`).selectAll("svg").remove();
+    return d3.select(`#${this.getSvgId()}`).append("svg")
+      .attr("width", this.width).attr("height", this.height);
+  }
+
+  createScale(): WidthScale {
+    const necessaryWidthWithoutOverlap = this.idealElementWidth * this.currentFiles.length;
+    const actualWidth = Math.min(necessaryWidthWithoutOverlap, this.width - this.idealElementWidth);
+
+    return d3.scaleLinear()
+      .domain([0, this.currentFiles.length])
+      .range([0, actualWidth]);
+  }
+
+  addSvgElements(svg: SVGSelection, scale: WidthScale): void {
+    const groups = svg
+      .append("g")
+      .attr("transform",
+        `translate(${this.idealElementWidth / 2}, ${(this.idealElementWidth - this.elementMargin) / 2})`)
+      .selectAll("g")
+      .data(this.currentFiles)
+      .enter()
+      .append("g")
+      .attr("transform", (_, i) => `translate(${scale(i)}, 0)`);
+
+    groups.append("circle")
+      .attr("r", 20)
+      .attr("fill", v => this.getColor(v));
+
+    groups.append("text")
+      .text(f => this.getInitials(f))
+      .attr("stroke", "white")
+      .attr("fill", "white")
+      .attr("text-anchor", "middle")
+      .attr("dy", "0.3em");
+
+    // eslint-disable-next-line
+    const that = this;
+    groups.on("mouseenter", function (o, d) {
+      // eslint-disable-next-line no-invalid-this
+      d3.select(this).raise();
+      that.tooltipTool.mouseEnter(o, d);
+    });
+
+    groups.on("mouseleave", function () {
+      // eslint-disable-next-line no-invalid-this
+      groups.order();
+      that.tooltipTool.mouseOut();
+    });
+  }
+
+  getColor(file: File): string {
+    if (!this.legend || !file.extra.labels) { return "blue"; }
+    return this.legend[file.extra.labels].color;
+  }
+
+  getInitials(file: File): string {
+    if (file.extra.fullName) {
+      const splitName = file.extra.fullName.split(" ");
+      if (splitName.length === 2) {
+        return (splitName[0][0] + splitName[1][0]).toUpperCase();
+      } else {
+        return file.extra.fullName[0].toUpperCase();
+      }
+    } else {
+      const path = file.path.split("/");
+      return path[path.length - 1][0].toUpperCase();
+    }
+  }
+
+  getFullName(file: File): string {
+    if (file.extra.fullName) { return file.extra.fullName; }
+
+    return file.path.split("/").splice(-2).join("/");
+  }
+}
+</script>
+<style>
+.svg-container {
+  width: 100%;
+}
+
+</style>

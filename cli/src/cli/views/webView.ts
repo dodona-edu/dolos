@@ -15,6 +15,6 @@ export class WebView extends FileView {
 
   async show(): Promise<void> {
     const reportDir = await this.writeToDirectory();
-    await runServer(reportDir, this.options);
+    setTimeout(async () => await runServer(reportDir, this.options), 1000);
   }
 }

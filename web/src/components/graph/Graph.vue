@@ -1,83 +1,49 @@
 <!-- eslint-disable -->
 <template>
-  <v-container fluid fill-height>
-    <v-row style="height: 100%">
-      <v-col cols="12" class="no-y-padding">
-        <div ref="container" class="graph-container">
-          <form class="settings">
-            <p>
-              <label>
-                Similarity ≥ {{ cutoff }}<br />
-                <input
-                  type="range"
-                  min="0.25"
-                  max="1"
-                  step="0.01"
-                  v-model="cutoff"
-                />
-              </label>
-            </p>
-            <p>
-              <label
-                ><input type="checkbox" v-model="showSingletons" /> Display
-                singletons</label
-              >
-            </p>
-          </form>
-          <div class="node-selected">
-            <ul v-if="Object.values(legend).length > 1" class="legend">
-              <li
-                v-for="legendDatum of Object.values(legend).sort()"
-                :key="legendDatum.label"
-              >
-                <label
-                  ><input
-                    type="checkbox"
-                    v-model="legendDatum.selected"
-                    class="legend-checkbox"
-                    @change="updateGraph"
-                  />
-                  <span class="legend-label"
-                    ><span
-                      class="legend-color"
-                      :style="{
-                        'background-color': legendDatum.color,
-                      }"
-                    ></span>
-                    {{ legendDatum.label }}
-                  </span></label
-                >
-              </li>
-            </ul>
-
-            <!-- <span class="path">{{ selectedInfo.path }}</span> -->
-            <ul v-if="selectedInfo.info !== undefined">
-              <li v-if="selectedInfo.info.name !== undefined">Name: {{ selectedInfo.info.name }}</li>
-              <li>Timestamp: {{ selectedInfo.info.timestamp }}</li>
-              <li>Label: {{ selectedInfo.info.label }}</li>
-            </ul>
-          </div>
-        </div>
-      </v-col>
-    </v-row>
-  </v-container>
+  <div ref="container" class="graph-container">
+    <!-- Extra (optional) UI elements can be added to this container  -->
+    <slot></slot>
+  </div>
 </template>
 
 <script>
 /* eslint-disable */
 
-import { Component, Watch } from "vue-property-decorator";
-import DataView from "@/views/DataView";
+import {Component, Prop, Watch} from "vue-property-decorator";
 import * as d3 from "d3";
+import {ConvexHullTool} from "@/d3-tools/ConvexHullTool";
+import {getClusterElements, getClusterIntersect} from "@/util/clustering-algorithms/ClusterFunctions";
+import {DefaultMap} from "@dodona/dolos-lib";
 
 @Component()
-export default class PlagarismGraph extends DataView {
+export default class PlagarismGraph {
+  queryColorMap;
+  @Prop() files;
+  @Prop() pairs;
+  @Prop() cutoff;
+  @Prop() showSingletons;
+  @Prop({default: {}}) legend;
+  @Prop({default: true}) polygon;
+  @Prop() clustering;
+  @Prop() zoomTo;
+  @Prop({ default: null }) selectedNode;
+
+
   created() {
+    this.updateRoute();
     const svg = d3.create("svg").attr("viewBox", [0, 0, 500, 500]);
+    svg.on("mousedown.s", () => {this.selectCluster(null, null); this.removeSelectedNode();})
+
     const container = svg.append("g");
-    d3.zoom().on("zoom", event => {
+    this.zoom = d3.zoom().on("zoom", (event) => {
       container.attr("transform", event.transform);
-    })(svg);
+    });
+    //svg.call(this.zoom);
+
+    if(this.zoomTo)
+      this.drawChevron(svg);
+
+
     const defs = svg.append("svg:defs");
     defs
       .append("svg:marker")
@@ -111,7 +77,7 @@ export default class PlagarismGraph extends DataView {
               )
           )
       )
-      .force("charge", d3.forceManyBody().distanceMax(200).strength(-10))
+      .force("charge", d3.forceManyBody().distanceMax(200).strength(-20))
       .force("center", d3.forceCenter(this.width / 2, this.height / 2))
       .force("compact_x", d3.forceX(this.width / 2).strength(0.01))
       .force("compact_y", d3.forceY(this.height / 2).strength(0.01));
@@ -128,46 +94,80 @@ export default class PlagarismGraph extends DataView {
 
       if (this.svgNode)
         this.svgNode.attr("cx", (d) => d.x || 0).attr("cy", (d) => d.y || 0);
+
+      if(this.hullTool && this.nodes.length && this.clustering) {
+        this.hullTool.clear();
+
+        for(const cluster of this.clustering) {
+          // If any cluster is selected, make sure only the selected cluster is colored.
+          // Else, color the cluster in the most appropriate color.
+          const color = this.selectedCluster ?
+            (this.selectedCluster === cluster ? (this.clusterColors.get(cluster)?.color || "blue") : "grey") :
+            this.clusterColors.get(cluster)?.color || "blue";
+
+          const elements = getClusterElements(cluster);
+          this.hullTool.addConvexHullFromNodes(
+            this.nodes.filter(n => elements.has(n.file)),
+            color,
+            cluster);
+        }
+      }
+
     });
 
     this.resizeHandler = () => {
-      this.width = this.$refs.container.clientWidth;
-      this.height = this.$refs.container.clientHeight;
+      this.width = this.$refs.container.clientWidth || this.width;
+      this.height = this.$refs.container.clientHeight || this.height;
     };
     window.addEventListener("resize", this.resizeHandler);
+    this.recluster();
     this.updateGraph();
   }
   data() {
     return {
-      cutoff: 0.75,
       nodes: [],
-      selectedNode: -1,
       links: [],
       width: 100,
       height: 100,
-      legend: [],
-      showSingletons: false,
+      selectedCluster: undefined,
     };
   }
-  get selectedInfo() {
-    if (this.selectedNode >= 0) {
-      const node = this.nodes[this.selectedNode];
-      const file = node.file;
-      return {
-        path: file.path,
-        info: {
-          file: file.path,
-          name: file.extra.full_name || "Unavailable",
-          timestamp: file.extra.timestamp.toLocaleString() || "Unavailable",
-          label: file.extra.labels || "Unavailable",
-        },
-      };
-    } else {
-      return {
-        path: "Nothing selected",
-        info: undefined,
-      };
+
+  selectCluster(cluster, coordinates) {
+    this.selectedCluster = cluster;
+    this.updateGraph(false);
+
+    if(cluster) {
+      this.zoomToCenter(coordinates);
     }
+  }
+
+  zoomToCenter(coordinates) {
+    const d3Coordinates = coordinates.map(v => [v.x, v.y]);
+
+    if(d3Coordinates.length > 2) {
+      const polygon = d3.polygonHull(d3Coordinates);
+      polygon.push(polygon[0]);
+      const [cx, cy] = d3.polygonCentroid(polygon);
+
+      this.zoom.translateTo(this.svg, cx , cy )
+    } else if (d3Coordinates.length === 2) {
+      const [[x1, y1], [x2, y2]] = d3Coordinates;
+      const [cx, cy] = [(x1 + x2) / 2, (y1 + y2) / 2];
+
+      this.zoom.translateTo(this.svg, cx , cy )
+    }
+  }
+
+  @Watch("$route")
+  updateRoute() {
+    this.queryColorMap = this.getQueryColorMap();
+    if (this.resizeHandler) this.resizeHandler();
+  }
+
+  @Watch("$refs.container")
+  updateSize() {
+    this.resizeHandler();
   }
 
   @Watch("width")
@@ -181,12 +181,19 @@ export default class PlagarismGraph extends DataView {
       .force("center")
       .x(this.width / 2)
       .y(this.height / 2);
+
+    const scale =  this.height / 1080;
+
+    this.svg.select(".chevron").attr("transform", `translate(${this.width / 2 - 150}, ${this.height - 200}) scale(${scale})`);
   }
 
   @Watch("cutoff")
   @Watch("files")
   @Watch("showSingletons")
+  @Watch("legend")
   updateGraph() {
+    setTimeout(() => this.resizeHandler(), 50);
+
     if (this.delayUpdateGraph >= 0) clearTimeout(this.delayUpdateGraph);
     this.delayUpdateGraph = setTimeout(() => {
       this.delayUpdateGraph = -1;
@@ -196,7 +203,7 @@ export default class PlagarismGraph extends DataView {
         node.component = -1;
         node.neighbors = [];
         node.links = [];
-        node.visible = labels[node.label].selected;
+        node.visible = labels[node.label]? labels[node.label].selected:true;
       });
       this.links = Object.entries(this.pairs)
         .filter(([key, value]) => value.similarity >= this.cutoff)
@@ -243,11 +250,12 @@ export default class PlagarismGraph extends DataView {
           }
         }
       });
-      this.removeSelectedNode();
-      this.nodes = Object.values(nodeMap).filter(n => n.visible);
+
+      this.nodes = Object.values(nodeMap).filter((n) => n.visible);
       if (!this.showSingletons) {
         this.nodes = this.nodes.filter((n) => n.neighbors.length);
       }
+
       this.nodes.forEach((node, index) => {
         node.index = index;
         let incoming = 0;
@@ -259,20 +267,91 @@ export default class PlagarismGraph extends DataView {
           }
         });
         node.source = outgoing > 1 && incoming === 0;
-        node.fillColor = labels[node.label].color;
+
+
+        const getDefaultNodeColor = (n) =>  !labels[n.label] ? d3.schemeCategory10[0]:labels[n.label].color
+        let color;
+        if(this.selectedCluster) {
+          color = getClusterElements(this.selectedCluster).has(node.file) ? getDefaultNodeColor(node) : "grey";
+        } else {
+          color = getDefaultNodeColor(node)
+        }
+        node.fillColor = color;
       });
+
+      this.recluster();
+
+      if(this.hullTool)
+        this.hullTool.clear();
     }, 50);
   }
-  removeSelectedNode() {
-    if (this.selectedNode >= 0) {
-      this.svgNodes.select("circle.node.selected").classed("selected", false);
-      this.nodes[this.selectedNode].selected = false;
-      this.selectedNode = -1;
+
+  @Watch("clustering")
+  recluster() {
+    this.setupClusterColors(this.clustering);
+
+    if(this.selectedCluster) {
+      const intersects = this.clustering.filter(c => getClusterIntersect(c, this.selectedCluster).size > 0);
+      if(intersects.length > 0)
+        this.selectedCluster = intersects[0];
     }
   }
+
+  removeSelectedNode() {
+    if (this.selectedNode !== null) {
+      this.emitSelectedNode(null);
+    }
+  }
+
+  setupClusterColors(clustering) {
+    this.clusterColors = new Map();
+    for(const cluster of clustering) {
+      const els = getClusterElements(cluster);
+      const counter = new DefaultMap(() => 0);
+      for (const el of els) {
+        counter.set(el.extra.labels, counter.get(el.extra.labels) + 1)
+      }
+
+      let maxKey = undefined;
+      for ( const [key, count] of counter.entries()) {
+        if(count > counter.get(maxKey))
+          maxKey = key;
+      }
+
+      this.clusterColors.set(cluster, this.legend[maxKey]);
+    }
+  }
+
+  drawChevron(svg) {
+    const chevron = svg
+      .append("g")
+      .attr("class", "chevron")
+      .append("path")
+      .attr("d", d3.line()([[0,0], [125,75 ], [250,0]]))
+      .attr("stroke", "black")
+      .attr("fill", "none")
+      .style("stroke-width", 15)
+      .style("stroke-opacity", 0.1)
+      .style("cursor", "pointer")
+      .attr("stroke-linecap", "round")
+      .attr("stroke-linejoin", "round");
+
+    chevron.on("mouseenter", () => chevron.style("stroke-opacity", 0.2));
+    chevron.on("mouseleave", () => chevron.style("stroke-opacity", 0.1));
+
+    chevron.on("click", () => this.$vuetify.goTo(this.zoomTo));
+  }
+
+  @Watch("pairs")
+  @Watch("files")
+  clearCachedNodemap() {
+    this._nodeMap = null;
+  }
+
   getRawNodeMap() {
-    if (!this.dataLoaded) return {};
     if (this._nodeMap) return this._nodeMap;
+    if (Object.entries(this.files).length === 0) return {};
+
     const nodeMap = {};
     let labels = new Set();
     Object.entries(this.files).forEach(([key, value]) => {
@@ -298,9 +377,22 @@ export default class PlagarismGraph extends DataView {
       selected: true,
       color: colorScale(p),
     }));
-    this.legend = Object.fromEntries(labels.map((p) => [p.label, p]));
+    // this.legend = Object.fromEntries(labels.map((p) => [p.label, p]));
     return (this._nodeMap = nodeMap);
   }
+
+  getQueryColorMap() {
+    const map = new Map();
+    const { cutoff, ...colors } = this.$route.query;
+
+    for (const [color, nodelist] of Object.entries(colors)) {
+      const ids = nodelist.split(",").map((v) => +v);
+      ids.forEach((v) => map.set(v, color));
+    }
+
+    return map;
+  }
+
   @Watch("nodes")
   @Watch("links")
   updateSimulation() {
@@ -311,7 +403,7 @@ export default class PlagarismGraph extends DataView {
       .classed("link", true)
       .classed("directed", (d) => d.directed)
       .attr("stroke-width", (d) => d.linkWidth)
-      .on("click", (event, d) => this.toCompareView(d));
+    ;
 
     this.svgNode = this.svgNodes
       .selectAll("circle")
@@ -321,58 +413,76 @@ export default class PlagarismGraph extends DataView {
       .classed("source", (d) => d.source)
       .attr("r", 5)
       .attr("fill", (d) => d.fillColor)
+      .attr("id", n => `circle-${n.file.id}`)
       .call(this.drag());
+
+    if(this.hullTool)
+      this.hullTool.clear();
+
+    if(this.polygon)
+      this.hullTool = new ConvexHullTool(this.svg.select("g"), this.selectCluster);
 
     this.simulation.nodes(this.nodes);
     this.simulation.alpha(0.5).alphaTarget(0.3).restart();
     this.simulation.force("link").links(this.links);
   }
 
-  mounted() {
-    // @ts-ignore
-    (async () => {
-      if (!this.dataLoaded) await this.ensureData();
-      this.updateSimulation();
-    })();
+  emitSelectedNode(node) {
+    this.$emit("selectedNodeInfo", node);
+  }
 
-    this.$refs.container.appendChild(this.svg.node());
+  @Watch("selectedCluster")
+  emitCluster() {
+    this.$emit("selectedClusterInfo", this.selectedCluster);
+  }
+
+  @Watch("selectedNode")
+  onSelectedNode() {
+    this.nodes.forEach(v => v.selected = false);
+    this.svg.select(".selected").classed("selected", false);
+    if(this.selectedNode) {
+
+      this.nodes.find(n => n.file.id === this.selectedNode.id).selected = true;
+      this.svgNodes.select(`#circle-${this.selectedNode.id}`).classed("selected", true);
+    }
+  }
+
+  mounted() {
+    this.$refs.container.prepend(this.svg.node());
     this.resizeHandler();
   }
 
   drag() {
     return d3
       .drag()
-      .on("start", event => {
+      .on("start", (event) => {
         if (!event.active) this.simulation.alphaTarget(0.3).restart();
         event.subject.fx = event.subject.x;
         event.subject.fy = event.subject.y;
         event.subject.justDragged = false;
       })
-      .on("drag", event => {
+      .on("drag", (event) => {
         event.subject.fx = event.x;
         event.subject.fy = event.y;
         event.subject.justDragged = true;
       })
-      .on("end", event => {
+      .on("end", (event) => {
         if (!event.active) this.simulation.alphaTarget(0);
         event.subject.fx = null;
         event.subject.fy = null;
         if (!event.subject.justDragged) {
           // clicked
-          if (event.subject.index === this.selectedNode) {
+          if (event.subject.file && this.selectedNode && (event.subject.file.id === this.selectedNode.id)) {
             this.removeSelectedNode();
           } else {
-            this.removeSelectedNode();
-            d3.select(event.sourceEvent.target).classed("selected", true);
-            event.subject.selected = true;
-            this.selectedNode = event.subject.index;
+            this.emitSelectedNode(event.subject.file);
           }
         }
       });
   }
 
   toCompareView(diff) {
-    this.$router.push(`/compare/${diff.id}`)
+    this.$router.push(`/compare/${diff.id}`);
   }
 
   destroyed() {
@@ -387,33 +497,6 @@ export default class PlagarismGraph extends DataView {
   width: 100%;
   height: 100%;
   position: relative;
-
-  .legend {
-    position: absolute;
-    right: 0;
-    top: 0;
-    z-index: 4;
-    li {
-      display: block;
-
-      span.legend-color {
-        display: inline-block;
-        width: 1em;
-        height: 1em;
-        border: 2px white solid;
-      }
-
-      input.legend-checkbox {
-        display: none;
-
-        &:not(:checked) {
-          & + .legend-label {
-            opacity: 0.3;
-          }
-        }
-      }
-    }
-  }
 
   svg {
     position: absolute;
@@ -456,7 +539,7 @@ export default class PlagarismGraph extends DataView {
         marker-mid: url(#arrow-marker);
       }
       &:hover {
-         cursor: pointer;
+        cursor: pointer;
       }
     }
   }
@@ -464,7 +547,7 @@ export default class PlagarismGraph extends DataView {
   .settings {
     position: absolute;
     right: 0;
-    bottom: 0;
+    bottom: 25px;
     z-index: 5;
   }
 }

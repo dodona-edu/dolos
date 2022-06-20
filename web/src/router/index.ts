@@ -6,7 +6,7 @@ Vue.use(VueRouter);
 
 const routes: Array<RouteConfig> = [
   {
-    path: "/",
+    path: "/pairs/",
     name: "Pairs",
     component: Pairs
   },
@@ -25,8 +25,24 @@ const routes: Array<RouteConfig> = [
     // route level code-splitting
     // this generates a separate chunk (compare.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "graph" */ "../views/Graph.vue")
-  }
+    component: () => import(/* webpackChunkName: "graph" */ "../views/GraphView.vue")
+  },
+  {
+    path: "/fileanalysis/",
+    name: "File Analysis",
+    // route level code-splitting
+    // this generates a separate chunk (compare.[hash].js) for this route
+    // which is lazy-loaded when the route is visited.
+    component: () => import(/* webpackChunkName: "graph" */ "../views/FileAnalysis.vue")
+  },
+  {
+    path: "/",
+    name: "Overview",
+    // route level code-splitting
+    // this generates a separate chunk (compare.[hash].js) for this route
+    // which is lazy-loaded when the route is visited.
+    component: () => import(/* webpackChunkName: "graph" */ "../views/Overview.vue")
+  },
 ];
 
 const router = new VueRouter({

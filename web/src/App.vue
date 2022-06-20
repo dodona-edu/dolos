@@ -13,9 +13,19 @@
       :expand-on-hover="!$vuetify.breakpoint.mobile"
       clipped
       app
+      :mini-variant.sync="isCollapsed"
     >
       <v-list nav dense>
         <v-list-item @click="toHomeScreen" link>
+          <v-list-item-icon>
+            <v-icon>mdi-home</v-icon>
+          </v-list-item-icon>
+          <v-list-item-content>
+            <v-list-item-title>Home</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+
+        <v-list-item @click="toPairScreen" link>
           <v-list-item-icon>
             <v-icon>mdi-format-list-bulleted-square</v-icon>
           </v-list-item-icon>
@@ -30,12 +40,31 @@
 
           <v-list-item-title>Plagiarism graph</v-list-item-title>
         </v-list-item>
+        <v-list-item @click="toSummary" link>
+          <v-list-item-icon>
+            <v-icon>
+              mdi-clipboard-text-outline
+            </v-icon>
+          </v-list-item-icon>
+          <v-list-item-title>File Analysis</v-list-item-title>
+        </v-list-item>
       </v-list>
 
       <template #append>
         <v-divider />
 
         <v-list nav dense>
+          <v-list-item>
+            <v-list-item-icon>
+              <v-icon>mdi-incognito</v-icon>
+            </v-list-item-icon>
+            <v-list-item-content>
+              <v-list-item-title>Anonymize</v-list-item-title>
+            </v-list-item-content>
+            <v-list-item-content class="switch-style">
+              <v-switch  v-model="anonymous"></v-switch>
+            </v-list-item-content>
+          </v-list-item>
           <v-list-item
             href="https://github.com/dodona-edu/dolos"
             target="_blank"
@@ -79,7 +108,10 @@
       </template>
     </v-navigation-drawer>
 
-    <v-main>
+    <!-- This style is normally automatically set when the 'mini-variant' prop is not set. However,
+     if we want to receive the sync events when it opens and closes we need to set the mini-variant prop ourselves
+     and this breaks the style if we don't manually adjust it.-->
+    <v-main style="padding-left: 256px">
       <keep-alive exclude="Compare">
         <router-view />
       </keep-alive>
@@ -88,12 +120,14 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component } from "vue-property-decorator";
+import { Component } from "vue-property-decorator";
 import packageJson from "../package.json";
+import DataView from "@/views/DataView";
 
 @Component({})
-export default class App extends Vue {
+export default class App extends DataView {
   drawerEnabled = true;
+  isCollapsed = true;
 
   created(): void {
     this.drawerEnabled = !this.$vuetify.breakpoint.mobile;
@@ -105,12 +139,20 @@ export default class App extends Vue {
     }
   }
 
-  toHomeScreen(): void {
-    this.navigateTo("/");
+  toPairScreen(): void {
+    this.navigateTo("/pairs/");
   }
 
   toGraphView(): void {
     this.navigateTo("/graph/");
+  }
+
+  toSummary(): void {
+    this.navigateTo("/fileanalysis/");
+  }
+
+  toHomeScreen(): void {
+    this.navigateTo("/");
   }
 
   /**
@@ -121,3 +163,17 @@ export default class App extends Vue {
   }
 }
 </script>
+<style>
+.v-messages {
+  display: none;
+}
+
+.switch-style {
+  max-height: 35px;
+  padding: 4px 0 0 4px!important;
+}
+
+.switch-style .v-input {
+  margin-top: 0;
+}
+</style>
