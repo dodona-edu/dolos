@@ -356,8 +356,6 @@ export async function loadFragments(
       occurrences
     );
 
-    console.log(pair.pairedMatches);
-
     pair.pairedMatches = pairedMatches;
     pair.unpairedMatches = unpairedMatches;
   }
