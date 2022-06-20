@@ -26,7 +26,11 @@ export class CodeTokenizer extends Tokenizer {
    */
   public static registerLanguage(language: string): void {
     try {
-      require("tree-sitter-" + language);
+      if (language === "elm") {
+        require("@elm-tooling/tree-sitter-elm");
+      } else {
+        require("tree-sitter-" + language);
+      }
     } catch (error) {
       throw new Error(
         `The module 'tree-sitter-${language}' could not be found. ` +
@@ -54,8 +58,13 @@ export class CodeTokenizer extends Tokenizer {
 
     this.language = language;
     this.parser = new Parser();
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const languageModule = require("tree-sitter-" + language);
+    let languageModule;
+    if (language === "elm") {
+      languageModule = require("@elm-tooling/tree-sitter-elm");
+    } else {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      languageModule = require("tree-sitter-" + language);
+    }
     this.parser.setLanguage(languageModule);
   }
 
