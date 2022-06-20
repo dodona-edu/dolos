@@ -56,7 +56,8 @@
   },
   "dependencies": {
     "@dodona/dolos-lib": "1.5.1",
-    "@vue/composition-api": "^1.6.2"
+    "@vue/composition-api": "^1.6.2",
+    "pinia": "^2.0.14"
   },
   "license": "MIT",
   "publishConfig": {
