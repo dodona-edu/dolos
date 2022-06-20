@@ -47,11 +47,7 @@
             <v-list-item-title>Github</v-list-item-title>
           </v-list-item>
 
-          <v-list-item
-            href="https://dolos.ugent.be"
-            target="_blank"
-            link
-          >
+          <v-list-item href="https://dolos.ugent.be" target="_blank" link>
             <v-list-item-icon>
               <v-icon>mdi-help-circle</v-icon>
             </v-list-item-icon>
@@ -77,9 +73,7 @@
             <v-list-item-icon>
               <v-icon>mdi-tag</v-icon>
             </v-list-item-icon>
-            <v-list-item-title>
-              Dolos - v{{ version }}
-            </v-list-item-title>
+            <v-list-item-title> Dolos - v{{ version }} </v-list-item-title>
           </v-list-item>
         </v-list>
       </template>
@@ -127,27 +121,3 @@ export default class App extends Vue {
   }
 }
 </script>
-
-<style lang="scss" scoped>
-.sidebar {
-  &--version {
-    text-overflow: unset !important;
-
-    .open {
-      display: none;
-
-      .v-navigation-drawer--is-mouseover & {
-        display: block;
-      }
-    }
-
-    .closed {
-      font-size: 0.7rem;
-
-      .v-navigation-drawer--is-mouseover & {
-        display: none;
-      }
-    }
-  }
-}
-</style>
