@@ -13,7 +13,7 @@ jobs:
         node: ["16"]
       fail-fast: false
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Check version strings
         run: |
           # version strings should be only numbers and dots
@@ -44,12 +44,12 @@ jobs:
           fi
 
       - name: Setup Node
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3.3.0
         with:
           node-version: ${{ matrix.node }}
       - name: Fetch dependencies
         id: cache-dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ${{ github.workspace }}/node_modules
@@ -111,7 +111,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Setup Node
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3.3.0
         with:
           node-version: "16"
       - name: Install dolos
@@ -171,7 +171,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Parse tag (without v)
         id: parse_tag
         run: "echo ${{ github.ref }} | sed 's#^refs/tags/v#::set-output name=version::#'"
