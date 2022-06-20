@@ -55,7 +55,7 @@ export class Report {
 
   public occurrences: Occurrence[][] = [];
   public results: Map<number, Map<number, NodeStats[]>> = new Map();
-  public semanticResults: Array<SemanticResult> = [];
+  public semanticResults: Array<EncodedSemanticResult> = [];
 
   constructor(
     public readonly options: Options,
