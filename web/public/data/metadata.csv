@@ -1,7 +1,7 @@
 property,value,type
 kgramLength,23,number
 kgramsInWindow,17,number
-language,java,string
+language,javascript,string
 maxFingerprintCount,,object
 maxFingerprintPercentage,,object
 minFragmentLength,0,number

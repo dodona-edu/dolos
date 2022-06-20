@@ -157,7 +157,7 @@ export function runCommand(program: Command): Command {
     .option(
       "--semantic",
       Utils.indent(
-        "Using the semantic analysis augment in Dolos",
+        "Enable a semantic analysis on the matched fragments",
         Options.defaultSemantic
       ),
       Options.defaultSemantic
@@ -165,7 +165,7 @@ export function runCommand(program: Command): Command {
     .option(
       "--semantic-match-length <number>",
       Utils.indent(
-        "Length of the smallest semantic match",
+        "Length of the smallest semantic match in number of tokens",
         Options.defaultSemanticLength
       ),
       x => parseInt(x),

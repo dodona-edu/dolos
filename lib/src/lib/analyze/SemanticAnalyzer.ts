@@ -68,17 +68,17 @@ export class SemanticAnalyzer {
     const results = new Map();
     const astMap = await this.astWithMatches(tokenizedFiles, hashFilter);
     for(const tokenizedFile of tokenizedFiles) {
-      results.set(tokenizedFile.id, await this.semanticAnalysisOneFile(tokenizedFile, astMap.get(tokenizedFile)));
+      results.set(tokenizedFile.id, this.semanticAnalysisOneFile(tokenizedFile, astMap.get(tokenizedFile)));
     }
 
 
     return [astMap.get(tokenizedFiles[0]).groups, results];
   }
 
-  private async semanticAnalysisOneFile(
+  private semanticAnalysisOneFile(
     tokenizedFile: TokenizedFile,
     matchedAST: AstWithMatches,
-  ): Promise<Map<number, NodeStats[]>> {
+  ): Map<number, NodeStats[]> {
     const last = this.recurse(tokenizedFile.id, 0, tokenizedFile.ast, matchedAST, 0);
     const matchedLevels = last.lastMatchedLevels;
     if(!matchedLevels)

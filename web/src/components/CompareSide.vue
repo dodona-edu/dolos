@@ -40,7 +40,7 @@ import "prismjs/themes/prism.css";
 import "prismjs/plugins/line-numbers/prism-line-numbers.js";
 import "prismjs/plugins/line-numbers/prism-line-numbers.css";
 import { ID_START, registerFragmentHighlighting } from "@/util/OccurenceHighlight";
-import { NodeStats } from "@dodona/dolos-lib/dist/lib/analyze/SemanticAnalyzer";
+import { NodeStats } from "@dodona/dolos-lib";
 
 @Component
 export default class CompareSide extends Vue {
