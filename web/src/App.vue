@@ -107,14 +107,13 @@
       </template>
     </v-navigation-drawer>
 
-    <!-- This style is normally automatically set when the 'mini-variant' prop is not set. However,
-     if we want to receive the sync events when it opens and closes we need to set the mini-variant prop ourselves
-     and this breaks the style if we don't manually adjust it.-->
-    <v-main style="padding-left: 256px">
-      <keep-alive exclude="Compare">
-        <router-view v-if="isLoaded" />
-        <loading v-else />
-      </keep-alive>
+    <v-main>
+      <v-container class="container">
+        <keep-alive exclude="Compare">
+          <router-view v-if="isLoaded" />
+          <loading v-else />
+        </keep-alive>
+      </v-container>
     </v-main>
   </v-app>
 </template>
@@ -178,5 +177,9 @@ export default defineComponent({
 
 .switch-style .v-input {
   margin-top: 0;
+}
+
+.container {
+  max-width: 1450px !important;
 }
 </style>

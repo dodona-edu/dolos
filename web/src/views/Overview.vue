@@ -275,8 +275,7 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .main-container {
-  width: 85%;
-  margin-top: 2rem;
+  margin-top: 1rem;
 }
 
 .info-card {
