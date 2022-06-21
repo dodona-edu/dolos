@@ -8,7 +8,7 @@ import { castToType } from "@/api/utils";
 /**
  * Store containing the metadata & helper functions.
  */
-export const useMetadata = defineStore("metadata", () => {
+export const useMetadataStore = defineStore("metadata", () => {
   // Metadata.
   const metadata = ref<Metadata>();
 

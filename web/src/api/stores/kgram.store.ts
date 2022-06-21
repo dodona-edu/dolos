@@ -52,7 +52,7 @@ export const useKgramStore = defineStore("kgrams", () => {
     // Make sure the file store is hydrated.
     if (!fileStore.hydrated) {
       throw new Error(
-        "The file store must be hydrated after the files store."
+        "The file store must be hydrated before the kgram store."
       );
     }
 

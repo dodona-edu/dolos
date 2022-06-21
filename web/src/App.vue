@@ -123,7 +123,7 @@
 import { defineComponent, ref, computed } from "@vue/composition-api";
 import { storeToRefs } from "pinia";
 import { useVuetify, useRouter, useBreakpoints } from "@/composables";
-import { useSettingsStore } from "@/api/stores";
+import { useFileStore, useKgramStore, useMetadataStore, usePairStore, useSettingsStore } from "@/api/stores";
 import packageJson from "../package.json";
 
 export default defineComponent({
@@ -149,6 +149,14 @@ export default defineComponent({
         router.push(route);
       }
     };
+
+    // Hydrate all the stores (fetch all the data).
+    (async () => {
+      await useFileStore().hydrate();
+      await useKgramStore().hydrate();
+      await useMetadataStore().hydrate();
+      await usePairStore().hydrate();
+    })();
 
     return {
       breakpoints,
