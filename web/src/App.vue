@@ -2,21 +2,21 @@
   <v-app>
     <v-app-bar clipped-left app color="primary" dark dense>
       <v-app-bar-nav-icon
-        v-if="$vuetify.breakpoint.mobile"
-        @click.stop="drawerEnabled = !drawerEnabled"
+        v-if="breakpoints.mobile"
+        @click.stop="drawer = !drawer"
       />
-      <v-toolbar-title @click="toHomeScreen">DOLOS</v-toolbar-title>
+      <v-toolbar-title @click="navigateTo('/')">DOLOS</v-toolbar-title>
     </v-app-bar>
 
     <v-navigation-drawer
-      v-model="drawerEnabled"
-      :expand-on-hover="!$vuetify.breakpoint.mobile"
+      v-model="drawer"
+      :mini-variant.sync="miniVariant"
+      :expand-on-hover="!breakpoints.mobile"
       clipped
       app
-      :mini-variant.sync="isCollapsed"
     >
       <v-list nav dense>
-        <v-list-item @click="toHomeScreen" link>
+        <v-list-item to="/" link>
           <v-list-item-icon>
             <v-icon>mdi-home</v-icon>
           </v-list-item-icon>
@@ -25,7 +25,7 @@
           </v-list-item-content>
         </v-list-item>
 
-        <v-list-item @click="toPairScreen" link>
+        <v-list-item to="/pairs" link>
           <v-list-item-icon>
             <v-icon>mdi-format-list-bulleted-square</v-icon>
           </v-list-item-icon>
@@ -33,14 +33,14 @@
           <v-list-item-title>File pairs</v-list-item-title>
         </v-list-item>
 
-        <v-list-item @click="toGraphView" link>
+        <v-list-item to="/graph" link>
           <v-list-item-icon>
             <v-icon>mdi-graph</v-icon>
           </v-list-item-icon>
 
           <v-list-item-title>Plagiarism graph</v-list-item-title>
         </v-list-item>
-        <v-list-item @click="toSummary" link>
+        <v-list-item to="/fileanalysis" link>
           <v-list-item-icon>
             <v-icon>
               mdi-clipboard-text-outline
@@ -62,7 +62,7 @@
               <v-list-item-title>Anonymize</v-list-item-title>
             </v-list-item-content>
             <v-list-item-content class="switch-style">
-              <v-switch  v-model="anonymous"></v-switch>
+              <v-switch v-model="isAnonymous"></v-switch>
             </v-list-item-content>
           </v-list-item>
           <v-list-item
@@ -120,49 +120,48 @@
 </template>
 
 <script lang="ts">
-import { Component } from "vue-property-decorator";
+import { defineComponent, ref, computed } from "@vue/composition-api";
+import { storeToRefs } from "pinia";
+import { useVuetify, useRouter, useBreakpoints } from "@/composables";
+import { useSettingsStore } from "@/api/stores";
 import packageJson from "../package.json";
-import DataView from "@/views/DataView";
 
-@Component({})
-export default class App extends DataView {
-  drawerEnabled = true;
-  isCollapsed = true;
+export default defineComponent({
+  setup() {
+    const vuetify = useVuetify();
+    const breakpoints = useBreakpoints();
+    const router = useRouter();
+    const settings = useSettingsStore();
+    const { isAnonymous } = storeToRefs(settings);
 
-  created(): void {
-    this.drawerEnabled = !this.$vuetify.breakpoint.mobile;
+    // If the drawer is open/closed.
+    const drawer = ref(!vuetify.breakpoint.mobile);
+
+    // If the drawer is in mini-variant mode.
+    const miniVariant = ref(true);
+
+    // Current version of the application.
+    const version = computed(() => packageJson.version);
+
+    // Navigate to a specific route.
+    const navigateTo = (route: string): void => {
+      if (router.currentRoute.path !== route) {
+        router.push(route);
+      }
+    };
+
+    return {
+      breakpoints,
+      isAnonymous,
+      drawer,
+      miniVariant,
+      version,
+      navigateTo,
+    };
   }
-
-  navigateTo(route: string): void {
-    if (this.$router.currentRoute.path !== route) {
-      this.$router.push(route);
-    }
-  }
-
-  toPairScreen(): void {
-    this.navigateTo("/pairs/");
-  }
-
-  toGraphView(): void {
-    this.navigateTo("/graph/");
-  }
-
-  toSummary(): void {
-    this.navigateTo("/fileanalysis/");
-  }
-
-  toHomeScreen(): void {
-    this.navigateTo("/");
-  }
-
-  /**
-   * Get the current version of the application.
-   */
-  get version(): string {
-    return packageJson.version;
-  }
-}
+});
 </script>
+
 <style>
 .v-messages {
   display: none;

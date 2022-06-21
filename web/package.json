@@ -26,6 +26,7 @@
     "@vue/cli-service": "~4.5.13",
     "@vue/eslint-config-standard": "^6.0.0",
     "@vue/eslint-config-typescript": "^7.0.0",
+    "@vue/runtime-dom": "^3.2.37",
     "core-js": "^3.17.3",
     "d3": "^7.0.0",
     "eslint": "^7.27.0",
