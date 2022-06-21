@@ -100,10 +100,14 @@
 
       <v-col cols="12">
         <v-card>
-          <div class="d-flex flex-no-wrap justify-start">
-            <v-avatar size="270" tile>
-              <v-img src="../assets/soco-java-graph.png"></v-img>
-            </v-avatar>
+          <div class="d-flex flex-column flex-sm-row flex-no-wrap justify-center">
+            <div class="ma-4 d-flex align-center justify-center">
+              <v-img
+                src="../assets/soco-java-graph.png"
+                :max-width="breakpoints.desktop ? 270 : '60%'"
+                contain
+              />
+            </div>
             <div>
               <v-card-title> Cluster Analysis </v-card-title>
               <v-card-text class="info-text">
@@ -143,12 +147,14 @@
 
       <v-col cols="12">
         <v-card>
-          <div class="d-flex flex-no-wrap justify-start">
-            <v-img
-              contain
-              max-width="270"
-              src="../assets/file-comparison.png"
-            ></v-img>
+          <div class="d-flex flex-column flex-sm-row flex-no-wrap justify-start">
+            <div class="ma-4 d-flex align-center justify-center">
+              <v-img
+                src="../assets/file-comparison.png"
+                :max-width="breakpoints.desktop ? 270 : '70%'"
+                contain
+              />
+            </div>
             <div>
               <v-card-title> File Analysis </v-card-title>
               <v-card-text class="info-text">
@@ -190,7 +196,7 @@
 
 <script lang="ts">
 import { defineComponent, computed } from "@vue/composition-api";
-import { useLegend, useClustering } from "@/composables";
+import { useBreakpoints, useLegend, useClustering } from "@/composables";
 import { Pair } from "@/api/models";
 import {
   useApiStore,
@@ -203,6 +209,7 @@ import OverviewBarchart from "@/components/overview/OverviewBarchart.vue";
 
 export default defineComponent({
   setup() {
+    const breakpoints = useBreakpoints();
     const apiStore = useApiStore();
     const fileStore = useFileStore();
     const pairStore = usePairStore();
@@ -255,6 +262,7 @@ export default defineComponent({
     );
 
     return {
+      breakpoints,
       apiStore,
       metadataStore,
       legend,
