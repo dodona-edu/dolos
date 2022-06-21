@@ -11,6 +11,8 @@
         label="Search"
         single-line
         hide-details
+        outlined
+        dense
       />
     </v-card-title>
     <v-data-table
@@ -21,9 +23,8 @@
       :sort-desc="true"
       :items-per-page="15"
       :search="search"
-      :loading="!loaded"
       class="elevation-1"
-      :footer-props="footerprops"
+      :footer-props="footerProps"
       @click:row="rowClicked"
     >
     </v-data-table>
@@ -31,49 +32,58 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { defineComponent, PropType, computed, ref } from "@vue/composition-api";
 import { Pair } from "@/api/models";
 
-@Component
-export default class PairsTable extends Vue {
-  @Prop() loaded!: boolean;
-  @Prop() pairs!: Pair[];
-  @Prop({ default: "" }) search!: string;
+export default defineComponent({
+  props: {
+    pairs: {
+      type: Array as PropType<Pair[]>,
+      required: true,
+    },
+  },
 
-  headers = [
-    { text: "Left file", value: "left", sortable: false },
-    { text: "Right file", value: "right", sortable: false },
-    { text: "Similarity", value: "similarity" },
-    { text: "Longest fragment", value: "longestFragment" },
-    { text: "Total overlap", value: "totalOverlap" },
-  ];
+  setup(props) {
+    // Table headers
+    const headers = [
+      { text: "Left file", value: "left", sortable: false },
+      { text: "Right file", value: "right", sortable: false },
+      { text: "Similarity", value: "similarity" },
+      { text: "Longest fragment", value: "longestFragment" },
+      { text: "Total overlap", value: "totalOverlap" },
+    ];
 
-  footerprops = {
-    itemsPerPageOptions: [15, 25, 50, 100, -1],
-    showCurrentPage: true,
-    showFirstLastPage: true,
-  };
+    // Footer props
+    const footerProps = {
+      itemsPerPageOptions: [15, 25, 50, 100, -1],
+      showCurrentPage: true,
+      showFirstLastPage: true,
+    };
 
-  get items(): Array<{ left: string; right: string; similarity: string }> {
-    const str = this.$route.query.showIds as string | null;
-    const params: number[] = (str?.split(",") || []).map((v: string) => +v);
+    // Search value.
+    const search = ref("");
 
-    return Object.values(this.pairs)
-      .filter((pair) => (params.length > 0 ? params.includes(pair.id) : true))
-      .map((pair) => ({
-        pair: pair,
-        left: pair.leftFile.path,
-        right: pair.rightFile.path,
-        similarity: pair.similarity.toFixed(2),
-        longestFragment: pair.longestFragment,
-        totalOverlap: pair.totalOverlap,
-      }));
-  }
+    // Items in the format for the the data-table.
+    const items = computed(() =>
+      Object.values(props.pairs)
+        .map((pair) => ({
+          pair: pair,
+          left: pair.leftFile.path,
+          right: pair.rightFile.path,
+          similarity: pair.similarity.toFixed(2),
+          longestFragment: pair.longestFragment,
+          totalOverlap: pair.totalOverlap,
+        }))
+    );
 
-  public rowClicked(item: { pair: Pair }): void {
-    this.$router.push(`/compare/${item.pair.id}`);
-  }
-}
+    return {
+      headers,
+      footerProps,
+      items,
+      search,
+    };
+  },
+});
 </script>
 
 <style scoped>
