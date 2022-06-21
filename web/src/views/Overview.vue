@@ -271,10 +271,6 @@ export default class Overview extends DataView {
   text-decoration-style: dotted;
 }
 
-.main-container {
-  width: 85%;
-}
-
 .main-container>div {
   margin-bottom: 30px;
 }

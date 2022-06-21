@@ -74,9 +74,19 @@ export const useFileStore = defineStore("files", () => {
     hydrated.value = true;
   }
 
+  // Populate the ast & mapping of a given file.
+  async function populateFile(file: File): Promise<void> {
+    if (!file.astAndMappingLoaded) {
+      file.ast = JSON.parse(file.ast);
+      file.mapping = JSON.parse(file.mapping);
+    }
+    file.astAndMappingLoaded = true;
+  }
+
   return {
     files,
     hydrated,
     hydrate,
+    populateFile,
   };
 });

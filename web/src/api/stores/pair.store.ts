@@ -14,7 +14,6 @@ import {
   PairedOccurrence,
 } from "@/api/models";
 import {
-  CustomOptions,
   Fragment as DolosFragment,
   EmptyTokenizer,
   Options,
@@ -126,10 +125,16 @@ export const usePairStore = defineStore("pairs", () => {
     pair.fragments = parseFragments(reportPair.fragments(), kmersMap);
   }
 
+  // Get a pair by its ID.
+  function getPair(id: number): Pair {
+    return pairs.value[id];
+  }
+
   return {
     pairs,
     hydrated,
     hydrate,
     populateFragments,
+    getPair,
   };
 });
