@@ -5,3 +5,5 @@ export * from "./selection";
 export * from "./pair";
 export * from "./objmap";
 export * from "./metadata";
+export * from "./fragment";
+export * from "./paired-occurrence";

@@ -1,4 +1,4 @@
-import { Hash } from "@/api/models";
+import { Hash, File } from "@/api/models";
 
 export interface Kgram {
   id: number;

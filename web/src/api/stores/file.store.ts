@@ -3,6 +3,7 @@ import { defineStore } from "pinia";
 import { ref } from "@vue/composition-api";
 import { DATA_URL } from "@/api";
 import { File, ObjMap } from "@/api/models";
+import { useSettingsStore } from "@/api/stores";
 import { colors, names, uniqueNamesGenerator } from "unique-names-generator";
 
 /**
@@ -10,7 +11,7 @@ import { colors, names, uniqueNamesGenerator } from "unique-names-generator";
  */
 export const useFileStore = defineStore("files", () => {
   // List of files.
-  const files = ref<File[]>([]);
+  const files = ref<ObjMap<File>>({});
 
   // If this store has been hydrated.
   const hydrated = ref(false);
@@ -33,7 +34,7 @@ export const useFileStore = defineStore("files", () => {
         row.extra = extra;
 
         if (anonymize) {
-          const split = row.path?.split(".");
+          const split = row.path!.split(".");
           const extension = split[split.length - 1];
           const name = randomNameGenerator();
           row.path = `${name}/exercise.${extension}`;
@@ -64,9 +65,12 @@ export const useFileStore = defineStore("files", () => {
     return await d3.csv(url);
   }
 
+  // Reference to other stores.
+  const settingsStore = useSettingsStore();
+
   // Hydrate the store
   async function hydrate(): Promise<void> {
-    files.value = parse(await fetch(), {});
+    files.value = parse(await fetch(), settingsStore.isAnonymous);
     hydrated.value = true;
   }
 

@@ -1,4 +1,5 @@
 import { File as DolosFile, Region, TokenizedFile } from "@dodona/dolos-lib";
+import { File } from "@/api/models";
 
 export function fileToTokenizedFile(file: File): TokenizedFile {
   const dolosFile = new DolosFile(file.path, file.content);

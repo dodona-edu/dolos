@@ -2,7 +2,7 @@ import * as d3 from "d3";
 import { defineStore } from "pinia";
 import { ref } from "@vue/composition-api";
 import { DATA_URL } from "@/api";
-import { Pair, ObjMap } from "@/api/models";
+import { Pair, ObjMap, File } from "@/api/models";
 import { assertType } from "@/api/utils";
 import { useFileStore } from "@/api/stores";
 
@@ -11,7 +11,7 @@ import { useFileStore } from "@/api/stores";
  */
 export const usePairStore = defineStore("pairs", () => {
   // List of pairs.
-  const pairs = ref<Pair[]>([]);
+  const pairs = ref<ObjMap<Pair>>({});
 
   // If this store has been hydrated.
   const hydrated = ref(false);

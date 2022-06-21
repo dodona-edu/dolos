@@ -2,7 +2,7 @@ import * as d3 from "d3";
 import { defineStore } from "pinia";
 import { ref } from "@vue/composition-api";
 import { DATA_URL } from "@/api";
-import { Kgram, ObjMap } from "@/api/models";
+import { Kgram, File, ObjMap } from "@/api/models";
 import { assertType } from "@/api/utils";
 import { useFileStore } from "@/api/stores";
 
@@ -11,7 +11,7 @@ import { useFileStore } from "@/api/stores";
  */
 export const useKgramStore = defineStore("kgrams", () => {
   // List of k-grams.
-  const kgrams = ref<Kgram[]>([]);
+  const kgrams = ref<ObjMap<Kgram>>({});
 
   // If this store has been hydrated.
   const hydrated = ref(false);
