@@ -58,7 +58,7 @@
 
 <script lang="ts">
 import { Component, Watch } from "vue-property-decorator";
-import { File } from "@/api/api";
+import { File } from "@/api/models";
 import DataView from "@/views/DataView";
 import Graph from "../components/graph/Graph.vue";
 import GraphLegend from "../d3-tools/GraphLegend.vue";

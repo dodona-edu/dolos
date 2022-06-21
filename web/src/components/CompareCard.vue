@@ -190,7 +190,7 @@
 </template>
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
-import { Fragment, Metadata, Pair, Selection } from "@/api/api";
+import { Fragment, Metadata, Pair, Selection } from "@/api/models";
 import CompareSide from "@/components/CompareSide.vue";
 import BarcodeChart from "@/components/BarcodeChart.vue";
 import { constructID, SelectionId } from "@/util/OccurenceHighlight";

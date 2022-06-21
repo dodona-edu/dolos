@@ -48,7 +48,7 @@
 import { Component, Prop, Vue } from "vue-property-decorator";
 import { Cluster, Clustering } from "@/util/clustering-algorithms/ClusterTypes";
 import { getAverageClusterSimilarity, getClusterElements } from "@/util/clustering-algorithms/ClusterFunctions";
-import { File } from "@/api/api";
+import { File } from "@/api/models";
 import { DateTime } from "luxon";
 
 @Component({})

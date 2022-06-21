@@ -35,7 +35,7 @@
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
 import { Component, Vue, Prop } from "vue-property-decorator";
 import TimeSeriesDiagram from "@/components/clustering/TimeSeries.vue";
-import { File } from "@/api/api";
+import { File } from "@/api/models";
 import GraphElementList from "@/d3-tools/GraphElementList.vue";
 
 @Component({ components: { TimeSeriesDiagram, GraphElementList } })

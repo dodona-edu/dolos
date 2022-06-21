@@ -81,7 +81,7 @@
 <script lang="ts">
 import { Component, Prop, Vue } from "vue-property-decorator";
 import { FileScoring } from "@/util/FileInterestingness";
-import { File, Pair } from "@/api/api";
+import { File, Pair } from "@/api/models";
 
 @Component({})
 export default class FileCardScore extends Vue {

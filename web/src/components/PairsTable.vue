@@ -30,7 +30,7 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from "vue-property-decorator";
-import { Pair } from "@/api/api";
+import { Pair } from "@/api/models";
 
 @Component
 export default class PairsTable extends Vue {

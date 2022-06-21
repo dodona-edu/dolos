@@ -1,4 +1,4 @@
-import { PairedOccurrence } from "@/api/models";
+import { PairedOccurrence, Selection } from "@/api/models";
 
 export interface Fragment {
   left: Selection;

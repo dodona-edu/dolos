@@ -41,7 +41,7 @@ import {
 } from "@/util/FileInterestingness";
 import FileCard from "@/components/summary/FileCard.vue";
 import DataView from "@/views/DataView";
-import { Pair } from "@/api/api";
+import { Pair } from "@/api/models";
 
 @Component({ components: { FileCard } })
 export default class SummaryList extends DataView {

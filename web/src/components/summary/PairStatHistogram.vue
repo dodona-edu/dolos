@@ -3,7 +3,7 @@
 </template>
 <script lang="ts">
 import { Component, Prop } from "vue-property-decorator";
-import { File } from "@/api/api";
+import { File } from "@/api/models";
 import * as d3 from "d3";
 
 import { TooltipTool } from "@/d3-tools/TooltipTool";

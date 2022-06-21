@@ -30,7 +30,7 @@ import GraphLegend from "../../d3-tools/GraphLegend.vue";
 import DataView from "@/views/DataView";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
 import { getClusterElementsArray } from "@/util/clustering-algorithms/ClusterFunctions";
-import { Pair, File } from "@/api/api";
+import { Pair, File } from "@/api/models";
 import GraphElementList from "@/d3-tools/GraphElementList.vue";
 import { SelectionManager } from "@/util/FileSelectionManager";
 

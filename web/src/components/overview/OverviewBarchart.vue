@@ -5,7 +5,7 @@
 <script lang="ts">
 import { Component, Prop, Watch } from "vue-property-decorator";
 import DataView from "@/views/DataView";
-import { File } from "@/api/api";
+import { File } from "@/api/models";
 import * as d3 from "d3";
 import { FileInterestingnessCalculator, FileScoring } from "@/util/FileInterestingness";
 import { TooltipTool } from "@/d3-tools/TooltipTool";

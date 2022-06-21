@@ -27,7 +27,7 @@
 
 <script lang="ts">
 import { Component, Prop, Watch } from "vue-property-decorator";
-import { File } from "@/api/api";
+import { File } from "@/api/models";
 import DataView, { Legend } from "@/views/DataView";
 
 @Component({})

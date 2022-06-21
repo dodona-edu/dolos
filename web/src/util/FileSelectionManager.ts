@@ -1,4 +1,4 @@
-import { File } from "@/api/api";
+import { File } from "@/api/models";
 
 type SelectedChangeListener = (fl : File[]) => void;
 

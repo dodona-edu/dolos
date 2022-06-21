@@ -1,4 +1,4 @@
-import { Pair, ObjMap, Metadata, File } from "@/api/api";
+import { Pair, ObjMap, Metadata, File } from "@/api/models";
 import { Vue } from "vue-property-decorator";
 import { singleLinkageCluster } from "@/util/clustering-algorithms/SingleLinkageClustering";
 import { Clustering } from "@/util/clustering-algorithms/ClusterTypes";
