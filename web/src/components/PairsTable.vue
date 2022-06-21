@@ -2,14 +2,16 @@
   <v-card>
     <v-card-title>
       File pairs
-      <v-spacer></v-spacer>
+
+      <v-spacer />
+
       <v-text-field
         v-model="search"
         append-icon="mdi-magnify"
         label="Search"
         single-line
         hide-details
-      ></v-text-field>
+      />
     </v-card-title>
     <v-data-table
       :headers="headers"
@@ -54,13 +56,11 @@ export default class PairsTable extends Vue {
 
   get items(): Array<{ left: string; right: string; similarity: string }> {
     const str = this.$route.query.showIds as string | null;
-    const params: number[] = (str?.split(",") || []).map(
-      (v: string) => +v
-    );
+    const params: number[] = (str?.split(",") || []).map((v: string) => +v);
 
     return Object.values(this.pairs)
-      .filter(pair => (params.length > 0 ? params.includes(pair.id) : true))
-      .map(pair => ({
+      .filter((pair) => (params.length > 0 ? params.includes(pair.id) : true))
+      .map((pair) => ({
         pair: pair,
         left: pair.leftFile.path,
         right: pair.rightFile.path,
