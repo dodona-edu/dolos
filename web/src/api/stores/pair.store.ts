@@ -2,9 +2,24 @@ import * as d3 from "d3";
 import { defineStore } from "pinia";
 import { ref } from "@vue/composition-api";
 import { DATA_URL } from "@/api";
-import { Pair, ObjMap, File } from "@/api/models";
-import { assertType } from "@/api/utils";
-import { useFileStore } from "@/api/stores";
+import { assertType, fileToTokenizedFile } from "@/api/utils";
+import { useFileStore, useKgramStore, useMetadataStore } from "@/api/stores";
+import {
+  Pair,
+  ObjMap,
+  File,
+  Hash,
+  Kgram,
+  Fragment,
+  PairedOccurrence,
+} from "@/api/models";
+import {
+  CustomOptions,
+  Fragment as DolosFragment,
+  EmptyTokenizer,
+  Options,
+  Index,
+} from "@dodona/dolos-lib";
 
 /**
  * Store containing the pair data & helper functions.
@@ -52,6 +67,8 @@ export const usePairStore = defineStore("pairs", () => {
 
   // Reference to the other stores.
   const fileStore = useFileStore();
+  const kgramStore = useKgramStore();
+  const metadataStore = useMetadataStore();
 
   // Hydrate the store
   async function hydrate(): Promise<void> {
@@ -64,9 +81,55 @@ export const usePairStore = defineStore("pairs", () => {
     hydrated.value = true;
   }
 
+  // Parse a list of Dolos fragments into a list of fragment models.
+  function parseFragments(
+    dolosFragments: DolosFragment[],
+    kmersMap: Map<Hash, Kgram>
+  ): Fragment[] {
+    // const parsed = JSON.parse(fragmentsJson);
+    return dolosFragments.map((dolosFragment: DolosFragment): Fragment => {
+      return {
+        active: true,
+        left: dolosFragment.leftSelection,
+        right: dolosFragment.rightSelection,
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        data: dolosFragment.mergedData!,
+        occurrences: dolosFragment.pairs.map((occurrence): PairedOccurrence => {
+          return {
+            kgram: assertType(kmersMap.get(occurrence.fingerprint.hash)),
+            left: occurrence.left,
+            right: occurrence.right,
+          };
+        }),
+      };
+    });
+  }
+
+  // Populate the fragments for a given pair.
+  async function populateFragments(pair: Pair): Promise<void> {
+    const customOptions = metadataStore.metadata;
+    const kmers = kgramStore.kgrams;
+
+    const emptyTokenizer = new EmptyTokenizer();
+    const options = new Options(customOptions);
+    const index = new Index(emptyTokenizer, options);
+    const report = await index.compareTokenizedFiles([
+      fileToTokenizedFile(pair.leftFile),
+      fileToTokenizedFile(pair.rightFile),
+    ]);
+    const reportPair = report.scoredPairs[0].pair;
+    const kmersMap: Map<Hash, Kgram> = new Map();
+    for (const kmerKey in kmers) {
+      const kmer = kmers[kmerKey];
+      kmersMap.set(kmer.hash, kmer);
+    }
+    pair.fragments = parseFragments(reportPair.fragments(), kmersMap);
+  }
+
   return {
     pairs,
     hydrated,
     hydrate,
+    populateFragments,
   };
 });

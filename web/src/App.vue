@@ -121,21 +121,15 @@
 import { defineComponent, ref, computed } from "@vue/composition-api";
 import { storeToRefs } from "pinia";
 import { useRouter, useBreakpoints } from "@/composables";
-import {
-  useFileStore,
-  useKgramStore,
-  useMetadataStore,
-  usePairStore,
-  useSettingsStore,
-} from "@/api/stores";
+import { useApiStore } from "@/api/stores";
 import packageJson from "../package.json";
 
 export default defineComponent({
   setup() {
     const breakpoints = useBreakpoints();
     const router = useRouter();
-    const settings = useSettingsStore();
-    const { isAnonymous } = storeToRefs(settings);
+    const api = useApiStore();
+    const { isAnonymous } = storeToRefs(api);
 
     // If the drawer is open/closed.
     const drawer = ref(!breakpoints.value.mobile);
@@ -151,12 +145,7 @@ export default defineComponent({
     };
 
     // Hydrate all the stores (fetch all the data).
-    (async () => {
-      await useFileStore().hydrate();
-      await useKgramStore().hydrate();
-      await useMetadataStore().hydrate();
-      await usePairStore().hydrate();
-    })();
+    api.hydrate();
 
     return {
       breakpoints,

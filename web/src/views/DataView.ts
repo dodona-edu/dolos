@@ -4,37 +4,47 @@ import { singleLinkageCluster } from "@/util/clustering-algorithms/SingleLinkage
 import { Clustering } from "@/util/clustering-algorithms/ClusterTypes";
 import * as d3 from "d3";
 
-export type Legend = {[key: string]: { label: string; selected: boolean; color: string }};
+export type Legend = {
+  [key: string]: { label: string; selected: boolean; color: string };
+};
 
 export default abstract class DataView extends Vue {
   async ensureData(): Promise<void> {
-    if (!this.$store.state.api.isLoaded) {
-      await this.$store.dispatch("loadData");
-    }
+    // Temporary hack to ensure data is loaded.
+    // This will be removed together with this class,
+    // once all components are migrated to the Composition API.
+    await new Promise(resolve => {
+      const interval = setInterval(() => {
+        if (this.$pinia.state.value.api.isLoaded) {
+          clearInterval(interval);
+          resolve(null);
+        }
+      }, 50);
+    });
   }
 
   get metadata(): Metadata {
-    return this.$store.state.api.metadata;
+    return this.$pinia.state.value.metadata?.metadata ?? {};
   }
 
   get pairs(): ObjMap<Pair> {
-    return this.$store.state.api.pairs;
+    return this.$pinia.state.value.pairs?.pairs ?? {};
   }
 
   get files(): ObjMap<File> {
-    return this.$store.state.api.files;
+    return this.$pinia.state.value.files?.files ?? {};
   }
 
   get dataLoaded(): boolean {
-    return this.$store.state.api.isLoaded;
+    return this.$pinia.state.value.api.isLoaded ?? {};
   }
 
   get cutoff(): number {
-    return this.$store.state.api.cutoff;
+    return this.$pinia.state.value.api.cutoff;
   }
 
-  set cutoff(value:number) {
-    this.$store.commit("updateCutoff", +value);
+  set cutoff(value: number) {
+    this.$pinia.state.value.api.cutoff = parseFloat(value as any);
   }
 
   get clustering(): Clustering {
@@ -49,22 +59,22 @@ export default abstract class DataView extends Vue {
     }
 
     const colorScale = d3
-      .scaleOrdinal(d3.schemeCategory10.filter(c => c !== "#7f7f7f"))
+      .scaleOrdinal(d3.schemeCategory10.filter((c) => c !== "#7f7f7f"))
       .domain([...labels].reverse());
-    const legend = [...labels].sort().map(p => ({
+    const legend = [...labels].sort().map((p) => ({
       label: p,
       selected: true,
       color: colorScale(p),
     }));
 
-    return Object.fromEntries(legend.map(l => [l.label, l]));
+    return Object.fromEntries(legend.map((l) => [l.label, l]));
   }
 
   get anonymous(): boolean {
-    return this.$store.state.api.isAnonymous;
+    return this.$pinia.state.value.api.isAnonymous;
   }
 
   set anonymous(anonymous: boolean) {
-    this.$store.dispatch("setAnonymous", { anonymous });
+    this.$pinia.state.value.api.isAnonymous = anonymous;
   }
 }
