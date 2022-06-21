@@ -2,7 +2,7 @@
   <v-app>
     <v-app-bar clipped-left app color="primary" dark dense>
       <v-app-bar-nav-icon
-        v-if="breakpoints.mobile"
+        v-if="!breakpoints.desktop"
         @click.stop="drawer = !drawer"
       />
       <v-toolbar-title @click="navigateTo('/')">DOLOS</v-toolbar-title>
@@ -10,8 +10,8 @@
 
     <v-navigation-drawer
       v-model="drawer"
-      :mini-variant.sync="miniVariant"
-      :expand-on-hover="!breakpoints.mobile"
+      :mini-variant="breakpoints.desktop"
+      :expand-on-hover="breakpoints.desktop"
       clipped
       app
     >
@@ -42,9 +42,7 @@
         </v-list-item>
         <v-list-item to="/fileanalysis" link>
           <v-list-item-icon>
-            <v-icon>
-              mdi-clipboard-text-outline
-            </v-icon>
+            <v-icon> mdi-clipboard-text-outline </v-icon>
           </v-list-item-icon>
           <v-list-item-title>File Analysis</v-list-item-title>
         </v-list-item>
@@ -122,23 +120,25 @@
 <script lang="ts">
 import { defineComponent, ref, computed } from "@vue/composition-api";
 import { storeToRefs } from "pinia";
-import { useVuetify, useRouter, useBreakpoints } from "@/composables";
-import { useFileStore, useKgramStore, useMetadataStore, usePairStore, useSettingsStore } from "@/api/stores";
+import { useRouter, useBreakpoints } from "@/composables";
+import {
+  useFileStore,
+  useKgramStore,
+  useMetadataStore,
+  usePairStore,
+  useSettingsStore,
+} from "@/api/stores";
 import packageJson from "../package.json";
 
 export default defineComponent({
   setup() {
-    const vuetify = useVuetify();
     const breakpoints = useBreakpoints();
     const router = useRouter();
     const settings = useSettingsStore();
     const { isAnonymous } = storeToRefs(settings);
 
     // If the drawer is open/closed.
-    const drawer = ref(!vuetify.breakpoint.mobile);
-
-    // If the drawer is in mini-variant mode.
-    const miniVariant = ref(true);
+    const drawer = ref(!breakpoints.value.mobile);
 
     // Current version of the application.
     const version = computed(() => packageJson.version);
@@ -162,11 +162,10 @@ export default defineComponent({
       breakpoints,
       isAnonymous,
       drawer,
-      miniVariant,
       version,
       navigateTo,
     };
-  }
+  },
 });
 </script>
 
@@ -177,7 +176,7 @@ export default defineComponent({
 
 .switch-style {
   max-height: 35px;
-  padding: 4px 0 0 4px!important;
+  padding: 4px 0 0 4px !important;
 }
 
 .switch-style .v-input {
