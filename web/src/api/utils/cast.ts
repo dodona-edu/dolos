@@ -10,7 +10,7 @@ export function castToType(row: d3.DSVRowString): MetaRowType {
   } else if (rowValue && rowType === "number") {
     newRow.value = Number.parseFloat(rowValue);
   } else if (rowType === "object") {
-    newRow.value = null;
+    newRow.value = rowValue;
   }
   return newRow;
 }

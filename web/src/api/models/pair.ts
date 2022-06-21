@@ -7,7 +7,7 @@ export interface Pair {
   similarity: number;
   longestFragment: number;
   totalOverlap: number;
-  fragments: Array<Fragment> | null;
+  fragments: Fragment[] | null;
   leftCovered: number;
   rightCovered: number;
 }
