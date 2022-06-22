@@ -37,7 +37,7 @@ import {
   getClusterElements,
   getClusterElementsArray,
 } from "@/util/clustering-algorithms/ClusterFunctions";
-import { File } from "@/api/api";
+import { File } from "@/api/models";
 import HeatMap from "./HeatMap.vue";
 import DataTab from "./DataTab.vue";
 import GraphTab from "./GraphTab.vue";

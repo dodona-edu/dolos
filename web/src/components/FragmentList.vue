@@ -110,7 +110,7 @@
 
 <script lang="ts">
 import FragmentItem from "@/components/FragmentItem.vue";
-import { Fragment, Pair } from "@/api/api";
+import { Fragment, Pair } from "@/api/models";
 import { Component, Prop, PropSync, Vue, Watch } from "vue-property-decorator";
 import { constructID, SelectionId } from "@/util/OccurenceHighlight";
 import { SideID } from "@/components/CompareCard.vue";

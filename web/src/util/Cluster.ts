@@ -1,4 +1,4 @@
-import { Pair } from "@/api/api";
+import { Pair } from "@/api/models";
 
 export type Edge = { target: number; data: Pair };
 

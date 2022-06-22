@@ -53,7 +53,7 @@
 
 <script lang="ts">
 import { Component, Prop, Watch } from "vue-property-decorator";
-import { File } from "@/api/api";
+import { File } from "@/api/models";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
 import { getClusterElementsArray } from "@/util/clustering-algorithms/ClusterFunctions";
 import { DateTime } from "luxon";

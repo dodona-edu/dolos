@@ -3,7 +3,7 @@ import { defineStore } from "pinia";
 import { ref } from "@vue/composition-api";
 import { DATA_URL } from "@/api";
 import { File, ObjMap } from "@/api/models";
-import { useSettingsStore } from "@/api/stores";
+import { useApiStore } from "@/api/stores";
 import { colors, names, uniqueNamesGenerator } from "unique-names-generator";
 
 /**
@@ -66,17 +66,27 @@ export const useFileStore = defineStore("files", () => {
   }
 
   // Reference to other stores.
-  const settingsStore = useSettingsStore();
+  const apiStore = useApiStore();
 
   // Hydrate the store
   async function hydrate(): Promise<void> {
-    files.value = parse(await fetch(), settingsStore.isAnonymous);
+    files.value = parse(await fetch(), apiStore.isAnonymous);
     hydrated.value = true;
+  }
+
+  // Populate the ast & mapping of a given file.
+  async function populateFile(file: File): Promise<void> {
+    if (!file.astAndMappingLoaded) {
+      file.ast = JSON.parse(file.ast);
+      file.mapping = JSON.parse(file.mapping);
+    }
+    file.astAndMappingLoaded = true;
   }
 
   return {
     files,
     hydrated,
     hydrate,
+    populateFile,
   };
 });

@@ -1,4 +1,4 @@
-import { Pair, File } from "@/api/api";
+import { Pair, File } from "@/api/models";
 import { pairsAsNestedMap } from "./PairAsNestedMap";
 
 type SimilarityScore = {

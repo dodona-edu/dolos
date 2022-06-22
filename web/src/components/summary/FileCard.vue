@@ -155,7 +155,7 @@
 
 <script lang="ts">
 import { Component, Prop, Watch } from "vue-property-decorator";
-import { File } from "@/api/api";
+import { File } from "@/api/models";
 import DataView from "@/views/DataView";
 import FileSimilarityHistogram from "./FileSimilarityHistogram.vue";
 import FileCardScore from "./FileCardScore.vue";

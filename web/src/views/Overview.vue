@@ -167,7 +167,7 @@
 <script lang="ts">
 import { Component } from "vue-property-decorator";
 import DataView, { Legend } from "@/views/DataView";
-import { Pair } from "@/api/api";
+import { Pair } from "@/api/models";
 import OverviewBarchart from "@/components/overview/OverviewBarchart.vue";
 import { getClusterElements } from "@/util/clustering-algorithms/ClusterFunctions";
 

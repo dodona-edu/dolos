@@ -29,7 +29,7 @@
 
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
-import { Selection, File } from "@/api/api";
+import { Selection, File } from "@/api/models";
 
 import Prism from "prismjs";
 import "prismjs/themes/prism.css";

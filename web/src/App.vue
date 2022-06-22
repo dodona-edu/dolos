@@ -14,6 +14,7 @@
       :expand-on-hover="breakpoints.desktop"
       clipped
       app
+      left
     >
       <v-list nav dense>
         <v-list-item to="/" link>
@@ -111,7 +112,8 @@
      and this breaks the style if we don't manually adjust it.-->
     <v-main style="padding-left: 256px">
       <keep-alive exclude="Compare">
-        <router-view />
+        <router-view v-if="isLoaded" />
+        <loading v-else />
       </keep-alive>
     </v-main>
   </v-app>
@@ -121,24 +123,19 @@
 import { defineComponent, ref, computed } from "@vue/composition-api";
 import { storeToRefs } from "pinia";
 import { useRouter, useBreakpoints } from "@/composables";
-import {
-  useFileStore,
-  useKgramStore,
-  useMetadataStore,
-  usePairStore,
-  useSettingsStore,
-} from "@/api/stores";
+import { useApiStore } from "@/api/stores";
+import Loading from "@/components/Loading.vue";
 import packageJson from "../package.json";
 
 export default defineComponent({
   setup() {
     const breakpoints = useBreakpoints();
     const router = useRouter();
-    const settings = useSettingsStore();
-    const { isAnonymous } = storeToRefs(settings);
+    const api = useApiStore();
+    const { isLoaded, isAnonymous } = storeToRefs(api);
 
     // If the drawer is open/closed.
-    const drawer = ref(!breakpoints.value.mobile);
+    const drawer = ref(breakpoints.value.desktop);
 
     // Current version of the application.
     const version = computed(() => packageJson.version);
@@ -151,25 +148,25 @@ export default defineComponent({
     };
 
     // Hydrate all the stores (fetch all the data).
-    (async () => {
-      await useFileStore().hydrate();
-      await useKgramStore().hydrate();
-      await useMetadataStore().hydrate();
-      await usePairStore().hydrate();
-    })();
+    api.hydrate();
 
     return {
       breakpoints,
+      isLoaded,
       isAnonymous,
       drawer,
       version,
       navigateTo,
     };
   },
+
+  components: {
+    Loading
+  },
 });
 </script>
 
-<style>
+<style lang="scss">
 .v-messages {
   display: none;
 }

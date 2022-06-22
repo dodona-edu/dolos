@@ -7,7 +7,7 @@ import { Component, Prop } from "vue-property-decorator";
 import { pairsAsNestedMapCached } from "@/util/PairAsNestedMap";
 import * as d3 from "d3";
 import { ScaleBand, ScaleLinear } from "d3";
-import { File, Pair } from "@/api/api";
+import { File, Pair } from "@/api/models";
 import { ResizableD3Viz } from "@/d3-tools/ResizableD3Viz";
 
 /**

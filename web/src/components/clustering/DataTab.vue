@@ -54,7 +54,7 @@ import {
   getAverageClusterSimilarity,
   getClusterElements,
 } from "@/util/clustering-algorithms/ClusterFunctions";
-import { File } from "@/api/api";
+import { File } from "@/api/models";
 
 @Component({ })
 export default class DataTab extends Vue {

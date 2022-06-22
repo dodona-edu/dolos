@@ -23,7 +23,7 @@
 
 <script lang="ts">
 import { Component } from "vue-property-decorator";
-import { Pair } from "@/api/api";
+import { Pair } from "@/api/models";
 
 import DataView from "@/views/DataView";
 

@@ -53,7 +53,7 @@ import { ScaleBand, ScaleLinear } from "d3";
 import { getClusterElementsArray, getClusterElementsSorted } from "@/util/clustering-algorithms/ClusterFunctions";
 import { pairsAsNestedMap } from "@/util/PairAsNestedMap";
 
-import { File, Pair } from "@/api/api";
+import { File, Pair } from "@/api/models";
 import GraphElementList from "@/d3-tools/GraphElementList.vue";
 import { ResizableD3Viz } from "@/d3-tools/ResizableD3Viz";
 @Component({

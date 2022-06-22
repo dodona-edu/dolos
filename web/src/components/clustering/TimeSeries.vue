@@ -5,7 +5,7 @@
 </template>
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
-import { File } from "@/api/api";
+import { File } from "@/api/models";
 import * as d3 from "d3";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
 import { getClusterElementsArray } from "@/util/clustering-algorithms/ClusterFunctions";

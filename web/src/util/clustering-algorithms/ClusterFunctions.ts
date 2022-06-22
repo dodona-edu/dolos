@@ -1,4 +1,4 @@
-import { File, Pair } from "@/api/api";
+import { File, Pair } from "@/api/models";
 import { ListMap } from "../ListMap";
 import { Cluster, ClusteringGraph, Edge } from "./ClusterTypes";
 

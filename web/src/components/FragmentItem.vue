@@ -31,7 +31,7 @@
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import { constructID } from "@/util/OccurenceHighlight";
-import { Fragment } from "@/api/api";
+import { Fragment } from "@/api/models";
 
 @Component({
   methods: { constructID }

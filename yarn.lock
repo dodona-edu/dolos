@@ -2444,7 +2444,7 @@
   optionalDependencies:
     fork-ts-checker-webpack-plugin-v5 "npm:fork-ts-checker-webpack-plugin@^5.0.11"
 
-"@vue/cli-plugin-vuex@^4.5.17", "@vue/cli-plugin-vuex@~4.5.13":
+"@vue/cli-plugin-vuex@^4.5.17":
   version "4.5.17"
   resolved "https://registry.yarnpkg.com/@vue/cli-plugin-vuex/-/cli-plugin-vuex-4.5.17.tgz#eb6f597c775f3c847bf5a638ad65a0d03c11dcbf"
   integrity sha512-ck/ju2T2dmPKLWK/5QctNJs9SCb+eSZbbmr8neFkMc7GlbXw6qLWw5v3Vpd4KevdQA8QuQOA1pjUmzpCiU/mYQ==
@@ -15261,11 +15261,6 @@ vuetify@^2.5.3:
   version "2.6.4"
   resolved "https://registry.yarnpkg.com/vuetify/-/vuetify-2.6.4.tgz#18052f77492d32856fea35c910755075ff32acc9"
   integrity sha512-2wEzU/Gz39gQCxK93xoiWPKCHQUnyUKWd81wB7Q7hfYJWu5QOWQXYlF0X/BgUZzf8IOyHWKiSNEAfEe9OE3b4w==
-
-vuex@^3.6.2:
-  version "3.6.2"
-  resolved "https://registry.yarnpkg.com/vuex/-/vuex-3.6.2.tgz#236bc086a870c3ae79946f107f16de59d5895e71"
-  integrity sha512-ETW44IqCgBpVomy520DT5jf8n0zoCac+sxWnn+hMe/CzaSejb/eVw2YToiXYX+Ex/AuHHia28vWTq4goAexFbw==
 
 watch@^1.0.2:
   version "1.0.2"

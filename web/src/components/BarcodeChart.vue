@@ -31,7 +31,7 @@
 <script lang="ts">
 
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
-import { Selection } from "@/api/api";
+import { Selection } from "@/api/models";
 import { constructID } from "@/util/OccurenceHighlight";
 import * as d3 from "d3";
 

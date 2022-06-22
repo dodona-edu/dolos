@@ -1,4 +1,4 @@
-import { File, ObjMap, Pair } from "@/api/api";
+import { File, ObjMap, Pair } from "@/api/models";
 import { getClusterElements, getClusteringGraph } from "./ClusterFunctions";
 import { Cluster, Clustering, ClusteringGraph } from "./ClusterTypes";
 

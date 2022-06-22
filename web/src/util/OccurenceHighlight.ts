@@ -1,5 +1,5 @@
 import Prism from "prismjs";
-import { Selection } from "@/api/api";
+import { Selection } from "@/api/models";
 
 /**
  * Map all tokens to themselves and convert a string to a token of type "unmarked-token"
