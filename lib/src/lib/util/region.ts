@@ -64,6 +64,10 @@ export class Region {
     public endRow: number,
     public endCol: number
   ) {
+    if(!Region.valid(startRow, startCol, endRow, endCol)) {
+      console.trace("AssertionError.");
+    }
+
     assert(
       Region.valid(startRow, startCol, endRow, endCol),
       "startRow and startCol should be smaller than endRow and endCol, was " +

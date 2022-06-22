@@ -6,6 +6,7 @@ import {
   useKgramStore,
   useMetadataStore,
   usePairStore,
+  useSemanticStore,
 } from "@/api/stores";
 
 /**
@@ -17,6 +18,7 @@ export const useApiStore = defineStore("api", () => {
   const kgramStore = useKgramStore();
   const metadataStore = useMetadataStore();
   const pairStore = usePairStore();
+  const semanticStore = useSemanticStore();
 
   // If the data is loaded.
   const isLoaded = ref(false);
@@ -36,6 +38,7 @@ export const useApiStore = defineStore("api", () => {
     await kgramStore.hydrate();
     await metadataStore.hydrate();
     await pairStore.hydrate();
+    await semanticStore.hydrate();
 
     // Calculate the initial cut-off value.
     cutoff.value = getInterpolatedSimilarity(Object.values(pairStore.pairs));

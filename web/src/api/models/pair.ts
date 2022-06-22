@@ -1,4 +1,9 @@
 import { File, Fragment } from "@/api/models";
+import {
+  DecodedSemanticResult,
+  PairedSemanticGroups,
+  UnpairedSemanticGroups,
+} from "@dodona/dolos-lib";
 
 export interface Pair {
   id: number;
@@ -8,6 +13,8 @@ export interface Pair {
   longestFragment: number;
   totalOverlap: number;
   fragments: Array<Fragment> | null;
+  pairedMatches: PairedSemanticGroups<DecodedSemanticResult>[];
+  unpairedMatches: UnpairedSemanticGroups<DecodedSemanticResult>[];
   leftCovered: number;
   rightCovered: number;
 }

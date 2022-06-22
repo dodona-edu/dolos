@@ -60,18 +60,19 @@
               </v-card-title>
               <v-card-text>
                 <v-container fluid>
-                  <v-row justify="center" no-gutters v-if="loaded">
-                    <v-col md="6" sm="12">
+                  <v-row class="compare-container fullheight" justify="center" no-gutters v-if="loaded">
+                    <v-col md="6" sm="12" class="fullheight">
                       <v-row class="flex-nowrap" no-gutters>
                         <v-col cols="11">
                           <compare-side
-                            :active-selections="leftActiveSelectionIds"
+                            :active-selections="leftActiveSelectionIds()"
                             :file="activePair.leftFile"
                             :hovering-selections="lastHovered.leftSideId.fragmentClasses"
                             :identifier="SideID.leftSideId"
                             :selected-selections="selected.sides.leftSideId.fragmentClasses"
                             :selections="leftSelections"
                             :language="language"
+                            :semantic-matches="activePair.leftMatches"
                             @codescroll="onScrollHandler"
                             @linesvisibleamount="setLinesVisible"
                             @selectionclick="selectionClickEventHandler"
@@ -83,7 +84,7 @@
                         </v-col>
                         <v-col cols="auto">
                           <BarcodeChart
-                            :active-selections="leftActiveSelectionIds"
+                            :active-selections="leftActiveSelectionIds()"
                             :amount-of-lines-visible="linesVisible"
                             :document-scroll-fraction="leftScrollFraction"
                             :hovering-selections="lastHovered.leftSideId.fragmentClasses"
@@ -99,17 +100,18 @@
                         </v-col>
                       </v-row>
                     </v-col>
-                    <v-col md="6" sm="12">
+                    <v-col md="6" sm="12" class="fullheight">
                       <v-row class="flex-nowrap" no-gutters>
                         <v-col cols="11">
                           <compare-side
-                            :active-selections="rightActiveSelectionIds"
+                            :active-selections="rightActiveSelectionIds()"
                             :file="activePair.rightFile"
                             :hovering-selections="lastHovered.rightSideId.fragmentClasses"
                             :identifier="SideID.rightSideId"
                             :selected-selections="selected.sides.rightSideId.fragmentClasses"
                             :selections="rightSelections"
                             :language="language"
+                            :semantic-matches="activePair.rightMatches"
                             @codescroll="onScrollHandler"
                             @selectionclick="selectionClickEventHandler"
                             @selectionhoverenter="onHoverEnterHandler"
@@ -119,7 +121,7 @@
                         </v-col>
                         <v-col cols="auto">
                           <BarcodeChart
-                            :active-selections="rightActiveSelectionIds"
+                            :active-selections="rightActiveSelectionIds()"
                             :amount-of-lines-visible="linesVisible"
                             :document-scroll-fraction="rightScrollFraction"
                             :hovering-selections="lastHovered.rightSideId.fragmentClasses"
@@ -185,14 +187,23 @@
           </v-btn>
         </template>
       </FragmentList>
+      <SemanticList
+        :semantic-matches="pairedMatches"
+        :file="activePair.leftFile"
+        :selected-item-sync.sync="selectedItem"
+      >
+
+      </SemanticList>
     </v-navigation-drawer>
   </v-container>
 </template>
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import { Fragment, Metadata, Pair, Selection } from "@/api/models";
+import { fileToTokenizedFile } from "@/api/utils";
 import CompareSide from "@/components/CompareSide.vue";
 import BarcodeChart from "@/components/BarcodeChart.vue";
+import SemanticList from "@/components/SemanticList.vue";
 import { constructID, SelectionId } from "@/util/OccurenceHighlight";
 import * as d3 from "d3";
 import FragmentList from "@/components/FragmentList.vue";
@@ -203,11 +214,14 @@ import {
   mdiFileDocumentMultipleOutline,
   mdiSwapHorizontalBold,
 } from "@mdi/js";
+import { SemanticAnalyzer } from "@dodona/dolos-lib/dist/lib/analyze/SemanticAnalyzer";
+import { DecodedSemanticResult, PairedSemanticGroups, Region } from "@dodona/dolos-lib";
 
 export enum SideID {
   leftSideId = "leftSideId",
   rightSideId = "rightSideId",
 }
+export type SemanticMatch = PairedSemanticGroups<DecodedSemanticResult> & { active: boolean };
 
 @Component({
   data: () => ({
@@ -218,7 +232,7 @@ export enum SideID {
     mdiFileDocumentMultipleOutline,
     mdiSwapHorizontalBold,
   }),
-  components: { CompareSide, BarcodeChart, FragmentList },
+  components: { CompareSide, BarcodeChart, FragmentList, SemanticList },
 })
 export default class CompareCard extends Vue {
   @Prop({ default: false, required: true }) loaded!: boolean;
@@ -280,6 +294,9 @@ export default class CompareCard extends Vue {
   rightScrollFraction = 0;
   linesVisible = 0;
 
+  _pairedMatches: Array<SemanticMatch> | null = null;
+  _rightMatches: Array<SemanticMatch> | null = null;
+
   get language(): string {
     return this.metadata.language as string;
   }
@@ -305,7 +322,9 @@ export default class CompareCard extends Vue {
               left: occurence.right,
               right: occurence.left,
             }))
-          }))
+          })),
+        pairedMatches: this.pair.pairedMatches.map(u => ({ leftMatch: u.rightMatch, rightMatch: u.leftMatch })),
+        unpairedMatches: this.pair.unpairedMatches,
       };
     } else {
       return this.pair;
@@ -337,23 +356,66 @@ export default class CompareCard extends Vue {
   }
 
   get activeFragments(): Array<Fragment> {
-    return this.activePair.fragments!.filter(fragment => fragment.active);
+    const isContained = (s1: Selection, s2: Region): boolean =>
+      Region.valid(s1.startRow, s1.startCol, s1.endRow, s2.endCol) &&
+      Region.diff(new Region(s1.startRow, s1.startCol, s1.endRow, s2.endCol), s2).length === 0;
+
+    const leftCovers = this.pair.pairedMatches.map(p =>
+      SemanticAnalyzer.getFullRange(fileToTokenizedFile(this.pair.leftFile), p.leftMatch));
+    const rightCovers = this.pair.pairedMatches.map(p =>
+      SemanticAnalyzer.getFullRange(fileToTokenizedFile(this.pair.rightFile), p.rightMatch));
+
+    return this.activePair.fragments!
+      .filter(fragment => fragment.active)
+      .filter(f =>
+        !(leftCovers.some(lc => isContained(f.left, lc)) &&
+          rightCovers.some(rc => isContained(f.right, rc))));
   }
 
-  get leftActiveSelectionIds(): Array<SelectionId> {
-    return this.activeFragments.map(fragment => constructID(fragment.left));
+  get pairedMatches(): Array<SemanticMatch> {
+    return this.activePair.pairedMatches.map(match => ({ ...match, active: true }));
   }
 
-  get rightActiveSelectionIds(): Array<SelectionId> {
-    return this.activeFragments.map(fragment => constructID(fragment.right));
+  getActivePairedMatches(): Array<SemanticMatch> {
+    return this.pairedMatches.filter(v => v.active);
+  }
+
+  private leftActiveSelectionIds(): Array<SelectionId> {
+    const fragments = this.activeFragments
+      .map(fragment => constructID(fragment.left));
+
+    const file = fileToTokenizedFile(this.activePair.leftFile);
+    const regions = this.getActivePairedMatches().map(rm => SemanticAnalyzer.getFullRange(file, rm.leftMatch));
+    const semanticMatches = regions.map(m => constructID(m));
+
+    return [...fragments, ...semanticMatches];
+  }
+
+  private rightActiveSelectionIds(): Array<SelectionId> {
+    const fragments = this.activeFragments
+      .map(fragment => constructID(fragment.right));
+
+    const file = fileToTokenizedFile(this.activePair.rightFile);
+    const regions = this.getActivePairedMatches().map(rm => SemanticAnalyzer.getFullRange(file, rm.rightMatch));
+    const semanticMatches = regions.map(m => constructID(m));
+
+    return [...fragments, ...semanticMatches];
   }
 
   get leftSelections(): Array<Selection> {
-    return this.activePair.fragments!.map(fragment => fragment.left);
+    const file = fileToTokenizedFile(this.activePair.leftFile);
+    const regions = this.pairedMatches.map(rm => SemanticAnalyzer.getFullRange(file, rm.leftMatch));
+
+    return [...this.activePair.fragments!.map(fragment => fragment.left),
+      ...regions];
   }
 
   get rightSelections(): Array<Selection> {
-    return this.activePair.fragments!.map(fragment => fragment.right);
+    const file = fileToTokenizedFile(this.activePair.rightFile);
+    const regions = this.pairedMatches.map(rm => SemanticAnalyzer.getFullRange(file, rm.rightMatch));
+
+    return [...this.activePair.fragments!.map(fragment => fragment.right),
+      ...regions];
   }
 
   swapFiles(): void {
@@ -601,5 +663,13 @@ export default class CompareCard extends Vue {
 .no-y-padding {
   padding-bottom: 0;
   padding-top: 0;
+}
+
+.fullheight {
+  height: 100%;
+}
+
+.highlighted-code {
+  height: var(--code-height);
 }
 </style>

@@ -1,7 +1,7 @@
 property,value,type
 kgramLength,23,number
 kgramsInWindow,17,number
-language,python,string
+language,javascript,string
 maxFingerprintCount,,object
 maxFingerprintPercentage,,object
 minFragmentLength,0,number
@@ -10,3 +10,5 @@ minSimilarity,0,number
 sortBy,total overlap,string
 fragmentSortBy,file order,string
 kgramData,,boolean
+semantic,1,boolean
+semanticMatchLength,5,number

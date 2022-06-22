@@ -19,8 +19,8 @@
         )"
         :key="scoredFile.file.id"
         :file="scoredFile"
+        :scoredFiles="scoredFiles"
         :selected-value="selectedSortOption && selectedSortOption.selectedValue"
-        :file-scorings="scoredFiles"
         class="file-card"
       />
     </div>
@@ -33,12 +33,8 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Watch, Vue } from "vue-property-decorator";
-import {
-  FileScoring,
-  FileInterestingnessCalculator,
-  getLargestPairOfScore,
-} from "@/util/FileInterestingness";
+import { Component, Vue, Watch } from "vue-property-decorator";
+import { FileInterestingnessCalculator, FileScoring, getLargestPairOfScore } from "@/util/FileInterestingness";
 import FileCard from "@/components/summary/FileCard.vue";
 import DataView from "@/views/DataView";
 import { Pair } from "@/api/models";
@@ -126,16 +122,13 @@ export default class SummaryList extends DataView {
     const scoringCalculator = new FileInterestingnessCalculator(
       Array.from(Object.values(this.pairs))
     );
-    const sortableFiles = Object.values(this.files).map(file =>
-      scoringCalculator.calculateFileScoring(file)
-    );
-    this.scoredFiles = sortableFiles;
+    this.scoredFiles = await Promise.all(Object.values(this.files).map(async file =>
+      await scoringCalculator.calculateFileScoring(file)
+    ));
   }
 
   @Watch("page")
   onPageChange(): void {
-    console.log(this.$refs.toScroll);
-
     ((this.$refs.toScroll as Vue).$el as Element)?.scrollIntoView();
   }
 }
@@ -146,6 +139,7 @@ export default class SummaryList extends DataView {
 }
 
 .full-width {
+  min-width: 1000px;
   width: 100%;
 }
 

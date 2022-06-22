@@ -37,8 +37,8 @@ export default class OverviewBarchart extends ResizableD3Viz {
     super.mounted();
   }
 
-  initialize(): void {
-    this.maxFileData = this.getMaxFileData();
+  async initialize(): Promise<void> {
+    this.maxFileData = await this.getMaxFileData();
     this.draw();
   }
 
@@ -157,17 +157,17 @@ export default class OverviewBarchart extends ResizableD3Viz {
     return svg;
   }
 
-  getMaxFileData(): number[] {
+  async getMaxFileData(): Promise<number[]> {
     const files: File[] = Array.from(Object.values(this.files));
     const pairs = Array.from(Object.values(this.pairs));
 
     const scoringCalculator = new FileInterestingnessCalculator(pairs);
 
-    const scoredFiles = files.map(file =>
-      scoringCalculator.calculateFileScoring(file)
-    );
+    const scoredFiles = await Promise.all(files.map(async (file) =>
+      await scoringCalculator.calculateSimilarityScore(file)
+    ));
 
-    return scoredFiles.map(f => this.mapScoreToField(f));
+    return scoredFiles.map(f => f?.similarity || 0);
   }
 
   private mapScoreToField(score: FileScoring): number {

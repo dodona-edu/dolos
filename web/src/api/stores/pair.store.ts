@@ -3,7 +3,12 @@ import { defineStore } from "pinia";
 import { ref } from "@vue/composition-api";
 import { DATA_URL } from "@/api";
 import { assertType, fileToTokenizedFile } from "@/api/utils";
-import { useFileStore, useKgramStore, useMetadataStore } from "@/api/stores";
+import {
+  useFileStore,
+  useKgramStore,
+  useMetadataStore,
+  useSemanticStore,
+} from "@/api/stores";
 import {
   Pair,
   ObjMap,
@@ -18,6 +23,7 @@ import {
   EmptyTokenizer,
   Options,
   Index,
+  SemanticAnalyzer,
 } from "@dodona/dolos-lib";
 
 /**
@@ -49,6 +55,8 @@ export const usePairStore = defineStore("pairs", () => {
           leftFile: files[parseInt(assertType(row.leftFileId))],
           rightFile: files[parseInt(assertType(row.rightFileId))],
           fragments: null,
+          pairedMatches: [],
+          unpairedMatches: [],
           leftCovered,
           rightCovered,
         };
@@ -68,6 +76,7 @@ export const usePairStore = defineStore("pairs", () => {
   const fileStore = useFileStore();
   const kgramStore = useKgramStore();
   const metadataStore = useMetadataStore();
+  const semanticStore = useSemanticStore();
 
   // Hydrate the store
   async function hydrate(): Promise<void> {
@@ -112,17 +121,52 @@ export const usePairStore = defineStore("pairs", () => {
     const emptyTokenizer = new EmptyTokenizer();
     const options = new Options(customOptions);
     const index = new Index(emptyTokenizer, options);
-    const report = await index.compareTokenizedFiles([
-      fileToTokenizedFile(pair.leftFile),
-      fileToTokenizedFile(pair.rightFile),
-    ]);
+    const leftFile = fileToTokenizedFile(pair.leftFile);
+    const rightFile = fileToTokenizedFile(pair.rightFile);
+    const report = await index.compareTokenizedFiles([leftFile, rightFile]);
     const reportPair = report.scoredPairs[0].pair;
+
+    if (pair.leftFile.semanticMap && pair.rightFile.semanticMap) {
+      const [pairedMatches, unpairedMatches] = SemanticAnalyzer.pairMatches(
+        leftFile,
+        rightFile,
+        pair.leftFile.semanticMap.filter(
+          (f) => +f.right === +pair.rightFile.id
+        ),
+        pair.rightFile.semanticMap.filter(
+          (f) => +f.right === +pair.leftFile.id
+        ),
+        semanticStore.occurrences
+      );
+
+      pair.pairedMatches = pairedMatches;
+      pair.unpairedMatches = unpairedMatches;
+    }
+
     const kmersMap: Map<Hash, Kgram> = new Map();
     for (const kmerKey in kmers) {
       const kmer = kmers[kmerKey];
       kmersMap.set(kmer.hash, kmer);
     }
     pair.fragments = parseFragments(reportPair.fragments(), kmersMap);
+  }
+
+  // Populate the semantic matches for a given pair.
+  async function populateSemantic(pair: Pair): Promise<void> {
+    const leftFile = fileToTokenizedFile(pair.leftFile);
+    const rightFile = fileToTokenizedFile(pair.rightFile);
+    if (!pair.leftFile.semanticMap || !pair.rightFile.semanticMap) return;
+
+    const [pairedMatches, unpairedMatches] = SemanticAnalyzer.pairMatches(
+      leftFile,
+      rightFile,
+      pair.leftFile.semanticMap,
+      pair.rightFile.semanticMap,
+      semanticStore.occurrences
+    );
+
+    pair.pairedMatches = pairedMatches;
+    pair.unpairedMatches = unpairedMatches;
   }
 
   // Get a pair by its ID.
@@ -135,6 +179,7 @@ export const usePairStore = defineStore("pairs", () => {
     hydrated,
     hydrate,
     populateFragments,
+    populateSemantic,
     getPair,
   };
 });

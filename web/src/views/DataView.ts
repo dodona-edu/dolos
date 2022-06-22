@@ -1,5 +1,6 @@
 import { Pair, ObjMap, Metadata, File } from "@/api/models";
 import { Vue } from "vue-property-decorator";
+import { Occurrence } from "@dodona/dolos-lib";
 import { singleLinkageCluster } from "@/util/clustering-algorithms/SingleLinkageClustering";
 import { Clustering } from "@/util/clustering-algorithms/ClusterTypes";
 import * as d3 from "d3";
@@ -35,6 +36,10 @@ export default abstract class DataView extends Vue {
     return this.$pinia.state.value.files?.files ?? {};
   }
 
+  get occurrences(): Occurrence[][] {
+    return this.$pinia.state.value.semantic.occurrences;
+  }
+
   get dataLoaded(): boolean {
     return this.$pinia.state.value.api.isLoaded ?? {};
   }
@@ -49,6 +54,10 @@ export default abstract class DataView extends Vue {
 
   get clustering(): Clustering {
     return singleLinkageCluster(this.pairs, this.files, this.cutoff);
+  }
+
+  get semantic(): boolean {
+    return this.$pinia.state.value.semantic.occurrences > 0;
   }
 
   createLegend(): Legend {
