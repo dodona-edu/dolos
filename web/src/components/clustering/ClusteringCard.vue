@@ -7,16 +7,18 @@
     </v-expansion-panel-header>
     <v-expansion-panel-content>
       <v-tabs right v-model="activeTab">
-        <v-tab :key="1">
-          <a class="no-markup" target="_blank" :href="`../?showIds=${pairViewItems(cluster)}`">Pair view</a>
+        <v-tab :key="1" :to="`/pairs/?showIds=${pairViewItems(cluster)}`">
+          Pair view
         </v-tab>
-        <v-tab-item ></v-tab-item>
+        <v-tab-item></v-tab-item>
 
         <div class="empty-space"></div>
 
-        <v-tab v-if="cluster && showClusterTimeline(cluster)" :key="2">Time Chart</v-tab>
+        <v-tab v-if="cluster && showClusterTimeline(cluster)" :key="2"
+          >Time Chart</v-tab
+        >
         <v-tab-item v-if="cluster && showClusterTimeline(cluster)">
-          <TimeSeriesCard :cluster="cluster"/>
+          <TimeSeriesCard :cluster="cluster" />
         </v-tab-item>
 
         <v-tab :key="4"> Heatmap </v-tab>
@@ -29,7 +31,7 @@
   </v-expansion-panel>
 </template>
 
-<script lang=ts>
+<script lang="ts">
 import { Component, Vue, Prop } from "vue-property-decorator";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
 import {
@@ -45,7 +47,16 @@ import TimeSeriesCard from "./TimeSeriesCard.vue";
 import ClusteringFileTag from "@/components/clustering/ClusteringFileTag.vue";
 import FileTagList from "@/components/clustering/FileTagList.vue";
 
-@Component({ components: { HeatMap, DataTab, GraphTab, TimeSeriesCard, ClusteringFileTag, FileTagList } })
+@Component({
+  components: {
+    HeatMap,
+    DataTab,
+    GraphTab,
+    TimeSeriesCard,
+    ClusteringFileTag,
+    FileTagList,
+  },
+})
 export default class ClusteringCard extends Vue {
   @Prop() cluster!: Cluster;
   @Prop() cutoff!: number;
@@ -61,7 +72,7 @@ export default class ClusteringCard extends Vue {
 
   public graphView(cluster: Cluster): void {
     const items = getClusterElementsArray(cluster)
-      .map(c => c.id)
+      .map((c) => c.id)
       .join(",");
 
     this.$router.push(`/graph?cutoff=${this.cutoff}&red=${items}`);
@@ -69,14 +80,14 @@ export default class ClusteringCard extends Vue {
 
   public pairViewItems(cluster: Cluster): string {
     const items = Array.from(cluster)
-      .map(v => v.id)
+      .map((v) => v.id)
       .join(",");
 
     return items;
   }
 
   public showClusterTimeline(cluster: Cluster): boolean {
-    return getClusterElementsArray(cluster).every(f => f.extra?.timestamp);
+    return getClusterElementsArray(cluster).every((f) => f.extra?.timestamp);
   }
 
   public clusterFiles = getClusterElementsArray;
@@ -101,5 +112,6 @@ export default class ClusteringCard extends Vue {
 
 .no-markup {
   color: inherit;
+  text-decoration: none;
 }
 </style>
