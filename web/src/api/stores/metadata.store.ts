@@ -10,7 +10,7 @@ import { castToType } from "@/api/utils";
  */
 export const useMetadataStore = defineStore("metadata", () => {
   // Metadata.
-  const metadata = ref<Metadata>();
+  const metadata = ref<Metadata>({});
 
   // If this store has been hydrated.
   const hydrated = ref(false);

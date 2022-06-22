@@ -21,7 +21,7 @@ export const useApiStore = defineStore("api", () => {
   // If the data is loaded.
   const isLoaded = ref(false);
 
-  // If the names should be anonymized.
+  // Whether the names should be anonymized.
   const isAnonymous = ref(false);
 
   // Cut-off value.
