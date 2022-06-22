@@ -12,7 +12,7 @@ export interface Pair {
   similarity: number;
   longestFragment: number;
   totalOverlap: number;
-  fragments: Array<Fragment> | null;
+  fragments: Fragment[] | null;
   pairedMatches: PairedSemanticGroups<DecodedSemanticResult>[];
   unpairedMatches: UnpairedSemanticGroups<DecodedSemanticResult>[];
   leftCovered: number;
