@@ -1,5 +1,5 @@
 <template>
-  <v-card v-if="file">
+  <v-card v-if="file" class="file-card">
     <v-card-title>
       {{ file.file.path.split("/").slice(-2).join("/") }}
     </v-card-title>
@@ -29,6 +29,10 @@
         <v-tab href="#tab-0">Similarity</v-tab>
         <v-tab href="#tab-1">Longest Fragment</v-tab>
         <v-tab href="#tab-2">Total overlap</v-tab>
+        <v-tab href="#tab-3"
+               v-if="semantic"
+               :disabled="file.semanticMatchScore === null">Semantic Match</v-tab>
+
       </v-tabs>
 
       <v-tabs-items v-model="tab">
@@ -37,7 +41,7 @@
             <PairStatHistogram :numberOfTicks="25"
                                :extraLine="getLineSpot(file, 'similarity')"
                                :pair-field="'similarity'"
-                               :scored-files="fileScorings"
+                               :scored-files="scoredFiles"
             />
             <div class="more-info">
               <v-tooltip bottom>
@@ -63,7 +67,7 @@
             <PairStatHistogram :numberOfTicks="25"
                                :extraLine="getLineSpot(file, 'longestFragment')"
                                :pair-field="'longestFragment'"
-                               :scored-files="fileScorings"
+                               :scored-files="scoredFiles"
             />
           </div>
           <div class="more-info">
@@ -110,8 +114,14 @@
             <PairStatHistogram :numberOfTicks="25"
                                :extraLine="getLineSpot(file, 'totalOverlap')"
                                :pair-field="'totalOverlap'"
-                               :scored-files="fileScorings"
+                               :scored-files="scoredFiles"
             />
+          </div>
+        </v-tab-item>
+        <v-tab-item value="tab-3" :key="3">
+          <div v-if="dataLoaded" style="width: 100%">
+            <SummaryVisualisation
+              :file="file" />
           </div>
           <div class="more-info">
             <v-tooltip bottom>
@@ -160,17 +170,19 @@ import DataView from "@/views/DataView";
 import FileSimilarityHistogram from "./FileSimilarityHistogram.vue";
 import FileCardScore from "./FileCardScore.vue";
 import PairStatHistogram from "./PairStatHistogram.vue";
-import { FileScoring, getLargestFieldOfScore } from "@/util/FileInterestingness";
+import { FileScoring, getLargestFieldOfScore, getLargestPairOfScore } from "@/util/FileInterestingness";
+import SummaryVisualisation from "@/components/summary/SummaryVisualisation.vue";
 
-@Component({ components: { FileSimilarityHistogram, FileCardScore, PairStatHistogram } })
+@Component({ components: { SummaryVisualisation, FileSimilarityHistogram, FileCardScore, PairStatHistogram } })
 export default class FileCard extends DataView {
   @Prop() file!: FileScoring;
+  @Prop({ required: true }) scoredFiles!: FileScoring[];
   @Prop() selectedValue!: number | null;
-  @Prop({ required: true }) fileScorings!: FileScoring[];
   tab = "";
 
   created(): void {
     this.setBestTab();
+    console.log(this.file);
   }
 
   getTimestampText(file: File): string {
@@ -201,7 +213,7 @@ export default class FileCard extends DataView {
   @Watch("dataLoaded")
   @Watch("file")
   setBestTab(): void {
-    const tabOrder = ["similarity", "longestFragment", "totalOverlap"];
+    const tabOrder = ["similarity", "longestFragment", "totalOverlap", "semanticMatching"];
     const largestField = getLargestFieldOfScore(this.file);
 
     this.tab = `tab-${tabOrder.indexOf(largestField)}`;
@@ -230,6 +242,9 @@ export default class FileCard extends DataView {
   padding: 20px;
 }
 
+.file-card {
+  width: 60%;
+}
 .more-info {
   position: absolute;
   right: 30px;

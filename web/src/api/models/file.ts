@@ -1,4 +1,5 @@
 import { Selection } from "@/api/models";
+import { DecodedSemanticResult } from "@dodona/dolos-lib";
 
 export interface FileIndeterminate {
   id: number;
@@ -7,6 +8,7 @@ export interface FileIndeterminate {
   astAndMappingLoaded: boolean;
   ast: string[] | string;
   mapping: Selection[] | string;
+  semanticMap?: DecodedSemanticResult[];
   amountOfKgrams: number;
   extra: {
     timestamp?: Date;

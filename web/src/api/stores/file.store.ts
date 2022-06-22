@@ -17,45 +17,47 @@ export const useFileStore = defineStore("files", () => {
   const hydrated = ref(false);
 
   // Parse the files from a CSV string.
-  function parse(
-    fileData: d3.DSVRowArray,
-    anonymize = false
-  ): ObjMap<File> {
+  function parse(fileData: d3.DSVRowArray, anonymize = false): ObjMap<File> {
     const randomNameGenerator = (): string =>
       uniqueNamesGenerator({ dictionaries: [colors, names], length: 2 });
+
     const labelMap: Map<string, number> = new Map();
     const timeOffset = Math.random() * 1000 * 60 * 60 * 24 * 20;
     let labelCounter = 1;
 
-    return Object.fromEntries(
-      fileData.map((row) => {
-        const extra = JSON.parse(row.extra || "{}");
-        extra.timestamp = extra.createdAt && new Date(extra.createdAt);
-        row.extra = extra;
+    const files = fileData.map((row: any) => {
+      const file = row as File;
+      const extra = JSON.parse(row.extra || "{}");
+      extra.timestamp = extra.createdAt && new Date(extra.createdAt);
+      file.extra = extra;
+      file.ast = JSON.parse(row.ast);
+      file.mapping = JSON.parse(row.mapping);
+      file.astAndMappingLoaded = true;
+      file.amountOfKgrams = file.amountOfKgrams || file.ast.length;
 
-        if (anonymize) {
-          const split = row.path!.split(".");
-          const extension = split[split.length - 1];
-          const name = randomNameGenerator();
-          row.path = `${name}/exercise.${extension}`;
-          extra.fullName = name;
+      if (anonymize) {
+        const split = row.path!.split(".");
+        const extension = split[split.length - 1];
+        const name = randomNameGenerator();
+        row.path = `${name}/exercise.${extension}`;
+        extra.fullName = name;
 
-          const label = labelMap.get(extra.labels) || labelCounter;
-          if (!labelMap.has(extra.labels)) {
-            labelCounter += 1;
-          }
-          labelMap.set(extra.labels, label);
-          extra.labels = label;
-
-          if (extra.timestamp) {
-            extra.timestamp = new Date(extra.timestamp.getTime() + timeOffset);
-          }
+        const label = labelMap.get(extra.labels) || labelCounter;
+        if (!labelMap.has(extra.labels)) {
+          labelCounter += 1;
         }
-        // row.mapping = JSON.parse(row.mapping || "[]");
-        // row.ast = JSON.parse(row.ast || "[]");
-        return [row.id, row];
-      })
-    );
+        labelMap.set(extra.labels, label);
+        extra.labels = label;
+
+        if (extra.timestamp) {
+          extra.timestamp = new Date(extra.timestamp.getTime() + timeOffset);
+        }
+      }
+
+      return [row.id, row];
+    });
+
+    return Object.fromEntries(files);
   }
 
   // Fetch the files from the CSV file.

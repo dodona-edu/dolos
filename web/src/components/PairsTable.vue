@@ -33,6 +33,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType, computed, ref } from "@vue/composition-api";
+import { useRoute } from "@/composables";
 import { Pair } from "@/api/models";
 
 export default defineComponent({
@@ -44,6 +45,8 @@ export default defineComponent({
   },
 
   setup(props) {
+    const route = useRoute();
+
     // Table headers
     const headers = [
       { text: "Left file", value: "left", sortable: false },
@@ -64,8 +67,12 @@ export default defineComponent({
     const search = ref("");
 
     // Items in the format for the the data-table.
-    const items = computed(() =>
-      Object.values(props.pairs)
+    const items = computed(() => {
+      const str = route.value.query.showIds as string | null;
+      const params = (str?.split(",") || []).map((v: string) => +v);
+
+      return Object.values(props.pairs)
+        .filter((pair) => (params.length > 0 ? params.includes(pair.id) : true))
         .map((pair) => ({
           pair: pair,
           left: pair.leftFile.path,
@@ -73,8 +80,8 @@ export default defineComponent({
           similarity: pair.similarity.toFixed(2),
           longestFragment: pair.longestFragment,
           totalOverlap: pair.totalOverlap,
-        }))
-    );
+        }));
+    });
 
     return {
       headers,

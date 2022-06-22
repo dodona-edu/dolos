@@ -10,6 +10,8 @@ export interface DolosOptions {
   sortBy: string | null;
   fragmentSortBy: string | null;
   kgramData: boolean;
+  semantic: boolean;
+  semanticMatchLength: number;
 }
 
 export type CustomOptions = Partial<DolosOptions>;
@@ -53,6 +55,8 @@ export class Options implements DolosOptions {
   public static defaultMinSimilarity = 0;
   public static defaultSortBy = "total";
   public static defaultFragmentSortBy = "none";
+  public static defaultSemantic = false;
+  public static defaultSemanticLength = 30;
 
   private custom: CustomOptions = {};
 
@@ -137,6 +141,15 @@ export class Options implements DolosOptions {
     return definedOrDefault(this.custom.fragmentSortBy, Options.defaultFragmentSortBy);
   }
 
+  get semantic(): boolean {
+    return definedOrDefault(this.custom.semantic, Options.defaultSemantic);
+  }
+
+  get semanticMatchLength(): number {
+    return definedOrDefault(this.custom.semanticMatchLength, Options.defaultSemanticLength);
+
+  }
+
   public asObject(): DolosOptions {
     return {
       kgramLength: this.kgramLength,
@@ -149,7 +162,9 @@ export class Options implements DolosOptions {
       minSimilarity: this.minSimilarity,
       sortBy: this.sortBy,
       fragmentSortBy: this.fragmentSortBy,
-      kgramData: this.kgramData
+      kgramData: this.kgramData,
+      semantic: this.semantic,
+      semanticMatchLength: this.semanticMatchLength,
     };
   }
 

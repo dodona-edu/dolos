@@ -11,7 +11,7 @@ export class TokenizedFile extends File {
     public readonly ast: string[],
     public readonly mapping: Array<Region>
   ) {
-    super(file.path, file.content, file.extra);
+    super(file.path, file.content, file.extra, file.id);
     this.kgrams = [];
   }
 
