@@ -8,7 +8,7 @@
 <script lang="ts">
 /* eslint-disable */
 
-import { defineComponent, PropType, ref, computed, watch, onMounted, nextTick } from "@vue/composition-api";
+import { defineComponent, PropType, ref, computed, watch, onMounted } from "@vue/composition-api";
 import { useApiStore } from "@/api/stores";
 import { Pair, File } from "@/api/models";
 import { useCluster } from "@/composables";
@@ -93,7 +93,6 @@ export default defineComponent({
           y: height.value * Math.random(),
           vx: 0,
           vy: 0,
-          component: -1,
           neighbors: [],
           edges: [],
           label,
@@ -138,20 +137,34 @@ export default defineComponent({
 
     // SVG element of the simulation.
     const graph = d3.create("svg").attr("viewBox", [0, 0, 500, 500]);
+    const graphContainer = graph.append("g");
 
     // If the graph has been rendered the first time.
     const graphInitialized = ref(false);
 
     // Edges between nodes in the graph.
-    const graphEdgesBase = graph.append("g");
+    const graphEdgesBase = graphContainer.append("g");
     const graphEdges = ref();
 
     // Nodes in the graph.
-    const graphNodesBase = graph.append("g");
+    const graphNodesBase = graphContainer.append("g");
     const graphNodes = ref();
 
     // Convex hull tool for creating hulls around clusters.
     const graphHullTool = ref();
+
+    // Add a marker to the graph for showing the direction of the edges.
+    graph
+      .append("svg:defs")
+      .append("svg:marker")
+      .attr("id", "arrow-marker")
+      .attr("viewBox", "0 -6 10 12")
+      .attr("refX", "5")
+      .attr("markerWidth", 2)
+      .attr("markerHeight", 2)
+      .attr("orient", "auto")
+      .append("svg:path")
+      .attr("d", "M5,-5L10,0L5,5M10,0L0,0");
 
     // Select a cluster
     const selectCluster = (cluster: Cluster | null, coordinates: any): void => {
@@ -201,7 +214,7 @@ export default defineComponent({
 
           // If the edge is directed.
           // This is the case when both files contain a creation date.
-          const directed = leftInfo.createdAt && rightInfo.createdAt;
+          const directed = !!(leftInfo.createdAt && rightInfo.createdAt);
 
           // Determine the source & target nodes.
           let source = left;
@@ -279,7 +292,6 @@ export default defineComponent({
     const updateGraph = () => {
       // Clear side-effects, caused by previous calculations.
       for (const node of nodesMap.value.values()) {
-        node.component = -1;
         node.neighbors = [];
         node.edges = [];
       }
@@ -397,7 +409,7 @@ export default defineComponent({
           .join("path")
           .classed("link", true)
           .classed("directed", (edge: any) => edge.directed)
-          .attr("stroke-width", (edge: any) => edge.linkWidth)
+          .attr("stroke-width", (edge: any) => edge.width)
 
         // Create the nodes
         graphNodes.value = graphNodesBase
