@@ -170,6 +170,11 @@ export default defineComponent({
     const selectCluster = (cluster: Cluster | null, coordinates: any): void => {
       selectedCluster.value = cluster;
       emit("selectedClusterInfo", cluster);
+
+      // The graph must be updated to update the fills of the nodes.
+      // This is not the most efficient implementation and can definitely be improved.
+      // For the simplicity of the refactor to the Composition API, this is taken from the previous version for now.
+      updateGraph();
     };
 
     // Select a node
@@ -430,7 +435,7 @@ export default defineComponent({
           graphHullTool.value?.clear();
 
           // Create the convex hull.
-          graphHullTool.value = new ConvexHullTool(graph.select("g"), selectedCluster.value);
+          graphHullTool.value = new ConvexHullTool(graph.select("g"), selectCluster);
         }
 
         // Set the nodes/edges of the simulation.
