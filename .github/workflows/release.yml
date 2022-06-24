@@ -140,15 +140,15 @@ jobs:
       - name: Run analysis on samples
         run: |
           cd analysis
-          dolos -l javascript -f csv -o samples-results samples/*.js
+          dolos -l javascript -f csv --semantic -o samples-results samples/*.js
       - name: Run analysis on Java files
         run: |
           cd analysis
-          dolos -l java -f csv -o java-results java-labels.csv
+          dolos -l java -f csv -o java-results --semantic java-labels.csv
       - name: Run analysis on C files
         run: |
           cd analysis
-          dolos -l c -f csv -o c-results c-labels.csv
+          dolos -l c -f csv -o c-results --semantic c-labels.csv
       - name: Deploy results to demo site
         run: |
           cd analysis
