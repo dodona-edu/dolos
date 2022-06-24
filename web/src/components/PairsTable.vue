@@ -34,12 +34,12 @@
 <script lang="ts">
 import { defineComponent, PropType, computed, ref } from "@vue/composition-api";
 import { useRouter, useRoute } from "@/composables";
-import { Pair } from "@/api/models";
+import { Pair, ObjMap } from "@/api/models";
 
 export default defineComponent({
   props: {
     pairs: {
-      type: Array as PropType<Pair[]>,
+      type: Object as PropType<ObjMap<Pair>>,
       required: true,
     },
   },
