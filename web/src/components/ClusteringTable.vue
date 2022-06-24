@@ -58,7 +58,7 @@ export default defineComponent({
     const route = useRoute();
     const { cutoff } = storeToRefs(useApiStore());
 
-    // Active expension panel.
+    // Active expansion panel.
     const panel = ref(-1);
 
     // Table headers
