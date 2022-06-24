@@ -132,7 +132,7 @@ export default defineComponent({
       return height / lineNumber.getBoundingClientRect().height;
     };
 
-    const installLanguage = async (): void => {
+    const installLanguage = async (): Promise<void> => {
       const currentLanguage = props.language.toLowerCase();
       if (Prism.languages[currentLanguage]) {
         return;
@@ -172,7 +172,7 @@ export default defineComponent({
       emit("linesvisible", props.identifier, getLinesVisibleAmount());
     };
 
-    const highlight = async (): void => {
+    const highlight = async (): Promise<void> => {
       await installLanguage();
       registerFragmentHighlighting(props.selections);
       codeHighlight();
