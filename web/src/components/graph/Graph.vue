@@ -6,7 +6,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, ref, computed, watch, onMounted } from "@vue/composition-api";
+import { defineComponent, PropType, ref, computed, watch, onMounted, onUnmounted } from "@vue/composition-api";
 import { useApiStore } from "@/api/stores";
 import { Pair, File } from "@/api/models";
 import { useCluster } from "@/composables";
@@ -466,6 +466,11 @@ export default defineComponent({
 
     // Add the graph to the container.
     onMounted(() => container.value?.prepend(graph.node() as any));
+
+    // Stop the simulation when the component is unmounted.
+    onUnmounted(() => {
+      simulation.stop();
+    });
 
     return {
       container,

@@ -1,8 +1,12 @@
 <template>
-  <div>
-    <SummaryCard/>
-    <SummaryList />
-  </div>
+  <v-row class="summary">
+    <v-col cols="12">
+      <SummaryCard/>
+    </v-col>
+    <v-col cols="12">
+      <SummaryList />
+    </v-col>
+  </v-row>
 </template>
 <script lang="ts">
 import { defineComponent } from "@vue/composition-api";
@@ -16,3 +20,11 @@ export default defineComponent({
   }
 });
 </script>
+
+<style lang="scss" scoped>
+.summary {
+  max-width: 1600px;
+  width: 80%;
+  margin: auto;
+}
+</style>
