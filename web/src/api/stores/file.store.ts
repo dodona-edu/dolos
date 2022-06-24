@@ -1,6 +1,6 @@
 import * as d3 from "d3";
 import { defineStore } from "pinia";
-import { ref } from "@vue/composition-api";
+import { ref, computed } from "@vue/composition-api";
 import { DATA_URL } from "@/api";
 import { File, ObjMap } from "@/api/models";
 import { useApiStore } from "@/api/stores";
@@ -12,6 +12,7 @@ import { colors, names, uniqueNamesGenerator } from "unique-names-generator";
 export const useFileStore = defineStore("files", () => {
   // List of files.
   const files = ref<ObjMap<File>>({});
+  const filesList = computed<File[]>(() => Object.values(files.value));
 
   // If this store has been hydrated.
   const hydrated = ref(false);
@@ -87,6 +88,7 @@ export const useFileStore = defineStore("files", () => {
 
   return {
     files,
+    filesList,
     hydrated,
     hydrate,
     populateFile,
