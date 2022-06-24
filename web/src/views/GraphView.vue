@@ -3,14 +3,14 @@
     <v-row style="height: 100vh">
       <v-col cols="12" class="no-y-padding">
         <Graph
-          :files="files"
-          :pairs="pairs"
-          :cutoff="cutoff"
           :showSingletons="showSingletons"
           :legend="legend"
           :clustering="clustering"
+          :files="filesList"
+          :pairs="pairsList"
           :zoomTo="'#clustering-table'"
           :selected-node="selectedNode"
+          polygon
           @selectedNodeInfo="setSelectedNode"
           @selectedClusterInfo="setSelectedCluster"
         >
@@ -54,6 +54,7 @@
     <v-row>
       <v-col cols="11">
         <ClusteringTable
+          v-if="false"
           :current-clustering="clustering"
           :selected-cluster="selectedCluster"
         />
@@ -78,8 +79,8 @@ export default defineComponent({
   setup() {
     const route = useRoute();
     const { cutoff } = storeToRefs(useApiStore());
-    const { files, filesList } = storeToRefs(useFileStore());
-    const { pairs } = storeToRefs(usePairStore());
+    const { filesList } = storeToRefs(useFileStore());
+    const { pairsList } = storeToRefs(usePairStore());
 
     // Show singletons in the graph.
     const showSingletons = ref(false);
@@ -119,9 +120,8 @@ export default defineComponent({
 
     return {
       cutoff,
-      files,
       filesList,
-      pairs,
+      pairsList,
       showSingletons,
       legend,
       selectedNode,
