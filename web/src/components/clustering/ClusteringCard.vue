@@ -7,8 +7,8 @@
     </v-expansion-panel-header>
     <v-expansion-panel-content>
       <v-tabs right v-model="activeTab">
-        <v-tab :key="1">
-          <a class="no-markup" target="_blank" :href="`../?showIds=${pairViewItems(cluster)}`">Pair view</a>
+        <v-tab :to="`/pairs/?showIds=${pairViewItems(cluster)}`">
+          Pair view
         </v-tab>
         <v-tab-item ></v-tab-item>
 
