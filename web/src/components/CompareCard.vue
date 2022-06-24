@@ -176,9 +176,10 @@
       </FragmentList>
 
       <SemanticList
+        v-if="pairedMatches"
         :semantic-matches="pairedMatches"
         :file="activePair.leftFile"
-        :selected-item-sync.sync="selectedItem"
+        :selected-item.sync="selectedItem"
       />
     </v-navigation-drawer>
   </div>
