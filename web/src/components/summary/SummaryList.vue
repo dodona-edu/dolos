@@ -18,6 +18,7 @@
             v-model="selectedSortOption"
             :items="sortOptions"
             item-text="name"
+            :item-value="v => v"
             dense
             outlined
             hide-details
@@ -35,7 +36,7 @@
       <FileCard
         :file="scoredFile"
         :scoredFiles="scoredFiles"
-        :selected-value="selectedSortOption && selectedSortOption.selectedValue"
+        :selected-value="selectedSortOption.selectedValue"
       />
     </v-col>
 
@@ -45,8 +46,8 @@
     </v-col>
 
     <!-- Pagination -->
-    <v-col cols="12">
-      <v-pagination v-model="page" :length="pageTotal" />
+    <v-col cols="12" v-if="pageTotal > 1">
+      <v-pagination v-model="page" :length="pageTotal" total-visible="7" />
     </v-col>
   </v-row>
 </template>
@@ -102,7 +103,7 @@ export default defineComponent({
 
     // Pagination.
     const page = ref(1);
-    const pageTotal = computed(() => Math.ceil(filesList.value.length / 10));
+    const pageTotal = computed(() => Math.ceil(scoredFilesSearch.value.length / 10));
     const pageAmount = 5;
 
     // Search filter.
@@ -120,17 +121,24 @@ export default defineComponent({
       )
     );
 
-    // Scored files to display (pagination/filtering)
-    const scoredFilesDisplay = computed(() => {
-      // Searching
-      const scoredFilesSearch = scoredFiles.value.filter((file) =>
+    // Scored files, after search filter.
+    const scoredFilesSearch = computed(() =>
+      scoredFiles.value.filter((file) =>
         file.file.path.toLowerCase().includes(search.value.toLowerCase())
-      );
+      )
+    );
+
+    // Scored files to display (pagination/sorting/filtering)
+    const scoredFilesDisplay = computed(() => {
+      // Sorting
+      const scoredFilesSorted = selectedSortOption.value
+        ? [...scoredFilesSearch.value].sort(selectedSortOption.value.sortFunc)
+        : scoredFilesSearch.value;
 
       // Pagination
       const start = (page.value - 1) * pageAmount;
       const end = start + pageAmount;
-      return scoredFilesSearch.slice(start, end);
+      return scoredFilesSorted.slice(start, end);
     });
 
     return {

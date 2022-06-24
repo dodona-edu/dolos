@@ -23,8 +23,7 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .summary {
-  max-width: 1600px;
-  width: 80%;
+  max-width: 1000px;
   margin: auto;
 }
 </style>
