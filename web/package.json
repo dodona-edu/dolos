@@ -1,7 +1,7 @@
 {
   "name": "@dodona/dolos-web",
   "description": "Web UI for the Dolos plagiarism detection tool.",
-  "version": "1.5.1",
+  "version": "1.6.0",
   "main": "dist/index.html",
   "scripts": {
     "serve": "vue-cli-service serve",
@@ -55,7 +55,7 @@
     "@types/luxon": "^2.3.1"
   },
   "dependencies": {
-    "@dodona/dolos-lib": "1.5.1"
+    "@dodona/dolos-lib": "1.6.0"
   },
   "license": "MIT",
   "publishConfig": {
