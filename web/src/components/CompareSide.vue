@@ -2,16 +2,22 @@
   <div class="main-container">
     <component :is="'style'" type="text/css">
       <template v-for="item in activeSelections">
-        .token.marked-code.{{ item }} { background: var(--markedbg);
-        text-shadow: none; }
+        .token.marked-code.{{ item }} {
+          background: var(--markedbg);
+          text-shadow: none;
+        }
       </template>
       <template v-for="item in hoveringSelections">
-        .token.marked-code.{{ item }} { background: var(--hoveringbg);
-        text-shadow: none; }
+        .token.marked-code.{{ item }} {
+          background: var(--hoveringbg);
+          text-shadow: none;
+        }
       </template>
       <template v-for="item in selectedSelections">
-        .token.marked-code.{{ item }} { background: var(--selectedbg);
-        text-shadow: none; }
+        .token.marked-code.{{ item }} {
+          background: var(--selectedbg);
+          text-shadow: none;
+        }
       </template>
     </component>
     <pre
