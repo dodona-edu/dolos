@@ -86,7 +86,7 @@ export default defineComponent({
 
     // When a row is clicked.
     const rowClicked = (item: { pair: Pair }): void => {
-      router.push({ name: "file", params: { id: item.pair.id } });
+      router.push(`/compare/${item.pair.id}`);
     };
 
     return {
