@@ -6,8 +6,6 @@
 </template>
 
 <script lang="ts">
-/* eslint-disable */
-
 import { defineComponent, PropType, ref, computed, watch, onMounted } from "@vue/composition-api";
 import { useApiStore } from "@/api/stores";
 import { Pair, File } from "@/api/models";
@@ -15,7 +13,7 @@ import { useCluster } from "@/composables";
 import { storeToRefs } from "pinia";
 import { useElementSize } from "@vueuse/core";
 import { Clustering, Cluster } from "@/util/clustering-algorithms/ClusterTypes";
-import { getClusterElements, getClusterIntersect } from "@/util/clustering-algorithms/ClusterFunctions";
+import { getClusterElements } from "@/util/clustering-algorithms/ClusterFunctions";
 import { ConvexHullTool } from "@/d3-tools/ConvexHullTool";
 import { DefaultMap } from "@dodona/dolos-lib";
 import * as d3 from "d3";
@@ -28,7 +26,7 @@ export default defineComponent({
     },
 
     legend: {
-      default: () => [],
+      default: () => ({}),
     },
 
     polygon: {
@@ -83,7 +81,7 @@ export default defineComponent({
       const nodesMap = new Map<number, any>();
       for (const file of props.files) {
         const label = file.extra.labels ?? "N/A";
-        const labels = props.legend as any[];
+        const labels = props.legend as any;
         const visible = labels[label] ? labels[label].selected : true;
 
         nodesMap.set(file.id, {
@@ -120,13 +118,13 @@ export default defineComponent({
         // Count for each label the number of files in the cluster.
         const counter = new DefaultMap(() => 0);
         for (const element of elements) {
-          counter.set(element.extra.labels, counter.get(element.extra.labels) + 1)
+          counter.set(element.extra.labels, counter.get(element.extra.labels) + 1);
         }
 
         // Find the label with the most files in the cluster.
         let maxKey = 0;
         for (const [key, count] of counter.entries()) {
-          if (count > counter.get(maxKey)) maxKey = key;
+          if (count > counter.get(maxKey)) maxKey = key as any;
         }
 
         clusterColorsMap.set(cluster, labels[maxKey].color);
@@ -167,7 +165,7 @@ export default defineComponent({
       .attr("d", "M5,-5L10,0L5,5M10,0L0,0");
 
     // Select a cluster
-    const selectCluster = (cluster: Cluster | null, coordinates: any): void => {
+    const selectCluster = (cluster: Cluster | null): void => {
       selectedCluster.value = cluster;
       emit("selectedClusterInfo", cluster);
 
@@ -182,7 +180,7 @@ export default defineComponent({
       emit("selectedNodeInfo", node);
 
       // Deselect all other nodes.
-      nodes.value.forEach(n => n.selected = false);
+      for (const node of nodes.value) node.selected = false;
       graph.select(".selected").classed("selected", false);
 
       // Select the new node (if not null).
@@ -191,17 +189,17 @@ export default defineComponent({
         graph.select(`#circle-${node.id}`).classed("selected", true);
       }
     };
-    
+
     // Handler for clicking on empty void in the graph.
     // Deselect the node & cluster.
     graph.on("mousedown.s", () => {
       selectNode(null);
-      selectCluster(null, null);
+      selectCluster(null);
     });
 
     // Calculate the edges of the graph.
     const calculateEdges = (): any[] => {
-      return edges.value = props.pairs
+      return props.pairs
         // Filter pairs with a similarity lower than the cutoff
         .filter(pair => pair.similarity >= cutoff.value)
         // Filter pairs where one of the files is not visible.
@@ -250,7 +248,7 @@ export default defineComponent({
 
           return edge;
         });
-    }
+    };
 
     // Calculate the nodes of the graph.
     const calculateNodes = (): any[] => {
@@ -260,13 +258,13 @@ export default defineComponent({
         .filter(node => node.visible)
         // Only display the nodes that have neighbors.
         // Unless singletons are enabled.
-        .filter(node => node.neighbors.length > 0 || props.showSingletons)
-      
+        .filter(node => node.neighbors.length > 0 || props.showSingletons);
+
       for (const node of nodesList) {
         // Determine if the node is the source of a cluster.
         let incoming = 0;
         let outgoing = 0;
-        
+
         for (const edge of node.edges) {
           if (edge.directed) {
             if (edge.source.id === node.id) incoming++;
@@ -291,10 +289,10 @@ export default defineComponent({
       }
 
       return nodesList;
-    }
+    };
 
     // Update the graph
-    const updateGraph = () => {
+    const updateGraph = (): void => {
       // Clear side-effects, caused by previous calculations.
       for (const node of nodesMap.value.values()) {
         node.neighbors = [];
@@ -305,11 +303,11 @@ export default defineComponent({
       edges.value = calculateEdges();
       // Update the nodes.
       nodes.value = calculateNodes();
-    }
+    };
 
     // Update the graph when the data changes.
     watch(
-      () => [cutoff.value, props.showSingletons, ],
+      () => [cutoff.value, props.showSingletons],
       () => updateGraph()
     );
 
@@ -357,11 +355,11 @@ export default defineComponent({
           // Toggle the selected file.
           if (event.subject.file && props.selectedNode && event.subject.file.id === props.selectedNode.id) {
             selectNode(null);
+            return;
           }
+
           // Click on a file.
-          else {
-            selectNode(event.subject.file);
-          }
+          selectNode(event.subject.file);
         }
       });
 
@@ -395,7 +393,7 @@ export default defineComponent({
           // Add convex hull to the cluster.
           const elements = getClusterElements(cluster);
           graphHullTool.value.addConvexHullFromNodes(
-            nodes.value.filter(node => elements.has(node.file)),
+            nodes.value.filter((node: any) => elements.has(node.file)),
             color,
             cluster
           );
@@ -414,7 +412,7 @@ export default defineComponent({
           .join("path")
           .classed("link", true)
           .classed("directed", (edge: any) => edge.directed)
-          .attr("stroke-width", (edge: any) => edge.width)
+          .attr("stroke-width", (edge: any) => edge.width);
 
         // Create the nodes
         graphNodes.value = graphNodesBase
@@ -426,7 +424,7 @@ export default defineComponent({
           .attr("r", 5)
           .attr("fill", (node: any) => node.fillColor)
           .attr("id", (node: any) => `circle-${node.file.id}`)
-          .call(simulationDrag);
+          .call(simulationDrag as any);
 
         // Create the Convex Hull around every cluster.
         // A Convex Hull is a polygon that encloses all the nodes in the cluster.
@@ -435,12 +433,12 @@ export default defineComponent({
           graphHullTool.value?.clear();
 
           // Create the convex hull.
-          graphHullTool.value = new ConvexHullTool(graph.select("g"), selectCluster);
+          graphHullTool.value = new ConvexHullTool(graph.select("g") as any, selectCluster);
         }
 
         // Set the nodes/edges of the simulation.
         simulation.nodes(nodes);
-        simulation.force("link").links(edges);
+        simulation.force<any>("link").links(edges);
         simulation.alpha(0.5).alphaTarget(0.3).restart();
       }
     );
@@ -453,9 +451,9 @@ export default defineComponent({
         graph.attr("viewBox", [0, 0, width, height]);
 
         // Resize the simulation.
-        simulation.force("compact_x").x(width / 2);
-        simulation.force("compact_y").y(height / 2);
-        simulation.force("center").x(width / 2) .y(height / 2);
+        simulation.force<any>("compact_x")?.x(width / 2);
+        simulation.force<any>("compact_y")?.y(height / 2);
+        simulation.force<any>("center")?.x(width / 2)?.y(height / 2);
 
         // Update the graph when not yet initialized.
         // This must be done here, since the initial size of the graph is otherwise incorrect.
@@ -467,7 +465,7 @@ export default defineComponent({
     );
 
     // Add the graph to the container.
-    onMounted(() => container.value?.prepend(graph.node()));
+    onMounted(() => container.value?.prepend(graph.node() as any));
 
     return {
       container,
@@ -506,7 +504,7 @@ export default defineComponent({
       &.source {
         stroke-width: 0;
       }
-      
+
       &.selected {
         stroke: red;
         stroke-width: 2;
