@@ -17,6 +17,27 @@ export const useFileStore = defineStore("files", () => {
   // If this store has been hydrated.
   const hydrated = ref(false);
 
+  // Legend of files.
+  const legend = computed(() => {
+    const labels = new Set<string>();
+
+    for (const file of filesList.value) {
+      labels.add(file.extra.labels || "N/A");
+    }
+
+    const colorScale = d3
+      .scaleOrdinal(d3.schemeCategory10.filter((c) => c !== "#7f7f7f"))
+      .domain([...labels].reverse());
+
+    const legend = [...labels].sort().map((p) => ({
+      label: p,
+      selected: true,
+      color: colorScale(p),
+    }));
+
+    return Object.fromEntries(legend.map((l) => [l.label, l]));
+  });
+
   // Parse the files from a CSV string.
   function parse(fileData: d3.DSVRowArray, anonymize = false): ObjMap<File> {
     const randomNameGenerator = (): string =>
@@ -91,6 +112,7 @@ export const useFileStore = defineStore("files", () => {
     filesList,
     hydrated,
     hydrate,
+    legend,
     populateFile,
   };
 });

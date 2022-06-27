@@ -102,7 +102,7 @@ export default defineComponent({
     };
 
     // Heatmap D3
-    const heatmap = d3.create("svg").attr("width", 450).attr("height", 450);
+    const heatmap = d3.create("svg").attr("width", width).attr("height", height);
     const heatmapContent = heatmap.append("g");
 
     // Heatmap legend D3
@@ -124,11 +124,6 @@ export default defineComponent({
 
     // Draw the heatmap
     const draw = (): void => {
-      // Do not draw when the width/height is 0.
-      if (width === 0 || height === 0) {
-        return;
-      }
-
       const elements = clusterFiles.value;
       const margin = {
         top: 0,
