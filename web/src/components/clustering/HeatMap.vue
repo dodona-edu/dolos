@@ -299,19 +299,19 @@ export default defineComponent({
 
       if (e.target) {
         d3
-          .select(e.target)
+          .select(e.target as any)
           .classed("heatmap-tile--hover", true);
       }
     };
 
     // When the user stops hovering over a square in the heatmap.
-    const onMouseLeave = (e: MouseEvent, [first, second]: [File, File]): void => {
+    const onMouseLeave = (e: MouseEvent): void => {
       selectedFiles.value = [];
       hoveredPair.value = null;
 
       if (e.target) {
         d3
-          .select(e.target)
+          .select(e.target as any)
           .classed("heatmap-tile--hover", false);
       }
     };

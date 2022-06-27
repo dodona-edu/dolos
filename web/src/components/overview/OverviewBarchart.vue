@@ -184,7 +184,7 @@ export default defineComponent({
       }
     );
 
-    // Update the barchart when the width or height changes.
+    // Update the barchart when the width changes.
     watch(
       () => [width.value],
       () => {
