@@ -53,12 +53,14 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed } from "@vue/composition-api";
+import { defineComponent, ref, computed, watch } from "@vue/composition-api";
 import { storeToRefs } from "pinia";
+import { Pair } from "@/api/models";
 import { useFileStore, usePairStore } from "@/api/stores";
 import {
   FileInterestingnessCalculator,
   FileScoring,
+  getLargestPairOfScore,
 } from "@/util/FileInterestingness";
 import FileCard from "@/components/summary/FileCard.vue";
 
@@ -110,36 +112,52 @@ export default defineComponent({
     const search = ref("");
 
     // Calculator class for determining the score of a file.
-    const scoringCalculator = computed(() => {
-      return new FileInterestingnessCalculator(pairsList.value);
-    });
+    const scoringCalculator = new FileInterestingnessCalculator(pairsList.value);
 
     // Files with a score, sorted by the selected metric.
-    const scoredFiles = computed(() =>
-      filesList.value.map((file) =>
-        scoringCalculator.value.calculateFileScoring(file)
-      )
+    const scoredFiles = filesList.value.map((file) =>
+      scoringCalculator.calculateFileScoring(file)
     );
+
+    // Scored files, after sorting.
+    const scoredFilesSorted = ref<FileScoring[]>([]);
 
     // Scored files, after search filter.
     const scoredFilesSearch = computed(() =>
-      scoredFiles.value.filter((file) =>
+      scoredFilesSorted.value.filter((file) =>
         file.file.path.toLowerCase().includes(search.value.toLowerCase())
       )
     );
 
     // Scored files to display (pagination/sorting/filtering)
     const scoredFilesDisplay = computed(() => {
-      // Sorting
-      const scoredFilesSorted = selectedSortOption.value
-        ? [...scoredFilesSearch.value].sort(selectedSortOption.value.sortFunc)
-        : scoredFilesSearch.value;
-
       // Pagination
       const start = (page.value - 1) * pageAmount;
       const end = start + pageAmount;
-      return scoredFilesSorted.slice(start, end);
+      return scoredFilesSearch.value.slice(start, end);
     });
+
+    // When the sorting changes, update the sorted files.
+    watch(
+      () => selectedSortOption.value,
+      (sorting) => {
+        const sorted = sorting
+          ? [...scoredFiles].sort(sorting.sortFunc)
+          : scoredFiles;
+
+        // Deduplicate the pairs. This avoids having the same pair from different perspectives multiple times
+        scoredFilesSorted.value = [];
+        const pairSet = new Set<Pair>();
+        for (const scF of sorted) {
+          const p = getLargestPairOfScore(scF);
+          if (p && !pairSet.has(p)) {
+            scoredFilesSorted.value.push(scF);
+            pairSet.add(p);
+          }
+        }
+      },
+      { immediate: true },
+    );
 
     return {
       page,
