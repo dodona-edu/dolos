@@ -102,7 +102,6 @@ export default class HeatMap extends ResizableD3Viz {
     const leftMargin = 125;
     const rightMargin = 30;
 
-    console.log(this.getSvgId());
     this.svg = d3
       .select(`#${this.getSvgId()}`)
       .append("svg")

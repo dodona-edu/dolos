@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { ref } from "@vue/composition-api";
+import { ref, computed } from "@vue/composition-api";
 import { DATA_URL } from "@/api";
 import { Semantic, ObjMap, File } from "@/api/models";
 import { useFileStore } from "@/api/stores";
@@ -12,6 +12,9 @@ import { DecodedSemanticResult } from "@dodona/dolos-lib";
 export const useSemanticStore = defineStore("semantic", () => {
   // List of occurrences.
   const occurrences = ref<number[][]>([]);
+
+  // Whether the sementic data is available.
+  const isSemantic = computed(() => occurrences.value.length > 0);
 
   // If this store has been hydrated.
   const hydrated = ref(false);
@@ -66,6 +69,7 @@ export const useSemanticStore = defineStore("semantic", () => {
 
   return {
     occurrences,
+    isSemantic,
     hydrate,
   };
 });

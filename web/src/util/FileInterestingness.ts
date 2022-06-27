@@ -50,11 +50,11 @@ export class FileInterestingnessCalculator {
     this.pairMap = pairsAsNestedMap(pairs);
   }
 
-  public async calculateFileScoring(file: File): Promise<FileScoring> {
+  public calculateFileScoring(file: File): FileScoring {
     const similarityScore = this.calculateSimilarityScore(file);
     const totalOverlapScore = this.totalOverlapScore(file);
     const longestFragmentScore = this.longestFragmentScore(file);
-    const semanticMatchScore = await this.semanticMatchingScore(file);
+    const semanticMatchScore = this.semanticMatchingScore(file);
     // The smallest files have arbitrarily high scores. Therefore, we linearly adjust total weight
     const smallFileWeight = file.amountOfKgrams < 15 ? (file.amountOfKgrams / 15) : 1;
 
@@ -139,7 +139,7 @@ export class FileInterestingnessCalculator {
   }
 
   public counter = 0;
-  public async semanticMatchingScore(file: File): Promise<SemanticMatchingScore | null> {
+  public semanticMatchingScore(file: File): SemanticMatchingScore | null {
     if (!file.semanticMap) { return null; }
 
     const pairArray = Array.from(this.pairMap.get(file.id)?.values() || []);
