@@ -109,7 +109,7 @@
 
     <v-main>
       <v-container class="container">
-        <keep-alive exclude="Compare">
+        <keep-alive>
           <router-view v-if="isLoaded" />
           <loading v-else />
         </keep-alive>

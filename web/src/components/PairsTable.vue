@@ -33,18 +33,19 @@
 
 <script lang="ts">
 import { defineComponent, PropType, computed, ref } from "@vue/composition-api";
-import { useRoute } from "@/composables";
-import { Pair } from "@/api/models";
+import { useRouter, useRoute } from "@/composables";
+import { Pair, ObjMap } from "@/api/models";
 
 export default defineComponent({
   props: {
     pairs: {
-      type: Array as PropType<Pair[]>,
+      type: Object as PropType<ObjMap<Pair>>,
       required: true,
     },
   },
 
   setup(props) {
+    const router = useRouter();
     const route = useRoute();
 
     // Table headers
@@ -83,11 +84,17 @@ export default defineComponent({
         }));
     });
 
+    // When a row is clicked.
+    const rowClicked = (item: { pair: Pair }): void => {
+      router.push(`/compare/${item.pair.id}`);
+    };
+
     return {
       headers,
       footerProps,
       items,
       search,
+      rowClicked,
     };
   },
 });

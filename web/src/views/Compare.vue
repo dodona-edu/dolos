@@ -25,7 +25,7 @@ import {
   PropType,
   ref,
   computed,
-  onMounted,
+  watch,
 } from "@vue/composition-api";
 import { usePairStore, useMetadataStore, useFileStore } from "@/api/stores";
 import CompareCard from "@/components/CompareCard.vue";
@@ -50,16 +50,20 @@ export default defineComponent({
     // Pair to display.
     const pair = computed(() => pairStore.getPair(parseInt(props.pairId)));
 
-    // Fetch the pair's fragments.
-    onMounted(async () => {
-      if (!pair.value) return;
+    // Fetch the pair's fragments when the pair changes.
+    watch(
+      () => pair.value,
+      async () => {
+        if (!pair.value) return;
 
-      isLoaded.value = false;
-      await fileStore.populateFile(pair.value.leftFile);
-      await fileStore.populateFile(pair.value.rightFile);
-      await pairStore.populateFragments(pair.value);
-      isLoaded.value = true;
-    });
+        isLoaded.value = false;
+        await fileStore.populateFile(pair.value.leftFile);
+        await fileStore.populateFile(pair.value.rightFile);
+        await pairStore.populateFragments(pair.value);
+        isLoaded.value = true;
+      },
+      { immediate: true }
+    );
 
     return {
       isLoaded,
@@ -74,5 +78,3 @@ export default defineComponent({
   },
 });
 </script>
-
-<style scoped></style>

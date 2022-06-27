@@ -60,6 +60,7 @@ export default class GraphLegend extends DataView {
   }
 }
 </script>
+
 <style scoped lang="scss">
 .legend {
   position: absolute;
