@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { ref } from "@vue/composition-api";
+import { ref, watch } from "@vue/composition-api";
 import { getInterpolatedSimilarity } from "@/api/utils";
 import {
   useFileStore,
@@ -45,6 +45,14 @@ export const useApiStore = defineStore("api", () => {
 
     isLoaded.value = true;
   };
+
+  // Re-hydrate the API stores when the anonymous value changes.
+  watch(
+    () => isAnonymous.value,
+    () => {
+      hydrate();
+    }
+  );
 
   return {
     isAnonymous,
