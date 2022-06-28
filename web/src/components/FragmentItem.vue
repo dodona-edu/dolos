@@ -13,15 +13,16 @@
         @click.native.stop=""
         :on-icon="dummy ? '' : 'mdi-eye'"
         :off-icon="dummy ? '' : 'mdi-eye-off'"
-        v-model="fragment.active"></v-checkbox>
+        v-model="fragmentModel.active"
+      />
     </v-list-item-action>
     <v-list-item-content class="no-y-padding">
       <v-row class="flex-nowrap">
         <v-col v-if="name" cols="auto">
-          {{name}}
+          {{ name }}
         </v-col>
         <v-col cols="auto">
-          {{getDisplayText()}}
+          {{ displayText }}
         </v-col>
       </v-row>
     </v-list-item-content>
@@ -29,33 +30,58 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Watch } from "vue-property-decorator";
-import { constructID } from "@/util/OccurenceHighlight";
+import {
+  defineComponent,
+  PropType,
+  computed,
+  watch,
+} from "@vue/composition-api";
 import { Fragment } from "@/api/models";
+import { useVModel } from "@vueuse/core";
 
-@Component({
-  methods: { constructID }
-})
-export default class FragmentItem extends Vue {
-  @Prop() dummy!: boolean
-  @Prop() fragment!: Fragment;
-  @Prop() name?: string;
-  @Prop({ default: true }) subtext!: boolean;
+export default defineComponent({
+  props: {
+    dummy: {
+      type: Boolean as PropType<boolean>,
+      default: false,
+    },
 
-  @Watch("fragment.active")
-  onActiveChange(newValue: boolean): void {
-    this.$emit("change", newValue);
-  }
+    fragment: {
+      type: Object as PropType<Fragment>,
+      required: true,
+    },
 
-  // TODO remove this function as it is only called once
-  getDisplayText(): string {
-    return `${this.fragment.occurrences.length}`;
-  }
-}
+    name: {
+      type: String as PropType<string>,
+      default: null,
+    },
+
+    subtext: {
+      type: Boolean as PropType<boolean>,
+      default: true,
+    },
+  },
+
+  setup(props, { emit }) {
+    const fragmentModel = useVModel(props, "fragment", emit);
+    const displayText = computed(() => props.fragment.occurrences.length);
+
+    watch(
+      () => fragmentModel.value.active,
+      (value) => {
+        emit("change", value);
+      }
+    );
+
+    return {
+      displayText,
+      fragmentModel,
+    };
+  },
+});
 </script>
 
 <style scoped>
-
 .block-visualizer {
   height: 36px;
 }
@@ -67,5 +93,4 @@ export default class FragmentItem extends Vue {
   padding-top: 0;
   padding-bottom: 0;
 }
-
 </style>
