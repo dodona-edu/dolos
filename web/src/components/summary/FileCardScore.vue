@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="similarity-score-container" v-if="displaySimilarity()">
+    <div class="similarity-score-container" v-if="displaySimilarity">
       <h3>
         Biggest similarity:
         {{
@@ -12,14 +12,15 @@
       </h3>
       <span>
         The similarity of these files is
-        <b>{{ convertToPercentageString(file.similarityScore.similarity) }}%</b>.
-        <br/>
-        <router-link :to="getPairLink(file.similarityScore.pair)">
+        <b>{{ convertToPercentageString(file.similarityScore.similarity) }}%</b
+        >.
+        <br />
+        <router-link :to="`/compare/${file.similarityScore.pair.id}`">
           <a>Compare these pairs</a>
         </router-link>
       </span>
     </div>
-    <div class="largest-overlap-score-container" v-if="displayTotalOverlap()">
+    <div class="largest-overlap-score-container" v-if="displayTotalOverlap">
       <h3>
         Total overlap:
         {{
@@ -41,13 +42,16 @@
           }}%</b
         >
         of this file's total size.
-        <br/>
-        <router-link :to="getPairLink(file.totalOverlapScore.pair)">
+        <br />
+        <router-link :to="`/compare/${file.totalOverlapScore.pair.id}`">
           <a>Compare these pairs</a>
         </router-link>
       </span>
     </div>
-    <div class="longest-fragment-score-container" v-if="displayLongestFragment()">
+    <div
+      class="longest-fragment-score-container"
+      v-if="displayLongestFragment"
+    >
       <h3>
         Longest Fragment:
         {{
@@ -59,23 +63,19 @@
       </h3>
       <span>
         These files have
-        <b>{{ file.longestFragmentScore.longestFragmentTokens }}</b> consecutive tokens in
-        common. That is
+        <b>{{ file.longestFragmentScore.longestFragmentTokens }}</b> consecutive
+        tokens in common. That is
         <b>
-          {{
-            convertToPercentageString(
-              file.longestFragmentScore.longestFragmentWrtSize
-            )
-          }}%</b
+          {{ convertToPercentageString(file.longestFragmentScore.longestFragmentWrtSize) }}%</b
         >
         of this file's total size.
-        <br/>
-        <router-link :to="getPairLink(file.longestFragmentScore.pair)">
+        <br />
+        <router-link :to="`/compare/${file.longestFragmentScore.pair.id}`">
           <a>Compare these pairs</a>
         </router-link>
       </span>
     </div>
-    <div class="longest-fragment-score-container" v-if="displaySemantic()">
+    <div class="longest-fragment-score-container" v-if="displaySemantic">
       <h3>
         Semantic match:
         {{
@@ -86,104 +86,123 @@
         }}
       </h3>
       <span>
-        These files have part of their structure in common: they have the same {{
-        file.semanticMatchScore.match.ownNodes.map(n => file.file.ast[n]).join(" and ")}}.
-        <br/>
-        <router-link :to="getPairLink(file.semanticMatchScore.pair)">
+        These files have part of their structure in common: they have the same
+        {{
+          file.semanticMatchScore.match.ownNodes
+            .map((n) => file.file.ast[n])
+            .join(" and ")
+        }}.
+        <br />
+        <router-link :to="`/compare/${file.semanticMatchScore.pair.id}`">
           <a>Compare these pairs</a>
         </router-link>
       </span>
     </div>
-
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { defineComponent, PropType, computed } from "@vue/composition-api";
 import { FileScoring } from "@/util/FileInterestingness";
 import { File, Pair } from "@/api/models";
 
-@Component({})
-export default class FileCardScore extends Vue {
-  @Prop() file!: FileScoring;
+export default defineComponent({
+  props: {
+    file: {
+      type: Object as PropType<FileScoring>,
+      required: true,
+    },
+  },
 
-  private similarityCutoff = 1;
-  private longestFragmentCutoff = 1;
-  private totalOverlapCutoff = 1;
+  setup(props) {
+    const similarityCutoff = 1;
+    const longestFragmentCutoff = 1;
+    const totalOverlapCutoff = 1;
 
-  getOtherFile(pair: Pair): File {
-    return pair.leftFile.id === this.file.file.id
-      ? pair.rightFile
-      : pair.leftFile;
-  }
+    const getOtherFile = (pair: Pair): File => {
+      return pair.leftFile.id === props.file.file.id
+        ? pair.rightFile
+        : pair.leftFile;
+    };
 
-  getPairLink(pair: Pair): string {
-    return `/compare/${pair.id}`;
-  }
+    const getPairLink = (pair: Pair): string => {
+      return `/compare/${pair.id}`;
+    };
 
-  convertToPercentageString(number: number): string {
-    return (number * 100).toFixed(2);
-  }
+    const convertToPercentageString = (number: number): string => {
+      return (number * 100).toFixed(2);
+    };
 
-  displaySimilarity(): boolean {
-    const largestElementOfScore = Math.max(
-      this.file.similarityScore?.weightedScore || 0,
-      this.file.totalOverlapScore?.weightedScore || 0,
-      this.file.longestFragmentScore?.weightedScore || 0,
-      this.file.semanticMatchScore?.weightedScore || 0
-    );
+    const displaySimilarity = computed(() => {
+      const largestElementOfScore = Math.max(
+        props.file.similarityScore?.weightedScore || 0,
+        props.file.totalOverlapScore?.weightedScore || 0,
+        props.file.longestFragmentScore?.weightedScore || 0,
+        props.file.semanticMatchScore?.weightedScore || 0
+      );
 
-    // Display if similarity is unusually big
-    // Or if it is the biggest reason to sort the card this high
-    return (
-      (this.file.similarityScore?.similarity || 0) > this.similarityCutoff ||
-      this.file.similarityScore?.weightedScore === largestElementOfScore
-    );
-  }
+      // Display if similarity is unusually big
+      // Or if it is the biggest reason to sort the card this high
+      return (
+        (props.file.similarityScore?.similarity || 0) > similarityCutoff ||
+        props.file.similarityScore?.weightedScore === largestElementOfScore
+      );
+    });
 
-  displayLongestFragment(): boolean {
-    const largestElementOfScore = Math.max(
-      this.file.similarityScore?.weightedScore || 0,
-      this.file.totalOverlapScore?.weightedScore || 0,
-      this.file.longestFragmentScore?.weightedScore || 0,
-      this.file.semanticMatchScore?.weightedScore || 0
-    );
+    const displayLongestFragment = computed(() => {
+      const largestElementOfScore = Math.max(
+        props.file.similarityScore?.weightedScore || 0,
+        props.file.totalOverlapScore?.weightedScore || 0,
+        props.file.longestFragmentScore?.weightedScore || 0,
+        props.file.semanticMatchScore?.weightedScore || 0
+      );
 
-    // Display if longest fragment is unusually big
-    // Or if it is the biggest reason to sort the card this high
-    return (
-      (this.file.longestFragmentScore?.longestFragmentWrtSize || 0) > this.longestFragmentCutoff ||
-      this.file.longestFragmentScore?.weightedScore === largestElementOfScore
-    );
-  }
+      // Display if longest fragment is unusually big
+      // Or if it is the biggest reason to sort the card this high
+      return (
+        (props.file.longestFragmentScore?.longestFragmentWrtSize || 0) > longestFragmentCutoff ||
+        props.file.longestFragmentScore?.weightedScore === largestElementOfScore
+      );
+    });
 
-  displayTotalOverlap(): boolean {
-    const largestElementOfScore = Math.max(
-      this.file.similarityScore?.weightedScore || 0,
-      this.file.totalOverlapScore?.weightedScore || 0,
-      this.file.longestFragmentScore?.weightedScore || 0,
-      this.file.semanticMatchScore?.weightedScore || 0
-    );
+    const displayTotalOverlap = computed(() => {
+      const largestElementOfScore = Math.max(
+        props.file.similarityScore?.weightedScore || 0,
+        props.file.totalOverlapScore?.weightedScore || 0,
+        props.file.longestFragmentScore?.weightedScore || 0,
+        props.file.semanticMatchScore?.weightedScore || 0
+      );
 
-    // Display if longest fragment is unusually big
-    // Or if it is the biggest reason to sort the card this high
-    return (
-      (this.file.totalOverlapScore?.totalOverlapWrtSize || 0) > this.totalOverlapCutoff ||
-      this.file.totalOverlapScore?.weightedScore === largestElementOfScore
-    );
-  }
+      // Display if longest fragment is unusually big
+      // Or if it is the biggest reason to sort the card this high
+      return (
+        (props.file.totalOverlapScore?.totalOverlapWrtSize || 0) > totalOverlapCutoff ||
+        props.file.totalOverlapScore?.weightedScore === largestElementOfScore
+      );
+    });
 
-  displaySemantic(): boolean {
-    const largestElementOfScore = Math.max(
-      this.file.similarityScore?.weightedScore || 0,
-      this.file.totalOverlapScore?.weightedScore || 0,
-      this.file.longestFragmentScore?.weightedScore || 0,
-      this.file.semanticMatchScore?.weightedScore || 0
-    );
+    const displaySemantic = computed(() => {
+      const largestElementOfScore = Math.max(
+        props.file.similarityScore?.weightedScore || 0,
+        props.file.totalOverlapScore?.weightedScore || 0,
+        props.file.longestFragmentScore?.weightedScore || 0,
+        props.file.semanticMatchScore?.weightedScore || 0
+      );
 
-    return (
-      this.file.semanticMatchScore?.weightedScore === largestElementOfScore
-    );
-  }
-}
+      return (
+        props.file.semanticMatchScore?.weightedScore === largestElementOfScore
+      );
+    });
+
+    return {
+      displaySimilarity,
+      displayLongestFragment,
+      displayTotalOverlap,
+      displaySemantic,
+      getOtherFile,
+      getPairLink,
+      convertToPercentageString,
+    };
+  },
+});
 </script>
