@@ -54,7 +54,6 @@
     <v-row>
       <v-col cols="11">
         <ClusteringTable
-          v-if="false"
           :current-clustering="clustering"
           :selected-cluster="selectedCluster"
         />
