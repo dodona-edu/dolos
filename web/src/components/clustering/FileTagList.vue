@@ -15,8 +15,7 @@ import {
 import { useElementSize } from "@vueuse/core";
 import { storeToRefs } from "pinia";
 import { useFileStore } from "@/api/stores";
-import { File } from "@/api/models";
-import { Legend } from "@/views/DataView";
+import { File, Legend } from "@/api/models";
 import { TooltipTool } from "@/d3-tools/TooltipTool";
 import * as d3 from "d3";
 
