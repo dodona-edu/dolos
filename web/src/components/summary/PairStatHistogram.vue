@@ -165,7 +165,7 @@ export default defineComponent({
       histogramChart
         .select("g")
         .selectAll("rect")
-        .on("mouseenter", (e, d) => tool.mouseEnter(e, d, true))
+        .on("mouseenter", (e, d: any) => tool.mouseEnter(e, d, true))
         .on("mouseleave", () => tool.mouseOut());
 
       // Add hover line.
