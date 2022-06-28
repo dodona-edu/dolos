@@ -1,5 +1,5 @@
 import { View } from "./view";
-import csvStringify from "csv-stringify";
+import { stringify } from "csv-stringify";
 import { Writable } from "stream";
 import { createWriteStream, promises, promises as fs } from "fs";
 import {
@@ -18,7 +18,7 @@ function writeCSVto<T>(
   extractor: {[field: string]: (obj: T) => string | number | null}
 ): void {
 
-  const csv = csvStringify();
+  const csv = stringify();
   csv.pipe(out);
 
   const keys: string[] = [];
@@ -134,7 +134,7 @@ export class FileView extends View {
         "type": ([, v]) => typeof v
       });
   }
-  
+
   public writeSemantic(out: Writable): void {
 
     out.write(
