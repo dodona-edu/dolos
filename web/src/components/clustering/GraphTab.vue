@@ -19,7 +19,7 @@
           :cluster="cluster"
           :selected-files="selectedFiles"
           :scroll="true"
-          @select-file="setSelectedNodeInfo"
+          @select-click="setSelectedNodeInfo"
         />
       </div>
     </Graph>

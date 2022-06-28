@@ -6,7 +6,7 @@
           :cluster="cluster"
           :selected-files="files"
           :scroll="true"
-          @select-file="selectFile"
+          @select-click="selectFile"
         >
         </GraphElementList>
       </div>
