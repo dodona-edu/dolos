@@ -1,5 +1,5 @@
 <template>
-  <div class="main-container">
+  <div class="code-container fill-height">
     <component :is="'style'" type="text/css">
 
       <template v-for="item in activeSelections">
@@ -146,15 +146,15 @@ export default class CompareSide extends Vue {
 @use 'variables';
 
 .highlighted-code {
-    min-height: 100%;
-    max-height: 100%;
-    overflow-y: scroll;
-    padding-top: 0 !important;
+  min-height: 100%;
+  max-height: 100%;
+  overflow-y: scroll;
+  padding-top: 0 !important;
 
-    .token {
-      margin: -4px 0 -4px 0;
-      padding: 4px 0 4px 0;
-    }
+  .token {
+    margin: -4px 0 -4px 0;
+    padding: 4px 0 4px 0;
+  }
 }
 
 pre.highlighted-code {
@@ -165,18 +165,9 @@ pre.highlighted-code {
   }
 }
 
-.main-container {
-  height: 100%;
+.code-container {
+  code {
+    background-color: unset !important;
+  }
 }
-
-// /* hides the scrollbar */
-//pre {
-//  scrollbar-width: none; /* For Firefox */
-//  -ms-overflow-style: none; /* For Internet Explorer and Edge */
-//}
-//
-//pre::-webkit-scrollbar {
-//  width: 0; /* For Chrome, Safari, and Opera */
-//}
-
 </style>
