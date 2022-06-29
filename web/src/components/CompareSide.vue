@@ -1,5 +1,5 @@
 <template>
-  <div class="main-container">
+  <div class="code-container fill-height">
     <component :is="'style'" type="text/css">
       <template v-for="item in activeSelections">
         .token.marked-code.{{ item }} {
@@ -237,17 +237,9 @@ pre.highlighted-code {
   }
 }
 
-.main-container {
-  height: 100%;
+.code-container {
+  code {
+    background-color: unset !important;
+  }
 }
-
-// /* hides the scrollbar */
-//pre {
-//  scrollbar-width: none; /* For Firefox */
-//  -ms-overflow-style: none; /* For Internet Explorer and Edge */
-//}
-//
-//pre::-webkit-scrollbar {
-//  width: 0; /* For Chrome, Safari, and Opera */
-//}
 </style>
