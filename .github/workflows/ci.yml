@@ -244,7 +244,7 @@ jobs:
           cd lib/
           yarn build
           cd ../web/
-          yarn build
+          yarn build --skip-plugins eslint
       - name: Deploy to staging
         if: ${{ matrix.node == '16' }}
         run: |
