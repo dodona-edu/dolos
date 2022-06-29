@@ -5,7 +5,7 @@
       <v-col>
         <v-card>
           <!-- Header -->
-          <v-card-title>
+          <v-card-title class="d-flex flex-column">
             <v-row dense>
               <v-col class="text-center">
                 {{ activePair.leftFile.path }}
