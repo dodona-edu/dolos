@@ -307,7 +307,7 @@ export default defineComponent({
 
     // Update the graph when the data changes.
     watch(
-      () => [cutoff.value, props.showSingletons],
+      () => [cutoff.value, props.showSingletons, props.legend],
       () => updateGraph()
     );
 
