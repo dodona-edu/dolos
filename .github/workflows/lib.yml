@@ -1,0 +1,91 @@
+name: Lib
+on:
+  push:
+    paths:
+      - "lib/**/*"
+
+jobs:
+  # Install Dependencies
+  install:
+    uses: ./.github/workflows/dependencies.yml
+  
+  # Build & test
+  build-test:
+    name: Build & Test 🔧
+    runs-on: ubuntu-latest
+    needs: install
+    strategy:
+      matrix:
+        node: ["12", "14", "16"]
+      fail-fast: false
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v3
+
+      - name: Setup Node 📚
+        uses: actions/setup-node@v3.3.0
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Fetch Dependencies ⚡️
+        id: cache-dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ${{ github.workspace }}/node_modules
+            ${{ github.workspace }}/*/node_modules
+          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('**/yarn.lock') }}-${{ hashFiles('**/package.json') }}
+
+      - name: Check if cache was hit 🔎
+        if: steps.cache-dependencies.outputs.cache-hit != 'true'
+        run: |
+          echo "Should have hit cache"
+          false
+
+      - name: Build 🔧
+        run: |
+          cd lib/
+          yarn build
+
+      - name: Test 🧪
+        run: |
+          cd lib/
+          yarn test -v --serial
+  
+  # Lint
+  lint:
+    name: Lint 📏
+    runs-on: ubuntu-latest
+    needs: install
+    strategy:
+      matrix:
+        node: ["16"]
+      fail-fast: false
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v3
+
+      - name: Setup Node 📚
+        uses: actions/setup-node@v3.3.0
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Fetch Dependencies ⚡️
+        id: cache-dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ${{ github.workspace }}/node_modules
+            ${{ github.workspace }}/*/node_modules
+          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('**/yarn.lock') }}-${{ hashFiles('**/package.json') }}
+
+      - name: Check if cache was hit 🔎
+        if: steps.cache-dependencies.outputs.cache-hit != 'true'
+        run: |
+          echo "Should have hit cache"
+          false
+
+      - name: Lint 📏
+        run: |
+          cd lib/
+          yarn lint

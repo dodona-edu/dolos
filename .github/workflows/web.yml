@@ -1,0 +1,117 @@
+name: Web
+on:
+  push:
+    paths:
+      - "web/**/*"
+
+jobs:
+  # Install Dependencies
+  install:
+    uses: ./.github/workflows/dependencies.yml
+  
+  # Build & Deploy
+  build-deploy:
+    name: Build & Deploy 🔧
+    runs-on: ubuntu-latest
+    needs: install
+    strategy:
+      matrix:
+        node: ["12", "14", "16"]
+      fail-fast: false
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v3
+
+      - name: Setup Node 📚
+        uses: actions/setup-node@v3.3.0
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Fetch Dependencies ⚡️
+        id: cache-dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ${{ github.workspace }}/node_modules
+            ${{ github.workspace }}/*/node_modules
+          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('**/yarn.lock') }}-${{ hashFiles('**/package.json') }}
+
+      - name: Check if cache was hit 🔎
+        if: steps.cache-dependencies.outputs.cache-hit != 'true'
+        run: |
+          echo "Should have hit cache"
+          false
+
+      - name: Build lib 🔧
+        run: |
+          cd lib/
+          yarn build
+
+      - name: Build web 🔧
+        run: |
+          cd web/
+          yarn build --skip-plugins eslint
+
+      - name: Deploy to staging 🚀
+        if: ${{ matrix.node == '16' }}
+        run: |
+          if [ -n "$KNOWN_HOSTS" ]; then
+            cd web/
+            mkdir -p ~/.ssh
+            echo "$SSH_KEY" > ~/.ssh/id_rsa
+            chmod 600 ~/.ssh/id_rsa
+            echo "$KNOWN_HOSTS" > ~/.ssh/known_hosts
+            chmod 600 ~/.ssh/known_hosts
+            mkdir -p "deploy/$REF"
+            cp -a dist/. "deploy/$REF"
+            rsync -glpPrtvz \
+                  --relative \
+                  --delete  \
+                  -e 'ssh -p 4840' \
+                  "deploy/./$REF" \
+                  "dodona@dolos.ugent.be:web/"
+          else
+            echo "Skipping deploy because secrets are not available"
+          fi
+        env:
+          SSH_KEY: ${{ secrets.SSH_KEY }}
+          KNOWN_HOSTS: ${{ secrets.KNOWN_HOSTS }}
+          REF: ${{ github.ref_name }}
+  # Lint
+  lint:
+    name: Lint 📏
+    runs-on: ubuntu-latest
+    needs: install
+    strategy:
+      matrix:
+        node: ["16"]
+      fail-fast: false
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v3
+
+      - name: Setup Node 📚
+        uses: actions/setup-node@v3.3.0
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Fetch Dependencies ⚡️
+        id: cache-dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ${{ github.workspace }}/node_modules
+            ${{ github.workspace }}/*/node_modules
+          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('**/yarn.lock') }}-${{ hashFiles('**/package.json') }}
+
+      - name: Check if cache was hit 🔎
+        if: steps.cache-dependencies.outputs.cache-hit != 'true'
+        run: |
+          echo "Should have hit cache"
+          false
+
+      - name: Lint 📏
+        run: |
+          cd web/
+          yarn lint
+      

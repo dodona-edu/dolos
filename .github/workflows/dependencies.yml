@@ -1,0 +1,31 @@
+name: Install Dependencies
+on: [workflow_call]
+
+jobs:
+  # Install Dependencies
+  install:
+    name: Install (Node ${{ matrix.node }}) ⚡️
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: ["12", "14", "16"]
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v3
+      - name: Cache Yarn dependencies
+        id: cache-dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ${{ github.workspace }}/node_modules
+            ${{ github.workspace }}/*/node_modules
+          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('**/yarn.lock') }}-${{ hashFiles('**/package.json') }}
+      - name: Setup Node
+        if: steps.cache-dependencies.outputs.cache-hit != 'true'
+        uses: actions/setup-node@v3.3.0
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Yarn install
+        if: steps.cache-dependencies.outputs.cache-hit != 'true'
+        run: yarn install
+
