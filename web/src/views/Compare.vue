@@ -57,8 +57,6 @@ export default defineComponent({
         if (!pair.value) return;
 
         isLoaded.value = false;
-        await fileStore.populateFile(pair.value.leftFile);
-        await fileStore.populateFile(pair.value.rightFile);
         await pairStore.populateFragments(pair.value);
         isLoaded.value = true;
       },
