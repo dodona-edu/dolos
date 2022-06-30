@@ -70,7 +70,7 @@ export default defineComponent({
   },
 
   setup(props, { emit }) {
-    const { cutoff } = storeToRefs(useApiStore());
+    const { cutoff, cutoffDebounced } = storeToRefs(useApiStore());
 
     // Reference to the container element.
     const container = shallowRef<HTMLElement>();
@@ -316,7 +316,7 @@ export default defineComponent({
 
     // Update the graph when the data changes.
     watch(
-      () => [cutoff.value, props.showSingletons, props.legend],
+      () => [cutoffDebounced.value, props.showSingletons, props.legend],
       () => updateGraph()
     );
 

@@ -8,6 +8,7 @@ import {
   usePairStore,
   useSemanticStore,
 } from "@/api/stores";
+import { refDebounced } from "@vueuse/shared";
 
 /**
  * Store managing the API.
@@ -28,6 +29,7 @@ export const useApiStore = defineStore("api", () => {
 
   // Cut-off value.
   const cutoff = shallowRef(0.75);
+  const cutoffDebounced = refDebounced(cutoff, 150);
 
   // Hydrate the API stores.
   const hydrate = async (): Promise<void> => {
@@ -58,6 +60,7 @@ export const useApiStore = defineStore("api", () => {
     isAnonymous,
     isLoaded,
     cutoff,
+    cutoffDebounced,
     hydrate,
   };
 });

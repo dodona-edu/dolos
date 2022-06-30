@@ -22,7 +22,6 @@
         v-for="(cluster, index) in sortedClustering"
         :key="index"
         :cluster="cluster"
-        :cutoff="cutoff"
         :id="`clustering-card-${index}`"
       />
     </v-expansion-panels>

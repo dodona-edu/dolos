@@ -80,7 +80,7 @@ export default defineComponent({
 
   setup(props) {
     const { files } = storeToRefs(useFileStore());
-    const { cutoff } = storeToRefs(useApiStore());
+    const { cutoff, cutoffDebounced } = storeToRefs(useApiStore());
     const { pairsList } = storeToRefs(usePairStore());
     const { clusterFiles } = useCluster(toRef(props, "cluster"));
     const router = useRouter();
@@ -283,7 +283,7 @@ export default defineComponent({
 
     // Redraw the heatmap when the cluster changes.
     watch(
-      () => cutoff.value,
+      () => cutoffDebounced.value,
       () => {
         draw();
       }

@@ -11,5 +11,5 @@ export function useClustering(): ComputedRef<Clustering> {
   const pairStore = usePairStore();
   const fileStore = useFileStore();
 
-  return computed(() => singleLinkageCluster(pairStore.pairs, fileStore.files, apiStore.cutoff));
+  return computed(() => singleLinkageCluster(pairStore.pairs, fileStore.files, apiStore.cutoffDebounced));
 }

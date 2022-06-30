@@ -3,7 +3,6 @@
     <Graph
       :pairs="clusterPairs"
       :files="clusterFiles"
-      :cutoff="cutoff"
       :legend="legend"
       :polygon="false"
       :clustering="clustering"

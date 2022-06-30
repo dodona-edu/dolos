@@ -35,7 +35,7 @@ export default defineComponent({
 
   setup(props, { emit }) {
     const { clusterFiles } = useCluster(toRef(props, "cluster"));
-    const { cutoff } = storeToRefs(useApiStore());
+    const { cutoffDebounced } = storeToRefs(useApiStore());
     const legend = shallowRef<Legend>();
 
     // Timeseries element size
@@ -153,7 +153,7 @@ export default defineComponent({
 
     // Redraw the timeseries when the cluster changes.
     watch(
-      () => [cutoff.value, legend.value],
+      () => [cutoffDebounced.value, legend.value],
       () => {
         draw();
       }
