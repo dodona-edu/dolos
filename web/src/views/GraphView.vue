@@ -54,6 +54,7 @@
     <v-row>
       <v-col cols="11">
         <ClusteringTable
+          v-if="false"
           :current-clustering="clustering"
           :selected-cluster="selectedCluster"
         />
@@ -63,7 +64,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed } from "@vue/composition-api";
+import { defineComponent, ref, shallowRef, computed } from "@vue/composition-api";
 import { storeToRefs } from "pinia";
 import { File } from "@/api/models";
 import { Cluster } from "@/util/Cluster";
@@ -82,7 +83,7 @@ export default defineComponent({
     const { pairsList } = storeToRefs(usePairStore());
 
     // Show singletons in the graph.
-    const showSingletons = ref(false);
+    const showSingletons = shallowRef(false);
 
     // Legend.
     const legend = ref<unknown[]>([]);

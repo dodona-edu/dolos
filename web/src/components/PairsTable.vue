@@ -32,7 +32,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, computed, ref } from "@vue/composition-api";
+import { defineComponent, PropType, computed, shallowRef } from "@vue/composition-api";
 import { useRouter, useRoute } from "@/composables";
 import { Pair, ObjMap } from "@/api/models";
 
@@ -65,7 +65,7 @@ export default defineComponent({
     };
 
     // Search value.
-    const search = ref("");
+    const search = shallowRef("");
 
     // Items in the format for the the data-table.
     const items = computed(() => {

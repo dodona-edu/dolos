@@ -109,17 +109,15 @@
 
     <v-main>
       <v-container class="container">
-        <keep-alive>
-          <router-view v-if="isLoaded" />
-          <loading v-else />
-        </keep-alive>
+        <router-view v-if="isLoaded" />
+        <loading v-else />
       </v-container>
     </v-main>
   </v-app>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed } from "@vue/composition-api";
+import { defineComponent, shallowRef, computed } from "@vue/composition-api";
 import { storeToRefs } from "pinia";
 import { useRouter, useBreakpoints } from "@/composables";
 import { useApiStore } from "@/api/stores";
@@ -134,7 +132,7 @@ export default defineComponent({
     const { isLoaded, isAnonymous } = storeToRefs(api);
 
     // If the drawer is open/closed.
-    const drawer = ref(breakpoints.value.desktop);
+    const drawer = shallowRef(breakpoints.value.desktop);
 
     // Current version of the application.
     const version = computed(() => packageJson.version);

@@ -6,7 +6,7 @@
 import {
   defineComponent,
   PropType,
-  ref,
+  shallowRef,
   computed,
   watch,
   onMounted,
@@ -34,7 +34,7 @@ export default defineComponent({
     const { legend } = storeToRefs(useFileStore());
 
     // List template ref.
-    const listElement = ref();
+    const listElement = shallowRef();
 
     // List element size.
     const listElementSize = useElementSize(listElement);

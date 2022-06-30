@@ -31,6 +31,7 @@ import {
   defineComponent,
   PropType,
   ref,
+  shallowRef,
   onMounted,
 } from "@vue/composition-api";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
@@ -54,11 +55,11 @@ export default defineComponent({
 
   setup(props) {
     const { cutoff } = storeToRefs(useApiStore());
-    const legend = ref([]);
+    const legend = shallowRef([]);
     const clusterFiles = ref<File[]>([]);
     const clusterPairs = ref<Pair[]>([]);
     const selectedFiles = ref<File[]>([]);
-    const selectionManager = ref(new SelectionManager(1));
+    const selectionManager = shallowRef(new SelectionManager(1));
 
     // Clustering.
     const clustering = useClustering();

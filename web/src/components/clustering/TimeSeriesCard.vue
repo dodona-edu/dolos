@@ -43,7 +43,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, ref } from "@vue/composition-api";
+import { defineComponent, PropType, ref, shallowRef } from "@vue/composition-api";
 import { File } from "@/api/models";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
 import TimeSeriesDiagram from "@/components/clustering/TimeSeries.vue";
@@ -59,7 +59,7 @@ export default defineComponent({
 
   setup() {
     const files = ref<File[]>([]);
-    const show = ref(true);
+    const show = shallowRef(true);
 
     const setNewFiles = (list: File[]): void => {
       show.value = list.every((f) => f.extra.timestamp);

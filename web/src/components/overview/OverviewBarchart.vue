@@ -7,6 +7,7 @@ import {
   defineComponent,
   PropType,
   ref,
+  shallowRef,
   computed,
   watch,
   onMounted,
@@ -56,7 +57,7 @@ export default defineComponent({
     };
 
     // Barchart template ref.
-    const barchartElement = ref();
+    const barchartElement = shallowRef();
 
     // Barchart element size
     const margin = {
@@ -76,8 +77,8 @@ export default defineComponent({
       .append("g")
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    const barchartXScale = ref();
-    const barchartYScale = ref();
+    const barchartXScale = shallowRef();
+    const barchartYScale = shallowRef();
 
     // Draw the barchart.
     const draw = (): void => {

@@ -6,7 +6,16 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, ref, computed, watch, onMounted, onUnmounted } from "@vue/composition-api";
+import {
+  defineComponent,
+  PropType,
+  ref,
+  shallowRef,
+  computed,
+  watch,
+  onMounted,
+  onUnmounted,
+} from "@vue/composition-api";
 import { useApiStore } from "@/api/stores";
 import { Pair, File } from "@/api/models";
 import { useCluster } from "@/composables";
@@ -69,7 +78,7 @@ export default defineComponent({
     const { width, height } = useElementSize(container);
 
     // Selected cluser
-    const selectedCluster = ref<Cluster | null>(null);
+    const selectedCluster = shallowRef<Cluster | null>(null);
     const selectedClusterMeta = useCluster(selectedCluster);
 
     // Map of nodes (files) in the graph.
@@ -102,10 +111,10 @@ export default defineComponent({
     });
 
     // List of edges to display in the graph.
-    const edges = ref();
+    const edges = shallowRef();
 
     // List of node to display in the graph.
-    const nodes = ref();
+    const nodes = shallowRef();
 
     // Cluster colors
     const clusterColors = computed(() => {
@@ -138,18 +147,18 @@ export default defineComponent({
     const graphContainer = graph.append("g");
 
     // If the graph has been rendered the first time.
-    const graphInitialized = ref(false);
+    const graphInitialized = shallowRef(false);
 
     // Edges between nodes in the graph.
     const graphEdgesBase = graphContainer.append("g");
-    const graphEdges = ref();
+    const graphEdges = shallowRef();
 
     // Nodes in the graph.
     const graphNodesBase = graphContainer.append("g");
-    const graphNodes = ref();
+    const graphNodes = shallowRef();
 
     // Convex hull tool for creating hulls around clusters.
-    const graphHullTool = ref();
+    const graphHullTool = shallowRef();
 
     // Add a marker to the graph for showing the direction of the edges.
     graph

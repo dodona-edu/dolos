@@ -5,7 +5,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, ref, watch, toRef, onMounted } from "@vue/composition-api";
+import { defineComponent, PropType, ref, shallowRef, watch, toRef, onMounted } from "@vue/composition-api";
 import { storeToRefs } from "pinia";
 import { useApiStore } from "@/api/stores";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
@@ -51,7 +51,7 @@ export default defineComponent({
     };
 
     // Timeseries template ref.
-    const timeseriesElement = ref();
+    const timeseriesElement = shallowRef();
 
     // Timeseries D3
     const timeseries = d3
