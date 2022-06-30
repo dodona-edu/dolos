@@ -90,8 +90,6 @@ export default defineComponent({
       const nodesMap = new Map<number, any>();
       for (const file of props.files) {
         const label = file.extra.labels ?? "N/A";
-        const labels = props.legend as any;
-        const visible = labels[label] ? labels[label].selected : true;
 
         nodesMap.set(file.id, {
           id: file.id,
@@ -103,12 +101,17 @@ export default defineComponent({
           neighbors: [],
           edges: [],
           label,
-          visible,
         });
       }
 
       return nodesMap;
     });
+
+    // Get if a node is visible or not.
+    const isVisible = (node: any): boolean => {
+      const labels = props.legend ?? {};
+      return labels[node.label] ? labels[node.label].selected : true;
+    };
 
     // List of edges to display in the graph.
     const edges = shallowRef();
@@ -217,7 +220,7 @@ export default defineComponent({
         .filter(pair => {
           const left = nodesMap.value.get(pair.leftFile.id);
           const right = nodesMap.value.get(pair.rightFile.id);
-          return left.visible && right.visible;
+          return isVisible(left) && isVisible(right);
         })
         // Map the pair to an edge object.
         .map(pair => {
@@ -263,10 +266,10 @@ export default defineComponent({
 
     // Calculate the nodes of the graph.
     const calculateNodes = (): any[] => {
-      const labels = props.legend as any[];
+      const labels = props.legend;
       const nodesList = Array.from(nodesMap.value.values())
         // Only display the nodes that are visible.
-        .filter(node => node.visible)
+        .filter(node => isVisible(node))
         // Only display the nodes that have neighbors.
         // Unless singletons are enabled.
         .filter(node => node.neighbors.length > 0 || props.showSingletons);
