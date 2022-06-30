@@ -26,40 +26,46 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Watch } from "vue-property-decorator";
-import { File } from "@/api/api";
-import DataView, { Legend } from "@/views/DataView";
+import { defineComponent, PropType, ref, onMounted } from "@vue/composition-api";
+import { File, Legend } from "@/api/models";
+import { useFileStore } from "@/api/stores";
 
-@Component({})
-export default class GraphLegend extends DataView {
-  @Prop() currentFiles!: File[];
+export default defineComponent({
+  props: {
+    currentFiles: {
+      type: Array as PropType<File[]>,
+      required: true
+    },
+  },
 
-  public legend: {[key: string]: { label: string; selected: boolean; color: string }} = {};
+  setup(props, { emit }) {
+    const fileStore = useFileStore();
+    const legend = ref<Legend>({});
 
-  mounted(): void {
-    this.init();
+    const init = (): void => {
+      const fullLegend = fileStore.legend;
+      const partLegend: Legend = {};
+      for (const key of new Set(props.currentFiles.map(cf => cf.extra.labels)).values()) {
+        if (key) { partLegend[key] = fullLegend[key]; }
+      }
+      legend.value = partLegend;
+      emit("legend", Object.assign({}, legend.value));
+    };
+
+    const onCheckChange = (): void => {
+      emit("legend", Object.assign({}, legend.value));
+    };
+
+    onMounted(() => init());
+
+    return {
+      legend,
+      onCheckChange,
+    };
   }
-
-  @Watch("currentFiles")
-  init(): void {
-    const fullLegend = this.createLegend();
-    const partLegend: Legend = {};
-    for (const key of new Set(this.currentFiles.map(cf => cf.extra.labels)).values()) {
-      if (key) { partLegend[key] = fullLegend[key]; }
-    }
-    this.legend = partLegend;
-    this.$emit("legend", this.legend);
-  }
-
-  onCheckChange(): void {
-    this.$emit("legend", Object.assign({}, this.legend));
-  }
-
-  createLegend(): Legend {
-    return super.createLegend();
-  }
-}
+});
 </script>
+
 <style scoped lang="scss">
 .legend {
   position: absolute;

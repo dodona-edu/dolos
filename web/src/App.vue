@@ -2,21 +2,22 @@
   <v-app>
     <v-app-bar clipped-left app color="primary" dark dense>
       <v-app-bar-nav-icon
-        v-if="$vuetify.breakpoint.mobile"
-        @click.stop="drawerEnabled = !drawerEnabled"
+        v-if="!breakpoints.desktop"
+        @click.stop="drawer = !drawer"
       />
-      <v-toolbar-title @click="toHomeScreen">DOLOS</v-toolbar-title>
+      <v-toolbar-title @click="navigateTo('/')">DOLOS</v-toolbar-title>
     </v-app-bar>
 
     <v-navigation-drawer
-      v-model="drawerEnabled"
-      :expand-on-hover="!$vuetify.breakpoint.mobile"
+      v-model="drawer"
+      :mini-variant="breakpoints.desktop"
+      :expand-on-hover="breakpoints.desktop"
       clipped
       app
-      :mini-variant.sync="isCollapsed"
+      left
     >
       <v-list nav dense>
-        <v-list-item @click="toHomeScreen" link>
+        <v-list-item to="/" link>
           <v-list-item-icon>
             <v-icon>mdi-home</v-icon>
           </v-list-item-icon>
@@ -25,7 +26,7 @@
           </v-list-item-content>
         </v-list-item>
 
-        <v-list-item @click="toPairScreen" link>
+        <v-list-item to="/pairs" link>
           <v-list-item-icon>
             <v-icon>mdi-format-list-bulleted-square</v-icon>
           </v-list-item-icon>
@@ -33,18 +34,16 @@
           <v-list-item-title>File pairs</v-list-item-title>
         </v-list-item>
 
-        <v-list-item @click="toGraphView" link>
+        <v-list-item to="/graph" link>
           <v-list-item-icon>
             <v-icon>mdi-graph</v-icon>
           </v-list-item-icon>
 
           <v-list-item-title>Plagiarism graph</v-list-item-title>
         </v-list-item>
-        <v-list-item @click="toSummary" link>
+        <v-list-item to="/fileanalysis" link>
           <v-list-item-icon>
-            <v-icon>
-              mdi-clipboard-text-outline
-            </v-icon>
+            <v-icon> mdi-clipboard-text-outline </v-icon>
           </v-list-item-icon>
           <v-list-item-title>File Analysis</v-list-item-title>
         </v-list-item>
@@ -54,16 +53,14 @@
         <v-divider />
 
         <v-list nav dense>
-          <v-list-item>
+          <v-list-item class="anonymize">
             <v-list-item-icon>
               <v-icon>mdi-incognito</v-icon>
             </v-list-item-icon>
-            <v-list-item-content>
+            <div class="anonymize-content">
               <v-list-item-title>Anonymize</v-list-item-title>
-            </v-list-item-content>
-            <v-list-item-content class="switch-style">
-              <v-switch  v-model="anonymous"></v-switch>
-            </v-list-item-content>
+              <v-switch class="anonymize-switch" v-model="isAnonymous" :disabled="!isLoaded" />
+            </div>
           </v-list-item>
           <v-list-item
             href="https://github.com/dodona-edu/dolos"
@@ -108,72 +105,89 @@
       </template>
     </v-navigation-drawer>
 
-    <!-- This style is normally automatically set when the 'mini-variant' prop is not set. However,
-     if we want to receive the sync events when it opens and closes we need to set the mini-variant prop ourselves
-     and this breaks the style if we don't manually adjust it.-->
-    <v-main style="padding-left: 256px">
-      <keep-alive exclude="Compare">
-        <router-view />
-      </keep-alive>
+    <v-main>
+      <v-container class="container">
+        <keep-alive>
+          <router-view v-if="isLoaded" />
+          <loading v-else />
+        </keep-alive>
+      </v-container>
     </v-main>
   </v-app>
 </template>
 
 <script lang="ts">
-import { Component } from "vue-property-decorator";
+import { defineComponent, ref, computed } from "@vue/composition-api";
+import { storeToRefs } from "pinia";
+import { useRouter, useBreakpoints } from "@/composables";
+import { useApiStore } from "@/api/stores";
+import Loading from "@/components/Loading.vue";
 import packageJson from "../package.json";
-import DataView from "@/views/DataView";
 
-@Component({})
-export default class App extends DataView {
-  drawerEnabled = true;
-  isCollapsed = true;
+export default defineComponent({
+  setup() {
+    const breakpoints = useBreakpoints();
+    const router = useRouter();
+    const api = useApiStore();
+    const { isLoaded, isAnonymous } = storeToRefs(api);
 
-  created(): void {
-    this.drawerEnabled = !this.$vuetify.breakpoint.mobile;
-  }
+    // If the drawer is open/closed.
+    const drawer = ref(breakpoints.value.desktop);
 
-  navigateTo(route: string): void {
-    if (this.$router.currentRoute.path !== route) {
-      this.$router.push(route);
-    }
-  }
+    // Current version of the application.
+    const version = computed(() => packageJson.version);
 
-  toPairScreen(): void {
-    this.navigateTo("/pairs/");
-  }
+    // Navigate to a specific route.
+    const navigateTo = (route: string): void => {
+      if (router.currentRoute.path !== route) {
+        router.push(route);
+      }
+    };
 
-  toGraphView(): void {
-    this.navigateTo("/graph/");
-  }
+    // Hydrate all the stores (fetch all the data).
+    api.hydrate();
 
-  toSummary(): void {
-    this.navigateTo("/fileanalysis/");
-  }
+    return {
+      breakpoints,
+      isLoaded,
+      isAnonymous,
+      drawer,
+      version,
+      navigateTo,
+    };
+  },
 
-  toHomeScreen(): void {
-    this.navigateTo("/");
-  }
-
-  /**
-   * Get the current version of the application.
-   */
-  get version(): string {
-    return packageJson.version;
-  }
-}
+  components: {
+    Loading
+  },
+});
 </script>
-<style>
+
+<style lang="scss">
 .v-messages {
   display: none;
 }
 
-.switch-style {
-  max-height: 35px;
-  padding: 4px 0 0 4px!important;
+.anonymize {
+  &-content {
+    display: flex;
+    overflow: visible;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  &-switch {
+    max-height: 35px !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 !important;
+  }
 }
 
-.switch-style .v-input {
-  margin-top: 0;
+.container {
+  max-width: 1450px !important;
 }
 </style>

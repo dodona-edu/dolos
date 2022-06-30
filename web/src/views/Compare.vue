@@ -2,16 +2,17 @@
   <v-container fluid fill-height>
     <v-row justify="center">
       <v-col cols="12" class="no-y-padding">
+        <loading v-if="!isLoaded" />
+
         <CompareCard
-          v-if="pair && pair.fragments"
-          :loaded="dataLoaded"
+          v-else-if="pair && pair.fragments"
+          :loaded="isLoaded"
           :pair="pair"
-          :metadata="metadata"
+          :metadata="metadataStore.metadata"
         />
+
         <v-card v-else>
-          <v-card-subtitle>
-            Could not load comparison
-          </v-card-subtitle>
+          <v-card-subtitle> Could not load comparison </v-card-subtitle>
         </v-card>
       </v-col>
     </v-row>
@@ -19,54 +20,59 @@
 </template>
 
 <script lang="ts">
-import DataView from "@/views/DataView";
-import { Component, Prop, Watch } from "vue-property-decorator";
+import {
+  defineComponent,
+  PropType,
+  ref,
+  computed,
+  watch,
+} from "@vue/composition-api";
+import { usePairStore, useMetadataStore, useFileStore } from "@/api/stores";
 import CompareCard from "@/components/CompareCard.vue";
-import { Pair } from "@/api/api";
+import Loading from "@/components/Loading.vue";
 
-@Component({
-  components: { CompareCard }
-})
-export default class Compare extends DataView {
-  @Prop({ required: true }) pairId!: number;
+export default defineComponent({
+  props: {
+    pairId: {
+      type: String as PropType<string>,
+      required: true,
+    },
+  },
 
-  async ensureFragments(): Promise<void> {
-    if (!this.dataLoaded) {
-      await this.$store.dispatch("populateFragments", { pairId: this.pairId });
-    }
-  }
+  setup(props) {
+    const fileStore = useFileStore();
+    const pairStore = usePairStore();
+    const metadataStore = useMetadataStore();
 
-  async ensureFilesLoaded(): Promise<void> {
-    if (!this.dataLoaded) {
-      await this.$store.dispatch("populateFile", { fileId: this.pair?.rightFile.id });
-      await this.$store.dispatch("populateFile", { fileId: this.pair?.leftFile.id });
-    }
-  }
+    // If the fragments for a pair are loaded.
+    const isLoaded = ref(false);
 
-  @Watch("pairId")
-  @Watch("files")
-  async ensureData(): Promise<void> {
-    await super.ensureData();
-    await this.ensureFilesLoaded();
-    await this.ensureFragments();
-  }
+    // Pair to display.
+    const pair = computed(() => pairStore.getPair(parseInt(props.pairId)));
 
-  created(): void {
-    this.ensureData();
-  }
+    // Fetch the pair's fragments when the pair changes.
+    watch(
+      () => pair.value,
+      async () => {
+        if (!pair.value) return;
 
-  get pair(): Pair | undefined {
-    return this.pairs[+this.pairId];
-  }
+        isLoaded.value = false;
+        await pairStore.populateFragments(pair.value);
+        isLoaded.value = true;
+      },
+      { immediate: true }
+    );
 
-  get dataLoaded(): boolean {
-    return super.dataLoaded && this.$store.getters.areFragmentsLoaded(this.pairId) &&
-      this.$store.getters.isFileLoaded(this.pair?.leftFile.id) &&
-      this.$store.getters.isFileLoaded(this.pair?.rightFile.id);
-  }
-}
+    return {
+      isLoaded,
+      pair,
+      metadataStore,
+    };
+  },
+
+  components: {
+    CompareCard,
+    Loading,
+  },
+});
 </script>
-
-<style scoped>
-
-</style>

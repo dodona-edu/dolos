@@ -1,51 +1,159 @@
-<!-- eslint-disable -->
 <template>
   <div ref="container" class="graph-container">
     <!-- Extra (optional) UI elements can be added to this container  -->
-    <slot></slot>
+    <slot />
   </div>
 </template>
 
-<script>
-/* eslint-disable */
-
-import {Component, Prop, Watch} from "vue-property-decorator";
+<script lang="ts">
+import { defineComponent, PropType, ref, computed, watch, onMounted, onUnmounted } from "@vue/composition-api";
+import { useApiStore } from "@/api/stores";
+import { Pair, File } from "@/api/models";
+import { useCluster } from "@/composables";
+import { storeToRefs } from "pinia";
+import { useElementSize } from "@vueuse/core";
+import { Clustering, Cluster } from "@/util/clustering-algorithms/ClusterTypes";
+import { getClusterElements } from "@/util/clustering-algorithms/ClusterFunctions";
+import { ConvexHullTool } from "@/d3-tools/ConvexHullTool";
+import { DefaultMap } from "@dodona/dolos-lib";
 import * as d3 from "d3";
-import {ConvexHullTool} from "@/d3-tools/ConvexHullTool";
-import {getClusterElements, getClusterIntersect} from "@/util/clustering-algorithms/ClusterFunctions";
-import {DefaultMap} from "@dodona/dolos-lib";
 
-@Component()
-export default class PlagarismGraph {
-  queryColorMap;
-  @Prop() files;
-  @Prop() pairs;
-  @Prop() cutoff;
-  @Prop() showSingletons;
-  @Prop({default: {}}) legend;
-  @Prop({default: true}) polygon;
-  @Prop() clustering;
-  @Prop() zoomTo;
-  @Prop({ default: null }) selectedNode;
+export default defineComponent({
+  props: {
+    showSingletons: {
+      type: Boolean as PropType<boolean>,
+      default: false,
+    },
 
+    legend: {
+      default: () => ({}),
+    },
 
-  created() {
-    this.updateRoute();
-    const svg = d3.create("svg").attr("viewBox", [0, 0, 500, 500]);
-    svg.on("mousedown.s", () => {this.selectCluster(null, null); this.removeSelectedNode();})
+    polygon: {
+      type: Boolean as PropType<boolean>,
+      default: true,
+    },
 
-    const container = svg.append("g");
-    this.zoom = d3.zoom().on("zoom", (event) => {
-      container.attr("transform", event.transform);
+    clustering: {
+      type: Array as PropType<Clustering>,
+      default: () => [],
+    },
+
+    files: {
+      type: Array as PropType<File[]>,
+      default: () => [],
+    },
+
+    pairs: {
+      type: Array as PropType<Pair[]>,
+      default: () => [],
+    },
+
+    zoomTo: {
+      type: String as PropType<string>,
+      default: "",
+    },
+
+    selectedNode: {
+      type: Object as PropType<File>,
+      default: () => ({}),
+    },
+  },
+
+  setup(props, { emit }) {
+    const { cutoff } = storeToRefs(useApiStore());
+
+    // Reference to the container element.
+    const container = ref<HTMLElement>();
+    // Container size
+    const { width, height } = useElementSize(container);
+
+    // Selected cluser
+    const selectedCluster = ref<Cluster | null>(null);
+    const selectedClusterMeta = useCluster(selectedCluster);
+
+    // Map of nodes (files) in the graph.
+    //  - key: file id
+    //  - value: node object
+    //
+    // This map contains ALL nodes (also singletons/invisible nodes).
+    const nodesMap = computed(() => {
+      const nodesMap = new Map<number, any>();
+      for (const file of props.files) {
+        const label = file.extra.labels ?? "N/A";
+        const labels = props.legend as any;
+        const visible = labels[label] ? labels[label].selected : true;
+
+        nodesMap.set(file.id, {
+          id: file.id,
+          file,
+          x: width.value * Math.random(),
+          y: height.value * Math.random(),
+          vx: 0,
+          vy: 0,
+          neighbors: [],
+          edges: [],
+          label,
+          visible,
+        });
+      }
+
+      return nodesMap;
     });
-    //svg.call(this.zoom);
 
-    if(this.zoomTo)
-      this.drawChevron(svg);
+    // List of edges to display in the graph.
+    const edges = ref();
 
+    // List of node to display in the graph.
+    const nodes = ref();
 
-    const defs = svg.append("svg:defs");
-    defs
+    // Cluster colors
+    const clusterColors = computed(() => {
+      const clusterColorsMap = new Map<Cluster, string>();
+      const labels = props.legend as any[];
+
+      for (const cluster of props.clustering) {
+        const elements = getClusterElements(cluster);
+
+        // Count for each label the number of files in the cluster.
+        const counter = new DefaultMap(() => 0);
+        for (const element of elements) {
+          counter.set(element.extra.labels, counter.get(element.extra.labels) + 1);
+        }
+
+        // Find the label with the most files in the cluster.
+        let maxKey = 0;
+        for (const [key, count] of counter.entries()) {
+          if (count > counter.get(maxKey)) maxKey = key as any;
+        }
+
+        clusterColorsMap.set(cluster, labels[maxKey].color);
+      }
+
+      return clusterColorsMap;
+    });
+
+    // SVG element of the simulation.
+    const graph = d3.create("svg").attr("viewBox", [0, 0, 500, 500]);
+    const graphContainer = graph.append("g");
+
+    // If the graph has been rendered the first time.
+    const graphInitialized = ref(false);
+
+    // Edges between nodes in the graph.
+    const graphEdgesBase = graphContainer.append("g");
+    const graphEdges = ref();
+
+    // Nodes in the graph.
+    const graphNodesBase = graphContainer.append("g");
+    const graphNodes = ref();
+
+    // Convex hull tool for creating hulls around clusters.
+    const graphHullTool = ref();
+
+    // Add a marker to the graph for showing the direction of the edges.
+    graph
+      .append("svg:defs")
       .append("svg:marker")
       .attr("id", "arrow-marker")
       .attr("viewBox", "0 -6 10 12")
@@ -56,407 +164,178 @@ export default class PlagarismGraph {
       .append("svg:path")
       .attr("d", "M5,-5L10,0L5,5M10,0L0,0");
 
-    this.svg = svg;
-    this.svgLinks = container.append("g");
-    this.svgNodes = container.append("g");
+    // Select a cluster
+    const selectCluster = (cluster: Cluster | null): void => {
+      selectedCluster.value = cluster;
+      emit("selectedClusterInfo", cluster);
 
-    this.simulation = d3
-      .forceSimulation()
-      .alphaDecay(0.01)
-      .force(
-        "link",
-        d3
-          .forceLink()
-          .id((d) => d.id)
-          .strength(
-            (link) =>
-              Math.pow(Math.max(0.4, (link.similarity - 0.8) / 0.2), 3) /
-              Math.min(
-                link.source.neighbors.length,
-                link.target.neighbors.length
-              )
-          )
-      )
-      .force("charge", d3.forceManyBody().distanceMax(200).strength(-20))
-      .force("center", d3.forceCenter(this.width / 2, this.height / 2))
-      .force("compact_x", d3.forceX(this.width / 2).strength(0.01))
-      .force("compact_y", d3.forceY(this.height / 2).strength(0.01));
+      // The graph must be updated to update the fills of the nodes.
+      // This is not the most efficient implementation and can definitely be improved.
+      // For the simplicity of the refactor to the Composition API, this is taken from the previous version for now.
+      updateGraph();
+    };
 
-    this.simulation.on("tick", () => {
-      if (this.svgLink)
-        this.svgLink.attr("d", (d) => {
-          const { x: x0, y: y0 } = d.source;
-          const { x: x1, y: y1 } = d.target;
-          return `M${x0},${y0}L${0.5 * (x0 + x1)},${
-            0.5 * (y0 + y1)
-          }L${x1},${y1}`;
-        });
+    // Select a node
+    const selectNode = (node: any | null): void => {
+      emit("selectedNodeInfo", node);
 
-      if (this.svgNode)
-        this.svgNode.attr("cx", (d) => d.x || 0).attr("cy", (d) => d.y || 0);
+      // Deselect all other nodes.
+      for (const node of nodes.value) node.selected = false;
+      graph.select(".selected").classed("selected", false);
 
-      if(this.hullTool && this.nodes.length && this.clustering) {
-        this.hullTool.clear();
-
-        for(const cluster of this.clustering) {
-          // If any cluster is selected, make sure only the selected cluster is colored.
-          // Else, color the cluster in the most appropriate color.
-          const color = this.selectedCluster ?
-            (this.selectedCluster === cluster ? (this.clusterColors.get(cluster)?.color || "blue") : "grey") :
-            this.clusterColors.get(cluster)?.color || "blue";
-
-          const elements = getClusterElements(cluster);
-          this.hullTool.addConvexHullFromNodes(
-            this.nodes.filter(n => elements.has(n.file)),
-            color,
-            cluster);
-        }
+      // Select the new node (if not null).
+      if (node) {
+        node.selected = true;
+        graph.select(`#circle-${node.id}`).classed("selected", true);
       }
+    };
 
+    // Handler for clicking on empty void in the graph.
+    // Deselect the node & cluster.
+    graph.on("mousedown.s", () => {
+      selectNode(null);
+      selectCluster(null);
     });
 
-    this.resizeHandler = () => {
-      this.width = this.$refs.container.clientWidth || this.width;
-      this.height = this.$refs.container.clientHeight || this.height;
-    };
-    window.addEventListener("resize", this.resizeHandler);
-    this.recluster();
-    this.updateGraph();
-  }
-  data() {
-    return {
-      nodes: [],
-      links: [],
-      width: 100,
-      height: 100,
-      selectedCluster: undefined,
-    };
-  }
-
-  selectCluster(cluster, coordinates) {
-    this.selectedCluster = cluster;
-    this.updateGraph(false);
-
-    if(cluster) {
-      this.zoomToCenter(coordinates);
-    }
-  }
-
-  zoomToCenter(coordinates) {
-    const d3Coordinates = coordinates.map(v => [v.x, v.y]);
-
-    if(d3Coordinates.length > 2) {
-      const polygon = d3.polygonHull(d3Coordinates);
-      polygon.push(polygon[0]);
-      const [cx, cy] = d3.polygonCentroid(polygon);
-
-      this.zoom.translateTo(this.svg, cx , cy )
-    } else if (d3Coordinates.length === 2) {
-      const [[x1, y1], [x2, y2]] = d3Coordinates;
-      const [cx, cy] = [(x1 + x2) / 2, (y1 + y2) / 2];
-
-      this.zoom.translateTo(this.svg, cx , cy )
-    }
-  }
-
-  @Watch("$route")
-  updateRoute() {
-    this.queryColorMap = this.getQueryColorMap();
-    if (this.resizeHandler) this.resizeHandler();
-  }
-
-  @Watch("$refs.container")
-  updateSize() {
-    this.resizeHandler();
-  }
-
-  @Watch("width")
-  @Watch("height")
-  updateSize() {
-    window.simulation = this.simulation;
-    this.svg.attr("viewBox", [0, 0, this.width, this.height]);
-    this.simulation.force("compact_x").x(this.width / 2);
-    this.simulation.force("compact_y").y(this.height / 2);
-    this.simulation
-      .force("center")
-      .x(this.width / 2)
-      .y(this.height / 2);
-
-    const scale =  this.height / 1080;
-
-    this.svg.select(".chevron").attr("transform", `translate(${this.width / 2 - 150}, ${this.height - 200}) scale(${scale})`);
-  }
-
-  @Watch("cutoff")
-  @Watch("files")
-  @Watch("showSingletons")
-  @Watch("legend")
-  updateGraph() {
-    setTimeout(() => this.resizeHandler(), 50);
-
-    if (this.delayUpdateGraph >= 0) clearTimeout(this.delayUpdateGraph);
-    this.delayUpdateGraph = setTimeout(() => {
-      this.delayUpdateGraph = -1;
-      const nodeMap = this.getRawNodeMap();
-      const labels = this.legend;
-      Object.values(nodeMap).forEach((node) => {
-        node.component = -1;
-        node.neighbors = [];
-        node.links = [];
-        node.visible = labels[node.label]? labels[node.label].selected:true;
-      });
-      this.links = Object.entries(this.pairs)
-        .filter(([key, value]) => value.similarity >= this.cutoff)
-        .filter(
-          ([_, { leftFile, rightFile }]) =>
-            nodeMap[leftFile.id].visible && nodeMap[rightFile.id].visible
-        )
-        .map(([key, value]) => {
-          let left = nodeMap[value.leftFile.id];
-          let right = nodeMap[value.rightFile.id];
+    // Calculate the edges of the graph.
+    const calculateEdges = (): any[] => {
+      return props.pairs
+        // Filter pairs with a similarity lower than the cutoff
+        .filter(pair => pair.similarity >= cutoff.value)
+        // Filter pairs where one of the files is not visible.
+        .filter(pair => {
+          const left = nodesMap.value.get(pair.leftFile.id);
+          const right = nodesMap.value.get(pair.rightFile.id);
+          return left.visible && right.visible;
+        })
+        // Map the pair to an edge object.
+        .map(pair => {
+          const left = nodesMap.value.get(pair.leftFile.id);
           const leftInfo = left.file.extra;
+          const right = nodesMap.value.get(pair.rightFile.id);
           const rightInfo = right.file.extra;
-          const directed = leftInfo.createdAt && rightInfo.createdAt;
-          if (directed && rightInfo.createdAt < leftInfo.createdAt)
-            [left, right] = [right, left];
+
+          // If the edge is directed.
+          // This is the case when both files contain a creation date.
+          const directed = !!(leftInfo.createdAt && rightInfo.createdAt);
+
+          // Determine the source & target nodes.
+          let source = left;
+          let target = right;
+          // Switch the source & target when the right node is older than the left node.
+          if (directed && rightInfo.createdAt < leftInfo.createdAt) {
+            source = right;
+            target = left;
+          }
+
+          // Add the the nodes to eachother's neighbors list.
           left.neighbors.push(right);
           right.neighbors.push(left);
-          const similarity = value.similarity;
-          const link = {
-            id: key,
-            directed: directed,
-            source: left,
-            target: right,
-            similarity,
-            linkWidth:
-              4 * Math.pow(Math.max(0.4, (similarity - 0.75) / 0.2), 2),
+
+          // Create the edge object.
+          const edge = {
+            id: pair.id,
+            directed,
+            source,
+            target,
+            similarity: pair.similarity,
+            width: 4 * Math.pow(Math.max(0.4, (pair.similarity - 0.75) / 0.2), 2)
           };
-          left.links.push(link);
-          right.links.push(link);
-          return link;
+
+          // Add the edge to the source & target nodes.
+          source.edges.push(edge);
+          target.edges.push(edge);
+
+          return edge;
         });
-      let component = 0;
-      Object.values(nodeMap).forEach((node) => {
-        if (node.component < 0) {
-          node.component = ++component;
-          const checkNode = [node];
-          while (checkNode.length) {
-            checkNode.pop().neighbors.forEach((n) => {
-              if (n.component < 0) {
-                n.component = component;
-                checkNode.push(n);
-              }
-            });
-          }
-        }
-      });
+    };
 
-      this.nodes = Object.values(nodeMap).filter((n) => n.visible);
-      if (!this.showSingletons) {
-        this.nodes = this.nodes.filter((n) => n.neighbors.length);
-      }
+    // Calculate the nodes of the graph.
+    const calculateNodes = (): any[] => {
+      const labels = props.legend as any[];
+      const nodesList = Array.from(nodesMap.value.values())
+        // Only display the nodes that are visible.
+        .filter(node => node.visible)
+        // Only display the nodes that have neighbors.
+        // Unless singletons are enabled.
+        .filter(node => node.neighbors.length > 0 || props.showSingletons);
 
-      this.nodes.forEach((node, index) => {
-        node.index = index;
+      for (const node of nodesList) {
+        // Determine if the node is the source of a cluster.
         let incoming = 0;
         let outgoing = 0;
-        node.links.forEach((l) => {
-          if (l.directed) {
-            if (l.target === node) ++incoming;
-            else ++outgoing;
+
+        for (const edge of node.edges) {
+          if (edge.directed) {
+            if (edge.source.id === node.id) incoming++;
+            else outgoing++;
           }
-        });
-        node.source = outgoing > 1 && incoming === 0;
-
-
-        const getDefaultNodeColor = (n) =>  !labels[n.label] ? d3.schemeCategory10[0]:labels[n.label].color
-        let color;
-        if(this.selectedCluster) {
-          color = getClusterElements(this.selectedCluster).has(node.file) ? getDefaultNodeColor(node) : "grey";
-        } else {
-          color = getDefaultNodeColor(node)
         }
-        node.fillColor = color;
-      });
 
-      this.recluster();
+        // Node is the source of a cluster when
+        // * there is at least one outgoing edge
+        // * there are no incoming edges
+        node.source = outgoing > 0 && incoming === 0;
 
-      if(this.hullTool)
-        this.hullTool.clear();
-    }, 50);
-  }
-
-  @Watch("clustering")
-  recluster() {
-    this.setupClusterColors(this.clustering);
-
-    if(this.selectedCluster) {
-      const intersects = this.clustering.filter(c => getClusterIntersect(c, this.selectedCluster).size > 0);
-      if(intersects.length > 0)
-        this.selectedCluster = intersects[0];
-    }
-  }
-
-  removeSelectedNode() {
-    if (this.selectedNode !== null) {
-      this.emitSelectedNode(null);
-    }
-  }
-
-  setupClusterColors(clustering) {
-    this.clusterColors = new Map();
-    for(const cluster of clustering) {
-      const els = getClusterElements(cluster);
-      const counter = new DefaultMap(() => 0);
-      for (const el of els) {
-        counter.set(el.extra.labels, counter.get(el.extra.labels) + 1)
+        // Determine the color of the node.
+        const defaultColor = labels[node.label] ? labels[node.label].color : d3.schemeCategory10[0];
+        // When a cluster is selected
+        // Make all other nodes gray, except for the nodes in the cluster.
+        if (selectedCluster.value) {
+          node.fillColor = selectedClusterMeta.clusterFilesSet.value.has(node.file) ? defaultColor : "grey";
+        } else {
+          node.fillColor = defaultColor;
+        }
       }
 
-      let maxKey = undefined;
-      for ( const [key, count] of counter.entries()) {
-        if(count > counter.get(maxKey))
-          maxKey = key;
+      return nodesList;
+    };
+
+    // Update the graph
+    const updateGraph = (): void => {
+      // Clear side-effects, caused by previous calculations.
+      for (const node of nodesMap.value.values()) {
+        node.neighbors = [];
+        node.edges = [];
       }
 
-      this.clusterColors.set(cluster, this.legend[maxKey]);
-    }
-  }
+      // Update the edges.
+      edges.value = calculateEdges();
+      // Update the nodes.
+      nodes.value = calculateNodes();
+    };
 
-  drawChevron(svg) {
-    const chevron = svg
-      .append("g")
-      .attr("class", "chevron")
-      .append("path")
-      .attr("d", d3.line()([[0,0], [125,75 ], [250,0]]))
-      .attr("stroke", "black")
-      .attr("fill", "none")
-      .style("stroke-width", 15)
-      .style("stroke-opacity", 0.1)
-      .style("cursor", "pointer")
-      .attr("stroke-linecap", "round")
-      .attr("stroke-linejoin", "round");
+    // Update the graph when the data changes.
+    watch(
+      () => [cutoff.value, props.showSingletons, props.legend],
+      () => updateGraph()
+    );
 
-    chevron.on("mouseenter", () => chevron.style("stroke-opacity", 0.2));
-    chevron.on("mouseleave", () => chevron.style("stroke-opacity", 0.1));
+    // D3 Simulation force link
+    const forceLink = d3
+      .forceLink()
+      .id((d: any) => d.id)
+      .strength(
+        (link: any) =>
+          Math.pow(Math.max(0.4, (link.similarity - 0.8) / 0.2), 3) /
+          Math.min(link.source.neighbors.length, link.target.neighbors.length)
+      );
 
-    chevron.on("click", () => this.$vuetify.goTo(this.zoomTo));
-  }
+    // D3 simulation
+    const simulation = d3
+      .forceSimulation()
+      .alphaDecay(0.1)
+      .force("link", forceLink)
+      .force("charge", d3.forceManyBody().distanceMax(200).strength(-20))
+      .force("center", d3.forceCenter(width.value / 2, height.value / 2))
+      .force("compact_x", d3.forceX(width.value / 2).strength(0.01))
+      .force("compact_y", d3.forceY(height.value / 2).strength(0.01));
 
-  @Watch("pairs")
-  @Watch("files")
-  clearCachedNodemap() {
-    this._nodeMap = null;
-  }
-
-  getRawNodeMap() {
-    if (this._nodeMap) return this._nodeMap;
-    if (Object.entries(this.files).length === 0) return {};
-
-    const nodeMap = {};
-    let labels = new Set();
-    Object.entries(this.files).forEach(([key, value]) => {
-      const label = value.extra.labels || "N/A";
-      labels.add(label);
-      nodeMap[value.id] = {
-        id: key,
-        file: value,
-        component: -1,
-        neighbors: [],
-        label: label,
-        x: this.width * Math.random(),
-        y: this.height * Math.random(),
-        vx: 0,
-        vy: 0,
-      };
-    });
-    const colorScale = d3
-      .scaleOrdinal(d3.schemeCategory10)
-      .domain([...labels].reverse());
-    labels = [...labels].sort().map((p) => ({
-      label: p,
-      selected: true,
-      color: colorScale(p),
-    }));
-    // this.legend = Object.fromEntries(labels.map((p) => [p.label, p]));
-    return (this._nodeMap = nodeMap);
-  }
-
-  getQueryColorMap() {
-    const map = new Map();
-    const { cutoff, ...colors } = this.$route.query;
-
-    for (const [color, nodelist] of Object.entries(colors)) {
-      const ids = nodelist.split(",").map((v) => +v);
-      ids.forEach((v) => map.set(v, color));
-    }
-
-    return map;
-  }
-
-  @Watch("nodes")
-  @Watch("links")
-  updateSimulation() {
-    this.svgLink = this.svgLinks
-      .selectAll("path")
-      .data(this.links)
-      .join("path")
-      .classed("link", true)
-      .classed("directed", (d) => d.directed)
-      .attr("stroke-width", (d) => d.linkWidth)
-    ;
-
-    this.svgNode = this.svgNodes
-      .selectAll("circle")
-      .data(this.nodes)
-      .join("circle")
-      .classed("node", true)
-      .classed("source", (d) => d.source)
-      .attr("r", 5)
-      .attr("fill", (d) => d.fillColor)
-      .attr("id", n => `circle-${n.file.id}`)
-      .call(this.drag());
-
-    if(this.hullTool)
-      this.hullTool.clear();
-
-    if(this.polygon)
-      this.hullTool = new ConvexHullTool(this.svg.select("g"), this.selectCluster);
-
-    this.simulation.nodes(this.nodes);
-    this.simulation.alpha(0.5).alphaTarget(0.3).restart();
-    this.simulation.force("link").links(this.links);
-  }
-
-  emitSelectedNode(node) {
-    this.$emit("selectedNodeInfo", node);
-  }
-
-  @Watch("selectedCluster")
-  emitCluster() {
-    this.$emit("selectedClusterInfo", this.selectedCluster);
-  }
-
-  @Watch("selectedNode")
-  onSelectedNode() {
-    this.nodes.forEach(v => v.selected = false);
-    this.svg.select(".selected").classed("selected", false);
-    if(this.selectedNode) {
-
-      this.nodes.find(n => n.file.id === this.selectedNode.id).selected = true;
-      this.svgNodes.select(`#circle-${this.selectedNode.id}`).classed("selected", true);
-    }
-  }
-
-  mounted() {
-    this.$refs.container.prepend(this.svg.node());
-    this.resizeHandler();
-  }
-
-  drag() {
-    return d3
+    // D3 Simulation Drag ability
+    const simulationDrag = d3
       .drag()
       .on("start", (event) => {
-        if (!event.active) this.simulation.alphaTarget(0.3).restart();
+        if (!event.active) simulation.alphaTarget(0.3).restart();
         event.subject.fx = event.subject.x;
         event.subject.fy = event.subject.y;
         event.subject.justDragged = false;
@@ -467,29 +346,137 @@ export default class PlagarismGraph {
         event.subject.justDragged = true;
       })
       .on("end", (event) => {
-        if (!event.active) this.simulation.alphaTarget(0);
+        if (!event.active) simulation.alphaTarget(0);
         event.subject.fx = null;
         event.subject.fy = null;
+
+        // When the user clicks on the graph.
         if (!event.subject.justDragged) {
-          // clicked
-          if (event.subject.file && this.selectedNode && (event.subject.file.id === this.selectedNode.id)) {
-            this.removeSelectedNode();
-          } else {
-            this.emitSelectedNode(event.subject.file);
+          // Toggle the selected file.
+          if (event.subject.file && props.selectedNode && event.subject.file.id === props.selectedNode.id) {
+            selectNode(null);
+            return;
           }
+
+          // Click on a file.
+          selectNode(event.subject.file);
         }
       });
-  }
 
-  toCompareView(diff) {
-    this.$router.push(`/compare/${diff.id}`);
-  }
+    // Handler for every tick in the simulation.
+    // A "tick" is a simulation step.
+    simulation.on("tick", () => {
+      if (graphEdges.value) {
+        graphEdges.value.attr("d", (edge: any) => {
+          const { x: x0, y: y0 } = edge.source;
+          const { x: x1, y: y1 } = edge.target;
+          return `M${x0},${y0}L${0.5 * (x0 + x1)},${0.5 * (y0 + y1)}L${x1},${y1}`;
+        });
+      }
 
-  destroyed() {
-    this.simulation.stop();
-    window.removeEventListener("resize", this.resizeHandler);
-  }
-}
+      if (graphNodes.value) {
+        graphNodes.value
+          .attr("cx", (node: any) => node.x ?? 0)
+          .attr("cy", (node: any) => node.y ?? 0);
+      }
+
+      if (graphHullTool.value) {
+        graphHullTool.value.clear();
+
+        for (const cluster of props.clustering) {
+          // If any cluster is selected, make sure only the selected cluster is colored.
+          // Else, color the cluster in the most appropriate color.
+          let color = clusterColors.value.get(cluster);
+          if (selectedCluster.value && selectedCluster.value === cluster) color = color ?? "blue";
+          if (selectedCluster.value && selectedCluster.value !== cluster) color = "grey";
+
+          // Add convex hull to the cluster.
+          const elements = getClusterElements(cluster);
+          graphHullTool.value.addConvexHullFromNodes(
+            nodes.value.filter((node: any) => elements.has(node.file)),
+            color,
+            cluster
+          );
+        }
+      }
+    });
+
+    // Watch changes to the nodes and update the rendered graph nodes/edges.
+    watch(
+      () => [edges.value, nodes.value],
+      ([edges, nodes]) => {
+        // Create the edges
+        graphEdges.value = graphEdgesBase
+          .selectAll("path")
+          .data(edges)
+          .join("path")
+          .classed("link", true)
+          .classed("directed", (edge: any) => edge.directed)
+          .attr("stroke-width", (edge: any) => edge.width);
+
+        // Create the nodes
+        graphNodes.value = graphNodesBase
+          .selectAll("circle")
+          .data(nodes)
+          .join("circle")
+          .classed("node", true)
+          .classed("source", (node: any) => node.source)
+          .attr("r", 5)
+          .attr("fill", (node: any) => node.fillColor)
+          .attr("id", (node: any) => `circle-${node.file.id}`)
+          .call(simulationDrag as any);
+
+        // Create the Convex Hull around every cluster.
+        // A Convex Hull is a polygon that encloses all the nodes in the cluster.
+        if (props.polygon) {
+          // Clear the convex hull, if it exists.
+          graphHullTool.value?.clear();
+
+          // Create the convex hull.
+          graphHullTool.value = new ConvexHullTool(graph.select("g") as any, selectCluster);
+        }
+
+        // Set the nodes/edges of the simulation.
+        simulation.nodes(nodes);
+        simulation.force<any>("link").links(edges);
+        simulation.alpha(0.5).alphaTarget(0.3).restart();
+      }
+    );
+
+    // Watch width/height changes & update the graph size.
+    watch(
+      () => [width.value, height.value],
+      ([width, height]) => {
+        // Resize the graph.
+        graph.attr("viewBox", [0, 0, width, height]);
+
+        // Resize the simulation.
+        simulation.force<any>("compact_x")?.x(width / 2);
+        simulation.force<any>("compact_y")?.y(height / 2);
+        simulation.force<any>("center")?.x(width / 2)?.y(height / 2);
+
+        // Update the graph when not yet initialized.
+        // This must be done here, since the initial size of the graph is otherwise incorrect.
+        if (!graphInitialized.value) {
+          graphInitialized.value = true;
+          updateGraph();
+        }
+      }
+    );
+
+    // Add the graph to the container.
+    onMounted(() => container.value?.prepend(graph.node() as any));
+
+    // Stop the simulation when the component is unmounted.
+    onUnmounted(() => {
+      simulation.stop();
+    });
+
+    return {
+      container,
+    };
+  },
+});
 </script>
 
 <style lang="scss">
@@ -522,11 +509,12 @@ export default class PlagarismGraph {
       &.source {
         stroke-width: 0;
       }
+
       &.selected {
         stroke: red;
-        stroke-dasharray: 1.14, 2;
-        stroke-width: 1;
+        stroke-width: 2;
       }
+
       &:hover {
         cursor: grab;
       }

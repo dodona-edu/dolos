@@ -1,8 +1,7 @@
-import { Pair, File, loadSemantic } from "@/api/api";
+import { Pair, File } from "@/api/models";
 import { pairsAsNestedMap } from "./PairAsNestedMap";
-import { NodeStats } from "@dodona/dolos-lib/dist/lib/analyze/SemanticAnalyzer";
-import Store from "@/store";
 import { DecodedSemanticResult } from "@dodona/dolos-lib";
+import { useSemanticStore, usePairStore } from "@/api/stores";
 
 type SimilarityScore = {
   similarity: number;
@@ -47,15 +46,15 @@ export class FileInterestingnessCalculator {
   private totalOverlapWeight = 2 / 12;
   private semanticWeight = 3 / 12;
 
-  constructor(private pairs: Pair[], private $store: any) {
+  constructor(private pairs: Pair[]) {
     this.pairMap = pairsAsNestedMap(pairs);
   }
 
-  public async calculateFileScoring(file: File): Promise<FileScoring> {
+  public calculateFileScoring(file: File): FileScoring {
     const similarityScore = this.calculateSimilarityScore(file);
     const totalOverlapScore = this.totalOverlapScore(file);
     const longestFragmentScore = this.longestFragmentScore(file);
-    const semanticMatchScore = await this.semanticMatchingScore(file);
+    const semanticMatchScore = this.semanticMatchingScore(file);
     // The smallest files have arbitrarily high scores. Therefore, we linearly adjust total weight
     const smallFileWeight = file.amountOfKgrams < 15 ? (file.amountOfKgrams / 15) : 1;
 
@@ -140,7 +139,7 @@ export class FileInterestingnessCalculator {
   }
 
   public counter = 0;
-  public async semanticMatchingScore(file: File): Promise<SemanticMatchingScore | null> {
+  public semanticMatchingScore(file: File): SemanticMatchingScore | null {
     if (!file.semanticMap) { return null; }
 
     const pairArray = Array.from(this.pairMap.get(file.id)?.values() || []);
@@ -160,7 +159,7 @@ export class FileInterestingnessCalculator {
 
     if (!pair) { return null; }
 
-    if (pair.pairedMatches.length === 0) { loadSemantic(pair, this.$store.state.api.occurrences); }
+    if (pair.pairedMatches.length === 0) { usePairStore().populateSemantic(pair); }
 
     if (pair.pairedMatches.length === 0) { return null; }
 

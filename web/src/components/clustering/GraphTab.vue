@@ -10,68 +10,99 @@
       :selected-node="selectionManager.currentSelections()[0]"
       @selectedNodeInfo="setSelectedNodeInfo"
     >
-    <GraphLegend :current-files="clusterFiles" @legend="l => legend = l"></GraphLegend>
+      <GraphLegend
+        :current-files="clusterFiles"
+        @legend="(l) => (legend = l)"
+      />
       <div class="d-flex gel-items">
-    <GraphElementList :cluster="cluster"
-                      :selected-files="selectedFiles"
-                      @select-file="setSelectedNodeInfo"
-                      :scroll="true"
-    ></GraphElementList>
+        <GraphElementList
+          :cluster="cluster"
+          :selected-files="selectedFiles"
+          :scroll="true"
+          @select-click="setSelectedNodeInfo"
+        />
       </div>
     </Graph>
   </div>
 </template>
 
-<script lang='ts'>
-import { Component, Prop, Watch } from "vue-property-decorator";
+<script lang="ts">
+import {
+  defineComponent,
+  PropType,
+  ref,
+  onMounted,
+} from "@vue/composition-api";
+import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
+import { getClusterElementsArray } from "@/util/clustering-algorithms/ClusterFunctions";
+import { Pair, File } from "@/api/models";
+import { SelectionManager } from "@/util/FileSelectionManager";
+import { storeToRefs } from "pinia";
+import { useApiStore } from "@/api/stores";
+import { useClustering } from "@/composables";
+import GraphElementList from "@/d3-tools/GraphElementList.vue";
 import Graph from "../graph/Graph.vue";
 import GraphLegend from "../../d3-tools/GraphLegend.vue";
 
-import DataView from "@/views/DataView";
-import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
-import { getClusterElementsArray } from "@/util/clustering-algorithms/ClusterFunctions";
-import { Pair, File } from "@/api/api";
-import GraphElementList from "@/d3-tools/GraphElementList.vue";
-import { SelectionManager } from "@/util/FileSelectionManager";
+export default defineComponent({
+  props: {
+    cluster: {
+      type: Object as PropType<Cluster>,
+      required: true,
+    },
+  },
 
-@Component({
-  components: { GraphElementList, Graph: Graph as any, GraphLegend },
-})
-export default class GraphTab extends DataView {
-  @Prop() cluster!: Cluster;
+  setup(props) {
+    const { cutoff } = storeToRefs(useApiStore());
+    const legend = ref([]);
+    const clusterFiles = ref<File[]>([]);
+    const clusterPairs = ref<Pair[]>([]);
+    const selectedFiles = ref<File[]>([]);
+    const selectionManager = ref(new SelectionManager(1));
 
-  clusterFiles: File[] = [];
-  clusterPairs: Pair[] = [];
+    // Clustering.
+    const clustering = useClustering();
 
-  private selectionManager = new SelectionManager(1);
-  selectedFiles: File[] = [];
+    const updateClusterValues = (): void => {
+      if (props.cluster) {
+        clusterFiles.value = getClusterElementsArray(props.cluster);
+        clusterPairs.value = Array.from(props.cluster);
+      } else {
+        clusterFiles.value = [];
+        clusterPairs.value = [];
+      }
+    };
 
-  legend = [];
+    const setSelectedNodeInfo = (s: File): void => {
+      selectionManager.value.select(s);
+    };
 
-  mounted(): void {
-    this.ensureData();
-    this.updateClusterValues();
+    onMounted(() => {
+      updateClusterValues();
 
-    this.selectionManager = new SelectionManager(1, v => {
-      this.selectedFiles = v;
+      selectionManager.value = new SelectionManager(1, (v) => {
+        selectedFiles.value = v;
+      });
     });
-  }
 
-  @Watch("cluster")
-  updateClusterValues(): void {
-    if (this.cluster) {
-      this.clusterFiles = getClusterElementsArray(this.cluster);
-      this.clusterPairs = Array.from(this.cluster);
-    } else {
-      this.clusterFiles = [];
-      this.clusterPairs = [];
-    }
-  }
+    return {
+      cutoff,
+      legend,
+      clusterFiles,
+      clusterPairs,
+      selectedFiles,
+      selectionManager,
+      clustering,
+      setSelectedNodeInfo,
+    };
+  },
 
-  setSelectedNodeInfo(s: File): void {
-    this.selectionManager.select(s);
-  }
-}
+  components: {
+    GraphElementList,
+    Graph: Graph as any,
+    GraphLegend,
+  },
+});
 </script>
 
 <style scoped>

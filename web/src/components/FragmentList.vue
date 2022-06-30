@@ -3,22 +3,20 @@
     <v-row no-gutters>
       <v-col>
         <v-container>
-          <v-row>
-            <v-list-item>
-              <v-list-item-content>
-                <v-list-item-title class="title">
-                  Fragments
-                </v-list-item-title>
-              </v-list-item-content>
-              <v-spacer></v-spacer>
+          <v-row justify="space-between" align="center">
+            <v-col cols="auto" class="title">
+              Fragments
+            </v-col>
+            <v-spacer />
+            <v-col cols="auto">
               <slot name="header"></slot>
-            </v-list-item>
+            </v-col>
           </v-row>
           <v-row>
             <v-col>
               <v-row class="flex-nowrap" justify="space-between" no-gutters>
                 <v-col cols="auto">
-                  <v-btn @click.stop="changeSelectedItem(-1)" ref="buttonleft1">
+                  <v-btn @click.stop="changeSelectedItem(-1)" color="primary" depressed>
                     <v-icon>
                       mdi-arrow-left-thick
                     </v-icon>
@@ -43,7 +41,7 @@
                   </FragmentItem>
                 </v-col>
                 <v-col cols="auto">
-                  <v-btn @click.stop="changeSelectedItem(1)" ref="buttonright1">
+                  <v-btn @click.stop="changeSelectedItem(1)" color="primary" depressed>
                     <v-icon>
                       mdi-arrow-right-thick
                     </v-icon>
@@ -74,7 +72,7 @@
         </v-container>
       </v-col>
     </v-row>
-    <v-divider></v-divider>
+    <v-divider />
     <v-row no-gutters>
       <v-data-table
         :headers="headers"
@@ -100,7 +98,7 @@
             off-icon="mdi-eye-off"
             on-icon="mdi-eye"
             v-model="item.active"
-          ></v-simple-checkbox>
+          />
         </template>
       </v-data-table>
     </v-row>
@@ -108,226 +106,257 @@
 </template>
 
 <script lang="ts">
-import FragmentItem from "@/components/FragmentItem.vue";
-import { fileToTokenizedFile, Fragment, Pair, Selection } from "@/api/api";
-import { Component, Prop, PropSync, Vue, Watch } from "vue-property-decorator";
+import {
+  defineComponent,
+  PropType,
+  computed,
+  ref,
+  watch,
+  onMounted,
+  onUnmounted,
+} from "@vue/composition-api";
+import { useVModel } from "@vueuse/core";
+import { Fragment, Pair, Selection } from "@/api/models";
+import { fileToTokenizedFile } from "@/api/utils";
 import { constructID, SelectionId } from "@/util/OccurenceHighlight";
 import { SideID } from "@/components/CompareCard.vue";
 import { Region, SemanticAnalyzer } from "@dodona/dolos-lib";
+import FragmentItem from "@/components/FragmentItem.vue";
 
 interface FragmentWithId extends Fragment {
   index: number;
 }
 
-@Component({
-  components: { FragmentItem },
-  methods: {
-    constructID
-  }
-})
-export default class FragmentList extends Vue {
-  @Prop({ required: true }) kgramLength!: number;
-  @Prop({ required: true }) pair!: Pair;
-  @Prop({ required: true }) selected!: {
-    side: SideID;
-    fragmentClasses: Array<SelectionId>;
-  };
+export default defineComponent({
+  props: {
+    kgramLength: {
+      type: Number as PropType<number>,
+      required: true
+    },
+    pair: {
+      type: Object as PropType<Pair>,
+      required: true
+    },
+    selected: {
+      type: Object as PropType<{ side: SideID; fragmentClasses: Array<SelectionId>;}>,
+      required: true
+    },
+    selectedItemSync: {
+      type: Number as PropType<number>,
+      required: true
+    },
+  },
 
-  @PropSync("selectedItemSync", { required: true }) selectedItem!: number;
+  setup(props, { emit }) {
+    const selectedItem = useVModel(props, "selectedItemSync", emit);
 
-  get headers(): Array<{text: string; sortable: boolean; value: string}> {
-    return [
+    // Table headers
+    const headers = computed(() => [
       {
         text: "Visibility",
         sortable: true,
         value: "active"
       },
       {
-        text: this.kgramLength + "-grams",
+        text: props.kgramLength + "-grams",
         sortable: true,
         value: "occurrences.length"
       }
-    ];
-  }
+    ]);
 
-  selectionsIds!: Array<[SelectionId, SelectionId]>;
-  dataTableSelection: [FragmentWithId] | [] = [];
+    const selectionsIds = ref<[SelectionId, SelectionId][]>([]);
+    const dataTableSelection = ref< [FragmentWithId] | []>([]);
 
-  get fragmentLengths(): Array<number> {
-    const lengths = this.pair.fragments?.map(fragment => fragment.occurrences.length);
-    if (!lengths) throw new Error("fragments are not loaded");
-    return lengths;
-  }
+    const fragmentLengths = computed(() => {
+      const lengths = props.pair.fragments?.map(fragment => fragment.occurrences.length);
+      if (!lengths) throw new Error("fragments are not loaded");
+      return lengths;
+    });
 
-  get minFragmentKgrams(): number {
-    return this.fragmentLengths.reduce((pv, cv) => Math.min(pv, cv)) as number;
-  }
+    const minFragmentKgrams = computed(() => {
+      return fragmentLengths.value.reduce((pv, cv) => Math.min(pv, cv)) as number;
+    });
 
-  get maxFragmentKgrams(): number {
-    return this.fragmentLengths.reduce((pv, cv) => Math.max(pv, cv)) as number;
-  }
+    const maxFragmentKgrams = computed(() => {
+      return fragmentLengths.value.reduce((pv, cv) => Math.max(pv, cv)) as number;
+    });
 
-  get selectedFragment(): Fragment | undefined {
-    if (this.pair.fragments === null) {
-      return undefined;
-    } else {
-      return this.pair.fragments[this.selectedItem];
-    }
-  }
-
-  get anyActive(): boolean {
-    if (this.pair.fragments === null) {
-      return false;
-    } else {
-      return this.pair.fragments.some(fragment => fragment.active) as boolean;
-    }
-  }
-
-  get fragmentsWithId(): Array<FragmentWithId> {
-    if (this.pair.fragments === null) {
-      return [];
-    } else {
-      const leftCovers = this.pair.pairedMatches.map(p =>
-        SemanticAnalyzer.getFullRange(fileToTokenizedFile(this.pair.leftFile), p.leftMatch));
-      const rightCovers = this.pair.pairedMatches.map(p =>
-        SemanticAnalyzer.getFullRange(fileToTokenizedFile(this.pair.rightFile), p.rightMatch));
-
-      return this.pair.fragments
-        .filter(f =>
-          !(leftCovers.some(lc => this.isContainedIn(f.left, lc)) &&
-          rightCovers.some(rc => this.isContainedIn(f.right, rc))))
-
-        .map((fragment, index) => {
-          const fragmentWithId = (fragment as FragmentWithId);
-          fragmentWithId.index = index;
-          return fragmentWithId;
-        });
-    }
-  }
-
-  isContainedIn(s1: Selection, s2: Region): boolean {
-    return Region.valid(s1.startRow, s1.startCol, s1.endRow, s2.endCol) &&
-    Region.diff(new Region(s1.startRow, s1.startCol, s1.endRow, s2.endCol), s2).length === 0;
-  }
-
-  applyMinFragmentLength(value: number): void {
-    if (this.pair.fragments !== null) {
-      for (const fragment of this.pair.fragments) {
-        fragment.active = value <= fragment.occurrences.length;
-      }
-      if (this.selectedFragment && !this.selectedFragment.active) {
-        this.selectedItem = -1;
-      }
-    }
-  }
-
-  changeSelectedItem(dx: number, current?: number): void {
-    if (this.pair.fragments === null || !this.anyActive) {
-      this.selectedItem = -1;
-    } else {
-      const length = this.pair.fragments.length;
-      // explicit undefined check because 0 is falsy
-      let value = current === undefined ? this.selectedItem : current;
-      while (value < 0) {
-        value += length;
-      }
-      const next = (((value + dx) % length) + length) % length;
-      if (!this.pair.fragments[next].active) {
-        this.changeSelectedItem(dx, next);
+    const selectedFragment = computed(() => {
+      if (props.pair.fragments === null) {
+        return undefined;
       } else {
-        this.selectedItem = next;
+        return props.pair.fragments[selectedItem.value];
       }
-    }
-  }
+    });
 
-  @Watch("selected", { deep: true })
-  onSelectedChange({ sides }: any): void {
-    const { leftSideId, rightSideId } = sides;
-    const leftSel = leftSideId.fragmentClasses[0];
-    const rightSel = rightSideId.fragmentClasses[0];
-    this.selectedItem = this.selectionsIds
-      .findIndex(([left, right]) => (leftSel === left && rightSel === right));
-  }
-
-  handleKeyboardEvent(event: KeyboardEvent): void {
-    event.preventDefault();
-    if (event.key === "ArrowLeft") {
-      this.changeSelectedItem(-1);
-    } else if (event.key === "ArrowRight") {
-      this.changeSelectedItem(1);
-    } else if (event.key === " " || event.key === "Enter") {
-      if (this.selectedFragment) {
-        this.selectedFragment.active = !this.selectedFragment.active;
+    const anyActive = computed(() => {
+      if (props.pair.fragments === null) {
+        return false;
+      } else {
+        return props.pair.fragments.some(fragment => fragment.active) as boolean;
       }
-    }
-  }
+    });
 
-  destroyed(): void {
-    window.removeEventListener("keyup", this.handleKeyboardEvent);
-  }
+    const isContainedIn = (s1: Selection, s2: Region): boolean => {
+      return Region.valid(s1.startRow, s1.startCol, s1.endRow, s2.endCol) &&
+      Region.diff(new Region(s1.startRow, s1.startCol, s1.endRow, s2.endCol), s2).length === 0;
+    };
 
-  created(): void {
-    window.addEventListener("keyup", this.handleKeyboardEvent);
-  }
+    const fragmentsWithId = computed(() => {
+      if (props.pair.fragments === null) {
+        return [];
+      } else {
+        const leftCovers = props.pair.pairedMatches.map(p =>
+          SemanticAnalyzer.getFullRange(fileToTokenizedFile(props.pair.leftFile), p.leftMatch));
+        const rightCovers = props.pair.pairedMatches.map(p =>
+          SemanticAnalyzer.getFullRange(fileToTokenizedFile(props.pair.rightFile), p.rightMatch));
 
-  mounted(): void {
-    if (this.pair.fragments === null) {
-      const unwatch = this.$watch("pair.fragments", function () {
-        // the documentation specifically tells that arrow function should not be used
-        // eslint-disable-next-line no-invalid-this
-        this.makeSelectionsWithIds();
-        // eslint-disable-next-line no-invalid-this
-        if (this.selectionsIds.length > 0) {
-          unwatch();
+        return props.pair.fragments
+          .filter(f =>
+            !(leftCovers.some(lc => isContainedIn(f.left, lc)) &&
+            rightCovers.some(rc => isContainedIn(f.right, rc))))
+
+          .map((fragment, index) => {
+            const fragmentWithId = (fragment as FragmentWithId);
+            fragmentWithId.index = index;
+            return fragmentWithId;
+          });
+      }
+    });
+
+    const applyMinFragmentLength = (value: number): void => {
+      if (props.pair.fragments !== null) {
+        for (const fragment of props.pair.fragments) {
+          fragment.active = value <= fragment.occurrences.length;
         }
-      });
-    } else {
-      this.makeSelectionsWithIds();
-    }
-  }
-
-  private makeSelectionsWithIds(): void {
-    if (this.pair.fragments === null) {
-      this.selectionsIds = [];
-    } else {
-      this.selectionsIds = this.pair.fragments.map(fragment => {
-        return [constructID(fragment.left), constructID(fragment.right)];
-      });
-    }
-  }
-
-  itemClassFunction(fragment: FragmentWithId): string | void {
-    if (this.selectedItem === fragment.index) {
-      return "blue lighten-4";
-    }
-  }
-
-  dataTableCheckBoxToggle(fragment: FragmentWithId, value: boolean): void {
-    if (this.selectedItem === fragment.index && !value) {
-      this.selectedItem = -1;
-    }
-  }
-
-  onSelectedItemActiveChange(value: boolean): void {
-    if (!value) {
-      this.selectedItem = -1;
-    }
-  }
-
-  onRowClick(
-    fragment: FragmentWithId,
-    { isSelected, select }: { isSelected: boolean; select: (value: boolean) => void }
-  ): void {
-    if (fragment.active) {
-      select(!isSelected);
-      if (isSelected) {
-        this.selectedItem = -1;
-      } else {
-        this.selectedItem = fragment.index;
+        if (selectedFragment.value && !selectedFragment.value.active) {
+          selectedItem.value = -1;
+        }
       }
-    }
+    };
+
+    const changeSelectedItem = (dx: number, current?: number): void => {
+      if (props.pair.fragments === null || !anyActive.value) {
+        selectedItem.value = -1;
+      } else {
+        const length = props.pair.fragments.length;
+        // explicit undefined check because 0 is falsy
+        let value = current === undefined ? selectedItem.value : current;
+        while (value < 0) {
+          value += length;
+        }
+        const next = (((value + dx) % length) + length) % length;
+        if (!props.pair.fragments[next].active) {
+          changeSelectedItem(dx, next);
+        } else {
+          selectedItem.value = next;
+        }
+      }
+    };
+
+    const handleKeyboardEvent = (event: KeyboardEvent): void => {
+      event.preventDefault();
+      if (event.key === "ArrowLeft") {
+        changeSelectedItem(-1);
+      } else if (event.key === "ArrowRight") {
+        changeSelectedItem(1);
+      } else if (event.key === " " || event.key === "Enter") {
+        if (selectedFragment.value) {
+          selectedFragment.value.active = !selectedFragment.value.active;
+        }
+      }
+    };
+
+    const makeSelectionsWithIds = (): void => {
+      if (props.pair.fragments === null) {
+        selectionsIds.value = [];
+      } else {
+        selectionsIds.value = props.pair.fragments.map(fragment => {
+          return [constructID(fragment.left), constructID(fragment.right)];
+        });
+      }
+    };
+
+    const itemClassFunction = (fragment: FragmentWithId): string | void => {
+      if (selectedItem.value === fragment.index) {
+        return "blue lighten-4";
+      }
+    };
+
+    const dataTableCheckBoxToggle = (fragment: FragmentWithId, value: boolean): void => {
+      if (selectedItem.value === fragment.index && !value) {
+        selectedItem.value = -1;
+      }
+    };
+
+    const onSelectedItemActiveChange = (value: boolean): void => {
+      if (!value) {
+        selectedItem.value = -1;
+      }
+    };
+
+    const onRowClick = (
+      fragment: FragmentWithId,
+      { isSelected, select }: { isSelected: boolean; select: (value: boolean) => void }
+    ): void => {
+      if (fragment.active) {
+        select(!isSelected);
+        if (isSelected) {
+          selectedItem.value = -1;
+        } else {
+          selectedItem.value = fragment.index;
+        }
+      }
+    };
+
+    watch(
+      () => props.selected,
+      ({ sides }: any) => {
+        const { leftSideId, rightSideId } = sides;
+        const leftSel = leftSideId.fragmentClasses[0];
+        const rightSel = rightSideId.fragmentClasses[0];
+        selectedItem.value = selectionsIds.value
+          .findIndex(([left, right]) => (leftSel === left && rightSel === right));
+      },
+      { deep: true },
+    );
+
+    onMounted(() => {
+      window.addEventListener("keyup", handleKeyboardEvent);
+      makeSelectionsWithIds();
+    });
+
+    onUnmounted(() => {
+      window.removeEventListener("keyup", handleKeyboardEvent);
+    });
+
+    return {
+      selectedItem,
+      headers,
+      selectionsIds,
+      dataTableSelection,
+      fragmentLengths,
+      minFragmentKgrams,
+      maxFragmentKgrams,
+      selectedFragment,
+      anyActive,
+      isContainedIn,
+      fragmentsWithId,
+      applyMinFragmentLength,
+      handleKeyboardEvent,
+      changeSelectedItem,
+      makeSelectionsWithIds,
+      itemClassFunction,
+      dataTableCheckBoxToggle,
+      onSelectedItemActiveChange,
+      onRowClick,
+    };
+  },
+
+  components: {
+    FragmentItem
   }
-}
+});
 </script>
 
 <style>

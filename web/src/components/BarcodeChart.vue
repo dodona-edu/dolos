@@ -29,141 +29,140 @@
 </template>
 
 <script lang="ts">
-
-import { Component, Prop, Vue, Watch } from "vue-property-decorator";
-import { Selection } from "@/api/api";
+import { defineComponent, PropType, computed, watch, onMounted } from "@vue/composition-api";
+import { Selection } from "@/api/models";
 import { constructID } from "@/util/OccurenceHighlight";
 import * as d3 from "d3";
 
-@Component
-export default class BarcodeChart extends Vue {
-  @Prop({ required: true }) selections!: Array<Selection>;
-  @Prop({ required: true }) sideIdentifier!: string;
-  @Prop({ required: true }) maxLines!: number;
-  @Prop({ required: true }) lines!: number;
-  @Prop({ required: true }) documentScrollFraction!: number;
-  @Prop({ required: true }) amountOfLinesVisible!: number;
-  @Prop() selectedSelections!: Array<string>;
-  @Prop({ required: true }) hoveringSelections!: Array<string>;
-  @Prop({ required: true }) activeSelections!: Array<string>;
+export default defineComponent({
+  props: {
+    selections: { type: Array as PropType<Array<Selection>>, required: true },
+    sideIdentifier: { type: String as PropType<string>, required: true },
+    maxLines: { type: Number as PropType<number>, required: true },
+    lines: { type: Number as PropType<number>, required: true },
+    documentScrollFraction: { type: Number as PropType<number>, required: true },
+    amountOfLinesVisible: { type: Number as PropType<number>, required: true },
+    selectedSelections: { type: Array as PropType<Array<string>>, required: true },
+    hoveringSelections: { type: Array as PropType<Array<string>>, required: true },
+    activeSelections: { type: Array as PropType<Array<string>>, required: true },
+  },
 
-  mounted(): void {
-    this.drawBar();
-  }
-
-  makeSelector(blockClasses: Array<string>): string {
-    return blockClasses
-      .map(blockClass => `#${this.identifier} .${blockClass}`)
-      .join(", ");
-  }
-
-  @Watch("amountOfLinesVisible")
-  onAmountOfLinesVisibleChange(newValue: number): void {
-    d3.select(this.$refs.scrollHighlighter as HTMLElement)
-      .attr("height", this.scrollHighlighterHeight());
-  }
-
-  scrollHighlighterHeight(): number {
-    return (this.lines / this.maxLines) * Math.floor(this.amountOfLinesVisible);
-  }
-
-  get scrollOffset(): number {
-    return Math.min(
-      this.documentScrollFraction * (this.lines - this.scrollHighlighterHeight()) * this.lines / this.maxLines,
-      this.lines - this.scrollHighlighterHeight()
+  setup(props, { emit, refs }) {
+    const identifier = computed(() => `${props.sideIdentifier}-chart`);
+    const scrollHighlighterHeight = computed(() =>
+      (props.lines / props.maxLines) * Math.floor(props.amountOfLinesVisible)
     );
-  }
+    const scrollOffset = computed(() =>
+      Math.min(
+        props.documentScrollFraction * (props.lines - scrollHighlighterHeight.value) * props.lines / props.maxLines,
+        props.lines - scrollHighlighterHeight.value
+      )
+    );
 
-  get identifier(): string {
-    return `${this.sideIdentifier}-chart`;
-  }
+    const getKey = (rect: SVGRectElement[] | ArrayLike<SVGRectElement>): number => {
+      return (d3.select(rect[0].parentNode as any).datum() as any).key;
+    };
 
-  drawBar(): void {
-    const svg = d3.select(`#${this.identifier} .svg-content-responsive`)
-      .attr("viewBox", [0, 0, 1, this.lines].join(" "));
+    const mouseover = (map: {[key: number]: Array<string>}, rect: SVGRectElement[] | ArrayLike<SVGRectElement>):
+      void => {
+      const classes = map[getKey(rect)];
+      if (classes.length) {
+        emit("selectionhoverenter", props.sideIdentifier, classes);
+      }
+    };
 
-    const temp: {[key: number]: number} = {};
-    const subgroups = [];
-    const map: {[key: number]: Array<string>} = {};
-    for (let i = 0; i <= this.lines; i += 1) {
-      subgroups.push(i.toString());
-      temp[i] = 1;
-      map[i] = [];
-    }
+    const mouseleave = (map: {[key: number]: Array<string>}, rect: SVGRectElement[] | ArrayLike<SVGRectElement>):
+      void => {
+      const classes = map[getKey(rect)];
+      if (classes.length) {
+        emit("selectionhoverexit", props.sideIdentifier, classes);
+      }
+    };
 
-    for (const selection of this.selections) {
-      for (let i = selection.startRow; i <= selection.endRow; i += 1) {
-        const id = constructID(selection);
-        if (!map[i].includes(id)) {
-          map[i].push(id);
+    const mouseclick = (map: {[key: number]: Array<string>}, rect: SVGRectElement[] | ArrayLike<SVGRectElement>):
+      void => {
+      const classes = map[getKey(rect)];
+      if (classes.length) {
+        emit("selectionclick", props.sideIdentifier, classes);
+      }
+    };
+
+    const drawBar = (): void => {
+      const svg = d3
+        .select(`#${identifier.value} .svg-content-responsive`)
+        .attr("viewBox", [0, 0, 1, props.lines].join(" "));
+
+      const temp: {[key: number]: number} = {};
+      const subgroups = [];
+      const map: {[key: number]: Array<string>} = {};
+      for (let i = 0; i <= props.lines; i += 1) {
+        subgroups.push(i.toString());
+        temp[i] = 1;
+        map[i] = [];
+      }
+
+      for (const selection of props.selections) {
+        for (let i = selection.startRow; i <= selection.endRow; i += 1) {
+          const id = constructID(selection);
+          if (!map[i].includes(id)) {
+            map[i].push(id);
+          }
         }
       }
-    }
 
-    const data = [temp];
-    const stackedData = d3.stack().keys(subgroups)(data);
+      const data = [temp];
+      const stackedData = d3.stack().keys(subgroups)(data);
 
-    const y: d3.ScaleLinear<number, number> =
-      d3.scaleLinear()
-        .domain([0, this.maxLines])
-        .range([this.lines, 0]);
-    const ys: (d: number) => number = (d: number) => y(d) || 0;
+      const y: d3.ScaleLinear<number, number> =
+        d3.scaleLinear()
+          .domain([0, props.maxLines])
+          .range([props.lines, 0]);
+      const ys: (d: number) => number = (d: number) => y(d) || 0;
 
-    const selection =
-      svg
-        .insert("g", ":first-child")
-        .selectAll("g")
-        .data(stackedData)
-        .enter().append("g")
-        .attr("class", function (d) {
-          const blocks = map[+d.key];
-          let classes = `barcodeChartBar ${blocks.join(" ")}`;
-          if (blocks.length > 0) {
-            classes += " " + "marked";
-          }
-          return classes;
-        })
-        .selectAll("rect")
-        // enter a second time = loop subgroup per subgroup to add all rectangles
-        .data(function (d) { return d; })
-        .enter().append("rect")
-        .attr("y", d => { return this.lines - ys(d[0]); })
-        .attr("height", function (d) { return ys(d[0]) - ys(d[1]); })
-        .attr("width", this.lines);
-    selection.on("mouseover", () => this.mouseover(map, selection.nodes()));
-    selection.on("mouseleave", () => this.mouseleave(map, selection.nodes()));
-    selection.on("click", () => this.mouseclick(map, selection.nodes()));
+      const selection =
+        svg
+          .insert("g", ":first-child")
+          .selectAll("g")
+          .data(stackedData)
+          .enter().append("g")
+          .attr("class", (d) => {
+            const blocks = map[+d.key];
+            let classes = `barcodeChartBar ${blocks.join(" ")}`;
+            if (blocks.length > 0) {
+              classes += " " + "marked";
+            }
+            return classes;
+          })
+          .selectAll("rect")
+          // enter a second time = loop subgroup per subgroup to add all rectangles
+          .data((d) => d)
+          .enter()
+          .append("rect")
+          .attr("y", d => props.lines - ys(d[0]))
+          .attr("height", d => ys(d[0]) - ys(d[1]))
+          .attr("width", props.lines);
+
+      selection.on("mouseover", () => mouseover(map, selection.nodes()));
+      selection.on("mouseleave", () => mouseleave(map, selection.nodes()));
+      selection.on("click", () => mouseclick(map, selection.nodes()));
+    };
+
+    onMounted(() => drawBar());
+    watch(
+      () => props.amountOfLinesVisible,
+      () => {
+        d3
+          .select(refs.scrollHighlighter as HTMLElement)
+          .attr("height", scrollHighlighterHeight.value);
+      }
+    );
+
+    return {
+      identifier,
+      scrollOffset,
+    };
   }
-
-  getKey(rect: SVGRectElement[] | ArrayLike<SVGRectElement>): number {
-    // @ts-expect-error object is of type 'unknown', too deep in D3 types?
-    return d3.select(rect[0].parentNode).datum().key;
-  }
-
-  mouseover(map: {[key: number]: Array<string>}, rect: SVGRectElement[] | ArrayLike<SVGRectElement>):
-    void {
-    const classes = map[this.getKey(rect)];
-    if (classes.length) {
-      this.$emit("selectionhoverenter", this.sideIdentifier, classes);
-    }
-  }
-
-  mouseleave(map: {[key: number]: Array<string>}, rect: SVGRectElement[] | ArrayLike<SVGRectElement>):
-    void {
-    const classes = map[this.getKey(rect)];
-    if (classes.length) {
-      this.$emit("selectionhoverexit", this.sideIdentifier, classes);
-    }
-  }
-
-  mouseclick(map: {[key: number]: Array<string>}, rect: SVGRectElement[] | ArrayLike<SVGRectElement>):
-    void {
-    const classes = map[this.getKey(rect)];
-    if (classes.length) {
-      this.$emit("selectionclick", this.sideIdentifier, classes);
-    }
-  }
-}
+});
 </script>
 
 <style lang="scss">
