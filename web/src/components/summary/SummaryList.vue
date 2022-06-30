@@ -53,7 +53,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, shallowRef, computed, watch } from "@vue/composition-api";
+import { defineComponent, shallowRef, computed, watch } from "@vue/composition-api";
 import { storeToRefs } from "pinia";
 import { Pair } from "@/api/models";
 import { useFileStore, usePairStore } from "@/api/stores";
@@ -120,7 +120,7 @@ export default defineComponent({
     );
 
     // Scored files, after sorting.
-    const scoredFilesSorted = ref<FileScoring[]>([]);
+    const scoredFilesSorted = shallowRef<FileScoring[]>([]);
 
     // Scored files, after search filter.
     const scoredFilesSearch = computed(() =>

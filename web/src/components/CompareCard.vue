@@ -190,6 +190,7 @@ import {
   defineComponent,
   PropType,
   shallowRef,
+  ref,
   computed,
   onMounted,
   watch,
@@ -254,7 +255,7 @@ export default defineComponent({
     const sideMap = shallowRef<Map<SideID, Map<SelectionId, SelectionId[]>>>(
       new Map()
     );
-    const sideSelectionsToFragments = shallowRef<{
+    const sideSelectionsToFragments = ref<{
       [key in SideID]: {
         [key: string]: Fragment[];
       };
@@ -262,7 +263,7 @@ export default defineComponent({
       [SideID.leftSideId]: {},
       [SideID.rightSideId]: {},
     });
-    const lastHovered = shallowRef<{
+    const lastHovered = ref<{
       [key in SideID]: {
         fragmentClasses: Array<SelectionId>;
       };
@@ -270,7 +271,7 @@ export default defineComponent({
       [SideID.leftSideId]: { fragmentClasses: [] },
       [SideID.rightSideId]: { fragmentClasses: [] },
     });
-    const selected = shallowRef<{
+    const selected = ref<{
       sides: {
         [key in SideID]: {
           fragmentClasses: Array<SelectionId>;

@@ -54,7 +54,6 @@
     <v-row>
       <v-col cols="11">
         <ClusteringTable
-          v-if="false"
           :current-clustering="clustering"
           :selected-cluster="selectedCluster"
         />
@@ -64,7 +63,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, shallowRef, computed } from "@vue/composition-api";
+import { defineComponent, shallowRef, computed } from "@vue/composition-api";
 import { storeToRefs } from "pinia";
 import { File } from "@/api/models";
 import { Cluster } from "@/util/Cluster";
@@ -86,13 +85,13 @@ export default defineComponent({
     const showSingletons = shallowRef(false);
 
     // Legend.
-    const legend = ref<unknown[]>([]);
+    const legend = shallowRef<unknown[]>([]);
 
     // Node in the graph that is currently selected (file).
-    const selectedNode = ref<File>();
+    const selectedNode = shallowRef<File>();
 
     // Cluster that is currently selected.
-    const selectedCluster = ref<Cluster>();
+    const selectedCluster = shallowRef<Cluster>();
 
     // Clustering
     const clustering = useClustering();

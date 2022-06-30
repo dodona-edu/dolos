@@ -55,7 +55,7 @@
 import {
   defineComponent,
   PropType,
-  ref,
+  shallowRef,
   computed,
   watch,
   onMounted,
@@ -86,14 +86,14 @@ export default defineComponent({
     const router = useRouter();
 
     // List of selected files.
-    const selectedFiles = ref<File[]>([]);
+    const selectedFiles = shallowRef<File[]>([]);
 
     // Pair that is being hovered in the heatmap.
-    const hoveredPair = ref<Pair | null>(null);
+    const hoveredPair = shallowRef<Pair | null>(null);
 
     // Heatmap element & legend template ref.
-    const heatmapElement = ref<SVGSVGElement>();
-    const heatmapLegendElement = ref<SVGSVGElement>();
+    const heatmapElement = shallowRef<SVGSVGElement>();
+    const heatmapLegendElement = shallowRef<SVGSVGElement>();
 
     // Heatmap element size
     const { width, height } = {

@@ -40,7 +40,7 @@
 import {
   defineComponent,
   PropType,
-  ref,
+  shallowRef,
   watch,
   onMounted,
 } from "@vue/composition-api";
@@ -64,8 +64,8 @@ export default defineComponent({
   },
 
   setup(props) {
-    const currentFiles = ref<{ leftFile: File; rightFile: File } | null>(null);
-    const match = ref<PairedSemanticGroups<DecodedSemanticResult>>();
+    const currentFiles = shallowRef<{ leftFile: File; rightFile: File } | null>(null);
+    const match = shallowRef<PairedSemanticGroups<DecodedSemanticResult>>();
 
     const getPairedMatch = (): void => {
       const node = props.file.semanticMatchScore;

@@ -3,7 +3,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, ref, shallowRef, computed, watch, onMounted } from "@vue/composition-api";
+import { defineComponent, PropType, shallowRef, computed, watch, onMounted } from "@vue/composition-api";
 import { TooltipTool } from "@/d3-tools/TooltipTool";
 import { FileScoring } from "@/util/FileInterestingness";
 import { useElementSize } from "@vueuse/core";

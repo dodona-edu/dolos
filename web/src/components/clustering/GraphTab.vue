@@ -56,9 +56,9 @@ export default defineComponent({
   setup(props) {
     const { cutoff } = storeToRefs(useApiStore());
     const legend = shallowRef([]);
-    const clusterFiles = ref<File[]>([]);
-    const clusterPairs = ref<Pair[]>([]);
-    const selectedFiles = ref<File[]>([]);
+    const clusterFiles = shallowRef<File[]>([]);
+    const clusterPairs = shallowRef<Pair[]>([]);
+    const selectedFiles = shallowRef<File[]>([]);
     const selectionManager = shallowRef(new SelectionManager(1));
 
     // Clustering.

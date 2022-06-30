@@ -73,7 +73,7 @@ export default defineComponent({
     const { cutoff } = storeToRefs(useApiStore());
 
     // Reference to the container element.
-    const container = ref<HTMLElement>();
+    const container = shallowRef<HTMLElement>();
     // Container size
     const { width, height } = useElementSize(container);
 

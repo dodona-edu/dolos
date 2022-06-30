@@ -41,7 +41,7 @@ export const useApiStore = defineStore("api", () => {
     await semanticStore.hydrate();
 
     // Calculate the initial cut-off value.
-    cutoff.value = getInterpolatedSimilarity(Object.values(pairStore.pairs));
+    cutoff.value = getInterpolatedSimilarity(pairStore.pairsList);
 
     isLoaded.value = true;
   };

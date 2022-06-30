@@ -26,7 +26,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, ref, onMounted } from "@vue/composition-api";
+import { defineComponent, PropType, shallowRef, onMounted } from "@vue/composition-api";
 import { File, Legend } from "@/api/models";
 import { useFileStore } from "@/api/stores";
 
@@ -40,7 +40,7 @@ export default defineComponent({
 
   setup(props, { emit }) {
     const fileStore = useFileStore();
-    const legend = ref<Legend>({});
+    const legend = shallowRef<Legend>({});
 
     const init = (): void => {
       const fullLegend = fileStore.legend;

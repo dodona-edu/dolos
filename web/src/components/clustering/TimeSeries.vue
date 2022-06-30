@@ -5,7 +5,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, ref, shallowRef, watch, toRef, onMounted } from "@vue/composition-api";
+import { defineComponent, PropType, shallowRef, watch, toRef, onMounted } from "@vue/composition-api";
 import { storeToRefs } from "pinia";
 import { useApiStore } from "@/api/stores";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
@@ -36,7 +36,7 @@ export default defineComponent({
   setup(props, { emit }) {
     const { clusterFiles } = useCluster(toRef(props, "cluster"));
     const { cutoff } = storeToRefs(useApiStore());
-    const legend = ref<Legend>();
+    const legend = shallowRef<Legend>();
 
     // Timeseries element size
     const margin = {
