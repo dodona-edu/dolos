@@ -59,7 +59,7 @@
             </v-list-item-icon>
             <div class="anonymize-content">
               <v-list-item-title>Anonymize</v-list-item-title>
-              <v-switch class="anonymize-switch" v-model="isAnonymous" />
+              <v-switch class="anonymize-switch" v-model="isAnonymous" :disabled="!isLoaded" />
             </div>
           </v-list-item>
           <v-list-item
