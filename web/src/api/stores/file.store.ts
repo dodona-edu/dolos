@@ -5,6 +5,7 @@ import { DATA_URL } from "@/api";
 import { File, ObjMap } from "@/api/models";
 import { useApiStore } from "@/api/stores";
 import { colors, names, uniqueNamesGenerator } from "unique-names-generator";
+import { useLegend } from "@/composables";
 
 /**
  * Store containing the file data & helper functions.
@@ -18,25 +19,7 @@ export const useFileStore = defineStore("files", () => {
   const hydrated = shallowRef(false);
 
   // Legend of files.
-  const legend = computed(() => {
-    const labels = new Set<string>();
-
-    for (const file of filesList.value) {
-      labels.add(file.extra.labels || "N/A");
-    }
-
-    const colorScale = d3
-      .scaleOrdinal(d3.schemeCategory10.filter((c) => c !== "#7f7f7f"))
-      .domain([...labels].reverse());
-
-    const legend = [...labels].sort().map((p) => ({
-      label: p,
-      selected: true,
-      color: colorScale(p),
-    }));
-
-    return Object.fromEntries(legend.map((l) => [l.label, l]));
-  });
+  const legend = useLegend(files);
 
   // Parse the files from a CSV string.
   function parse(fileData: d3.DSVRowArray, anonymize = false): ObjMap<File> {
