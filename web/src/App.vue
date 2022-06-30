@@ -53,16 +53,14 @@
         <v-divider />
 
         <v-list nav dense>
-          <v-list-item>
+          <v-list-item class="anonymize">
             <v-list-item-icon>
               <v-icon>mdi-incognito</v-icon>
             </v-list-item-icon>
-            <v-list-item-content>
+            <div class="anonymize-content">
               <v-list-item-title>Anonymize</v-list-item-title>
-            </v-list-item-content>
-            <v-list-item-content class="switch-style">
-              <v-switch v-model="isAnonymous"></v-switch>
-            </v-list-item-content>
+              <v-switch class="anonymize-switch" v-model="isAnonymous" />
+            </div>
           </v-list-item>
           <v-list-item
             href="https://github.com/dodona-edu/dolos"
@@ -170,13 +168,23 @@ export default defineComponent({
   display: none;
 }
 
-.switch-style {
-  max-height: 35px;
-  padding: 4px 0 0 4px !important;
-}
+.anonymize {
+  &-content {
+    display: flex;
+    overflow: visible;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+  }
 
-.switch-style .v-input {
-  margin-top: 0;
+  &-switch {
+    max-height: 35px !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 !important;
+  }
 }
 
 .container {
