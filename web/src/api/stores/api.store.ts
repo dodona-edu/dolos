@@ -29,7 +29,7 @@ export const useApiStore = defineStore("api", () => {
 
   // Cut-off value.
   const cutoff = shallowRef(0.75);
-  const cutoffDebounced = refDebounced(cutoff, 150);
+  const cutoffDebounced = refDebounced(cutoff, 100);
 
   // Hydrate the API stores.
   const hydrate = async (): Promise<void> => {

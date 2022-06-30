@@ -9,7 +9,6 @@
 import {
   defineComponent,
   PropType,
-  ref,
   shallowRef,
   computed,
   watch,
@@ -17,7 +16,7 @@ import {
   onUnmounted,
 } from "@vue/composition-api";
 import { useApiStore } from "@/api/stores";
-import { Pair, File } from "@/api/models";
+import { Pair, File, Legend } from "@/api/models";
 import { useCluster } from "@/composables";
 import { storeToRefs } from "pinia";
 import { useElementSize } from "@vueuse/core";
@@ -35,6 +34,7 @@ export default defineComponent({
     },
 
     legend: {
+      type: Object as PropType<Legend>,
       default: () => ({}),
     },
 
@@ -119,7 +119,7 @@ export default defineComponent({
     // Cluster colors
     const clusterColors = computed(() => {
       const clusterColorsMap = new Map<Cluster, string>();
-      const labels = props.legend as any[];
+      const labels = props.legend;
 
       for (const cluster of props.clustering) {
         const elements = getClusterElements(cluster);
@@ -143,11 +143,13 @@ export default defineComponent({
     });
 
     // SVG element of the simulation.
-    const graph = d3.create("svg").attr("viewBox", [0, 0, 500, 500]);
+    const graph = d3.create("svg").attr("height", 500).attr("width", 500);
     const graphContainer = graph.append("g");
 
     // If the graph has been rendered the first time.
-    const graphInitialized = shallowRef(false);
+    const graphRendered = shallowRef(false);
+    // If the graph has been calculated the first time.
+    const graphCalculated = shallowRef(false);
 
     // Edges between nodes in the graph.
     const graphEdgesBase = graphContainer.append("g");
@@ -338,7 +340,8 @@ export default defineComponent({
       .force("charge", d3.forceManyBody().distanceMax(200).strength(-20))
       .force("center", d3.forceCenter(width.value / 2, height.value / 2))
       .force("compact_x", d3.forceX(width.value / 2).strength(0.01))
-      .force("compact_y", d3.forceY(height.value / 2).strength(0.01));
+      .force("compact_y", d3.forceY(height.value / 2).strength(0.01))
+      .stop();
 
     // D3 Simulation Drag ability
     const simulationDrag = d3
@@ -445,10 +448,19 @@ export default defineComponent({
           graphHullTool.value = new ConvexHullTool(graph.select("g") as any, selectCluster);
         }
 
-        // Set the nodes/edges of the simulation.
+        // Set the nodes/edges of the simulation & restart.
         simulation.nodes(nodes);
         simulation.force<any>("link").links(edges);
         simulation.alpha(0.5).alphaTarget(0.3).restart();
+
+        // Do not show the initial moving to the center animation.
+        // This will make the graph instantly render at the center.
+        if (!graphCalculated.value) {
+          simulation.stop();
+          simulation.tick(edges.length); // more edges takes more ticks to reach the desired alpha
+          simulation.restart();
+          graphCalculated.value = true;
+        }
       }
     );
 
@@ -457,7 +469,9 @@ export default defineComponent({
       () => [width.value, height.value],
       ([width, height]) => {
         // Resize the graph.
-        graph.attr("viewBox", [0, 0, width, height]);
+        graph
+          .attr("height", height)
+          .attr("width", width);
 
         // Resize the simulation.
         simulation.force<any>("compact_x")?.x(width / 2);
@@ -466,8 +480,8 @@ export default defineComponent({
 
         // Update the graph when not yet initialized.
         // This must be done here, since the initial size of the graph is otherwise incorrect.
-        if (!graphInitialized.value) {
-          graphInitialized.value = true;
+        if (!graphRendered.value) {
+          graphRendered.value = true;
           updateGraph();
         }
       }

@@ -3,15 +3,14 @@
     <Graph
       :pairs="clusterPairs"
       :files="clusterFiles"
-      :legend="legend"
+      :legend="legendValue"
       :polygon="false"
       :clustering="clustering"
       :selected-node="selectionManager.currentSelections()[0]"
       @selectedNodeInfo="setSelectedNodeInfo"
     >
       <GraphLegend
-        :current-files="clusterFiles"
-        @legend="(l) => (legend = l)"
+        :legend.sync="legendValue"
       />
       <div class="d-flex gel-items">
         <GraphElementList
@@ -31,6 +30,7 @@ import {
   PropType,
   ref,
   shallowRef,
+  watch,
   onMounted,
 } from "@vue/composition-api";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
@@ -39,7 +39,7 @@ import { Pair, File } from "@/api/models";
 import { SelectionManager } from "@/util/FileSelectionManager";
 import { storeToRefs } from "pinia";
 import { useApiStore } from "@/api/stores";
-import { useClustering } from "@/composables";
+import { useClustering, useLegend } from "@/composables";
 import GraphElementList from "@/d3-tools/GraphElementList.vue";
 import Graph from "../graph/Graph.vue";
 import GraphLegend from "../../d3-tools/GraphLegend.vue";
@@ -54,11 +54,13 @@ export default defineComponent({
 
   setup(props) {
     const { cutoff } = storeToRefs(useApiStore());
-    const legend = shallowRef([]);
     const clusterFiles = shallowRef<File[]>([]);
     const clusterPairs = shallowRef<Pair[]>([]);
     const selectedFiles = shallowRef<File[]>([]);
     const selectionManager = shallowRef(new SelectionManager(1));
+
+    const legend = useLegend(clusterFiles);
+    const legendValue = ref(legend.value);
 
     // Clustering.
     const clustering = useClustering();
@@ -77,6 +79,20 @@ export default defineComponent({
       selectionManager.value.select(s);
     };
 
+    watch(
+      () => legend.value,
+      (legend) => {
+        legendValue.value = legend;
+      }
+    );
+
+    watch(
+      () => props.cluster,
+      () => {
+        updateClusterValues();
+      }
+    );
+
     onMounted(() => {
       updateClusterValues();
 
@@ -88,6 +104,7 @@ export default defineComponent({
     return {
       cutoff,
       legend,
+      legendValue,
       clusterFiles,
       clusterPairs,
       selectedFiles,

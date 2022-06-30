@@ -196,7 +196,8 @@
 
 <script lang="ts">
 import { defineComponent, computed } from "@vue/composition-api";
-import { useBreakpoints, useLegend, useClustering } from "@/composables";
+import { storeToRefs } from "pinia";
+import { useBreakpoints, useClustering } from "@/composables";
 import { Pair } from "@/api/models";
 import {
   useApiStore,
@@ -214,10 +215,10 @@ export default defineComponent({
     const fileStore = useFileStore();
     const pairStore = usePairStore();
     const metadataStore = useMetadataStore();
+    const { legend } = storeToRefs(fileStore);
 
     // File legend.
-    const legend = useLegend();
-    const legendCount = computed(() => Object.keys(legend).length);
+    const legendCount = computed(() => Object.keys(legend.value).length);
 
     // Amount of files.
     const filesCount = computed(() => Object.keys(fileStore.files).length);

@@ -1,16 +1,24 @@
 <template>
   <div ref="timeseriesElement">
-    <GraphLegend :current-files="clusterFiles" @legend="updateLegend"/>
+    <GraphLegend :legend.sync="legendValue" />
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, shallowRef, watch, toRef, onMounted } from "@vue/composition-api";
+import {
+  defineComponent,
+  PropType,
+  ref,
+  shallowRef,
+  watch,
+  toRef,
+  onMounted,
+} from "@vue/composition-api";
 import { storeToRefs } from "pinia";
 import { useApiStore } from "@/api/stores";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
-import { File, Legend } from "@/api/models";
-import { useCluster } from "@/composables";
+import { File } from "@/api/models";
+import { useCluster, useLegend } from "@/composables";
 import { SelectionTool, xCoord } from "@/d3-tools/SelectionTool";
 import GraphLegend from "@/d3-tools/GraphLegend.vue";
 import * as d3 from "d3";
@@ -36,7 +44,8 @@ export default defineComponent({
   setup(props, { emit }) {
     const { clusterFiles } = useCluster(toRef(props, "cluster"));
     const { cutoffDebounced } = storeToRefs(useApiStore());
-    const legend = shallowRef<Legend>();
+    const legend = useLegend(clusterFiles);
+    const legendValue = ref(legend.value);
 
     // Timeseries element size
     const margin = {
@@ -63,15 +72,15 @@ export default defineComponent({
 
     // Get the color for a file.
     const getColor = (f: File): string => {
-      return f.extra?.labels && legend.value
-        ? legend.value[f.extra.labels].color
+      return f.extra?.labels && legendValue.value
+        ? legendValue.value[f.extra.labels].color
         : "#1976D2";
     };
 
     // Get the visibility of a file.
     const getVisibility = (f: File): string => {
-      return f.extra?.labels && legend.value
-        ? legend.value[f.extra.labels].selected ? "visibile" : "hidden"
+      return f.extra?.labels && legendValue.value
+        ? legendValue.value[f.extra.labels].selected ? "visibile" : "hidden"
         : "visible";
     };
 
@@ -146,16 +155,19 @@ export default defineComponent({
         );
     };
 
-    // Update the legend.
-    const updateLegend = (newLegend: Legend): void => {
-      legend.value = newLegend;
-    };
-
     // Redraw the timeseries when the cluster changes.
     watch(
-      () => [cutoffDebounced.value, legend.value],
+      () => [cutoffDebounced.value, legendValue.value],
       () => {
         draw();
+      }
+    );
+
+    // Update the internal legend object when the legend changes.
+    watch(
+      () => legend.value,
+      (legend) => {
+        legendValue.value = legend;
       }
     );
 
@@ -179,7 +191,7 @@ export default defineComponent({
       clusterFiles,
       legend,
       timeseriesElement,
-      updateLegend,
+      legendValue,
     };
   },
 

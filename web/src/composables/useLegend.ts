@@ -1,21 +1,20 @@
 import * as d3 from "d3";
-import { ComputedRef, computed } from "@vue/composition-api";
-import { useFileStore } from "@/api/stores";
+import { ComputedRef, computed, unref } from "@vue/composition-api";
+import { MaybeRef } from "@/util/Types";
+import { File, ObjMap } from "@/api/models";
 
 export type Legend = {
   [key: string]: { label: string; selected: boolean; color: string };
 };
 
 /**
- * Create a legend for the available files.
+ * Create a legend for the given files.
  */
-export function useLegend(): ComputedRef<Legend> {
-  const fileStore = useFileStore();
-
+export function useLegend(files: MaybeRef<ObjMap<File> | null | undefined>): ComputedRef<Legend> {
   return computed((): Legend => {
     const labels = new Set<string>();
 
-    for (const file of Object.values(fileStore.files)) {
+    for (const file of Object.values(unref(files) ?? [])) {
       labels.add(file.extra.labels || "N/A");
     }
 
