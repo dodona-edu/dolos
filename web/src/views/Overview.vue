@@ -241,13 +241,13 @@ export default defineComponent({
 
     // Average similarity.
     const averageSimilarity = computed(() => {
-      const divident = Object.values(pairStore.pairs).reduce(
+      const divident = pairStore.pairsList.reduce(
         (a, b) => a + b.similarity,
         0
       );
-      const divisor = Object.keys(pairStore.pairs).length * 100;
+      const divisor = Object.keys(pairStore.pairs).length;
 
-      return (divident / divisor).toFixed(0);
+      return (divident / divisor * 100).toFixed(0);
     });
 
     // Clustering.
