@@ -130,7 +130,7 @@ export class FileView extends View {
       Object.entries(metaData),
       {
         "property": ([k ]) => k,
-        "value": ([, v]) => v,
+        "value": ([, v]) => v == null ? "null" : v.toString(),
         "type": ([, v]) => typeof v
       });
   }
