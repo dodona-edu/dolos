@@ -36,8 +36,8 @@ test("tokenizer creation throws error for unsupported language", t => {
   t.throws(() => new CodeTokenizer("some string"));
 });
 
-test("registering a new installed language works", t => {
-  t.is(undefined, CodeTokenizer.registerLanguage("python"));
+test("registering a new installed language works", () => {
+  CodeTokenizer.registerLanguage("python");
 });
 
 test("registering a new invalid language throws error", t => {
