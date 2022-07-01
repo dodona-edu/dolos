@@ -6,6 +6,7 @@ import { File, ObjMap } from "@/api/models";
 import { useApiStore } from "@/api/stores";
 import { colors, names, uniqueNamesGenerator } from "unique-names-generator";
 import { useLegend } from "@/composables";
+import { commonFilenamePrefix } from "../utils";
 
 /**
  * Store containing the file data & helper functions.
@@ -30,7 +31,7 @@ export const useFileStore = defineStore("files", () => {
     const timeOffset = Math.random() * 1000 * 60 * 60 * 24 * 20;
     let labelCounter = 1;
 
-    const files = fileData.map((row: any) => {
+    const filesMap = fileData.map((row: any) => {
       const file = row as File;
       const extra = JSON.parse(row.extra || "{}");
       extra.timestamp = extra.createdAt && new Date(extra.createdAt);
@@ -61,8 +62,16 @@ export const useFileStore = defineStore("files", () => {
 
       return [row.id, row];
     });
+    const files: File[] = Object.fromEntries(filesMap);
 
-    return Object.fromEntries(files);
+    // Find the common path in the files.
+    const commonPath = commonFilenamePrefix(Object.values(files));
+    const commonPathLength = commonPath.length;
+    for (const file of Object.values(files)) {
+      file.shortPath = file.path.substring(commonPathLength);
+    }
+
+    return files;
   }
 
   // Fetch the files from the CSV file.

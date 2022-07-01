@@ -160,19 +160,13 @@ export default defineComponent({
         .axisBottom(xBand)
         .tickFormat(
           (d) =>
-            `${
-              files.value[d].extra.fullName ||
-              files.value[d].path.split("/").slice(-1).join("")
-            }`
+            `${files.value[d].extra.fullName ?? files.value[d].shortPath}`
         );
       const yAxis = d3
         .axisLeft(yBand)
         .tickFormat(
           (d) =>
-            `${
-              files.value[d].extra.fullName ||
-              files.value[d].path.split("/").slice(-1).join("")
-            }`
+            `${files.value[d].extra.fullName ?? files.value[d].shortPath}`
         );
 
       // Append the axes to the heatmap.
