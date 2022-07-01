@@ -3,6 +3,7 @@ on:
   push:
     paths:
       - "lib/**/*"
+      - "*.*"
 
 jobs:
   # Install Dependencies

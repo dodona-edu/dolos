@@ -3,6 +3,7 @@ on:
   push:
     paths:
       - "cli/**/*"
+      - "*.*"
 
 jobs:
   # Install Dependencies
