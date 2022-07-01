@@ -3,75 +3,123 @@
     <Graph
       :pairs="clusterPairs"
       :files="clusterFiles"
-      :cutoff="cutoff"
-      :legend="legend"
+      :legend="legendValue"
       :polygon="false"
       :clustering="clustering"
       :selected-node="selectionManager.currentSelections()[0]"
       @selectedNodeInfo="setSelectedNodeInfo"
     >
-    <GraphLegend :current-files="clusterFiles" @legend="l => legend = l"></GraphLegend>
+      <GraphLegend
+        :legend.sync="legendValue"
+      />
       <div class="d-flex gel-items">
-    <GraphElementList :cluster="cluster"
-                      :selected-files="selectedFiles"
-                      @select-file="setSelectedNodeInfo"
-                      :scroll="true"
-    ></GraphElementList>
+        <GraphElementList
+          :cluster="cluster"
+          :selected-files="selectedFiles"
+          :scroll="true"
+          @select-click="setSelectedNodeInfo"
+        />
       </div>
     </Graph>
   </div>
 </template>
 
-<script lang='ts'>
-import { Component, Prop, Watch } from "vue-property-decorator";
+<script lang="ts">
+import {
+  defineComponent,
+  PropType,
+  ref,
+  shallowRef,
+  watch,
+  onMounted,
+} from "@vue/composition-api";
+import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
+import { getClusterElementsArray } from "@/util/clustering-algorithms/ClusterFunctions";
+import { Pair, File } from "@/api/models";
+import { SelectionManager } from "@/util/FileSelectionManager";
+import { storeToRefs } from "pinia";
+import { useApiStore } from "@/api/stores";
+import { useClustering, useLegend } from "@/composables";
+import GraphElementList from "@/d3-tools/GraphElementList.vue";
 import Graph from "../graph/Graph.vue";
 import GraphLegend from "../../d3-tools/GraphLegend.vue";
 
-import DataView from "@/views/DataView";
-import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
-import { getClusterElementsArray } from "@/util/clustering-algorithms/ClusterFunctions";
-import { Pair, File } from "@/api/api";
-import GraphElementList from "@/d3-tools/GraphElementList.vue";
-import { SelectionManager } from "@/util/FileSelectionManager";
+export default defineComponent({
+  props: {
+    cluster: {
+      type: Object as PropType<Cluster>,
+      required: true,
+    },
+  },
 
-@Component({
-  components: { GraphElementList, Graph: Graph as any, GraphLegend },
-})
-export default class GraphTab extends DataView {
-  @Prop() cluster!: Cluster;
+  setup(props) {
+    const { cutoff } = storeToRefs(useApiStore());
+    const clusterFiles = shallowRef<File[]>([]);
+    const clusterPairs = shallowRef<Pair[]>([]);
+    const selectedFiles = shallowRef<File[]>([]);
+    const selectionManager = shallowRef(new SelectionManager(1));
 
-  clusterFiles: File[] = [];
-  clusterPairs: Pair[] = [];
+    const legend = useLegend(clusterFiles);
+    const legendValue = ref(legend.value);
 
-  private selectionManager = new SelectionManager(1);
-  selectedFiles: File[] = [];
+    // Clustering.
+    const clustering = useClustering();
 
-  legend = [];
+    const updateClusterValues = (): void => {
+      if (props.cluster) {
+        clusterFiles.value = getClusterElementsArray(props.cluster);
+        clusterPairs.value = Array.from(props.cluster);
+      } else {
+        clusterFiles.value = [];
+        clusterPairs.value = [];
+      }
+    };
 
-  mounted(): void {
-    this.ensureData();
-    this.updateClusterValues();
+    const setSelectedNodeInfo = (s: File): void => {
+      selectionManager.value.select(s);
+    };
 
-    this.selectionManager = new SelectionManager(1, v => {
-      this.selectedFiles = v;
+    watch(
+      () => legend.value,
+      (legend) => {
+        legendValue.value = legend;
+      }
+    );
+
+    watch(
+      () => props.cluster,
+      () => {
+        updateClusterValues();
+      }
+    );
+
+    onMounted(() => {
+      updateClusterValues();
+
+      selectionManager.value = new SelectionManager(1, (v) => {
+        selectedFiles.value = v;
+      });
     });
-  }
 
-  @Watch("cluster")
-  updateClusterValues(): void {
-    if (this.cluster) {
-      this.clusterFiles = getClusterElementsArray(this.cluster);
-      this.clusterPairs = Array.from(this.cluster);
-    } else {
-      this.clusterFiles = [];
-      this.clusterPairs = [];
-    }
-  }
+    return {
+      cutoff,
+      legend,
+      legendValue,
+      clusterFiles,
+      clusterPairs,
+      selectedFiles,
+      selectionManager,
+      clustering,
+      setSelectedNodeInfo,
+    };
+  },
 
-  setSelectedNodeInfo(s: File): void {
-    this.selectionManager.select(s);
-  }
-}
+  components: {
+    GraphElementList,
+    Graph: Graph as any,
+    GraphLegend,
+  },
+});
 </script>
 
 <style scoped>

@@ -1,65 +1,58 @@
 <template>
   <ul v-if="Object.values(legend).length > 1" class="legend">
     <li
-      v-for="legendDatum of Object.values(legend).sort()"
+      v-for="legendDatum of Object.values(legendValue).sort()"
       :key="legendDatum.label"
     >
-      <label
-        ><input
+      <label>
+        <input
           type="checkbox"
           v-model="legendDatum.selected"
           class="legend-checkbox"
           @change="onCheckChange"
         />
-        <span class="legend-label"
-          ><span
+        <span class="legend-label">
+          <span
             class="legend-color"
             :style="{
               'background-color': legendDatum.color,
             }"
-          ></span>
+          />
           {{ legendDatum.label }}
-        </span></label
-      >
+        </span>
+      </label>
     </li>
   </ul>
 </template>
 
 <script lang="ts">
-import { Component, Prop, Watch } from "vue-property-decorator";
-import { File } from "@/api/api";
-import DataView, { Legend } from "@/views/DataView";
+import { defineComponent, PropType } from "@vue/composition-api";
+import { File, Legend } from "@/api/models";
+import { useVModel } from "@vueuse/core";
 
-@Component({})
-export default class GraphLegend extends DataView {
-  @Prop() currentFiles!: File[];
+export default defineComponent({
+  props: {
+    legend: {
+      type: Object as PropType<Legend>,
+      required: true,
+    },
+  },
 
-  public legend: {[key: string]: { label: string; selected: boolean; color: string }} = {};
+  setup(props, { emit }) {
+    const legendValue = useVModel(props, "legend", emit);
 
-  mounted(): void {
-    this.init();
+    const onCheckChange = (): void => {
+      legendValue.value = Object.assign({}, legendValue.value);
+    };
+
+    return {
+      legendValue,
+      onCheckChange,
+    };
   }
-
-  @Watch("currentFiles")
-  init(): void {
-    const fullLegend = this.createLegend();
-    const partLegend: Legend = {};
-    for (const key of new Set(this.currentFiles.map(cf => cf.extra.labels)).values()) {
-      if (key) { partLegend[key] = fullLegend[key]; }
-    }
-    this.legend = partLegend;
-    this.$emit("legend", this.legend);
-  }
-
-  onCheckChange(): void {
-    this.$emit("legend", Object.assign({}, this.legend));
-  }
-
-  createLegend(): Legend {
-    return super.createLegend();
-  }
-}
+});
 </script>
+
 <style scoped lang="scss">
 .legend {
   position: absolute;

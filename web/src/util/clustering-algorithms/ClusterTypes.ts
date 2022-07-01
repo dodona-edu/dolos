@@ -1,4 +1,4 @@
-import { Pair } from "@/api/api";
+import { Pair } from "@/api/models";
 import { ListMap } from "../ListMap";
 
 export type Edge = Pair;

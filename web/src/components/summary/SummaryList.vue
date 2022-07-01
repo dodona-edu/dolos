@@ -1,163 +1,177 @@
 <template>
-  <div class="d-flex align-center flex-column extra-margin">
-    <v-form class="d-flex align-center flex-row extra-width">
-      <v-text-field class="search-field" :label="'Search for a file'" v-model="searchString" ref="toScroll">
-      </v-text-field>
-      <v-select
-      class='select-sort'
-        :items="sortOptions"
-        item-text="name"
-        :item-value="v => v"
-        v-model="selectedSortOption"
-      ></v-select>
-    </v-form>
-    <div class="d-flex align-center flex-column full-width">
+  <v-row>
+    <!-- Filters -->
+    <v-col cols="12">
+      <v-row dense>
+        <v-col cols="12" md="8">
+          <v-text-field
+            v-model="search"
+            label="Search for a file"
+            outlined
+            dense
+            hide-details
+          />
+        </v-col>
+
+        <v-col cols="12" sm="4">
+          <v-select
+            v-model="selectedSortOption"
+            :items="sortOptions"
+            item-text="name"
+            :item-value="v => v"
+            dense
+            outlined
+            hide-details
+          />
+        </v-col>
+      </v-row>
+    </v-col>
+
+    <!-- Files -->
+    <v-col
+      v-for="scoredFile in scoredFilesDisplay"
+      :key="scoredFile.file.id"
+      cols="12"
+    >
       <FileCard
-        v-for="scoredFile in sortedFiles.slice(
-          (page - 1) * cardsPerPage,
-          page * cardsPerPage
-        )"
-        :key="scoredFile.file.id"
         :file="scoredFile"
         :scoredFiles="scoredFiles"
-        :selected-value="selectedSortOption && selectedSortOption.selectedValue"
-        class="file-card"
+        :selected-value="selectedSortOption.selectedValue"
       />
-    </div>
-    <v-btn color="success"  @click="page += 1">Next Cards</v-btn>
-    <v-pagination
-      v-model="page"
-      :length="pageTotal"
-      :total-visible="7"
-    ></v-pagination>
-  </div>
+    </v-col>
+
+    <!-- Placeholder -->
+    <v-col v-if="search && scoredFilesDisplay.length === 0" cols="12">
+      No files where found for that search query.
+    </v-col>
+
+    <!-- Pagination -->
+    <v-col cols="12" v-if="pageTotal > 1">
+      <v-pagination v-model="page" :length="pageTotal" total-visible="7" />
+    </v-col>
+  </v-row>
 </template>
+
 <script lang="ts">
-import { Component, Vue, Watch } from "vue-property-decorator";
-import { FileInterestingnessCalculator, FileScoring, getLargestPairOfScore } from "@/util/FileInterestingness";
+import { defineComponent, shallowRef, computed, watch } from "@vue/composition-api";
+import { storeToRefs } from "pinia";
+import { Pair } from "@/api/models";
+import { useFileStore, usePairStore } from "@/api/stores";
+import {
+  FileInterestingnessCalculator,
+  FileScoring,
+  getLargestPairOfScore,
+} from "@/util/FileInterestingness";
 import FileCard from "@/components/summary/FileCard.vue";
-import DataView from "@/views/DataView";
-import { Pair } from "@/api/api";
 
-@Component({ components: { FileCard } })
-export default class SummaryList extends DataView {
-  private scoredFiles: FileScoring[] = [];
-  private sortedFiles: FileScoring[] = [];
-  private page = 1;
-  private pageTotal = 1;
-  private cardsPerPage = 5;
-  private searchString = "";
+export default defineComponent({
+  setup() {
+    const { filesList } = storeToRefs(useFileStore());
+    const { pairsList } = storeToRefs(usePairStore());
 
-  private sortOptions = [
-    {
-      name: "Most interesting items",
-      sortFunc: (a: FileScoring, b: FileScoring) => b.finalScore - a.finalScore,
-      selectedValue: null
-    },
-    {
-      name: "Highest similarity",
-      sortFunc: (a: FileScoring, b: FileScoring) =>
-        (b.similarityScore?.similarity || 0) - (a.similarityScore?.similarity || 0),
-      selectedValue: 0
-    },
-    {
-      name: "Longest possible match",
-      sortFunc: (a: FileScoring, b: FileScoring) =>
-        (b.longestFragmentScore?.longestFragmentWrtSize || 0) - (a.longestFragmentScore?.longestFragmentWrtSize || 0),
-      selectedValue: 1
-    },
-    {
-      name: "Most overlap",
-      sortFunc: (a: FileScoring, b: FileScoring) =>
-        (b.totalOverlapScore?.totalOverlapWrtSize || 0) - (a.totalOverlapScore?.totalOverlapWrtSize || 0),
-      selectedValue: 2
-    }
-  ];
+    // Sorting options.
+    const sortOptions = [
+      {
+        name: "Most interesting items",
+        sortFunc: (a: FileScoring, b: FileScoring) =>
+          b.finalScore - a.finalScore,
+        selectedValue: null,
+      },
+      {
+        name: "Highest similarity",
+        sortFunc: (a: FileScoring, b: FileScoring) =>
+          (b.similarityScore?.similarity || 0) -
+          (a.similarityScore?.similarity || 0),
+        selectedValue: 0,
+      },
+      {
+        name: "Longest possible match",
+        sortFunc: (a: FileScoring, b: FileScoring) =>
+          (b.longestFragmentScore?.longestFragmentWrtSize || 0) -
+          (a.longestFragmentScore?.longestFragmentWrtSize || 0),
+        selectedValue: 1,
+      },
+      {
+        name: "Most overlap",
+        sortFunc: (a: FileScoring, b: FileScoring) =>
+          (b.totalOverlapScore?.totalOverlapWrtSize || 0) -
+          (a.totalOverlapScore?.totalOverlapWrtSize || 0),
+        selectedValue: 2,
+      },
+    ];
 
-  private selectedSortOption: {
-    name: string;
-    sortFunc: (a: FileScoring, b: FileScoring) => number;
-    selectedValue: number | null
-  };
+    // Selected sorting option
+    const selectedSortOption = shallowRef(sortOptions[0]);
 
-  constructor() {
-    super();
-    this.selectedSortOption = this.sortOptions[0];
-  }
+    // Pagination.
+    const page = shallowRef(1);
+    const pageTotal = computed(() => Math.ceil(scoredFilesSearch.value.length / 10));
+    const pageAmount = 5;
 
-  @Watch("scoredFiles")
-  updatePageCount(): void {
-    this.page = 1;
-    this.pageTotal =
-      Math.ceil(this.scoredFiles.length / this.cardsPerPage) || 1;
-  }
+    // Search filter.
+    const search = shallowRef("");
 
-  @Watch("scoredFiles")
-  @Watch("searchString")
-  @Watch("selectedSortOption")
-  sortAndFilterScoredFiles(): void {
-    const sorted = this.scoredFiles
-      .filter(f => f.file.path.includes(this.searchString))
-      .sort(this.selectedSortOption.sortFunc);
+    // Calculator class for determining the score of a file.
+    const scoringCalculator = new FileInterestingnessCalculator(pairsList.value);
 
-    // Deduplicate the pairs. This avoids having the same pair from different perspectives multiple times
-    this.sortedFiles = [];
-    const pairSet = new Set<Pair>();
-    for (const scF of sorted) {
-      const p = getLargestPairOfScore(scF);
-      if (p && !pairSet.has(p)) {
-        this.sortedFiles.push(scF);
-        pairSet.add(p);
-      }
-    }
-  }
-
-  mounted(): void {
-    this.initializeData();
-  }
-
-  @Watch("files")
-  async initializeData(): Promise<void> {
-    await super.ensureData();
-    const scoringCalculator = new FileInterestingnessCalculator(
-      Array.from(Object.values(this.pairs)),
-      this.$store
+    // Files with a score, sorted by the selected metric.
+    const scoredFiles = filesList.value.map((file) =>
+      scoringCalculator.calculateFileScoring(file)
     );
-    this.scoredFiles = await Promise.all(Object.values(this.files).map(async file =>
-      await scoringCalculator.calculateFileScoring(file)
-    ));
-  }
 
-  @Watch("page")
-  onPageChange(): void {
-    ((this.$refs.toScroll as Vue).$el as Element)?.scrollIntoView();
-  }
-}
+    // Scored files, after sorting.
+    const scoredFilesSorted = shallowRef<FileScoring[]>([]);
+
+    // Scored files, after search filter.
+    const scoredFilesSearch = computed(() =>
+      scoredFilesSorted.value.filter((file) =>
+        file.file.path.toLowerCase().includes(search.value.toLowerCase())
+      )
+    );
+
+    // Scored files to display (pagination/sorting/filtering)
+    const scoredFilesDisplay = computed(() => {
+      // Pagination
+      const start = (page.value - 1) * pageAmount;
+      const end = start + pageAmount;
+      return scoredFilesSearch.value.slice(start, end);
+    });
+
+    // When the sorting changes, update the sorted files.
+    watch(
+      () => selectedSortOption.value,
+      (sorting) => {
+        const sorted = sorting
+          ? [...scoredFiles].sort(sorting.sortFunc)
+          : scoredFiles;
+
+        // Deduplicate the pairs. This avoids having the same pair from different perspectives multiple times
+        scoredFilesSorted.value = [];
+        const pairSet = new Set<Pair>();
+        for (const scF of sorted) {
+          const p = getLargestPairOfScore(scF);
+          if (p && !pairSet.has(p)) {
+            scoredFilesSorted.value.push(scF);
+            pairSet.add(p);
+          }
+        }
+      },
+      { immediate: true },
+    );
+
+    return {
+      page,
+      pageTotal,
+      search,
+      sortOptions,
+      selectedSortOption,
+      scoredFiles,
+      scoredFilesDisplay,
+    };
+  },
+
+  components: {
+    FileCard,
+  },
+});
 </script>
-<style scoped>
-.extra-margin * {
-  margin: 1rem;
-}
-
-.full-width {
-  min-width: 1000px;
-  width: 100%;
-}
-
-.extra-width {
-  width: 60%;
-}
-
-.search-field {
-  width: 45%;
-}
-
-.select-sort {
-  width: 15%;
-}
-
-.file-card {
-  width: 80%;
-  max-width: 1600px;
-}
-</style>

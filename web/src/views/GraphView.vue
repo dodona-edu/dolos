@@ -3,53 +3,58 @@
     <v-row style="height: 100vh">
       <v-col cols="12" class="no-y-padding">
         <Graph
-          :files="files"
-          :pairs="pairs"
-          :cutoff="cutoff"
           :showSingletons="showSingletons"
-          :legend="legend"
-          :clustering="currentCluster"
+          :legend="legendValue"
+          :clustering="clustering"
+          :files="filesList"
+          :pairs="pairsList"
           :zoomTo="'#clustering-table'"
-          :selected-node="selectedNodeInfo"
-          @selectedNodeInfo="setSelectedNodeInfo"
-          @selectedClusterInfo="setClusterInfo"
+          :selected-node="selectedNode"
+          polygon
+          @selectedNodeInfo="setSelectedNode"
+          @selectedClusterInfo="setSelectedCluster"
         >
           <!-- Extra UI elements to be added as overlay over the graph -->
           <form class="settings">
             <p>
               <label>
-                Similarity ≥ {{ getCutoff().toFixed(2) }}<br />
+                Similarity ≥ {{ cutoff.toFixed(2) }}<br />
                 <input
                   type="range"
                   min="0.25"
                   max="1"
                   step="0.01"
-                  v-model="cutoff"
+                  v-model.number="cutoff"
                 />
               </label>
             </p>
             <p>
-              <label
-              ><input type="checkbox" v-model="showSingletons" /> Display
-                singletons</label>
+              <label>
+                <input type="checkbox" v-model="showSingletons" /> Display
+                singletons
+              </label>
             </p>
           </form>
 
-          <GraphLegend v-if="showLegend()" :current-files="fileArray" @legend="updateLegend"></GraphLegend>
+          <GraphLegend
+            v-if="showLegend"
+            :legend.sync="legendValue"
+          />
 
-          <GraphSelectedInfo :current-clustering="currentCluster" :selected-node-info="selectedNodeInfo"
-                             :selected-cluster="selectedCluster">
-
-          </GraphSelectedInfo>
+          <GraphSelectedInfo
+            :current-clustering="clustering"
+            :selected-node="selectedNode"
+            :selected-cluster="selectedCluster"
+          />
         </Graph>
       </v-col>
     </v-row>
+
     <v-row>
       <v-col cols="11">
         <ClusteringTable
-          id="clustering-table"
-          :current-clustering="currentCluster"
-          :loaded="dataLoaded"
+          :current-clustering="clustering"
+          :selected-cluster="selectedCluster"
         />
       </v-col>
     </v-row>
@@ -57,67 +62,76 @@
 </template>
 
 <script lang="ts">
-import { Component, Watch } from "vue-property-decorator";
-import { File } from "@/api/api";
-import DataView from "@/views/DataView";
-import Graph from "../components/graph/Graph.vue";
-import GraphLegend from "../d3-tools/GraphLegend.vue";
-import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
+import { defineComponent, ref, shallowRef, computed } from "@vue/composition-api";
+import { storeToRefs } from "pinia";
+import { File, Legend } from "@/api/models";
+import { Cluster } from "@/util/Cluster";
+import { useApiStore, useFileStore, usePairStore } from "@/api/stores";
+import { useRoute, useClustering } from "@/composables";
 import GraphSelectedInfo from "@/d3-tools/GraphSelectedInfo.vue";
 import ClusteringTable from "@/components/ClusteringTable.vue";
+import Graph from "@/components/graph/Graph.vue";
+import GraphLegend from "@/d3-tools/GraphLegend.vue";
 
-@Component({
-  components: { Graph: Graph as any, GraphLegend, GraphSelectedInfo, ClusteringTable },
-})
-export default class PlagarismGraph extends DataView {
-  public showSingletons = false;
-  public legend = [];
-  public selectedNodeInfo: File | null = null;
-  public selectedCluster: Cluster | null = null;
-  public fileArray: File[];
-  public currentCluster;
+export default defineComponent({
+  setup() {
+    const route = useRoute();
+    const { cutoff } = storeToRefs(useApiStore());
+    const { filesList, legend } = storeToRefs(useFileStore());
+    const { pairsList } = storeToRefs(usePairStore());
 
-  constructor() {
-    super();
-    this.fileArray = Array.from(Object.values(this.files));
-    this.currentCluster = this.clustering;
-  }
+    // Show singletons in the graph.
+    const showSingletons = shallowRef(false);
 
-  mounted(): void {
-    this.ensureData().then(() => { this.currentCluster = this.clustering; });
-  }
+    // Legend.
+    const legendValue = ref<Legend>(legend.value);
 
-  private setSelectedNodeInfo(v: File): void {
-    this.selectedNodeInfo = v;
-  }
+    // Node in the graph that is currently selected (file).
+    const selectedNode = shallowRef<File>();
 
-  private setClusterInfo(c: Cluster | null): void {
-    this.selectedCluster = c;
-  }
+    // Cluster that is currently selected.
+    const selectedCluster = shallowRef<Cluster>();
 
-  @Watch("cutoff")
-  @Watch("files")
-  refreshClustering(): void {
-    this.currentCluster = this.clustering;
-  }
+    // Clustering
+    const clustering = useClustering();
 
-  getCutoff(): number {
-    return this.cutoff;
-  }
+    // Should the legend be displayed.
+    const showLegend = computed(() => {
+      const { ...colors } = route.value.query;
+      return Array.from(Object.values(colors)).length === 0;
+    });
 
-  updateLegend(l: never[]): void {
-    this.legend = l;
-  }
+    // Set the selected node.
+    const setSelectedNode = (node: File | undefined): void => {
+      selectedNode.value = node;
+    };
 
-  @Watch("files")
-  initFileArray(): void {
-    this.fileArray = Array.from(Object.values(this.files));
-  }
+    // Set the selected cluster.
+    const setSelectedCluster = (cluster: Cluster | undefined): void => {
+      selectedCluster.value = cluster;
+    };
 
-  showLegend(): boolean {
-    const { cutoff, ...colors } = this.$route.query;
+    return {
+      cutoff,
+      filesList,
+      pairsList,
+      showSingletons,
+      legend,
+      legendValue,
+      selectedNode,
+      selectedCluster,
+      clustering,
+      showLegend,
+      setSelectedNode,
+      setSelectedCluster,
+    };
+  },
 
-    return Array.from(Object.values(colors)).length === 0;
-  }
-}
+  components: {
+    Graph: Graph as any,
+    GraphLegend,
+    GraphSelectedInfo,
+    ClusteringTable,
+  },
+});
 </script>

@@ -1,172 +1,202 @@
 <template>
-  <div  :id="getSvgId()">
-    <GraphLegend :current-files="legendData()" @legend="setLegend"/>
+  <div ref="timeseriesElement">
+    <GraphLegend :legend.sync="legendValue" />
   </div>
 </template>
+
 <script lang="ts">
-import { Component, Prop, Vue, Watch } from "vue-property-decorator";
-import { File } from "@/api/api";
-import * as d3 from "d3";
+import {
+  defineComponent,
+  PropType,
+  ref,
+  shallowRef,
+  watch,
+  toRef,
+  onMounted,
+} from "@vue/composition-api";
+import { storeToRefs } from "pinia";
+import { useApiStore } from "@/api/stores";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
-import { getClusterElementsArray } from "@/util/clustering-algorithms/ClusterFunctions";
+import { File } from "@/api/models";
+import { useCluster, useLegend } from "@/composables";
 import { SelectionTool, xCoord } from "@/d3-tools/SelectionTool";
 import GraphLegend from "@/d3-tools/GraphLegend.vue";
-import { Legend } from "@/views/DataView";
-import { ResizableD3Viz } from "@/d3-tools/ResizableD3Viz";
+import * as d3 from "d3";
 
 interface TimeDataType extends xCoord { file: File, y?: number }
 
-@Component({ components: { GraphLegend } })
-export default class TimeSeriesDiagram extends ResizableD3Viz {
-  @Prop() cluster!: Cluster;
-  @Prop({ default: false }) selection!: boolean;
-  @Prop({ default: [] }) selectedFiles!: File[];
-
-  private readonly margin: { left: number; right: number; top: number; bottom: number };
-  private width: number;
-  private height: number;
-  private legend: Legend | undefined;
-
-  constructor() {
-    super();
-    this.margin = { top: 10, right: 30, bottom: 30, left: 60 };
-    this.width = 900 - this.margin.left - this.margin.right;
-    this.height = 400 - this.margin.top - this.margin.bottom;
-  }
-
-  mounted(): void {
-    super.mounted();
-  }
-
-  initialize(): void {
-    const data = getClusterElementsArray(this.cluster).map(file => ({ file }));
-    const xScale = this.getXScale(data);
-    this.applySimulation(xScale, data);
-    const svg = this.addSVG(xScale, data);
-    this.addSelectionTool(svg, data);
-  }
-
-  resize(width: number, height: number): void {
-    this.width = width - this.margin.left - this.margin.right;
-
-    this.initialize();
-  }
-
-  private getXScale(files: TimeDataType[]): d3.ScaleTime<number, number> {
-    return d3
-      .scaleTime<number, number>()
-      .domain(d3.extent(files.map(f => f.file.extra.timestamp!)) as [Date, Date])
-      .range([0, this.width]);
-  }
-
-  private addSVG(
-    xScale: d3.ScaleTime<number, number>,
-    data: TimeDataType[]
-  ): d3.Selection<SVGSVGElement, TimeDataType, HTMLElement, unknown> {
-    d3.select(`#${this.getSvgId()}`).select("svg").remove();
-
-    const svg = d3
-      .select<d3.BaseType, TimeDataType>(`#${this.getSvgId()}`)
-      .append("svg")
-      .attr("width", this.width + this.margin.left + this.margin.right)
-      .attr(
-        "height",
-        this.height + this.margin.top + this.margin.bottom
-      );
-
-    const svgg = svg
-      .append("g")
-      .attr(
-        "transform",
-        "translate(" + this.margin.left + "," + this.margin.top + ")"
-      );
-
-    svgg
-      .append("g")
-      .attr("transform", `translate(0, ${this.height})`)
-      .call(d3.axisBottom(xScale));
-
-    svgg
-      .selectAll("circle")
-      .data(data)
-      .enter()
-      .append("circle")
-      .attr("r", 6.5)
-      .attr("cx", d => xScale(d.file.extra.timestamp!))
-      .attr("cy", this.height / 2)
-      .attr("fill", d => this.getColor((d.file)))
-      .attr("visibility", d => this.getVisibility(d.file));
-
-    return svg;
-  }
-
-  private applySimulation(
-    xScale: d3.ScaleTime<number, number>,
-    data: TimeDataType[]
-  ): void {
-    d3.forceSimulation<TimeDataType>(data)
-      .force(
-        "x",
-        d3
-          .forceX<TimeDataType>(d => {
-            return xScale(d?.file?.extra?.timestamp || new Date());
-          })
-          .strength(1)
-      )
-      .force("y", d3.forceY(this.height / 2))
-      .force("collision", d3.forceCollide().radius(5).strength(0.1))
-      .alpha(1)
-      .on("tick", () =>
-        d3
-          .selectAll<d3.BaseType, TimeDataType>("circle")
-          .attr("cx", (d: TimeDataType) => d?.x || 0)
-          .attr("cy", (d: TimeDataType) => d?.y || 0)
-      );
-  }
-
-  private addSelectionTool(
-    svg: d3.Selection<SVGSVGElement, TimeDataType, HTMLElement, unknown>,
-    data: {file: File}[]
-  ): void {
-    if (this.selection) {
-      // eslint-disable-next-line no-new
-      new SelectionTool<TimeDataType>(
-        svg,
-        data,
-        () => ({ height: this.height, width: this.width, margin: this.margin }),
-        (d: TimeDataType[]) => this.$emit("filedata", d.map(f => f.file)),
-      );
+export default defineComponent({
+  props: {
+    cluster: {
+      type: Set as PropType<Cluster>,
+      required: true
+    },
+    selection: {
+      type: Boolean as PropType<boolean>,
+      default: false
+    },
+    selectedFiles: {
+      type: Array as PropType<File[]>,
+      default: () => []
     }
-  }
+  },
 
-  @Watch("selectedFiles")
-  private updateSelectedFiles(): void {
-    d3.select(`#${this.getSvgId()}`).selectAll<any, TimeDataType>("circle")
-      .style("stroke",
-        d => d.file && this.selectedFiles.map(f => f.id).includes(d.file.id) ? "red" : "")
-      .attr("r", d => d.file && this.selectedFiles.map(f => f.id).includes(d.file.id) ? 8.5 : 6.5)
-    ;
-  }
+  setup(props, { emit }) {
+    const { clusterFiles } = useCluster(toRef(props, "cluster"));
+    const { cutoffDebounced } = storeToRefs(useApiStore());
+    const legend = useLegend(clusterFiles);
+    const legendValue = ref(legend.value);
 
-  legendData(): File[] {
-    return getClusterElementsArray(this.cluster);
-  }
+    // Timeseries element size
+    const margin = {
+      top: 10,
+      bottom: 30,
+      left: 60,
+      right: 30,
+    };
+    const { width, height } = {
+      width: 900 - margin.left - margin.right,
+      height: 400 - margin.top - margin.bottom,
+    };
 
-  getColor(f: File): string {
-    return f.extra?.labels && this.legend
-      ? this.legend[f.extra.labels].color
-      : "#1976D2";
-  }
+    // Timeseries template ref.
+    const timeseriesElement = shallowRef();
 
-  getVisibility(f: File): string {
-    return f.extra?.labels && this.legend
-      ? this.legend[f.extra.labels].selected ? "visibile" : "hidden"
-      : "visible";
-  }
+    // Timeseries D3
+    const timeseries = d3
+      .create("svg")
+      .attr("width", width)
+      .attr("height", height);
+    const timeseriesContent = timeseries
+      .append("g");
 
-  private setLegend(l: Legend): void {
-    this.legend = l;
-    this.initialize();
+    // Get the color for a file.
+    const getColor = (f: File): string => {
+      return f.extra?.labels && legendValue.value
+        ? legendValue.value[f.extra.labels].color
+        : "#1976D2";
+    };
+
+    // Get the visibility of a file.
+    const getVisibility = (f: File): string => {
+      return f.extra?.labels && legendValue.value
+        ? legendValue.value[f.extra.labels].selected ? "visibile" : "hidden"
+        : "visible";
+    };
+
+    // Draw the timeseries
+    const draw = (): void => {
+      const elements = clusterFiles.value;
+      const files = elements.map(file => ({ file }));
+
+      // Resize the timeseries.
+      timeseries
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom);
+      timeseriesContent
+        .attr(
+          "transform",
+          "translate(" + margin.left + "," + margin.top + ")"
+        );
+
+      // Clear the timeseries.
+      timeseriesContent.selectAll("*").remove();
+
+      // Add the x-axis.
+      const xScale = d3
+        .scaleTime<number, number>()
+        .domain(d3.extent(files.map(f => f.file.extra.timestamp!)) as [Date, Date])
+        .range([0, width]);
+      timeseriesContent
+        .append("g")
+        .attr("transform", `translate(0, ${height})`)
+        .call(d3.axisBottom(xScale));
+
+      // Add the data points
+      timeseriesContent
+        .selectAll("circle")
+        .data(files)
+        .enter()
+        .append("circle")
+        .attr("r", 6.5)
+        .attr("cx", d => xScale(d.file.extra.timestamp!))
+        .attr("cy", height / 2)
+        .attr("fill", d => getColor((d.file)))
+        .attr("visibility", d => getVisibility(d.file));
+
+      // Add the selection tool (if enabled)
+      if (props.selection) {
+        // eslint-disable-next-line no-new
+        new SelectionTool<TimeDataType>(
+          timeseries as any,
+          files,
+          () => ({ height, width, margin }),
+          (d: TimeDataType[]) => emit("filedata", d.map(f => f.file)),
+        );
+      }
+
+      // Add simulation
+      d3
+        .forceSimulation<TimeDataType>(files)
+        .force(
+          "x",
+          d3
+            .forceX<TimeDataType>(d => xScale(d?.file?.extra?.timestamp || new Date()))
+            .strength(1)
+        )
+        .force("y", d3.forceY(height / 2))
+        .force("collision", d3.forceCollide().radius(5).strength(0.1))
+        .alpha(1)
+        .on("tick", () =>
+          d3
+            .selectAll<d3.BaseType, TimeDataType>("circle")
+            .attr("cx", (d: TimeDataType) => d?.x || 0)
+            .attr("cy", (d: TimeDataType) => d?.y || 0)
+        );
+    };
+
+    // Redraw the timeseries when the cluster changes.
+    watch(
+      () => [cutoffDebounced.value, legendValue.value],
+      () => {
+        draw();
+      }
+    );
+
+    // Update the internal legend object when the legend changes.
+    watch(
+      () => legend.value,
+      (legend) => {
+        legendValue.value = legend;
+      }
+    );
+
+    // Draw red circles around the selected files.
+    watch(
+      () => props.selectedFiles,
+      (selectedFiles) => {
+        timeseriesContent
+          .selectAll<any, TimeDataType>("circle")
+          .style("stroke", d => d.file && selectedFiles.map(f => f.id).includes(d.file.id) ? "red" : "")
+          .attr("r", d => d.file && selectedFiles.map(f => f.id).includes(d.file.id) ? 8.5 : 6.5);
+      }
+    );
+
+    onMounted(() => {
+      timeseriesElement.value?.prepend(timeseries.node() ?? "");
+      draw();
+    });
+
+    return {
+      clusterFiles,
+      legend,
+      timeseriesElement,
+      legendValue,
+    };
+  },
+
+  components: {
+    GraphLegend,
   }
-}
+});
 </script>

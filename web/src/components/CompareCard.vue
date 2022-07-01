@@ -1,179 +1,166 @@
 <template>
-  <v-container class="no-y-padding" fluid>
+  <div>
     <v-row>
-      <v-col class="no-y-padding">
-        <v-row class="no-y-padding" dense>
-          <v-col class="no-y-padding" cols="12">
-            <v-card :loading="!loaded" style="position: relative">
-              <v-card-title>
-                <v-container class="no-y-padding" fluid>
-                  <v-row
-                    class="no-y-padding"
-                    justify="center"
-                    justify-xl="space-around"
-                  >
-                    <v-col class="text-center">
-                      {{ leftFilename }}
-                    </v-col>
-                    <v-col cols="auto">
-                      <v-btn @click.prevent="swapFiles()">
-                        <v-icon>
-                          {{ mdiSwapHorizontalBold }}
-                        </v-icon>
-                      </v-btn>
-                    </v-col>
-                    <v-col class="text-center">
-                      {{ rightFilename }}
-                    </v-col>
-                  </v-row>
-                  <v-row>
-                    <v-col cols="12">
-                      <v-row dense justify="center">
-                        <v-col cols="auto">
-                          <v-chip label>
-                            <v-icon left>
-                              {{ mdiApproximatelyEqual }}
-                            </v-icon>
-                            Similarity: {{ activePair.similarity.toFixed(2) }}
-                          </v-chip>
-                        </v-col>
-                        <v-col cols="auto">
-                          <v-chip label>
-                            <v-icon left size="20">
-                              {{ mdiFileDocumentMultiple }}
-                            </v-icon>
-                            Longest fragment: {{ activePair.longestFragment }}
-                          </v-chip>
-                        </v-col>
-                        <v-col cols="auto">
-                          <v-chip label>
-                            <v-icon left size="20">
-                              {{ mdiFileDocumentMultipleOutline }}
-                            </v-icon>
-                            Total overlap: {{ activePair.totalOverlap }}
-                          </v-chip>
-                        </v-col>
-                      </v-row>
-                    </v-col>
-                  </v-row>
-                </v-container>
-              </v-card-title>
-              <v-card-text>
-                <v-container fluid>
-                  <v-row class="compare-container fullheight" justify="center" no-gutters v-if="loaded">
-                    <v-col md="6" sm="12" class="fullheight">
-                      <v-row class="flex-nowrap" no-gutters>
-                        <v-col cols="11">
-                          <compare-side
-                            :active-selections="leftActiveSelectionIds()"
-                            :file="activePair.leftFile"
-                            :hovering-selections="lastHovered.leftSideId.fragmentClasses"
-                            :identifier="SideID.leftSideId"
-                            :selected-selections="selected.sides.leftSideId.fragmentClasses"
-                            :selections="leftSelections"
-                            :language="language"
-                            :semantic-matches="activePair.leftMatches"
-                            @codescroll="onScrollHandler"
-                            @linesvisibleamount="setLinesVisible"
-                            @selectionclick="selectionClickEventHandler"
-                            @selectionhoverenter="onHoverEnterHandler"
-                            @selectionhoverexit="onHoverExitHandler"
-                            ref="leftCompareSide"
-                          >
-                          </compare-side>
-                        </v-col>
-                        <v-col cols="auto">
-                          <BarcodeChart
-                            :active-selections="leftActiveSelectionIds()"
-                            :amount-of-lines-visible="linesVisible"
-                            :document-scroll-fraction="leftScrollFraction"
-                            :hovering-selections="lastHovered.leftSideId.fragmentClasses"
-                            :lines="leftLines"
-                            :maxLines="maxLines"
-                            :selected-selections="selected.sides.leftSideId.fragmentClasses"
-                            :selections="leftSelections"
-                            :side-identifier="SideID.leftSideId"
-                            @selectionclick="selectionClickEventHandler"
-                            @selectionhoverenter="onHoverEnterHandler"
-                            @selectionhoverexit="onHoverExitHandler"
-                          ></BarcodeChart>
-                        </v-col>
-                      </v-row>
-                    </v-col>
-                    <v-col md="6" sm="12" class="fullheight">
-                      <v-row class="flex-nowrap" no-gutters>
-                        <v-col cols="11">
-                          <compare-side
-                            :active-selections="rightActiveSelectionIds()"
-                            :file="activePair.rightFile"
-                            :hovering-selections="lastHovered.rightSideId.fragmentClasses"
-                            :identifier="SideID.rightSideId"
-                            :selected-selections="selected.sides.rightSideId.fragmentClasses"
-                            :selections="rightSelections"
-                            :language="language"
-                            :semantic-matches="activePair.rightMatches"
-                            @codescroll="onScrollHandler"
-                            @selectionclick="selectionClickEventHandler"
-                            @selectionhoverenter="onHoverEnterHandler"
-                            @selectionhoverexit="onHoverExitHandler"
-                          >
-                          </compare-side>
-                        </v-col>
-                        <v-col cols="auto">
-                          <BarcodeChart
-                            :active-selections="rightActiveSelectionIds()"
-                            :amount-of-lines-visible="linesVisible"
-                            :document-scroll-fraction="rightScrollFraction"
-                            :hovering-selections="lastHovered.rightSideId.fragmentClasses"
-                            :lines="rightLines"
-                            :maxLines="maxLines"
-                            :selected-selections="selected.sides.rightSideId.fragmentClasses"
-                            :selections="rightSelections"
-                            :side-identifier="SideID.rightSideId"
-                            @selectionclick="selectionClickEventHandler"
-                            @selectionhoverenter="onHoverEnterHandler"
-                            @selectionhoverexit="onHoverExitHandler"
-                          ></BarcodeChart>
-                        </v-col>
-                      </v-row>
-                    </v-col>
-                  </v-row>
-                </v-container>
-              </v-card-text>
-            </v-card>
-          </v-col>
-        </v-row>
+      <!-- Content -->
+      <v-col>
+        <v-card>
+          <!-- Header -->
+          <v-card-title class="d-flex flex-column">
+            <v-row dense>
+              <v-col class="text-center">
+                {{ activePair.leftFile.path }}
+              </v-col>
+
+              <v-col cols="auto">
+                <v-btn color="primary" depressed @click="swapFiles">
+                  <v-icon>mdi-swap-horizontal-bold</v-icon>
+                </v-btn>
+              </v-col>
+
+              <v-col class="text-center">
+                {{ activePair.rightFile.path }}
+              </v-col>
+            </v-row>
+
+            <v-row justify="center" dense>
+              <v-col cols="auto">
+                <v-chip label>
+                  <v-icon left>mdi-approximately-equal</v-icon>
+                  Similarity: {{ activePair.similarity.toFixed(2) }}
+                </v-chip>
+              </v-col>
+              <v-col cols="auto">
+                <v-chip label>
+                  <v-icon left>mdi-file-document-multiple</v-icon>
+                  Longest fragment: {{ activePair.longestFragment }}
+                </v-chip>
+              </v-col>
+              <v-col cols="auto">
+                <v-chip label>
+                  <v-icon left>mdi-file-document-multiple-outline</v-icon>
+                  Total overlap: {{ activePair.totalOverlap }}
+                </v-chip>
+              </v-col>
+            </v-row>
+          </v-card-title>
+
+          <!-- Compare View -->
+          <v-card-text>
+            <v-row dense>
+              <v-col cols="12" md="6">
+                <div class="compare-editor fill-height">
+                  <compare-side
+                    class="compare-editor-code"
+                    ref="leftCompareSide"
+                    identifier="leftSideId"
+                    :active-selections="activeSelectionIds.left"
+                    :file="activePair.leftFile"
+                    :hovering-selections="lastHovered.leftSideId.fragmentClasses"
+                    :selected-selections="
+                      selected.sides.leftSideId.fragmentClasses
+                    "
+                    :semantic-matches="null"
+                    :selections="selections.left"
+                    :language="metadata.language"
+                    @codescroll="onScrollHandler"
+                    @linesvisibleamount="setLinesVisible"
+                    @selectionclick="selectionClickEventHandler"
+                    @selectionhoverenter="onHoverEnterHandler"
+                    @selectionhoverexit="onHoverExitHandler"
+                  />
+
+                  <barcode-chart
+                    side-identifier="leftSideId"
+                    :active-selections="activeSelectionIds.left"
+                    :amount-of-lines-visible="linesVisible"
+                    :document-scroll-fraction="leftScrollFraction"
+                    :hovering-selections="lastHovered.leftSideId.fragmentClasses"
+                    :lines="leftLines"
+                    :maxLines="maxLines"
+                    :selected-selections="selected.sides.leftSideId.fragmentClasses"
+                    :selections="selections.left"
+                    @selectionclick="selectionClickEventHandler"
+                    @selectionhoverenter="onHoverEnterHandler"
+                    @selectionhoverexit="onHoverExitHandler"
+                  />
+                </div>
+              </v-col>
+
+              <v-col cols="12" md="6">
+                <div class="compare-editor">
+                  <compare-side
+                    class="compare-editor-code"
+                    ref="rightCompareSide"
+                    identifier="rightSideId"
+                    :active-selections="activeSelectionIds.right"
+                    :file="activePair.rightFile"
+                    :hovering-selections="lastHovered.rightSideId.fragmentClasses"
+                    :selected-selections="
+                      selected.sides.rightSideId.fragmentClasses
+                    "
+                    :semantic-matches="null"
+                    :selections="selections.right"
+                    :language="metadata.language"
+                    @codescroll="onScrollHandler"
+                    @linesvisibleamount="setLinesVisible"
+                    @selectionclick="selectionClickEventHandler"
+                    @selectionhoverenter="onHoverEnterHandler"
+                    @selectionhoverexit="onHoverExitHandler"
+                  />
+
+                  <barcode-chart
+                    side-identifier="rightSideId"
+                    :active-selections="activeSelectionIds.right"
+                    :amount-of-lines-visible="linesVisible"
+                    :document-scroll-fraction="rightScrollFraction"
+                    :hovering-selections="lastHovered.rightSideId.fragmentClasses"
+                    :lines="rightLines"
+                    :maxLines="maxLines"
+                    :selected-selections="selected.sides.rightSideId.fragmentClasses"
+                    :selections="selections.right"
+                    @selectionclick="selectionClickEventHandler"
+                    @selectionhoverenter="onHoverEnterHandler"
+                    @selectionhoverexit="onHoverExitHandler"
+                  />
+                </div>
+              </v-col>
+            </v-row>
+          </v-card-text>
+        </v-card>
       </v-col>
-      <v-col cols="auto" v-if="!fragmentListExtended">
-        <v-row>
-          <v-btn @click="fragmentListExtended = !fragmentListExtended" icon>
-            <v-icon>
-              <!-- For some strange reason "mdi-application-cog" and other cog variants wont work out of the box -->
-              {{ mdiApplicationCog }}
-            </v-icon>
-          </v-btn>
-        </v-row>
-        <v-row>
-          <v-menu @click.stop="" direction="top" offset-y open-on-hover transition="scale">
-            <template v-slot:activator="{ on, attrs }">
-              <v-btn @click.stop="" fab icon small v-bind="attrs" v-on="on">
-                <v-icon dark>mdi-help</v-icon>
-              </v-btn>
-            </template>
-            <v-card>
-              <v-card-title>
-                Keyboard shortcuts
-              </v-card-title>
-              <v-card-text>
-                <v-list-item :dense="true" :key="i" v-for="(item, i)  in shortcutsHelptext">
-                  {{ item[0] }}: {{ item[1] }}
-                </v-list-item>
-              </v-card-text>
-            </v-card>
-          </v-menu>
-        </v-row>
+
+      <!-- Options -->
+      <v-col v-if="!fragmentListExtended" class="compare-options" cols="auto">
+        <!-- Settings -->
+        <v-btn icon @click="fragmentListExtended = !fragmentListExtended">
+          <v-icon>mdi-cog</v-icon>
+        </v-btn>
+
+        <!-- Keyboard Shortcuts -->
+        <v-menu
+          @click.stop=""
+          direction="top"
+          offset-y
+          open-on-hover
+          transition="scale"
+        >
+          <template #activator="{ on, attrs }">
+            <v-btn @click.stop="" fab icon small v-bind="attrs" v-on="on">
+              <v-icon>mdi-help</v-icon>
+            </v-btn>
+          </template>
+          <v-card>
+            <v-card-title> Keyboard shortcuts </v-card-title>
+            <v-card-text>
+              <div :dense="true" :key="i" v-for="(item, i) in shortcutsHelpText">
+                {{ item[0] }}: {{ item[1] }}
+              </div>
+            </v-card-text>
+          </v-card>
+        </v-menu>
       </v-col>
     </v-row>
+
     <v-navigation-drawer :value="fragmentListExtended" app clipped right>
       <FragmentList
         :pair="activePair"
@@ -187,488 +174,592 @@
           </v-btn>
         </template>
       </FragmentList>
+
       <SemanticList
+        v-if="pairedMatches"
         :semantic-matches="pairedMatches"
         :file="activePair.leftFile"
-        :selected-item-sync.sync="selectedItem"
-      >
-
-      </SemanticList>
+        :selected-item.sync="selectedItem"
+      />
     </v-navigation-drawer>
-  </v-container>
+  </div>
 </template>
+
 <script lang="ts">
-import { Component, Prop, Vue, Watch } from "vue-property-decorator";
-import { fileToTokenizedFile, Fragment, Metadata, Pair, Selection } from "@/api/api";
+import {
+  defineComponent,
+  PropType,
+  shallowRef,
+  ref,
+  computed,
+  onMounted,
+  watch,
+} from "@vue/composition-api";
+import { Pair, Metadata, Selection, File, Fragment } from "@/api/models";
+import { fileToTokenizedFile } from "@/api/utils";
+import { constructID, SelectionId } from "@/util/OccurenceHighlight";
+import { SemanticAnalyzer } from "@dodona/dolos-lib/dist/lib/analyze/SemanticAnalyzer";
+import {
+  DecodedSemanticResult,
+  PairedSemanticGroups,
+  Region,
+} from "@dodona/dolos-lib";
+import * as d3 from "d3";
 import CompareSide from "@/components/CompareSide.vue";
 import BarcodeChart from "@/components/BarcodeChart.vue";
 import SemanticList from "@/components/SemanticList.vue";
-import { constructID, SelectionId } from "@/util/OccurenceHighlight";
-import * as d3 from "d3";
 import FragmentList from "@/components/FragmentList.vue";
-import {
-  mdiApplicationCog,
-  mdiApproximatelyEqual,
-  mdiFileDocumentMultiple,
-  mdiFileDocumentMultipleOutline,
-  mdiSwapHorizontalBold,
-} from "@mdi/js";
-import { SemanticAnalyzer } from "@dodona/dolos-lib/dist/lib/analyze/SemanticAnalyzer";
-import { DecodedSemanticResult, PairedSemanticGroups, Region } from "@dodona/dolos-lib";
 
+// TODO: move this into a separate file
 export enum SideID {
   leftSideId = "leftSideId",
   rightSideId = "rightSideId",
 }
-export type SemanticMatch = PairedSemanticGroups<DecodedSemanticResult> & { active: boolean };
+// TODO: move this into a separate file
+export type SemanticMatch = PairedSemanticGroups<DecodedSemanticResult> & {
+  active: boolean;
+};
 
-@Component({
-  data: () => ({
-    SideID,
-    mdiApplicationCog,
-    mdiApproximatelyEqual,
-    mdiFileDocumentMultiple,
-    mdiFileDocumentMultipleOutline,
-    mdiSwapHorizontalBold,
-  }),
-  components: { CompareSide, BarcodeChart, FragmentList, SemanticList },
-})
-export default class CompareCard extends Vue {
-  @Prop({ default: false, required: true }) loaded!: boolean;
-  @Prop({ required: true }) pair!: Pair;
-  @Prop({ required: true }) metadata!: Metadata;
+export default defineComponent({
+  props: {
+    pair: {
+      type: Object as PropType<Pair>,
+      required: true,
+    },
 
-  shortcutsHelptext = [
-    ["Left Arrow", "Previous"],
-    ["Right Arrow", "Next"],
-    ["Space/Enter", "Toggle selection"],
-  ];
+    metadata: {
+      type: Object as PropType<Metadata>,
+      required: true,
+    },
+  },
 
-  filesSwapped = false;
+  setup(props) {
+    // Helper text for the keyboard shortcuts.
+    const shortcutsHelpText = [
+      ["Left Arrow", "Previous"],
+      ["Right Arrow", "Next"],
+      ["Space/Enter", "Toggle selection"],
+    ];
 
-  fragmentListExtended = false;
-  selectedItem = -1;
+    // If the files have been swapped.
+    const filesSwapped = shallowRef(false);
 
-  fragmentClickCount = 0;
-  currentFragmentClassIndex = 0;
-  // this maps a selected id to all the other selected-ids that it corresponds with
-  leftMap!: Map<SelectionId, Array<SelectionId>>;
-  rightMap!: Map<SelectionId, Array<SelectionId>>;
-  // maps an id of a side to its map
-  sideMap!: Map<SideID, Map<SelectionId, Array<SelectionId>>>;
-  sideSelectionsToFragments: {
-    [key in SideID]: {
-      [key: string]: Fragment[];
-    }
-  } = {
-    [SideID.leftSideId]: {},
-    [SideID.rightSideId]: {},
-  }
+    const fragmentListExtended = shallowRef(false);
+    const selectedItem = shallowRef(-1);
+    const fragmentClickCount = shallowRef(0);
+    const currentFragmentClassIndex = shallowRef(0);
 
-  selected: {
-    sides: {
+    // Maps that contain for each selection the corresponding selection on the other file.
+    const leftMap = shallowRef<Map<SelectionId, SelectionId[]>>(new Map());
+    const rightMap = shallowRef<Map<SelectionId, SelectionId[]>>(new Map());
+    const sideMap = shallowRef<Map<SideID, Map<SelectionId, SelectionId[]>>>(
+      new Map()
+    );
+    const sideSelectionsToFragments = ref<{
+      [key in SideID]: {
+        [key: string]: Fragment[];
+      };
+    }>({
+      [SideID.leftSideId]: {},
+      [SideID.rightSideId]: {},
+    });
+    const lastHovered = ref<{
       [key in SideID]: {
         fragmentClasses: Array<SelectionId>;
       };
-    };
-    side?: string;
-    fragmentClasses?: Array<SelectionId>;
-  } = {
-    sides: {
+    }>({
       [SideID.leftSideId]: { fragmentClasses: [] },
       [SideID.rightSideId]: { fragmentClasses: [] },
-    }
-  };
-
-  lastHovered: {
-    [key in SideID]: {
-      fragmentClasses: Array<SelectionId>;
-    };
-  } = {
-    [SideID.leftSideId]: { fragmentClasses: [] },
-    [SideID.rightSideId]: { fragmentClasses: [] },
-  };
-
-  leftScrollFraction = 0;
-  rightScrollFraction = 0;
-  linesVisible = 0;
-
-  _pairedMatches: Array<SemanticMatch> | null = null;
-  _rightMatches: Array<SemanticMatch> | null = null;
-
-  get language(): string {
-    return this.metadata.language as string;
-  }
-
-  get kgramLength(): number {
-    return this.metadata.kgramLength as number;
-  }
-
-  get activePair() : Pair {
-    if (this.filesSwapped) {
-      return {
-        ...this.pair,
-        leftFile: this.pair.rightFile,
-        rightFile: this.pair.leftFile,
-        fragments: this.pair.fragments === null
-          ? null
-          : this.pair.fragments.map(fragment => ({
-            ...fragment,
-            left: fragment.right,
-            right: fragment.left,
-            occurrences: fragment.occurrences.map(occurence => ({
-              ...occurence,
-              left: occurence.right,
-              right: occurence.left,
-            }))
-          })),
-        pairedMatches: this.pair.pairedMatches.map(u => ({ leftMatch: u.rightMatch, rightMatch: u.leftMatch })),
-        unpairedMatches: this.pair.unpairedMatches,
+    });
+    const selected = ref<{
+      sides: {
+        [key in SideID]: {
+          fragmentClasses: Array<SelectionId>;
+        };
       };
-    } else {
-      return this.pair;
-    }
-  }
+      side?: string;
+      fragmentClasses?: Array<SelectionId>;
+    }>({
+      sides: {
+        [SideID.leftSideId]: { fragmentClasses: [] },
+        [SideID.rightSideId]: { fragmentClasses: [] },
+      },
+    });
 
-  get leftIdentifier(): string {
-    return SideID.leftSideId.toString();
-  }
+    const leftScrollFraction = shallowRef(0);
+    const rightScrollFraction = shallowRef(0);
+    const linesVisible = shallowRef(0);
 
-  get leftLines(): number {
-    return this.trimLastEmptyLine(this.activePair.leftFile.content.split("\n"));
-  }
+    // Active pair of files.
+    // Used to make the switch between left and right file easier.
+    const activePair = computed<Pair>(() => {
+      if (filesSwapped.value) {
+        return {
+          ...props.pair,
+          leftFile: props.pair.rightFile,
+          rightFile: props.pair.leftFile,
+          fragments: props.pair.fragments
+            ? props.pair.fragments.map((fragment) => ({
+              ...fragment,
+              left: fragment.right,
+              right: fragment.left,
+              occurrences: fragment.occurrences.map((occurrence) => ({
+                ...occurrence,
+                left: occurrence.right,
+                right: occurrence.left,
+              })),
+            }))
+            : null,
+          pairedMatches: props.pair.pairedMatches.map((u) => ({
+            leftMatch: u.rightMatch,
+            rightMatch: u.leftMatch,
+          })),
+          unpairedMatches: props.pair.unpairedMatches,
+        };
+      }
 
-  get rightLines(): number {
-    return this.trimLastEmptyLine(this.activePair.rightFile.content.split("\n"));
-  }
+      return props.pair;
+    });
 
-  get maxLines(): number {
-    return Math.max(this.leftLines, this.rightLines);
-  }
+    // Paired matches.
+    const pairedMatches = computed<SemanticMatch[]>(() => {
+      return activePair.value.pairedMatches.map((match) => ({
+        ...match,
+        active: true,
+      }));
+    });
 
-  get rightFilename(): string {
-    return this.activePair.rightFile.path;
-  }
+    // Matches within the active pair.
+    const activePairedMatches = computed<SemanticMatch[]>(() => {
+      return pairedMatches.value.filter((v) => v.active);
+    });
 
-  get leftFilename(): string {
-    return this.activePair.leftFile.path;
-  }
+    // Active fragments.
+    const activeFragments = computed(() => {
+      const isContained = (s1: Selection, s2: Region): boolean =>
+        Region.valid(s1.startRow, s1.startCol, s1.endRow, s2.endCol) &&
+        Region.diff(
+          new Region(s1.startRow, s1.startCol, s1.endRow, s2.endCol),
+          s2
+        ).length === 0;
 
-  get activeFragments(): Array<Fragment> {
-    const isContained = (s1: Selection, s2: Region): boolean =>
-      Region.valid(s1.startRow, s1.startCol, s1.endRow, s2.endCol) &&
-      Region.diff(new Region(s1.startRow, s1.startCol, s1.endRow, s2.endCol), s2).length === 0;
+      const leftCovers = props.pair.pairedMatches.map((p) =>
+        SemanticAnalyzer.getFullRange(
+          fileToTokenizedFile(props.pair.leftFile),
+          p.leftMatch
+        )
+      );
+      const rightCovers = props.pair.pairedMatches.map((p) =>
+        SemanticAnalyzer.getFullRange(
+          fileToTokenizedFile(props.pair.rightFile),
+          p.rightMatch
+        )
+      );
 
-    const leftCovers = this.pair.pairedMatches.map(p =>
-      SemanticAnalyzer.getFullRange(fileToTokenizedFile(this.pair.leftFile), p.leftMatch));
-    const rightCovers = this.pair.pairedMatches.map(p =>
-      SemanticAnalyzer.getFullRange(fileToTokenizedFile(this.pair.rightFile), p.rightMatch));
+      return activePair.value.fragments!
+        .filter((fragment) => fragment.active)
+        .filter(
+          (f) =>
+            !(leftCovers.some(lc => isContained(f.left, lc)) &&
+            rightCovers.some(rc => isContained(f.right, rc)))
+        );
+    });
 
-    return this.activePair.fragments!
-      .filter(fragment => fragment.active)
-      .filter(f =>
-        !(leftCovers.some(lc => isContained(f.left, lc)) &&
-          rightCovers.some(rc => isContained(f.right, rc))));
-  }
+    // Selection for the files in the pair.
+    const selections = computed<{
+      left: Selection[];
+      right: Selection[];
+    }>(() => {
+      const getSelections = (file: File, left: boolean): Selection[] => {
+        const tokenizedFile = fileToTokenizedFile(file);
+        const regions = pairedMatches.value.map((rm) =>
+          SemanticAnalyzer.getFullRange(tokenizedFile, left ? rm.leftMatch : rm.rightMatch)
+        );
 
-  get pairedMatches(): Array<SemanticMatch> {
-    return this.activePair.pairedMatches.map(match => ({ ...match, active: true }));
-  }
+        return [
+          ...activePair.value.fragments!.map((fragment) => left ? fragment.left : fragment.right),
+          ...regions,
+        ];
+      };
 
-  getActivePairedMatches(): Array<SemanticMatch> {
-    return this.pairedMatches.filter(v => v.active);
-  }
+      return {
+        left: getSelections(activePair.value.leftFile, true),
+        right: getSelections(activePair.value.rightFile, false),
+      };
+    });
 
-  private leftActiveSelectionIds(): Array<SelectionId> {
-    const fragments = this.activeFragments
-      .map(fragment => constructID(fragment.left));
+    // Active selection ids for the files in the pair.
+    const activeSelectionIds = computed<{
+      left: SelectionId[];
+      right: SelectionId[];
+    }>(() => {
+      const getSelectionIds = (file: File, left: boolean): SelectionId[] => {
+        const fragments = activeFragments.value!
+          .map(fragment => constructID(left ? fragment.left : fragment.right));
 
-    const file = fileToTokenizedFile(this.activePair.leftFile);
-    const regions = this.getActivePairedMatches().map(rm => SemanticAnalyzer.getFullRange(file, rm.leftMatch));
-    const semanticMatches = regions.map(m => constructID(m));
+        const tokenizedFile = fileToTokenizedFile(file);
+        const regions = activePairedMatches.value
+          .map(rm => SemanticAnalyzer.getFullRange(tokenizedFile, left ? rm.leftMatch : rm.rightMatch));
+        const semanticMatches = regions.map(m => constructID(m));
 
-    return [...fragments, ...semanticMatches];
-  }
+        return [...fragments, ...semanticMatches];
+      };
 
-  private rightActiveSelectionIds(): Array<SelectionId> {
-    const fragments = this.activeFragments
-      .map(fragment => constructID(fragment.right));
+      return {
+        left: getSelectionIds(activePair.value.leftFile, true),
+        right: getSelectionIds(activePair.value.rightFile, false),
+      };
+    });
 
-    const file = fileToTokenizedFile(this.activePair.rightFile);
-    const regions = this.getActivePairedMatches().map(rm => SemanticAnalyzer.getFullRange(file, rm.rightMatch));
-    const semanticMatches = regions.map(m => constructID(m));
+    // Swap between the 2 files.
+    const swapFiles = (): void => {
+      filesSwapped.value = !filesSwapped.value;
 
-    return [...fragments, ...semanticMatches];
-  }
+      // Reset.
+      fragmentListExtended.value = false;
+      selectedItem.value = -1;
+      fragmentClickCount.value = 0;
+      currentFragmentClassIndex.value = 0;
+      leftScrollFraction.value = 0;
+      rightScrollFraction.value = 0;
+      linesVisible.value = 0;
 
-  get leftSelections(): Array<Selection> {
-    const file = fileToTokenizedFile(this.activePair.leftFile);
-    const regions = this.pairedMatches.map(rm => SemanticAnalyzer.getFullRange(file, rm.leftMatch));
+      selected.value.fragmentClasses = undefined;
+      selected.value.sides[SideID.leftSideId].fragmentClasses = [];
+      selected.value.sides[SideID.rightSideId].fragmentClasses = [];
 
-    return [...this.activePair.fragments!.map(fragment => fragment.left),
-      ...regions];
-  }
+      sideSelectionsToFragments.value[SideID.leftSideId] = {};
+      sideSelectionsToFragments.value[SideID.rightSideId] = {};
 
-  get rightSelections(): Array<Selection> {
-    const file = fileToTokenizedFile(this.activePair.rightFile);
-    const regions = this.pairedMatches.map(rm => SemanticAnalyzer.getFullRange(file, rm.rightMatch));
+      lastHovered.value[SideID.leftSideId].fragmentClasses = [];
+      lastHovered.value[SideID.rightSideId].fragmentClasses = [];
 
-    return [...this.activePair.fragments!.map(fragment => fragment.right),
-      ...regions];
-  }
-
-  swapFiles(): void {
-    this.filesSwapped = !this.filesSwapped;
-    this.reset();
-  }
-
-  mounted(): void {
-    this.initialize();
-  }
-
-  isSelectionActive(sideId: SideID): (selectionId: SelectionId) => boolean {
-    return selectionId => {
-      const fragments = this.sideSelectionsToFragments[sideId][selectionId];
-      return fragments && fragments.some(fragment => fragment.active);
+      initialize();
     };
-  }
 
-  onScrollHandler(sideId: SideID, scrollFraction: number): void {
-    if (sideId === SideID.rightSideId) {
-      this.rightScrollFraction = scrollFraction;
-    } else {
-      this.leftScrollFraction = scrollFraction;
-    }
-  }
+    const extractRowCol = (value: string): [number, number] => {
+      const [row, col] = value.split("-").slice(3, 5);
+      return [+row, +col];
+    };
 
-  setLinesVisible(lines: number): void {
-    this.linesVisible = lines;
-  }
-
-  /**
-   * Prismjs trims the last line of code if that line is empty so we have to take that into account.
-   */
-  trimLastEmptyLine(lines: Array<string>): number {
-    if (lines[lines.length - 1].length === 0) {
-      return lines.length - 1;
-    } else {
-      return lines.length;
-    }
-  }
-
-  reset(): void {
-    this.fragmentListExtended = false;
-    this.selectedItem = -1;
-    this.fragmentClickCount = 0;
-    this.currentFragmentClassIndex = 0;
-    this.leftScrollFraction = 0;
-    this.rightScrollFraction = 0;
-    this.linesVisible = 0;
-
-    this.selected.fragmentClasses = undefined;
-    this.selected.sides[SideID.leftSideId].fragmentClasses = [];
-    this.selected.sides[SideID.rightSideId].fragmentClasses = [];
-
-    this.sideSelectionsToFragments[SideID.leftSideId] = {};
-    this.sideSelectionsToFragments[SideID.rightSideId] = {};
-
-    this.lastHovered[SideID.leftSideId].fragmentClasses = [];
-    this.lastHovered[SideID.rightSideId].fragmentClasses = [];
-
-    this.initialize();
-  }
-
-  initialize(): void {
-    this.leftMap = new Map();
-    this.rightMap = new Map();
-    this.sideMap = new Map([
-      [SideID.rightSideId, this.rightMap],
-      [SideID.leftSideId, this.leftMap]
-    ]);
-    this.initializeMaps();
-  }
-
-  getOtherSide(sideId: SideID): SideID {
-    return sideId === SideID.rightSideId ? SideID.leftSideId : SideID.rightSideId;
-  }
-
-  getAllOtherFragmentClasses(sideId: SideID, fragmentClasses: Array<string>): Array<string> {
-    const map = this.sideMap.get(sideId)!;
-    return fragmentClasses.flatMap(fragmentClass => map.get(fragmentClass)!);
-  }
-
-  onHoverEnterHandler(sideId: SideID, fragmentClasses: Array<string>): void {
-    const filteredFragmentClasses = fragmentClasses.filter(this.isSelectionActive(sideId));
-    const otherSideId = this.getOtherSide(sideId);
-    const otherFragmentClasses = this.getAllOtherFragmentClasses(sideId, filteredFragmentClasses)
-      .filter(this.isSelectionActive(otherSideId));
-
-    this.lastHovered[sideId].fragmentClasses = filteredFragmentClasses;
-    this.lastHovered[otherSideId].fragmentClasses = otherFragmentClasses;
-  }
-
-  onHoverExitHandler(sideId: SideID, fragmentClasses: Array<string>): void {
-    const otherSideId = this.getOtherSide(sideId);
-    this.lastHovered[sideId].fragmentClasses = [];
-    this.lastHovered[otherSideId].fragmentClasses = [];
-  }
-
-  cycle(sideId: SideID, fragmentClasses: Array<string>): [string, string] {
-    fragmentClasses.sort(this.sortSelectionId);
-    // if the there is nothing that was last clicked, or a different fragment from last time is clicked initialize the
-    // values
-    if (this.selected.fragmentClasses === undefined || !(sideId === this.selected.side &&
-      this.selected.fragmentClasses.toString() === fragmentClasses.toString())) {
-      this.currentFragmentClassIndex = 0;
-      this.fragmentClickCount = 1;
-      Vue.set(this.selected, "side", sideId);
-      // this.selected.side = sideId;
-      Vue.set(this.selected, "fragmentClasses", fragmentClasses.slice());
-      // this.selected.fragmentClasses = fragmentClasses.slice();
-    }
-
-    const map = this.sideMap.get(sideId)!;
-    let id = this.selected.fragmentClasses![this.currentFragmentClassIndex];
-    let fragments = map.get(id)!;
-    // cycles through all the fragments on the other side and if all the fragments have been cycled through,
-    // go to the next set of fragments
-    if (this.fragmentClickCount === fragments.length) {
-      this.fragmentClickCount = 1;
-      this.currentFragmentClassIndex = (this.currentFragmentClassIndex + 1) % this.selected.fragmentClasses!.length;
-      id = this.selected.fragmentClasses![this.currentFragmentClassIndex];
-      fragments = map.get(id)!;
-    } else {
-      this.fragmentClickCount += 1;
-    }
-
-    const other = fragments[this.fragmentClickCount - 1] as string;
-    return [id, other];
-  }
-
-  makeSelector(sideId: SideID, fragmentClasses: Array<string>): string {
-    return fragmentClasses
-      .map(fragmentClass => `#${sideId} .${fragmentClass}`)
-      .join(", ");
-  }
-
-  selectionClickEventHandler(sideId: SideID, fragmentClasses: Array<string>): void {
-    if (fragmentClasses.length === 0) {
-      Vue.set(this.selected.sides[SideID.leftSideId], "fragmentClasses", []);
-      Vue.set(this.selected.sides[SideID.rightSideId], "fragmentClasses", []);
-    } else {
-      const [id, other] = this.cycle(sideId, fragmentClasses);
-
-      Vue.set(this.selected.sides[sideId], "fragmentClasses", [id]);
-      Vue.set(this.selected.sides[this.getOtherSide(sideId)], "fragmentClasses", [other]);
-
-      this.scrollSelectedIntoView();
-    }
-  }
-
-  scrollSelectedIntoView(): void {
-    // for some reason scrolling will not always work when it is done in each CompareSide separately
-    const element = d3.select(
-      this.makeSelector(
-        SideID.leftSideId,
-        this.selected.sides[SideID.leftSideId].fragmentClasses
-      )
-    ).node();
-    const otherElement = d3.select(
-      this.makeSelector(
-        SideID.rightSideId,
-        this.selected.sides[SideID.rightSideId].fragmentClasses
-      )
-    ).node();
-    (element as HTMLElement).scrollIntoView({ behavior: "smooth", block: "center" });
-    (otherElement as HTMLElement).scrollIntoView({ behavior: "smooth", block: "center" });
-  }
-
-  @Watch("selectedItem")
-  fragmentClickEventHandler(index: number | undefined): void {
-    if (index === undefined || index === -1) {
-      Vue.set(this.selected.sides[SideID.leftSideId], "fragmentClasses", []);
-      Vue.set(this.selected.sides[SideID.rightSideId], "fragmentClasses", []);
-    } else {
-      const { left, right } = this.activePair.fragments![index];
-      Vue.set(this.selected.sides[SideID.leftSideId], "fragmentClasses", [constructID(left)]);
-      Vue.set(this.selected.sides[SideID.rightSideId], "fragmentClasses", [constructID(right)]);
-      this.scrollSelectedIntoView();
-    }
-  }
-
-  extractRowCol(value: string): [number, number] {
-    const [row, col] = value.split("-").slice(3, 5);
-    return [+row, +col];
-  }
-
-  sortSelectionId(el1: string, el2: string): number {
-    const [row1, col1] = this.extractRowCol(el1);
-    const [row2, col2] = this.extractRowCol(el2);
-    const res = row1 - row2;
-    if (res === 0) {
-      return col1 - col2;
-    } else {
-      return res;
-    }
-  }
-
-  sortMap(map: Map<string, Array<string>>): void {
-    for (const array of map.values()) {
-      array.sort(this.sortSelectionId);
-    }
-  }
-
-  /**
-   * Initialized leftMap and rightMap. Either of these maps map a selection id to a list of corresponding selection ids
-   * on the other CompareSide. This is done by looping over all the hunks in the current diff.
-   */
-  initializeMaps(): void {
-    for (const fragment of this.activePair.fragments!) {
-      const leftId = constructID(fragment.left);
-      const rightId = constructID(fragment.right);
-      if (!this.sideSelectionsToFragments[SideID.leftSideId][leftId]) {
-        Vue.set(this.sideSelectionsToFragments[SideID.leftSideId], leftId, []);
+    const sortSelectionId = (el1: string, el2: string): number => {
+      const [row1, col1] = extractRowCol(el1);
+      const [row2, col2] = extractRowCol(el2);
+      const res = row1 - row2;
+      if (res === 0) {
+        return col1 - col2;
+      } else {
+        return res;
       }
-      this.sideSelectionsToFragments[SideID.leftSideId][leftId].push(fragment);
+    };
 
-      if (!this.sideSelectionsToFragments[SideID.rightSideId][rightId]) {
-        Vue.set(this.sideSelectionsToFragments[SideID.rightSideId], rightId, []);
+    const sortMap = (map: Map<string, Array<string>>): void => {
+      for (const array of map.values()) {
+        array.sort(sortSelectionId);
       }
-      this.sideSelectionsToFragments[SideID.rightSideId][rightId].push(fragment);
+    };
 
-      if (!this.leftMap.has(leftId)) {
-        this.leftMap.set(leftId, []);
+    /**
+     * Initialized leftMap and rightMap.
+     * Either of these maps map a selection id to a list of corresponding selection ids
+     * on the other CompareSide. This is done by looping over all the hunks in the current diff.
+     */
+    const initializeMaps = (): void => {
+      for (const fragment of activePair.value.fragments!) {
+        const leftId = constructID(fragment.left);
+        const rightId = constructID(fragment.right);
+        if (!sideSelectionsToFragments.value[SideID.leftSideId][leftId]) {
+          sideSelectionsToFragments.value[SideID.leftSideId][leftId] = [];
+        }
+        sideSelectionsToFragments.value[SideID.leftSideId][leftId].push(
+          fragment
+        );
+
+        if (!sideSelectionsToFragments.value[SideID.rightSideId][rightId]) {
+          sideSelectionsToFragments.value[SideID.rightSideId][rightId] = [];
+        }
+        sideSelectionsToFragments.value[SideID.rightSideId][rightId].push(
+          fragment
+        );
+
+        if (!leftMap.value.has(leftId)) {
+          leftMap.value.set(leftId, []);
+        }
+        if (!leftMap.value.get(leftId)!.includes(rightId)) {
+          leftMap.value.get(leftId)!.push(rightId);
+        }
+
+        if (!rightMap.value.has(rightId)) {
+          rightMap.value.set(rightId, []);
+        }
+        if (!rightMap.value.get(rightId)!.includes(leftId)) {
+          rightMap.value.get(rightId)!.push(leftId);
+        }
       }
-      if (!this.leftMap.get(leftId)!.includes(rightId)) {
-        this.leftMap.get(leftId)!.push(rightId);
+      sortMap(leftMap.value);
+      sortMap(rightMap.value);
+    };
+
+    const cycle = (
+      sideId: SideID,
+      fragmentClasses: Array<string>
+    ): [string, string] => {
+      fragmentClasses.sort(sortSelectionId);
+      // if the there is nothing that was last clicked, or a different fragment from last time is clicked initialize the
+      // values
+      if (
+        selected.value.fragmentClasses === undefined ||
+        !(
+          sideId === selected.value.side &&
+          selected.value.fragmentClasses.toString() === fragmentClasses.toString()
+        )
+      ) {
+        currentFragmentClassIndex.value = 0;
+        fragmentClickCount.value = 1;
+        selected.value.side = sideId;
+        selected.value.fragmentClasses = fragmentClasses.slice();
       }
 
-      if (!this.rightMap.has(rightId)) {
-        this.rightMap.set(rightId, []);
+      const map = sideMap.value.get(sideId)!;
+      let id = selected.value.fragmentClasses![currentFragmentClassIndex.value];
+      let fragments = map.get(id)!;
+      // cycles through all the fragments on the other side and if all the fragments have been cycled through,
+      // go to the next set of fragments
+      if (fragmentClickCount.value === fragments.length) {
+        fragmentClickCount.value = 1;
+        currentFragmentClassIndex.value =
+          (currentFragmentClassIndex.value + 1) %
+          selected.value.fragmentClasses!.length;
+        id = selected.value.fragmentClasses![currentFragmentClassIndex.value];
+        fragments = map.get(id)!;
+      } else {
+        fragmentClickCount.value += 1;
       }
-      if (!this.rightMap.get(rightId)!.includes(leftId)) {
-        this.rightMap.get(rightId)!.push(leftId);
+
+      const other = fragments[fragmentClickCount.value - 1] as string;
+      return [id, other];
+    };
+
+    const onScrollHandler = (sideId: SideID, scrollFraction: number): void => {
+      if (sideId === SideID.rightSideId) {
+        rightScrollFraction.value = scrollFraction;
+      } else {
+        leftScrollFraction.value = scrollFraction;
+      }
+    };
+
+    const setLinesVisible = (lines: number): void => {
+      linesVisible.value = lines;
+    };
+
+    const makeSelector = (sideId: SideID, fragmentClasses: string[]): string => {
+      return fragmentClasses
+        .map(fragmentClass => `#${sideId} .${fragmentClass}`)
+        .join(", ");
+    };
+
+    const scrollSelectedIntoView = (): void => {
+      // for some reason scrolling will not always work when it is done in each CompareSide separately
+      const element = d3
+        .select(
+          makeSelector(
+            SideID.leftSideId,
+            selected.value.sides[SideID.leftSideId].fragmentClasses
+          )
+        )
+        .node();
+      const otherElement = d3
+        .select(
+          makeSelector(
+            SideID.rightSideId,
+            selected.value.sides[SideID.rightSideId].fragmentClasses
+          )
+        )
+        .node();
+      (element as HTMLElement).scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+      (otherElement as HTMLElement).scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    };
+
+    const getOtherSide = (sideId: SideID): SideID => {
+      return sideId === SideID.rightSideId ? SideID.leftSideId : SideID.rightSideId;
+    };
+
+    const getAllOtherFragmentClasses = (sideId: SideID, fragmentClasses: Array<string>): string[] => {
+      const map = sideMap.value.get(sideId)!;
+      return fragmentClasses.flatMap(fragmentClass => map.get(fragmentClass)!);
+    };
+
+    const selectionClickEventHandler = (
+      sideId: SideID,
+      fragmentClasses: Array<string>
+    ): void => {
+      if (fragmentClasses.length === 0) {
+        selected.value.sides[SideID.leftSideId].fragmentClasses = [];
+        selected.value.sides[SideID.rightSideId].fragmentClasses = [];
+      } else {
+        const [id, other] = cycle(sideId, fragmentClasses);
+
+        selected.value.sides[sideId].fragmentClasses = [id];
+        selected.value.sides[getOtherSide(sideId)].fragmentClasses = [other];
+
+        scrollSelectedIntoView();
+      }
+    };
+
+    const initialize = (): void => {
+      leftMap.value = new Map();
+      rightMap.value = new Map();
+      sideMap.value = new Map([
+        [SideID.rightSideId, rightMap.value],
+        [SideID.leftSideId, leftMap.value],
+      ]);
+      initializeMaps();
+    };
+
+    function isSelectionActive(sideId: SideID): (selectionId: SelectionId) => boolean {
+      return selectionId => {
+        const fragments = sideSelectionsToFragments.value[sideId][selectionId];
+        return fragments && fragments.some(fragment => fragment.active);
+      };
+    }
+
+    const onHoverEnterHandler = (sideId: SideID, fragmentClasses: Array<string>): void => {
+      const filteredFragmentClasses = fragmentClasses.filter(isSelectionActive(sideId));
+      const otherSideId = getOtherSide(sideId);
+      const otherFragmentClasses = getAllOtherFragmentClasses(sideId, filteredFragmentClasses)
+        .filter(isSelectionActive(otherSideId));
+
+      lastHovered.value[sideId].fragmentClasses = filteredFragmentClasses;
+      lastHovered.value[otherSideId].fragmentClasses = otherFragmentClasses;
+    };
+
+    const onHoverExitHandler = (sideId: SideID, fragmentClasses: Array<string>): void => {
+      const otherSideId = getOtherSide(sideId);
+      lastHovered.value[sideId].fragmentClasses = [];
+      lastHovered.value[otherSideId].fragmentClasses = [];
+    };
+
+    /**
+     * Prismjs trims the last line of code if that line is empty so we have to take that into account.
+     */
+    function trimLastEmptyLine(lines: Array<string>): number {
+      if (lines[lines.length - 1].length === 0) {
+        return lines.length - 1;
+      } else {
+        return lines.length;
       }
     }
-    this.sortMap(this.leftMap);
-    this.sortMap(this.rightMap);
-  }
-}
+
+    const leftLines = computed(() => {
+      return trimLastEmptyLine(activePair.value.leftFile.content.split("\n"));
+    });
+
+    const rightLines = computed(() => {
+      return trimLastEmptyLine(activePair.value.rightFile.content.split("\n"));
+    });
+
+    const maxLines = computed(() => {
+      return Math.max(leftLines.value, rightLines.value);
+    });
+
+    const kgramLength = computed(() => {
+      return props.metadata.kgramLength as number;
+    });
+
+    watch(
+      () => selectedItem.value,
+      (index) => {
+        if (index === undefined || index === -1) {
+          selected.value.sides[SideID.leftSideId].fragmentClasses = [];
+          selected.value.sides[SideID.rightSideId].fragmentClasses = [];
+        } else {
+          const { left, right } = activePair.value.fragments![index];
+          selected.value.sides[SideID.leftSideId].fragmentClasses = [constructID(left)];
+          selected.value.sides[SideID.rightSideId].fragmentClasses = [constructID(right)];
+          scrollSelectedIntoView();
+        }
+      }
+    );
+
+    onMounted(() => {
+      initialize();
+    });
+
+    return {
+      shortcutsHelpText,
+      filesSwapped,
+      leftMap,
+      rightMap,
+      activePair,
+      pairedMatches,
+      activePairedMatches,
+      activeFragments,
+      selections,
+      activeSelectionIds,
+      lastHovered,
+      swapFiles,
+      sideMap,
+      sideSelectionsToFragments,
+      leftScrollFraction,
+      rightScrollFraction,
+      linesVisible,
+      selected,
+      fragmentListExtended,
+      selectedItem,
+      fragmentClickCount,
+      currentFragmentClassIndex,
+      onScrollHandler,
+      setLinesVisible,
+      selectionClickEventHandler,
+      makeSelector,
+      scrollSelectedIntoView,
+      initialize,
+      isSelectionActive,
+      onHoverEnterHandler,
+      onHoverExitHandler,
+      leftLines,
+      rightLines,
+      maxLines,
+      kgramLength,
+    };
+  },
+
+  components: {
+    CompareSide,
+    BarcodeChart,
+    FragmentList,
+    SemanticList
+  },
+});
 </script>
 
 <style lang="scss">
-@use 'variables';
-
-.no-y-padding {
-  padding-bottom: 0;
-  padding-top: 0;
-}
-
-.fullheight {
-  height: 100%;
-}
-
 .highlighted-code {
   height: var(--code-height);
+}
+
+.compare {
+  &-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  &-editor {
+    display: flex;
+    max-width: 100%;
+    width: 100%;
+
+    &-code {
+      overflow-x: auto;
+      overflow-y: hidden;
+    }
+  }
 }
 </style>

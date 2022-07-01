@@ -1,9 +1,14 @@
 <template>
   <div>
-    <div class="d-flex flex-column align-center flex-grow flex-nowrap">
-      <v-alert color="#1976D2" v-if="!hoveredPair" class="extra-info-container" type="info"
-      >Hover over a pair to see extra data.</v-alert
+    <div class="d-flex flex-column align-center flex-grow flex-nowrap mt-4">
+      <v-alert
+        color="#1976D2"
+        v-if="!hoveredPair"
+        class="extra-info-container"
+        type="info"
       >
+        Hover over a pair to see extra data.
+      </v-alert>
 
       <v-alert
         v-if="!!hoveredPair"
@@ -17,317 +22,322 @@
       </v-alert>
       <div class="d-flex flex-row justify-space-around fullwidth">
         <div class="gel-list">
-          <GraphElementList :selected-files="selectedFiles"  :cluster="cluster"></GraphElementList>
+          <GraphElementList
+            :selected-files="selectedFiles"
+            :cluster="cluster"
+          />
         </div>
         <div class="d-flex">
-          <div :id="getSvgId()" class="svg-container"></div>
-          <div :id="`${getSvgId()}-legend`"></div>
+          <div ref="heatmapElement" class="svg-container"></div>
+          <div ref="heatmapLegendElement"></div>
         </div>
       </div>
     </div>
     <div class="more-info">
       <v-tooltip bottom>
         <template v-slot:activator="{ on, attrs }">
-          <v-icon v-bind="attrs" v-on="on">
-            mdi-information
-          </v-icon>
+          <v-icon v-bind="attrs" v-on="on"> mdi-information </v-icon>
         </template>
         <span class="tooltip-span">
-        The heatmap visualizes the details of each of the pairs of files in this cluster. You can use this to examine
-          the connections between the files in detail. This can be useful in particular for identifying files which
-          do not belong in the cluster, when certain rows and columns are colored too light. You can use this to modify
-          the cutoff value.
-          </span>
+          The heatmap visualizes the details of each of the pairs of files in
+          this cluster. You can use this to examine the connections between the
+          files in detail. This can be useful in particular for identifying
+          files which do not belong in the cluster, when certain rows and
+          columns are colored too light. You can use this to modify the cutoff
+          value.
+        </span>
       </v-tooltip>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Watch, Prop } from "vue-property-decorator";
+import {
+  defineComponent,
+  PropType,
+  shallowRef,
+  computed,
+  watch,
+  onMounted,
+  toRef,
+} from "@vue/composition-api";
+import { storeToRefs } from "pinia";
+import { useFileStore, usePairStore, useApiStore } from "@/api/stores";
+import { useCluster, useRouter } from "@/composables";
+import { Pair, File } from "@/api/models";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
-import DataView from "@/views/DataView";
-
-import * as d3 from "d3";
-import { ScaleBand, ScaleLinear } from "d3";
-import { getClusterElementsArray, getClusterElementsSorted } from "@/util/clustering-algorithms/ClusterFunctions";
 import { pairsAsNestedMap } from "@/util/PairAsNestedMap";
-
-import { File, Pair } from "@/api/api";
 import GraphElementList from "@/d3-tools/GraphElementList.vue";
-import { ResizableD3Viz } from "@/d3-tools/ResizableD3Viz";
-@Component({
-  components: { GraphElementList }
-})
-export default class HeatMap extends ResizableD3Viz {
-  @Prop() cluster!: Cluster;
+import * as d3 from "d3";
 
-  private svg: d3.Selection<SVGGElement, unknown, HTMLElement, unknown> | null =
-    null;
+export default defineComponent({
+  props: {
+    cluster: {
+      type: Set as PropType<Cluster>,
+      required: true,
+    },
+  },
 
-  private xBand: ScaleBand<number> | null = null;
-  private yBand: ScaleBand<number> | null = null;
-  private colorScale: ScaleLinear<string, number> | null = null;
+  setup(props) {
+    const { files } = storeToRefs(useFileStore());
+    const { cutoff, cutoffDebounced } = storeToRefs(useApiStore());
+    const { pairsList } = storeToRefs(usePairStore());
+    const { clusterFiles } = useCluster(toRef(props, "cluster"));
+    const router = useRouter();
 
-  private dimensions = [450, 450];
+    // List of selected files.
+    const selectedFiles = shallowRef<File[]>([]);
 
-  private hoveredPair: Pair | null = null;
-  private pairMap: Map<number, Map<number, Pair>> | null = null;
+    // Pair that is being hovered in the heatmap.
+    const hoveredPair = shallowRef<Pair | null>(null);
 
-  private scale = 1.2;
+    // Heatmap element & legend template ref.
+    const heatmapElement = shallowRef<SVGSVGElement>();
+    const heatmapLegendElement = shallowRef<SVGSVGElement>();
 
-  private selectedFiles: File[] = [];
+    // Heatmap element size
+    const { width, height } = {
+      width: 450,
+      height: 450,
+    };
 
-  mounted(): void {
-    super.mounted();
-  }
+    // Heatmap D3
+    const heatmap = d3.create("svg").attr("width", width).attr("height", height);
+    const heatmapContent = heatmap.append("g");
 
-  @Watch("cluster")
-  redraw(): void {
-    d3.select(`#${this.getSvgId()}`).selectAll("svg").remove();
-    d3.select(`#${this.getSvgId()}-legend`).selectAll("svg").remove();
-    this.initialize();
-  }
-
-  initialize(): void {
-    this.initializeSvg();
-    this.initializeAxes();
-    this.initializeColorScale();
-    this.initializeData();
-  }
-
-  private initializeSvg(): void {
-    const [width, height] = this.dimensions;
-    const topBottomMargin = 100;
-    const leftMargin = 125;
-    const rightMargin = 30;
-
-    console.log(this.getSvgId());
-    this.svg = d3
-      .select(`#${this.getSvgId()}`)
-      .append("svg")
-      .attr("width", width + leftMargin + rightMargin)
-      .attr("height", height + 2 * topBottomMargin)
-      .append("g")
-      .attr(
-        "transform",
-        `translate(${leftMargin}, ${topBottomMargin / 2})`
-      );
-  }
-
-  private initializeAxes(): void {
-    const [width, height] = this.dimensions;
-    const elements = getClusterElementsSorted(this.cluster);
-
-    this.xBand = d3
-      .scaleBand<number>()
-      .range([0, width])
-      .domain(elements.map(d => d.id).reverse())
-      .padding(0.01);
-
-    this.yBand = d3
-      .scaleBand<number>()
-      .range([height, 0])
-      .domain(elements.map(d => d.id))
-      .padding(0.01);
-
-    const xAxis = d3
-      .axisBottom(this.xBand)
-      .tickFormat(
-        d =>
-          `${
-            this.files[d].extra.fullName ||
-            this.files[d].path.split("/").slice(-1).join("")
-          }`
-      );
-
-    this.svg
-      ?.append("g")
-      .attr("transform", "translate(0," + height + ")")
-      .call(xAxis)
-      .selectAll("text")
-      .style("text-anchor", "end")
-      .attr("dx", "-.8em")
-      .attr("dy", ".15em")
-      .attr("transform", "rotate(-35)");
-
-    const yAxis = d3
-      .axisLeft(this.yBand)
-      .tickFormat(
-        d =>
-          `${
-            this.files[d].extra.fullName ||
-            this.files[d].path.split("/").slice(-1).join("")
-          }`
-      );
-
-    this.svg?.append("g").call(yAxis);
-  }
-
-  private initializeColorScale(): void {
-    const scale = ["#e6f2ff", "#1976D2"];
-
-    this.colorScale = d3
-      .scaleLinear<string, number>()
-      .domain([this.cutoff, 1])
-      .range(scale);
-
-    // Legend code inspired by https://bl.ocks.org/starcalibre/6cccfa843ed254aa0a0d
-
-    const legendSvg = d3.select(`#${this.getSvgId()}-legend`)
-      .append("svg")
+    // Heatmap legend D3
+    const heatmapLegend = d3
+      .create("svg")
       .attr("width", 50)
-      .attr("height", 300)
-      .append("g").attr("transform", "rotate(-90) translate(-250, 0)");
+      .attr("height", 300);
+    const heatmapLegendContent = heatmapLegend
+      .append("g")
+      .attr("transform", "rotate(-90) translate(-205, 0)");
 
-    const gradient = legendSvg.append("defs")
-      .append("linearGradient")
-      .attr("id", "gradient")
-      .attr("x1", "0%") // bottom
-      .attr("y1", "0%")
-      .attr("x2", "100%") // to top
-      .attr("y2", "0%")
-      .attr("spreadMethod", "pad");
+    // Nested pairs map
+    const pairMap = computed(() => pairsAsNestedMap(pairsList.value));
 
-    gradient.append("stop")
-      .attr("offset", "0%")
-      .attr("stop-color", scale[0])
-      .attr("stop-opacity", 1);
+    // Get a pair for 2 given files.
+    const getPair = (file1: File, file2: File): Pair | null => {
+      return pairMap.value.get(file1.id)?.get(file2.id) || null;
+    };
 
-    gradient.append("stop")
-      .attr("offset", "100%")
-      .attr("stop-color", scale[1])
-      .attr("stop-opacity", 1);
+    // Draw the heatmap
+    const draw = (): void => {
+      const elements = clusterFiles.value;
+      const margin = {
+        top: 0,
+        bottom: 50,
+        left: 125,
+        right: 30,
+      };
 
-    legendSvg.append("rect")
-      .attr("x1", 100)
-      .attr("y1", 0)
-      .attr("width", 200)
-      .attr("height", 25)
-      .style("fill", "url(#gradient)");
+      // Resize the heatmap.
+      heatmap
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom);
+      heatmapContent.attr(
+        "transform",
+        `translate(${margin.left}, ${margin.top / 2})`
+      );
 
-    const legendScale = d3.scaleLinear()
-      .domain([this.cutoff, 1])
-      .range([0, 200]);
+      // Clear the heatmap.
+      heatmapContent.selectAll("*").remove();
+      heatmapLegendContent.selectAll("*").remove();
 
-    const legendAxis = d3.axisBottom(legendScale).tickValues([this.cutoff, 1]);
+      // Create the axes.
+      const xBand = d3
+        .scaleBand<number>()
+        .range([0, width])
+        .domain(elements.map((d) => d.id).reverse())
+        .padding(0.01);
+      const yBand = d3
+        .scaleBand<number>()
+        .range([height, 0])
+        .domain(elements.map((d) => d.id))
+        .padding(0.01);
+      const xAxis = d3
+        .axisBottom(xBand)
+        .tickFormat(
+          (d) =>
+            `${
+              files.value[d].extra.fullName ||
+              files.value[d].path.split("/").slice(-1).join("")
+            }`
+        );
+      const yAxis = d3
+        .axisLeft(yBand)
+        .tickFormat(
+          (d) =>
+            `${
+              files.value[d].extra.fullName ||
+              files.value[d].path.split("/").slice(-1).join("")
+            }`
+        );
 
-    const g = legendSvg.append("g")
-      .attr("class", "legend axis")
-      .attr("transform", "translate(" + 0 + ", 30)")
-      .call(legendAxis);
+      // Append the axes to the heatmap.
+      heatmapContent
+        .append("g")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxis)
+        .selectAll("text")
+        .style("text-anchor", "end")
+        .attr("dx", "-.8em")
+        .attr("dy", ".15em")
+        .attr("transform", "rotate(-35)");
+      heatmapContent.append("g").call(yAxis);
 
-    legendSvg.append("text")
-      .attr("class", "x label")
-      .attr("text-anchor", "end")
-      .attr("x", 175)
-      .attr("y", 50)
-      .attr("font-size", 15)
-      .text("Similarity cutoff value");
-  }
+      // Setup the color scale & legend.
+      const scale = ["#e6f2ff", "#1976D2"];
+      const colorScale = d3
+        .scaleLinear<string, number>()
+        .domain([cutoff.value, 1])
+        .range(scale);
 
-  @Watch("cluster")
-  private initializeData(): void {
-    const elements = getClusterElementsArray(this.cluster);
-    const pairs = d3.cross(elements, elements.reverse());
+      const gradient = heatmapLegendContent
+        .append("defs")
+        .append("linearGradient")
+        .attr("id", "gradient")
+        .attr("x1", "0%") // bottom
+        .attr("y1", "0%")
+        .attr("x2", "100%") // to top
+        .attr("y2", "0%")
+        .attr("spreadMethod", "pad");
 
-    const [xBand, yBand, colorScale] = [
-      this.xBand,
-      this.yBand,
-      this.colorScale,
-    ];
+      gradient
+        .append("stop")
+        .attr("offset", "0%")
+        .attr("stop-color", scale[0])
+        .attr("stop-opacity", 1);
 
-    if (xBand === null || yBand === null || colorScale === null) {
-      return;
-    }
+      gradient
+        .append("stop")
+        .attr("offset", "100%")
+        .attr("stop-color", scale[1])
+        .attr("stop-opacity", 1);
 
-    this.svg
-      ?.selectAll()
-      .data(pairs)
-      .enter()
-      .append("rect")
-      .attr("x", ([first]) => xBand(first.id) || 0)
-      .attr("y", ([, second]) => yBand(second.id) || 0)
-      .attr("width", xBand.bandwidth())
-      .attr("height", yBand.bandwidth())
-      .attr(
-        "x-content",
-        ([first, second]) => this.getPair(first, second)?.similarity || 1
-      )
-      .attr("class", "square-element")
-      .style("fill", ([first, second]) =>
-        colorScale(this.getPair(first, second)?.similarity || 1)
-      )
-      .on("click", this.click.bind(this))
-      .on("mouseover", this.onEnter.bind(this))
-      .on("mouseout", this.onLeave.bind(this));
-  }
+      heatmapLegendContent
+        .append("rect")
+        .attr("x1", 150)
+        .attr("y1", 0)
+        .attr("width", 200)
+        .attr("height", 25)
+        .style("fill", "url(#gradient)");
 
-  private getPair(fileId1: File, fileId2: File): Pair | null {
-    if (!this.pairMap) {
-      this.pairMap = pairsAsNestedMap(Object.values(super.pairs));
-    }
+      const legendScale = d3
+        .scaleLinear()
+        .domain([cutoff.value, 1])
+        .range([0, 200]);
 
-    return this.pairMap.get(fileId1.id)?.get(fileId2.id) || null;
-  }
+      const legendAxis = d3
+        .axisBottom(legendScale)
+        .tickValues([cutoff.value, 1]);
 
-  private click(_: any, [first, second]: [File, File]): void {
-    const pair = this.getPair(first, second);
+      heatmapLegendContent
+        .append("g")
+        .attr("class", "legend axis")
+        .attr("transform", "translate(0, 30)")
+        .call(legendAxis);
 
-    if (pair) {
-      this.$router.push(`/compare/${pair.id}`);
-    }
-  }
+      heatmapLegendContent
+        .append("text")
+        .attr("class", "x label")
+        .attr("text-anchor", "end")
+        .attr("x", 175)
+        .attr("y", 50)
+        .attr("font-size", 15)
+        .text("Similarity cutoff value");
 
-  private onEnter(_: unknown, [first, second]: [File, File]): void {
-    const [xBand, yBand] = [this.xBand, this.yBand];
+      // Setup the data
+      const pairs = d3.cross(elements, elements.reverse());
 
-    if (!xBand || !yBand) {
-      return;
-    }
+      // Setup the heatmap.
+      heatmapContent
+        .selectAll()
+        .data(pairs)
+        .enter()
+        .append("rect")
+        .attr("x", ([first]) => xBand(first.id) || 0)
+        .attr("y", ([, second]) => yBand(second.id) || 0)
+        .attr("width", xBand.bandwidth())
+        .attr("height", yBand.bandwidth())
+        .attr(
+          "x-content",
+          ([first, second]) => getPair(first, second)?.similarity || 1
+        )
+        .attr("class", "heatmap-tile")
+        .style("fill", ([first, second]) =>
+          colorScale(getPair(first, second)?.similarity || 1)
+        )
+        .on("click", onClick)
+        .on("mouseover", onMouseOver)
+        .on("mouseout", onMouseLeave);
+    };
 
-    d3.select<any, [File, File]>(event?.currentTarget)
-      .attr("width", xBand.bandwidth() * this.scale)
-      .attr("height", yBand.bandwidth() * this.scale)
-      .attr(
-        "x",
-        ([first]) =>
-          (xBand(first.id) || 0) +
-          (xBand.bandwidth() - xBand.bandwidth() * this.scale) / 2
-      )
-      .attr(
-        "y",
-        ([, second]) =>
-          (yBand(second.id) || 0) +
-          (yBand.bandwidth() - yBand.bandwidth() * this.scale) / 2
-      )
-      .raise();
+    // Add the SVG for the heatmap to the container.
+    onMounted(() => {
+      heatmapElement.value?.prepend(heatmap.node() ?? "");
+      heatmapLegendElement.value?.prepend(heatmapLegend.node() ?? "");
+      draw();
+    });
 
-    const pair = this.getPair(first, second);
-    if (pair) {
-      this.selectedFiles = [pair.leftFile, pair.rightFile];
-    }
-    this.hoveredPair = pair;
-  }
+    // Redraw the heatmap when the cluster changes.
+    watch(
+      () => cutoffDebounced.value,
+      () => {
+        draw();
+      }
+    );
 
-  private onLeave(_: unknown, [first, second]: [File, File]): void {
-    const [xBand, yBand] = [this.xBand, this.yBand];
+    // When the user hovers over a square in the heatmap.
+    const onMouseOver = (e: MouseEvent, [first, second]: [File, File]): void => {
+      const pair = getPair(first, second);
+      if (!pair) return;
 
-    if (xBand === null || yBand === null) {
-      return;
-    }
+      selectedFiles.value = [first, second];
+      hoveredPair.value = pair;
 
-    this.hoveredPair = null;
-    this.selectedFiles = [];
+      if (e.target) {
+        d3
+          .select(e.target as any)
+          .classed("heatmap-tile--hover", true);
+      }
+    };
 
-    d3.select<any, [File, File]>(event?.currentTarget as any)
-      .attr("width", xBand.bandwidth())
-      .attr("height", yBand.bandwidth())
-      .attr("x", ([first]) => xBand(first.id) || 0)
-      .attr("y", ([, second]) => yBand(second.id) || 0)
-      .lower();
-  }
-}
+    // When the user stops hovering over a square in the heatmap.
+    const onMouseLeave = (e: MouseEvent): void => {
+      selectedFiles.value = [];
+      hoveredPair.value = null;
+
+      if (e.target) {
+        d3
+          .select(e.target as any)
+          .classed("heatmap-tile--hover", false);
+      }
+    };
+
+    // When the user clicks on a square in the heatmap.
+    const onClick = (_: unknown, [first, second]: [File, File]): void => {
+      const pair = getPair(first, second);
+
+      if (pair) {
+        router.push(`/compare/${pair.id}`);
+      }
+    };
+
+    return {
+      heatmapElement,
+      heatmapLegendElement,
+      heatmap,
+      selectedFiles,
+      hoveredPair,
+    };
+  },
+
+  components: {
+    GraphElementList,
+  },
+});
 </script>
 
 <style scoped>
@@ -360,10 +370,6 @@ div {
 
 non-scoped style for svg styles
 <style>
-.square-element {
-  cursor: pointer;
-}
-
 .extra-info-container * * {
   display: flex;
   justify-content: space-between;
@@ -373,12 +379,17 @@ non-scoped style for svg styles
 
 .more-info {
   position: absolute;
-  right: 0;
+  left: 0;
   top: 0;
 }
 
 .tooltip-span {
   display: block;
   max-width: 400px;
+}
+
+.heatmap-tile {
+  cursor: pointer;
+  transition: background-color 400ms ease;
 }
 </style>

@@ -1,85 +1,136 @@
 <template>
-<div class="selected-info">
-  <div v-if="selectedNodeInfo">
-    <v-card elevation="2" outlined>
-      <v-card-title>
-        Selected node
-      </v-card-title>
+  <div class="selected-info">
+    <div v-if="selectedNode">
+      <v-card elevation="2" outlined>
+        <v-card-title> Selected node </v-card-title>
 
-      <v-card-text>
-        The author of this submission is <b>{{selectedNodeInfo.extra.fullName || "unknown"}}</b>, belonging to group
-        <b>{{selectedNodeInfo.extra.labels}}</b>. The last hand-in date was <b>{{
-          selectedNodeInfo.extra.timestamp ?
-            DateTime.fromJSDate(selectedNodeInfo.extra.timestamp).toLocaleString(DateTime.DATETIME_MED)
-            :
-            "not available."
-        }}</b>.
-      </v-card-text>
-    </v-card>
+        <v-card-text>
+          The author of this submission is
+          <b>{{ selectedNode.extra.fullName || "unknown" }}</b>
+          , belonging to group
+          <b>{{ selectedNode.extra.labels }}</b>
+          . The last hand-in date was
+          <b>{{ selectedNodeTimestamp || "not available." }}</b
+          >.
+        </v-card-text>
+      </v-card>
+    </div>
+
+    <div v-if="selectedCluster">
+      <v-card elevation="2" outlined>
+        <v-card-title> Selected cluster </v-card-title>
+
+        <v-card-text>
+          You selected a cluster of size
+          <b>{{ clusterFilesSet.size }}</b>
+          , which has an average similarity of
+          <b>{{ clusterAverageSimilarity.toFixed(2) * 100 }}%</b>.
+        </v-card-text>
+
+        <v-card-text class="namecontainer">
+          These files are present in the cluster:
+          <ul>
+            <li v-for="el of clusterFilesSet" :key="el.id">
+              {{ el.path.split("/").slice(-2).join("/") }}
+            </li>
+          </ul>
+        </v-card-text>
+
+        <v-card-actions>
+          <v-spacer />
+          <v-btn color="success" text @click="goToInfo">More information</v-btn>
+        </v-card-actions>
+      </v-card>
+    </div>
   </div>
-  <div v-if="selectedCluster">
-    <v-card elevation="2" outlined>
-      <v-card-title>
-        Selected cluster
-      </v-card-title>
-
-      <v-card-text>
-        You selected a cluster of size <b>{{getClusterElements(selectedCluster).size}}</b>, which has an average
-        similarity of  <b>{{getAverageClusterSimilarity(selectedCluster).toFixed(2) * 100}}%</b>.
-      </v-card-text>
-      <v-card-text class="namecontainer">
-        These files are present in the cluster:
-        <ul>
-          <li v-for="el of getClusterElements(selectedCluster)" :key="el.id">
-            {{el.path.split("/").slice(-2).join("/")}}
-          </li>
-        </ul>
-      </v-card-text>
-      <v-card-actions>
-      <v-btn color="success" text @click="goToInfo">More information</v-btn>
-      </v-card-actions>
-    </v-card>
-
-  </div>
-</div>
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
+import {
+  defineComponent,
+  PropType,
+  computed,
+  toRef,
+} from "@vue/composition-api";
+import { useCluster, useVuetify, useRouter } from "@/composables";
+import { File } from "@/api/models";
 import { Cluster, Clustering } from "@/util/clustering-algorithms/ClusterTypes";
-import { getAverageClusterSimilarity, getClusterElements } from "@/util/clustering-algorithms/ClusterFunctions";
-import { File } from "@/api/api";
 import { DateTime } from "luxon";
+import { getClusterElements } from "@/util/clustering-algorithms/ClusterFunctions";
 
-@Component({})
-export default class GraphSelectedInfo extends Vue {
-  @Prop() selectedNodeInfo!: File;
-  @Prop() selectedCluster! : Cluster | null;
-  @Prop() currentClustering!: Clustering;
+export default defineComponent({
+  props: {
+    currentClustering: {
+      type: Array as PropType<Clustering>,
+      required: true,
+    },
 
-  getClusterElements = getClusterElements
+    selectedNode: {
+      type: Object as PropType<File>,
+      required: false,
+    },
 
-  getAverageClusterSimilarity = getAverageClusterSimilarity
+    selectedCluster: {
+      type: Set as PropType<Cluster>,
+      required: false,
+    },
+  },
 
-  DateTime = DateTime
+  setup(props) {
+    const vuetify = useVuetify();
+    const router = useRouter();
+    const { clusterFilesSet, clusterAverageSimilarity } =
+      useCluster(toRef(props, "selectedCluster"));
 
-  getClusterIndex(): number {
-    const sortf = (a: Cluster, b:Cluster): number => getClusterElements(b).size - getClusterElements(a).size;
-    const sortedClustering = Array.from(this.currentClustering).sort(sortf);
-    return sortedClustering.indexOf(this.selectedCluster!);
-  }
+    // Timestamp of the selected node.
+    const selectedNodeTimestamp = computed(() => {
+      if (props.selectedNode?.extra.timestamp) {
+        return DateTime.fromJSDate(
+          props.selectedNode.extra.timestamp
+        ).toLocaleString(DateTime.DATETIME_MED);
+      }
+      return null;
+    });
 
-  goToInfo():void {
-    this.$router.replace("#");
-    this.$router.replace(`#${this.getClusterIndex()}`);
-  }
-}
+    // index of the selected cluster.
+    const selectedClusterIndex = computed(() => {
+      if (!props.selectedCluster) return 0;
+
+      const sortFn = (a: Cluster, b:Cluster): number => getClusterElements(b).size - getClusterElements(a).size;
+      const sortedClustering = Array.from(props.currentClustering).sort(sortFn);
+      return sortedClustering.indexOf(props.selectedCluster);
+    });
+
+    // Go to the information section of this cluster.
+    const goToInfo = (): void => {
+      const clusterHash = `#clustering-card-${selectedClusterIndex.value}`;
+      // Navigate to the cluster card.
+      // The hash will be used by the clustering table to expand the correct cluster.
+      router.replace("#");
+      router.replace(clusterHash);
+
+      // Scroll to the cluster card.
+      vuetify.goTo(clusterHash);
+    };
+
+    return {
+      clusterFilesSet,
+      clusterAverageSimilarity,
+      selectedNodeTimestamp,
+      goToInfo,
+    };
+  },
+});
 </script>
-<style>
+
+<style scoped>
 .selected-info {
   max-width: 350px;
   position: absolute;
-  z-index: 5;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 .namecontainer {
