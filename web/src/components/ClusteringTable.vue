@@ -22,7 +22,6 @@
         v-for="(cluster, index) in sortedClustering"
         :key="index"
         :cluster="cluster"
-        :cutoff="cutoff"
         :id="`clustering-card-${index}`"
       />
     </v-expansion-panels>
@@ -33,7 +32,7 @@
 import {
   defineComponent,
   PropType,
-  ref,
+  shallowRef,
   computed,
   watch,
 } from "@vue/composition-api";
@@ -59,7 +58,7 @@ export default defineComponent({
     const { cutoff } = storeToRefs(useApiStore());
 
     // Active expansion panel.
-    const panel = ref(-1);
+    const panel = shallowRef(-1);
 
     // Table headers
     const headers = [

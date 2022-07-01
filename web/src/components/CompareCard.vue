@@ -189,6 +189,7 @@
 import {
   defineComponent,
   PropType,
+  shallowRef,
   ref,
   computed,
   onMounted,
@@ -241,17 +242,17 @@ export default defineComponent({
     ];
 
     // If the files have been swapped.
-    const filesSwapped = ref(false);
+    const filesSwapped = shallowRef(false);
 
-    const fragmentListExtended = ref(false);
-    const selectedItem = ref(-1);
-    const fragmentClickCount = ref(0);
-    const currentFragmentClassIndex = ref(0);
+    const fragmentListExtended = shallowRef(false);
+    const selectedItem = shallowRef(-1);
+    const fragmentClickCount = shallowRef(0);
+    const currentFragmentClassIndex = shallowRef(0);
 
     // Maps that contain for each selection the corresponding selection on the other file.
-    const leftMap = ref<Map<SelectionId, SelectionId[]>>(new Map());
-    const rightMap = ref<Map<SelectionId, SelectionId[]>>(new Map());
-    const sideMap = ref<Map<SideID, Map<SelectionId, SelectionId[]>>>(
+    const leftMap = shallowRef<Map<SelectionId, SelectionId[]>>(new Map());
+    const rightMap = shallowRef<Map<SelectionId, SelectionId[]>>(new Map());
+    const sideMap = shallowRef<Map<SideID, Map<SelectionId, SelectionId[]>>>(
       new Map()
     );
     const sideSelectionsToFragments = ref<{
@@ -285,9 +286,9 @@ export default defineComponent({
       },
     });
 
-    const leftScrollFraction = ref(0);
-    const rightScrollFraction = ref(0);
-    const linesVisible = ref(0);
+    const leftScrollFraction = shallowRef(0);
+    const rightScrollFraction = shallowRef(0);
+    const linesVisible = shallowRef(0);
 
     // Active pair of files.
     // Used to make the switch between left and right file easier.

@@ -178,7 +178,7 @@ import {
   defineComponent,
   PropType,
   computed,
-  ref,
+  shallowRef,
   watch,
 } from "@vue/composition-api";
 import {
@@ -211,7 +211,7 @@ export default defineComponent({
     const { isSemantic } = storeToRefs(useSemanticStore());
 
     // Selected tab
-    const tab = ref<string>("");
+    const tab = shallowRef<string>("");
 
     // Determine the best tab based on the field with the largest score.
     const bestTab = computed(() => {

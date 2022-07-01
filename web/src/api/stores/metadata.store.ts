@@ -1,6 +1,6 @@
 import * as d3 from "d3";
 import { defineStore } from "pinia";
-import { ref } from "@vue/composition-api";
+import { shallowRef } from "@vue/composition-api";
 import { DATA_URL } from "@/api";
 import { Metadata } from "@/api/models";
 import { castToType } from "@/api/utils";
@@ -10,10 +10,10 @@ import { castToType } from "@/api/utils";
  */
 export const useMetadataStore = defineStore("metadata", () => {
   // Metadata.
-  const metadata = ref<Metadata>({});
+  const metadata = shallowRef<Metadata>({});
 
   // If this store has been hydrated.
-  const hydrated = ref(false);
+  const hydrated = shallowRef(false);
 
   // Parse the metadata from a CSV string.
   function parse(data: d3.DSVRowArray): Metadata {

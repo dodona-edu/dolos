@@ -110,7 +110,7 @@ import {
   defineComponent,
   PropType,
   computed,
-  ref,
+  shallowRef,
   watch,
   onMounted,
   onUnmounted,
@@ -164,8 +164,8 @@ export default defineComponent({
       }
     ]);
 
-    const selectionsIds = ref<[SelectionId, SelectionId][]>([]);
-    const dataTableSelection = ref< [FragmentWithId] | []>([]);
+    const selectionsIds = shallowRef<[SelectionId, SelectionId][]>([]);
+    const dataTableSelection = shallowRef< [FragmentWithId] | []>([]);
 
     const fragmentLengths = computed(() => {
       const lengths = props.pair.fragments?.map(fragment => fragment.occurrences.length);

@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { ref, watch } from "@vue/composition-api";
+import { shallowRef, watch } from "@vue/composition-api";
 import { getInterpolatedSimilarity } from "@/api/utils";
 import {
   useFileStore,
@@ -8,6 +8,7 @@ import {
   usePairStore,
   useSemanticStore,
 } from "@/api/stores";
+import { refDebounced } from "@vueuse/shared";
 
 /**
  * Store managing the API.
@@ -21,13 +22,14 @@ export const useApiStore = defineStore("api", () => {
   const semanticStore = useSemanticStore();
 
   // If the data is loaded.
-  const isLoaded = ref(false);
+  const isLoaded = shallowRef(false);
 
   // Whether the names should be anonymized.
-  const isAnonymous = ref(false);
+  const isAnonymous = shallowRef(false);
 
   // Cut-off value.
-  const cutoff = ref(0.75);
+  const cutoff = shallowRef(0.75);
+  const cutoffDebounced = refDebounced(cutoff, 100);
 
   // Hydrate the API stores.
   const hydrate = async (): Promise<void> => {
@@ -41,7 +43,7 @@ export const useApiStore = defineStore("api", () => {
     await semanticStore.hydrate();
 
     // Calculate the initial cut-off value.
-    cutoff.value = getInterpolatedSimilarity(Object.values(pairStore.pairs));
+    cutoff.value = getInterpolatedSimilarity(pairStore.pairsList);
 
     isLoaded.value = true;
   };
@@ -58,6 +60,7 @@ export const useApiStore = defineStore("api", () => {
     isAnonymous,
     isLoaded,
     cutoff,
+    cutoffDebounced,
     hydrate,
   };
 });

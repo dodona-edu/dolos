@@ -4,7 +4,7 @@
       <v-col cols="12" class="no-y-padding">
         <Graph
           :showSingletons="showSingletons"
-          :legend="legend"
+          :legend="legendValue"
           :clustering="clustering"
           :files="filesList"
           :pairs="pairsList"
@@ -38,8 +38,7 @@
 
           <GraphLegend
             v-if="showLegend"
-            :current-files="filesList"
-            @legend="updateLegend"
+            :legend.sync="legendValue"
           />
 
           <GraphSelectedInfo
@@ -63,9 +62,9 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed } from "@vue/composition-api";
+import { defineComponent, ref, shallowRef, computed } from "@vue/composition-api";
 import { storeToRefs } from "pinia";
-import { File } from "@/api/models";
+import { File, Legend } from "@/api/models";
 import { Cluster } from "@/util/Cluster";
 import { useApiStore, useFileStore, usePairStore } from "@/api/stores";
 import { useRoute, useClustering } from "@/composables";
@@ -78,20 +77,20 @@ export default defineComponent({
   setup() {
     const route = useRoute();
     const { cutoff } = storeToRefs(useApiStore());
-    const { filesList } = storeToRefs(useFileStore());
+    const { filesList, legend } = storeToRefs(useFileStore());
     const { pairsList } = storeToRefs(usePairStore());
 
     // Show singletons in the graph.
-    const showSingletons = ref(false);
+    const showSingletons = shallowRef(false);
 
     // Legend.
-    const legend = ref<unknown[]>([]);
+    const legendValue = ref<Legend>(legend.value);
 
     // Node in the graph that is currently selected (file).
-    const selectedNode = ref<File>();
+    const selectedNode = shallowRef<File>();
 
     // Cluster that is currently selected.
-    const selectedCluster = ref<Cluster>();
+    const selectedCluster = shallowRef<Cluster>();
 
     // Clustering
     const clustering = useClustering();
@@ -101,11 +100,6 @@ export default defineComponent({
       const { ...colors } = route.value.query;
       return Array.from(Object.values(colors)).length === 0;
     });
-
-    // Update the legend.
-    const updateLegend = (newLegend: unknown[]): void => {
-      legend.value = newLegend;
-    };
 
     // Set the selected node.
     const setSelectedNode = (node: File | undefined): void => {
@@ -123,11 +117,11 @@ export default defineComponent({
       pairsList,
       showSingletons,
       legend,
+      legendValue,
       selectedNode,
       selectedCluster,
       clustering,
       showLegend,
-      updateLegend,
       setSelectedNode,
       setSelectedCluster,
     };

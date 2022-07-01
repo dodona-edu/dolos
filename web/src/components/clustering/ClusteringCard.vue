@@ -52,7 +52,7 @@
 import {
   defineComponent,
   PropType,
-  ref,
+  shallowRef,
   computed,
   toRef,
 } from "@vue/composition-api";
@@ -73,7 +73,7 @@ export default defineComponent({
   },
 
   setup(props) {
-    const activeTab = ref(1);
+    const activeTab = shallowRef(1);
     const { clusterFiles } = useCluster(toRef(props, "cluster"));
 
     // If the timeline should be shown.

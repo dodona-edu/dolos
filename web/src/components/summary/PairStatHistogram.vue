@@ -3,7 +3,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, ref, computed, watch, onMounted } from "@vue/composition-api";
+import { defineComponent, PropType, shallowRef, computed, watch, onMounted } from "@vue/composition-api";
 import { TooltipTool } from "@/d3-tools/TooltipTool";
 import { FileScoring } from "@/util/FileInterestingness";
 import { useElementSize } from "@vueuse/core";
@@ -66,7 +66,7 @@ export default defineComponent({
     };
 
     // Histogram template ref.
-    const histogramElement = ref();
+    const histogramElement = shallowRef();
 
     // Histogram element size
     const margin = {
@@ -85,8 +85,8 @@ export default defineComponent({
       .append("g")
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    const histogramXScale = ref();
-    const histogramYScale = ref();
+    const histogramXScale = shallowRef();
+    const histogramYScale = shallowRef();
 
     // Draw the histogram.
     const draw = (): void => {

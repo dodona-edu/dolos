@@ -6,9 +6,17 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, ref, computed, watch, onMounted, onUnmounted } from "@vue/composition-api";
+import {
+  defineComponent,
+  PropType,
+  shallowRef,
+  computed,
+  watch,
+  onMounted,
+  onUnmounted,
+} from "@vue/composition-api";
 import { useApiStore } from "@/api/stores";
-import { Pair, File } from "@/api/models";
+import { Pair, File, Legend } from "@/api/models";
 import { useCluster } from "@/composables";
 import { storeToRefs } from "pinia";
 import { useElementSize } from "@vueuse/core";
@@ -26,6 +34,7 @@ export default defineComponent({
     },
 
     legend: {
+      type: Object as PropType<Legend>,
       default: () => ({}),
     },
 
@@ -61,15 +70,15 @@ export default defineComponent({
   },
 
   setup(props, { emit }) {
-    const { cutoff } = storeToRefs(useApiStore());
+    const { cutoff, cutoffDebounced } = storeToRefs(useApiStore());
 
     // Reference to the container element.
-    const container = ref<HTMLElement>();
+    const container = shallowRef<HTMLElement>();
     // Container size
     const { width, height } = useElementSize(container);
 
     // Selected cluser
-    const selectedCluster = ref<Cluster | null>(null);
+    const selectedCluster = shallowRef<Cluster | null>(null);
     const selectedClusterMeta = useCluster(selectedCluster);
 
     // Map of nodes (files) in the graph.
@@ -81,8 +90,6 @@ export default defineComponent({
       const nodesMap = new Map<number, any>();
       for (const file of props.files) {
         const label = file.extra.labels ?? "N/A";
-        const labels = props.legend as any;
-        const visible = labels[label] ? labels[label].selected : true;
 
         nodesMap.set(file.id, {
           id: file.id,
@@ -94,23 +101,28 @@ export default defineComponent({
           neighbors: [],
           edges: [],
           label,
-          visible,
         });
       }
 
       return nodesMap;
     });
 
+    // Get if a node is visible or not.
+    const isVisible = (node: any): boolean => {
+      const labels = props.legend ?? {};
+      return labels[node.label] ? labels[node.label].selected : true;
+    };
+
     // List of edges to display in the graph.
-    const edges = ref();
+    const edges = shallowRef();
 
     // List of node to display in the graph.
-    const nodes = ref();
+    const nodes = shallowRef();
 
     // Cluster colors
     const clusterColors = computed(() => {
       const clusterColorsMap = new Map<Cluster, string>();
-      const labels = props.legend as any[];
+      const labels = props.legend;
 
       for (const cluster of props.clustering) {
         const elements = getClusterElements(cluster);
@@ -134,22 +146,24 @@ export default defineComponent({
     });
 
     // SVG element of the simulation.
-    const graph = d3.create("svg").attr("viewBox", [0, 0, 500, 500]);
+    const graph = d3.create("svg").attr("height", 500).attr("width", 500);
     const graphContainer = graph.append("g");
 
     // If the graph has been rendered the first time.
-    const graphInitialized = ref(false);
+    const graphRendered = shallowRef(false);
+    // If the graph has been calculated the first time.
+    const graphCalculated = shallowRef(false);
 
     // Edges between nodes in the graph.
     const graphEdgesBase = graphContainer.append("g");
-    const graphEdges = ref();
+    const graphEdges = shallowRef();
 
     // Nodes in the graph.
     const graphNodesBase = graphContainer.append("g");
-    const graphNodes = ref();
+    const graphNodes = shallowRef();
 
     // Convex hull tool for creating hulls around clusters.
-    const graphHullTool = ref();
+    const graphHullTool = shallowRef();
 
     // Add a marker to the graph for showing the direction of the edges.
     graph
@@ -206,7 +220,7 @@ export default defineComponent({
         .filter(pair => {
           const left = nodesMap.value.get(pair.leftFile.id);
           const right = nodesMap.value.get(pair.rightFile.id);
-          return left.visible && right.visible;
+          return isVisible(left) && isVisible(right);
         })
         // Map the pair to an edge object.
         .map(pair => {
@@ -252,10 +266,10 @@ export default defineComponent({
 
     // Calculate the nodes of the graph.
     const calculateNodes = (): any[] => {
-      const labels = props.legend as any[];
+      const labels = props.legend;
       const nodesList = Array.from(nodesMap.value.values())
         // Only display the nodes that are visible.
-        .filter(node => node.visible)
+        .filter(node => isVisible(node))
         // Only display the nodes that have neighbors.
         // Unless singletons are enabled.
         .filter(node => node.neighbors.length > 0 || props.showSingletons);
@@ -307,7 +321,7 @@ export default defineComponent({
 
     // Update the graph when the data changes.
     watch(
-      () => [cutoff.value, props.showSingletons, props.legend],
+      () => [cutoffDebounced.value, props.showSingletons, props.legend],
       () => updateGraph()
     );
 
@@ -329,7 +343,8 @@ export default defineComponent({
       .force("charge", d3.forceManyBody().distanceMax(200).strength(-20))
       .force("center", d3.forceCenter(width.value / 2, height.value / 2))
       .force("compact_x", d3.forceX(width.value / 2).strength(0.01))
-      .force("compact_y", d3.forceY(height.value / 2).strength(0.01));
+      .force("compact_y", d3.forceY(height.value / 2).strength(0.01))
+      .stop();
 
     // D3 Simulation Drag ability
     const simulationDrag = d3
@@ -436,10 +451,19 @@ export default defineComponent({
           graphHullTool.value = new ConvexHullTool(graph.select("g") as any, selectCluster);
         }
 
-        // Set the nodes/edges of the simulation.
+        // Set the nodes/edges of the simulation & restart.
         simulation.nodes(nodes);
         simulation.force<any>("link").links(edges);
         simulation.alpha(0.5).alphaTarget(0.3).restart();
+
+        // Do not show the initial moving to the center animation.
+        // This will make the graph instantly render at the center.
+        if (!graphCalculated.value) {
+          simulation.stop();
+          simulation.tick(edges.length); // more edges takes more ticks to reach the desired alpha
+          simulation.restart();
+          graphCalculated.value = true;
+        }
       }
     );
 
@@ -448,7 +472,9 @@ export default defineComponent({
       () => [width.value, height.value],
       ([width, height]) => {
         // Resize the graph.
-        graph.attr("viewBox", [0, 0, width, height]);
+        graph
+          .attr("height", height)
+          .attr("width", width);
 
         // Resize the simulation.
         simulation.force<any>("compact_x")?.x(width / 2);
@@ -457,8 +483,8 @@ export default defineComponent({
 
         // Update the graph when not yet initialized.
         // This must be done here, since the initial size of the graph is otherwise incorrect.
-        if (!graphInitialized.value) {
-          graphInitialized.value = true;
+        if (!graphRendered.value) {
+          graphRendered.value = true;
           updateGraph();
         }
       }

@@ -1,6 +1,6 @@
 import * as d3 from "d3";
 import { defineStore } from "pinia";
-import { ref, computed } from "@vue/composition-api";
+import { shallowRef, computed } from "@vue/composition-api";
 import { DATA_URL } from "@/api";
 import { assertType, fileToTokenizedFile } from "@/api/utils";
 import {
@@ -31,11 +31,11 @@ import {
  */
 export const usePairStore = defineStore("pairs", () => {
   // List of pairs.
-  const pairs = ref<ObjMap<Pair>>({});
+  const pairs = shallowRef<ObjMap<Pair>>({});
   const pairsList = computed<Pair[]>(() => Object.values(pairs.value));
 
   // If this store has been hydrated.
-  const hydrated = ref(false);
+  const hydrated = shallowRef(false);
 
   // Parse the pairs from a CSV string.
   function parse(pairData: d3.DSVRowArray, files: ObjMap<File>): ObjMap<Pair> {

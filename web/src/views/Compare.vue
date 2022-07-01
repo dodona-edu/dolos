@@ -24,6 +24,7 @@ import {
   defineComponent,
   PropType,
   ref,
+  shallowRef,
   computed,
   watch,
 } from "@vue/composition-api";
@@ -45,7 +46,7 @@ export default defineComponent({
     const metadataStore = useMetadataStore();
 
     // If the fragments for a pair are loaded.
-    const isLoaded = ref(false);
+    const isLoaded = shallowRef(false);
 
     // Pair to display.
     const pair = computed(() => pairStore.getPair(parseInt(props.pairId)));

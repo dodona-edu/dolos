@@ -53,7 +53,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed, watch } from "@vue/composition-api";
+import { defineComponent, shallowRef, computed, watch } from "@vue/composition-api";
 import { storeToRefs } from "pinia";
 import { Pair } from "@/api/models";
 import { useFileStore, usePairStore } from "@/api/stores";
@@ -101,15 +101,15 @@ export default defineComponent({
     ];
 
     // Selected sorting option
-    const selectedSortOption = ref(sortOptions[0]);
+    const selectedSortOption = shallowRef(sortOptions[0]);
 
     // Pagination.
-    const page = ref(1);
+    const page = shallowRef(1);
     const pageTotal = computed(() => Math.ceil(scoredFilesSearch.value.length / 10));
     const pageAmount = 5;
 
     // Search filter.
-    const search = ref("");
+    const search = shallowRef("");
 
     // Calculator class for determining the score of a file.
     const scoringCalculator = new FileInterestingnessCalculator(pairsList.value);
@@ -120,7 +120,7 @@ export default defineComponent({
     );
 
     // Scored files, after sorting.
-    const scoredFilesSorted = ref<FileScoring[]>([]);
+    const scoredFilesSorted = shallowRef<FileScoring[]>([]);
 
     // Scored files, after search filter.
     const scoredFilesSearch = computed(() =>
