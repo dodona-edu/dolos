@@ -2,7 +2,7 @@ import { defineStore } from "pinia";
 import { shallowRef, computed } from "@vue/composition-api";
 import { DATA_URL } from "@/api";
 import { Semantic, ObjMap, File } from "@/api/models";
-import { useFileStore } from "@/api/stores";
+import { useFileStore, useMetadataStore } from "@/api/stores";
 import { ListMap } from "@/util/ListMap";
 import { DecodedSemanticResult } from "@dodona/dolos-lib";
 
@@ -50,6 +50,7 @@ export const useSemanticStore = defineStore("semantic", () => {
 
   // Reference to the other stores.
   const fileStore = useFileStore();
+  const metadataStore = useMetadataStore();
 
   // Hydrate the store
   async function hydrate(): Promise<void> {
@@ -58,10 +59,8 @@ export const useSemanticStore = defineStore("semantic", () => {
       throw new Error("The file store must be hydrated before the pair store.");
     }
 
-    try {
+    if (metadataStore.metadata.semantic) {
       occurrences.value = parse(await fetch(), fileStore.files);
-    } catch {
-      // There's no semantic file present, running without semantics
     }
 
     hydrated.value = true;
