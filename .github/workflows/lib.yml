@@ -1,8 +1,8 @@
 name: Lib
 on:
   push:
-    #paths:
-    #  - "lib/**/*"
+    paths:
+      - "lib/**/*"
 
 jobs:
   # Install Dependencies

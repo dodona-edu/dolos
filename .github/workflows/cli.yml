@@ -1,8 +1,8 @@
 name: CLI
 on:
   push:
-    #paths:
-    #  - "cli/**/*"
+    paths:
+      - "cli/**/*"
 
 jobs:
   # Install Dependencies

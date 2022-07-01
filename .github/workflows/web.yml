@@ -1,8 +1,8 @@
 name: Web
 on:
   push:
-    #paths:
-    #  - "web/**/*"
+    paths:
+      - "web/**/*"
 
 jobs:
   # Install Dependencies
