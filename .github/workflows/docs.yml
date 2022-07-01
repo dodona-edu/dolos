@@ -1,8 +1,8 @@
 name: Docs
 on:
   push:
-    paths:
-      - "docs/**/*"
+    #paths:
+    #  - "docs/**/*"
 
 jobs:
   # Install Dependencies
@@ -34,7 +34,7 @@ jobs:
           path: |
             ${{ github.workspace }}/node_modules
             ${{ github.workspace }}/*/node_modules
-          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('**/yarn.lock') }}-${{ hashFiles('**/package.json') }}
+          key: ${{ needs.install.outputs.cachekey }}
 
       - name: Check if cache was hit 🔎
         if: steps.cache-dependencies.outputs.cache-hit != 'true'
@@ -94,7 +94,7 @@ jobs:
           path: |
             ${{ github.workspace }}/node_modules
             ${{ github.workspace }}/*/node_modules
-          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('**/yarn.lock') }}-${{ hashFiles('**/package.json') }}
+          key: ${{ needs.install.outputs.cachekey }}
 
       - name: Check if cache was hit 🔎
         if: steps.cache-dependencies.outputs.cache-hit != 'true'
