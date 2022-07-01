@@ -31,7 +31,7 @@
           These files are present in the cluster:
           <ul>
             <li v-for="el of clusterFilesSet" :key="el.id">
-              {{ el.path.split("/").slice(-2).join("/") }}
+              {{ el.shortPath }}
             </li>
           </ul>
         </v-card-text>

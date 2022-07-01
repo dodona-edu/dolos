@@ -33,7 +33,7 @@
                   <span>{{ element.extra.labels || "No label" }}</span>
                 </v-tooltip>
               </td>
-              <td>{{ element.path.split("/").slice(-2).join("/") }}</td>
+              <td>{{ element.shortPath }}</td>
               <td>
                 <v-tooltip top>
                   <template v-slot:activator="{ on, attrs }">

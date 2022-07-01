@@ -53,7 +53,7 @@ export default defineComponent({
     // List tooltip tool
     const listToolTipTool = new TooltipTool<File>(file => {
       if (file.extra.fullName) return file.extra.fullName;
-      return file.path.split("/").splice(-2).join("/");
+      return file.shortPath;
     });
 
     // Draw the list.
@@ -101,7 +101,7 @@ export default defineComponent({
               return file.extra.fullName[0].toUpperCase();
             }
           } else {
-            const path = file.path.split("/");
+            const path = file.shortPath;
             return path[path.length - 1][0].toUpperCase();
           }
         })

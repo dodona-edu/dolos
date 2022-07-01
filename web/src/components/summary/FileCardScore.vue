@@ -3,12 +3,7 @@
     <div class="similarity-score-container" v-if="displaySimilarity">
       <h3>
         Biggest similarity:
-        {{
-          getOtherFile(file.similarityScore.pair)
-            .path.split("/")
-            .slice(-2)
-            .join("/")
-        }}
+        {{ getOtherFile(file.similarityScore.pair).shortPath }}
       </h3>
       <span>
         The similarity of these files is
@@ -23,12 +18,7 @@
     <div class="largest-overlap-score-container" v-if="displayTotalOverlap">
       <h3>
         Total overlap:
-        {{
-          getOtherFile(file.totalOverlapScore.pair)
-            .path.split("/")
-            .slice(-2)
-            .join("/")
-        }}
+        {{ getOtherFile(file.totalOverlapScore.pair).shortPath }}
       </h3>
       <span>
         These files have
@@ -54,12 +44,7 @@
     >
       <h3>
         Longest Fragment:
-        {{
-          getOtherFile(file.longestFragmentScore.pair)
-            .path.split("/")
-            .slice(-2)
-            .join("/")
-        }}
+        {{ getOtherFile(file.longestFragmentScore.pair).shortPath}}
       </h3>
       <span>
         These files have
@@ -78,12 +63,7 @@
     <div class="longest-fragment-score-container" v-if="displaySemantic">
       <h3>
         Semantic match:
-        {{
-          getOtherFile(file.semanticMatchScore.pair)
-            .path.split("/")
-            .slice(-2)
-            .join("/")
-        }}
+        {{ getOtherFile(file.semanticMatchScore.pair).shortPath }}
       </h3>
       <span>
         These files have part of their structure in common: they have the same
