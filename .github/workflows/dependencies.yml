@@ -6,7 +6,7 @@ jobs:
   install:
     name: Install (Node ${{ matrix.node }}) ⚡️
     runs-on: ubuntu-latest
-    output:
+    outputs:
       cachekey: ${{ steps.define.outputs.cachekey }}
     strategy:
       matrix:
