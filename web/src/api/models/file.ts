@@ -4,6 +4,7 @@ import { DecodedSemanticResult } from "@dodona/dolos-lib";
 export interface FileIndeterminate {
   id: number;
   path: string;
+  shortPath: string;
   content: string;
   astAndMappingLoaded: boolean;
   ast: string[] | string;

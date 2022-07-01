@@ -188,4 +188,8 @@ export default defineComponent({
 .container {
   max-width: 1450px !important;
 }
+
+.fill-width {
+  width: 100%;
+}
 </style>

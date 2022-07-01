@@ -2,7 +2,7 @@
   <div style="width: 100%">
     <div v-if="currentFiles" class="compare-containers">
       <div class="side-container">
-        <h3 class="fileTitle">{{ currentFiles.leftFile.path }}</h3>
+        <h3 class="fileTitle">{{ currentFiles.leftFile.shortPath }}</h3>
         <CompareSide
           :identifier="'left'"
           :file="currentFiles.leftFile"
@@ -18,7 +18,7 @@
       </div>
 
       <div class="side-container">
-        <h3 class="fileTitle">{{ currentFiles.rightFile.path }}</h3>
+        <h3 class="fileTitle">{{ currentFiles.rightFile.shortPath }}</h3>
         <CompareSide
           :identifier="'right'"
           :file="currentFiles.rightFile"

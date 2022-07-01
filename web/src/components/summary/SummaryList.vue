@@ -125,7 +125,7 @@ export default defineComponent({
     // Scored files, after search filter.
     const scoredFilesSearch = computed(() =>
       scoredFilesSorted.value.filter((file) =>
-        file.file.path.toLowerCase().includes(search.value.toLowerCase())
+        file.file.shortPath.toLowerCase().includes(search.value.toLowerCase())
       )
     );
 

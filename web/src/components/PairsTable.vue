@@ -76,8 +76,8 @@ export default defineComponent({
         .filter((pair) => (params.length > 0 ? params.includes(pair.id) : true))
         .map((pair) => ({
           pair: pair,
-          left: pair.leftFile.path,
-          right: pair.rightFile.path,
+          left: pair.leftFile.shortPath,
+          right: pair.rightFile.shortPath,
           similarity: pair.similarity.toFixed(2),
           longestFragment: pair.longestFragment,
           totalOverlap: pair.totalOverlap,

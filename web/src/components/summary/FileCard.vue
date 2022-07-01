@@ -240,9 +240,7 @@ export default defineComponent({
 
     // Shorter file name for the file.
     // TODO: extract this to a composable and use on other locations (eg: filetable)
-    const fileName = computed(() =>
-      props.file.file.path.split("/").slice(-2).join("/")
-    );
+    const fileName = computed(() => props.file.file.shortPath);
 
     // Timestamp text for the selected file.
     const fileTimestamp = computed(

@@ -9,3 +9,22 @@ export function fileToTokenizedFile(file: File): TokenizedFile {
     throw new Error("File AST and mapping not parsed");
   }
 }
+
+/**
+ * Common filename prefix for a given list of files
+ * @param files Files
+ * @returns Common prefix for all files.
+ */
+export function commonFilenamePrefix(files: File[]): string {
+  if (files.length <= 1) return "";
+
+  let index = 0;
+  while (
+    files[0].path[index] &&
+    files.every((f) => f.path[index] === files[0].path[index])
+  ) {
+    index++;
+  }
+
+  return files[0].path.substring(0, index) ?? "";
+}

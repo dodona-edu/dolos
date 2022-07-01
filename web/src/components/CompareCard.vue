@@ -5,10 +5,10 @@
       <v-col>
         <v-card>
           <!-- Header -->
-          <v-card-title class="d-flex flex-column">
+          <v-card-title class="d-flex flex-column fill-width">
             <v-row dense>
               <v-col class="text-center">
-                {{ activePair.leftFile.path }}
+                {{ activePair.leftFile.shortPath }}
               </v-col>
 
               <v-col cols="auto">
@@ -17,8 +17,8 @@
                 </v-btn>
               </v-col>
 
-              <v-col class="text-center">
-                {{ activePair.rightFile.path }}
+              <v-col cols="auto" class="text-center">
+                {{ activePair.rightFile.shortPath }}
               </v-col>
             </v-row>
 
