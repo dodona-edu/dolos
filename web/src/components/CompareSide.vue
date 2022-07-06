@@ -241,5 +241,9 @@ pre.highlighted-code {
   code {
     background-color: unset !important;
   }
+
+  pre {
+    background-color: unset !important;
+  }
 }
 </style>
