@@ -4,6 +4,7 @@ on:
     paths:
       - "web/**/*"
       - "*.*"
+      - ".github/workflows/*"
 
 jobs:
   # Install Dependencies
