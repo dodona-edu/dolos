@@ -33,7 +33,7 @@
     "eslint-plugin-vue": "^7.20.0",
     "np": "^7.5.0",
     "sass": "<1.33.0",
-    "sass-loader": "^10.0.0",
+    "sass-loader": "^13.0.0",
     "typescript": "~4.5.5",
     "vue-cli-plugin-vuetify": "~2.5.1",
     "vue-template-compiler": "^2.6.13",
