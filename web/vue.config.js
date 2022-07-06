@@ -6,6 +6,12 @@ module.exports = {
   transpileDependencies: ["vuetify"],
   // explicitly makes sure that tree sitter is not loaded as it does not work in browser environments
   configureWebpack: {
+    resolve: {
+      fallback: {
+        "path": false,
+        "fs": false
+      },
+    },
     plugins: [
       new webpack.IgnorePlugin({
         resourceRegExp: /tree-sitter/,
