@@ -9,7 +9,7 @@ jobs:
   # Install Dependencies
   install:
     uses: ./.github/workflows/dependencies.yml
-  
+
   # Build & test
   build-test:
     name: Build & Test 🔧
@@ -52,7 +52,7 @@ jobs:
         run: |
           cd lib/
           yarn test -v --serial
-  
+
   # Lint
   lint:
     name: Lint 📏

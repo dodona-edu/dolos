@@ -9,7 +9,7 @@ jobs:
   # Install Dependencies
   install:
     uses: ./.github/workflows/dependencies.yml
-  
+
   # Build & Deploy
   build-deploy:
     name: Build & Deploy 🔧
@@ -115,4 +115,4 @@ jobs:
         run: |
           cd web/
           yarn lint
-      
+

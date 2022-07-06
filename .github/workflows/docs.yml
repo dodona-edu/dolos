@@ -9,7 +9,7 @@ jobs:
   # Install Dependencies
   install:
     uses: ./.github/workflows/dependencies.yml
-  
+
   # Build & test
   build-test:
     name: Build & Test 🔧
@@ -69,7 +69,7 @@ jobs:
         env:
           SSH_KEY: ${{ secrets.SSH_KEY }}
           KNOWN_HOSTS: ${{ secrets.KNOWN_HOSTS }}
-  
+
   # Lint
   lint:
     name: Lint 📏

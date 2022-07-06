@@ -9,7 +9,7 @@ jobs:
   # Install Dependencies
   install:
     uses: ./.github/workflows/dependencies.yml
-  
+
   # Build
   build:
     name: Build 🔧
@@ -47,7 +47,7 @@ jobs:
         run: |
           cd cli/
           yarn build --force
-  
+
   # Lint
   lint:
     name: Lint 📏
