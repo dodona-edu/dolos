@@ -6,6 +6,11 @@ on:
       - 'v*'
 
 jobs:
+  # Install Dependencies
+  install:
+    uses: ./.github/workflows/dependencies.yml
+
+  # Release packages
   release:
     runs-on: ubuntu-latest
     strategy:
@@ -13,7 +18,9 @@ jobs:
         node: ["16"]
       fail-fast: false
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout 🛎️
+        uses: actions/checkout@v3
+
       - name: Check version strings
         run: |
           # version strings should be only numbers and dots
@@ -43,19 +50,21 @@ jobs:
               exit 1
           fi
 
-      - name: Setup Node
+      - name: Setup Node 📚
         uses: actions/setup-node@v3.3.0
         with:
           node-version: ${{ matrix.node }}
-      - name: Cache Yarn dependencies
+
+      - name: Fetch Dependencies ⚡️
         id: cache-dependencies
         uses: actions/cache@v3
         with:
           path: |
             ${{ github.workspace }}/node_modules
             ${{ github.workspace }}/*/node_modules
-          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('**/yarn.lock') }}-${{ hashFiles('**/package.json') }}
-      - name: Check if cache was hit
+          key: ${{ needs.install.outputs.cachekey }}
+
+      - name: Check if cache was hit 🔎
         if: steps.cache-dependencies.outputs.cache-hit != 'true'
         run: |
           echo "Should have hit cache"
@@ -64,6 +73,7 @@ jobs:
       - name: Parse tag
         id: parse_tag
         run: "echo ${{ github.ref }} | sed 's#^refs/tags/#::set-output name=version::#'"
+
       - name: Create release
         id: create_release
         uses: release-drafter/release-drafter@v5
@@ -73,18 +83,22 @@ jobs:
           version: ${{ steps.parse_tag.outputs.version }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build lib
+
+      - name: Build lib 🔧
         run: |
           cd lib/
           yarn build
-      - name: Build CLI
+
+      - name: Build CLI 🔧
         run: |
           cd cli/
           yarn build --force
-      - name: Build web
+
+      - name: Build web 🔧
         run: |
           cd web/
           yarn build
+
       - name: Publish @dodona/dolos-lib to NPM
         uses: JS-DevTools/npm-publish@v1
         with:
@@ -92,6 +106,7 @@ jobs:
           package: ./lib/package.json
           check-version: true
           access: public
+
       - name: Publish @dodona/dolos-web to NPM
         uses: JS-DevTools/npm-publish@v1
         with:
@@ -99,6 +114,7 @@ jobs:
           package: ./web/package.json
           check-version: true
           access: public
+
       - name: Publish @dodona/dolos to NPM
         uses: JS-DevTools/npm-publish@v1
         with:
@@ -106,6 +122,7 @@ jobs:
           package: ./cli/package.json
           check-version: true
           access: public
+
   demo:
     needs: release
     runs-on: ubuntu-latest
@@ -114,10 +131,12 @@ jobs:
         uses: actions/setup-node@v3.3.0
         with:
           node-version: "16"
+
       - name: Install dolos
         run: |
           npm install -g @dodona/dolos
           dolos --version
+
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
@@ -128,6 +147,7 @@ jobs:
         env:
           SSH_KEY: ${{ secrets.SSH_KEY }}
           KNOWN_HOSTS: ${{ secrets.KNOWN_HOSTS }}
+
       - name: Prepare analysis
         run: |
           mkdir analysis
@@ -137,18 +157,22 @@ jobs:
               dodona@dolos.ugent.be:soco-with-labels.zip \
               .
           unzip soco-with-labels.zip
+
       - name: Run analysis on samples
         run: |
           cd analysis
           dolos -l javascript -f csv --semantic -o samples-results samples/*.js
+
       - name: Run analysis on Java files
         run: |
           cd analysis
           dolos -l java -f csv -o java-results --semantic java-labels.csv
+
       - name: Run analysis on C files
         run: |
           cd analysis
           dolos -l c -f csv -o c-results --semantic c-labels.csv
+
       - name: Deploy results to demo site
         run: |
           cd analysis
@@ -172,14 +196,19 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+
       - name: Parse tag (without v)
         id: parse_tag
         run: "echo ${{ github.ref }} | sed 's#^refs/tags/v#::set-output name=version::#'"
+
       - name: Build the new image
         run: docker build docker/ -t ghcr.io/dodona-edu/dolos:${{ steps.parse_tag.outputs.version }}
+
       - name: Login to the container registry
         run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
+
       - name: Tag the new image with latest
         run: docker tag ghcr.io/dodona-edu/dolos:${{ steps.parse_tag.outputs.version }} ghcr.io/dodona-edu/dolos:latest
+
       - name: Push the new image
         run: docker push --all-tags ghcr.io/dodona-edu/dolos

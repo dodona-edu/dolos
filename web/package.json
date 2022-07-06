@@ -5,9 +5,9 @@
   "main": "dist/index.html",
   "scripts": {
     "serve": "vue-cli-service serve",
+    "serve:watch": "vue-cli-service serve --watch",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint",
-    "serve:watch": "vue-cli-service serve --watch"
+    "lint": "vue-cli-service lint --format stylish"
   },
   "devDependencies": {
     "@types/d3": "^7.0.0",
