@@ -29,6 +29,9 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
 
+      - name: Debug key
+        run: echo ${{ needs.install.outputs.cachekey }}
+
       - name: Fetch Dependencies ⚡️
         id: cache-dependencies
         uses: actions/cache@v3
