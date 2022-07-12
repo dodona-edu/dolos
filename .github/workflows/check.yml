@@ -7,11 +7,10 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: &node-versions [ "12", "14", "16" ]
+        node: [ "12", "14", "16" ]
       fail-fast: false
     steps:
-      - &checkout
-        name: Checkout 🛎️
+      - name: Checkout 🛎️
         uses: actions/checkout@v3
 
       - name: Cache Yarn dependencies
@@ -39,29 +38,27 @@ jobs:
     needs: install-deps
     strategy:
       matrix:
-        node: *node-versions
+        node:  [ "12", "14", "16" ]
       fail-fast: false
     steps:
-      - *checkout
+      - name: Checkout 🛎️
+        uses: actions/checkout@v3
 
-      - &setup-node
-        name: Setup Node 📚
+      - name: Setup Node 📚
         uses: actions/setup-node@v3.3.0
         with:
           node-version: ${{ matrix.node }}
 
-      - &dependencies
-        name: Fetch Dependencies ⚡️
+      - name: Fetch Dependencies ⚡️
         id: cache-dependencies
         uses: actions/cache@v3
         with:
           path: |
             ${{ github.workspace }}/node_modules
             ${{ github.workspace }}/*/node_modules
-          key: ${{ needs.install.outputs.cachekey }}
+          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('**/yarn.lock') }}-${{ hashFiles('**/package.json') }}
 
-      - &check-cache
-        name: Check if cache was hit 🔎
+      - name: Check if cache was hit 🔎
         if: steps.cache-dependencies.outputs.cache-hit != 'true'
         run: |
           echo "Should have hit cache"
@@ -78,13 +75,31 @@ jobs:
     needs: install-deps
     strategy:
       matrix:
-        node: &node-lts [ "16" ]
+        node: [ "16" ]
       fail-fast: false
     steps:
-      - *checkout
-      - *setup-node
-      - *dependencies
-      - *check-cache
+      - name: Checkout 🛎️
+        uses: actions/checkout@v3
+
+      - name: Setup Node 📚
+        uses: actions/setup-node@v3.3.0
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Fetch Dependencies ⚡️
+        id: cache-dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ${{ github.workspace }}/node_modules
+            ${{ github.workspace }}/*/node_modules
+          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('**/yarn.lock') }}-${{ hashFiles('**/package.json') }}
+
+      - name: Check if cache was hit 🔎
+        if: steps.cache-dependencies.outputs.cache-hit != 'true'
+        run: |
+          echo "Should have hit cache"
+          false
 
       - name: Lint 📏
         run: |
@@ -97,13 +112,31 @@ jobs:
     needs: install-deps
     strategy:
       matrix:
-        node: *node-lts
+        node: [ "12", "14", "16" ]
       fail-fast: false
     steps:
-      - *checkout
-      - *setup-node
-      - *dependencies
-      - *check-cache
+      - name: Checkout 🛎️
+        uses: actions/checkout@v3
+
+      - name: Setup Node 📚
+        uses: actions/setup-node@v3.3.0
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Fetch Dependencies ⚡️
+        id: cache-dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ${{ github.workspace }}/node_modules
+            ${{ github.workspace }}/*/node_modules
+          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('**/yarn.lock') }}-${{ hashFiles('**/package.json') }}
+
+      - name: Check if cache was hit 🔎
+        if: steps.cache-dependencies.outputs.cache-hit != 'true'
+        run: |
+          echo "Should have hit cache"
+          false
 
       - name: Build & test 🔧
         run: |
@@ -117,13 +150,31 @@ jobs:
     needs: install-deps
     strategy:
       matrix:
-        node: &node-lts [ "16" ]
+        node: [ "16" ]
       fail-fast: false
     steps:
-      - *checkout
-      - *setup-node
-      - *dependencies
-      - *check-cache
+      - name: Checkout 🛎️
+        uses: actions/checkout@v3
+
+      - name: Setup Node 📚
+        uses: actions/setup-node@v3.3.0
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Fetch Dependencies ⚡️
+        id: cache-dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ${{ github.workspace }}/node_modules
+            ${{ github.workspace }}/*/node_modules
+          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('**/yarn.lock') }}-${{ hashFiles('**/package.json') }}
+
+      - name: Check if cache was hit 🔎
+        if: steps.cache-dependencies.outputs.cache-hit != 'true'
+        run: |
+          echo "Should have hit cache"
+          false
 
       - name: Lint 📏
         run: |
@@ -137,13 +188,31 @@ jobs:
     needs: install-deps
     strategy:
       matrix:
-        node: *node-versions
+        node: [ "12", "14", "16" ]
       fail-fast: false
     steps:
-      - *checkout
-      - *setup-node
-      - *dependencies
-      - *check-cache
+      - name: Checkout 🛎️
+        uses: actions/checkout@v3
+
+      - name: Setup Node 📚
+        uses: actions/setup-node@v3.3.0
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Fetch Dependencies ⚡️
+        id: cache-dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ${{ github.workspace }}/node_modules
+            ${{ github.workspace }}/*/node_modules
+          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('**/yarn.lock') }}-${{ hashFiles('**/package.json') }}
+
+      - name: Check if cache was hit 🔎
+        if: steps.cache-dependencies.outputs.cache-hit != 'true'
+        run: |
+          echo "Should have hit cache"
+          false
 
       - name: Build lib 🔧
         run: |
@@ -187,13 +256,31 @@ jobs:
     needs: install-deps
     strategy:
       matrix:
-        node: *node-lts
+        node: [ "16" ]
       fail-fast: false
     steps:
-      - *checkout
-      - *setup-node
-      - *dependencies
-      - *check-cache
+      - name: Checkout 🛎️
+        uses: actions/checkout@v3
+
+      - name: Setup Node 📚
+        uses: actions/setup-node@v3.3.0
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Fetch Dependencies ⚡️
+        id: cache-dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ${{ github.workspace }}/node_modules
+            ${{ github.workspace }}/*/node_modules
+          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('**/yarn.lock') }}-${{ hashFiles('**/package.json') }}
+
+      - name: Check if cache was hit 🔎
+        if: steps.cache-dependencies.outputs.cache-hit != 'true'
+        run: |
+          echo "Should have hit cache"
+          false
 
       - name: Lint 📏
         run: |
@@ -206,13 +293,31 @@ jobs:
     needs: install-deps
     strategy:
       matrix:
-        node: *node-lts
+        node:  [ "16" ]
       fail-fast: false
     steps:
-      - *checkout
-      - *setup-node
-      - *dependencies
-      - *check-cache
+      - name: Checkout 🛎️
+        uses: actions/checkout@v3
+
+      - name: Setup Node 📚
+        uses: actions/setup-node@v3.3.0
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Fetch Dependencies ⚡️
+        id: cache-dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ${{ github.workspace }}/node_modules
+            ${{ github.workspace }}/*/node_modules
+          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('**/yarn.lock') }}-${{ hashFiles('**/package.json') }}
+
+      - name: Check if cache was hit 🔎
+        if: steps.cache-dependencies.outputs.cache-hit != 'true'
+        run: |
+          echo "Should have hit cache"
+          false
 
       - name: Build 🔧
         run: |
@@ -248,10 +353,11 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/v')
     strategy:
       matrix:
-        node: *node-lts
+        node:  [ "16" ]
       fail-fast: false
     steps:
-      - *checkout
+      - name: Checkout 🛎️
+        uses: actions/checkout@v3
 
       - name: Check version strings
         run: |
@@ -282,9 +388,25 @@ jobs:
               exit 1
           fi
 
-      - *setup-node
-      - *dependencies
-      - *check-cache
+      - name: Setup Node 📚
+        uses: actions/setup-node@v3.3.0
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Fetch Dependencies ⚡️
+        id: cache-dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ${{ github.workspace }}/node_modules
+            ${{ github.workspace }}/*/node_modules
+          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('**/yarn.lock') }}-${{ hashFiles('**/package.json') }}
+
+      - name: Check if cache was hit 🔎
+        if: steps.cache-dependencies.outputs.cache-hit != 'true'
+        run: |
+          echo "Should have hit cache"
+          false
 
       - name: Parse tag
         id: parse_tag
@@ -341,14 +463,17 @@ jobs:
 
   demo:
     name: "Publish demo 🚀"
-    needs: release
+    needs: publish
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: *node-lts
+        node: [ "16" ]
       fail-fast: false
     steps:
-      - *setup-node
+      - name: Setup Node 📚
+        uses: actions/setup-node@v3.3.0
+        with:
+          node-version: ${{ matrix.node }}
 
       - name: Install dolos
         run: |
@@ -410,10 +535,13 @@ jobs:
 
   docker:
     name: "Publish docker container 🚢"
-    needs: release
+    needs: publish
     runs-on: ubuntu-latest
     steps:
-      - *checkout
+      - name: Setup Node 📚
+        uses: actions/setup-node@v3.3.0
+        with:
+          node-version: ${{ matrix.node }}
 
       - name: Parse tag (without v)
         id: parse_tag
