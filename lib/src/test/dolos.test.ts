@@ -196,7 +196,7 @@ test("should read CSV-files", async t => {
 
   const report = await dolos.analyzePaths(["../samples/javascript/info.csv"]);
 
-  t.is(4, report.files().length)
+  t.is(4, report.files().length);
 
   t.is(5, report.scoredPairs.length);
   const { similarity } = report.scoredPairs[0];
