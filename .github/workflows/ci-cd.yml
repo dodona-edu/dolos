@@ -1,4 +1,4 @@
-name: Checks
+name: Continuous Integration & Deployment
 on: [push]
 
 jobs:
@@ -437,29 +437,29 @@ jobs:
           cd web/
           yarn build
 
-#      - name: Publish @dodona/dolos-lib to NPM
-#        uses: JS-DevTools/npm-publish@v1
-#        with:
-#          token: ${{ secrets.NPM_AUTH_TOKEN }}
-#          package: ./lib/package.json
-#          check-version: true
-#          access: public
-#
-#      - name: Publish @dodona/dolos-web to NPM
-#        uses: JS-DevTools/npm-publish@v1
-#        with:
-#          token: ${{ secrets.NPM_AUTH_TOKEN }}
-#          package: ./web/package.json
-#          check-version: true
-#          access: public
-#
-#      - name: Publish @dodona/dolos to NPM
-#        uses: JS-DevTools/npm-publish@v1
-#        with:
-#          token: ${{ secrets.NPM_AUTH_TOKEN }}
-#          package: ./cli/package.json
-#          check-version: true
-#          access: public
+      - name: Publish @dodona/dolos-lib to NPM
+        uses: JS-DevTools/npm-publish@v1
+        with:
+          token: ${{ secrets.NPM_AUTH_TOKEN }}
+          package: ./lib/package.json
+          check-version: true
+          access: public
+
+      - name: Publish @dodona/dolos-web to NPM
+        uses: JS-DevTools/npm-publish@v1
+        with:
+          token: ${{ secrets.NPM_AUTH_TOKEN }}
+          package: ./web/package.json
+          check-version: true
+          access: public
+
+      - name: Publish @dodona/dolos to NPM
+        uses: JS-DevTools/npm-publish@v1
+        with:
+          token: ${{ secrets.NPM_AUTH_TOKEN }}
+          package: ./cli/package.json
+          check-version: true
+          access: public
 
   demo:
     name: "Publish demo 🚀"
@@ -556,5 +556,5 @@ jobs:
       - name: Tag the new image with latest
         run: docker tag ghcr.io/dodona-edu/dolos:${{ steps.parse_tag.outputs.version }} ghcr.io/dodona-edu/dolos:latest
 
-      #- name: Push the new image
-      #  run: docker push --all-tags ghcr.io/dodona-edu/dolos
+      - name: Push the new image
+        run: docker push --all-tags ghcr.io/dodona-edu/dolos
