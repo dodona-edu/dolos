@@ -1,0 +1,5 @@
+filename,id,labels,created_at
+sample.js,1,original,2019-07-23 17:12:33 +0200
+copy_of_sample.js,2,copy,2019-07-25 11:02:57 +0200
+copied_function.js,3,copy,2019-07-25 14:43:20 +0200
+another_copied_function.js,4,copy,2019-07-27 19:22:39 +0200

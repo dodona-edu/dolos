@@ -190,3 +190,15 @@ test("changed order should be a good match", async t => {
   t.is(4, pair.fragments().length);
 
 });
+
+test("should read CSV-files", async t => {
+  const dolos = new Dolos();
+
+  const report = await dolos.analyzePaths(["../samples/javascript/info.csv"]);
+
+  t.is(4, report.files().length)
+
+  t.is(5, report.scoredPairs.length);
+  const { similarity } = report.scoredPairs[0];
+  t.true(similarity > 0.75);
+});
