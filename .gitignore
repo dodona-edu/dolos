@@ -3,3 +3,4 @@ node_modules/
 vetur.config.js
 **/package-lock.json
 **/yarn.lock
+!docs/yarn.lock
