@@ -1,7 +1,7 @@
 {
   "name": "@dodona/dolos-web",
   "description": "Web UI for the Dolos plagiarism detection tool.",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "main": "dist/index.html",
   "scripts": {
     "serve": "vue-cli-service serve",
@@ -40,7 +40,7 @@
     "vuetify-loader": "^1.7.3"
   },
   "dependencies": {
-    "@dodona/dolos-lib": "1.6.0",
+    "@dodona/dolos-lib": "1.7.0",
     "@mdi/font": "^6.5.95",
     "@vue/composition-api": "^1.6.2",
     "@vueuse/core": "^8.7.5",
