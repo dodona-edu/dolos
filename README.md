@@ -42,6 +42,8 @@ You can install Dolos on your system using npm:
 npm install -g @dodona/dolos
 ```
 
+**Note:** currently we only support Node versions 14 and 16. On node versions 17 and 18 one of our dependencies [does not build](https://github.com/tree-sitter/node-tree-sitter/issues/102).
+
 See [the installation instructions on our website](https://dolos.ugent.be/guide/installation.html) for more complete instructions.
 
 ## Usage

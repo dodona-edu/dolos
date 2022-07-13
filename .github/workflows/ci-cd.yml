@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: [ "14", "16", "18" ]
+        node: [ "14", "16" ]
       fail-fast: false
     steps:
       - name: Checkout 🛎️
@@ -38,7 +38,7 @@ jobs:
     needs: install-deps
     strategy:
       matrix:
-        node:  [ "14", "16", "18" ]
+        node:  [ "14", "16" ]
       fail-fast: false
     steps:
       - name: Checkout 🛎️
@@ -75,7 +75,7 @@ jobs:
     needs: install-deps
     strategy:
       matrix:
-        node: [ "18" ]
+        node: [ "16" ]
       fail-fast: false
     steps:
       - name: Checkout 🛎️
@@ -112,7 +112,7 @@ jobs:
     needs: install-deps
     strategy:
       matrix:
-        node: [ "14", "16", "18" ]
+        node: [ "14", "16" ]
       fail-fast: false
     steps:
       - name: Checkout 🛎️
@@ -150,7 +150,7 @@ jobs:
     needs: install-deps
     strategy:
       matrix:
-        node: [ "18" ]
+        node: [ "16" ]
       fail-fast: false
     steps:
       - name: Checkout 🛎️
@@ -188,7 +188,7 @@ jobs:
     needs: install-deps
     strategy:
       matrix:
-        node: [ "14", "16", "18" ]
+        node: [ "14", "16" ]
       fail-fast: false
     steps:
       - name: Checkout 🛎️
@@ -256,7 +256,7 @@ jobs:
     needs: install-deps
     strategy:
       matrix:
-        node: [ "18" ]
+        node: [ "16" ]
       fail-fast: false
     steps:
       - name: Checkout 🛎️
@@ -293,7 +293,7 @@ jobs:
     needs: install-deps
     strategy:
       matrix:
-        node:  [ "18" ]
+        node:  [ "16" ]
       fail-fast: false
     steps:
       - name: Checkout 🛎️
@@ -304,24 +304,10 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
 
-      - name: Fetch Dependencies ⚡️
-        id: cache-dependencies
-        uses: actions/cache@v3
-        with:
-          path: |
-            ${{ github.workspace }}/node_modules
-            ${{ github.workspace }}/*/node_modules
-          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('**/yarn.lock') }}-${{ hashFiles('**/package.json') }}
-
-      - name: Check if cache was hit 🔎
-        if: steps.cache-dependencies.outputs.cache-hit != 'true'
-        run: |
-          echo "Should have hit cache"
-          false
-
       - name: Build 🔧
         run: |
           cd docs/
+          yarn install
           yarn build
 
       - name: Deploy 🚀
@@ -353,7 +339,7 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/v')
     strategy:
       matrix:
-        node:  [ "18" ]
+        node:  [ "16" ]
       fail-fast: false
     steps:
       - name: Checkout 🛎️
@@ -467,7 +453,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: [ "18" ]
+        node: [ "16" ]
       fail-fast: false
     steps:
       - name: Setup Node 📚
