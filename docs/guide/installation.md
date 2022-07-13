@@ -6,17 +6,17 @@ have provided.
 
 ## Install Node.js
 
-Dolos needs the JavaScript runtime [Node.js](https://nodejs.org/en/), version 12
-or higher. You can check if Node is installed and its version by using the command:
+Dolos needs the JavaScript runtime [Node.js](https://nodejs.org/en/), version 14
+or 16. You can check if Node is installed and its version by using the command:
 ```shell
 node --version
-# v14.17.3
+# v16.15.0
 ```
-If this reports an error (`node: command not found`) or a version lower than 12,
+If this reports an error (`node: command not found`) or an other version 14,
 you will need to install Node using the instructions below.
 
-We aim to support the latest Node versions. If you have to pick a version, the
-latest **LTS** (long term support) version is a good choice.
+
+One of our dependencies, tree-sitter, [does not build on node 17 and 18](https://github.com/tree-sitter/node-tree-sitter/issues/102) so it is recommended to install Node 16. As soon as the tree-sitter issue is resolved, we will support Node 18 again.
 
 ### Windows
 

@@ -3,6 +3,9 @@
   "version": "1.6.0",
   "description": "Code similarity detection based on the Winnowing algorithm",
   "main": "dist/index.js",
+  "engines": {
+    "node": ">12 <17"
+  },
   "bin": {
     "dolos": "dist/cli.js"
   },
