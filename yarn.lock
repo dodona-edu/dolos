@@ -14740,12 +14740,12 @@ tree-sitter-javascript@^0.19.0:
   dependencies:
     nan "^2.12.1"
 
-tree-sitter-python@^0.19.0:
-  version "0.19.0"
-  resolved "https://registry.yarnpkg.com/tree-sitter-python/-/tree-sitter-python-0.19.0.tgz#ad79a221fab7136559da0704f789173b81e0bdcd"
-  integrity sha512-UAJV73zCE+2b+X8XQOyL6C+MxVUV8BH0TxcOwhfgaDh6F6g4Ub0SqWGF19C1MDrGi25JNnZ8xlsH0aqrasyS3w==
+tree-sitter-python@^0.20.1:
+  version "0.20.1"
+  resolved "https://registry.yarnpkg.com/tree-sitter-python/-/tree-sitter-python-0.20.1.tgz#a1a479263fe24b121923c133052815d8bc80d3d3"
+  integrity sha512-fyoWFw/C3pZG9AdYElUQlFLPQFxeUQZe0nDGv/ksESvedoPw9JBpPga2l9PNBX/QKMpTmVRB0lM2/l0LVMnFbg==
   dependencies:
-    nan "^2.14.0"
+    nan "^2.15.0"
 
 tree-sitter@^0.20.0:
   version "0.20.0"
@@ -14784,10 +14784,10 @@ ts-loader@^9.2.5:
     micromatch "^4.0.0"
     semver "^7.3.4"
 
-ts-node@^10.2.1:
-  version "10.8.1"
-  resolved "https://registry.yarnpkg.com/ts-node/-/ts-node-10.8.1.tgz#ea2bd3459011b52699d7e88daa55a45a1af4f066"
-  integrity sha512-Wwsnao4DQoJsN034wePSg5nZiw4YKXf56mPIAeD6wVmiv+RytNSWqc2f3fKvcUoV+Yn2+yocD71VOfQHbmVX4g==
+ts-node@^10.8.2:
+  version "10.8.2"
+  resolved "https://registry.yarnpkg.com/ts-node/-/ts-node-10.8.2.tgz#3185b75228cef116bf82ffe8762594f54b2a23f2"
+  integrity sha512-LYdGnoGddf1D6v8REPtIH+5iq/gTDuZqv2/UJUU7tKjuEU8xVZorBM+buCGNjj+pGEud+sOoM4CX3/YzINpENA==
   dependencies:
     "@cspotcode/source-map-support" "^0.8.0"
     "@tsconfig/node10" "^1.0.7"
