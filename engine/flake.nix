@@ -20,12 +20,21 @@
   in
   with pkgs;
   {
-    devShell = mkShell {
+    devShell = let
+      rust = rust-bin.stable.latest.default.override {
+        extensions = [ "rust-src" ];
+      };
+    in mkShell {
       buildInputs = [
-        rust-bin.stable.latest.default
+        rust
         cargo-watch
         cargo-limit
       ];
+      shellHook = ''
+        mkdir .dev
+        ln -sf ${rust} .dev/rust
+        ln -sf ${rust-bin.stable.latest.rust-src} .dev/rust-src
+      '';
     };
   });
 }

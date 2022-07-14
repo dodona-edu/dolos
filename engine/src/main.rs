@@ -2,6 +2,7 @@
 extern crate tree_sitter;
 extern crate tree_sitter_java;
 extern crate clap;
+extern crate core;
 
 mod dolos;
 mod file;
@@ -14,11 +15,10 @@ use dolos::Dolos;
 
 fn main() {
     let opts = Opts::parse();
-    let mut dolos = Dolos::new();
 
     match opts.command {
-        Command::Run{ files } => {
-            dolos.add_files(files);
+        Command::Run{ files } => { 
+            let dolos = Dolos::from_files(files);
             dbg!(dolos);
         }
     }

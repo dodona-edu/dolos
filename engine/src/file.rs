@@ -28,7 +28,7 @@ impl File {
     }
 }
 
-impl FromStr for File {
+impl FromStr for File where File: Sized {
     type Err = Infallible;
 
     fn from_str(input: &str) -> Result<Self, Self::Err> {
