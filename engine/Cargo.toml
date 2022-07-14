@@ -1,0 +1,14 @@
+[package]
+name = "dolos-rs"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+clap = { version = "3.0", features = ["derive"] }
+tree-sitter = "0.19"
+tree-sitter-java = "0.19"
+tree-sitter-javascript = "0.19"
+tree-sitter-python = "0.19"
+
