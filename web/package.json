@@ -42,7 +42,7 @@
   "dependencies": {
     "@dodona/dolos-lib": "1.7.0",
     "@mdi/font": "^6.5.95",
-    "@vue/composition-api": "^1.6.2",
+    "@vue/composition-api": "^1.7.0",
     "@vueuse/core": "^8.7.5",
     "d3": "^7.0.0",
     "luxon": "^2.3.1",
