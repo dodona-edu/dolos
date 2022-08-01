@@ -35,7 +35,7 @@ import {
   shallowRef,
   computed,
   watch,
-} from "@vue/composition-api";
+} from "vue";
 import { storeToRefs } from "pinia";
 import { useVuetify, useRoute } from "@/composables";
 import { useApiStore } from "@/api/stores";

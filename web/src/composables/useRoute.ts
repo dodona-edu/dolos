@@ -1,4 +1,4 @@
-import { getCurrentInstance, computed, ComputedRef } from "@vue/composition-api";
+import { getCurrentInstance, computed, ComputedRef } from "vue";
 import { Route } from "vue-router";
 
 /**

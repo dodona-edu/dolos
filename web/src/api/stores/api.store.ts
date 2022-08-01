@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { shallowRef, watch } from "@vue/composition-api";
+import { shallowRef, watch } from "vue";
 import { getInterpolatedSimilarity } from "@/api/utils";
 import {
   useFileStore,

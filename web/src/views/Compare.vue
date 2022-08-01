@@ -27,7 +27,7 @@ import {
   shallowRef,
   computed,
   watch,
-} from "@vue/composition-api";
+} from "vue";
 import { usePairStore, useMetadataStore, useFileStore } from "@/api/stores";
 import CompareCard from "@/components/CompareCard.vue";
 import Loading from "@/components/Loading.vue";

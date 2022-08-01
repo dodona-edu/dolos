@@ -1,6 +1,6 @@
 import * as d3 from "d3";
 import { defineStore } from "pinia";
-import { shallowRef, computed } from "@vue/composition-api";
+import { shallowRef, computed } from "vue";
 import { DATA_URL } from "@/api";
 import { assertType, fileToTokenizedFile } from "@/api/utils";
 import {

@@ -54,7 +54,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, computed, watch } from "@vue/composition-api";
+import { defineComponent, PropType, computed, watch } from "vue";
 import { File } from "@/api/models";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
 import { getClusterElementsArray } from "@/util/clustering-algorithms/ClusterFunctions";

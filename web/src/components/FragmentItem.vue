@@ -35,7 +35,7 @@ import {
   PropType,
   computed,
   watch,
-} from "@vue/composition-api";
+} from "vue";
 import { Fragment } from "@/api/models";
 import { useVModel } from "@vueuse/core";
 

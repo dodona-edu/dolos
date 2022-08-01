@@ -114,7 +114,7 @@ import {
   watch,
   onMounted,
   onUnmounted,
-} from "@vue/composition-api";
+} from "vue";
 import { useVModel } from "@vueuse/core";
 import { Fragment, Pair, Selection } from "@/api/models";
 import { fileToTokenizedFile } from "@/api/utils";

@@ -32,7 +32,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, computed, shallowRef } from "@vue/composition-api";
+import { defineComponent, PropType, computed, shallowRef } from "vue";
 import { useRouter, useRoute } from "@/composables";
 import { Pair, ObjMap } from "@/api/models";
 

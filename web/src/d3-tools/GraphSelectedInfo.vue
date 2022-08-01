@@ -51,7 +51,7 @@ import {
   PropType,
   computed,
   toRef,
-} from "@vue/composition-api";
+} from "vue";
 import { useCluster, useVuetify, useRouter } from "@/composables";
 import { File } from "@/api/models";
 import { Cluster, Clustering } from "@/util/clustering-algorithms/ClusterTypes";

@@ -62,7 +62,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, shallowRef, computed } from "@vue/composition-api";
+import { defineComponent, ref, shallowRef, computed } from "vue";
 import { storeToRefs } from "pinia";
 import { File, Legend } from "@/api/models";
 import { Cluster } from "@/util/Cluster";

@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { shallowRef, computed } from "@vue/composition-api";
+import { shallowRef, computed } from "vue";
 import { DATA_URL } from "@/api";
 import { Semantic, ObjMap, File } from "@/api/models";
 import { useFileStore, useMetadataStore } from "@/api/stores";

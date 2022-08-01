@@ -195,7 +195,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, computed } from "@vue/composition-api";
+import { defineComponent, computed } from "vue";
 import { storeToRefs } from "pinia";
 import { useBreakpoints, useClustering } from "@/composables";
 import { Pair } from "@/api/models";

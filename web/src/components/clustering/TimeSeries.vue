@@ -13,7 +13,7 @@ import {
   watch,
   toRef,
   onMounted,
-} from "@vue/composition-api";
+} from "vue";
 import { storeToRefs } from "pinia";
 import { useApiStore } from "@/api/stores";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";

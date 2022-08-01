@@ -9,7 +9,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "@vue/composition-api";
+import { defineComponent } from "vue";
 import { usePairStore } from "@/api/stores";
 import PairsTable from "@/components/PairsTable.vue";
 

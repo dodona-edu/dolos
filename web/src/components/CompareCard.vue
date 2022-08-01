@@ -194,7 +194,7 @@ import {
   computed,
   onMounted,
   watch,
-} from "@vue/composition-api";
+} from "vue";
 import { Pair, Metadata, Selection, File, Fragment } from "@/api/models";
 import { fileToTokenizedFile } from "@/api/utils";
 import { constructID, SelectionId } from "@/util/OccurenceHighlight";

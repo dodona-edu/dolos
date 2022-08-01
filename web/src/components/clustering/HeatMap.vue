@@ -60,7 +60,7 @@ import {
   watch,
   onMounted,
   toRef,
-} from "@vue/composition-api";
+} from "vue";
 import { storeToRefs } from "pinia";
 import { useFileStore, usePairStore, useApiStore } from "@/api/stores";
 import { useCluster, useRouter } from "@/composables";

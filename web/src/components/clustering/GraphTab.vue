@@ -32,7 +32,7 @@ import {
   shallowRef,
   watch,
   onMounted,
-} from "@vue/composition-api";
+} from "vue";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
 import { getClusterElementsArray } from "@/util/clustering-algorithms/ClusterFunctions";
 import { Pair, File } from "@/api/models";
