@@ -1,11 +1,17 @@
 ---
 home: true
-heroImage: /images/soco-java-graph.png
+heroImage: /images/soco-java-graph-circle.png
 heroAlt: The Dolos plagiarism graph
 heroText: Dolos
 tagline: Source code plagiarism detection
-actionText: Try it out →
-actionLink: /try/
+actions:
+- text: Get started
+  link: /guide/
+  type: secondary
+- text: Try it out →
+  link: /try/
+  type: primary
+
 footer: Made by Team Dodona with ❤️
 ---
 

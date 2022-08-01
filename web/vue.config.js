@@ -9,7 +9,8 @@ module.exports = {
     resolve: {
       fallback: {
         "path": false,
-        "fs": false
+        "fs": false,
+        "assert": false
       },
     },
     plugins: [
