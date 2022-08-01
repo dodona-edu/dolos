@@ -82,7 +82,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, computed } from "@vue/composition-api";
+import { defineComponent, PropType, computed } from "vue";
 import { FileScoring } from "@/util/FileInterestingness";
 import { File, Pair } from "@/api/models";
 

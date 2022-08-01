@@ -43,7 +43,7 @@ import {
   shallowRef,
   watch,
   onMounted,
-} from "@vue/composition-api";
+} from "vue";
 import { FileScoring } from "@/util/FileInterestingness";
 import {
   DecodedSemanticResult,

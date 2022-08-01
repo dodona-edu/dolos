@@ -1,5 +1,5 @@
 import * as d3 from "d3";
-import { ComputedRef, computed, unref } from "@vue/composition-api";
+import { ComputedRef, computed, unref } from "vue";
 import { MaybeRef } from "@/util/Types";
 import { File, ObjMap } from "@/api/models";
 import { useFileStore } from "@/api/stores";

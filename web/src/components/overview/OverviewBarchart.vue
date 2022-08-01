@@ -11,7 +11,7 @@ import {
   computed,
   watch,
   onMounted,
-} from "@vue/composition-api";
+} from "vue";
 import { storeToRefs } from "pinia";
 import { useFileStore, usePairStore } from "@/api/stores";
 import { FileInterestingnessCalculator } from "@/util/FileInterestingness";

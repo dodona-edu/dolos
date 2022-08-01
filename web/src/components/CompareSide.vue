@@ -40,7 +40,7 @@ import {
   watch,
   onMounted,
   onUnmounted,
-} from "@vue/composition-api";
+} from "vue";
 import { Selection, File } from "@/api/models";
 import {
   ID_START,

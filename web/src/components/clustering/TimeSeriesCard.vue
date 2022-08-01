@@ -43,7 +43,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, shallowRef } from "@vue/composition-api";
+import { defineComponent, PropType, shallowRef } from "vue";
 import { File } from "@/api/models";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
 import TimeSeriesDiagram from "@/components/clustering/TimeSeries.vue";

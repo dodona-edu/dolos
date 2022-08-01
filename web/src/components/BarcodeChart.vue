@@ -29,7 +29,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, computed, watch, onMounted } from "@vue/composition-api";
+import { defineComponent, PropType, computed, watch, onMounted } from "vue";
 import { Selection } from "@/api/models";
 import { constructID } from "@/util/OccurenceHighlight";
 import * as d3 from "d3";

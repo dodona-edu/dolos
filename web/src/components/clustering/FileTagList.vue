@@ -11,7 +11,7 @@ import {
   watch,
   onMounted,
   toRef,
-} from "@vue/composition-api";
+} from "vue";
 import { useElementSize } from "@vueuse/core";
 import { storeToRefs } from "pinia";
 import { useFileStore } from "@/api/stores";

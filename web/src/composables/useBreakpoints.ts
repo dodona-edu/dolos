@@ -1,4 +1,4 @@
-import { computed, ComputedRef } from "@vue/composition-api";
+import { computed, ComputedRef } from "vue";
 import { Breakpoint } from "vuetify/types/services/breakpoint";
 import { useVuetify } from "@/composables";
 

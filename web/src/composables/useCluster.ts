@@ -1,4 +1,4 @@
-import { ComputedRef, computed, unref } from "@vue/composition-api";
+import { ComputedRef, computed, unref } from "vue";
 import { MaybeRef } from "@/util/Types";
 import { File } from "@/api/models";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";

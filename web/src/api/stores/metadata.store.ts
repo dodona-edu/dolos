@@ -1,6 +1,6 @@
 import * as d3 from "d3";
 import { defineStore } from "pinia";
-import { shallowRef } from "@vue/composition-api";
+import { shallowRef } from "vue";
 import { DATA_URL } from "@/api";
 import { Metadata } from "@/api/models";
 import { castToType } from "@/api/utils";

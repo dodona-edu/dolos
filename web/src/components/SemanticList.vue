@@ -48,7 +48,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, computed } from "@vue/composition-api";
+import { defineComponent, PropType, computed } from "vue";
 import { useVModel } from "@vueuse/core";
 import { File } from "@/api/models";
 import { SemanticMatch } from "@/components/CompareCard.vue";

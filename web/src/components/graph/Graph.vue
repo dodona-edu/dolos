@@ -14,7 +14,7 @@ import {
   watch,
   onMounted,
   onUnmounted,
-} from "@vue/composition-api";
+} from "vue";
 import { useApiStore } from "@/api/stores";
 import { Pair, File, Legend } from "@/api/models";
 import { useCluster } from "@/composables";

@@ -1,4 +1,4 @@
-import { ComputedRef, computed } from "@vue/composition-api";
+import { ComputedRef, computed } from "vue";
 import { useApiStore, usePairStore, useFileStore } from "@/api/stores";
 import { singleLinkageCluster } from "@/util/clustering-algorithms/SingleLinkageClustering";
 import { Clustering } from "@/util/clustering-algorithms/ClusterTypes";

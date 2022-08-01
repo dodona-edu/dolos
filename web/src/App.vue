@@ -115,7 +115,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, shallowRef, computed } from "@vue/composition-api";
+import { defineComponent, shallowRef, computed } from "vue";
 import { storeToRefs } from "pinia";
 import { useRouter, useBreakpoints } from "@/composables";
 import { useApiStore } from "@/api/stores";

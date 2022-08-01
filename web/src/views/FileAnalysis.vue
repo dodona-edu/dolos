@@ -9,7 +9,7 @@
   </v-row>
 </template>
 <script lang="ts">
-import { defineComponent } from "@vue/composition-api";
+import { defineComponent } from "vue";
 import SummaryCard from "@/components/summary/SummaryCard.vue";
 import SummaryList from "@/components/summary/SummaryList.vue";
 

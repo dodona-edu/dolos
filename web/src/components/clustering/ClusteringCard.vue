@@ -55,7 +55,7 @@ import {
   shallowRef,
   computed,
   toRef,
-} from "@vue/composition-api";
+} from "vue";
 import { useCluster } from "@/composables";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
 import { getClusterElementsArray } from "@/util/clustering-algorithms/ClusterFunctions";

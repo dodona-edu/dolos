@@ -53,7 +53,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, shallowRef, computed, watch } from "@vue/composition-api";
+import { defineComponent, shallowRef, computed, watch } from "vue";
 import { storeToRefs } from "pinia";
 import { Pair } from "@/api/models";
 import { useFileStore, usePairStore } from "@/api/stores";

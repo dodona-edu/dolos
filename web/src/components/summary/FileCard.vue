@@ -180,7 +180,7 @@ import {
   computed,
   shallowRef,
   watch,
-} from "@vue/composition-api";
+} from "vue";
 import {
   FileScoring,
   getLargestFieldOfScore,
