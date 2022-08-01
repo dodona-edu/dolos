@@ -45,7 +45,7 @@
     "d3-dsv": "^2.0.0"
   },
   "optionalDependencies": {
-    "@elm-tooling/tree-sitter-elm": "^5.5.1",
+    "@elm-tooling/tree-sitter-elm": "^5.6.0",
     "tree-sitter": "^0.20.0",
     "tree-sitter-bash": "^0.19.0",
     "tree-sitter-c": "^0.20.1",
