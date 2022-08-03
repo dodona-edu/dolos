@@ -213,6 +213,8 @@ const initialize = (): void => {
     readOnly: true,
     smoothScrolling: true,
     automaticLayout: true,
+    renderLineHighlight: "none",
+    renderValidationDecorations: "off",
     minimap: {
       renderCharacters: false,
     }

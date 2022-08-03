@@ -50,17 +50,18 @@
       </v-row>
 
       <v-tabs-items v-model="activeTab" class="mt-4">
-        <v-tab-item>
+        <v-tab-item class="compare-tab">
           <pair-code-match class="compare-editor" :pair="activePair" :metadata="props.metadata"  />
         </v-tab-item>
 
-        <v-tab-item>
+        <v-tab-item class="compare-tab">
           <!-- Show a warning why the diff view is selected automatically -->
            <v-alert
               v-if="props.pair.similarity >= 0.8"
-              text
               type="info"
               icon="mdi-information"
+              text
+              dismissible
             >
               The diff view has been automatically selected, as the files have a similarity >= 80%.
             </v-alert>
@@ -141,6 +142,8 @@ const swapFiles = (): void => {
 
 <style lang="scss">
 .compare {
+  height: calc(100vh - 260px);
+
   &-header {
     &-info {
       font-size: 1rem;
@@ -151,9 +154,14 @@ const swapFiles = (): void => {
     }
   }
 
+  &-tab {
+    min-height: 400px;
+    height: calc(100vh - 260px);
+  }
+
   &-editor {
     width: 100%;
-    height: 70vh; // TODO: change this
+    height: 100%;
   }
 }
 </style>
