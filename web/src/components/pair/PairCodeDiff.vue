@@ -41,9 +41,9 @@ const initialize = (): void => {
 
   // Monaco diff editor
   editor.value = monaco.editor.createDiffEditor(editorElem.value, {
-    // Do not allow resizing of the diff view.
-    enableSplitViewResizing: false,
+    enableSplitViewResizing: false, // Do not allow resizing of the diff view.
     readOnly: true,
+    automaticLayout: true,
   });
   editor.value.setModel({
     original: leftFileModel,
