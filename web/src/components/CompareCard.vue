@@ -51,22 +51,26 @@
 
       <v-tabs-items v-model="activeTab" class="mt-4">
         <v-tab-item class="compare-tab">
-          <pair-code-match class="compare-editor" :pair="activePair" :metadata="props.metadata"  />
+          <template v-if="showMatchView">
+            <pair-code-match class="compare-editor" :pair="activePair" :metadata="props.metadata"  />
+          </template>
         </v-tab-item>
 
         <v-tab-item class="compare-tab">
-          <!-- Show a warning why the diff view is selected automatically -->
-           <v-alert
-              v-if="props.pair.similarity >= 0.8"
-              type="info"
-              icon="mdi-information"
-              text
-              dismissible
-            >
-              The diff view has been automatically selected, as the files have a similarity >= 80%.
-            </v-alert>
+          <template v-if="showDiffView">
+            <!-- Show a warning why the diff view is selected automatically -->
+            <v-alert
+                v-if="props.pair.similarity >= 0.8"
+                type="info"
+                icon="mdi-information"
+                text
+                dismissible
+              >
+                The diff view has been automatically selected, as the files have a similarity >= 80%.
+              </v-alert>
 
-          <pair-code-diff class="compare-editor" :pair="activePair" :metadata="props.metadata"  />
+            <pair-code-diff class="compare-editor" :pair="activePair" :metadata="props.metadata"  />
+          </template>
         </v-tab-item>
       </v-tabs-items>
     </v-card-text>
@@ -91,6 +95,19 @@ const props = withDefaults(defineProps<Props>(), {});
 const filesSwapped = shallowRef(false);
 // Active tab
 const activeTab = shallowRef(0);
+
+// If the views should be shown.
+// This is for lazy loading the code views.
+const showMatchView = shallowRef(false);
+const showDiffView = shallowRef(false);
+// When the correct tab is selected, show the correct view.
+watch(
+  () => activeTab.value,
+  () => {
+    if (activeTab.value === 0) showMatchView.value = true;
+    if (activeTab.value === 1) showDiffView.value = true;
+  }
+);
 
 // Set the active tab to the diff view when the similarity is >= 90%.
 watch(
