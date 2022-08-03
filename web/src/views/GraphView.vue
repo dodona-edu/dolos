@@ -51,7 +51,7 @@
     </v-row>
 
     <v-row>
-      <v-col cols="11">
+      <v-col cols="12">
         <ClusteringTable
           :current-clustering="clustering"
           :selected-cluster="selectedCluster"
@@ -61,8 +61,8 @@
   </v-container>
 </template>
 
-<script lang="ts">
-import { defineComponent, ref, shallowRef, computed } from "vue";
+<script lang="ts" setup>
+import { ref, shallowRef, computed } from "vue";
 import { storeToRefs } from "pinia";
 import { File, Legend } from "@/api/models";
 import { Cluster } from "@/util/Cluster";
@@ -73,65 +73,39 @@ import ClusteringTable from "@/components/ClusteringTable.vue";
 import Graph from "@/components/graph/Graph.vue";
 import GraphLegend from "@/d3-tools/GraphLegend.vue";
 
-export default defineComponent({
-  setup() {
-    const route = useRoute();
-    const { cutoff } = storeToRefs(useApiStore());
-    const { filesList, legend } = storeToRefs(useFileStore());
-    const { pairsList } = storeToRefs(usePairStore());
+const route = useRoute();
+const { cutoff } = storeToRefs(useApiStore());
+const { filesList, legend } = storeToRefs(useFileStore());
+const { pairsList } = storeToRefs(usePairStore());
 
-    // Show singletons in the graph.
-    const showSingletons = shallowRef(false);
+// Show singletons in the graph.
+const showSingletons = shallowRef(false);
 
-    // Legend.
-    const legendValue = ref<Legend>(legend.value);
+// Legend.
+const legendValue = ref<Legend>(legend.value);
 
-    // Node in the graph that is currently selected (file).
-    const selectedNode = shallowRef<File>();
+// Node in the graph that is currently selected (file).
+const selectedNode = shallowRef<File>();
 
-    // Cluster that is currently selected.
-    const selectedCluster = shallowRef<Cluster>();
+// Cluster that is currently selected.
+const selectedCluster = shallowRef<Cluster>();
 
-    // Clustering
-    const clustering = useClustering();
+// Clustering
+const clustering = useClustering();
 
-    // Should the legend be displayed.
-    const showLegend = computed(() => {
-      const { ...colors } = route.value.query;
-      return Array.from(Object.values(colors)).length === 0;
-    });
-
-    // Set the selected node.
-    const setSelectedNode = (node: File | undefined): void => {
-      selectedNode.value = node;
-    };
-
-    // Set the selected cluster.
-    const setSelectedCluster = (cluster: Cluster | undefined): void => {
-      selectedCluster.value = cluster;
-    };
-
-    return {
-      cutoff,
-      filesList,
-      pairsList,
-      showSingletons,
-      legend,
-      legendValue,
-      selectedNode,
-      selectedCluster,
-      clustering,
-      showLegend,
-      setSelectedNode,
-      setSelectedCluster,
-    };
-  },
-
-  components: {
-    Graph: Graph as any,
-    GraphLegend,
-    GraphSelectedInfo,
-    ClusteringTable,
-  },
+// Should the legend be displayed.
+const showLegend = computed(() => {
+  const { ...colors } = route.value.query;
+  return Array.from(Object.values(colors)).length === 0;
 });
+
+// Set the selected node.
+const setSelectedNode = (node: File | undefined): void => {
+  selectedNode.value = node;
+};
+
+// Set the selected cluster.
+const setSelectedCluster = (cluster: Cluster | undefined): void => {
+  selectedCluster.value = cluster;
+};
 </script>

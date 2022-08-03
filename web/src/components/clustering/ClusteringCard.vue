@@ -1,5 +1,5 @@
 <template>
-  <v-expansion-panel>
+  <v-expansion-panel class="clustering-card">
     <v-expansion-panel-header class="noflex">
       <div class="clustering-tag-container">
         <FileTagList :current-files="clusterFiles" />
@@ -48,14 +48,8 @@
   </v-expansion-panel>
 </template>
 
-<script lang="ts">
-import {
-  defineComponent,
-  PropType,
-  shallowRef,
-  computed,
-  toRef,
-} from "vue";
+<script lang="ts" setup>
+import { shallowRef, computed, toRef } from "vue";
 import { useCluster } from "@/composables";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
 import { getClusterElementsArray } from "@/util/clustering-algorithms/ClusterFunctions";
@@ -64,58 +58,44 @@ import GraphTab from "./GraphTab.vue";
 import TimeSeriesCard from "./TimeSeriesCard.vue";
 import FileTagList from "@/components/clustering/FileTagList.vue";
 
-export default defineComponent({
-  props: {
-    cluster: {
-      type: Set as PropType<Cluster>,
-      required: true,
-    },
-  },
+interface Props {
+  cluster: Cluster;
+}
+const props = withDefaults(defineProps<Props>(), {});
 
-  setup(props) {
-    const activeTab = shallowRef(1);
-    const { clusterFiles } = useCluster(toRef(props, "cluster"));
+const activeTab = shallowRef(1);
+const { clusterFiles } = useCluster(toRef(props, "cluster"));
 
-    // If the timeline should be shown.
-    // Timeline will only be shown if every cluster element has a timestamp.
-    const showClusterTimeline = computed(() => {
-      return getClusterElementsArray(props.cluster).every(
-        (e) => e.extra?.timestamp
-      );
-    });
+// If the timeline should be shown.
+// Timeline will only be shown if every cluster element has a timestamp.
+const showClusterTimeline = computed(() => {
+  return getClusterElementsArray(props.cluster).every(
+    (e) => e.extra?.timestamp
+  );
+});
 
-    // String of ids to show in the pair view.
-    // TODO: it may be better to inline the pair-table in the future for better UX.
-    const pairViewItems = computed(() => {
-      return Array.from(props.cluster)
-        .map((element) => element.id)
-        .join(",");
-    });
-
-    return {
-      clusterFiles,
-      activeTab,
-      showClusterTimeline,
-      pairViewItems,
-    };
-  },
-
-  components: {
-    HeatMap,
-    GraphTab,
-    TimeSeriesCard,
-    FileTagList,
-  },
+// String of ids to show in the pair view.
+// TODO: it may be better to inline the pair-table in the future for better UX.
+const pairViewItems = computed(() => {
+  return Array.from(props.cluster)
+    .map((element) => element.id)
+    .join(",");
 });
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .empty-space {
   width: 50px;
 }
 
 .noflex > * {
   flex: none;
+}
+
+.clustering-card {
+  &:before {
+    box-shadow: none !important;
+  }
 }
 
 .clustering-tag-container {
