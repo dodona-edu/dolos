@@ -10,7 +10,7 @@ module.exports = {
       fallback: {
         "path": false,
         "fs": false,
-        "assert": false
+        "assert": require.resolve("assert/"),
       },
     },
     plugins: [
