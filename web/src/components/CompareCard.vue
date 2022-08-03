@@ -2,10 +2,10 @@
   <div>
     <div class="heading">
       <h2 class="heading-title">
-        Compare {{ activePair.leftFile.shortPath }} with {{ activePair.rightFile.shortPath }}
+        Comparing {{ activePair.leftFile.shortPath }} with {{ activePair.rightFile.shortPath }}
       </h2>
       <div class="heading-subtitle text--secondary">
-        Compare matching code fragments & differences between 2 files.
+        The compare view matches code fragments & differences between 2 files in a pair.
       </div>
     </div>
 
