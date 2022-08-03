@@ -15,7 +15,9 @@
         />
 
         <v-card v-else>
-          <v-card-subtitle> Could not load comparison </v-card-subtitle>
+          <v-card-subtitle>
+            This pair does not exist.
+          </v-card-subtitle>
         </v-card>
       </v-col>
     </v-row>
@@ -30,7 +32,6 @@ import {
 } from "vue";
 import { usePairStore, useMetadataStore } from "@/api/stores";
 import CompareCard from "@/components/CompareCard.vue";
-import Loading from "@/components/Loading.vue";
 
 interface Props {
   pairId: string;

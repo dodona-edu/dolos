@@ -1,80 +1,89 @@
 <template>
   <div>
-    <div class="mb-4">
-    <h2>
-      Compare {{ activePair.leftFile.shortPath }} with {{ activePair.rightFile.shortPath }}
-    </h2>
-    <div class="text--secondary">
-      Compare matching code fragments & differences between 2 files.
+    <div class="heading">
+      <h2 class="heading-title">
+        Compare {{ activePair.leftFile.shortPath }} with {{ activePair.rightFile.shortPath }}
+      </h2>
+      <div class="heading-subtitle text--secondary">
+        Compare matching code fragments & differences between 2 files.
+      </div>
     </div>
-  </div>
 
-  <v-card>
-    <v-card-text>
-      <v-row justify="space-between" align="center">
-        <v-col cols="5">
-          <v-tabs v-model="activeTab">
-            <v-tab>
-              <v-icon left>mdi-set-center</v-icon>
-              Matches
-            </v-tab>
-            <v-tab>
-              <v-icon left>mdi-file-compare</v-icon>
-              Diff
-            </v-tab>
-          </v-tabs>
-        </v-col>
+    <v-card>
+      <v-card-text>
+        <v-row justify="space-between" align="center">
+          <v-col cols="5">
+            <v-tabs v-model="activeTab">
+              <v-tab>
+                <v-icon left>mdi-set-center</v-icon>
+                Matches
+              </v-tab>
+              <v-tab>
+                <v-icon left>mdi-file-compare</v-icon>
+                Diff
+              </v-tab>
+            </v-tabs>
+          </v-col>
 
-        <v-col cols="auto">
-          <v-btn color="primary" depressed @click="swapFiles">
-            <v-icon>mdi-swap-horizontal-bold</v-icon>
-          </v-btn>
-        </v-col>
+          <v-col cols="auto">
+            <v-btn color="primary" depressed @click="swapFiles">
+              <v-icon>mdi-swap-horizontal-bold</v-icon>
+            </v-btn>
+          </v-col>
 
-        <v-col cols="5" class="compare-header-info">
-          <span>
-            <v-icon left>mdi-approximately-equal</v-icon>
-            Similarity: {{ activePair.similarity.toFixed(2) }}
-          </span>
+          <v-col cols="5" class="compare-header-info">
+            <span>
+              <v-icon left>mdi-approximately-equal</v-icon>
+              Similarity: {{ activePair.similarity.toFixed(2) }}
+            </span>
 
-          <span>
-            <v-icon left>mdi-file-document-multiple</v-icon>
-            Longest fragment: {{ activePair.longestFragment }}
-          </span>
+            <span>
+              <v-icon left>mdi-file-document-multiple</v-icon>
+              Longest fragment: {{ activePair.longestFragment }}
+            </span>
 
-          <span>
-            <v-icon left>mdi-file-document-multiple-outline</v-icon>
-            Total overlap: {{ activePair.totalOverlap }}
-          </span>
-        </v-col>
-      </v-row>
+            <span>
+              <v-icon left>mdi-file-document-multiple-outline</v-icon>
+              Total overlap: {{ activePair.totalOverlap }}
+            </span>
+          </v-col>
+        </v-row>
 
-      <v-tabs-items v-model="activeTab" class="mt-4">
-        <v-tab-item class="compare-tab">
-          <template v-if="showMatchView">
-            <pair-code-match class="compare-editor" :pair="activePair" :metadata="props.metadata"  />
-          </template>
-        </v-tab-item>
+        <v-tabs-items v-model="activeTab" class="mt-4">
+          <v-tab-item class="compare-tab">
+            <template v-if="showMatchView">
+              <pair-code-match
+                class="compare-editor"
+                :pair="activePair"
+                :metadata="props.metadata"
+              />
+            </template>
+          </v-tab-item>
 
-        <v-tab-item class="compare-tab">
-          <template v-if="showDiffView">
-            <!-- Show a warning why the diff view is selected automatically -->
-            <v-alert
+          <v-tab-item class="compare-tab">
+            <template v-if="showDiffView">
+              <!-- Show a warning why the diff view is selected automatically -->
+              <v-alert
                 v-if="props.pair.similarity >= 0.8"
                 type="info"
                 icon="mdi-information"
                 text
                 dismissible
               >
-                The diff view has been automatically selected, as the files have a similarity >= 80%.
+                The diff view has been automatically selected, as the files have
+                a similarity >= 80%.
               </v-alert>
 
-            <pair-code-diff class="compare-editor" :pair="activePair" :metadata="props.metadata"  />
-          </template>
-        </v-tab-item>
-      </v-tabs-items>
-    </v-card-text>
-  </v-card>
+              <pair-code-diff
+                class="compare-editor"
+                :pair="activePair"
+                :metadata="props.metadata"
+              />
+            </template>
+          </v-tab-item>
+        </v-tabs-items>
+      </v-card-text>
+    </v-card>
   </div>
 </template>
 

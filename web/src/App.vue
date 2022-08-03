@@ -192,4 +192,8 @@ export default defineComponent({
 .fill-width {
   width: 100%;
 }
+
+.heading {
+  padding-bottom: 1rem;
+}
 </style>

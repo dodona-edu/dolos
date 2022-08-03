@@ -1,35 +1,42 @@
 <template>
-  <v-card>
-    <v-card-title>
-      File pairs
+  <div>
+    <v-row class="heading" align="center">
+      <v-col cols="12" md="6">
+        <h2 class="heading-title">
+          File pairs
+        </h2>
+        <div class="heading-subtitle text--secondary">
+          A pair is a set of 2 files that are compared for similarity and matching code fragments.
+        </div>
+      </v-col>
 
-      <v-spacer />
+      <v-col cols="12" md="6">
+        <v-text-field
+          v-model="search"
+          append-icon="mdi-magnify"
+          label="Search"
+          single-line
+          hide-details
+          outlined
+          dense
+        />
+      </v-col>
+    </v-row>
 
-      <v-text-field
-        v-model="search"
-        append-icon="mdi-magnify"
-        label="Search"
-        single-line
-        hide-details
-        outlined
-        dense
+    <v-card>
+      <v-data-table
+        :headers="headers"
+        :items="items"
+        :must-sort="true"
+        :sort-by="'similarity'"
+        :sort-desc="true"
+        :items-per-page="15"
+        :search="search"
+        :footer-props="footerProps"
+        @click:row="rowClicked"
       />
-    </v-card-title>
-    <v-data-table
-      :headers="headers"
-      :items="items"
-      :must-sort="true"
-      :sort-by="'similarity'"
-      :sort-desc="true"
-      :items-per-page="15"
-      :search="search"
-      class="elevation-1"
-      :footer-props="footerProps"
-      @click:row="rowClicked"
-      flat
-    >
-    </v-data-table>
-  </v-card>
+    </v-card>
+  </div>
 </template>
 
 <script lang="ts">
