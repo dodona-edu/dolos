@@ -156,7 +156,7 @@ const swapFiles = (): void => {
 
   &-tab {
     min-height: 400px;
-    height: calc(100vh - 260px);
+    height: calc(100vh - 270px);
   }
 
   &-editor {
