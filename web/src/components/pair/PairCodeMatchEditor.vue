@@ -181,21 +181,13 @@ const initializeDecorations = (): void => {
       if (match === selectedMatch.value) color = colors.matchSelected;
       else if (match === hoveringMatch.value) color = colors.matchHovering;
 
-      const minimapPosition = match === selectedMatch.value
-        ? monaco.editor.MinimapPosition.Inline
-        : monaco.editor.MinimapPosition.Gutter;
-
       return {
         range: selection.range,
         options: {
           isWholeLine: selection.isWholeLine,
           className: classname,
           overviewRuler: {
-            position: monaco.editor.OverviewRulerLane.Left,
-            color,
-          },
-          minimap: {
-            position: minimapPosition,
+            position: monaco.editor.OverviewRulerLane.Full,
             color,
           },
         },
@@ -216,7 +208,7 @@ const initialize = (): void => {
     renderLineHighlight: "none",
     renderValidationDecorations: "off",
     minimap: {
-      renderCharacters: false,
+      enabled: false,
     }
   });
 
