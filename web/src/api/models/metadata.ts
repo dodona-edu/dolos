@@ -5,5 +5,5 @@ export type MetaRowType =
   | { type: "object"; value: any };
 
 export interface Metadata {
-  [k: string]: unknown;
+  [k: string]: any;
 }
