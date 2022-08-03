@@ -41,7 +41,6 @@ export default defineComponent({
   },
 
   setup(props) {
-    const fileStore = useFileStore();
     const pairStore = usePairStore();
     const metadataStore = useMetadataStore();
 

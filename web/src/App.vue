@@ -186,7 +186,7 @@ export default defineComponent({
 }
 
 .container {
-  max-width: 1450px !important;
+  max-width: 1920px !important;
 }
 
 .fill-width {

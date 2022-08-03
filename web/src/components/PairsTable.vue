@@ -26,6 +26,7 @@
       class="elevation-1"
       :footer-props="footerProps"
       @click:row="rowClicked"
+      flat
     >
     </v-data-table>
   </v-card>

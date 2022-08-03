@@ -1,10 +1,6 @@
 <template>
   <v-container fluid>
-    <v-row justify="center">
-      <v-col cols="10">
-        <PairsTable :pairs="pairStore.pairs" />
-      </v-col>
-    </v-row>
+    <PairsTable :pairs="pairStore.pairs" />
   </v-container>
 </template>
 
