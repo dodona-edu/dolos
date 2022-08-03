@@ -187,3 +187,89 @@ test("paired occurrence merging & squashing", t => {
   t.deepEqual(biggerBottomLeft, fragments[3].pairs);
 
 });
+
+test("squash multiple overlapping fragments", t => {
+  const int = createPair();
+
+  // outer fragment
+  let kgram = new SharedFingerprint(1, "outer match".split(" "));
+  const outer = [];
+  for(let i = 0; i < 10; i++) {
+    const pair = new PairedOccurrence(
+      {
+        index: i,
+        start: i,
+        stop: i + 1,
+        location: new Region(i, 0, i + 1, 0),
+        data: "lines 0 - 10".split(" "),
+      },
+      {
+        index: 20 + i,
+        start: 20 + i,
+        stop: 20 + i + 1,
+        location: new Region(20 + i, 0, 20 + i + 1, 0),
+        data: "lines 20 - 30".split(" "),
+      },
+      kgram
+    );
+    int.addPair(pair);
+    t.is(1, int.fragments().length);
+    outer.push(pair);
+  }
+
+  // middle fragment
+  kgram = new SharedFingerprint(1, "middle match".split(" "));
+  const middle = [];
+  for(let i = 1; i < 10; i++) {
+    const pair = new PairedOccurrence(
+      {
+        index: i,
+        start: i,
+        stop: i + 1,
+        location: new Region(i, 0, i + 1, 0),
+        data: "lines 0 - 10".split(" "),
+      },
+      {
+        index: 20 + i,
+        start: 20 + i,
+        stop: 20 + i + 1,
+        location: new Region(20 + i, 0, 20 + i + 1, 0),
+        data: "lines 20 - 30".split(" "),
+      },
+      kgram
+    );
+    int.addPair(pair);
+    t.is(1, int.fragments().length);
+    middle.push(pair);
+  }
+
+  // inner fragment
+  kgram = new SharedFingerprint(1, "inner match".split(" "));
+  const inner = [];
+  for(let i = 1; i < 9; i++) {
+    const pair = new PairedOccurrence(
+      {
+        index: i,
+        start: i,
+        stop: i + 1,
+        location: new Region(i, 0, i + 1, 0),
+        data: "lines 0 - 10".split(" "),
+      },
+      {
+        index: 20 + i,
+        start: 20 + i,
+        stop: 20 + i + 1,
+        location: new Region(20 + i, 0, 20 + i + 1, 0),
+        data: "lines 20 - 30".split(" "),
+      },
+      kgram
+    );
+    int.addPair(pair);
+    t.is(1, int.fragments().length);
+    inner.push(pair);
+  }
+
+  int.squash();
+  const fragments = int.fragments;
+  t.is(1, fragments.length, "incorrect squash of overlapping fragments");
+});
