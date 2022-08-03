@@ -1,6 +1,6 @@
 import { ComputedRef, computed, unref } from "vue";
 import { MaybeRef } from "@/util/Types";
-import { File } from "@/api/models";
+import { File, Pair } from "@/api/models";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
 import {
   getAverageClusterSimilarity,
@@ -14,6 +14,7 @@ import {
 export interface UseClusterReturn {
   clusterFiles: ComputedRef<File[]>;
   clusterFilesSet: ComputedRef<Set<File>>;
+  clusterPairs: ComputedRef<Pair[]>;
   clusterAverageSimilarity: ComputedRef<number>;
 }
 
@@ -35,6 +36,12 @@ export function useCluster(
     return value ? getClusterElements(value) : new Set<File>();
   });
 
+  // List of pairs in a cluster.
+  const clusterPairs = computed(() => {
+    const value = unref(cluster);
+    return value ? [...value] : [];
+  });
+
   // Average similarity of the cluster.
   const clusterAverageSimilarity = computed(() => {
     const value = unref(cluster);
@@ -44,6 +51,7 @@ export function useCluster(
   return {
     clusterFiles,
     clusterFilesSet,
+    clusterPairs,
     clusterAverageSimilarity,
   };
 }

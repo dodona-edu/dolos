@@ -1,18 +1,14 @@
 <template>
   <v-expansion-panel class="clustering-card">
-    <v-expansion-panel-header class="noflex">
-      <div class="clustering-tag-container">
-        <FileTagList :current-files="clusterFiles" />
-      </div>
+    <v-expansion-panel-header>
+      <FileTagList :current-files="clusterFiles" />
     </v-expansion-panel-header>
 
     <v-expansion-panel-content>
       <v-tabs v-model="activeTab" right>
-        <v-tab :to="`/pairs/?showIds=${pairViewItems}`">
+        <v-tab>
           Pair View
         </v-tab>
-
-        <div class="empty-space" />
 
         <v-tab v-if="cluster && showClusterTimeline">
           Time Chart
@@ -29,7 +25,7 @@
 
       <v-tabs-items v-model="activeTab">
         <v-tab-item>
-          <!-- TODO: place pairs view here -->
+          <PairsTable :pairs="clusterPairs" />
         </v-tab-item>
 
         <v-tab-item v-if="cluster && showClusterTimeline">
@@ -37,11 +33,11 @@
         </v-tab-item>
 
         <v-tab-item>
-          <HeatMap :cluster="cluster" />
+          <HeatMap :cluster="props.cluster" />
         </v-tab-item>
 
         <v-tab-item>
-          <GraphTab :cluster="cluster" />
+          <GraphTab :cluster="props.cluster" />
         </v-tab-item>
       </v-tabs-items>
     </v-expansion-panel-content>
@@ -57,14 +53,15 @@ import HeatMap from "./HeatMap.vue";
 import GraphTab from "./GraphTab.vue";
 import TimeSeriesCard from "./TimeSeriesCard.vue";
 import FileTagList from "@/components/clustering/FileTagList.vue";
+import PairsTable from "../PairsTable.vue";
 
 interface Props {
   cluster: Cluster;
 }
 const props = withDefaults(defineProps<Props>(), {});
 
-const activeTab = shallowRef(1);
-const { clusterFiles } = useCluster(toRef(props, "cluster"));
+const activeTab = shallowRef(0);
+const { clusterFiles, clusterPairs } = useCluster(toRef(props, "cluster"));
 
 // If the timeline should be shown.
 // Timeline will only be shown if every cluster element has a timestamp.
@@ -73,24 +70,9 @@ const showClusterTimeline = computed(() => {
     (e) => e.extra?.timestamp
   );
 });
-
-// String of ids to show in the pair view.
-// TODO: it may be better to inline the pair-table in the future for better UX.
-const pairViewItems = computed(() => {
-  return Array.from(props.cluster)
-    .map((element) => element.id)
-    .join(",");
-});
 </script>
 
 <style lang="scss" scoped>
-.empty-space {
-  width: 50px;
-}
-
-.noflex > * {
-  flex: none;
-}
 
 .clustering-card {
   &:before {
@@ -103,10 +85,5 @@ const pairViewItems = computed(() => {
   display: flex;
   justify-content: flex-start;
   overflow: hidden;
-}
-
-.no-markup {
-  color: inherit;
-  text-decoration: none;
 }
 </style>
