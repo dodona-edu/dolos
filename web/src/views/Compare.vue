@@ -2,7 +2,10 @@
   <v-container fluid fill-height>
     <v-row justify="center">
       <v-col cols="12" class="no-y-padding">
-        <loading v-if="!isLoaded" />
+        <template v-if="!isLoaded">
+          <v-skeleton-loader type="article" />
+          <v-skeleton-loader type="table" />
+        </template>
 
         <CompareCard
           v-else-if="pair && pair.fragments"
@@ -19,60 +22,41 @@
   </v-container>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
 import {
-  defineComponent,
-  PropType,
-  ref,
   shallowRef,
   computed,
   watch,
 } from "vue";
-import { usePairStore, useMetadataStore, useFileStore } from "@/api/stores";
+import { usePairStore, useMetadataStore } from "@/api/stores";
 import CompareCard from "@/components/CompareCard.vue";
 import Loading from "@/components/Loading.vue";
 
-export default defineComponent({
-  props: {
-    pairId: {
-      type: String as PropType<string>,
-      required: true,
-    },
+interface Props {
+  pairId: string;
+}
+
+const props = withDefaults(defineProps<Props>(), {});
+
+const pairStore = usePairStore();
+const metadataStore = useMetadataStore();
+
+// If the fragments for a pair are loaded.
+const isLoaded = shallowRef(false);
+
+// Pair to display.
+const pair = computed(() => pairStore.getPair(parseInt(props.pairId)));
+
+// Fetch the pair's fragments when the pair changes.
+watch(
+  () => pair.value,
+  async () => {
+    if (!pair.value) return;
+
+    isLoaded.value = false;
+    await pairStore.populateFragments(pair.value);
+    isLoaded.value = true;
   },
-
-  setup(props) {
-    const pairStore = usePairStore();
-    const metadataStore = useMetadataStore();
-
-    // If the fragments for a pair are loaded.
-    const isLoaded = shallowRef(false);
-
-    // Pair to display.
-    const pair = computed(() => pairStore.getPair(parseInt(props.pairId)));
-
-    // Fetch the pair's fragments when the pair changes.
-    watch(
-      () => pair.value,
-      async () => {
-        if (!pair.value) return;
-
-        isLoaded.value = false;
-        await pairStore.populateFragments(pair.value);
-        isLoaded.value = true;
-      },
-      { immediate: true }
-    );
-
-    return {
-      isLoaded,
-      pair,
-      metadataStore,
-    };
-  },
-
-  components: {
-    CompareCard,
-    Loading,
-  },
-});
+  { immediate: true }
+);
 </script>
