@@ -115,7 +115,8 @@ watch(
   () => {
     if (activeTab.value === 0) showMatchView.value = true;
     if (activeTab.value === 1) showDiffView.value = true;
-  }
+  },
+  { immediate: true }
 );
 
 // Set the active tab to the diff view when the similarity is >= 90%.
