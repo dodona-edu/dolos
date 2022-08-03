@@ -51,12 +51,16 @@ const colors = {
 // Based on the pair & the given side.
 const file = computed(() => props.side === "left" ? props.pair.leftFile : props.pair.rightFile);
 
-// List of matches, sorted on the start line.
+// List of matches, sorted on the start line & column.
 const matches = computed(() => {
-  const matches = props.pair.matches;
+  const matches = [...props.pair.matches];
   if (!matches) return [];
 
-  return matches.sort((a, b) => a[props.side].startRow - b[props.side].startRow);
+  return matches.sort(
+    (a, b) =>
+      (a[props.side].startRow - b[props.side].startRow) * 10000 +
+      (a[props.side].startCol - b[props.side].startCol)
+  );
 });
 // Selected match
 const selectedMatch = useVModel(props, "selectedMatch", emit);
