@@ -7,7 +7,7 @@
     "plugin:vue/essential",
     "@vue/standard",
     "@vue/typescript/recommended",
-    "../.eslintrc"
+    "../../.eslintrc"
   ],
   "parserOptions": {
     "ecmaVersion": 2020

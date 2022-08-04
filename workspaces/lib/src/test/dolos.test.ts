@@ -194,7 +194,7 @@ test("changed order should be a good match", async t => {
 test("should read CSV-files", async t => {
   const dolos = new Dolos();
 
-  const report = await dolos.analyzePaths(["../samples/javascript/info.csv"]);
+  const report = await dolos.analyzePaths(["../../samples/javascript/info.csv"]);
 
   t.is(4, report.files().length);
 

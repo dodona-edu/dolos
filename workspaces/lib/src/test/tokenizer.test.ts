@@ -3,15 +3,15 @@ import { CodeTokenizer } from "../lib/tokenizer/codeTokenizer";
 import { File } from "../lib/file/file";
 
 const languageFiles = {
-  "python": "../samples/python/caesar.py",
-  "javascript": "../samples/javascript/sample.js",
-  "haskell": "../samples/haskell/Caesar.hs",
-  "c-sharp": "../samples/c-sharp/Caesar.cs",
-  "java": "../samples/java/Caesar.java",
-  "bash": "../samples/bash/caesar.sh",
-  "char": "../samples/char/caesar.txt",
-  "c": "../samples/c/caesar.c",
-  "elm": "../samples/elm/Caesar.elm",
+  "python": "../../samples/python/caesar.py",
+  "javascript": "../../samples/javascript/sample.js",
+  "haskell": "../../samples/haskell/Caesar.hs",
+  "c-sharp": "../../samples/c-sharp/Caesar.cs",
+  "java": "../../samples/java/Caesar.java",
+  "bash": "../../samples/bash/caesar.sh",
+  "char": "../../samples/char/caesar.txt",
+  "c": "../../samples/c/caesar.c",
+  "elm": "../../samples/elm/Caesar.elm",
 } as {[key: string]: string};
 
 for (const language of CodeTokenizer.supportedLanguages) {
