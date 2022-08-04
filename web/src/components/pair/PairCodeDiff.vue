@@ -44,6 +44,7 @@ const initialize = (): void => {
     enableSplitViewResizing: false, // Do not allow resizing of the diff view.
     readOnly: true,
     automaticLayout: true,
+    renderLineHighlight: "none",
   });
   editor.value.setModel({
     original: leftFileModel,
