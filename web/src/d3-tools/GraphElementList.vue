@@ -11,37 +11,37 @@
       </thead>
       <tbody>
         <tr
-          v-for="element in elements"
-          :key="element.id"
-          :id="`element-${element.id}`"
-          :class="{ selected: selectedFiles.includes(element) }"
-          @click="rowClick(element)"
+          v-for="file in files"
+          :key="file.id"
+          :id="`element-${file.id}`"
+          :class="{ selected: selectedFiles.includes(file) }"
+          @click="rowClick(file)"
         >
           <td class="d-flex align-center">
             <v-tooltip top>
               <template v-slot:activator="{ on, attrs }">
                 <span
                   class="tiny-color"
-                  :style="`background-color: ${getColor(element)}`"
+                  :style="`background-color: ${getColor(file)}`"
                   v-bind="attrs"
                   v-on="on"
                 />
               </template>
-              <span>{{ element.extra.labels || "No label" }}</span>
+              <span>{{ file.extra.labels || "No label" }}</span>
             </v-tooltip>
 
-            <span class="ml-2">{{ element.shortPath }}</span>
+            <span class="ml-2">{{ file.shortPath }}</span>
           </td>
 
           <td v-if="hasTimestamp">
             <v-tooltip top>
               <template v-slot:activator="{ on, attrs }">
                 <span class="short-timestamp" v-bind="attrs" v-on="on">
-                  {{ formatTime(element.extra.timestamp)}}
+                  {{ formatTime(file.extra.timestamp)}}
                 </span>
               </template>
 
-              {{ formatTimeLong(element.extra.timestamp) }}
+              {{ formatTimeLong(file.extra.timestamp) }}
             </v-tooltip>
           </td>
         </tr>
@@ -56,12 +56,7 @@ import { File } from "@/api/models";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
 import { getClusterElementsArray } from "@/util/clustering-algorithms/ClusterFunctions";
 import { DateTime } from "luxon";
-import {
-  booleanSort,
-  chainSort,
-  reverseSort,
-  timestampSort,
-} from "@/util/SortingFunctions";
+import { timestampSort } from "@/util/SortingFunctions";
 import { useFileStore } from "@/api/stores";
 import { storeToRefs } from "pinia";
 import { useVuetify } from "@/composables";
@@ -69,7 +64,6 @@ import { useVuetify } from "@/composables";
 interface Props {
   cluster: Cluster;
   selectedFiles: File[];
-  sortBySelected?: boolean;
   scroll?: boolean;
 }
 
@@ -78,22 +72,17 @@ const emit = defineEmits(["select-click"]);
 const vuetify = useVuetify();
 const { legend } = storeToRefs(useFileStore());
 
-const elements = computed(() => {
-  const sortBySelectedFunction = chainSort<File>(
-    reverseSort(booleanSort((f) => props.selectedFiles.includes(f))),
-    timestampSort((f) => f.extra.timestamp || new Date())
-  );
-  const sortByTimestampFunction = timestampSort<File>(
+// List of files in the cluster.
+// Sorted by timestamp.
+const files = computed(() => {
+  return getClusterElementsArray(props.cluster).sort(timestampSort<File>(
     (f) => f.extra.timestamp || new Date()
-  );
-  return getClusterElementsArray(props.cluster).sort(
-    props.sortBySelected ? sortBySelectedFunction : sortByTimestampFunction
-  );
+  ));
 });
 
 // If the timestamp is available for the elements of the cluster.
 const hasTimestamp = computed(() => {
-  return elements.value.some((f) => f.extra.timestamp);
+  return files.value.some((f) => f.extra.timestamp);
 });
 
 const formatTime = (time?: Date): string => {
