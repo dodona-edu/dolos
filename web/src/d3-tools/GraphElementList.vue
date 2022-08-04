@@ -1,140 +1,136 @@
 <template>
-  <v-card elevation="2" outlined class="graph-element-list">
+  <v-card outlined class="graph-element-list">
     <v-card-title> Files in this cluster </v-card-title>
 
-    <v-card-text>
-      <v-simple-table>
-        <template v-slot:default>
-          <thead>
-            <tr>
-              <th></th>
-              <th class="text-left">Name</th>
-              <th class="text-left">Timestamp</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr
-              v-for="element in elements"
-              :key="element.id"
-              :id="`element-${element.id}`"
-              @click="rowClick(element)"
-              v-bind:class="{ selected: selectedFiles.includes(element) }"
-            >
-              <td>
-                <v-tooltip top>
-                  <template v-slot:activator="{ on, attrs }">
-                    <span
-                      class="tiny-color"
-                      :style="`background-color: ${getColor(element)}`"
-                      v-bind="attrs"
-                      v-on="on"
-                    ></span>
-                  </template>
-                  <span>{{ element.extra.labels || "No label" }}</span>
-                </v-tooltip>
-              </td>
-              <td>{{ element.shortPath }}</td>
-              <td>
-                <v-tooltip top>
-                  <template v-slot:activator="{ on, attrs }">
-                    <span class="short-timestamp" v-bind="attrs" v-on="on">{{
-                      formatTime(element.extra.timestamp)
-                    }}</span>
-                  </template>
+    <v-simple-table>
+      <thead>
+        <tr>
+          <th>File</th>
+          <th v-if="hasTimestamp">Timestamp</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          v-for="element in elements"
+          :key="element.id"
+          :id="`element-${element.id}`"
+          @click="rowClick(element)"
+          v-bind:class="{ selected: selectedFiles.includes(element) }"
+        >
+          <td class="d-flex align-center">
+            <v-tooltip top>
+              <template v-slot:activator="{ on, attrs }">
+                <span
+                  class="tiny-color"
+                  :style="`background-color: ${getColor(element)}`"
+                  v-bind="attrs"
+                  v-on="on"
+                />
+              </template>
+              <span>{{ element.extra.labels || "No label" }}</span>
+            </v-tooltip>
 
-                  {{ formatTimeLong(element.extra.timestamp) }}
-                </v-tooltip>
-              </td>
-            </tr>
-          </tbody>
-        </template>
-      </v-simple-table>
-    </v-card-text>
+            <span class="ml-2">{{ element.shortPath }}</span>
+          </td>
+          <td v-if="hasTimestamp">
+            <v-tooltip top>
+              <template v-slot:activator="{ on, attrs }">
+                <span class="short-timestamp" v-bind="attrs" v-on="on">
+                  {{ formatTime(element.extra.timestamp)}}
+                </span>
+              </template>
+
+              {{ formatTimeLong(element.extra.timestamp) }}
+            </v-tooltip>
+          </td>
+        </tr>
+      </tbody>
+    </v-simple-table>
   </v-card>
 </template>
 
-<script lang="ts">
-import { defineComponent, PropType, computed, watch } from "vue";
+<script lang="ts" setup>
+import { computed, watch } from "vue";
 import { File } from "@/api/models";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
 import { getClusterElementsArray } from "@/util/clustering-algorithms/ClusterFunctions";
 import { DateTime } from "luxon";
-import { booleanSort, chainSort, reverseSort, timestampSort } from "@/util/SortingFunctions";
+import {
+  booleanSort,
+  chainSort,
+  reverseSort,
+  timestampSort,
+} from "@/util/SortingFunctions";
 import { useFileStore } from "@/api/stores";
 import { storeToRefs } from "pinia";
 import { useVuetify } from "@/composables";
 
-export default defineComponent({
-  props: {
-    cluster: {
-      type: Set as PropType<Cluster>,
-      required: true
-    },
-    selectedFiles: {
-      type: Array as PropType<File[]>,
-      default: () => []
-    },
-    sortBySelected: {
-      type: Boolean as PropType<boolean>,
-      default: false
-    },
-    scroll: {
-      type: Boolean as PropType<boolean>,
-      default: false
-    },
-  },
+interface Props {
+  cluster: Cluster;
+  selectedFiles: File[];
+  sortBySelected?: boolean;
+  scroll?: boolean;
+}
 
-  setup(props, { emit }) {
-    const vuetify = useVuetify();
-    const { legend } = storeToRefs(useFileStore());
-    const elements = computed(() => {
-      const sortBySelectedFunction = chainSort<File>(
-        reverseSort(booleanSort(f => props.selectedFiles.includes(f))),
-        timestampSort(f => f.extra.timestamp || new Date())
-      );
-      const sortByTimestampFunction = timestampSort<File>(f => f.extra.timestamp || new Date());
-      return getClusterElementsArray(props.cluster)
-        .sort(props.sortBySelected ? sortBySelectedFunction : sortByTimestampFunction);
-    });
+const props = withDefaults(defineProps<Props>(), {});
+const emit = defineEmits(["select-click"]);
+const vuetify = useVuetify();
+const { legend } = storeToRefs(useFileStore());
 
-    const formatTime = (time: Date): string => {
-      if (!time) { return ""; }
-      return DateTime.fromJSDate(time).toLocaleString();
-    };
-
-    const formatTimeLong = (time: Date): string => {
-      if (!time) { return ""; }
-      return DateTime.fromJSDate(time).toLocaleString(DateTime.DATETIME_MED);
-    };
-
-    const getColor = (file: File): string => {
-      if (!legend.value || !file.extra.labels || !legend.value[file.extra.labels]) return "";
-      return legend.value[file.extra.labels].color;
-    };
-
-    const rowClick = (file: File): void => {
-      emit("select-click", file);
-    };
-
-    watch(
-      () => props.selectedFiles,
-      () => {
-        if (props.selectedFiles.length > 0 && props.scroll) {
-          const element = props.selectedFiles[0];
-          vuetify.goTo(`#element-${element.id}`, { container: ".graph-element-list" });
-        }
-      }
-    );
-
-    return {
-      elements,
-      formatTime,
-      formatTimeLong,
-      getColor,
-      rowClick,
-    };
-  },
+const elements = computed(() => {
+  const sortBySelectedFunction = chainSort<File>(
+    reverseSort(booleanSort((f) => props.selectedFiles.includes(f))),
+    timestampSort((f) => f.extra.timestamp || new Date())
+  );
+  const sortByTimestampFunction = timestampSort<File>(
+    (f) => f.extra.timestamp || new Date()
+  );
+  return getClusterElementsArray(props.cluster).sort(
+    props.sortBySelected ? sortBySelectedFunction : sortByTimestampFunction
+  );
 });
+
+// If the timestamp is available for the elements of the cluster.
+const hasTimestamp = computed(() => {
+  return elements.value.some((f) => f.extra.timestamp);
+});
+
+const formatTime = (time: Date): string => {
+  if (!time) {
+    return "";
+  }
+  return DateTime.fromJSDate(time).toLocaleString();
+};
+
+const formatTimeLong = (time: Date): string => {
+  if (!time) {
+    return "";
+  }
+  return DateTime.fromJSDate(time).toLocaleString(DateTime.DATETIME_MED);
+};
+
+// Get the label color for a file in the cluster.
+const getColor = (file: File): string => {
+  if (!legend.value || !file.extra.labels || !legend.value[file.extra.labels]) return "";
+  return legend.value[file.extra.labels].color;
+};
+
+// When a row is clicked.
+const rowClick = (file: File): void => {
+  emit("select-click", file);
+};
+
+watch(
+  () => props.selectedFiles,
+  () => {
+    if (props.selectedFiles.length > 0 && props.scroll) {
+      const element = props.selectedFiles[0];
+      vuetify.goTo(`#element-${element.id}`, {
+        container: ".graph-element-list",
+      });
+    }
+  }
+);
 </script>
 
 <style scoped lang="scss">

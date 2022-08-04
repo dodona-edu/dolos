@@ -5,7 +5,7 @@
     </v-expansion-panel-header>
 
     <v-expansion-panel-content>
-      <v-tabs v-model="activeTab" right>
+      <v-tabs v-model="activeTab">
         <v-tab>
           Pair View
         </v-tab>
@@ -23,7 +23,7 @@
         </v-tab>
       </v-tabs>
 
-      <v-tabs-items v-model="activeTab">
+      <v-tabs-items v-model="activeTab" class="mt-4">
         <v-tab-item>
           <PairsTable :pairs="clusterPairs" />
         </v-tab-item>
