@@ -2,6 +2,10 @@
   "name": "dolos-meta",
   "license": "MIT",
   "private": true,
+  "scripts": {
+    "build": "lerna run build",
+    "test": "lerna run test"
+  },
   "workspaces": [
     "workspaces/*"
   ],
