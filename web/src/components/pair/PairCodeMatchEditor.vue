@@ -211,6 +211,7 @@ const initialize = (): void => {
     automaticLayout: true,
     renderLineHighlight: "none",
     renderValidationDecorations: "off",
+    contextmenu: false,
     minimap: {
       enabled: false,
     }

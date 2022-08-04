@@ -45,6 +45,7 @@ const initialize = (): void => {
     readOnly: true,
     automaticLayout: true,
     renderLineHighlight: "none",
+    contextmenu: false,
   });
   editor.value.setModel({
     original: leftFileModel,
