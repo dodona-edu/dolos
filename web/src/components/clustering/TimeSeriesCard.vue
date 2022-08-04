@@ -2,7 +2,7 @@
   <v-row>
     <v-col cols="4">
       <GraphElementList
-        :cluster="cluster"
+        :cluster="props.cluster"
         :selected-files="files"
         max-height="400px"
         scroll
@@ -11,8 +11,8 @@
     </v-col>
 
     <v-col cols="8">
-      <TimeSeriesDiagram
-        :cluster="cluster"
+      <TimeSeries
+        :cluster="props.cluster"
         :selection="true"
         @filedata="setNewFiles"
         :selected-files="files"
@@ -25,7 +25,7 @@
 import { shallowRef } from "vue";
 import { File } from "@/api/models";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
-import TimeSeriesDiagram from "@/components/clustering/TimeSeries.vue";
+import TimeSeries from "@/components/clustering/TimeSeries.vue";
 import GraphElementList from "@/d3-tools/GraphElementList.vue";
 
 interface Props {
