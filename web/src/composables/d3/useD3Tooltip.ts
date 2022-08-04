@@ -1,4 +1,5 @@
 import * as d3 from "d3";
+import { onUnmounted } from "vue";
 
 export interface UseD3TooltipOptions {
   // If the tooltip should be relative to the target element.
@@ -71,6 +72,9 @@ export function useD3Tooltip(options: UseD3TooltipOptions = {}): any {
       .style("left", 0)
       .style("top", 0);
   };
+
+  // Hide the tooltip on unmount.
+  onUnmounted(() => onMouseOut());
 
   return {
     tooltip,

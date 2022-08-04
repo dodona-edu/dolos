@@ -4,8 +4,8 @@
       <GraphElementList
         :selected-files="selectedFiles"
         :cluster="cluster"
-        :scroll="true"
         max-height="400px"
+        scroll
       />
     </v-col>
 
@@ -38,11 +38,11 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {});
+const router = useRouter();
 const { files } = storeToRefs(useFileStore());
 const { cutoff, cutoffDebounced } = storeToRefs(useApiStore());
 const { pairsList } = storeToRefs(usePairStore());
 const { clusterFiles } = useCluster(toRef(props, "cluster"));
-const router = useRouter();
 
 // List of selected files.
 const selectedFiles = shallowRef<File[]>([]);
