@@ -115,7 +115,7 @@ watch(
     if (props.selectedFiles.length > 0 && props.scroll) {
       const file = props.selectedFiles[0];
       vuetify.goTo(`#file-${file.id}`, {
-        container: ".graph-list",
+        container: ".graph-list-body",
       });
     }
   }
