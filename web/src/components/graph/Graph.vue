@@ -2,6 +2,16 @@
   <div ref="container" class="graph-container">
     <!-- Extra (optional) UI elements can be added to this container  -->
     <slot />
+
+    <div class="d-flex">
+      <v-btn color="success" icon @click="simulation.restart()" style="z-index: 2">
+        <v-icon>mdi-play-outline</v-icon>
+      </v-btn>
+
+      <v-btn color="error" icon @click="simulation.stop()" style="z-index: 2">
+        <v-icon>mdi-pause</v-icon>
+      </v-btn>
+    </div>
   </div>
 </template>
 
@@ -500,6 +510,7 @@ export default defineComponent({
 
     return {
       container,
+      simulation,
     };
   },
 });
