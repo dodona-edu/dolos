@@ -2,14 +2,15 @@
   <v-card outlined>
     <v-card-title> Files in this cluster </v-card-title>
 
-    <v-simple-table class="graph-list" fixed-header :height="maxHeight">
+    <v-simple-table class="graph-list" fixed-header>
       <thead>
         <tr>
           <th>File</th>
           <th v-if="hasTimestamp">Timestamp</th>
         </tr>
       </thead>
-      <tbody>
+
+      <tbody class="graph-list-body">
         <tr
           v-for="file in files"
           :key="file.id"
@@ -65,7 +66,7 @@ import { useVuetify } from "@/composables";
 interface Props {
   cluster: Cluster;
   selectedFiles: File[];
-  maxHeight?: number;
+  maxHeight?: string;
   scroll?: boolean;
 }
 
@@ -123,6 +124,13 @@ watch(
 
 <style lang="scss" scoped>
 .graph-list {
+  &-body {
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    max-height: v-bind("props.maxHeight");
+  }
+
   &-row {
     transition: background-color 0.15s ease;
 

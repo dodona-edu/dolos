@@ -4,8 +4,8 @@
       <GraphElementList
         :selected-files="selectedFiles"
         :cluster="cluster"
-        :max-height="400"
         :scroll="true"
+        max-height="400px"
       />
     </v-col>
 
