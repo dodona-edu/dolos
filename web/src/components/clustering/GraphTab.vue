@@ -4,7 +4,8 @@
       <GraphElementList
         :cluster="cluster"
         :selected-files="selectedFiles"
-        :scroll="true"
+        max-height="400px"
+        scroll
         @select-click="setSelectedNodeInfo"
       />
     </v-col>
