@@ -11,7 +11,7 @@
         </v-tab>
 
         <v-tab v-if="cluster && showClusterTimeline">
-          Time Chart
+          Timeseries
         </v-tab>
 
         <v-tab>
@@ -24,19 +24,19 @@
       </v-tabs>
 
       <v-tabs-items v-model="activeTab" class="mt-4">
-        <v-tab-item>
+        <v-tab-item v-if="showPairs">
           <PairsTable :pairs="clusterPairs" />
         </v-tab-item>
 
-        <v-tab-item v-if="cluster && showClusterTimeline">
+        <v-tab-item v-if="showTimeseries && cluster && showClusterTimeline">
           <TimeSeriesCard :cluster="cluster" />
         </v-tab-item>
 
-        <v-tab-item>
+        <v-tab-item v-if="showHeatmap">
           <HeatMap :cluster="props.cluster" />
         </v-tab-item>
 
-        <v-tab-item>
+        <v-tab-item v-if="showGraph">
           <GraphTab :cluster="props.cluster" />
         </v-tab-item>
       </v-tabs-items>
@@ -45,7 +45,7 @@
 </template>
 
 <script lang="ts" setup>
-import { shallowRef, computed, toRef } from "vue";
+import { shallowRef, computed, toRef, watch } from "vue";
 import { useCluster } from "@/composables";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
 import { getClusterElementsArray } from "@/util/clustering-algorithms/ClusterFunctions";
@@ -70,6 +70,24 @@ const showClusterTimeline = computed(() => {
     (e) => e.extra?.timestamp
   );
 });
+
+// If the tabs should be shown.
+// This is for lazy loading the tabs.
+const showPairs = shallowRef(false);
+const showTimeseries = shallowRef(false);
+const showHeatmap = shallowRef(false);
+const showGraph = shallowRef(false);
+// When the correct tab is selected, show the correct view.
+watch(
+  () => activeTab.value,
+  () => {
+    if (activeTab.value === 0) showPairs.value = true;
+    if (activeTab.value === 1) showTimeseries.value = true;
+    if (activeTab.value === 2) showHeatmap.value = true;
+    if (activeTab.value === 3) showGraph.value = true;
+  },
+  { immediate: true }
+);
 </script>
 
 <style lang="scss" scoped>
