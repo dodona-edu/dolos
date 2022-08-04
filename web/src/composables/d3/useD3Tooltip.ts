@@ -29,7 +29,8 @@ export function useD3Tooltip(options: UseD3TooltipOptions = {}): UseD3TooltipRet
     .style("color", "#fff")
     .style("border", "1px solid")
     .style("border-radius", "4px")
-    .style("transform", "translateY(-100%)");
+    .style("transform", "translateY(-100%)")
+    .style("pointer-events", "none");
 
   // Move the tooltip to the desired coordinates.
   const move = (e: MouseEvent): void => {
