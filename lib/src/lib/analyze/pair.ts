@@ -109,29 +109,32 @@ export class Pair extends Identifiable {
    * Remove each Fragment that is contained in a bigger Fragment.
    */
   public squash(): void {
-    const kandidates: Set<Fragment> = new Set();
-    for (const match of this.fragments()) {
+    const sortedByStart = this.fragments();
+    const size = sortedByStart.length;
+    const sortedByEnd = Array.from(sortedByStart);
+    sortedByEnd.sort((a: Fragment, b: Fragment) => Range.compareEnds(a.leftkgrams, b.leftkgrams));
 
-      const iter = kandidates.values();
-      let next = iter.next();
-      let removed = false;
-      while (!next.done && !removed) {
-        const kandidate = next.value;
-        if (match.leftkgrams.from > kandidate.leftkgrams.to) {
-          kandidates.delete(kandidate);
-        } else if (
-          kandidate.leftkgrams.contains(match.leftkgrams) &&
-          kandidate.rightkgrams.contains(match.rightkgrams)
-        ){
-          this.removefragment(match);
-          removed = true;
+    let i = 0;
+    let j = 0;
+
+    const seen = new Set<Fragment>();
+
+    while(i < size) {
+      const started = sortedByStart[i];
+
+      if (!seen.has(started)) {
+        while (started !== sortedByEnd[j]) {
+          const candidate = sortedByEnd[j];
+          seen.add(candidate);
+          // the left side is possibly contained, check if they have to be removed
+          if (started.leftkgrams.contains(candidate.leftkgrams) &&
+            started.rightkgrams.contains(candidate.rightkgrams)) {
+            this.removefragment(candidate);
+          }
+          j += 1;
         }
-        next = iter.next();
       }
-
-      if (!removed) {
-        kandidates.add(match);
-      }
+      i += 1;
     }
   }
 

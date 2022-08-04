@@ -21,11 +21,38 @@ function createPair(): Pair {
 }
 
 test("paired occurrence merging & squashing", t => {
+  /* This test creates the following scenario for the fragments of a pair,
+   * where the first column is the kgram index in the left and right files and
+   * the other columns show the hash (number) of the fragment matching.
+   *
+   * idx| Left   | Right
+   * ---------------------
+   * 0  | 1      | 4
+   *    | 1      | 4
+   * 5  | 1 2 6  | 4 5 6
+   *    | 1      | 4
+   * 10 | -      | -
+   *    | 3      |
+   *    | 3      |
+   *    | 3      |
+   * 20 | -      | -
+   *    | 4      | 1   3
+   *    | 4      | 1   3
+   * 25 | 4 5    | 1 2 3
+   *    | 4      | 1   3
+   *    | 4      | 1   3
+   * 30 | 4      | 1   3
+   *
+   * For example: a fragment with hash 1 can be found from index 0 to 10 in the
+   * left file, and from index 20 to 30 in the right file, this fragment
+   * contains another fragment with hash 2 which can be found on index 5 resp.
+   * 25 of the left resp. right file.
+   */
   const int = createPair();
 
   let kgram = new SharedFingerprint(1, "kgram 1".split(" "));
   const biggerTopLeft = [];
-  // bigger match
+  // bigger match (1)
   for(let i = 0; i < 10; i++) {
     const pair = new PairedOccurrence(
       {
@@ -49,7 +76,7 @@ test("paired occurrence merging & squashing", t => {
     biggerTopLeft.push(pair);
   }
 
-  // contained match
+  // contained match (2)
   kgram = new SharedFingerprint(2, "kgram 2".split(" "));
   const topLeftContained = new PairedOccurrence(
     {
@@ -71,7 +98,7 @@ test("paired occurrence merging & squashing", t => {
   int.addPair(topLeftContained);
   t.is(2, int.fragments().length);
 
-  // bigger match, same location
+  // bigger match, same location (3)
   const biggerMiddle = [];
   kgram = new SharedFingerprint(3, "kgram 3".split(" "));
   for(let i = 0; i < 10; i++) {
@@ -97,7 +124,7 @@ test("paired occurrence merging & squashing", t => {
     t.is(3, int.fragments().length);
   }
 
-  // bigger match
+  // bigger match (4)
   const  biggerBottomLeft = [];
   kgram = new SharedFingerprint(4, "kgram 4".split(" "));
   for(let i = 0; i < 10; i++) {
@@ -123,7 +150,7 @@ test("paired occurrence merging & squashing", t => {
     t.is(4, int.fragments().length);
   }
 
-  // contained match
+  // contained match (5)
   kgram = new SharedFingerprint(5, "kgram 5".split(" "));
   const bottomLeftContained = new PairedOccurrence(
     {
@@ -145,7 +172,7 @@ test("paired occurrence merging & squashing", t => {
   int.addPair(bottomLeftContained);
   t.is(5, int.fragments().length);
 
-  // match not contained
+  // match not contained (6)
   kgram = new SharedFingerprint(6, "kgram 6".split(" "));
   const notContained = new PairedOccurrence(
     {
@@ -180,12 +207,13 @@ test("paired occurrence merging & squashing", t => {
 
   fragments = int.fragments();
 
-  t.is(4, fragments.length, "squashed too many");
+  t.deepEqual([1, 6, 3, 4], fragments.map(f => f.pairs[0].fingerprint.hash));
+
   t.deepEqual(biggerTopLeft, fragments[0].pairs);
   t.deepEqual([notContained], fragments[1].pairs);
   t.deepEqual(biggerMiddle, fragments[2].pairs);
   t.deepEqual(biggerBottomLeft, fragments[3].pairs);
-
+  t.is(4, fragments.length, "squashed too many");
 });
 
 test("squash multiple overlapping fragments", t => {
@@ -218,34 +246,8 @@ test("squash multiple overlapping fragments", t => {
   }
 
   // middle fragment
-  kgram = new SharedFingerprint(1, "middle match".split(" "));
+  kgram = new SharedFingerprint(2, "middle match".split(" "));
   const middle = [];
-  for(let i = 1; i < 10; i++) {
-    const pair = new PairedOccurrence(
-      {
-        index: i,
-        start: i,
-        stop: i + 1,
-        location: new Region(i, 0, i + 1, 0),
-        data: "lines 0 - 10".split(" "),
-      },
-      {
-        index: 20 + i,
-        start: 20 + i,
-        stop: 20 + i + 1,
-        location: new Region(20 + i, 0, 20 + i + 1, 0),
-        data: "lines 20 - 30".split(" "),
-      },
-      kgram
-    );
-    int.addPair(pair);
-    t.is(1, int.fragments().length);
-    middle.push(pair);
-  }
-
-  // inner fragment
-  kgram = new SharedFingerprint(1, "inner match".split(" "));
-  const inner = [];
   for(let i = 1; i < 9; i++) {
     const pair = new PairedOccurrence(
       {
@@ -265,11 +267,37 @@ test("squash multiple overlapping fragments", t => {
       kgram
     );
     int.addPair(pair);
-    t.is(1, int.fragments().length);
+    t.is(2, int.fragments().length);
+    middle.push(pair);
+  }
+
+  // inner fragment
+  kgram = new SharedFingerprint(3, "inner match".split(" "));
+  const inner = [];
+  for(let i = 2; i < 8; i++) {
+    const pair = new PairedOccurrence(
+      {
+        index: i,
+        start: i,
+        stop: i + 1,
+        location: new Region(i, 0, i + 1, 0),
+        data: "lines 0 - 10".split(" "),
+      },
+      {
+        index: 20 + i,
+        start: 20 + i,
+        stop: 20 + i + 1,
+        location: new Region(20 + i, 0, 20 + i + 1, 0),
+        data: "lines 20 - 30".split(" "),
+      },
+      kgram
+    );
+    int.addPair(pair);
+    t.is(3, int.fragments().length);
     inner.push(pair);
   }
 
   int.squash();
-  const fragments = int.fragments;
+  const fragments = int.fragments();
   t.is(1, fragments.length, "incorrect squash of overlapping fragments");
 });
