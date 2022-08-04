@@ -10,7 +10,7 @@
         </tr>
       </thead>
 
-      <tbody class="graph-list-body">
+      <tbody>
         <tr
           v-for="file in files"
           :key="file.id"
@@ -124,10 +124,7 @@ watch(
 
 <style lang="scss" scoped>
 .graph-list {
-  &-body {
-    overflow-y: auto;
-    max-height: v-bind("props.maxHeight");
-  }
+  max-height: v-bind("props.maxHeight");
 
   &-row {
     transition: background-color 0.15s ease;
@@ -148,5 +145,14 @@ watch(
 
 .short-timestamp {
   text-decoration: underline dotted;
+}
+
+// Fix scrolling when overflowing with sticky header.
+:deep(.v-data-table) {
+  overflow: auto;
+
+  .v-data-table__wrapper {
+    overflow: unset;
+  }
 }
 </style>
