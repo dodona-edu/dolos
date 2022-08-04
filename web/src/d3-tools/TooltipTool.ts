@@ -4,7 +4,9 @@ export class TooltipTool<T> {
 
   constructor(private getHtml: (a: T) => string) {
     // d3.select(".tooltip").remove();
-    this.div = d3.select("body").append("div")
+    this.div = d3
+      .select(".v-application--wrap")
+      .append("div")
       .attr("class", "tooltip")
       .style("padding", "10px 18px")
       .style("opacity", 0)
