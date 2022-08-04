@@ -8,7 +8,14 @@ export interface UseD3TooltipOptions {
   relativeToMouse?: boolean;
 }
 
-export function useD3Tooltip(options: UseD3TooltipOptions = {}): any {
+export interface UseD3TooltipReturn {
+  tooltip: d3.Selection<HTMLDivElement, unknown, HTMLElement, any>;
+  onMouseOver: (event: MouseEvent, value: string) => void;
+  onMouseOut: (event: MouseEvent) => void;
+  onMouseMove: (event: MouseEvent) => void;
+}
+
+export function useD3Tooltip(options: UseD3TooltipOptions = {}): UseD3TooltipReturn {
   const tooltip = d3
     .select(".v-application--wrap")
     .append("div")

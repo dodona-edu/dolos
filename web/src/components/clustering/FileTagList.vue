@@ -1,155 +1,131 @@
 <template>
-  <div ref="listElement" class="svg-container" />
+  <div ref="listElement" class="fill-width" />
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
 import {
-  defineComponent,
-  PropType,
   shallowRef,
   computed,
   watch,
   onMounted,
-  toRef,
 } from "vue";
 import { useElementSize } from "@vueuse/core";
 import { storeToRefs } from "pinia";
 import { useFileStore } from "@/api/stores";
-import { File, Legend } from "@/api/models";
-import { TooltipTool } from "@/d3-tools/TooltipTool";
+import { File } from "@/api/models";
+import { useD3Tooltip } from "@/composables";
 import * as d3 from "d3";
 
-type SVGSelection = d3.Selection<SVGSVGElement, unknown, HTMLElement, unknown>;
-type WidthScale = d3.ScaleLinear<number, number>;
+interface Props {
+  currentFiles: File[];
+}
 
-export default defineComponent({
-  props: {
-    currentFiles: {
-      type: Array as PropType<File[]>,
-      required: true,
-    },
-  },
+const props = withDefaults(defineProps<Props>(), {});
+const { legend } = storeToRefs(useFileStore());
 
-  setup(props) {
-    const { legend } = storeToRefs(useFileStore());
+// List template ref.
+const listElement = shallowRef();
 
-    // List template ref.
-    const listElement = shallowRef();
+// List element size.
+const listElementSize = useElementSize(listElement);
+const width = computed(() => listElementSize.width.value || 870);
+const height = computed(() => 40);
 
-    // List element size.
-    const listElementSize = useElementSize(listElement);
-    const width = computed(() => listElementSize.width.value || 870);
-    const height = computed(() => 40);
+// Ideal width for each element.
+const elementIdealWidth = 45;
+// Margin between elements.
+const elementMargin = 8;
 
-    // Ideal width for each element.
-    const elementIdealWidth = 45;
-    // Margin between elements.
-    const elementMargin = 8;
+// List D3
+const list = d3.create("svg");
+const listContent = list.append("g");
+const listTooltip = useD3Tooltip({ relativeToMouse: true });
 
-    // List D3
-    const list = d3.create("svg");
-    const listContent = list.append("g");
+// Draw the list.
+const draw = (): void => {
+  // Resize the list.
+  list.attr("width", width.value).attr("height", height.value);
 
-    // List tooltip tool
-    const listToolTipTool = new TooltipTool<File>(file => {
-      if (file.extra.fullName) return file.extra.fullName;
-      return file.shortPath;
-    });
+  // Clear the list.
+  listContent.selectAll("*").remove();
 
-    // Draw the list.
-    const draw = (): void => {
-      // Resize the list.
-      list.attr("width", width.value).attr("height", height.value);
+  // Create the scale.
+  const widthNoOverlap = elementIdealWidth * props.currentFiles.length;
+  const actualWidth = Math.min(widthNoOverlap, width.value - elementIdealWidth);
 
-      // Clear the list.
-      listContent.selectAll("*").remove();
+  const scale = d3
+    .scaleLinear()
+    .domain([0, props.currentFiles.length])
+    .range([0, actualWidth]);
 
-      // Create the scale.
-      const widthNoOverlap = elementIdealWidth * props.currentFiles.length;
-      const actualWidth = Math.min(widthNoOverlap, width.value - elementIdealWidth);
+  // Create the groups.
+  const groups = listContent
+    .attr(
+      "transform",
+      `translate(${elementIdealWidth / 2}, ${((elementIdealWidth - elementMargin) / 2) + 1.5})`
+    )
+    .selectAll("g")
+    .data(props.currentFiles)
+    .enter()
+    .append("g")
+    .attr("transform", (_, i) => `translate(${scale(i)}, 0)`);
 
-      const scale = d3
-        .scaleLinear()
-        .domain([0, props.currentFiles.length])
-        .range([0, actualWidth]);
-
-      // Create the groups.
-      const groups = listContent
-        .attr(
-          "transform",
-          `translate(${elementIdealWidth / 2}, ${((elementIdealWidth - elementMargin) / 2) + 1.5})`
-        )
-        .selectAll("g")
-        .data(props.currentFiles)
-        .enter()
-        .append("g")
-        .attr("transform", (_, i) => `translate(${scale(i)}, 0)`);
-
-      // Add the avatars
-      groups
-        .append("circle")
-        .attr("r", 20)
-        .attr("fill", (file) => file.extra.labels ? legend.value[file.extra.labels].color : "blue");
-      groups
-        .append("text")
-        .text((file) => {
-          if (file.extra.fullName) {
-            const splitName = file.extra.fullName.split(" ");
-            if (splitName.length === 2) {
-              return (splitName[0][0] + splitName[1][0]).toUpperCase();
-            } else {
-              return file.extra.fullName[0].toUpperCase();
-            }
-          } else {
-            const path = file.shortPath;
-            return path[path.length - 1][0].toUpperCase();
-          }
-        })
-        .attr("stroke", "white")
-        .attr("fill", "white")
-        .attr("text-anchor", "middle")
-        .attr("dy", "0.3em");
-
-      groups.on("mouseenter", (e: MouseEvent, file: File) => {
-        d3.select(e.target as any).raise();
-        listToolTipTool.mouseEnter(e, file);
-      });
-
-      groups.on("mouseleave", () => {
-        listToolTipTool.mouseOut();
-      });
-    };
-
-    // Update the list when the files change.
-    watch(
-      () => props.currentFiles,
-      () => {
-        draw();
+  // Add the avatars
+  groups
+    .append("circle")
+    .attr("r", 20)
+    .attr("fill", (file) => file.extra.labels ? legend.value[file.extra.labels].color : "blue");
+  groups
+    .append("text")
+    .text((file) => {
+      if (file.extra.fullName) {
+        const splitName = file.extra.fullName.split(" ");
+        if (splitName.length === 2) {
+          return (splitName[0][0] + splitName[1][0]).toUpperCase();
+        } else {
+          return file.extra.fullName[0].toUpperCase();
+        }
+      } else {
+        const path = file.shortPath;
+        return path[path.length - 1][0].toUpperCase();
       }
-    );
+    })
+    .attr("stroke", "white")
+    .attr("fill", "white")
+    .attr("text-anchor", "middle")
+    .attr("dy", "0.3em");
 
-    // Update the list when the width changes.
-    watch(
-      () => [width.value],
-      () => {
-        draw();
-      }
-    );
+  groups.on("mouseover", (e: MouseEvent, file: File) => {
+    listTooltip.onMouseOver(e, file.shortPath);
+  });
 
-    onMounted(() => {
-      listElement.value?.prepend(list.node() ?? "");
-      draw();
-    });
+  groups.on("mousemove", (e: MouseEvent) => {
+    listTooltip.onMouseMove(e);
+  });
 
-    return {
-      listElement,
-    };
-  },
+  groups.on("mouseout", (e: MouseEvent) => {
+    listTooltip.onMouseOut(e);
+  });
+};
+
+// Update the list when the files change.
+watch(
+  () => props.currentFiles,
+  () => {
+    draw();
+  }
+);
+
+// Update the list when the width changes.
+watch(
+  () => [width.value],
+  () => {
+    draw();
+  }
+);
+
+onMounted(() => {
+  listElement.value?.prepend(list.node() ?? "");
+  draw();
 });
 </script>
-
-<style>
-.svg-container {
-  width: 100%;
-}
-</style>
