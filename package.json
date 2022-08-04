@@ -4,5 +4,8 @@
   "private": true,
   "workspaces": [
     "workspaces/*"
-  ]
+  ],
+  "devDependencies": {
+    "lerna": "^5.3.0"
+  }
 }
