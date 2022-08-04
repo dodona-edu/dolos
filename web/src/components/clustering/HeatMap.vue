@@ -1,9 +1,11 @@
 <template>
-  <v-row>
+  <v-row class="heatmap">
     <v-col cols="4">
       <GraphElementList
         :selected-files="selectedFiles"
         :cluster="cluster"
+        :max-height="400"
+        :scroll="true"
       />
     </v-col>
 
@@ -300,15 +302,6 @@ const onClick = (_: unknown, [first, second]: [File, File]): void => {
   flex-direction: row;
   justify-content: center;
   min-width: 400px;
-}
-
-.gel-list {
-  min-width: 400px;
-  max-height: 570px;
-}
-
-.fullwidth {
-  width: 100%;
 }
 
 :deep(.heatmap-tile) {

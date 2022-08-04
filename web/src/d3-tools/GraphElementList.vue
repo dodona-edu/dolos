@@ -1,8 +1,8 @@
 <template>
-  <v-card outlined class="graph-element-list">
+  <v-card outlined>
     <v-card-title> Files in this cluster </v-card-title>
 
-    <v-simple-table>
+    <v-simple-table class="graph-list" fixed-header :height="maxHeight">
       <thead>
         <tr>
           <th>File</th>
@@ -13,15 +13,16 @@
         <tr
           v-for="file in files"
           :key="file.id"
-          :id="`element-${file.id}`"
+          :id="`file-${file.id}`"
+          class="graph-list-row"
           :class="{ selected: selectedFiles.includes(file) }"
           @click="rowClick(file)"
         >
           <td class="d-flex align-center">
             <v-tooltip top>
-              <template v-slot:activator="{ on, attrs }">
+              <template #activator="{ on, attrs }">
                 <span
-                  class="tiny-color"
+                  class="graph-list-row-label"
                   :style="`background-color: ${getColor(file)}`"
                   v-bind="attrs"
                   v-on="on"
@@ -35,7 +36,7 @@
 
           <td v-if="hasTimestamp">
             <v-tooltip top>
-              <template v-slot:activator="{ on, attrs }">
+              <template #activator="{ on, attrs }">
                 <span class="short-timestamp" v-bind="attrs" v-on="on">
                   {{ formatTime(file.extra.timestamp)}}
                 </span>
@@ -64,6 +65,7 @@ import { useVuetify } from "@/composables";
 interface Props {
   cluster: Cluster;
   selectedFiles: File[];
+  maxHeight?: number;
   scroll?: boolean;
 }
 
@@ -110,44 +112,32 @@ watch(
   () => props.selectedFiles,
   () => {
     if (props.selectedFiles.length > 0 && props.scroll) {
-      const element = props.selectedFiles[0];
-      vuetify.goTo(`#element-${element.id}`, {
-        container: ".graph-element-list",
+      const file = props.selectedFiles[0];
+      vuetify.goTo(`#file-${file.id}`, {
+        container: ".graph-list",
       });
     }
   }
 );
 </script>
 
-<style scoped lang="scss">
-.graph-element-list {
-  max-width: 500px;
-  max-height: 100%;
-  overflow: auto;
-  z-index: 5;
-}
+<style lang="scss" scoped>
+.graph-list {
+  &-row {
+    transition: background-color 0.15s ease;
 
-.active {
-  background-color: darkgray;
-}
+    &.selected {
+      background-color: #f0f0f0;
+    }
 
-.element {
-  text-align: center;
-  border-radius: 10px;
-  margin: 5px;
-  padding: 5px;
-}
-
-.tiny-color {
-  background-color: grey;
-  width: 10px;
-  height: 10px;
-  display: block;
-  border-radius: 50%;
-}
-
-.selected {
-  background-color: #f0f0f0;
+    &-label {
+      background-color: grey;
+      width: 10px;
+      height: 10px;
+      display: block;
+      border-radius: 50%;
+    }
+  }
 }
 
 .short-timestamp {
