@@ -1,6 +1,6 @@
 <template>
   <v-container fluid fill-height>
-    <v-row style="height: 100vh">
+    <v-row class="graph-container">
       <v-col cols="12" class="no-y-padding">
         <Graph
           :showSingletons="showSingletons"
@@ -15,26 +15,23 @@
           @selectedClusterInfo="setSelectedCluster"
         >
           <!-- Extra UI elements to be added as overlay over the graph -->
-          <form class="settings">
-            <p>
-              <label>
-                Similarity ≥ {{ cutoff.toFixed(2) }}<br />
-                <input
-                  type="range"
-                  min="0.25"
-                  max="1"
-                  step="0.01"
-                  v-model.number="cutoff"
-                />
-              </label>
-            </p>
-            <p>
-              <label>
-                <input type="checkbox" v-model="showSingletons" /> Display
-                singletons
-              </label>
-            </p>
-          </form>
+          <v-form class="graph-settings">
+            <label class="text--secondary">Similarity ≥ {{cutoff.toFixed(2)}}</label>
+            <v-slider
+              v-model.number="cutoff"
+              min="0.25"
+              max="1"
+              step="0.01"
+              hide-details
+              dense
+            />
+
+            <v-checkbox
+              v-model="showSingletons"
+              label="Display singletons"
+              dense
+            />
+          </v-form>
 
           <GraphLegend
             v-if="showLegend"
@@ -109,3 +106,17 @@ const setSelectedCluster = (cluster: Cluster | undefined): void => {
   selectedCluster.value = cluster;
 };
 </script>
+
+<style lang="scss" scoped>
+.graph {
+  &-container {
+    height: calc(100vh - 75px);
+  }
+
+  &-settings {
+    position: absolute;
+    right: 0;
+    bottom: 1rem;
+  }
+}
+</style>

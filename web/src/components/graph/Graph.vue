@@ -557,12 +557,5 @@ export default defineComponent({
       }
     }
   }
-
-  .settings {
-    position: absolute;
-    right: 0;
-    bottom: 25px;
-    z-index: 5;
-  }
 }
 </style>
