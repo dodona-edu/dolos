@@ -24,20 +24,20 @@
       </v-tabs>
 
       <v-tabs-items v-model="activeTab" class="mt-4">
-        <v-tab-item v-if="showPairs">
-          <PairsTable :pairs="clusterPairs" />
+        <v-tab-item>
+          <PairsTable v-if="showPairs" :pairs="clusterPairs" />
         </v-tab-item>
 
-        <v-tab-item v-if="showTimeseries && cluster && showClusterTimeline">
-          <TimeSeriesCard :cluster="cluster" />
+        <v-tab-item v-if="cluster && showClusterTimeline">
+          <TimeSeriesCard v-if="showTimeseries" :cluster="cluster" />
         </v-tab-item>
 
-        <v-tab-item v-if="showHeatmap">
-          <HeatMap :cluster="props.cluster" />
+        <v-tab-item>
+          <HeatMap v-if="showHeatmap" :cluster="props.cluster" />
         </v-tab-item>
 
-        <v-tab-item v-if="showGraph">
-          <GraphTab :cluster="props.cluster" />
+        <v-tab-item>
+          <GraphTab v-if="showGraph" :cluster="props.cluster" />
         </v-tab-item>
       </v-tabs-items>
     </v-expansion-panel-content>
