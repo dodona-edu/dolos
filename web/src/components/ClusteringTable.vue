@@ -3,18 +3,9 @@
     <v-card-title>
       Clusters
       <v-spacer />
-      <form>
-        <label>
-          <div class="title-slider">Similarity ≥ {{ cutoff.toFixed(2) }}</div>
-          <input
-            type="range"
-            min="0.25"
-            max="1"
-            step="0.01"
-            v-model.number="cutoff"
-          />
-        </label>
-      </form>
+      <v-form>
+       <SimilaritySetting />
+      </v-form>
     </v-card-title>
 
     <v-expansion-panels v-model="panel" class="elevation-0">
@@ -30,13 +21,12 @@
 
 <script lang="ts" setup>
 import { shallowRef, computed, watch } from "vue";
-import { storeToRefs } from "pinia";
 import { useVuetify, useRoute } from "@/composables";
-import { useApiStore } from "@/api/stores";
 import { Clustering, Cluster } from "@/util/clustering-algorithms/ClusterTypes";
 import { SortingFunction } from "@/util/Types";
 import { getClusterElements } from "@/util/clustering-algorithms/ClusterFunctions";
 import ClusteringCard from "@/components/clustering/ClusteringCard.vue";
+import SimilaritySetting from "@/components/settings/SimilaritySetting.vue";
 
 interface Props {
   currentClustering: Clustering;
@@ -45,7 +35,6 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {});
 const vuetify = useVuetify();
 const route = useRoute();
-const { cutoff } = storeToRefs(useApiStore());
 
 // Active expansion panel.
 const panel = shallowRef(-1);

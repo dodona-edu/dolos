@@ -16,15 +16,7 @@
         >
           <!-- Extra UI elements to be added as overlay over the graph -->
           <v-form class="graph-settings">
-            <label class="text--secondary">Similarity ≥ {{cutoff.toFixed(2)}}</label>
-            <v-slider
-              v-model.number="cutoff"
-              min="0.25"
-              max="1"
-              step="0.01"
-              hide-details
-              dense
-            />
+            <SimilaritySetting />
 
             <v-checkbox
               v-model="showSingletons"
@@ -63,15 +55,15 @@ import { ref, shallowRef, computed } from "vue";
 import { storeToRefs } from "pinia";
 import { File, Legend } from "@/api/models";
 import { Cluster } from "@/util/Cluster";
-import { useApiStore, useFileStore, usePairStore } from "@/api/stores";
+import { useFileStore, usePairStore } from "@/api/stores";
 import { useRoute, useClustering } from "@/composables";
 import GraphSelectedInfo from "@/d3-tools/GraphSelectedInfo.vue";
 import ClusteringTable from "@/components/ClusteringTable.vue";
 import Graph from "@/components/graph/Graph.vue";
 import GraphLegend from "@/d3-tools/GraphLegend.vue";
+import SimilaritySetting from "@/components/settings/SimilaritySetting.vue";
 
 const route = useRoute();
-const { cutoff } = storeToRefs(useApiStore());
 const { filesList, legend } = storeToRefs(useFileStore());
 const { pairsList } = storeToRefs(usePairStore());
 
@@ -117,6 +109,7 @@ const setSelectedCluster = (cluster: Cluster | undefined): void => {
     position: absolute;
     right: 0;
     bottom: 1rem;
+    z-index: 2;
   }
 }
 </style>
