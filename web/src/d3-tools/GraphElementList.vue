@@ -14,8 +14,8 @@
           v-for="element in elements"
           :key="element.id"
           :id="`element-${element.id}`"
+          :class="{ selected: selectedFiles.includes(element) }"
           @click="rowClick(element)"
-          v-bind:class="{ selected: selectedFiles.includes(element) }"
         >
           <td class="d-flex align-center">
             <v-tooltip top>
@@ -32,6 +32,7 @@
 
             <span class="ml-2">{{ element.shortPath }}</span>
           </td>
+
           <td v-if="hasTimestamp">
             <v-tooltip top>
               <template v-slot:activator="{ on, attrs }">
@@ -95,17 +96,13 @@ const hasTimestamp = computed(() => {
   return elements.value.some((f) => f.extra.timestamp);
 });
 
-const formatTime = (time: Date): string => {
-  if (!time) {
-    return "";
-  }
+const formatTime = (time?: Date): string => {
+  if (!time) return "";
   return DateTime.fromJSDate(time).toLocaleString();
 };
 
-const formatTimeLong = (time: Date): string => {
-  if (!time) {
-    return "";
-  }
+const formatTimeLong = (time?: Date): string => {
+  if (!time) return "";
   return DateTime.fromJSDate(time).toLocaleString(DateTime.DATETIME_MED);
 };
 
