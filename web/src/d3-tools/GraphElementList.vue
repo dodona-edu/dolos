@@ -125,9 +125,7 @@ watch(
 <style lang="scss" scoped>
 .graph-list {
   &-body {
-    overflow: auto;
-    display: flex;
-    flex-direction: column;
+    overflow-y: auto;
     max-height: v-bind("props.maxHeight");
   }
 
