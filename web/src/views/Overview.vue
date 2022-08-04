@@ -75,19 +75,7 @@
             </v-col>
 
             <v-col cols="auto">
-              <label>
-                <span class="label-text">
-                  Similarity ≥ {{ apiStore.cutoff.toFixed(2) }}<br />
-                </span>
-
-                <input
-                  type="range"
-                  min="0.25"
-                  max="1"
-                  step="0.01"
-                  v-model.number="apiStore.cutoff"
-                />
-              </label>
+              <SimilaritySetting class="px-4 pt-4" />
             </v-col>
           </v-row>
 
@@ -194,8 +182,8 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, computed } from "vue";
+<script lang="ts" setup>
+import { computed } from "vue";
 import { storeToRefs } from "pinia";
 import { useBreakpoints, useClustering } from "@/composables";
 import { Pair } from "@/api/models";
@@ -207,79 +195,59 @@ import {
 } from "@/api/stores";
 import { getClusterElements } from "@/util/clustering-algorithms/ClusterFunctions";
 import OverviewBarchart from "@/components/overview/OverviewBarchart.vue";
+import SimilaritySetting from "@/components/settings/SimilaritySetting.vue";
 
-export default defineComponent({
-  setup() {
-    const breakpoints = useBreakpoints();
-    const apiStore = useApiStore();
-    const fileStore = useFileStore();
-    const pairStore = usePairStore();
-    const metadataStore = useMetadataStore();
-    const { legend } = storeToRefs(fileStore);
+const breakpoints = useBreakpoints();
+const apiStore = useApiStore();
+const fileStore = useFileStore();
+const pairStore = usePairStore();
+const metadataStore = useMetadataStore();
+const { legend } = storeToRefs(fileStore);
 
-    // File legend.
-    const legendCount = computed(() => Object.keys(legend.value).length);
+// File legend.
+const legendCount = computed(() => Object.keys(legend.value).length);
 
-    // Amount of files.
-    const filesCount = computed(() => Object.keys(fileStore.files).length);
+// Amount of files.
+const filesCount = computed(() => Object.keys(fileStore.files).length);
 
-    // Highest similarity pair.
-    const highestSimilarityPair = computed<Pair | null>(() => {
-      const pairs = Object.values(pairStore.pairs);
-      return pairs.reduce(
-        (a: Pair | null, b: Pair) =>
-          (a?.similarity ?? 0) > b.similarity ? a : b,
-        null
-      );
-    });
-
-    // Highest similarity.
-    const highestSimilarity = computed(() => {
-      const pair = highestSimilarityPair.value;
-      return pair?.similarity ?? 0;
-    });
-
-    // Average similarity.
-    const averageSimilarity = computed(() => {
-      const divident = pairStore.pairsList.reduce(
-        (a, b) => a + b.similarity,
-        0
-      );
-      const divisor = Object.keys(pairStore.pairs).length;
-
-      return (divident / divisor * 100).toFixed(0);
-    });
-
-    // Clustering.
-    const clustering = useClustering();
-
-    // Largest cluster
-    const largestCluster = computed(() =>
-      clustering.value.reduce(
-        (a, b) =>
-          a > getClusterElements(b).size ? a : getClusterElements(b).size,
-        0
-      )
-    );
-
-    return {
-      breakpoints,
-      apiStore,
-      metadataStore,
-      legend,
-      legendCount,
-      filesCount,
-      highestSimilarityPair,
-      highestSimilarity,
-      averageSimilarity,
-      clustering,
-      largestCluster,
-    };
-  },
-  components: {
-    OverviewBarchart,
-  },
+// Highest similarity pair.
+const highestSimilarityPair = computed<Pair | null>(() => {
+  const pairs = Object.values(pairStore.pairs);
+  return pairs.reduce(
+    (a: Pair | null, b: Pair) =>
+      (a?.similarity ?? 0) > b.similarity ? a : b,
+    null
+  );
 });
+
+// Highest similarity.
+const highestSimilarity = computed(() => {
+  const pair = highestSimilarityPair.value;
+  return pair?.similarity ?? 0;
+});
+
+// Average similarity.
+const averageSimilarity = computed(() => {
+  const divident = pairStore.pairsList.reduce(
+    (a, b) => a + b.similarity,
+    0
+  );
+  const divisor = Object.keys(pairStore.pairs).length;
+
+  return (divident / divisor * 100).toFixed(0);
+});
+
+// Clustering.
+const clustering = useClustering();
+
+// Largest cluster
+const largestCluster = computed(() =>
+  clustering.value.reduce(
+    (a, b) =>
+      a > getClusterElements(b).size ? a : getClusterElements(b).size,
+    0
+  )
+);
 </script>
 
 <style lang="scss" scoped>
