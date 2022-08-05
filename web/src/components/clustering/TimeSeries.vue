@@ -183,9 +183,3 @@ onUnmounted(() => {
   simulation.value?.stop();
 });
 </script>
-
-<style lang="scss" scoped>
-.timeseries {
-  position: relative;
-}
-</style>
