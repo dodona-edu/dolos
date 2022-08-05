@@ -1,21 +1,17 @@
 <template>
-  <v-expansion-panel>
-    <v-expansion-panel-header class="noflex">
-      <div class="clustering-tag-container">
-        <FileTagList :current-files="clusterFiles" />
-      </div>
+  <v-expansion-panel class="clustering-card">
+    <v-expansion-panel-header>
+      <FileTagList :current-files="clusterFiles" />
     </v-expansion-panel-header>
 
     <v-expansion-panel-content>
-      <v-tabs v-model="activeTab" right>
-        <v-tab :to="`/pairs/?showIds=${pairViewItems}`">
+      <v-tabs v-model="activeTab">
+        <v-tab>
           Pair View
         </v-tab>
 
-        <div class="empty-space" />
-
         <v-tab v-if="cluster && showClusterTimeline">
-          Time Chart
+          Timeseries
         </v-tab>
 
         <v-tab>
@@ -27,35 +23,29 @@
         </v-tab>
       </v-tabs>
 
-      <v-tabs-items v-model="activeTab">
+      <v-tabs-items v-model="activeTab" class="mt-4">
         <v-tab-item>
-          <!-- TODO: place pairs view here -->
+          <PairsTable v-if="showPairs" :pairs="clusterPairs" :items-per-page="10" />
         </v-tab-item>
 
         <v-tab-item v-if="cluster && showClusterTimeline">
-          <TimeSeriesCard :cluster="cluster" />
+          <TimeSeriesCard v-if="showTimeseries" :cluster="cluster" />
         </v-tab-item>
 
         <v-tab-item>
-          <HeatMap :cluster="cluster" />
+          <HeatMap v-if="showHeatmap" :cluster="props.cluster" />
         </v-tab-item>
 
         <v-tab-item>
-          <GraphTab :cluster="cluster" />
+          <GraphTab v-if="showGraph" :cluster="props.cluster" />
         </v-tab-item>
       </v-tabs-items>
     </v-expansion-panel-content>
   </v-expansion-panel>
 </template>
 
-<script lang="ts">
-import {
-  defineComponent,
-  PropType,
-  shallowRef,
-  computed,
-  toRef,
-} from "vue";
+<script lang="ts" setup>
+import { shallowRef, computed, toRef, watch } from "vue";
 import { useCluster } from "@/composables";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
 import { getClusterElementsArray } from "@/util/clustering-algorithms/ClusterFunctions";
@@ -63,59 +53,49 @@ import HeatMap from "./HeatMap.vue";
 import GraphTab from "./GraphTab.vue";
 import TimeSeriesCard from "./TimeSeriesCard.vue";
 import FileTagList from "@/components/clustering/FileTagList.vue";
+import PairsTable from "../PairsTable.vue";
 
-export default defineComponent({
-  props: {
-    cluster: {
-      type: Set as PropType<Cluster>,
-      required: true,
-    },
-  },
+interface Props {
+  cluster: Cluster;
+}
+const props = withDefaults(defineProps<Props>(), {});
 
-  setup(props) {
-    const activeTab = shallowRef(1);
-    const { clusterFiles } = useCluster(toRef(props, "cluster"));
+const activeTab = shallowRef(0);
+const { clusterFiles, clusterPairs } = useCluster(toRef(props, "cluster"));
 
-    // If the timeline should be shown.
-    // Timeline will only be shown if every cluster element has a timestamp.
-    const showClusterTimeline = computed(() => {
-      return getClusterElementsArray(props.cluster).every(
-        (e) => e.extra?.timestamp
-      );
-    });
-
-    // String of ids to show in the pair view.
-    // TODO: it may be better to inline the pair-table in the future for better UX.
-    const pairViewItems = computed(() => {
-      return Array.from(props.cluster)
-        .map((element) => element.id)
-        .join(",");
-    });
-
-    return {
-      clusterFiles,
-      activeTab,
-      showClusterTimeline,
-      pairViewItems,
-    };
-  },
-
-  components: {
-    HeatMap,
-    GraphTab,
-    TimeSeriesCard,
-    FileTagList,
-  },
+// If the timeline should be shown.
+// Timeline will only be shown if every cluster element has a timestamp.
+const showClusterTimeline = computed(() => {
+  return getClusterElementsArray(props.cluster).every(
+    (e) => e.extra?.timestamp
+  );
 });
+
+// If the tabs should be shown.
+// This is for lazy loading the tabs.
+const showPairs = shallowRef(false);
+const showTimeseries = shallowRef(false);
+const showHeatmap = shallowRef(false);
+const showGraph = shallowRef(false);
+// When the correct tab is selected, show the correct view.
+watch(
+  () => activeTab.value,
+  () => {
+    if (activeTab.value === 0) showPairs.value = true;
+    if (activeTab.value === 1) showTimeseries.value = true;
+    if (activeTab.value === 2) showHeatmap.value = true;
+    if (activeTab.value === 3) showGraph.value = true;
+  },
+  { immediate: true }
+);
 </script>
 
-<style scoped>
-.empty-space {
-  width: 50px;
-}
+<style lang="scss" scoped>
 
-.noflex > * {
-  flex: none;
+.clustering-card {
+  &:before {
+    box-shadow: none !important;
+  }
 }
 
 .clustering-tag-container {
@@ -123,10 +103,5 @@ export default defineComponent({
   display: flex;
   justify-content: flex-start;
   overflow: hidden;
-}
-
-.no-markup {
-  color: inherit;
-  text-decoration: none;
 }
 </style>
