@@ -10,7 +10,7 @@
         </tr>
       </thead>
 
-      <tbody>
+      <tbody class="graph-list-body">
         <tr
           v-for="file in files"
           :key="file.id"
