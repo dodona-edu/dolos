@@ -1,47 +1,51 @@
 <template>
   <div class="selected-info">
-    <div v-if="selectedNode">
-      <v-card elevation="2" outlined>
-        <v-card-title> Selected node </v-card-title>
+    <transition name="scale-transition" mode="out-in">
+      <div v-if="selectedNode">
+        <v-card>
+          <v-card-title> Selected node </v-card-title>
 
-        <v-card-text>
-          The author of this submission is
-          <b>{{ selectedNode.extra.fullName || "unknown" }}</b>
-          , belonging to group
-          <b>{{ selectedNode.extra.labels }}</b>
-          . The last hand-in date was
-          <b>{{ selectedNodeTimestamp || "not available." }}</b
-          >.
-        </v-card-text>
-      </v-card>
-    </div>
+          <v-card-text>
+            The author of this submission is
+            <b>{{ selectedNode.extra.fullName || "unknown" }}</b>
+            , belonging to group
+            <b>{{ selectedNode.extra.labels }}</b>
+            . The last hand-in date was
+            <b>{{ selectedNodeTimestamp || "not available." }}</b
+            >.
+          </v-card-text>
+        </v-card>
+      </div>
+    </transition>
 
-    <div v-if="selectedCluster">
-      <v-card elevation="2" outlined>
-        <v-card-title> Selected cluster </v-card-title>
+    <transition name="scale-transition" mode="out-in">
+      <div v-if="selectedCluster">
+        <v-card>
+          <v-card-title> Selected cluster </v-card-title>
 
-        <v-card-text>
-          You selected a cluster of size
-          <b>{{ clusterFilesSet.size }}</b>
-          , which has an average similarity of
-          <b>{{ clusterAverageSimilarity.toFixed(2) * 100 }}%</b>.
-        </v-card-text>
+          <v-card-text>
+            You selected a cluster of size
+            <b>{{ clusterFilesSet.size }}</b>
+            , which has an average similarity of
+            <b>{{ clusterAverageSimilarity.toFixed(2) * 100 }}%</b>.
+          </v-card-text>
 
-        <v-card-text class="namecontainer">
-          These files are present in the cluster:
-          <ul>
-            <li v-for="el of clusterFilesSet" :key="el.id">
-              {{ el.shortPath }}
-            </li>
-          </ul>
-        </v-card-text>
+          <v-card-text class="namecontainer">
+            These files are present in the cluster:
+            <ul>
+              <li v-for="el of clusterFilesSet" :key="el.id">
+                {{ el.shortPath }}
+              </li>
+            </ul>
+          </v-card-text>
 
-        <v-card-actions>
-          <v-spacer />
-          <v-btn color="success" text @click="goToInfo">More information</v-btn>
-        </v-card-actions>
-      </v-card>
-    </div>
+          <v-card-actions>
+            <v-spacer />
+            <v-btn color="success" text @click="goToInfo">More information</v-btn>
+          </v-card-actions>
+        </v-card>
+      </div>
+    </transition>
   </div>
 </template>
 
@@ -71,7 +75,7 @@ export default defineComponent({
     },
 
     selectedCluster: {
-      type: Set as PropType<Cluster>,
+      type: Set as PropType<Cluster | undefined>,
       required: false,
     },
   },
@@ -127,6 +131,8 @@ export default defineComponent({
 .selected-info {
   max-width: 350px;
   position: absolute;
+  top: 0;
+  left: 0;
   z-index: 4;
   display: flex;
   flex-direction: column;
