@@ -20,9 +20,12 @@ import { DataTableHeader } from "vuetify";
 
 interface Props {
   pairs: Pair[];
+  itemsPerPage: number;
 }
 
-const props = withDefaults(defineProps<Props>(), {});
+const props = withDefaults(defineProps<Props>(), {
+  itemsPerPage: 15,
+});
 const router = useRouter();
 const route = useRoute();
 
@@ -37,7 +40,7 @@ const headers: DataTableHeader[] = [
 
 // Footer props
 const footerProps = {
-  itemsPerPageOptions: [15, 25, 50, 100, -1],
+  itemsPerPageOptions: [props.itemsPerPage, 25, 50, 100, -1],
   showCurrentPage: true,
   showFirstLastPage: true,
 };

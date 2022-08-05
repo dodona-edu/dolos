@@ -25,7 +25,7 @@
 
       <v-tabs-items v-model="activeTab" class="mt-4">
         <v-tab-item>
-          <PairsTable v-if="showPairs" :pairs="clusterPairs" />
+          <PairsTable v-if="showPairs" :pairs="clusterPairs" :items-per-page="10" />
         </v-tab-item>
 
         <v-tab-item v-if="cluster && showClusterTimeline">
