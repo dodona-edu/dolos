@@ -50,9 +50,9 @@ export const useApiStore = defineStore("api", () => {
 
   // Re-hydrate the API stores when the anonymous value changes.
   watch(
-    () => isAnonymous.value,
+    isAnonymous,
     () => {
-      hydrate();
+      fileStore.anonymize();
     }
   );
 
