@@ -30,6 +30,7 @@ export const useFileStore = defineStore("files", () => {
     });
 
     const timeOffset = Math.random() * 1000 * 60 * 60 * 24 * 20;
+    const labels: string[] = [];
 
     const filesMap = fileData.map((row: any) => {
       const file = row as File;
@@ -43,6 +44,11 @@ export const useFileStore = defineStore("files", () => {
       file.astAndMappingLoaded = true;
       file.amountOfKgrams = file.amountOfKgrams || file.ast.length;
 
+      // Add the label to the labels list, if it doesn't exist yet.
+      if (!labels.includes(row.label)) {
+        labels.push(extra.labels);
+      }
+
       // Store pseudo details.
       const pseudoName = randomNameGenerator();
       file.pseudo = {
@@ -50,7 +56,7 @@ export const useFileStore = defineStore("files", () => {
         shortPath: "",
         fullName: pseudoName,
         timestamp: extra.timestamp ? new Date(extra.timestamp.getTime() + timeOffset) : undefined,
-        labels: "koekjes",
+        labels: String(labels.indexOf(extra.labels)) ?? "",
       };
 
       // Store original details.
@@ -116,7 +122,10 @@ export const useFileStore = defineStore("files", () => {
       }
     }
 
-    nextTick(() => (apiStore.isLoaded = true));
+    nextTick(() => {
+      files.value = { ...files.value };
+      apiStore.isLoaded = true;
+    });
   }
 
   return {
