@@ -1,103 +1,108 @@
 <template>
-  <v-card>
-    <v-card-title>
-      File pairs
+  <div>
+    <v-row class="heading" align="center">
+      <v-col cols="12" md="6">
+        <h2 class="heading-title">
+          File pairs
+        </h2>
+        <div class="heading-subtitle text--secondary">
+          A pair is a set of 2 files that are compared for similarity and matching code fragments.
+        </div>
+      </v-col>
 
-      <v-spacer />
+      <v-col cols="12" md="6">
+        <v-text-field
+          v-model="search"
+          append-icon="mdi-magnify"
+          label="Search"
+          single-line
+          hide-details
+          outlined
+          dense
+        />
+      </v-col>
+    </v-row>
 
-      <v-text-field
-        v-model="search"
-        append-icon="mdi-magnify"
-        label="Search"
-        single-line
-        hide-details
-        outlined
-        dense
+    <v-card>
+      <v-data-table
+        :headers="headers"
+        :items="items"
+        :must-sort="true"
+        :sort-by="'similarity'"
+        :sort-desc="true"
+        :items-per-page="15"
+        :search="search"
+        :footer-props="footerProps"
+        @click:row="rowClicked"
       />
-    </v-card-title>
-    <v-data-table
-      :headers="headers"
-      :items="items"
-      :must-sort="true"
-      :sort-by="'similarity'"
-      :sort-desc="true"
-      :items-per-page="15"
-      :search="search"
-      class="elevation-1"
-      :footer-props="footerProps"
-      @click:row="rowClicked"
-    >
-    </v-data-table>
-  </v-card>
+    </v-card>
+  </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, PropType, computed, shallowRef } from "vue";
+<script lang="ts" setup>
+import { shallowRef, onMounted } from "vue";
 import { useRouter, useRoute } from "@/composables";
-import { Pair, ObjMap } from "@/api/models";
+import { Pair } from "@/api/models";
+import { DataTableHeader } from "vuetify";
 
-export default defineComponent({
-  props: {
-    pairs: {
-      type: Object as PropType<ObjMap<Pair>>,
-      required: true,
-    },
-  },
+interface Props {
+  pairs: Pair[];
+}
 
-  setup(props) {
-    const router = useRouter();
-    const route = useRoute();
+const props = withDefaults(defineProps<Props>(), {});
+const router = useRouter();
+const route = useRoute();
 
-    // Table headers
-    const headers = [
-      { text: "Left file", value: "left", sortable: false },
-      { text: "Right file", value: "right", sortable: false },
-      { text: "Similarity", value: "similarity" },
-      { text: "Longest fragment", value: "longestFragment" },
-      { text: "Total overlap", value: "totalOverlap" },
-    ];
+// Table headers
+const headers: DataTableHeader[] = [
+  { text: "Left file", value: "left", sortable: false },
+  { text: "Right file", value: "right", sortable: false },
+  { text: "Similarity", value: "similarity", filterable: false },
+  { text: "Longest fragment", value: "longestFragment", filterable: false },
+  { text: "Total overlap", value: "totalOverlap", filterable: false },
+];
 
-    // Footer props
-    const footerProps = {
-      itemsPerPageOptions: [15, 25, 50, 100, -1],
-      showCurrentPage: true,
-      showFirstLastPage: true,
-    };
+// Footer props
+const footerProps = {
+  itemsPerPageOptions: [15, 25, 50, 100, -1],
+  showCurrentPage: true,
+  showFirstLastPage: true,
+};
 
-    // Search value.
-    const search = shallowRef("");
+// Search value.
+const search = shallowRef("");
 
-    // Items in the format for the the data-table.
-    const items = computed(() => {
-      const str = route.value.query.showIds as string | null;
-      const params = (str?.split(",") || []).map((v: string) => +v);
+// Items in the format for the the data-table.
+const items = shallowRef<any[]>([]);
 
-      return Object.values(props.pairs)
-        .filter((pair) => (params.length > 0 ? params.includes(pair.id) : true))
-        .map((pair) => ({
-          pair: pair,
-          left: pair.leftFile.shortPath,
-          right: pair.rightFile.shortPath,
-          similarity: pair.similarity.toFixed(2),
-          longestFragment: pair.longestFragment,
-          totalOverlap: pair.totalOverlap,
-        }));
-    });
+// Calculate the items for the table.
+const calculateItems = (): void => {
+  const str = route.value.query.showIds as string | null;
 
-    // When a row is clicked.
-    const rowClicked = (item: { pair: Pair }): void => {
-      router.push(`/compare/${item.pair.id}`);
-    };
+  items.value = Object.values(props.pairs)
+    .map((pair) => ({
+      pair,
+      left: pair.leftFile.shortPath,
+      right: pair.rightFile.shortPath,
+      similarity: pair.similarity.toFixed(2),
+      longestFragment: pair.longestFragment,
+      totalOverlap: pair.totalOverlap,
+    }));
 
-    return {
-      headers,
-      footerProps,
-      items,
-      search,
-      rowClicked,
-    };
-  },
-});
+  // Filter the items by param value.
+  const params = (str?.split(",") || []).map((v: string) => +v);
+  if (params) {
+    items.value.filter((pair) => (params.length > 0 ? params.includes(pair.id) : true));
+  }
+};
+
+// Calculate the items on mount.
+onMounted(() => calculateItems());
+
+// When a row is clicked.
+const rowClicked = (item: { pair: Pair }): void => {
+  router.push(`/compare/${item.pair.id}`);
+};
 </script>
 
 <style scoped>

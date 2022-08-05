@@ -1,4 +1,4 @@
-import { File, Fragment } from "@/api/models";
+import { File, Fragment, Match } from "@/api/models";
 import {
   DecodedSemanticResult,
   PairedSemanticGroups,
@@ -12,9 +12,10 @@ export interface Pair {
   similarity: number;
   longestFragment: number;
   totalOverlap: number;
+  leftCovered: number;
+  rightCovered: number;
+  matches: Match[];
   fragments: Fragment[] | null;
   pairedMatches: PairedSemanticGroups<DecodedSemanticResult>[];
   unpairedMatches: UnpairedSemanticGroups<DecodedSemanticResult>[];
-  leftCovered: number;
-  rightCovered: number;
 }

@@ -17,13 +17,17 @@ import {
   Kgram,
   Fragment,
   PairedOccurrence,
+  Selection,
 } from "@/api/models";
 import {
   Fragment as DolosFragment,
   EmptyTokenizer,
   Options,
   Index,
+  Region,
   SemanticAnalyzer,
+  DecodedSemanticResult,
+  PairedSemanticGroups,
 } from "@dodona/dolos-lib";
 
 /**
@@ -55,6 +59,7 @@ export const usePairStore = defineStore("pairs", () => {
           totalOverlap,
           leftFile: files[parseInt(assertType(row.leftFileId))],
           rightFile: files[parseInt(assertType(row.rightFileId))],
+          matches: [],
           fragments: null,
           pairedMatches: [],
           unpairedMatches: [],
@@ -150,6 +155,59 @@ export const usePairStore = defineStore("pairs", () => {
       kmersMap.set(kmer.hash, kmer);
     }
     pair.fragments = parseFragments(reportPair.fragments(), kmersMap);
+
+    // Check if a given selection is contained within another selection.
+    const isContained = (selection: Selection, region: Region): boolean => {
+      return Region.diff(
+        new Region(selection.startRow, selection.startCol, selection.endRow, selection.endCol),
+        region,
+      ).length === 0;
+    };
+
+    // Convert the paired matches into a map of ranges.
+    const pairedMatchesMap: Map<PairedSemanticGroups<DecodedSemanticResult>, [Region, Region]> = new Map();
+    for (const pairedMatch of pair.pairedMatches) {
+      pairedMatchesMap.set(pairedMatch, [
+        SemanticAnalyzer.getFullRange(leftFile, pairedMatch.leftMatch),
+        SemanticAnalyzer.getFullRange(rightFile, pairedMatch.rightMatch)
+      ]);
+    }
+
+    // Filter fragments that are not consumed by paired matches.
+    // A fragment is consumed by a paired match if both left & right selections
+    // are contained within the other paired match.
+    const filteredFragments = pair.fragments?.filter((fragment) => {
+      const fragmentLeft = fragment.left;
+      const fragmentRight = fragment.right;
+
+      return !pair.pairedMatches.some((pairedMatch) => {
+        const pairedMatchRegion = pairedMatchesMap.get(pairedMatch);
+        if (!pairedMatchRegion) return false;
+
+        const [pairedMatchLeft, pairedMatchRight] = pairedMatchRegion;
+        return isContained(fragmentLeft, pairedMatchLeft) && isContained(fragmentRight, pairedMatchRight);
+      });
+    }) ?? [];
+
+    // Convert the filtered fragments into a list of matches.
+    for (const fragment of filteredFragments) {
+      pair.matches.push({
+        left: fragment.left,
+        right: fragment.right,
+      });
+    }
+
+    // Convert the paired matches into a list of matches.
+    for (const pairedMatch of pair.pairedMatches) {
+      const pairedMatchRegion = pairedMatchesMap.get(pairedMatch);
+      if (!pairedMatchRegion) continue;
+      const [pairedMatchLeft, pairedMatchRight] = pairedMatchRegion;
+
+      pair.matches.push({
+        left: pairedMatchLeft,
+        right: pairedMatchRight,
+      });
+    }
   }
 
   // Populate the semantic matches for a given pair.
