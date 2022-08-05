@@ -20,6 +20,7 @@ jobs:
           path: |
             ${{ github.workspace }}/node_modules
             ${{ github.workspace }}/*/node_modules
+            ${{ github.workspace }}/workspaces/*/node_modules
           key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('**/yarn.lock') }}-${{ hashFiles('**/package.json') }}
 
       - name: Setup Node 📚
@@ -32,87 +33,33 @@ jobs:
         if: steps.cache-dependencies.outputs.cache-hit != 'true'
         run: yarn install
 
-  cli-build:
-    name: "CLI 💻️ - build 🔧"
-    runs-on: ubuntu-latest
-    needs: install-deps
-    strategy:
-      matrix:
-        node:  [ "14", "16" ]
-      fail-fast: false
-    steps:
-      - name: Checkout 🛎️
-        uses: actions/checkout@v3
-
-      - name: Setup Node 📚
-        uses: actions/setup-node@v3.4.1
-        with:
-          node-version: ${{ matrix.node }}
-
-      - name: Fetch Dependencies ⚡️
-        id: cache-dependencies
-        uses: actions/cache@v3
-        with:
-          path: |
-            ${{ github.workspace }}/node_modules
-            ${{ github.workspace }}/*/node_modules
-          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('**/yarn.lock') }}-${{ hashFiles('**/package.json') }}
-
-      - name: Check if cache was hit 🔎
-        if: steps.cache-dependencies.outputs.cache-hit != 'true'
-        run: |
-          echo "Should have hit cache"
-          false
-
-      - name: Build 🔧
-        run: |
-          cd cli/
-          yarn build --force
-
-  cli-lint:
-    name: "CLI 💻️ - lint 📏"
-    runs-on: ubuntu-latest
-    needs: install-deps
-    strategy:
-      matrix:
-        node: [ "16" ]
-      fail-fast: false
-    steps:
-      - name: Checkout 🛎️
-        uses: actions/checkout@v3
-
-      - name: Setup Node 📚
-        uses: actions/setup-node@v3.4.1
-        with:
-          node-version: ${{ matrix.node }}
-
-      - name: Fetch Dependencies ⚡️
-        id: cache-dependencies
-        uses: actions/cache@v3
-        with:
-          path: |
-            ${{ github.workspace }}/node_modules
-            ${{ github.workspace }}/*/node_modules
-          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('**/yarn.lock') }}-${{ hashFiles('**/package.json') }}
-
-      - name: Check if cache was hit 🔎
-        if: steps.cache-dependencies.outputs.cache-hit != 'true'
-        run: |
-          echo "Should have hit cache"
-          false
-
-      - name: Lint 📏
-        run: |
-          cd cli/
-          yarn lint
-
-  lib-build:
-    name: "Lib 📚 - build & test 🔧"
+  run-checks:
+    name: ${{ matrix.workspace.package }} ${{ matrix.workspace.icon }} - ${{ matrix.task.command }} ${{ matrix.task.icon }}
     runs-on: ubuntu-latest
     needs: install-deps
     strategy:
       matrix:
         node: [ "14", "16" ]
+        workspace:
+        - package: "@dodona/dolos"
+          icon: "💻️"
+          test: false
+        - package: "@dodona/dolos-web"
+          icon: "🌐"
+          test: false
+        - package: "@dodona/dolos-lib"
+          icon: "📚"
+          test: true
+        task:
+        - command: build
+          icon: 🔧
+        - command: lint
+          icon: 📏
+        exclude:
+        - task:
+            command: lint
+            icon: 📏
+          node: "14"
       fail-fast: false
     steps:
       - name: Checkout 🛎️
@@ -130,6 +77,7 @@ jobs:
           path: |
             ${{ github.workspace }}/node_modules
             ${{ github.workspace }}/*/node_modules
+            ${{ github.workspace }}/workspaces/*/node_modules
           key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('**/yarn.lock') }}-${{ hashFiles('**/package.json') }}
 
       - name: Check if cache was hit 🔎
@@ -138,97 +86,20 @@ jobs:
           echo "Should have hit cache"
           false
 
-      - name: Build & test 🔧
+      - name: Run ${{ matrix.task.command }} ${{ matrix.task.icon }}
         run: |
-          cd lib/
-          yarn build
-          yarn test -v --serial
+          yarn lerna run ${{ matrix.task.command }} --scope=${{ matrix.workspace.package }}
 
-  lib-lint:
-    name: "Lib 📚 - lint 📏"
-    runs-on: ubuntu-latest
-    needs: install-deps
-    strategy:
-      matrix:
-        node: [ "16" ]
-      fail-fast: false
-    steps:
-      - name: Checkout 🛎️
-        uses: actions/checkout@v3
-
-      - name: Setup Node 📚
-        uses: actions/setup-node@v3.4.1
-        with:
-          node-version: ${{ matrix.node }}
-
-      - name: Fetch Dependencies ⚡️
-        id: cache-dependencies
-        uses: actions/cache@v3
-        with:
-          path: |
-            ${{ github.workspace }}/node_modules
-            ${{ github.workspace }}/*/node_modules
-          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('**/yarn.lock') }}-${{ hashFiles('**/package.json') }}
-
-      - name: Check if cache was hit 🔎
-        if: steps.cache-dependencies.outputs.cache-hit != 'true'
+      - name: Run test 🧪
+        if: matrix.task.command == 'build' && matrix.workspace.test
         run: |
-          echo "Should have hit cache"
-          false
-
-      - name: Lint 📏
-        run: |
-          cd lib/
-          yarn lint
-  
-
-  web-build-deploy:
-    name: "Web 🌐 - build & deploy 🔧"
-    runs-on: ubuntu-latest
-    needs: install-deps
-    strategy:
-      matrix:
-        node: [ "14", "16" ]
-      fail-fast: false
-    steps:
-      - name: Checkout 🛎️
-        uses: actions/checkout@v3
-
-      - name: Setup Node 📚
-        uses: actions/setup-node@v3.4.1
-        with:
-          node-version: ${{ matrix.node }}
-
-      - name: Fetch Dependencies ⚡️
-        id: cache-dependencies
-        uses: actions/cache@v3
-        with:
-          path: |
-            ${{ github.workspace }}/node_modules
-            ${{ github.workspace }}/*/node_modules
-          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('**/yarn.lock') }}-${{ hashFiles('**/package.json') }}
-
-      - name: Check if cache was hit 🔎
-        if: steps.cache-dependencies.outputs.cache-hit != 'true'
-        run: |
-          echo "Should have hit cache"
-          false
-
-      - name: Build lib 🔧
-        run: |
-          cd lib/
-          yarn build
-
-      - name: Build web 🔧
-        run: |
-          cd web/
-          yarn build --skip-plugins eslint
+          yarn lerna run test --scope=${{ matrix.workspace.package }}
 
       - name: Deploy to staging 🚀
-        if: ${{ matrix.node == '16' }}
+        if: matrix.node == '16' && matrix.workspace.package == '@dodona/dolos-web' && matrix.task.command == 'build'
         run: |
           if [ -n "$KNOWN_HOSTS" ]; then
-            cd web/
+            cd workspaces/web/
             mkdir -p ~/.ssh
             echo "$SSH_KEY" > ~/.ssh/id_rsa
             chmod 600 ~/.ssh/id_rsa
@@ -249,43 +120,6 @@ jobs:
           SSH_KEY: ${{ secrets.SSH_KEY }}
           KNOWN_HOSTS: ${{ secrets.KNOWN_HOSTS }}
           REF: ${{ github.ref_name }}
-
-  web-lint:
-    name: "Web 🌐 - lint 📏"
-    runs-on: ubuntu-latest
-    needs: install-deps
-    strategy:
-      matrix:
-        node: [ "16" ]
-      fail-fast: false
-    steps:
-      - name: Checkout 🛎️
-        uses: actions/checkout@v3
-
-      - name: Setup Node 📚
-        uses: actions/setup-node@v3.4.1
-        with:
-          node-version: ${{ matrix.node }}
-
-      - name: Fetch Dependencies ⚡️
-        id: cache-dependencies
-        uses: actions/cache@v3
-        with:
-          path: |
-            ${{ github.workspace }}/node_modules
-            ${{ github.workspace }}/*/node_modules
-          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('**/yarn.lock') }}-${{ hashFiles('**/package.json') }}
-
-      - name: Check if cache was hit 🔎
-        if: steps.cache-dependencies.outputs.cache-hit != 'true'
-        run: |
-          echo "Should have hit cache"
-          false
-
-      - name: Lint 📏
-        run: |
-          cd web/
-          yarn lint
 
   docs:
     name: "Docs 📑"
@@ -386,6 +220,7 @@ jobs:
           path: |
             ${{ github.workspace }}/node_modules
             ${{ github.workspace }}/*/node_modules
+            ${{ github.workspace }}/workspaces/*/node_modules
           key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('**/yarn.lock') }}-${{ hashFiles('**/package.json') }}
 
       - name: Check if cache was hit 🔎
@@ -408,26 +243,14 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build lib 🔧
-        run: |
-          cd lib/
-          yarn build
-
-      - name: Build CLI 🔧
-        run: |
-          cd cli/
-          yarn build --force
-
-      - name: Build web 🔧
-        run: |
-          cd web/
-          yarn build
+      - name: Build 🔧
+        run: yarn build
 
       - name: Publish @dodona/dolos-lib to NPM
         uses: JS-DevTools/npm-publish@v1
         with:
           token: ${{ secrets.NPM_AUTH_TOKEN }}
-          package: ./lib/package.json
+          package: ./workspaces/lib/package.json
           check-version: true
           access: public
 
@@ -435,7 +258,7 @@ jobs:
         uses: JS-DevTools/npm-publish@v1
         with:
           token: ${{ secrets.NPM_AUTH_TOKEN }}
-          package: ./web/package.json
+          package: ./workspaces/web/package.json
           check-version: true
           access: public
 
@@ -443,7 +266,7 @@ jobs:
         uses: JS-DevTools/npm-publish@v1
         with:
           token: ${{ secrets.NPM_AUTH_TOKEN }}
-          package: ./cli/package.json
+          package: ./workspaces/cli/package.json
           check-version: true
           access: public
 

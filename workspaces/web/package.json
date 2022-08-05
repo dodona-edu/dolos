@@ -6,7 +6,7 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "serve:watch": "vue-cli-service serve --watch",
-    "build": "vue-cli-service build",
+    "build": "vue-cli-service build --skip-plugins=eslint",
     "lint": "vue-cli-service lint --format stylish"
   },
   "devDependencies": {

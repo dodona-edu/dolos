@@ -8,5 +8,7 @@ module.exports = {
   require: [
     "ts-node/register"
   ],
-  workerThreads: false
+  workerThreads: false,
+  verbose: "GITHUB_ACTIONS" in process.env,
+  serial: "GITHUB_ACTIONS" in process.env
 };

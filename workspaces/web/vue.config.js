@@ -8,9 +8,9 @@ module.exports = {
   configureWebpack: {
     resolve: {
       fallback: {
-        "path": false,
-        "fs": false,
-        "assert": false
+        path: false,
+        fs: false,
+        assert: false
       },
     },
     plugins: [
