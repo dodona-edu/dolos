@@ -1,6 +1,6 @@
 <template>
   <v-row>
-    <v-col cols="4">
+    <v-col cols="12" md="4" order="2" order-md="1">
       <GraphElementList
         :cluster="cluster"
         :selected-files="selectedFiles"
@@ -11,7 +11,7 @@
       />
     </v-col>
 
-    <v-col cols="8">
+    <v-col cols="12" md="8" order="1" order-md="2">
       <Graph
         :pairs="clusterPairs"
         :files="clusterFiles"
@@ -19,6 +19,7 @@
         :polygon="false"
         :clustering="clustering"
         :selected-node="selectionManager.currentSelections()[0]"
+        :height="400"
         @selectedNodeInfo="setSelectedNodeInfo"
       >
         <GraphLegend

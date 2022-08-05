@@ -53,6 +53,8 @@ interface Props {
   pairs: Pair[];
   zoomTo?: string;
   selectedNode: File;
+  width?: number;
+  height?: number;
 }
 
 const props = withDefaults(defineProps<Props>(), {});
@@ -63,7 +65,10 @@ const { cutoff, cutoffDebounced } = storeToRefs(useApiStore());
 // Reference to the container element.
 const container = shallowRef<HTMLElement>();
 // Container size
-const { width, height } = useElementSize(container);
+const containerSize = useElementSize(container);
+// Width & height
+const width = computed(() => props.width ?? containerSize.width.value);
+const height = computed(() => props.height ?? containerSize.height.value);
 
 // Selected cluser
 const selectedCluster = shallowRef<Cluster | null>(null);
@@ -512,11 +517,6 @@ onUnmounted(() => {
   position: relative;
 
   svg {
-    position: absolute;
-    left: 0;
-    top: 0;
-    right: 0;
-    bottom: 0;
     width: 100%;
     height: 100%;
     z-index: 1;

@@ -1,6 +1,6 @@
 <template>
   <v-row>
-    <v-col cols="4">
+    <v-col cols="12" md="4" order="2" order-md="1">
       <GraphElementList
         :cluster="props.cluster"
         :selected-files="files"
@@ -11,7 +11,7 @@
       />
     </v-col>
 
-    <v-col cols="8">
+    <v-col cols="12" md="4" order="1" order-md="2">
       <TimeSeries
         :cluster="props.cluster"
         :selection="true"

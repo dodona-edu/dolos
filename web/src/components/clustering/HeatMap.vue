@@ -1,6 +1,6 @@
 <template>
   <v-row class="heatmap">
-    <v-col cols="4">
+    <v-col cols="12" md="4" order="2" order-md="1">
       <GraphElementList
         :selected-files="selectedFiles"
         :cluster="cluster"
@@ -9,7 +9,7 @@
       />
     </v-col>
 
-    <v-col cols="8" class="d-flex">
+    <v-col cols="12" md="8" class="d-flex" order="1" order-md="2">
       <div ref="heatmapElement" class="svg-container"></div>
       <div ref="heatmapLegendElement"></div>
     </v-col>

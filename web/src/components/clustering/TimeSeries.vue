@@ -1,5 +1,5 @@
 <template>
-  <div ref="timeseriesElement">
+  <div class="timeseries" ref="timeseriesElement">
     <GraphLegend :legend.sync="legendValue" />
   </div>
 </template>
@@ -183,3 +183,9 @@ onUnmounted(() => {
   simulation.value?.stop();
 });
 </script>
+
+<style lang="scss" scoped>
+.timeseries {
+  position: relative;
+}
+</style>
