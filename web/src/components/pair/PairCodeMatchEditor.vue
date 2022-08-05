@@ -77,13 +77,16 @@ const selections = ref<Selection[]>([]);
 const decorations = shallowRef([]);
 
 // Get the match at a given editor position.
+// Will use the smallest match at the given position.
 const getMatchAtPosition = (row: number, col: number): Match | null => {
-  return matches.value?.find((match) => {
+  let smallestMatch = null;
+  let smallestMatchLength = Number.MAX_SAFE_INTEGER;
+
+  for (const match of matches.value) {
     const side = match[props.side];
 
     // If the row/col is within the match row range.
     const inRowRange = side.startRow + 1 <= row && row <= side.endRow + 1;
-
     // If the row/col is within the match col range.
     let inColRange = true;
     // If the row is the first row, it must be larger than the start match.
@@ -95,8 +98,17 @@ const getMatchAtPosition = (row: number, col: number): Match | null => {
       inColRange = col <= side.endCol + 1;
     }
 
-    return inRowRange && inColRange;
-  }) ?? null;
+    if (!inRowRange || !inColRange) continue;
+
+    // Check if the found match has a smaller length.
+    const length = (side.endRow - side.startRow + 1) * 10000 + (side.endCol - side.startCol + 1);
+    if (length < smallestMatchLength) {
+      smallestMatch = match;
+      smallestMatchLength = length;
+    }
+  }
+
+  return smallestMatch;
 };
 
 // Scroll to a given match.
