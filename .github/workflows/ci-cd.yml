@@ -21,7 +21,7 @@ jobs:
             ${{ github.workspace }}/node_modules
             ${{ github.workspace }}/*/node_modules
             ${{ github.workspace }}/workspaces/*/node_modules
-          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('**/yarn.lock') }}-${{ hashFiles('**/package.json') }}
+          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**/package.json') }}
 
       - name: Setup Node 📚
         if: steps.cache-dependencies.outputs.cache-hit != 'true'
@@ -29,9 +29,9 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
 
-      - name: Yarn install ⚡️
+      - name: Npm install ⚡️
         if: steps.cache-dependencies.outputs.cache-hit != 'true'
-        run: yarn install
+        run: npm install
 
   run-checks:
     name: ${{ matrix.workspace.package }} ${{ matrix.workspace.icon }} - ${{ matrix.task.command }} ${{ matrix.task.icon }}
@@ -78,7 +78,7 @@ jobs:
             ${{ github.workspace }}/node_modules
             ${{ github.workspace }}/*/node_modules
             ${{ github.workspace }}/workspaces/*/node_modules
-          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('**/yarn.lock') }}-${{ hashFiles('**/package.json') }}
+          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**/package.json') }}
 
       - name: Check if cache was hit 🔎
         if: steps.cache-dependencies.outputs.cache-hit != 'true'
@@ -88,12 +88,12 @@ jobs:
 
       - name: Run ${{ matrix.task.command }} ${{ matrix.task.icon }}
         run: |
-          yarn lerna run ${{ matrix.task.command }} --scope=${{ matrix.workspace.package }}
+          npx lerna run ${{ matrix.task.command }} --scope=${{ matrix.workspace.package }}
 
       - name: Run test 🧪
         if: matrix.task.command == 'build' && matrix.workspace.test
         run: |
-          yarn lerna run test --scope=${{ matrix.workspace.package }}
+          npx lerna run test --scope=${{ matrix.workspace.package }}
 
       - name: Deploy to staging 🚀
         if: matrix.node == '16' && matrix.workspace.package == '@dodona/dolos-web' && matrix.task.command == 'build'
@@ -221,7 +221,7 @@ jobs:
             ${{ github.workspace }}/node_modules
             ${{ github.workspace }}/*/node_modules
             ${{ github.workspace }}/workspaces/*/node_modules
-          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('**/yarn.lock') }}-${{ hashFiles('**/package.json') }}
+          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**/package.json') }}
 
       - name: Check if cache was hit 🔎
         if: steps.cache-dependencies.outputs.cache-hit != 'true'
@@ -244,7 +244,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build 🔧
-        run: yarn build
+        run: npm run build
 
       - name: Publish @dodona/dolos-lib to NPM
         uses: JS-DevTools/npm-publish@v1
