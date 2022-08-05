@@ -13,6 +13,7 @@ updates:
     time: "13:00"
     timezone: Europe/Brussels
 - package-ecosystem: npm
+  target-branch: feature/monorepo-manager
   directory: "/"
   schedule:
     interval: weekly
