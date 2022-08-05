@@ -68,6 +68,7 @@ interface Props {
   selectedFiles: File[];
   maxHeight?: string;
   scroll?: boolean;
+  clickable?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {});
@@ -104,6 +105,11 @@ const getColor = (file: File): string => {
   return legend.value[file.extra.labels].color;
 };
 
+// Row cursor
+const rowCursor = computed(() => {
+  return props.clickable ? "pointer" : "default";
+});
+
 // When a row is clicked.
 const rowClick = (file: File): void => {
   emit("select-click", file);
@@ -127,6 +133,7 @@ watch(
   max-height: v-bind("props.maxHeight");
 
   &-row {
+    cursor: v-bind("rowCursor");
     transition: background-color 0.15s ease;
 
     &.selected {

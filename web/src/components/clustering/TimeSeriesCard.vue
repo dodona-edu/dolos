@@ -6,6 +6,7 @@
         :selected-files="files"
         max-height="400px"
         scroll
+        clickable
         @select-click="selectFile"
       />
     </v-col>
