@@ -263,31 +263,41 @@ const initialize = (): void => {
   });
 
   // Allow using the tab key to cycle through the matches.
-  editor.value.addCommand(monaco.KeyCode.Tab, () => {
-    if (!matches.value) return;
+  editor.value.addAction({
+    id: "match-next",
+    label: "Go to next match",
+    keybindings: [monaco.KeyCode.Tab],
+    run: () => {
+      if (!matches.value) return;
 
-    const index = selectedMatch.value ? matches.value?.indexOf(selectedMatch.value) : 0;
-    const nextIndex = index === null || index === matches.value.length - 1 ? 0 : index + 1;
-    const nextMatch = matches.value?.[nextIndex];
+      const index = selectedMatch.value ? matches.value?.indexOf(selectedMatch.value) : 0;
+      const nextIndex = index === null || index === matches.value.length - 1 ? 0 : index + 1;
+      const nextMatch = matches.value?.[nextIndex];
 
-    // Scroll to the match.
-    scrollToMatch(nextMatch);
-    // Set the selected match.
-    selectedMatch.value = nextMatch ?? null;
+      // Scroll to the match.
+      scrollToMatch(nextMatch);
+      // Set the selected match.
+      selectedMatch.value = nextMatch ?? null;
+    }
   });
 
   // Allow using the shift+tab key to cycle through the matches, in reverse.
-  editor.value.addCommand(monaco.KeyCode.Shift | monaco.KeyCode.Tab, () => {
-    if (!matches.value) return;
+  editor.value.addAction({
+    id: "match-previous",
+    label: "Go to previous match",
+    keybindings: [monaco.KeyMod.Shift | monaco.KeyCode.Tab],
+    run: () => {
+      if (!matches.value) return;
 
-    const index = selectedMatch.value ? matches.value?.indexOf(selectedMatch.value) : 0;
-    const prevIndex = index === null || index === 0 ? matches.value.length - 1 : index - 1;
-    const prevMatch = matches.value?.[prevIndex];
+      const index = selectedMatch.value ? matches.value?.indexOf(selectedMatch.value) : 0;
+      const prevIndex = index === null || index === 0 ? matches.value.length - 1 : index - 1;
+      const prevMatch = matches.value?.[prevIndex];
 
-    // Scroll to the match.
-    scrollToMatch(prevMatch);
-    // Set the selected match.
-    selectedMatch.value = prevMatch ?? null;
+      // Scroll to the match.
+      scrollToMatch(prevMatch);
+      // Set the selected match.
+      selectedMatch.value = prevMatch ?? null;
+    }
   });
 };
 
