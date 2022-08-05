@@ -55,7 +55,9 @@
         <v-list nav dense>
           <v-list-item class="anonymize">
             <v-list-item-icon>
-              <v-icon>mdi-incognito</v-icon>
+              <v-badge :color="isAnonymous ? 'red' : ''" dot overlap>
+                <v-icon>mdi-incognito</v-icon>
+              </v-badge>
             </v-list-item-icon>
             <div class="anonymize-content">
               <v-list-item-title>Anonymize</v-list-item-title>
