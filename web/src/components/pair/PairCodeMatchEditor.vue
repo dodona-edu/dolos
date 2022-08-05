@@ -77,13 +77,16 @@ const selections = ref<Selection[]>([]);
 const decorations = shallowRef([]);
 
 // Get the match at a given editor position.
+// Will use the smallest match at the given position.
 const getMatchAtPosition = (row: number, col: number): Match | null => {
-  return matches.value?.find((match) => {
+  let smallestMatch = null;
+  let smallestMatchLength = Number.MAX_SAFE_INTEGER;
+
+  for (const match of matches.value) {
     const side = match[props.side];
 
     // If the row/col is within the match row range.
     const inRowRange = side.startRow + 1 <= row && row <= side.endRow + 1;
-
     // If the row/col is within the match col range.
     let inColRange = true;
     // If the row is the first row, it must be larger than the start match.
@@ -95,8 +98,17 @@ const getMatchAtPosition = (row: number, col: number): Match | null => {
       inColRange = col <= side.endCol + 1;
     }
 
-    return inRowRange && inColRange;
-  }) ?? null;
+    if (!inRowRange || !inColRange) continue;
+
+    // Check if the found match has a smaller length.
+    const length = (side.endRow - side.startRow + 1) * 10000 + (side.endCol - side.startCol + 1);
+    if (length < smallestMatchLength) {
+      smallestMatch = match;
+      smallestMatchLength = length;
+    }
+  }
+
+  return smallestMatch;
 };
 
 // Scroll to a given match.
@@ -211,6 +223,7 @@ const initialize = (): void => {
     automaticLayout: true,
     renderLineHighlight: "none",
     renderValidationDecorations: "off",
+    contextmenu: false,
     minimap: {
       enabled: false,
     }
@@ -250,31 +263,41 @@ const initialize = (): void => {
   });
 
   // Allow using the tab key to cycle through the matches.
-  editor.value.addCommand(monaco.KeyCode.Tab, () => {
-    if (!matches.value) return;
+  editor.value.addAction({
+    id: "match-next",
+    label: "Go to next match",
+    keybindings: [monaco.KeyCode.Tab],
+    run: () => {
+      if (!matches.value) return;
 
-    const index = selectedMatch.value ? matches.value?.indexOf(selectedMatch.value) : 0;
-    const nextIndex = index === null || index === matches.value.length - 1 ? 0 : index + 1;
-    const nextMatch = matches.value?.[nextIndex];
+      const index = selectedMatch.value ? matches.value?.indexOf(selectedMatch.value) : 0;
+      const nextIndex = index === null || index === matches.value.length - 1 ? 0 : index + 1;
+      const nextMatch = matches.value?.[nextIndex];
 
-    // Scroll to the match.
-    scrollToMatch(nextMatch);
-    // Set the selected match.
-    selectedMatch.value = nextMatch ?? null;
+      // Scroll to the match.
+      scrollToMatch(nextMatch);
+      // Set the selected match.
+      selectedMatch.value = nextMatch ?? null;
+    }
   });
 
   // Allow using the shift+tab key to cycle through the matches, in reverse.
-  editor.value.addCommand(monaco.KeyCode.Shift | monaco.KeyCode.Tab, () => {
-    if (!matches.value) return;
+  editor.value.addAction({
+    id: "match-previous",
+    label: "Go to previous match",
+    keybindings: [monaco.KeyMod.Shift | monaco.KeyCode.Tab],
+    run: () => {
+      if (!matches.value) return;
 
-    const index = selectedMatch.value ? matches.value?.indexOf(selectedMatch.value) : 0;
-    const prevIndex = index === null || index === 0 ? matches.value.length - 1 : index - 1;
-    const prevMatch = matches.value?.[prevIndex];
+      const index = selectedMatch.value ? matches.value?.indexOf(selectedMatch.value) : 0;
+      const prevIndex = index === null || index === 0 ? matches.value.length - 1 : index - 1;
+      const prevMatch = matches.value?.[prevIndex];
 
-    // Scroll to the match.
-    scrollToMatch(prevMatch);
-    // Set the selected match.
-    selectedMatch.value = prevMatch ?? null;
+      // Scroll to the match.
+      scrollToMatch(prevMatch);
+      // Set the selected match.
+      selectedMatch.value = prevMatch ?? null;
+    }
   });
 };
 
