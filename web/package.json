@@ -31,6 +31,7 @@
     "eslint-plugin-promise": "^6.0.0",
     "eslint-plugin-standard": "^5.0.0",
     "eslint-plugin-vue": "^9.3.0",
+    "monaco-editor-webpack-plugin": "^7.0.1",
     "np": "^7.5.0",
     "sass": "<1.33.0",
     "sass-loader": "^13.0.0",
