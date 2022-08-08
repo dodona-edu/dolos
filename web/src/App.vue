@@ -110,7 +110,7 @@
     <v-main>
       <v-container class="container">
         <router-view v-if="isLoaded" />
-        <loading v-else :text="loadingTask" />
+        <loading v-else :text="loadingText" />
       </v-container>
     </v-main>
   </v-app>
@@ -127,7 +127,7 @@ import packageJson from "../package.json";
 const breakpoints = useBreakpoints();
 const router = useRouter();
 const api = useApiStore();
-const { isLoaded, isAnonymous, loadingTask } = storeToRefs(api);
+const { isLoaded, isAnonymous, loadingText } = storeToRefs(api);
 
 // If the drawer is open/closed.
 const drawer = shallowRef(breakpoints.value.desktop);

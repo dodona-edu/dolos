@@ -105,6 +105,7 @@ export const useFileStore = defineStore("files", () => {
   // Anonymize the data.
   function anonymize(): void {
     apiStore.isLoaded = false;
+    apiStore.loadingText = "Anonymizing files...";
 
     for (const file of Object.values(files.value)) {
       if (apiStore.isAnonymous) {
