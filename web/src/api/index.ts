@@ -1,2 +1,2 @@
 // Constants
-export const DATA_URL = "./data/";
+export const DATA_URL = "/data/";

@@ -110,57 +110,40 @@
     <v-main>
       <v-container class="container">
         <router-view v-if="isLoaded" />
-        <loading v-else />
+        <loading v-else :text="loadingTask" />
       </v-container>
     </v-main>
   </v-app>
 </template>
 
-<script lang="ts">
-import { defineComponent, shallowRef, computed } from "vue";
+<script lang="ts" setup>
+import { shallowRef, computed } from "vue";
 import { storeToRefs } from "pinia";
 import { useRouter, useBreakpoints } from "@/composables";
 import { useApiStore } from "@/api/stores";
 import Loading from "@/components/Loading.vue";
 import packageJson from "../package.json";
 
-export default defineComponent({
-  setup() {
-    const breakpoints = useBreakpoints();
-    const router = useRouter();
-    const api = useApiStore();
-    const { isLoaded, isAnonymous } = storeToRefs(api);
+const breakpoints = useBreakpoints();
+const router = useRouter();
+const api = useApiStore();
+const { isLoaded, isAnonymous, loadingTask } = storeToRefs(api);
 
-    // If the drawer is open/closed.
-    const drawer = shallowRef(breakpoints.value.desktop);
+// If the drawer is open/closed.
+const drawer = shallowRef(breakpoints.value.desktop);
 
-    // Current version of the application.
-    const version = computed(() => packageJson.version);
+// Current version of the application.
+const version = computed(() => packageJson.version);
 
-    // Navigate to a specific route.
-    const navigateTo = (route: string): void => {
-      if (router.currentRoute.path !== route) {
-        router.push(route);
-      }
-    };
+// Navigate to a specific route.
+const navigateTo = (route: string): void => {
+  if (router.currentRoute.path !== route) {
+    router.push(route);
+  }
+};
 
-    // Hydrate all the stores (fetch all the data).
-    api.hydrate();
-
-    return {
-      breakpoints,
-      isLoaded,
-      isAnonymous,
-      drawer,
-      version,
-      navigateTo,
-    };
-  },
-
-  components: {
-    Loading
-  },
-});
+// Hydrate all the stores (fetch all the data).
+api.hydrate();
 </script>
 
 <style lang="scss">

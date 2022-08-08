@@ -25,11 +25,7 @@
 </template>
 
 <script lang="ts" setup>
-import {
-  shallowRef,
-  computed,
-  watch,
-} from "vue";
+import { shallowRef, onMounted } from "vue";
 import { usePairStore, useMetadataStore } from "@/api/stores";
 import CompareCard from "@/components/CompareCard.vue";
 
@@ -46,18 +42,14 @@ const metadataStore = useMetadataStore();
 const isLoaded = shallowRef(false);
 
 // Pair to display.
-const pair = computed(() => pairStore.getPair(parseInt(props.pairId)));
+const pair = shallowRef(pairStore.getPair(parseInt(props.pairId)));
 
-// Fetch the pair's fragments when the pair changes.
-watch(
-  () => pair.value,
-  async () => {
-    if (!pair.value) return;
+// Fetch the pair's fragments.
+onMounted(async () => {
+  if (!pair.value) return;
 
-    isLoaded.value = false;
-    await pairStore.populateFragments(pair.value);
-    isLoaded.value = true;
-  },
-  { immediate: true }
-);
+  isLoaded.value = false;
+  pair.value = await pairStore.populateFragments(pair.value);
+  isLoaded.value = true;
+});
 </script>
