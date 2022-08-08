@@ -4,16 +4,21 @@ const webpack = require("webpack");
 module.exports = {
   publicPath: "./",
   transpileDependencies: ["vuetify"],
-  // explicitly makes sure that tree sitter is not loaded as it does not work in browser environments
-  configureWebpack: {
-    resolve: {
+  configureWebpack: (config) => {
+    // Webpack resolve paths of dependencies.
+    config.resolve = {
       fallback: {
-        "path": false,
-        "fs": false,
-        "assert": require.resolve("assert/"),
+        path: false,
+        fs: false,
+        assert: require.resolve("assert/"),
       },
-    },
-    plugins: [
+      ...config.resolve
+    };
+
+    // Webpack plugins.
+    config.plugins.push(...[
+      // explicitly makes sure that tree sitter is not loaded
+      // as it does not work in browser environments
       new webpack.IgnorePlugin({
         resourceRegExp: /tree-sitter/,
       }),
@@ -21,6 +26,19 @@ module.exports = {
         resourceRegExp: /codeTokenizer/,
         contextRegExp: /library/,
       }),
-    ],
+    ]);
+
+    // Add ComLink loader for handling webworkers.
+    config.module.rules.unshift({
+      test: /\.worker\.ts$/i,
+      use: [
+        {
+          loader: "comlink-loader",
+          options: {
+            singleton: true,
+          },
+        },
+      ],
+    });
   },
 };
