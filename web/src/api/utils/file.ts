@@ -13,7 +13,6 @@ export function fileToTokenizedFile(file: File): TokenizedFile {
 /**
  * Common filename prefix for a given list of files
  * @param files Files
- * @param getPath Function to extract the path from the file
  * @returns Common prefix for all files.
  */
 export function commonFilenamePrefix(files: File[]): string {
