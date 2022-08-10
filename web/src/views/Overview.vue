@@ -70,8 +70,8 @@
                 </span>
               </v-tooltip>
             </h3>
-            <div class="stat-card-value">{{ averageSimilarity }}%</div>
-            <div class="stat-card-subtitle text--secondary">Average similarity</div>
+            <div class="stat-card-value">{{ (apiStore.cutoff * 100).toFixed() }}%</div>
+            <div class="stat-card-subtitle text--secondary">Average similarity: {{ averageSimilarity }}%</div>
           </div>
         </v-card>
 
@@ -268,7 +268,6 @@ import OverviewBarchart from "@/components/overview/OverviewBarchart.vue";
 import SimilaritySetting from "@/components/settings/SimilaritySetting.vue";
 import packageJson from "../../package.json";
 
-const breakpoints = useBreakpoints();
 const apiStore = useApiStore();
 const fileStore = useFileStore();
 const pairStore = usePairStore();
@@ -304,7 +303,6 @@ const averageSimilarity = computed(() => {
     0
   );
   const divisor = Object.keys(pairStore.pairs).length;
-
   return (divident / divisor * 100).toFixed(0);
 });
 
