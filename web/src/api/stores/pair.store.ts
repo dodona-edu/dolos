@@ -1,8 +1,7 @@
-import * as d3 from "d3";
 import { defineStore } from "pinia";
 import { shallowRef, computed } from "vue";
 import { DATA_URL } from "@/api";
-import { assertType } from "@/api/utils";
+import { assertType, parseCsv } from "@/api/utils";
 import {
   useFileStore,
   useKgramStore,
@@ -28,7 +27,7 @@ export const usePairStore = defineStore("pairs", () => {
   const hydrated = shallowRef(false);
 
   // Parse the pairs from a CSV string.
-  function parse(pairData: d3.DSVRowArray, files: ObjMap<File>): ObjMap<Pair> {
+  function parse(pairData: any[], files: ObjMap<File>): ObjMap<Pair> {
     return Object.fromEntries(
       pairData.map((row) => {
         const id = parseInt(assertType(row.id));
@@ -60,8 +59,8 @@ export const usePairStore = defineStore("pairs", () => {
   // Fetch the pairs from the CSV file.
   async function fetch(
     url: string = DATA_URL + "pairs.csv"
-  ): Promise<d3.DSVRowArray> {
-    return await d3.csv(url);
+  ): Promise<any[]> {
+    return await parseCsv(url);
   }
 
   // Reference to the other stores.
