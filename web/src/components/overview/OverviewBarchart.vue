@@ -125,7 +125,7 @@ export default defineComponent({
       const yAxis = barchartContent
         .append("g")
         .attr("transform", "translate(0, 0)")
-        .call(d3.axisLeft(xScale));
+        .call(d3.axisLeft(xScale).tickFormat(d3.format(".0%")));
       yAxis.append("text")
         .text("Similarity")
         .attr("font-size", 15)
