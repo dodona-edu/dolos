@@ -124,7 +124,7 @@
               </v-card-text>
               <v-card-actions>
                 <v-spacer />
-                <v-btn color="success" depressed to="/graph">
+                <v-btn color="primary" depressed to="/graph">
                   Go to graph view
                 </v-btn>
               </v-card-actions>
@@ -167,10 +167,10 @@
               </v-card-text>
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn color="success" depressed to="/pairs">
+                <v-btn color="primary" text to="/pairs">
                   Go to pair view
                 </v-btn>
-                <v-btn color="success" depressed to="/fileanalysis">
+                <v-btn color="primary" depressed to="/fileanalysis">
                   Go to file analysis
                 </v-btn>
               </v-card-actions>
