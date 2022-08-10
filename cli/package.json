@@ -40,7 +40,7 @@
     "@dodona/dolos-lib": "1.7.0",
     "@dodona/dolos-web": "1.7.0",
     "@elm-tooling/tree-sitter-elm": "^5.6.0",
-    "chalk": "^4.1.1",
+    "chalk": "^5.0.0",
     "cliui": "^7.0.4",
     "commander": "^8.1.0",
     "csv-stringify": "^6.2.0",
