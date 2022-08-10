@@ -118,8 +118,7 @@ export function runCommand(program: Command): Command {
       "--no-open",
       Utils.indent(
         "Do not open the web page in your browser once it is ready."
-      ),
-      false
+      )
     )
     .option(
       "--sort-by <field>",
