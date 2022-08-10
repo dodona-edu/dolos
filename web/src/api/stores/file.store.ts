@@ -26,7 +26,7 @@ export const useFileStore = defineStore("files", () => {
   function parse(fileData: d3.DSVRowArray): ObjMap<File> {
     const randomNameGenerator = (): string => uniqueNamesGenerator({
       dictionaries: [colors, names],
-      length: 2
+      length: 1
     });
 
     const timeOffset = Math.random() * 1000 * 60 * 60 * 24 * 20;
@@ -52,8 +52,8 @@ export const useFileStore = defineStore("files", () => {
       // Store pseudo details.
       const pseudoName = randomNameGenerator();
       file.pseudo = {
-        path: `/exercise/${pseudoName}.${filePathExtension}`,
-        shortPath: "",
+        path: `${pseudoName}.${filePathExtension}`,
+        shortPath: file.pseudo.path,
         fullName: pseudoName,
         timestamp: extra.timestamp ? new Date(extra.timestamp.getTime() + timeOffset) : undefined,
         labels: String(labels.indexOf(extra.labels)) ?? "",
@@ -73,13 +73,10 @@ export const useFileStore = defineStore("files", () => {
     const files: File[] = Object.fromEntries(filesMap);
 
     // Find the common path in the files.
-    const commonPath = commonFilenamePrefix(Object.values(files), (f) => f.path);
+    const commonPath = commonFilenamePrefix(Object.values(files));
     const commonPathLength = commonPath.length;
-    const commonPseudoPath = commonFilenamePrefix(Object.values(files), (f) => f.pseudo.path);
-    const commonPseudoPathLength = commonPseudoPath.length;
     for (const file of Object.values(files)) {
       file.shortPath = file.path.substring(commonPathLength);
-      file.pseudo.shortPath = file.pseudo.path.substring(commonPseudoPathLength);
       file.original.shortPath = file.shortPath;
     }
 

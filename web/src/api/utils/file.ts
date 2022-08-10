@@ -16,16 +16,16 @@ export function fileToTokenizedFile(file: File): TokenizedFile {
  * @param getPath Function to extract the path from the file
  * @returns Common prefix for all files.
  */
-export function commonFilenamePrefix(files: File[], getPath: (f: File) => string): string {
+export function commonFilenamePrefix(files: File[]): string {
   if (files.length <= 1) return "";
 
   let index = 0;
   while (
-    getPath(files[0])[index] &&
-    files.every((f) => getPath(f)[index] === getPath(files[0])[index])
+    files[0].path[index] &&
+    files.every((f) => f.path[index] === files[0].path[index])
   ) {
     index++;
   }
 
-  return getPath(files[0]).substring(0, index) ?? "";
+  return files[0].path.substring(0, index) ?? "";
 }
