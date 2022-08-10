@@ -10,7 +10,7 @@
     </div>
 
     <v-row>
-      <v-col cols="12" lg="4" class="info-cards">
+      <v-col cols="12" md="6" lg="4" class="info-cards">
         <v-card class="info-card">
           <v-card-title>Dataset</v-card-title>
           <v-card-subtitle class="pb-0">Information about the loaded dataset</v-card-subtitle>
@@ -68,7 +68,7 @@
         </v-card>
       </v-col>
 
-      <v-col cols="12" lg="3" class="stat-cards">
+      <v-col cols="12" md="6" lg="3" class="stat-cards">
         <v-card class="stat-card">
           <div class="stat-card-icon primary">
             <v-icon color="white" x-large>mdi-select-compare</v-icon>
@@ -177,11 +177,11 @@
 
       <v-col cols="12">
         <v-card>
-          <div class="d-flex flex-column flex-sm-row flex-no-wrap justify-center">
+          <div class="d-flex flex-column flex-md-row flex-no-wrap justify-center">
             <div class="ma-4 d-flex align-center justify-center">
               <v-img
                 src="../assets/soco-java-graph.png"
-                :max-width="breakpoints.desktop ? 270 : '60%'"
+                :max-width="270"
                 contain
               />
             </div>
@@ -225,11 +225,11 @@
 
       <v-col cols="12">
         <v-card>
-          <div class="d-flex flex-column flex-sm-row flex-no-wrap justify-start">
+          <div class="d-flex flex-column flex-md-row flex-no-wrap justify-start">
             <div class="ma-4 d-flex align-center justify-center">
               <v-img
                 src="../assets/file-comparison.png"
-                :max-width="breakpoints.desktop ? 270 : '70%'"
+                :max-width="270"
                 contain
               />
             </div>
