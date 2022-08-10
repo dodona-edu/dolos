@@ -8,6 +8,7 @@
     :items-per-page="15"
     :search="search"
     :footer-props="footerProps"
+    :hide-default-footer="props.pairs.length <= props.itemsPerPage"
     @click:row="rowClicked"
   />
 </template>
