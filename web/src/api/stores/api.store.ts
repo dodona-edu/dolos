@@ -31,6 +31,7 @@ export const useApiStore = defineStore("api", () => {
 
   // Cut-off value.
   const cutoff = shallowRef(0.75);
+  const cutoffDefault = shallowRef(0.75);
   const cutoffDebounced = refDebounced(cutoff, 100);
 
   // Hydrate the API stores.
@@ -52,6 +53,7 @@ export const useApiStore = defineStore("api", () => {
     // Calculate the initial cut-off value.
     loadingText.value = "Calculating initial cut-off...";
     cutoff.value = getInterpolatedSimilarity(pairStore.pairsList);
+    cutoffDefault.value = cutoff.value;
 
     isLoaded.value = true;
   };
@@ -69,6 +71,7 @@ export const useApiStore = defineStore("api", () => {
     isLoaded,
     loadingText,
     cutoff,
+    cutoffDefault,
     cutoffDebounced,
     hydrate,
   };
