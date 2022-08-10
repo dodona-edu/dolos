@@ -1,6 +1,6 @@
 <template>
   <div class="similarity-setting">
-    <label class="text--secondary">Similarity ≥ {{ cutoff.toFixed(2) }}</label>
+    <label class="text--secondary">Similarity ≥ {{ cutoff.toFixed(2) * 100 }}%</label>
 
     <div class="similarity-setting-actions">
       <v-slider
