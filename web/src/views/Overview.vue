@@ -23,15 +23,15 @@
             </v-list-item>
 
             <v-list-item class="info-list-item">
-              <v-icon>mdi-tag-outline</v-icon>
-              <strong>Label groups:</strong>
-              <span>{{ legendCount }}</span>
-            </v-list-item>
-
-            <v-list-item class="info-list-item">
               <v-icon>mdi-xml</v-icon>
               <strong>Programming Language:</strong>
               <span>{{ metadataStore.metadata.language }}</span>
+            </v-list-item>
+
+            <v-list-item class="info-list-item">
+              <v-icon>mdi-tag-outline</v-icon>
+              <strong>Labels:</strong>
+              <span>{{ legendCount }}</span>
             </v-list-item>
           </v-list>
 
@@ -41,28 +41,6 @@
             <v-btn color="primary" text to="/fileanalysis">
               View Files
               <v-icon right>mdi-chevron-right</v-icon>
-            </v-btn>
-          </v-card-actions>
-        </v-card>
-
-        <v-card class="info-card">
-          <v-card-title>Dolos</v-card-title>
-          <v-card-subtitle class="pb-0">Information about Dolos</v-card-subtitle>
-
-          <v-list class="info-list" dense>
-            <v-list-item class="info-list-item">
-              <v-icon>mdi-tag-outline</v-icon>
-              <strong>Version:</strong>
-              <span>v{{ version }}</span>
-            </v-list-item>
-          </v-list>
-
-          <v-card-actions class="info-card-actions">
-            <v-spacer />
-
-            <v-btn color="primary" text href="https://dolos.ugent.be" target="_blank">
-              Documentation
-              <v-icon right>mdi-open-in-new</v-icon>
             </v-btn>
           </v-card-actions>
         </v-card>
