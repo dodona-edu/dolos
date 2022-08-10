@@ -25,7 +25,7 @@ export const useFileStore = defineStore("files", () => {
   // Parse the files from a CSV string.
   function parse(fileData: d3.DSVRowArray): ObjMap<File> {
     const randomNameGenerator = (): string => uniqueNamesGenerator({
-      dictionaries: [colors, names],
+      dictionaries: [names],
       length: 1
     });
 
