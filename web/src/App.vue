@@ -124,13 +124,12 @@
 <script lang="ts" setup>
 import { shallowRef, computed } from "vue";
 import { storeToRefs } from "pinia";
-import { useRouter, useBreakpoints } from "@/composables";
+import { useBreakpoints } from "@/composables";
 import { useApiStore } from "@/api/stores";
 import Loading from "@/components/Loading.vue";
 import packageJson from "../package.json";
 
 const breakpoints = useBreakpoints();
-const router = useRouter();
 const api = useApiStore();
 const { isLoaded, isAnonymous, loadingText } = storeToRefs(api);
 
