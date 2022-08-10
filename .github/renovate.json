@@ -6,5 +6,6 @@
   ],
   "rangeStrategy": "update-lockfile",
   "lockFileMaintenance": { "enabled": true },
-  "timezone": "Europe/Brussels"
+  "timezone": "Europe/Brussels",
+  "labels": ["dependencies"]
 }
