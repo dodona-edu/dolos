@@ -51,9 +51,10 @@ export const useFileStore = defineStore("files", () => {
 
       // Store pseudo details.
       const pseudoName = randomNameGenerator();
+      const pseudoPath = `${pseudoName}.${filePathExtension}`;
       file.pseudo = {
-        path: `${pseudoName}.${filePathExtension}`,
-        shortPath: file.pseudo.path,
+        path: pseudoPath,
+        shortPath: pseudoPath,
         fullName: pseudoName,
         timestamp: extra.timestamp ? new Date(extra.timestamp.getTime() + timeOffset) : undefined,
         labels: String(labels.indexOf(extra.labels)) ?? "",
