@@ -5,7 +5,12 @@
         v-if="!breakpoints.desktop"
         @click.stop="drawer = !drawer"
       />
-      <v-toolbar-title @click="navigateTo('/')">DOLOS</v-toolbar-title>
+
+      <v-toolbar-title>
+        <RouterLink to="/">
+          DOLOS
+        </RouterLink>
+      </v-toolbar-title>
     </v-app-bar>
 
     <v-navigation-drawer
@@ -135,13 +140,6 @@ const drawer = shallowRef(breakpoints.value.desktop);
 // Current version of the application.
 const version = computed(() => packageJson.version);
 
-// Navigate to a specific route.
-const navigateTo = (route: string): void => {
-  if (router.currentRoute.path !== route) {
-    router.push(route);
-  }
-};
-
 // Hydrate all the stores (fetch all the data).
 api.hydrate();
 </script>
@@ -149,6 +147,13 @@ api.hydrate();
 <style lang="scss">
 .v-messages {
   display: none;
+}
+
+.v-toolbar__title {
+  a {
+    color: inherit !important;
+    text-decoration: none;
+  }
 }
 
 .anonymize {
