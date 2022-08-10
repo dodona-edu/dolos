@@ -1,6 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const webpack = require("webpack");
 const MonacoWebpackPlugin = require("monaco-editor-webpack-plugin");
+const sass = require("sass");
 
 module.exports = {
   publicPath: "./",
@@ -25,4 +26,13 @@ module.exports = {
       new MonacoWebpackPlugin()
     ],
   },
+  css: {
+    loaderOptions: {
+      sass: {
+        sassOptions: {
+          logger: sass.Logger.silent
+        }
+      }
+    }
+  }
 };
