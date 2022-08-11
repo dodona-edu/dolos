@@ -16,6 +16,22 @@ export interface FileIndeterminate {
     fullName?: string;
     labels?: string;
   };
+
+  pseudo: {
+    path: string;
+    shortPath: string;
+    fullName?: string;
+    timestamp?: Date;
+    labels?: string;
+  },
+
+  original: {
+    path: string;
+    shortPath: string;
+    fullName?: string;
+    timestamp?: Date;
+    labels?: string;
+  },
 }
 
 interface LoadedFile extends FileIndeterminate {

@@ -1,10 +1,10 @@
 import * as d3 from "d3";
 import { defineStore } from "pinia";
-import { shallowRef, computed } from "vue";
+import { shallowRef, computed, nextTick } from "vue";
 import { DATA_URL } from "@/api";
 import { File, ObjMap } from "@/api/models";
 import { useApiStore } from "@/api/stores";
-import { colors, names, uniqueNamesGenerator } from "unique-names-generator";
+import { names, uniqueNamesGenerator } from "unique-names-generator";
 import { useLegend } from "@/composables";
 import { commonFilenamePrefix } from "../utils";
 
@@ -23,16 +23,19 @@ export const useFileStore = defineStore("files", () => {
   const legend = useLegend(files);
 
   // Parse the files from a CSV string.
-  function parse(fileData: d3.DSVRowArray, anonymize = false): ObjMap<File> {
-    const randomNameGenerator = (): string =>
-      uniqueNamesGenerator({ dictionaries: [colors, names], length: 2 });
+  function parse(fileData: d3.DSVRowArray): ObjMap<File> {
+    const randomNameGenerator = (): string => uniqueNamesGenerator({
+      dictionaries: [names],
+      length: 1
+    });
 
-    const labelMap: Map<string, number> = new Map();
     const timeOffset = Math.random() * 1000 * 60 * 60 * 24 * 20;
-    let labelCounter = 1;
+    const labels: string[] = [];
 
     const filesMap = fileData.map((row: any) => {
       const file = row as File;
+      const filePathSplit = row.path.split(".");
+      const filePathExtension = filePathSplit[filePathSplit.length - 1];
       const extra = JSON.parse(row.extra || "{}");
       extra.timestamp = extra.createdAt && new Date(extra.createdAt);
       file.extra = extra;
@@ -41,24 +44,30 @@ export const useFileStore = defineStore("files", () => {
       file.astAndMappingLoaded = true;
       file.amountOfKgrams = file.amountOfKgrams || file.ast.length;
 
-      if (anonymize) {
-        const split = row.path!.split(".");
-        const extension = split[split.length - 1];
-        const name = randomNameGenerator();
-        row.path = `${name}/exercise.${extension}`;
-        extra.fullName = name;
-
-        const label = labelMap.get(extra.labels) || labelCounter;
-        if (!labelMap.has(extra.labels)) {
-          labelCounter += 1;
-        }
-        labelMap.set(extra.labels, label);
-        extra.labels = label;
-
-        if (extra.timestamp) {
-          extra.timestamp = new Date(extra.timestamp.getTime() + timeOffset);
-        }
+      // Add the label to the labels list, if it doesn't exist yet.
+      if (!labels.includes(row.label)) {
+        labels.push(extra.labels);
       }
+
+      // Store pseudo details.
+      const pseudoName = randomNameGenerator();
+      const pseudoPath = `${pseudoName}.${filePathExtension}`;
+      file.pseudo = {
+        path: pseudoPath,
+        shortPath: pseudoPath,
+        fullName: pseudoName,
+        timestamp: extra.timestamp ? new Date(extra.timestamp.getTime() + timeOffset) : undefined,
+        labels: String(labels.indexOf(extra.labels)) ?? "",
+      };
+
+      // Store original details.
+      file.original = {
+        path: row.path,
+        shortPath: "",
+        fullName: extra.fullName,
+        timestamp: extra.timestamp,
+        labels: extra.labels,
+      };
 
       return [row.id, row];
     });
@@ -69,6 +78,7 @@ export const useFileStore = defineStore("files", () => {
     const commonPathLength = commonPath.length;
     for (const file of Object.values(files)) {
       file.shortPath = file.path.substring(commonPathLength);
+      file.original.shortPath = file.shortPath;
     }
 
     return files;
@@ -86,8 +96,34 @@ export const useFileStore = defineStore("files", () => {
 
   // Hydrate the store
   async function hydrate(): Promise<void> {
-    files.value = parse(await fetch(), apiStore.isAnonymous);
+    files.value = parse(await fetch());
     hydrated.value = true;
+  }
+
+  // Anonymize the data.
+  function anonymize(): void {
+    apiStore.isLoaded = false;
+
+    for (const file of Object.values(files.value)) {
+      if (apiStore.isAnonymous) {
+        file.path = file.pseudo.path;
+        file.shortPath = file.pseudo.shortPath;
+        file.extra.fullName = file.pseudo.fullName;
+        file.extra.timestamp = file.pseudo.timestamp;
+        file.extra.labels = file.pseudo.labels;
+      } else {
+        file.path = file.original.path;
+        file.shortPath = file.original.shortPath;
+        file.extra.fullName = file.original.fullName;
+        file.extra.timestamp = file.original.timestamp;
+        file.extra.labels = file.original.labels;
+      }
+    }
+
+    nextTick(() => {
+      files.value = { ...files.value };
+      apiStore.isLoaded = true;
+    });
   }
 
   return {
@@ -96,5 +132,6 @@ export const useFileStore = defineStore("files", () => {
     hydrated,
     hydrate,
     legend,
+    anonymize
   };
 });
