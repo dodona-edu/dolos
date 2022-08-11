@@ -4,7 +4,7 @@ import { shallowRef, computed, nextTick } from "vue";
 import { DATA_URL } from "@/api";
 import { File, ObjMap } from "@/api/models";
 import { useApiStore } from "@/api/stores";
-import { colors, names, uniqueNamesGenerator } from "unique-names-generator";
+import { names, uniqueNamesGenerator } from "unique-names-generator";
 import { useLegend } from "@/composables";
 import { commonFilenamePrefix } from "../utils";
 
