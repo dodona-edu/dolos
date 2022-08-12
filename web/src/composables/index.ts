@@ -7,3 +7,4 @@ export * from "./useClustering";
 export * from "./useCluster";
 
 export * from "./d3/useD3Tooltip";
+export * from "./d3/useD3HullTool";

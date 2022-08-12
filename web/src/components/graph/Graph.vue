@@ -35,12 +35,11 @@ import {
 } from "vue";
 import { useApiStore } from "@/api/stores";
 import { Pair, File, Legend } from "@/api/models";
-import { useCluster } from "@/composables";
+import { useCluster, useD3HullTool } from "@/composables";
 import { storeToRefs } from "pinia";
 import { useElementSize } from "@vueuse/core";
 import { Clustering, Cluster } from "@/util/clustering-algorithms/ClusterTypes";
 import { getClusterElements } from "@/util/clustering-algorithms/ClusterFunctions";
-import { ConvexHullTool } from "@/d3-tools/ConvexHullTool";
 import { DefaultMap } from "@dodona/dolos-lib";
 import * as d3 from "d3";
 
@@ -138,6 +137,17 @@ const clusterColors = computed(() => {
   return clusterColorsMap;
 });
 
+// Select a cluster
+const selectCluster = (cluster: Cluster | null): void => {
+  selectedCluster.value = cluster;
+  emit("selectedClusterInfo", cluster);
+
+  // The graph must be updated to update the fills of the nodes.
+  // This is not the most efficient implementation and can definitely be improved.
+  // For the simplicity of the refactor to the Composition API, this is taken from the previous version for now.
+  updateGraph();
+};
+
 // SVG element of the simulation.
 const graph = d3.create("svg").attr("height", 500).attr("width", 500);
 const graphContainer = graph.append("g");
@@ -156,7 +166,10 @@ const graphNodesBase = graphContainer.append("g");
 const graphNodes = shallowRef();
 
 // Convex hull tool for creating hulls around clusters.
-const graphHullTool = shallowRef();
+const graphHullTool = useD3HullTool({
+  canvas: graph.select("g"),
+  onClick: selectCluster
+});
 
 // Add a marker to the graph for showing the direction of the edges.
 graph
@@ -170,17 +183,6 @@ graph
   .attr("orient", "auto")
   .append("svg:path")
   .attr("d", "M5,-5L10,0L5,5M10,0L0,0");
-
-// Select a cluster
-const selectCluster = (cluster: Cluster | null): void => {
-  selectedCluster.value = cluster;
-  emit("selectedClusterInfo", cluster);
-
-  // The graph must be updated to update the fills of the nodes.
-  // This is not the most efficient implementation and can definitely be improved.
-  // For the simplicity of the refactor to the Composition API, this is taken from the previous version for now.
-  updateGraph();
-};
 
 // Select a node
 const selectNode = (node: any | null): void => {
@@ -393,24 +395,24 @@ simulation.on("tick", () => {
       .attr("cy", (node: any) => node.y ?? 0);
   }
 
-  if (graphHullTool.value) {
-    graphHullTool.value.clear();
+  // Clear the hulls
+  graphHullTool.clear();
 
-    for (const cluster of props.clustering) {
-      // If any cluster is selected, make sure only the selected cluster is colored.
-      // Else, color the cluster in the most appropriate color.
-      let color = clusterColors.value.get(cluster);
-      if (selectedCluster.value && selectedCluster.value === cluster) color = color ?? "blue";
-      if (selectedCluster.value && selectedCluster.value !== cluster) color = "grey";
+  // Add new hulls
+  for (const cluster of props.clustering) {
+    // If any cluster is selected, make sure only the selected cluster is colored.
+    // Else, color the cluster in the most appropriate color.
+    let color = clusterColors.value.get(cluster);
+    if (selectedCluster.value && selectedCluster.value === cluster) color = color ?? "blue";
+    if (selectedCluster.value && selectedCluster.value !== cluster) color = "grey";
 
-      // Add convex hull to the cluster.
-      const elements = getClusterElements(cluster);
-      graphHullTool.value.addConvexHullFromNodes(
-        nodes.value.filter((node: any) => elements.has(node.file)),
-        color,
-        cluster
-      );
-    }
+    // Add convex hull to the cluster.
+    const elements = getClusterElements(cluster);
+    graphHullTool.add(
+      nodes.value.filter((node: any) => elements.has(node.file)),
+      cluster,
+      color,
+    );
   }
 });
 
@@ -445,20 +447,10 @@ watch(
       .join("circle")
       .classed("node", true)
       .classed("source", (node: any) => node.source)
-      .attr("r", 5)
+      .attr("r", 7)
       .attr("fill", (node: any) => node.fillColor)
       .attr("id", (node: any) => `circle-${node.file.id}`)
       .call(simulationDrag as any);
-
-    // Create the Convex Hull around every cluster.
-    // A Convex Hull is a polygon that encloses all the nodes in the cluster.
-    if (props.polygon) {
-      // Clear the convex hull, if it exists.
-      graphHullTool.value?.clear();
-
-      // Create the convex hull.
-      graphHullTool.value = new ConvexHullTool(graph.select("g") as any, selectCluster);
-    }
 
     // Set the nodes/edges of the simulation & restart.
     simulation.nodes(nodes);
