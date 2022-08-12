@@ -437,6 +437,7 @@ watch(
       .data(edges)
       .join("path")
       .classed("link", true)
+      .style("pointer-events", "none")
       .classed("directed", (edge: any) => edge.directed)
       .attr("stroke-width", (edge: any) => edge.width);
 
@@ -520,12 +521,10 @@ onUnmounted(() => {
     }
 
     .node {
-      stroke: white;
-      stroke-width: 2;
       stroke-linecap: round;
 
       &.source {
-        stroke-width: 0;
+        // TODO:
       }
 
       &.selected {
