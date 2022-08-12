@@ -18,20 +18,17 @@
           <v-list class="info-list" dense>
             <v-list-item class="info-list-item">
               <v-icon>mdi-file-outline</v-icon>
-              <strong>Files:</strong>
-              <span>{{ filesCount }}</span>
-            </v-list-item>
-
-            <v-list-item class="info-list-item">
-              <v-icon>mdi-xml</v-icon>
-              <strong>Programming Language:</strong>
-              <span>{{ metadataStore.metadata.language }}</span>
+              <span>{{ filesCount }} files</span>
             </v-list-item>
 
             <v-list-item class="info-list-item">
               <v-icon>mdi-tag-outline</v-icon>
-              <strong>Labels:</strong>
-              <span>{{ legendCount }}</span>
+              <span>{{ legendCount }} labels</span>
+            </v-list-item>
+
+            <v-list-item class="info-list-item">
+              <v-icon>mdi-xml</v-icon>
+              <span>{{ metadataStore.metadata.language }}</span>
             </v-list-item>
           </v-list>
 
