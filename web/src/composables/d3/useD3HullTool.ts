@@ -1,5 +1,6 @@
 import * as d3 from "d3";
 import { Coordinate, Coordinates } from "@/api/models";
+import { useD3Tooltip } from "./useD3Tooltip";
 
 const toD3Coordinate = (c: Coordinate): [number, number] => [c.x, c.y];
 const toD3Coordinates = (c: Coordinates): [number, number][] => c.map(toD3Coordinate);
@@ -19,6 +20,8 @@ export interface UseD3HullToolReturn<T> {
 export function useD3HullTool<T>(options: UseD3HullToolOptions<T>): UseD3HullToolReturn<T> {
   // Group for storing the hulls.
   const group = options.canvas.append("g");
+  // Tooltip
+  const tooltip = useD3Tooltip({ relativeToMouse: true });
 
   // Add a hull to the canvas for the given coordinates.
   const add = (coordinates: Coordinates, data: T, color: string): void => {
@@ -48,7 +51,11 @@ export function useD3HullTool<T>(options: UseD3HullToolOptions<T>): UseD3HullToo
       .style("fill", color)
       .style("stroke", color)
       .style("stroke-width", 25)
-      .attr("stroke-linejoin", "round");
+      .attr("stroke-linejoin", "round")
+      .style("cursor", "pointer")
+      .on("mouseover", (e: MouseEvent) => tooltip.onMouseOver(e, "Click to view cluster"))
+      .on("mousemove", (e: MouseEvent) => tooltip.onMouseMove(e))
+      .on("mouseleave", (e: MouseEvent) => tooltip.onMouseOut(e));
 
     path.on("mousedown", (e: Event) => {
       e.preventDefault();
