@@ -1,4 +1,5 @@
 import * as d3 from "d3";
+import { shallowRef } from "vue";
 import { Coordinate, Coordinates } from "@/api/models";
 import { useD3Tooltip } from "./useD3Tooltip";
 
@@ -8,6 +9,8 @@ const toD3Coordinates = (c: Coordinates): [number, number][] => c.map(toD3Coordi
 export interface UseD3HullToolOptions<T> {
   // Canvas to add the hull to.
   canvas: any;
+  // Should the tooltip be shown.
+  showTooltip: boolean;
   // Click handler when the hull is clicked.
   onClick?: (data: T) => void;
 }
@@ -19,7 +22,7 @@ export interface UseD3HullToolReturn<T> {
 
 export function useD3HullTool<T>(options: UseD3HullToolOptions<T>): UseD3HullToolReturn<T> {
   // Group for storing the hulls.
-  const group = options.canvas.append("g");
+  const group = shallowRef(options.canvas.append("g").attr("class", "polygons"));
   // Tooltip
   const tooltip = useD3Tooltip({ relativeToMouse: true });
 
@@ -28,7 +31,7 @@ export function useD3HullTool<T>(options: UseD3HullToolOptions<T>): UseD3HullToo
     const d3Coordinates = toD3Coordinates(coordinates);
 
     // Do not create polygons for singletons.
-    if (d3Coordinates.length === 1) return;
+    if (d3Coordinates.length < 2) return;
 
     // D3 polygons do not work with less than 3 points.
     // In order to use the polygon hull fake points are generated
@@ -44,6 +47,7 @@ export function useD3HullTool<T>(options: UseD3HullToolOptions<T>): UseD3HullToo
     polygon.push(polygon[0]);
     polygon.push(polygon[1]);
 
+    const group = d3.select(".polygons");
     const path = group
       .append("path")
       .attr("d", d3.line()(polygon))
@@ -53,9 +57,9 @@ export function useD3HullTool<T>(options: UseD3HullToolOptions<T>): UseD3HullToo
       .style("stroke-width", 25)
       .attr("stroke-linejoin", "round")
       .style("cursor", "pointer")
-      .on("mouseover", (e: MouseEvent) => tooltip.onMouseOver(e, "Click to view cluster"))
-      .on("mousemove", (e: MouseEvent) => tooltip.onMouseMove(e))
-      .on("mouseleave", (e: MouseEvent) => tooltip.onMouseOut(e));
+      .on("mouseover", (e: MouseEvent) => options.showTooltip && tooltip.onMouseOver(e, "Click to view cluster"))
+      .on("mousemove", (e: MouseEvent) => options.showTooltip && tooltip.onMouseMove(e))
+      .on("mouseleave", (e: MouseEvent) => options.showTooltip && tooltip.onMouseOut(e));
 
     path.on("mousedown", (e: Event) => {
       e.preventDefault();
@@ -69,7 +73,11 @@ export function useD3HullTool<T>(options: UseD3HullToolOptions<T>): UseD3HullToo
 
   // Clear all hulls from the canvas.
   const clear = (): void => {
-    group.selectAll("path").remove();
+    d3.selectAll(".polygons").remove();
+
+    group.value = options.canvas.insert("g", "g")
+      .attr("class", "polygons")
+      .selectAll("path").remove();
   };
 
   return {
