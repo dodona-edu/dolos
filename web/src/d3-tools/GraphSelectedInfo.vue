@@ -41,7 +41,7 @@
 
           <v-card-actions>
             <v-spacer />
-            <v-btn color="success" text @click="goToInfo">More information</v-btn>
+            <v-btn color="primary" text @click="goToInfo">More information</v-btn>
           </v-card-actions>
         </v-card>
       </div>
