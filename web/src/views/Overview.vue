@@ -59,12 +59,8 @@
                 </template>
 
                 <span class="tooltip">
-                  Dolos uses the 'similarity cutoff value' to group different
-                  files into groups or clusters. It is likely that the files in
-                  a cluster have a common source or are plagiarized from each
-                  other. Though Dolos tries to interpolate a good default value,
-                  you can tweak this value using the slider on the right, or on
-                  the clustering page.
+                  Files with a similarity above this threshold will be grouped into clusters.
+                  Dolos tries to pick a good initial threshold value based on the analysis data.
                 </span>
               </v-tooltip>
             </h3>
@@ -88,7 +84,7 @@
                 </template>
 
                 <span class="tooltip">
-                  Pair of files most similar to eachother.
+                  The highest similarity we've found between two files is {{ (highestSimilarity * 100).toFixed(0) }}%
                 </span>
               </v-tooltip>
             </h3>
