@@ -1,9 +1,19 @@
 <template>
   <div class="loading">
     <v-progress-circular indeterminate color="primary" size="130" width="6" />
-    <h2>Loading data...</h2>
+    <h2>{{ props.text }}</h2>
   </div>
 </template>
+
+<script lang="ts" setup>
+interface Props {
+  text: string;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  text: "Loading...",
+});
+</script>
 
 <style lang="scss" scoped>
 .loading {

@@ -1,4 +1,3 @@
-import * as d3 from "d3";
 import { defineStore } from "pinia";
 import { shallowRef, computed, nextTick } from "vue";
 import { DATA_URL } from "@/api";
@@ -6,7 +5,7 @@ import { File, ObjMap } from "@/api/models";
 import { useApiStore } from "@/api/stores";
 import { names, uniqueNamesGenerator } from "unique-names-generator";
 import { useLegend } from "@/composables";
-import { commonFilenamePrefix } from "../utils";
+import { commonFilenamePrefix, parseCsv } from "../utils";
 
 /**
  * Store containing the file data & helper functions.
@@ -23,7 +22,7 @@ export const useFileStore = defineStore("files", () => {
   const legend = useLegend(files);
 
   // Parse the files from a CSV string.
-  function parse(fileData: d3.DSVRowArray): ObjMap<File> {
+  function parse(fileData: any[]): ObjMap<File> {
     const randomNameGenerator = (): string => uniqueNamesGenerator({
       dictionaries: [names],
       length: 1
@@ -74,7 +73,7 @@ export const useFileStore = defineStore("files", () => {
     const files: File[] = Object.fromEntries(filesMap);
 
     // Find the common path in the files.
-    const commonPath = commonFilenamePrefix(Object.values(files));
+    const commonPath = commonFilenamePrefix(Object.values(files), (f) => f.path);
     const commonPathLength = commonPath.length;
     for (const file of Object.values(files)) {
       file.shortPath = file.path.substring(commonPathLength);
@@ -87,8 +86,8 @@ export const useFileStore = defineStore("files", () => {
   // Fetch the files from the CSV file.
   async function fetch(
     url: string = DATA_URL + "files.csv"
-  ): Promise<d3.DSVRowArray> {
-    return await d3.csv(url);
+  ): Promise<any[]> {
+    return await parseCsv(url);
   }
 
   // Reference to other stores.
@@ -103,6 +102,7 @@ export const useFileStore = defineStore("files", () => {
   // Anonymize the data.
   function anonymize(): void {
     apiStore.isLoaded = false;
+    apiStore.loadingText = "Anonymizing files...";
 
     for (const file of Object.values(files.value)) {
       if (apiStore.isAnonymous) {

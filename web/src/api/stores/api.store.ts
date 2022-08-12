@@ -23,6 +23,8 @@ export const useApiStore = defineStore("api", () => {
 
   // If the data is loaded.
   const isLoaded = shallowRef(false);
+  // Loading text.
+  const loadingText = shallowRef("Loading...");
 
   // Whether the names should be anonymized.
   const isAnonymous = shallowRef(false);
@@ -36,13 +38,19 @@ export const useApiStore = defineStore("api", () => {
     isLoaded.value = false;
 
     // Hydrate all stores (fetch data)
+    loadingText.value = "Fetching & parsing files...";
     await fileStore.hydrate();
+    loadingText.value = "Fetching & parsing k-grams...";
     await kgramStore.hydrate();
+    loadingText.value = "Fetching & parsing metadata...";
     await metadataStore.hydrate();
+    loadingText.value = "Fetching & parsing pairs...";
     await pairStore.hydrate();
+    loadingText.value = "Fetching & parsing semantics...";
     await semanticStore.hydrate();
 
     // Calculate the initial cut-off value.
+    loadingText.value = "Calculating initial cut-off...";
     cutoff.value = getInterpolatedSimilarity(pairStore.pairsList);
 
     isLoaded.value = true;
@@ -59,6 +67,7 @@ export const useApiStore = defineStore("api", () => {
   return {
     isAnonymous,
     isLoaded,
+    loadingText,
     cutoff,
     cutoffDebounced,
     hydrate,

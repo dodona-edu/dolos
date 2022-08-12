@@ -1,9 +1,8 @@
-import * as d3 from "d3";
 import { defineStore } from "pinia";
 import { shallowRef } from "vue";
 import { DATA_URL } from "@/api";
 import { Metadata } from "@/api/models";
-import { castToType } from "@/api/utils";
+import { castToType, parseCsv } from "@/api/utils";
 
 /**
  * Store containing the metadata & helper functions.
@@ -16,7 +15,7 @@ export const useMetadataStore = defineStore("metadata", () => {
   const hydrated = shallowRef(false);
 
   // Parse the metadata from a CSV string.
-  function parse(data: d3.DSVRowArray): Metadata {
+  function parse(data: any[]): Metadata {
     return Object.fromEntries(
       data.map(row => [row.property, castToType(row).value])
     );
@@ -25,8 +24,8 @@ export const useMetadataStore = defineStore("metadata", () => {
   // Fetch the metadata from the CSV file.
   async function fetch(
     url: string = DATA_URL + "metadata.csv"
-  ): Promise<d3.DSVRowArray> {
-    return await d3.csv(url);
+  ): Promise<any[]> {
+    return await parseCsv(url);
   }
 
   // Hydrate the store

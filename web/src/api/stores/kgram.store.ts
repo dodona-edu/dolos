@@ -1,9 +1,8 @@
-import * as d3 from "d3";
 import { defineStore } from "pinia";
 import { shallowRef } from "vue";
 import { DATA_URL } from "@/api";
 import { Kgram, File, ObjMap } from "@/api/models";
-import { assertType } from "@/api/utils";
+import { assertType, parseCsv } from "@/api/utils";
 import { useFileStore } from "@/api/stores";
 
 /**
@@ -18,7 +17,7 @@ export const useKgramStore = defineStore("kgrams", () => {
 
   // Parse the k-grams from a CSV string.
   function parse(
-    kgramData: d3.DSVRowArray,
+    kgramData: any[],
     fileMap: ObjMap<File>
   ): ObjMap<Kgram> {
     return Object.fromEntries(
@@ -40,8 +39,8 @@ export const useKgramStore = defineStore("kgrams", () => {
   // Fetch the k-grams from the CSV file.
   async function fetch(
     url: string = DATA_URL + "kgrams.csv"
-  ): Promise<d3.DSVRowArray> {
-    return await d3.csv(url);
+  ): Promise<any[]> {
+    return await parseCsv(url);
   }
 
   // Reference to other stores.
