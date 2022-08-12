@@ -332,8 +332,6 @@ const forceLink = d3
 
 // If the simulation should be paused.
 const simulationPaused = shallowRef(false);
-// Cursor when hovering over a node in the graph.
-const simulationNodeCursor = computed(() => simulationPaused.value ? "pointer" : "grab");
 
 // D3 simulation
 const simulation = d3
@@ -533,7 +531,7 @@ onUnmounted(() => {
       }
 
       &:hover {
-        cursor: v-bind("simulationNodeCursor");
+        cursor: grab;
       }
     }
 
