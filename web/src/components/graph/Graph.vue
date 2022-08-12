@@ -196,6 +196,10 @@ const selectNode = (node: any | null): void => {
   if (node) {
     node.selected = true;
     graph.select(`#circle-${node.id}`).classed("selected", true);
+
+    // Select the cluster that contains the node (if any).
+    const cluster = props.clustering.find(c => getClusterElements(c).has(node));
+    if (cluster) selectCluster(cluster);
   }
 };
 
