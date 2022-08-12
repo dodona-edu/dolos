@@ -48,8 +48,9 @@
 
       <v-col cols="12" md="6" lg="3" class="stat-cards">
         <v-card class="stat-card">
-          <div class="stat-card-icon primary">
-            <v-icon color="white" x-large>mdi-select-compare</v-icon>
+          <div class="stat-card-icon">
+            <div class="stat-card-icon-background primary"></div>
+            <v-icon color="primary" x-large>mdi-select-compare</v-icon>
           </div>
 
           <div class="stat-card-content">
@@ -76,8 +77,9 @@
         </v-card>
 
         <v-card class="stat-card">
-          <div class="stat-card-icon primary">
-            <v-icon color="white" x-large>mdi-chart-bell-curve</v-icon>
+          <div class="stat-card-icon">
+            <div class="stat-card-icon-background primary"></div>
+            <v-icon color="primary" x-large>mdi-chart-bell-curve</v-icon>
           </div>
 
           <div class="stat-card-content">
@@ -104,8 +106,9 @@
         </v-card>
 
         <v-card class="stat-card">
-          <div class="stat-card-icon primary">
-            <v-icon color="white" x-large>mdi-account-group-outline</v-icon>
+          <div class="stat-card-icon">
+            <div class="stat-card-icon-background primary"></div>
+            <v-icon color="primary" x-large>mdi-account-group-outline</v-icon>
           </div>
 
           <div class="stat-card-content">
@@ -317,9 +320,6 @@ const largestCluster = computed(() =>
     0
   )
 );
-
-// Current version of the application.
-const version = computed(() => packageJson.version);
 </script>
 
 <style lang="scss" scoped>
@@ -356,6 +356,21 @@ const version = computed(() => packageJson.version);
     align-items: center;
     justify-content: center;
     border-radius: 8px !important;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+
+    &:before {
+      content: " ";
+      position: absolute;
+      z-index: 1;
+      width: 100%;
+      height: 100%;
+      inset: 0;
+      z-index: -1;
+      background-color: var(--v-primary-base);
+      opacity: 0.15;
+    }
   }
 
   &-title {
