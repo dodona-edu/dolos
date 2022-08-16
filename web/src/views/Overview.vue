@@ -12,18 +12,12 @@
     <v-row>
       <v-col cols="12" md="6" lg="4" class="info-cards">
         <v-card class="info-card">
-          <v-card-title>Dataset</v-card-title>
-          <v-card-subtitle class="pb-0">Information about the loaded dataset</v-card-subtitle>
+          <v-card-title class="pb-0">Submissions</v-card-title>
 
           <v-list class="info-list" dense>
             <v-list-item class="info-list-item">
               <v-icon>mdi-file-outline</v-icon>
-              <span>{{ filesCount }} files</span>
-            </v-list-item>
-
-            <v-list-item class="info-list-item">
-              <v-icon>mdi-tag-outline</v-icon>
-              <span>{{ legendCount }} labels</span>
+              <span>{{ filesCount }} submissions</span>
             </v-list-item>
 
             <v-list-item class="info-list-item">
@@ -31,11 +25,10 @@
               <span>{{ language }}</span>
             </v-list-item>
           </v-list>
-        </v-card>
 
-        <v-card class="info-card">
-          <v-card-title>Labels</v-card-title>
-          <v-card-subtitle class="pb-0">Labels in the dataset</v-card-subtitle>
+          <v-card-title class="pt-0 pb-0" style="font-weight: bold; font-size: 1rem;">
+            {{ legendCount }} labels detected
+          </v-card-title>
 
           <v-simple-table class="info-card-labels" fixed-header dense>
             <tbody>
@@ -48,6 +41,10 @@
 
                   <span class="ml-2">{{ label.label }}</span>
                 </td>
+
+                <td>
+                  101 submissions
+                </td>
               </tr>
             </tbody>
           </v-simple-table>
@@ -55,26 +52,6 @@
       </v-col>
 
       <v-col cols="12" md="6" lg="3" class="stat-cards">
-        <v-card class="stat-card">
-          <div class="stat-card-icon">
-            <div class="stat-card-icon-background primary"></div>
-            <v-icon color="primary" x-large>mdi-select-compare</v-icon>
-          </div>
-
-          <div class="stat-card-content">
-            <h3 class="stat-card-title">
-              Similarity Cut-off
-
-              <info-dot>
-                Files with a similarity above this threshold will be grouped into clusters.
-                Dolos tries to pick a good initial threshold value based on the analysis data.
-              </info-dot>
-            </h3>
-            <div class="stat-card-value">{{ (apiStore.cutoff * 100).toFixed() }}%</div>
-            <div class="stat-card-subtitle text--secondary">Average similarity: {{ averageSimilarity }}%</div>
-          </div>
-        </v-card>
-
         <v-card class="stat-card">
           <div class="stat-card-icon">
             <div class="stat-card-icon-background primary"></div>
@@ -104,12 +81,35 @@
         <v-card class="stat-card">
           <div class="stat-card-icon">
             <div class="stat-card-icon-background primary"></div>
+            <v-icon color="primary" size="64">mdi-approximately-equal</v-icon>
+          </div>
+
+          <div class="stat-card-content">
+            <h3 class="stat-card-title">
+              Average similarity
+
+              <info-dot>
+                Average of the maximum similarity for each submission.
+              </info-dot>
+            </h3>
+            <div class="stat-card-value">
+              <similarity-display :similarity="averageSimilarity" text />
+            </div>
+            <div class="stat-card-subtitle text--secondary">
+              Median similarity: {{ (medianSimilarity * 100).toFixed(0) }}%
+            </div>
+          </div>
+        </v-card>
+
+        <v-card class="stat-card">
+          <div class="stat-card-icon">
+            <div class="stat-card-icon-background primary"></div>
             <v-icon color="primary" x-large>mdi-account-group-outline</v-icon>
           </div>
 
           <div class="stat-card-content">
             <h3 class="stat-card-title">
-              Clusters
+              Cluster
 
               <info-dot>
                 Files are grouped into clusters based on their similarity.
@@ -128,7 +128,7 @@
           <v-row justify="space-between" align="center" no-wrap no-gutters>
             <v-col cols="auto">
               <v-card-title>
-                Similarity Distribution &nbsp;
+                Similarity distribution &nbsp;
 
                 <info-dot>
                   This plot shows the distribution of the similarity for this
@@ -268,6 +268,7 @@ import SimilaritySetting from "@/components/settings/SimilaritySetting.vue";
 import SimilarityDisplay from "@/components/pair/SimilarityDisplay.vue";
 import InfoDot from "@/components/InfoDot.vue";
 import LabelDot from "@/components/LabelDot.vue";
+import { FileInterestingnessCalculator } from "@/util/FileInterestingness";
 
 const apiStore = useApiStore();
 const fileStore = useFileStore();
@@ -297,15 +298,31 @@ const highestSimilarity = computed(() => {
   return pair?.similarity ?? 0;
 });
 
-// Average similarity.
-const averageSimilarity = computed(() => {
-  const divident = pairStore.pairsList.reduce(
-    (a, b) => a + b.similarity,
-    0
+// Similarities map for every file
+// Contains the max similarity for each file.
+const similarities = computed(() => {
+  const scoringCalculator = new FileInterestingnessCalculator(pairStore.pairsList);
+  const scoredFiles = fileStore.filesList.map((file) =>
+    scoringCalculator.calculateSimilarityScore(file)
   );
-  const divisor = Object.keys(pairStore.pairs).length;
-  return (divident / divisor * 100).toFixed(0);
+
+  return scoredFiles.map(f => f?.similarity || 0);
 });
+
+// Average maximum similarity.
+const averageSimilarity = computed(() => {
+  const mean = similarities.value.reduce((a, b) => a + b, 0) / similarities.value.length;
+
+  return mean;
+});
+
+// Median maximum similarity.
+const medianSimilarity = computed(() => {
+  const sorted = [...similarities.value].sort((a, b) => a - b);
+  const middle = Math.floor(sorted.length / 2);
+  const median = sorted[middle];
+  return median;
+}).value;
 
 // Programming language, capitalized.
 const language = computed(() => {
@@ -378,7 +395,8 @@ const largestCluster = computed(() =>
   }
 
   &-title {
-    font-size: 1rem;
+    font-size: 1.25rem;
+    font-weight: 500;
   }
 
   &-value {
@@ -407,7 +425,7 @@ const largestCluster = computed(() =>
   }
 
   &-labels {
-    max-height: 200px;
+    max-height: 300px;
     margin-top: 0.5rem;
   }
 }
