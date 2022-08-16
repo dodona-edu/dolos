@@ -92,7 +92,7 @@
               </info-dot>
             </h3>
             <div class="stat-card-value">
-              <similarity-display :similarity="highestSimilarity" no-circle />
+              <similarity-display :similarity="highestSimilarity" text />
             </div>
             <RouterLink
               :to="`/compare/${highestSimilarityPair?.id}`"

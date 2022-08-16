@@ -34,7 +34,7 @@
           <v-col cols="5" class="compare-header-info">
             <span>
               <v-icon left>mdi-approximately-equal</v-icon>
-              Similarity: <similarity-display :similarity="activePair.similarity" no-circle />
+              Similarity: <similarity-display :similarity="activePair.similarity" text />
             </span>
 
             <span>

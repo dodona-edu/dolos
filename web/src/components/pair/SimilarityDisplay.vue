@@ -1,7 +1,7 @@
 <template>
   <span>
     <v-progress-circular
-      v-if="!noCircle"
+      v-if="!text"
       :size="props.size"
       :width="3"
       :value="value"
@@ -24,12 +24,12 @@ import { computed } from "vue";
 interface Props {
   similarity: number;
   size?: number;
-  noCircle?: boolean;
+  text?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   size: 42,
-  noCircle: false,
+  text: false,
 });
 
 // Convert the similarity value into a percentage.
@@ -50,7 +50,7 @@ const color = computed(() => {
 
 // Font size
 const fontSize = computed(() => {
-  return props.noCircle ? "1em" : `${props.size * 0.02}rem`;
+  return props.text ? "1em" : `${props.size * 0.02}rem`;
 });
 </script>
 
