@@ -34,6 +34,7 @@
             :current-clustering="clustering"
             :selected-node="selectedNode"
             :selected-cluster="selectedCluster"
+            :legend="legendValue"
           />
         </Graph>
       </v-col>

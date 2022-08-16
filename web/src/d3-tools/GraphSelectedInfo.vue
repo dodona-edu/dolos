@@ -10,16 +10,19 @@
           <v-list class="selected-info-list" dense>
             <v-list-item class="selected-info-list-item">
               <v-icon>mdi-account-outline</v-icon>
-              <span>{{ selectedNode.extra.fullName || "unknown" }}</span>
+              <b>Author:</b>
+              <span>{{ selectedNode.extra.fullName || selectedNode.shortPath || "unknown" }}</span>
             </v-list-item>
 
             <v-list-item class="selected-info-list-item">
               <v-icon>mdi-tag-outline</v-icon>
+              <b>Label:</b>
               <span>{{ selectedNode.extra.labels || "unknown" }}</span>
             </v-list-item>
 
             <v-list-item class="selected-info-list-item">
               <v-icon>mdi-clock-outline</v-icon>
+              <b>Hand-in date:</b>
               <span>{{ selectedNodeTimestamp || "not available." }}</span>
             </v-list-item>
           </v-list>
@@ -30,23 +33,51 @@
     <transition name="scale-transition" mode="out-in">
       <div v-if="selectedCluster">
         <v-card>
-          <v-card-title> Selected cluster </v-card-title>
+          <v-card-title>
+            Selected cluster
+          </v-card-title>
 
-          <v-card-text>
-            You selected a cluster of size
-            <b>{{ clusterFilesSet.size }}</b>
-            , which has an average similarity of
-            <b>{{ clusterAverageSimilarity.toFixed(2) * 100 }}%</b>.
-          </v-card-text>
+          <v-list class="selected-info-list" dense>
+            <v-list-item class="selected-info-list-item">
+              <v-icon>mdi-account-group-outline</v-icon>
+              <b>Cluster Size:</b>
+              <span>{{ clusterFilesSet.size }}</span>
+            </v-list-item>
 
-          <v-card-text class="namecontainer">
-            These files are present in the cluster:
-            <ul>
-              <li v-for="el of clusterFilesSet" :key="el.id">
-                {{ el.shortPath }}
-              </li>
-            </ul>
-          </v-card-text>
+            <v-list-item class="selected-info-list-item">
+              <v-icon>mdi-approximately-equal</v-icon>
+              <b>Average similarity:</b>
+              <span>{{ clusterAverageSimilarity.toFixed(2) * 100 }}%</span>
+            </v-list-item>
+          </v-list>
+
+          <v-simple-table class="selected-info-table" fixed-header>
+            <thead>
+              <tr>
+                <th>File</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr v-for="file in clusterFilesSet" :key="file.id">
+                <td class="d-flex align-center">
+                  <v-tooltip top>
+                    <template #activator="{ on, attrs }">
+                      <span
+                        class="label-dot"
+                        :style="`background-color: ${getColor(file)}`"
+                        v-bind="attrs"
+                        v-on="on"
+                      />
+                    </template>
+                    <span>{{ file.extra.labels || "No label" }}</span>
+                  </v-tooltip>
+
+                  <span class="ml-2">{{ file.extra.fullName ?? file.shortPath }}</span>
+                </td>
+              </tr>
+            </tbody>
+          </v-simple-table>
 
           <v-card-actions>
             <v-spacer />
@@ -61,15 +92,16 @@
 <script lang="ts" setup>
 import { computed, toRef } from "vue";
 import { useCluster, useVuetify, useRouter } from "@/composables";
-import { File } from "@/api/models";
+import { File, Legend } from "@/api/models";
 import { Cluster, Clustering } from "@/util/clustering-algorithms/ClusterTypes";
 import { DateTime } from "luxon";
 import { getClusterElements } from "@/util/clustering-algorithms/ClusterFunctions";
 
 interface Props {
   currentClustering: Clustering;
-  selectedNode?: File;
-  selectedCluster?: Cluster;
+  legend: Legend;
+  selectedNode?: File | undefined;
+  selectedCluster?: Cluster | undefined;
 }
 
 const props = withDefaults(defineProps<Props>(), {});
@@ -108,6 +140,12 @@ const goToInfo = (): void => {
   // Scroll to the cluster card.
   vuetify.goTo(clusterHash);
 };
+
+// Get the label color for a file in the cluster.
+const getColor = (file: File): string => {
+  if (!props.legend || !file.extra.labels || !props.legend[file.extra.labels]) return "";
+  return props.legend[file.extra.labels].color;
+};
 </script>
 
 <style lang="scss" scoped>
@@ -129,6 +167,11 @@ const goToInfo = (): void => {
       gap: 0.5rem;
       width: 100%;
     }
+  }
+
+  &-table {
+    max-height: 30vh;
+    overflow: auto;
   }
 }
 

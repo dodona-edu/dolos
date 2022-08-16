@@ -153,13 +153,4 @@ watch(
 .short-timestamp {
   text-decoration: underline dotted;
 }
-
-// Fix scrolling when overflowing with sticky header.
-:deep(.v-data-table) {
-  overflow: auto;
-
-  .v-data-table__wrapper {
-    overflow: unset;
-  }
-}
 </style>
