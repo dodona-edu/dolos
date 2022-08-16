@@ -53,16 +53,11 @@
           <div class="stat-card-content">
             <h3 class="stat-card-title">
               Similarity Cut-off
-              <v-tooltip top>
-                <template v-slot:activator="{ attrs, on }">
-                  <v-icon v-bind="attrs" v-on="on">mdi-information</v-icon>
-                </template>
 
-                <span class="tooltip">
-                  Files with a similarity above this threshold will be grouped into clusters.
-                  Dolos tries to pick a good initial threshold value based on the analysis data.
-                </span>
-              </v-tooltip>
+              <info-dot>
+                Files with a similarity above this threshold will be grouped into clusters.
+                Dolos tries to pick a good initial threshold value based on the analysis data.
+              </info-dot>
             </h3>
             <div class="stat-card-value">{{ (apiStore.cutoff * 100).toFixed() }}%</div>
             <div class="stat-card-subtitle text--secondary">Average similarity: {{ averageSimilarity }}%</div>
@@ -78,15 +73,10 @@
           <div class="stat-card-content">
             <h3 class="stat-card-title">
               Highest similarity
-              <v-tooltip top>
-                <template v-slot:activator="{ attrs, on }">
-                  <v-icon v-bind="attrs" v-on="on">mdi-information</v-icon>
-                </template>
 
-                <span class="tooltip">
-                  The highest similarity we've found between two files is {{ (highestSimilarity * 100).toFixed(0) }}%
-                </span>
-              </v-tooltip>
+              <info-dot>
+                The highest similarity we've found between two files is {{ (highestSimilarity * 100).toFixed(0) }}%
+              </info-dot>
             </h3>
             <div class="stat-card-value">{{ (highestSimilarity * 100).toFixed(0) }}%</div>
             <RouterLink
@@ -108,16 +98,10 @@
             <h3 class="stat-card-title">
               Clusters
 
-              <v-tooltip top>
-                <template v-slot:activator="{ attrs, on }">
-                  <v-icon v-bind="attrs" v-on="on">mdi-information</v-icon>
-                </template>
-
-                <span class="tooltip">
-                  Files are grouped into clusters based on their similarity.
-                  If a file pair has a similarity above the threshold, they will belong to the same cluster.
-                </span>
-              </v-tooltip>
+              <info-dot>
+                Files are grouped into clusters based on their similarity.
+                If a file pair has a similarity above the threshold, they will belong to the same cluster.
+              </info-dot>
             </h3>
             <div class="stat-card-value">{{ clustering.length }}</div>
             <div class="stat-card-subtitle text--secondary">Largest cluster: {{ largestCluster }} files</div>
@@ -132,19 +116,14 @@
             <v-col cols="auto">
               <v-card-title>
                 Similarity Distribution &nbsp;
-                <v-tooltip top>
-                  <template v-slot:activator="{ attrs, on }">
-                    <v-icon v-bind="attrs" v-on="on">mdi-information</v-icon>
-                  </template>
 
-                  <span class="tooltip">
-                    This plot shows the distribution of the similarity for this
-                    dataset. This distribution looks different for every
-                    dataset, and shows you which degrees of similarity may be
-                    interesting to look at. You can also use it to tweak the
-                    interpolated cluster cutoff value.
-                  </span>
-                </v-tooltip>
+                <info-dot>
+                  This plot shows the distribution of the similarity for this
+                  dataset. This distribution looks different for every
+                  dataset, and shows you which degrees of similarity may be
+                  interesting to look at. You can also use it to tweak the
+                  interpolated cluster cutoff value.
+                </info-dot>
               </v-card-title>
             </v-col>
 
@@ -262,7 +241,7 @@
 <script lang="ts" setup>
 import { computed } from "vue";
 import { storeToRefs } from "pinia";
-import { useBreakpoints, useClustering } from "@/composables";
+import { useClustering } from "@/composables";
 import { Pair } from "@/api/models";
 import {
   useApiStore,
@@ -273,7 +252,7 @@ import {
 import { getClusterElements } from "@/util/clustering-algorithms/ClusterFunctions";
 import OverviewBarchart from "@/components/overview/OverviewBarchart.vue";
 import SimilaritySetting from "@/components/settings/SimilaritySetting.vue";
-import packageJson from "../../package.json";
+import InfoDot from "@/components/InfoDot.vue";
 
 const apiStore = useApiStore();
 const fileStore = useFileStore();
@@ -417,16 +396,6 @@ const largestCluster = computed(() =>
 
 .graph-card {
   height: 100%;
-}
-
-.tooltip {
-  max-width: 600px;
-  display: inline-block;
-}
-
-.tooltip-bearer {
-  text-decoration: underline;
-  text-decoration-style: dotted;
 }
 
 .label-text {
