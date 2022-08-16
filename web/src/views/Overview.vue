@@ -26,7 +26,7 @@
             </v-list-item>
           </v-list>
 
-          <v-card-title class="pt-0 pb-0" style="font-weight: bold; font-size: 1rem;">
+          <v-card-title class="info-card-subtitle pt-0 pb-0">
             {{ legendCount }} labels detected
           </v-card-title>
 
@@ -429,6 +429,11 @@ const largestCluster = computed(() =>
   display: flex;
   flex-direction: column;
   flex-grow: 1;
+
+  &-subtitle {
+    font-size: 1rem;
+    font-weight: 500;
+  }
 
   &-actions {
     flex: 1;
