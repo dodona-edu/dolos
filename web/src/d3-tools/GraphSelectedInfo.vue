@@ -23,9 +23,9 @@
               <span>{{ selectedNode.extra.labels || "unknown" }}</span>
             </v-list-item>
 
-            <v-list-item class="selected-info-list-item">
+            <v-list-item v-if="selectedNodeTimestamp" class="selected-info-list-item">
               <v-icon>mdi-clock-outline</v-icon>
-              <span>{{ selectedNodeTimestamp || "not available." }}</span>
+              <span>{{ selectedNodeTimestamp }}</span>
             </v-list-item>
           </v-list>
         </v-card>
