@@ -31,15 +31,28 @@
               <span>{{ metadataStore.metadata.language }}</span>
             </v-list-item>
           </v-list>
+        </v-card>
 
-          <v-card-actions class="info-card-actions">
-            <v-spacer />
+        <v-card class="info-card">
+          <v-card-title>Labels</v-card-title>
+          <v-card-subtitle class="pb-0">Labels in the dataset</v-card-subtitle>
 
-            <v-btn color="primary" text to="/fileanalysis">
-              View Files
-              <v-icon right>mdi-chevron-right</v-icon>
-            </v-btn>
-          </v-card-actions>
+          <v-simple-table class="info-card-labels" fixed-header dense>
+            <tbody>
+              <tr v-for="label in Object.values(legend)" :key="label.label">
+                <td class="d-flex align-center">
+                  <span
+                    class="label-dot"
+                    :style="`background-color: ${label.color}`"
+                    v-bind="attrs"
+                    v-on="on"
+                  />
+
+                  <span class="ml-2">{{ label.label }}</span>
+                </td>
+              </tr>
+            </tbody>
+          </v-simple-table>
         </v-card>
       </v-col>
 
@@ -383,6 +396,11 @@ const largestCluster = computed(() =>
     display: flex;
     justify-content: flex-end;
     align-items: flex-end;
+  }
+
+  &-labels {
+    max-height: 200px;
+    margin-top: 0.5rem;
   }
 }
 

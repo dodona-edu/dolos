@@ -68,7 +68,7 @@ export default defineComponent({
     };
     const barchartSize = useElementSize(barchartElement);
     const width = computed(() => (barchartSize.width.value || 600) - margin.left - margin.right);
-    const height = computed(() => 375 - margin.top - margin.bottom);
+    const height = computed(() => 415 - margin.top - margin.bottom);
 
     // Barchart D3
     const barchart = d3
