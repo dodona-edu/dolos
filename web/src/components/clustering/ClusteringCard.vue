@@ -10,7 +10,7 @@
           Pair View
         </v-tab>
 
-        <v-tab v-if="cluster && showClusterTimeline">
+        <v-tab v-show="cluster && showClusterTimeline">
           Timeseries
         </v-tab>
 
@@ -28,7 +28,7 @@
           <PairsTable v-if="showPairs" :pairs="clusterPairs" :items-per-page="10" />
         </v-tab-item>
 
-        <v-tab-item v-if="cluster && showClusterTimeline">
+        <v-tab-item v-show="cluster && showClusterTimeline">
           <TimeSeriesCard v-if="showTimeseries" :cluster="cluster" />
         </v-tab-item>
 
