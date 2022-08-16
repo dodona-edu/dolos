@@ -51,26 +51,11 @@
             </v-list-item>
           </v-list>
 
-          <v-simple-table class="selected-info-table" fixed-header>
-            <thead>
-              <tr>
-                <th>File</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              <tr v-for="file in clusterFilesSet" :key="file.id">
-                <td class="d-flex align-center">
-                  <label-dot
-                    :label="file.extra.labels || 'No label'"
-                    :color="getColor(file)"
-                  />
-
-                  <span class="ml-2">{{ file.extra.fullName ?? file.shortPath }}</span>
-                </td>
-              </tr>
-            </tbody>
-          </v-simple-table>
+          <graph-element-list
+            :cluster="selectedCluster"
+            max-height="30vh"
+            scroll
+          />
 
           <v-card-actions>
             <v-spacer />
@@ -90,6 +75,7 @@ import { Cluster, Clustering } from "@/util/clustering-algorithms/ClusterTypes";
 import { DateTime } from "luxon";
 import { getClusterElements } from "@/util/clustering-algorithms/ClusterFunctions";
 import LabelDot from "@/components/LabelDot.vue";
+import GraphElementList from "./GraphElementList.vue";
 
 interface Props {
   currentClustering: Clustering;
@@ -142,17 +128,12 @@ const goToInfo = (): void => {
   // Scroll to the cluster card.
   vuetify.goTo(clusterHash);
 };
-
-// Get the label color for a file in the cluster.
-const getColor = (file: File): string => {
-  if (!props.legend || !file.extra.labels || !props.legend[file.extra.labels]) return "";
-  return props.legend[file.extra.labels].color;
-};
 </script>
 
 <style lang="scss" scoped>
 .selected-info {
-  max-width: 350px;
+  width: 400px;
+  max-width: 30vw;
   position: absolute;
   top: 0;
   left: 0;
@@ -177,11 +158,6 @@ const getColor = (file: File): string => {
       align-items: center;
       justify-content: center;
     }
-  }
-
-  &-table {
-    max-height: 30vh;
-    overflow: auto;
   }
 }
 </style>

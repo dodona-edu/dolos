@@ -1,48 +1,44 @@
 <template>
-  <v-card outlined>
-    <v-card-title> Files in this cluster </v-card-title>
+  <v-simple-table class="graph-list" fixed-header>
+    <thead>
+      <tr>
+        <th>File</th>
+        <th v-if="hasTimestamp">Timestamp</th>
+      </tr>
+    </thead>
 
-    <v-simple-table class="graph-list" fixed-header>
-      <thead>
-        <tr>
-          <th>File</th>
-          <th v-if="hasTimestamp">Timestamp</th>
-        </tr>
-      </thead>
+    <tbody class="graph-list-body">
+      <tr
+        v-for="file in files"
+        :key="file.id"
+        :id="`file-${file.id}`"
+        class="graph-list-row"
+        :class="{ selected: selectedFiles?.includes(file) }"
+        @click="rowClick(file)"
+      >
+        <td class="d-flex align-center">
+          <label-dot
+            :label="file.extra.labels || 'No label'"
+            :color="getColor(file)"
+          />
 
-      <tbody class="graph-list-body">
-        <tr
-          v-for="file in files"
-          :key="file.id"
-          :id="`file-${file.id}`"
-          class="graph-list-row"
-          :class="{ selected: selectedFiles.includes(file) }"
-          @click="rowClick(file)"
-        >
-          <td class="d-flex align-center">
-            <label-dot
-              :label="file.extra.labels || 'No label'"
-              :color="getColor(file)"
-            />
+          <span class="ml-2">{{ file.extra.fullName ?? file.shortPath }}</span>
+        </td>
 
-            <span class="ml-2">{{ file.shortPath }}</span>
-          </td>
+        <td v-if="hasTimestamp">
+          <v-tooltip top>
+            <template #activator="{ on, attrs }">
+              <span class="short-timestamp" v-bind="attrs" v-on="on">
+                {{ formatTime(file.extra.timestamp)}}
+              </span>
+            </template>
 
-          <td v-if="hasTimestamp">
-            <v-tooltip top>
-              <template #activator="{ on, attrs }">
-                <span class="short-timestamp" v-bind="attrs" v-on="on">
-                  {{ formatTime(file.extra.timestamp)}}
-                </span>
-              </template>
-
-              {{ formatTimeLong(file.extra.timestamp) }}
-            </v-tooltip>
-          </td>
-        </tr>
-      </tbody>
-    </v-simple-table>
-  </v-card>
+            {{ formatTimeLong(file.extra.timestamp) }}
+          </v-tooltip>
+        </td>
+      </tr>
+    </tbody>
+  </v-simple-table>
 </template>
 
 <script lang="ts" setup>
@@ -55,10 +51,11 @@ import { timestampSort } from "@/util/SortingFunctions";
 import { useFileStore } from "@/api/stores";
 import { storeToRefs } from "pinia";
 import { useVuetify } from "@/composables";
+import LabelDot from "@/components/LabelDot.vue";
 
 interface Props {
   cluster: Cluster;
-  selectedFiles: File[];
+  selectedFiles?: File[];
   maxHeight?: string;
   scroll?: boolean;
   clickable?: boolean;
@@ -84,7 +81,7 @@ const hasTimestamp = computed(() => {
 
 const formatTime = (time?: Date): string => {
   if (!time) return "";
-  return DateTime.fromJSDate(time).toLocaleString();
+  return DateTime.fromJSDate(time).toFormat("dd/MM hh:mm");
 };
 
 const formatTimeLong = (time?: Date): string => {
@@ -111,7 +108,7 @@ const rowClick = (file: File): void => {
 watch(
   () => props.selectedFiles,
   () => {
-    if (props.selectedFiles.length > 0 && props.scroll) {
+    if (props.selectedFiles && props.selectedFiles.length > 0 && props.scroll) {
       const file = props.selectedFiles[0];
       vuetify.goTo(`#file-${file.id}`, {
         container: ".graph-list-body",
@@ -145,5 +142,6 @@ watch(
 
 .short-timestamp {
   text-decoration: underline dotted;
+  text-decoration-color: rgba(0, 0, 0, 0.5);
 }
 </style>

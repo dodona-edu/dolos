@@ -1,7 +1,7 @@
 <template>
   <v-row>
     <v-col cols="12" md="4" order="2" order-md="1">
-      <GraphElementList
+      <GraphElementListCard
         :cluster="props.cluster"
         :selected-files="files"
         max-height="400px"
@@ -27,7 +27,7 @@ import { shallowRef } from "vue";
 import { File } from "@/api/models";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
 import TimeSeries from "@/components/clustering/TimeSeries.vue";
-import GraphElementList from "@/d3-tools/GraphElementList.vue";
+import GraphElementListCard from "@/d3-tools/GraphElementListCard.vue";
 
 interface Props {
   cluster: Cluster;

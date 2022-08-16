@@ -184,6 +184,19 @@ graph
   .append("svg:path")
   .attr("d", "M5,-5L10,0L5,5M10,0L0,0");
 
+// Add a "S" symbol to the graph for showing the source of the cluster.
+graph
+  .append("svg:defs")
+  .append("svg:marker")
+  .attr("id", "source-marker")
+  .attr("viewBox", "0 -6 10 12")
+  .attr("refX", "5")
+  .attr("markerWidth", 2)
+  .attr("markerHeight", 2)
+  .attr("orient", "auto")
+  .append("svg:path")
+  .attr("d", "M5,-5L10,0L5,5M0,-5L5,0L0,5");
+
 // Select a node
 const selectNode = (node: any | null): void => {
   emit("selectedNodeInfo", node);
