@@ -28,7 +28,7 @@
 
             <v-list-item class="info-list-item">
               <v-icon>mdi-xml</v-icon>
-              <span>{{ metadataStore.metadata.language }}</span>
+              <span>{{ language }}</span>
             </v-list-item>
           </v-list>
         </v-card>
@@ -305,6 +305,12 @@ const averageSimilarity = computed(() => {
   );
   const divisor = Object.keys(pairStore.pairs).length;
   return (divident / divisor * 100).toFixed(0);
+});
+
+// Programming language, capitalized.
+const language = computed(() => {
+  const lang = metadataStore.metadata.language;
+  return lang.charAt(0).toUpperCase() + lang.slice(1);
 });
 
 // Clustering.
