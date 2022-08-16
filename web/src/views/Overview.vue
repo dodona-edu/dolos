@@ -43,7 +43,7 @@
                 </td>
 
                 <td>
-                  101 submissions
+                  {{ labelFilesCount[label.label] }} submissions
                 </td>
               </tr>
             </tbody>
@@ -312,7 +312,6 @@ const similarities = computed(() => {
 // Average maximum similarity.
 const averageSimilarity = computed(() => {
   const mean = similarities.value.reduce((a, b) => a + b, 0) / similarities.value.length;
-
   return mean;
 });
 
@@ -322,7 +321,21 @@ const medianSimilarity = computed(() => {
   const middle = Math.floor(sorted.length / 2);
   const median = sorted[middle];
   return median;
-}).value;
+});
+
+// Map containing the the amount of files for each label.
+const labelFilesCount = computed(() => {
+  const values: { [key: string]: number } = {};
+
+  for (const file of fileStore.filesList) {
+    const label = file.extra.labels;
+    if (!label) continue;
+    if (!values[label]) values[label] = 0;
+    values[label] += 1;
+  }
+
+  return values;
+});
 
 // Programming language, capitalized.
 const language = computed(() => {
