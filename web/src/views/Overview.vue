@@ -91,7 +91,9 @@
                 The highest similarity we've found between two files is {{ (highestSimilarity * 100).toFixed(0) }}%
               </info-dot>
             </h3>
-            <div class="stat-card-value">{{ (highestSimilarity * 100).toFixed(0) }}%</div>
+            <div class="stat-card-value">
+              <similarity-display :similarity="highestSimilarity" no-circle />
+            </div>
             <RouterLink
               :to="`/compare/${highestSimilarityPair?.id}`"
               class="stat-card-subtitle text--secondary"
@@ -265,6 +267,7 @@ import {
 import { getClusterElements } from "@/util/clustering-algorithms/ClusterFunctions";
 import OverviewBarchart from "@/components/overview/OverviewBarchart.vue";
 import SimilaritySetting from "@/components/settings/SimilaritySetting.vue";
+import SimilarityDisplay from "@/components/pair/SimilarityDisplay.vue";
 import InfoDot from "@/components/InfoDot.vue";
 
 const apiStore = useApiStore();

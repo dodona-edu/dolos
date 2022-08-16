@@ -59,6 +59,7 @@ const fontSize = computed(() => {
   &-value {
     font-size: v-bind("fontSize");
     font-weight: normal;
+    font-weight: inherit;
   }
 }
 </style>
