@@ -174,9 +174,4 @@ const getColor = (file: File): string => {
     overflow: auto;
   }
 }
-
-.namecontainer {
-  max-height: 35vh;
-  overflow-y: auto;
-}
 </style>
