@@ -107,6 +107,17 @@
           <div class="stat-card-content">
             <h3 class="stat-card-title">
               Clusters
+
+              <v-tooltip top>
+                <template v-slot:activator="{ attrs, on }">
+                  <v-icon v-bind="attrs" v-on="on">mdi-information</v-icon>
+                </template>
+
+                <span class="tooltip">
+                  Files are grouped into clusters based on their similarity.
+                  If a file pair has a similarity above the threshold, they will belong to the same cluster.
+                </span>
+              </v-tooltip>
             </h3>
             <div class="stat-card-value">{{ clustering.length }}</div>
             <div class="stat-card-subtitle text--secondary">Largest cluster: {{ largestCluster }} files</div>
