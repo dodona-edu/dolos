@@ -10,19 +10,16 @@
           <v-list class="selected-info-list" dense>
             <v-list-item class="selected-info-list-item">
               <v-icon>mdi-account-outline</v-icon>
-              <b>Author:</b>
               <span>{{ selectedNode.extra.fullName || selectedNode.shortPath || "unknown" }}</span>
             </v-list-item>
 
             <v-list-item class="selected-info-list-item">
               <v-icon>mdi-tag-outline</v-icon>
-              <b>Label:</b>
               <span>{{ selectedNode.extra.labels || "unknown" }}</span>
             </v-list-item>
 
             <v-list-item class="selected-info-list-item">
               <v-icon>mdi-clock-outline</v-icon>
-              <b>Hand-in date:</b>
               <span>{{ selectedNodeTimestamp || "not available." }}</span>
             </v-list-item>
           </v-list>
@@ -40,14 +37,12 @@
           <v-list class="selected-info-list" dense>
             <v-list-item class="selected-info-list-item">
               <v-icon>mdi-account-group-outline</v-icon>
-              <b>Cluster Size:</b>
-              <span>{{ clusterFilesSet.size }}</span>
+              <span>{{ clusterFilesSet.size }} submissions</span>
             </v-list-item>
 
             <v-list-item class="selected-info-list-item">
               <v-icon>mdi-approximately-equal</v-icon>
-              <b>Average similarity:</b>
-              <span>{{ clusterAverageSimilarity.toFixed(2) * 100 }}%</span>
+              <span>{{ clusterAverageSimilarity.toFixed(2) * 100 }}% average similarity</span>
             </v-list-item>
           </v-list>
 
