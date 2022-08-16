@@ -154,7 +154,7 @@ const getColor = (file: File): string => {
   position: absolute;
   top: 0;
   left: 0;
-  z-index: 4;
+  z-index: 2;
   display: flex;
   flex-direction: column;
   gap: 1rem;
