@@ -31,6 +31,13 @@
           </v-card-title>
 
           <v-simple-table class="info-card-labels" fixed-header dense>
+            <thead>
+              <tr>
+                <th>Label</th>
+                <th>Submissions</th>
+              </tr>
+            </thead>
+
             <tbody>
               <tr v-for="label in Object.values(legend)" :key="label.label">
                 <td class="d-flex align-center">
@@ -43,7 +50,7 @@
                 </td>
 
                 <td>
-                  {{ labelFilesCount[label.label] }} submissions
+                  {{ labelFilesCount[label.label] }}
                 </td>
               </tr>
             </tbody>
