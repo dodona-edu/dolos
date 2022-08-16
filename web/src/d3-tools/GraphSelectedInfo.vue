@@ -14,7 +14,12 @@
             </v-list-item>
 
             <v-list-item class="selected-info-list-item">
-              <v-icon>mdi-tag-outline</v-icon>
+              <div class="selected-info-list-dot">
+                <label-dot
+                  :label="selectedNodeLegend?.label || 'unknown'"
+                  :color="selectedNodeLegend?.color || 'grey'"
+                />
+              </div>
               <span>{{ selectedNode.extra.labels || "unknown" }}</span>
             </v-list-item>
 
@@ -109,6 +114,14 @@ const selectedNodeTimestamp = computed(() => {
   return null;
 });
 
+// Legend entry of the selected node.
+const selectedNodeLegend = computed(() => {
+  if (props.selectedNode?.extra.labels) {
+    return props.legend[props.selectedNode.extra.labels];
+  }
+  return null;
+});
+
 // index of the selected cluster.
 const selectedClusterIndex = computed(() => {
   if (!props.selectedCluster) return 0;
@@ -155,6 +168,14 @@ const getColor = (file: File): string => {
       display: flex;
       gap: 0.5rem;
       width: 100%;
+    }
+
+    &-dot {
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
   }
 
