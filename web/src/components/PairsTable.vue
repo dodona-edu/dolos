@@ -12,7 +12,7 @@
     @click:row="rowClicked"
   >
     <template #item.similarity="{ item }">
-      <similarity-display :similarity="+item.similarity" />
+      <similarity-display :similarity="+item.similarity" progress />
     </template>
   </v-data-table>
 </template>
