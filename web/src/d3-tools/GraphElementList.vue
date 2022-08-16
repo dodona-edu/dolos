@@ -20,17 +20,10 @@
           @click="rowClick(file)"
         >
           <td class="d-flex align-center">
-            <v-tooltip top>
-              <template #activator="{ on, attrs }">
-                <span
-                  class="graph-list-row-label"
-                  :style="`background-color: ${getColor(file)}`"
-                  v-bind="attrs"
-                  v-on="on"
-                />
-              </template>
-              <span>{{ file.extra.labels || "No label" }}</span>
-            </v-tooltip>
+            <label-dot
+              :label="file.extra.labels || 'No label'"
+              :color="getColor(file)"
+            />
 
             <span class="ml-2">{{ file.shortPath }}</span>
           </td>

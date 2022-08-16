@@ -56,17 +56,10 @@
             <tbody>
               <tr v-for="file in clusterFilesSet" :key="file.id">
                 <td class="d-flex align-center">
-                  <v-tooltip top>
-                    <template #activator="{ on, attrs }">
-                      <span
-                        class="label-dot"
-                        :style="`background-color: ${getColor(file)}`"
-                        v-bind="attrs"
-                        v-on="on"
-                      />
-                    </template>
-                    <span>{{ file.extra.labels || "No label" }}</span>
-                  </v-tooltip>
+                  <label-dot
+                    :label="file.extra.labels || 'No label'"
+                    :color="getColor(file)"
+                  />
 
                   <span class="ml-2">{{ file.extra.fullName ?? file.shortPath }}</span>
                 </td>
@@ -91,6 +84,7 @@ import { File, Legend } from "@/api/models";
 import { Cluster, Clustering } from "@/util/clustering-algorithms/ClusterTypes";
 import { DateTime } from "luxon";
 import { getClusterElements } from "@/util/clustering-algorithms/ClusterFunctions";
+import LabelDot from "@/components/LabelDot.vue";
 
 interface Props {
   currentClustering: Clustering;

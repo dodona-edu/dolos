@@ -41,11 +41,9 @@
             <tbody>
               <tr v-for="label in Object.values(legend)" :key="label.label">
                 <td class="d-flex align-center">
-                  <span
-                    class="label-dot"
-                    :style="`background-color: ${label.color}`"
-                    v-bind="attrs"
-                    v-on="on"
+                  <label-dot
+                    :label="label.label"
+                    :color="label.color"
                   />
 
                   <span class="ml-2">{{ label.label }}</span>
@@ -269,6 +267,7 @@ import OverviewBarchart from "@/components/overview/OverviewBarchart.vue";
 import SimilaritySetting from "@/components/settings/SimilaritySetting.vue";
 import SimilarityDisplay from "@/components/pair/SimilarityDisplay.vue";
 import InfoDot from "@/components/InfoDot.vue";
+import LabelDot from "@/components/LabelDot.vue";
 
 const apiStore = useApiStore();
 const fileStore = useFileStore();

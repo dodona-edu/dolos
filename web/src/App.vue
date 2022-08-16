@@ -194,13 +194,4 @@ api.hydrate();
     overflow: unset !important;
   }
 }
-
-// Label dot next to name of file.
-.label-dot {
-  background-color: grey;
-  width: 10px;
-  height: 10px;
-  display: block;
-  border-radius: 50%;
-}
 </style>
