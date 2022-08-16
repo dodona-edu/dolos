@@ -109,7 +109,7 @@
 
           <div class="stat-card-content">
             <h3 class="stat-card-title">
-              Cluster
+              Clusters
 
               <info-dot>
                 Files are grouped into clusters based on their similarity.
