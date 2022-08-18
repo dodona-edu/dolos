@@ -14,6 +14,14 @@ export class Range {
     }
   }
 
+  public static compareEnds(one: Range, other: Range): number {
+    if (one.to == other.to) {
+      return one.from - other.from;
+    } else {
+      return one.to - other.to;
+    }
+  }
+
   public static merge(one: Range, other: Range): Range {
     return new Range(
       Math.min(one.from, other.from),
