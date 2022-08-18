@@ -109,29 +109,51 @@ export class Pair extends Identifiable {
    * Remove each Fragment that is contained in a bigger Fragment.
    */
   public squash(): void {
-    const kandidates: Set<Fragment> = new Set();
-    for (const match of this.fragments()) {
+    // This algorithm only looks to the `leftkgrams` range of an fragment.
+    // If a fragment is contained within another on the left side, we check if
+    // this is also the case on the right side, before removing the fragment.
 
-      const iter = kandidates.values();
-      let next = iter.next();
-      let removed = false;
-      while (!next.done && !removed) {
-        const kandidate = next.value;
-        if (match.leftkgrams.from > kandidate.leftkgrams.to) {
-          kandidates.delete(kandidate);
-        } else if (
-          kandidate.leftkgrams.contains(match.leftkgrams) &&
-          kandidate.rightkgrams.contains(match.rightkgrams)
-        ){
-          this.removefragment(match);
-          removed = true;
+    // By sorting, and then doing a linear comparison, we can perform this
+    // method in O(n log n) time, whereas checking all pairs of fragments would
+    // be O(n²).
+
+    // A list with the fragments sorted by the start of their range interval
+    const sortedByStart = this.fragments();
+
+    // A list with the fragments sorted by the end of their range interval
+    const sortedByEnd = Array.from(sortedByStart);
+    sortedByEnd.sort((a: Fragment, b: Fragment) => Range.compareEnds(a.leftkgrams, b.leftkgrams));
+
+    let j = 0;
+    const seen = new Set<Fragment>();
+
+    // Iterate over the fragments as would encounter them by the start of their range
+    for(const started of sortedByStart) {
+
+      // If we have already seen this fragment, that means it is contained
+      // within a larger fragment. We have already handled this fragment, so
+      // we can skip it.
+      if (seen.has(started)) {
+        continue;
+      }
+
+      // We walk trough the fragments sorted by the end of its range. If we
+      // encounter fragments other than the current fragment, that means it
+      // starts and stops before our current fragments stops, so we possibly
+      // fully enclose that fragment.
+      while (started !== sortedByEnd[j]) {
+        const candidate = sortedByEnd[j];
+        seen.add(candidate);
+        // We possibly contain the left side, so check if the full fragment is
+        // contained.
+        if (started.leftkgrams.contains(candidate.leftkgrams) &&
+          started.rightkgrams.contains(candidate.rightkgrams)) {
+          // If this is the case, remove the contained fragment.
+          this.removefragment(candidate);
         }
-        next = iter.next();
+        j += 1;
       }
-
-      if (!removed) {
-        kandidates.add(match);
-      }
+      j += 1;
     }
   }
 
