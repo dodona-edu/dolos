@@ -18,23 +18,15 @@
       >
         <td class="d-flex align-center">
           <label-dot
-            :label="file.extra.labels || 'No label'"
-            :color="getColor(file)"
+            :legend="legend"
+            :file="file"
           />
 
           <span class="ml-2">{{ file.extra.fullName ?? file.shortPath }}</span>
         </td>
 
         <td v-if="hasTimestamp">
-          <v-tooltip top>
-            <template #activator="{ on, attrs }">
-              <span class="short-timestamp" v-bind="attrs" v-on="on">
-                {{ formatTime(file.extra.timestamp)}}
-              </span>
-            </template>
-
-            {{ formatTimeLong(file.extra.timestamp) }}
-          </v-tooltip>
+          <file-timestamp :file="file" />
         </td>
       </tr>
     </tbody>
@@ -46,12 +38,12 @@ import { computed, watch } from "vue";
 import { File } from "@/api/models";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
 import { getClusterElementsArray } from "@/util/clustering-algorithms/ClusterFunctions";
-import { DateTime } from "luxon";
 import { timestampSort } from "@/util/SortingFunctions";
 import { useFileStore } from "@/api/stores";
 import { storeToRefs } from "pinia";
 import { useVuetify } from "@/composables";
 import LabelDot from "@/components/LabelDot.vue";
+import FileTimestamp from "@/components/FileTimestamp.vue";
 
 interface Props {
   cluster: Cluster;
@@ -78,22 +70,6 @@ const files = computed(() => {
 const hasTimestamp = computed(() => {
   return files.value.some((f) => f.extra.timestamp);
 });
-
-const formatTime = (time?: Date): string => {
-  if (!time) return "";
-  return DateTime.fromJSDate(time).toFormat("dd/MM hh:mm");
-};
-
-const formatTimeLong = (time?: Date): string => {
-  if (!time) return "";
-  return DateTime.fromJSDate(time).toLocaleString(DateTime.DATETIME_MED);
-};
-
-// Get the label color for a file in the cluster.
-const getColor = (file: File): string => {
-  if (!legend.value || !file.extra.labels || !legend.value[file.extra.labels]) return "";
-  return legend.value[file.extra.labels].color;
-};
 
 // Row cursor
 const rowCursor = computed(() => {
@@ -138,10 +114,5 @@ watch(
       border-radius: 50%;
     }
   }
-}
-
-.short-timestamp {
-  text-decoration: underline dotted;
-  text-decoration-color: rgba(0, 0, 0, 0.5);
 }
 </style>

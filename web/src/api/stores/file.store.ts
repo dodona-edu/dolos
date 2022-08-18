@@ -2,10 +2,11 @@ import { defineStore } from "pinia";
 import { shallowRef, computed, nextTick } from "vue";
 import { DATA_URL } from "@/api";
 import { File, ObjMap } from "@/api/models";
-import { useApiStore } from "@/api/stores";
+import { useApiStore, usePairStore } from "@/api/stores";
 import { colors, names, uniqueNamesGenerator } from "unique-names-generator";
 import { useLegend } from "@/composables";
 import { commonFilenamePrefix, parseCsv } from "../utils";
+import { FileInterestingnessCalculator, SimilarityScore } from "@/util/FileInterestingness";
 
 /**
  * Store containing the file data & helper functions.
@@ -20,6 +21,22 @@ export const useFileStore = defineStore("files", () => {
 
   // Legend of files.
   const legend = useLegend(files);
+
+  const pairStore = usePairStore();
+
+  // Similarities map for every file
+  // Contains the max similarity for each file.
+  const similarities = computed(() => {
+    const scoringCalculator = new FileInterestingnessCalculator(pairStore.pairsList);
+
+    // Create a map for storing the highest similarity for each file.
+    const similarities = new Map<File, SimilarityScore | null>();
+    for (const file of filesList.value) {
+      similarities.set(file, scoringCalculator.calculateSimilarityScore(file));
+    }
+
+    return similarities;
+  });
 
   // Parse the files from a CSV string.
   function parse(fileData: any[]): ObjMap<File> {
@@ -131,6 +148,7 @@ export const useFileStore = defineStore("files", () => {
   return {
     files,
     filesList,
+    similarities,
     hydrated,
     hydrate,
     legend,

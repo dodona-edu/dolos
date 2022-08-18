@@ -11,6 +11,14 @@ const routes: Array<RouteConfig> = [
     component: Pairs
   },
   {
+    path: "/submissions",
+    name: "Submissions",
+    // route level code-splitting
+    // this generates a separate chunk (compare.[hash].js) for this route
+    // which is lazy-loaded when the route is visited.
+    component: () => import(/* webpackChunkName: "submissions" */ "../views/Submissions.vue")
+  },
+  {
     path: "/compare/:id",
     name: "Compare",
     props: route => ({ pairId: route.params.id }),
