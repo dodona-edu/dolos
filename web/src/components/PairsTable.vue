@@ -41,8 +41,8 @@ const searchValue = useVModel(props, "search", emit);
 
 // Table headers
 const headers: DataTableHeader[] = [
-  { text: "Left file", value: "left", sortable: false },
-  { text: "Right file", value: "right", sortable: false },
+  { text: "Left file", value: "left", sortable: true },
+  { text: "Right file", value: "right", sortable: true },
   { text: "Similarity", value: "similarity", filterable: false },
   { text: "Longest fragment", value: "longestFragment", filterable: false },
   { text: "Total overlap", value: "totalOverlap", filterable: false },
@@ -65,8 +65,8 @@ const calculateItems = (): void => {
   items.value = props.pairs
     .map((pair) => ({
       pair,
-      left: pair.leftFile.shortPath,
-      right: pair.rightFile.shortPath,
+      left: pair.leftFile.extra.fullName ?? pair.leftFile.shortPath,
+      right: pair.rightFile.extra.fullName ?? pair.rightFile.shortPath,
       similarity: pair.similarity.toFixed(2),
       longestFragment: pair.longestFragment,
       totalOverlap: pair.totalOverlap,
