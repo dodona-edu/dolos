@@ -1,13 +1,19 @@
 <template>
-  <v-tooltip top>
-    <template #activator="{ on, attrs }">
-      <span class="short-timestamp" v-bind="attrs" v-on="on">
-        {{ timeShort }}
-      </span>
-    </template>
+  <span>
+    <span v-if="props.long">
+      {{ timeLong }}
+    </span>
 
-    {{ timeLong }}
-  </v-tooltip>
+    <v-tooltip top v-else>
+      <template #activator="{ on, attrs }">
+        <span class="short-timestamp" v-bind="attrs" v-on="on">
+          {{ timeShort }}
+        </span>
+      </template>
+
+      {{ timeLong }}
+    </v-tooltip>
+  </span>
 </template>
 
 <script lang="ts" setup>
@@ -16,17 +22,21 @@ import { DateTime } from "luxon";
 import { computed } from "vue";
 
 interface Props {
-  file: File;
+  file?: File;
+  timestamp?: Date;
+  long?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {});
 
-const timeShort = computed(() =>
-  DateTime.fromJSDate(props.file.extra.timestamp).toFormat("dd/MM hh:mm")
+const timestamp = computed(() =>
+  props.file?.extra?.timestamp ?? props.timestamp
 );
-
+const timeShort = computed(() =>
+  DateTime.fromJSDate(timestamp.value).toFormat("dd/MM hh:mm")
+);
 const timeLong = computed(() =>
-  DateTime.fromJSDate(props.file.extra.timestamp).toLocaleString(DateTime.DATETIME_MED)
+  DateTime.fromJSDate(timestamp.value).toLocaleString(DateTime.DATETIME_MED)
 );
 </script>
 
