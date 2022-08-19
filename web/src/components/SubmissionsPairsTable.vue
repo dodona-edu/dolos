@@ -11,9 +11,15 @@
   >
     <template #item.name="{ item }">
       <div class="submission-name">
-        <LabelDot :label="item.label.label" :color="item.label.color" />
         <span>{{ item.name }}</span>
       </div>
+    </template>
+
+    <template #item.label="{ item }">
+      <span class="submission-label">
+        <LabelDot :label="item.label.label" :color="item.label.color" />
+        <LabelText :label="item.label.label" />
+      </span>
     </template>
 
     <template #item.timestamp="{ item }">
@@ -87,7 +93,8 @@ import { File } from "@/api/models";
 import { useRouter } from "@/composables";
 import SimilarityDisplay from "@/components/pair/SimilarityDisplay.vue";
 import FileTimestamp from "@/components/FileTimestamp.vue";
-import LabelDot from "./LabelDot.vue";
+import LabelText from "@/components/LabelText.vue";
+import LabelDot from "@/components/LabelDot.vue";
 
 interface Props {
   file: File;
@@ -117,6 +124,7 @@ const hasTimestamp = computed(() => {
 const headers = computed<DataTableHeader[]>(() => {
   const h = [] as DataTableHeader[];
   h.push({ text: "Submission", value: "name", sortable: true });
+  h.push({ text: "Label", value: "label", sortable: true });
 
   // Only add timestamp header when present.
   if (hasTimestamp.value) {
@@ -174,16 +182,11 @@ const items = computed(() => {
       };
     });
 });
-
-// When a row is clicked.
-const rowClicked = (item: { fileId: string }): void => {
-  router.push(`/submissions/${item.fileId}`);
-};
 </script>
 
 <style lang="scss" scoped>
 .submission {
-  &-name {
+  &-label {
     display: flex;
     gap: 0.5rem;
     align-items: center;

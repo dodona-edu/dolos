@@ -18,15 +18,17 @@
           {{ item.name }}
         </div>
 
-        <div class="submission-label text--secondary">
-          <v-icon :color="item.label.color" small>mdi-label-outline</v-icon>
-          <label-text :label="item.label.label" :color="item.label.color" colored />
-        </div>
-
         <div class="submission-path text--secondary">
           <v-icon small>mdi-file-document-outline</v-icon>
           <span>{{ item.path }}</span>
         </div>
+      </div>
+    </template>
+
+    <template #item.label="{ item }">
+      <div class="submission-label">
+        <label-dot :label="item.label.label" :color="item.label.color" />
+        <label-text :label="item.label.label" colored />
       </div>
     </template>
 
@@ -55,6 +57,7 @@ import { useVModel } from "@vueuse/core";
 import SimilarityDisplay from "@/components/pair/SimilarityDisplay.vue";
 import FileTimestamp from "@/components/FileTimestamp.vue";
 import LabelText from "@/components/LabelText.vue";
+import LabelDot from "@/components/LabelDot.vue";
 
 interface Props {
   files: File[];
@@ -79,6 +82,7 @@ const hasTimestamp = computed(() => {
 const headers = computed<DataTableHeader[]>(() => {
   const h = [];
   h.push({ text: "Submission", value: "name", sortable: true });
+  h.push({ text: "Label", value: "label", sortable: true });
 
   // Only add timestamp header when present.
   if (hasTimestamp.value) {

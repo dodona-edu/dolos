@@ -24,7 +24,7 @@ const fileStore = useFileStore();
 const color = computed(() => {
   if (props.color) return props.color;
   if (props.file) return fileStore.getLabel(props.file).color;
-  return "grey";
+  return "";
 });
 
 // Get the label from either the props or the file label in the legend.
