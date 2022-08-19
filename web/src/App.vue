@@ -33,10 +33,10 @@
 
         <v-list-item to="/submissions" link>
           <v-list-item-icon>
-            <v-icon>mdi-format-list-bulleted-square</v-icon>
+            <v-icon>mdi-file-document-multiple-outline</v-icon>
           </v-list-item-icon>
 
-          <v-list-item-title>Submissions</v-list-item-title>
+          <v-list-item-title>View by submission</v-list-item-title>
         </v-list-item>
 
         <v-list-item to="/graph" link>
@@ -44,15 +44,15 @@
             <v-icon>mdi-graph</v-icon>
           </v-list-item-icon>
 
-          <v-list-item-title>Plagiarism graph</v-list-item-title>
+          <v-list-item-title>View by cluster</v-list-item-title>
         </v-list-item>
 
         <v-list-item to="/pairs" link>
           <v-list-item-icon>
-            <v-icon>mdi-file-compare</v-icon>
+            <v-icon>mdi-file-table-box-multiple-outline</v-icon>
           </v-list-item-icon>
 
-          <v-list-item-title>Pairs</v-list-item-title>
+          <v-list-item-title>View by pair</v-list-item-title>
         </v-list-item>
       </v-list>
 
@@ -197,7 +197,7 @@ api.hydrate();
   }
 }
 
-// Class for cursor pointer on data table rows.
+// Cursor pointer on data table rows.
 .row-pointer {
   tbody tr:hover {
     cursor: pointer;
