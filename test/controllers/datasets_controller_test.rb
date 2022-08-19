@@ -27,11 +27,6 @@ class DatasetsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test "should update dataset" do
-    patch dataset_url(@dataset), params: { dataset: { name: @dataset.name, programming_language: @dataset.programming_language, zipfile: @zipfile } }
-    assert_response :success
-  end
-
   test "should destroy dataset" do
     assert_difference("Dataset.count", -1) do
       delete dataset_url(@dataset), as: :json

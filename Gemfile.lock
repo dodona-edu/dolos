@@ -46,6 +46,11 @@ GEM
       erubi (~> 1.4)
       rails-dom-testing (~> 2.0)
       rails-html-sanitizer (~> 1.1, >= 1.2.0)
+    active_storage_validations (0.9.8)
+      activejob (>= 5.2.0)
+      activemodel (>= 5.2.0)
+      activestorage (>= 5.2.0)
+      activesupport (>= 5.2.0)
     activejob (7.0.3.1)
       activesupport (= 7.0.3.1)
       globalid (>= 0.3.6)
@@ -178,6 +183,7 @@ GEM
       rack (>= 1.1)
       rubocop (>= 1.7.0, < 2.0)
     ruby-progressbar (1.11.0)
+    rubyzip (2.3.2)
     strscan (3.0.4)
     thor (1.2.1)
     timeout (0.3.0)
@@ -193,6 +199,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  active_storage_validations (~> 0.9)
   annotate (~> 3.2)
   bootsnap
   debug
@@ -201,6 +208,7 @@ DEPENDENCIES
   rails (~> 7.0.3)
   rubocop-minitest (~> 0.21.0)
   rubocop-rails (~> 2.15)
+  rubyzip (~> 2.3)
   tzinfo-data
 
 RUBY VERSION

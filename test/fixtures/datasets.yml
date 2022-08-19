@@ -11,11 +11,11 @@
 #
 
 one:
-  name: MyString
-  programming_language: MyString
-  file_count: 1
+  name: Simple dataset
+  programming_language: javascript
+  file_count:
 
 two:
-  name: MyString
-  programming_language: MyString
-  file_count: 1
+  name: Advanced dataset
+  programming_language: java
+  file_count:

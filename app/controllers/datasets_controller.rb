@@ -23,15 +23,6 @@ class DatasetsController < ApplicationController
     end
   end
 
-  # PATCH/PUT /datasets/1
-  def update
-    if @dataset.update(dataset_params)
-      render json: @dataset
-    else
-      render json: @dataset.errors, status: :unprocessable_entity
-    end
-  end
-
   # DELETE /datasets/1
   def destroy
     @dataset.destroy

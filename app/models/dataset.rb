@@ -9,8 +9,14 @@
 #  created_at           :datetime         not null
 #  updated_at           :datetime         not null
 #
+require 'zip'
+
 class Dataset < ApplicationRecord
   has_one_attached :zipfile
 
-  validates_presence_of :zipfile
+  validates :zipfile,
+            attached: true,
+            content_type: 'application/zip',
+            size: { less_than: 10.megabytes }
+
 end

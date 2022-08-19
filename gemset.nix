@@ -65,6 +65,17 @@
     };
     version = "7.0.3.1";
   };
+  active_storage_validations = {
+    dependencies = ["activejob" "activemodel" "activestorage" "activesupport"];
+    groups = ["default"];
+    platforms = [];
+    source = {
+      remotes = ["https://rubygems.org"];
+      sha256 = "0nb222b0mblj9zqq77x4506mrwwb3lc2zvl06mi7m7nyppv7ig01";
+      type = "gem";
+    };
+    version = "0.9.8";
+  };
   activejob = {
     dependencies = ["activesupport" "globalid"];
     groups = ["default"];
@@ -666,6 +677,16 @@
       type = "gem";
     };
     version = "1.11.0";
+  };
+  rubyzip = {
+    groups = ["default"];
+    platforms = [];
+    source = {
+      remotes = ["https://rubygems.org"];
+      sha256 = "0grps9197qyxakbpw02pda59v45lfgbgiyw48i0mq9f2bn9y6mrz";
+      type = "gem";
+    };
+    version = "2.3.2";
   };
   strscan = {
     groups = ["default"];

@@ -12,6 +12,12 @@ gem "mysql2", "~> 0.5"
 # Use the Puma web server [https://github.com/puma/puma]
 gem "puma", "~> 5.0"
 
+# Process ZIP archives
+gem "rubyzip", "~> 2.3"
+
+# Validate ActiveStorage attachments
+gem "active_storage_validations", "~> 0.9"
+
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]
 # gem "jbuilder"
 
