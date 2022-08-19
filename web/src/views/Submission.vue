@@ -1,117 +1,119 @@
 <template>
   <v-container fluid fill-height>
-    <template v-if="file">
-      <div class="heading">
-        <h2 class="heading-title">
-          Submission by {{ file.extra.fullName ?? file.shortPath }}
-        </h2>
-        <div class="heading-subtitle text--secondary">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+    <transition name="slide-y-transition" mode="out-in">
+      <div v-if="file" :key="file.id">
+        <div class="heading">
+          <h2 class="heading-title">
+            Submission by {{ file.extra.fullName ?? file.shortPath }}
+          </h2>
+          <div class="heading-subtitle text--secondary">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+          </div>
         </div>
-      </div>
 
-      <v-row>
-        <v-col cols="8">
-          <v-card>
-            <v-card-title>Compare</v-card-title>
-            <v-card-subtitle class="pb-2">
-              Compare this submission with other submissions
-            </v-card-subtitle>
+        <v-row>
+          <v-col cols="8">
+            <v-card>
+              <v-card-title>Compare</v-card-title>
+              <v-card-subtitle class="pb-2">
+                Compare this submission with other submissions
+              </v-card-subtitle>
 
-            <submissions-pairs-table :file="file" />
-          </v-card>
+              <submissions-pairs-table :file="file" />
+            </v-card>
 
-          <v-card class="mt-4">
-            <v-card-title>Cluster Timeline</v-card-title>
-            <v-card-subtitle class="pb-2">
-              Visual representation of which submission was submitted first.
-            </v-card-subtitle>
+            <v-card class="mt-4">
+              <v-card-title>Cluster Timeline</v-card-title>
+              <v-card-subtitle class="pb-2">
+                Visual representation of which submission was submitted first.
+              </v-card-subtitle>
 
-            <v-card-text v-if="!cluster">
-              Submission is not part of any cluster.
-            </v-card-text>
+              <v-card-text v-if="!cluster">
+                Submission is not part of any cluster.
+              </v-card-text>
 
-            <time-series
-              v-else
-              :key="fileId"
-              :cluster="cluster"
-              :node-size="8"
-              node-tooltip
-              node-clickable
-              @click:node="onNodeClick"
-            />
-          </v-card>
-
-          <v-card class="mt-4">
-            <v-card-title>Code viewer</v-card-title>
-            <v-card-subtitle class="pb-2">
-              View the code of this submission.
-            </v-card-subtitle>
-
-            <submission-code class="submission-code" :file="file" />
-          </v-card>
-        </v-col>
-
-        <v-col cols="4">
-          <v-card>
-            <v-card-title>Information</v-card-title>
-            <v-card-text>
-              <div class="info-item">
-                <v-icon :color="label.color">mdi-label-outline</v-icon>
-                <label-text :label="label.label" :color="label.color" colored />
-              </div>
-
-              <div class="info-item">
-                <v-icon>mdi-file-document-outline</v-icon>
-                <span>{{ file.shortPath }}</span>
-              </div>
-
-              <div class="info-item">
-                <v-icon>mdi-clock-outline</v-icon>
-                <file-timestamp :file="file" long />
-              </div>
-            </v-card-text>
-          </v-card>
-
-          <v-card class="mt-4">
-            <v-card-title>Cluster Graph</v-card-title>
-            <v-card-subtitle>Visual representation of submissions in the same cluster</v-card-subtitle>
-            <v-card-text v-if="!cluster">
-              Submission is not part of any cluster.
-            </v-card-text>
-            <v-card-text v-else>
-              <graph
+              <time-series
+                v-else
                 :key="fileId"
-                :pairs="clusterPairs"
-                :files="clusterFiles"
-                :legend="legendValue"
-                :clustering="clustering"
-                :height="350"
+                :cluster="cluster"
                 :node-size="8"
                 node-tooltip
                 node-clickable
                 @click:node="onNodeClick"
-              >
-                <graph-legend
-                  :legend.sync="legendValue"
-                />
-              </graph>
-            </v-card-text>
-          </v-card>
-        </v-col>
-      </v-row>
-    </template>
+              />
+            </v-card>
 
-    <template v-else>
-      <v-row>
-        <v-col>
-          <v-card>
-            <v-card-title>Not found</v-card-title>
-            <v-card-subtitle>This file was not found.</v-card-subtitle>
-          </v-card>
-        </v-col>
-      </v-row>
-    </template>
+            <v-card class="mt-4">
+              <v-card-title>Code viewer</v-card-title>
+              <v-card-subtitle class="pb-2">
+                View the code of this submission.
+              </v-card-subtitle>
+
+              <submission-code class="submission-code" :file="file" />
+            </v-card>
+          </v-col>
+
+          <v-col cols="4">
+            <v-card>
+              <v-card-title>Information</v-card-title>
+              <v-card-text>
+                <div class="info-item">
+                  <v-icon :color="label.color">mdi-label-outline</v-icon>
+                  <label-text :label="label.label" :color="label.color" colored />
+                </div>
+
+                <div class="info-item">
+                  <v-icon>mdi-file-document-outline</v-icon>
+                  <span>{{ file.shortPath }}</span>
+                </div>
+
+                <div class="info-item">
+                  <v-icon>mdi-clock-outline</v-icon>
+                  <file-timestamp :file="file" long />
+                </div>
+              </v-card-text>
+            </v-card>
+
+            <v-card class="mt-4">
+              <v-card-title>Cluster Graph</v-card-title>
+              <v-card-subtitle>Visual representation of submissions in the same cluster</v-card-subtitle>
+              <v-card-text v-if="!cluster">
+                Submission is not part of any cluster.
+              </v-card-text>
+              <v-card-text v-else>
+                <graph
+                  :key="fileId"
+                  :pairs="clusterPairs"
+                  :files="clusterFiles"
+                  :legend="legendValue"
+                  :clustering="clustering"
+                  :height="350"
+                  :node-size="8"
+                  node-tooltip
+                  node-clickable
+                  @click:node="onNodeClick"
+                >
+                  <graph-legend
+                    :legend.sync="legendValue"
+                  />
+                </graph>
+              </v-card-text>
+            </v-card>
+          </v-col>
+        </v-row>
+      </div>
+
+      <template v-else>
+        <v-row>
+          <v-col>
+            <v-card>
+              <v-card-title>Not found</v-card-title>
+              <v-card-subtitle>This file was not found.</v-card-subtitle>
+            </v-card>
+          </v-col>
+        </v-row>
+      </template>
+    </transition>
   </v-container>
 </template>
 
