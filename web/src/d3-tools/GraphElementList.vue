@@ -18,7 +18,6 @@
       >
         <td class="d-flex align-center">
           <label-dot
-            :legend="legend"
             :file="file"
           />
 
@@ -39,8 +38,6 @@ import { File } from "@/api/models";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
 import { getClusterElementsArray } from "@/util/clustering-algorithms/ClusterFunctions";
 import { timestampSort } from "@/util/SortingFunctions";
-import { useFileStore } from "@/api/stores";
-import { storeToRefs } from "pinia";
 import { useVuetify } from "@/composables";
 import LabelDot from "@/components/LabelDot.vue";
 import FileTimestamp from "@/components/FileTimestamp.vue";
@@ -56,7 +53,6 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {});
 const emit = defineEmits(["select-click"]);
 const vuetify = useVuetify();
-const { legend } = storeToRefs(useFileStore());
 
 // List of files in the cluster.
 // Sorted by timestamp.

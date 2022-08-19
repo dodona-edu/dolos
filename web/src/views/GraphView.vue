@@ -57,7 +57,7 @@ import { storeToRefs } from "pinia";
 import { File, Legend } from "@/api/models";
 import { Cluster } from "@/util/Cluster";
 import { useFileStore, usePairStore } from "@/api/stores";
-import { useRoute, useClustering } from "@/composables";
+import { useRoute } from "@/composables";
 import GraphSelectedInfo from "@/d3-tools/GraphSelectedInfo.vue";
 import ClusteringTable from "@/components/ClusteringTable.vue";
 import Graph from "@/components/graph/Graph.vue";
@@ -66,7 +66,7 @@ import SimilaritySetting from "@/components/settings/SimilaritySetting.vue";
 
 const route = useRoute();
 const { filesList, legend } = storeToRefs(useFileStore());
-const { pairsList } = storeToRefs(usePairStore());
+const { pairsList, clustering } = storeToRefs(usePairStore());
 
 // Show singletons in the graph.
 const showSingletons = shallowRef(false);
@@ -79,9 +79,6 @@ const selectedNode = shallowRef<File>();
 
 // Cluster that is currently selected.
 const selectedCluster = shallowRef<Cluster>();
-
-// Clustering
-const clustering = useClustering();
 
 // Should the legend be displayed.
 const showLegend = computed(() => {

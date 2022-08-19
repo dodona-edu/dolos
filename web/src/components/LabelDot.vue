@@ -13,7 +13,8 @@
 </template>
 
 <script lang="ts" setup>
-import { File, Legend } from "@/api/models";
+import { File } from "@/api/models";
+import { useFileStore } from "@/api/stores";
 import { computed } from "vue";
 
 interface Props {
@@ -21,34 +22,24 @@ interface Props {
   color?: string;
   size?: string;
   file?: File;
-  legend?: Legend;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   size: "10px",
 });
+const fileStore = useFileStore();
 
 // Get the color from either the props or the file label in the legend.
 const color = computed(() => {
   if (props.color) return props.color;
-
-  if (props.file && props.legend) {
-    const color = props.legend[props.file.extra.labels ?? ""].color;
-    if (color) return color;
-  }
-
+  if (props.file) return fileStore.getLabel(props.file).color;
   return "grey";
 });
 
 // Get the label from either the props or the file label in the legend.
 const label = computed(() => {
   if (props.label) return props.label;
-
-  if (props.file && props.legend) {
-    const label = props.legend[props.file.extra.labels ?? ""].label;
-    if (label) return label;
-  }
-
+  if (props.file) return fileStore.getLabel(props.file).label;
   return "No label";
 });
 

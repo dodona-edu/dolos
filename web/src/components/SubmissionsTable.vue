@@ -19,26 +19,20 @@
         </div>
 
         <div class="submission-label text--secondary">
-          <v-icon :color="item.color" small>
-            mdi-tag-outline
-          </v-icon>
-
-          <label-text :label="item.label" :color="item.color" colored />
+          <v-icon :color="item.label.color" small>mdi-label-outline</v-icon>
+          <label-text :label="item.label.label" :color="item.label.color" colored />
         </div>
 
         <div class="submission-path text--secondary">
-          <v-icon small>
-            mdi-file-document-outline
-          </v-icon>
-
-          {{ item.path }}
+          <v-icon small>mdi-file-document-outline</v-icon>
+          <span>{{ item.path }}</span>
         </div>
       </div>
     </template>
 
     <template #item.similarity="{ item }">
       <span class="submission-similarity">
-        <similarity-display :similarity="item.similarity" progress />
+        <similarity-display :similarity="item.similarity" progress dim-below-cutoff />
       </span>
     </template>
 
@@ -52,7 +46,7 @@
 
 <script lang="ts" setup>
 import { storeToRefs } from "pinia";
-import { computed, shallowRef } from "vue";
+import { computed } from "vue";
 import { DataTableHeader } from "vuetify";
 import { useFileStore } from "@/api/stores";
 import { File } from "@/api/models";
@@ -70,7 +64,8 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {});
 const emit = defineEmits(["update:search"]);
 const router = useRouter();
-const { similarities, legend } = storeToRefs(useFileStore());
+const fileStore = useFileStore();
+const { similarities } = storeToRefs(fileStore);
 
 // Search value.
 const searchValue = useVModel(props, "search", emit);
@@ -96,18 +91,15 @@ const headers = computed<DataTableHeader[]>(() => {
   return h;
 });
 
-// Table search
-const search = shallowRef("");
-
-// Items in the format for the the data-table.
+// Table items
+// In the format for the Vuetify data-table.
 const items = computed(() => {
   return props.files
     .map((file) => ({
       id: file.id,
       name: file.extra.fullName ?? file.shortPath,
       path: file.shortPath,
-      label: file.extra.labels ?? "No label",
-      color: legend.value[file.extra.labels ?? "No label"]?.color ?? "grey",
+      label: fileStore.getLabel(file),
       similarity: similarities.value.get(file)?.similarity ?? 0,
       timestamp: file.extra.timestamp,
       length: file.content.split("\n").length ?? 0,
@@ -115,8 +107,8 @@ const items = computed(() => {
 });
 
 // When a row is clicked.
-const rowClicked = (item: { file: File }): void => {
-  router.push(`/submission/${item.file.id}`);
+const rowClicked = (item: { id: string }): void => {
+  router.push(`/submissions/${item.id}`);
 };
 </script>
 
@@ -138,7 +130,8 @@ const rowClicked = (item: { file: File }): void => {
     font-size: 1.1rem;
   }
 
-  &-label {
+  &-label,
+  &-path {
     display: flex;
     gap: 0.5rem;
     align-items: center;

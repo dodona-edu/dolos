@@ -261,7 +261,6 @@
 <script lang="ts" setup>
 import { computed } from "vue";
 import { storeToRefs } from "pinia";
-import { useClustering } from "@/composables";
 import { Pair } from "@/api/models";
 import {
   useApiStore,
@@ -282,6 +281,7 @@ const fileStore = useFileStore();
 const pairStore = usePairStore();
 const metadataStore = useMetadataStore();
 const { legend } = storeToRefs(fileStore);
+const { clustering } = storeToRefs(pairStore);
 
 // File legend.
 const legendCount = computed(() => Object.keys(legend.value).length);
@@ -349,9 +349,6 @@ const language = computed(() => {
   const lang = metadataStore.metadata.language;
   return lang.charAt(0).toUpperCase() + lang.slice(1);
 });
-
-// Clustering.
-const clustering = useClustering();
 
 // Largest cluster
 const largestCluster = computed(() =>

@@ -36,7 +36,9 @@ import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
 import { getClusterElementsArray } from "@/util/clustering-algorithms/ClusterFunctions";
 import { Pair, File } from "@/api/models";
 import { SelectionManager } from "@/util/FileSelectionManager";
-import { useClustering, useLegend } from "@/composables";
+import { useLegend } from "@/composables";
+import { storeToRefs } from "pinia";
+import { usePairStore } from "@/api/stores";
 import GraphElementListCard from "@/d3-tools/GraphElementListCard.vue";
 import Graph from "../graph/Graph.vue";
 import GraphLegend from "../../d3-tools/GraphLegend.vue";
@@ -46,6 +48,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {});
+const pairStore = usePairStore();
 const clusterFiles = shallowRef<File[]>([]);
 const clusterPairs = shallowRef<Pair[]>([]);
 const selectedFiles = shallowRef<File[]>([]);
@@ -55,7 +58,7 @@ const legend = useLegend(clusterFiles);
 const legendValue = ref(legend.value);
 
 // Clustering.
-const clustering = useClustering();
+const clustering = storeToRefs(pairStore);
 
 const updateClusterValues = (): void => {
   if (props.cluster) {

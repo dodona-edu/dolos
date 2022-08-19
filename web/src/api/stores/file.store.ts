@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import { shallowRef, computed, nextTick } from "vue";
 import { DATA_URL } from "@/api";
-import { File, ObjMap } from "@/api/models";
+import { File, Label, ObjMap } from "@/api/models";
 import { useApiStore, usePairStore } from "@/api/stores";
 import { colors, names, uniqueNamesGenerator } from "unique-names-generator";
 import { useLegend } from "@/composables";
@@ -145,6 +145,22 @@ export const useFileStore = defineStore("files", () => {
     });
   }
 
+  // Get a file by its ID.
+  function getFile(id: number): File | undefined {
+    return files.value[id];
+  }
+
+  // Get the label for a file from the legend.
+  function getLabel(file: File | undefined): Label {
+    const defaultLabel = {
+      label: "No Label",
+      selected: false,
+      color: "grey",
+    };
+
+    return legend.value[file?.extra?.labels ?? ""] ?? defaultLabel;
+  }
+
   return {
     files,
     filesList,
@@ -152,6 +168,8 @@ export const useFileStore = defineStore("files", () => {
     hydrated,
     hydrate,
     legend,
-    anonymize
+    anonymize,
+    getFile,
+    getLabel
   };
 });

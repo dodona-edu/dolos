@@ -12,12 +12,13 @@ import {
   toRef,
   onMounted,
   onUnmounted,
+  computed,
 } from "vue";
 import { storeToRefs } from "pinia";
 import { useApiStore } from "@/api/stores";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
 import { File } from "@/api/models";
-import { useCluster, useLegend } from "@/composables";
+import { useCluster, useD3Tooltip, useLegend } from "@/composables";
 import { SelectionTool, xCoord } from "@/d3-tools/SelectionTool";
 import GraphLegend from "@/d3-tools/GraphLegend.vue";
 import * as d3 from "d3";
@@ -29,12 +30,17 @@ interface TimeDataType extends xCoord {
 
 interface Props {
   cluster: Cluster;
-  selection: boolean;
-  selectedFiles: File[];
+  selection?: boolean;
+  selectedFiles?: File[];
+  nodeTooltip?: boolean;
+  nodeClickable?: boolean;
+  nodeSize?: number;
 }
 
-const props = withDefaults(defineProps<Props>(), {});
-const emit = defineEmits(["filedata"]);
+const props = withDefaults(defineProps<Props>(), {
+  nodeSize: 6.5,
+});
+const emit = defineEmits(["filedata", "click:node"]);
 
 const { clusterFiles } = useCluster(toRef(props, "cluster"));
 const { cutoffDebounced } = storeToRefs(useApiStore());
@@ -46,11 +52,11 @@ const margin = {
   top: 10,
   bottom: 30,
   left: 60,
-  right: 30,
+  right: 60,
 };
 const { width, height } = {
-  width: 900 - margin.left - margin.right,
-  height: 400 - margin.top - margin.bottom,
+  width: 1100 - margin.left - margin.right,
+  height: 200 - margin.top - margin.bottom,
 };
 
 // Timeseries template ref.
@@ -63,6 +69,12 @@ const timeseries = d3
   .attr("height", height);
 const timeseriesContent = timeseries
   .append("g");
+
+// Node cursor
+const nodeCursor = computed(() => props.nodeClickable ? "pointer" : "default");
+
+// Node tooltip
+const nodeTooltip = useD3Tooltip({ relativeToMouse: true });
 
 // Simulation
 const simulation = shallowRef();
@@ -115,11 +127,28 @@ const draw = (): void => {
     .data(files)
     .enter()
     .append("circle")
-    .attr("r", 6.5)
+    .classed("timeseries-node", true)
+    .attr("r", props.nodeSize)
     .attr("cx", d => xScale(d.file.extra.timestamp!))
     .attr("cy", height / 2)
     .attr("fill", d => getColor((d.file)))
-    .attr("visibility", d => getVisibility(d.file));
+    .attr("visibility", d => getVisibility(d.file))
+    .on("mouseover", (e: MouseEvent, node: any) => {
+      if (!props.nodeTooltip) return;
+      nodeTooltip.onMouseOver(e, node.file.extra.fullName ?? node.file.shortPath);
+    })
+    .on("mousemove", (e: MouseEvent) => {
+      if (!props.nodeTooltip) return;
+      nodeTooltip.onMouseMove(e);
+    })
+    .on("mouseleave", (e: MouseEvent) => {
+      if (!props.nodeTooltip) return;
+      nodeTooltip.onMouseOut(e);
+    })
+    .on("click", (e : MouseEvent, node: any) => {
+      if (!props.nodeClickable) return;
+      emit("click:node", node.file);
+    });
 
   // Add the selection tool (if enabled)
   if (props.selection) {
@@ -167,6 +196,7 @@ watch(
 watch(
   () => props.selectedFiles,
   (selectedFiles) => {
+    if (!selectedFiles) return;
     timeseriesContent
       .selectAll<any, TimeDataType>("circle")
       .style("stroke", d => d.file && selectedFiles.map(f => f.id).includes(d.file.id) ? "red" : "")
@@ -183,3 +213,11 @@ onUnmounted(() => {
   simulation.value?.stop();
 });
 </script>
+
+<style lang="scss">
+.timeseries {
+  &-node {
+    cursor: v-bind("nodeCursor");
+  }
+}
+</style>

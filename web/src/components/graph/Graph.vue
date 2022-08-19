@@ -3,7 +3,7 @@
     <!-- Extra (optional) UI elements can be added to this container  -->
     <slot />
 
-    <!-- Optiosn -->
+    <!-- Options -->
     <div class="graph-options">
       <v-btn
         :color="simulationPaused ? 'success' : 'warning'"
@@ -35,7 +35,7 @@ import {
 } from "vue";
 import { useApiStore } from "@/api/stores";
 import { Pair, File, Legend } from "@/api/models";
-import { useCluster, useD3HullTool } from "@/composables";
+import { useCluster, useD3HullTool, useD3Tooltip } from "@/composables";
 import { storeToRefs } from "pinia";
 import { useElementSize } from "@vueuse/core";
 import { Clustering, Cluster } from "@/util/clustering-algorithms/ClusterTypes";
@@ -51,13 +51,18 @@ interface Props {
   files: File[];
   pairs: Pair[];
   zoomTo?: string;
-  selectedNode: File;
+  selectedNode?: File;
   width?: number;
   height?: number;
+  nodeTooltip?: boolean;
+  nodeClickable?: boolean;
+  nodeSize?: number;
 }
 
-const props = withDefaults(defineProps<Props>(), {});
-const emit = defineEmits(["selectedClusterInfo", "selectedNodeInfo"]);
+const props = withDefaults(defineProps<Props>(), {
+  nodeSize: 7,
+});
+const emit = defineEmits(["selectedClusterInfo", "selectedNodeInfo", "click:node"]);
 
 const { cutoff, cutoffDebounced } = storeToRefs(useApiStore());
 
@@ -152,6 +157,9 @@ const selectCluster = (cluster: Cluster | null): void => {
 const graph = d3.create("svg").attr("height", 500).attr("width", 500);
 const graphContainer = graph.append("g");
 
+// Graph tooltip
+const graphTooltip = useD3Tooltip({ relativeToMouse: true });
+
 // If the graph has been rendered the first time.
 const graphRendered = shallowRef(false);
 // If the graph has been calculated the first time.
@@ -164,6 +172,11 @@ const graphEdges = shallowRef();
 // Nodes in the graph.
 const graphNodesBase = graphContainer.append("g");
 const graphNodes = shallowRef();
+
+// Determin the node cursor.
+const graphNodeCursor = computed(() => {
+  return props.nodeClickable ? "pointer" : "grab";
+});
 
 // Convex hull tool for creating hulls around clusters.
 const graphHullTool = useD3HullTool({
@@ -382,6 +395,13 @@ const simulationDrag = d3
 
     // When the user clicks on the graph.
     if (!event.subject.justDragged) {
+      // Do not select the node when clickable.
+      // Instead execute the click action.
+      if (props.nodeClickable) {
+        emit("click:node", event.subject.file);
+        return;
+      }
+
       // Toggle the selected file.
       if (event.subject.file && props.selectedNode && event.subject.file.id === props.selectedNode.id) {
         selectNode(null);
@@ -463,10 +483,22 @@ watch(
       .join("circle")
       .classed("node", true)
       .classed("source", (node: any) => node.source)
-      .attr("r", 7)
+      .attr("r", props.nodeSize)
       .attr("fill", (node: any) => node.fillColor)
       .attr("id", (node: any) => `circle-${node.file.id}`)
-      .call(simulationDrag as any);
+      .call(simulationDrag as any)
+      .on("mouseover", (e: MouseEvent, node: any) => {
+        if (!props.nodeTooltip) return;
+        graphTooltip.onMouseOver(e, node.file.extra.fullName ?? node.file.shortPath);
+      })
+      .on("mousemove", (e: MouseEvent) => {
+        if (!props.nodeTooltip) return;
+        graphTooltip.onMouseMove(e);
+      })
+      .on("mouseleave", (e: MouseEvent) => {
+        if (!props.nodeTooltip) return;
+        graphTooltip.onMouseOut(e);
+      });
 
     // Set the nodes/edges of the simulation & restart.
     simulation.nodes(nodes);
@@ -548,7 +580,7 @@ onUnmounted(() => {
       }
 
       &:hover {
-        cursor: grab;
+        cursor: v-bind("graphNodeCursor");
       }
     }
 

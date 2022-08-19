@@ -2,7 +2,10 @@ import { defineStore } from "pinia";
 import { shallowRef, computed } from "vue";
 import { DATA_URL } from "@/api";
 import { assertType, parseCsv } from "@/api/utils";
+import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
+import { singleLinkageCluster } from "@/util/clustering-algorithms/SingleLinkageClustering";
 import {
+  useApiStore,
   useFileStore,
   useKgramStore,
   useMetadataStore,
@@ -68,6 +71,7 @@ export const usePairStore = defineStore("pairs", () => {
   const kgramStore = useKgramStore();
   const metadataStore = useMetadataStore();
   const semanticStore = useSemanticStore();
+  const apiStore = useApiStore();
 
   // Hydrate the store
   async function hydrate(): Promise<void> {
@@ -105,6 +109,26 @@ export const usePairStore = defineStore("pairs", () => {
     return pairs.value[id];
   }
 
+  // Get a list of pairs for a given file.
+  function getPairs(file: File): Pair[] {
+    return pairsList.value.filter((pair) => pair.leftFile === file || pair.rightFile === file) ?? [];
+  }
+
+  // Clustering
+  const clustering = computed(() =>
+    singleLinkageCluster(pairs.value, fileStore.files, apiStore.cutoffDebounced)
+  );
+
+  // Get the cluster for a given file.
+  function getCluster(file: File | undefined): Cluster | undefined {
+    if (!file) return undefined;
+
+    // Find a cluster that contains a pair that contains the file.
+    return clustering.value.find((cluster) =>
+      [...cluster].some((pair) => pair.leftFile === file || pair.rightFile === file)
+    );
+  }
+
   return {
     pairs,
     pairsList,
@@ -113,5 +137,8 @@ export const usePairStore = defineStore("pairs", () => {
     populateFragments,
     populateSemantic,
     getPair,
+    getPairs,
+    clustering,
+    getCluster,
   };
 });
