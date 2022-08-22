@@ -32,15 +32,16 @@
                 Submission is not part of any cluster.
               </v-card-text>
 
-              <time-series
-                v-else
-                :key="fileId"
-                :cluster="cluster"
-                :node-size="8"
-                node-tooltip
-                node-clickable
-                @click:node="onNodeClick"
-              />
+              <v-card-text v-else>
+                <time-series
+                  :cluster="cluster"
+                  :node-size="8"
+                  :selected-files="[file]"
+                  node-tooltip
+                  node-clickable
+                  @click:node="onNodeClick"
+                />
+              </v-card-text>
             </v-card>
 
             <v-card class="mt-4">
@@ -82,12 +83,12 @@
               </v-card-text>
               <v-card-text v-else>
                 <graph
-                  :key="fileId"
                   :pairs="clusterPairs"
                   :files="clusterFiles"
                   :legend="legendValue"
                   :clustering="clustering"
                   :height="350"
+                  :selected-node="file"
                   :node-size="8"
                   node-tooltip
                   node-clickable

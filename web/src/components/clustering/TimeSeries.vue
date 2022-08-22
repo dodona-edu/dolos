@@ -22,6 +22,7 @@ import { useCluster, useD3Tooltip, useLegend } from "@/composables";
 import { SelectionTool, xCoord } from "@/d3-tools/SelectionTool";
 import GraphLegend from "@/d3-tools/GraphLegend.vue";
 import * as d3 from "d3";
+import { useElementSize } from "@vueuse/core";
 
 interface TimeDataType extends xCoord {
   file: File,
@@ -35,10 +36,12 @@ interface Props {
   nodeTooltip?: boolean;
   nodeClickable?: boolean;
   nodeSize?: number;
+  height?: number;
+  width?: number;
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  nodeSize: 6.5,
+  nodeSize: 8,
 });
 const emit = defineEmits(["filedata", "click:node"]);
 
@@ -47,26 +50,27 @@ const { cutoffDebounced } = storeToRefs(useApiStore());
 const legend = useLegend(clusterFiles);
 const legendValue = ref(legend.value);
 
+// Timeseries template ref.
+const timeseriesElement = shallowRef();
+
 // Timeseries element size
 const margin = {
   top: 10,
   bottom: 30,
-  left: 60,
-  right: 60,
+  left: 20,
+  right: 100,
 };
-const { width, height } = {
-  width: 1100 - margin.left - margin.right,
-  height: 200 - margin.top - margin.bottom,
-};
-
-// Timeseries template ref.
-const timeseriesElement = shallowRef();
+// Container size
+const size = useElementSize(timeseriesElement);
+// Width & height
+const width = computed(() => (props.width ?? size.width.value) - margin.left - margin.right);
+const height = computed(() => (props.height ?? 200) - margin.top - margin.bottom);
 
 // Timeseries D3
 const timeseries = d3
   .create("svg")
-  .attr("width", width)
-  .attr("height", height);
+  .attr("width", 900)
+  .attr("height", 200);
 const timeseriesContent = timeseries
   .append("g");
 
@@ -100,8 +104,8 @@ const draw = (): void => {
 
   // Resize the timeseries.
   timeseries
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom);
+    .attr("width", width.value + margin.left + margin.right)
+    .attr("height", height.value + margin.top + margin.bottom);
   timeseriesContent
     .attr(
       "transform",
@@ -115,10 +119,10 @@ const draw = (): void => {
   const xScale = d3
     .scaleTime<number, number>()
     .domain(d3.extent(files.map(f => f.file.extra.timestamp!)) as [Date, Date])
-    .range([0, width]);
+    .range([0, width.value]);
   timeseriesContent
     .append("g")
-    .attr("transform", `translate(0, ${height})`)
+    .attr("transform", `translate(0, ${height.value})`)
     .call(d3.axisBottom(xScale));
 
   // Add the data points
@@ -130,7 +134,7 @@ const draw = (): void => {
     .classed("timeseries-node", true)
     .attr("r", props.nodeSize)
     .attr("cx", d => xScale(d.file.extra.timestamp!))
-    .attr("cy", height / 2)
+    .attr("cy", height.value / 2)
     .attr("fill", d => getColor((d.file)))
     .attr("visibility", d => getVisibility(d.file))
     .on("mouseover", (e: MouseEvent, node: any) => {
@@ -156,7 +160,7 @@ const draw = (): void => {
     new SelectionTool<TimeDataType>(
       timeseries as any,
       files,
-      () => ({ height, width, margin }),
+      () => ({ height: height.value, width: width.value, margin }),
       (d: TimeDataType[]) => emit("filedata", d.map(f => f.file)),
     );
   }
@@ -165,7 +169,7 @@ const draw = (): void => {
   simulation.value = d3
     .forceSimulation<TimeDataType>(files)
     .force("x", d3.forceX<TimeDataType>(d => xScale(d?.file?.extra?.timestamp || new Date())).strength(1))
-    .force("y", d3.forceY(height / 2))
+    .force("y", d3.forceY(height.value / 2))
     .force("collision", d3.forceCollide().radius(5).strength(0.1))
     .alpha(1)
     .on("tick", () =>
@@ -189,6 +193,14 @@ watch(
   () => legend.value,
   (legend) => {
     legendValue.value = legend;
+  }
+);
+
+// Watch width changes & update the size.
+watch(
+  width,
+  () => {
+    draw();
   }
 );
 
@@ -216,6 +228,8 @@ onUnmounted(() => {
 
 <style lang="scss">
 .timeseries {
+  position: relative;
+
   &-node {
     cursor: v-bind("nodeCursor");
   }

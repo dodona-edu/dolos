@@ -11,12 +11,13 @@
       />
     </v-col>
 
-    <v-col cols="12" md="4" order="1" order-md="2">
+    <v-col cols="12" md="8" order="1" order-md="2">
       <TimeSeries
         :cluster="props.cluster"
         :selection="true"
         @filedata="setNewFiles"
         :selected-files="files"
+        :height="450"
       />
     </v-col>
   </v-row>
