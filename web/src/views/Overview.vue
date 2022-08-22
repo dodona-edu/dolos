@@ -138,10 +138,10 @@
                 Similarity distribution &nbsp;
 
                 <info-dot>
-                  This plot shows the distribution of the similarity for this
-                  dataset. This distribution looks different for every
-                  dataset, and shows you which degrees of similarity may be
-                  interesting to look at. You can also use it to tweak the
+                  This plot shows the distribution of the similarity for the
+                  analysed submissions. This distribution looks different for
+                  every dataset, and shows you which degrees of similarity may
+                  be interesting to look at. You can also use it to tweak the
                   interpolated cluster cutoff value.
                 </info-dot>
               </v-card-title>
