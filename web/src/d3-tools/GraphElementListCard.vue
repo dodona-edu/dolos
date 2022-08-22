@@ -1,6 +1,7 @@
 <template>
   <v-card outlined>
-    <v-card-title> Files in this cluster </v-card-title>
+    <v-card-title>Submissions in this cluster </v-card-title>
+
 
     <graph-element-list
       :cluster="props.cluster"
