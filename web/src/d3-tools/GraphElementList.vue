@@ -81,7 +81,7 @@ const hasTimestamp = computed(() => {
 
 const formatTime = (time?: Date): string => {
   if (!time) return "";
-  return DateTime.fromJSDate(time).toFormat("dd/MM hh:mm");
+  return DateTime.fromJSDate(time).toFormat("dd/MM HH:mm");
 };
 
 const formatTimeLong = (time?: Date): string => {
