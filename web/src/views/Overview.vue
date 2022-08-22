@@ -124,7 +124,7 @@
               </info-dot>
             </h3>
             <div class="stat-card-value">{{ clustering.length }}</div>
-            <div class="stat-card-subtitle text--secondary">Largest cluster: {{ largestCluster }} files</div>
+            <div class="stat-card-subtitle text--secondary">Largest cluster: {{ largestCluster }} submissions</div>
           </div>
         </v-card>
       </v-col>
