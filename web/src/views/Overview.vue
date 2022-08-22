@@ -119,7 +119,7 @@
               Clusters
 
               <info-dot>
-                Files are grouped into clusters based on their similarity.
+                Submissions are grouped into clusters based on their similarity.
                 If a submission pair has a similarity above the threshold, they will belong to the same cluster.
               </info-dot>
             </h3>
