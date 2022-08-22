@@ -13,44 +13,29 @@ const routes: Array<RouteConfig> = [
   {
     path: "/submissions",
     name: "Submissions",
-    // route level code-splitting
-    // this generates a separate chunk (compare.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
     component: () => import(/* webpackChunkName: "submissions" */ "../views/Submissions.vue")
   },
   {
     path: "/submissions/:id",
     name: "Submission",
     props: route => ({ fileId: route.params.id }),
-    // route level code-splitting
-    // this generates a separate chunk (compare.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "submissions/:id" */ "../views/Submission.vue")
+    component: () => import(/* webpackChunkName: "submission" */ "../views/Submission.vue")
   },
   {
     path: "/compare/:id",
     name: "Compare",
     props: route => ({ pairId: route.params.id }),
-    // route level code-splitting
-    // this generates a separate chunk (compare.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
     component: () => import(/* webpackChunkName: "compare" */ "../views/Compare.vue")
   },
   {
     path: "/graph/",
     name: "Graph",
-    // route level code-splitting
-    // this generates a separate chunk (compare.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
     component: () => import(/* webpackChunkName: "graph" */ "../views/GraphView.vue")
   },
   {
     path: "/",
     name: "Overview",
-    // route level code-splitting
-    // this generates a separate chunk (compare.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "graph" */ "../views/Overview.vue")
+    component: () => import(/* webpackChunkName: "overview" */ "../views/Overview.vue")
   },
 ];
 
