@@ -324,7 +324,7 @@ const averageSimilarity = computed(() => {
 
 // Median maximum similarity.
 const medianSimilarity = computed(() => {
-  const sorted = [...similarities.value].sort((a, b) => a - b);
+  const sorted = [...similarities.value].sort();
   const middle = Math.floor(sorted.length / 2);
   const median = sorted[middle];
   return median;
