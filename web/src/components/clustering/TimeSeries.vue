@@ -172,12 +172,13 @@ const draw = (): void => {
     .force("y", d3.forceY(height.value / 2))
     .force("collision", d3.forceCollide().radius(5).strength(0.1))
     .alpha(1)
-    .on("tick", () =>
+    .alphaMin(0.1)
+    .on("tick", () => {
       d3
         .selectAll<d3.BaseType, TimeDataType>("circle")
         .attr("cx", (d: TimeDataType) => d?.x || 0)
-        .attr("cy", (d: TimeDataType) => d?.y || 0)
-    );
+        .attr("cy", (d: TimeDataType) => d?.y || 0);
+    });
 };
 
 // Redraw the timeseries when the cluster changes.
@@ -212,6 +213,7 @@ watch(
     timeseriesContent
       .selectAll<any, TimeDataType>("circle")
       .style("stroke", d => d.file && selectedFiles.map(f => f.id).includes(d.file.id) ? "red" : "")
+      .classed("glow", d => selectedFiles.map(f => f.id).includes(d.file.id))
       .attr("r", d => d.file && selectedFiles.map(f => f.id).includes(d.file.id) ? 8.5 : 6.5);
   }
 );
