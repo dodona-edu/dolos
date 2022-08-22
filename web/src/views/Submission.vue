@@ -105,10 +105,12 @@
               <v-card-title>Similarity Graph</v-card-title>
               <v-card-subtitle>Lorem ipsum dolor sit amet</v-card-subtitle>
               <v-card-text>
-                <!-- <pair-stat-histogram
-                  pair-field="similarity"
-                  :numberOfTicks="25"
-                /> -->
+                <pair-stat-histogram
+                  field="similarity"
+                  :file="file"
+                  :ticks="25"
+                  :height="300"
+                />
               </v-card-text>
             </v-card>
           </v-col>
@@ -143,6 +145,7 @@ import GraphLegend from "@/d3-tools/GraphLegend.vue";
 import TimeSeries from "@/components/clustering/TimeSeries.vue";
 import SubmissionCode from "@/components/SubmissionCode.vue";
 import PairStatHistogram from "@/components/summary/PairStatHistogram.vue";
+import { useLegend } from "../composables";
 
 interface Props {
   fileId: string;
@@ -152,7 +155,6 @@ const props = withDefaults(defineProps<Props>(), {});
 const router = useRouter();
 const fileStore = useFileStore();
 const pairStore = usePairStore();
-const { legend } = storeToRefs(fileStore);
 const { clustering } = storeToRefs(pairStore);
 
 // Get the file by id.
@@ -164,11 +166,12 @@ const label = computed(() => fileStore.getLabel(file.value));
 // Get the cluster of the file.
 const cluster = computed(() => pairStore.getCluster(file.value));
 
-// Legend
-const legendValue = ref(legend.value);
-
 // Cluster
 const { clusterPairs, clusterFiles } = useCluster(cluster);
+
+// Legend
+const legend = useLegend(clusterFiles);
+const legendValue = ref(legend.value);
 
 // Go to the submission when a node is clicked.
 const onNodeClick = (file: File): void => {

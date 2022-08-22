@@ -6,7 +6,7 @@ import { useApiStore, usePairStore } from "@/api/stores";
 import { names, uniqueNamesGenerator } from "unique-names-generator";
 import { useLegend } from "@/composables";
 import { commonFilenamePrefix, parseCsv } from "../utils";
-import { FileInterestingnessCalculator, SimilarityScore } from "@/util/FileInterestingness";
+import { FileInterestingnessCalculator, FileScoring, SimilarityScore } from "@/util/FileInterestingness";
 
 /**
  * Store containing the file data & helper functions.
@@ -23,16 +23,31 @@ export const useFileStore = defineStore("files", () => {
   const legend = useLegend(files);
 
   const pairStore = usePairStore();
+  const scoringCalculator: any = computed(() =>
+    new FileInterestingnessCalculator(pairStore.pairsList)
+  );
+
+  // Scored file map.
+  const scoredFiles = computed(() => {
+    const scores = new Map<File, FileScoring>();
+    for (const file of filesList.value) {
+      scores.set(file, scoringCalculator.value.calculateFileScoring(file));
+    }
+    return scores;
+  });
+
+  // Scored file list
+  const scoredFilesList = computed(() => filesList.value.map((file) =>
+    scoringCalculator.value.calculateFileScoring(file)
+  ));
 
   // Similarities map for every file
   // Contains the max similarity for each file.
   const similarities = computed(() => {
-    const scoringCalculator = new FileInterestingnessCalculator(pairStore.pairsList);
-
     // Create a map for storing the highest similarity for each file.
     const similarities = new Map<File, SimilarityScore | null>();
     for (const file of filesList.value) {
-      similarities.set(file, scoringCalculator.calculateSimilarityScore(file));
+      similarities.set(file, scoringCalculator.value.calculateSimilarityScore(file));
     }
 
     return similarities;
@@ -166,6 +181,8 @@ export const useFileStore = defineStore("files", () => {
   return {
     files,
     filesList,
+    scoredFiles,
+    scoredFilesList,
     similarities,
     similaritiesList,
     hydrated,

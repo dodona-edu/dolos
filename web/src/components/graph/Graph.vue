@@ -136,7 +136,7 @@ const clusterColors = computed(() => {
       if (count > counter.get(maxKey)) maxKey = key as any;
     }
 
-    clusterColorsMap.set(cluster, labels[maxKey].color);
+    clusterColorsMap.set(cluster, labels[maxKey]?.color ?? "grey");
   }
 
   return clusterColorsMap;
