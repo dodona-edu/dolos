@@ -31,7 +31,7 @@
           </v-list-item-content>
         </v-list-item>
 
-        <v-list-item to="/submissions" link>
+        <v-list-item to="/submissions" link exact>
           <v-list-item-icon>
             <v-icon>mdi-file-document-multiple-outline</v-icon>
           </v-list-item-icon>
@@ -39,7 +39,7 @@
           <v-list-item-title>View by submission</v-list-item-title>
         </v-list-item>
 
-        <v-list-item to="/graph" link>
+        <v-list-item to="/graph" link  exact>
           <v-list-item-icon>
             <v-icon>mdi-graph</v-icon>
           </v-list-item-icon>
@@ -47,7 +47,7 @@
           <v-list-item-title>View by cluster</v-list-item-title>
         </v-list-item>
 
-        <v-list-item to="/pairs" link>
+        <v-list-item to="/pairs" link exact>
           <v-list-item-icon>
             <v-icon>mdi-file-table-box-multiple-outline</v-icon>
           </v-list-item-icon>
