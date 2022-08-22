@@ -10,3 +10,4 @@ export * from "./paired-occurrence";
 export * from "./semantic";
 export * from "./legend";
 export * from "./match";
+export * from "./coordinate";

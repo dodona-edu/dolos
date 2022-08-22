@@ -5,7 +5,12 @@
         v-if="!breakpoints.desktop"
         @click.stop="drawer = !drawer"
       />
-      <v-toolbar-title @click="navigateTo('/')">DOLOS</v-toolbar-title>
+
+      <v-toolbar-title>
+        <RouterLink to="/">
+          DOLOS
+        </RouterLink>
+      </v-toolbar-title>
     </v-app-bar>
 
     <v-navigation-drawer
@@ -119,13 +124,12 @@
 <script lang="ts" setup>
 import { shallowRef, computed } from "vue";
 import { storeToRefs } from "pinia";
-import { useRouter, useBreakpoints } from "@/composables";
+import { useBreakpoints } from "@/composables";
 import { useApiStore } from "@/api/stores";
 import Loading from "@/components/Loading.vue";
 import packageJson from "../package.json";
 
 const breakpoints = useBreakpoints();
-const router = useRouter();
 const api = useApiStore();
 const { isLoaded, isAnonymous, loadingText } = storeToRefs(api);
 
@@ -135,13 +139,6 @@ const drawer = shallowRef(breakpoints.value.desktop);
 // Current version of the application.
 const version = computed(() => packageJson.version);
 
-// Navigate to a specific route.
-const navigateTo = (route: string): void => {
-  if (router.currentRoute.path !== route) {
-    router.push(route);
-  }
-};
-
 // Hydrate all the stores (fetch all the data).
 api.hydrate();
 </script>
@@ -149,6 +146,13 @@ api.hydrate();
 <style lang="scss">
 .v-messages {
   display: none;
+}
+
+.v-toolbar__title {
+  a {
+    color: inherit !important;
+    text-decoration: none;
+  }
 }
 
 .anonymize {
@@ -180,5 +184,14 @@ api.hydrate();
 
 .heading {
   padding-bottom: 1rem;
+}
+
+// Fix scrolling when overflowing with sticky header.
+.v-data-table {
+  overflow: auto !important;
+
+  .v-data-table__wrapper {
+    overflow: unset !important;
+  }
 }
 </style>

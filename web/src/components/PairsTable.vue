@@ -8,8 +8,13 @@
     :items-per-page="15"
     :search="search"
     :footer-props="footerProps"
+    :hide-default-footer="props.pairs.length <= props.itemsPerPage"
     @click:row="rowClicked"
-  />
+  >
+    <template #item.similarity="{ item }">
+      <similarity-display :similarity="+item.similarity" progress />
+    </template>
+  </v-data-table>
 </template>
 
 <script lang="ts" setup>
@@ -17,6 +22,7 @@ import { shallowRef, onMounted } from "vue";
 import { useRouter, useRoute } from "@/composables";
 import { Pair } from "@/api/models";
 import { DataTableHeader } from "vuetify";
+import SimilarityDisplay from "@/components/pair/SimilarityDisplay.vue";
 
 interface Props {
   pairs: Pair[];

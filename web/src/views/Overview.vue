@@ -1,76 +1,150 @@
 <template>
-  <div class="main-container">
+  <v-container fluid>
+    <div class="hero">
+      <h2 class="hero-title">
+        DOLOS
+      </h2>
+      <div class="hero-subtitle text--secondary">
+        Source code plagiarism detection
+      </div>
+    </div>
+
     <v-row>
-      <!-- Information -->
-      <v-col cols="12" lg="7">
-        <v-card class="fill-height">
-          <v-card-text class="info-card">
-            <h1 class="info-card-title">Dolos</h1>
-            <span class="info-card-subtitle">
-              Source code plagiarism detection
-            </span>
+      <v-col cols="12" md="6" lg="4" class="info-cards">
+        <v-card class="info-card">
+          <v-card-title class="pb-0">Submissions</v-card-title>
 
-            <p>
-              We analyzed <b>{{ filesCount }}</b> files for plagiarism, using
-              the programming language
-              <b>{{ metadataStore.metadata.language }}</b
-              >. There are <b>{{ legendCount }} </b>different label groups.
-            </p>
+          <v-list class="info-list" dense>
+            <v-list-item class="info-list-item">
+              <v-icon>mdi-file-outline</v-icon>
+              <span>{{ filesCount }} submissions</span>
+            </v-list-item>
 
-            <p v-if="highestSimilarityPair">
-              The average similarity of this dataset is
-              <b>{{ averageSimilarity }}%</b>, the pair with the highest
-              similarity of
-              <b>{{ (highestSimilarity * 100).toFixed(0) }}%</b>
-              can be found
-              <a :href="`#/compare/${highestSimilarityPair.id}`">here</a>.
-            </p>
+            <v-list-item class="info-list-item">
+              <v-icon>mdi-xml</v-icon>
+              <span>{{ language }}</span>
+            </v-list-item>
+          </v-list>
 
-            <p>
-              Using the
-              <v-tooltip top>
-                <template v-slot:activator="{ attrs, on }">
-                  <span v-bind="attrs" v-on="on" class="tooltip-bearer">
-                    similarity cutoff value</span
-                  >
-                </template>
-                <span class="tooltip">
-                  Dolos uses the 'similarity cutoff value' to group different
-                  files into groups or clusters. It is likely that the files in
-                  a cluster have a common source or are plagiarized from each
-                  other. Though Dolos tries to interpolate a good default value,
-                  you can tweak this value using the slider on the right, or on
-                  the clustering page.
-                </span>
-              </v-tooltip>
-              of {{ (apiStore.cutoff * 100).toFixed() }}% we found
-              <b>{{ clustering.length }}</b> different clusters, of which the
-              biggest consists of <b>{{ largestCluster }}</b> files.
-            </p>
-          </v-card-text>
+          <v-card-title class="info-card-subtitle pt-0 pb-0">
+            {{ legendCount }} labels detected
+          </v-card-title>
+
+          <v-simple-table class="info-card-labels" fixed-header dense>
+            <thead>
+              <tr>
+                <th>Label</th>
+                <th>Submissions</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr v-for="label in Object.values(legend)" :key="label.label">
+                <td class="d-flex align-center">
+                  <label-dot
+                    :label="label.label"
+                    :color="label.color"
+                  />
+
+                  <span class="ml-2">{{ label.label }}</span>
+                </td>
+
+                <td>
+                  {{ labelFilesCount[label.label] }}
+                </td>
+              </tr>
+            </tbody>
+          </v-simple-table>
+        </v-card>
+      </v-col>
+
+      <v-col cols="12" md="6" lg="3" class="stat-cards">
+        <v-card class="stat-card">
+          <div class="stat-card-icon">
+            <div class="stat-card-icon-background primary"></div>
+            <v-icon color="primary" x-large>mdi-chart-bell-curve</v-icon>
+          </div>
+
+          <div class="stat-card-content">
+            <h3 class="stat-card-title">
+              Highest similarity
+
+              <info-dot>
+                The highest similarity we've found between two submissions is
+                {{ (highestSimilarity * 100).toFixed(0) }}%
+              </info-dot>
+            </h3>
+            <div class="stat-card-value">
+              <similarity-display :similarity="highestSimilarity" text />
+            </div>
+            <RouterLink
+              class="stat-card-subtitle text--secondary"
+              to="/pairs"
+            >
+              View pairs
+            </RouterLink>
+          </div>
+        </v-card>
+
+        <v-card class="stat-card">
+          <div class="stat-card-icon">
+            <div class="stat-card-icon-background primary"></div>
+            <v-icon color="primary" size="64">mdi-approximately-equal</v-icon>
+          </div>
+
+          <div class="stat-card-content">
+            <h3 class="stat-card-title">
+              Average similarity
+
+              <info-dot>
+                Average of the highest similarity for each submission.
+              </info-dot>
+            </h3>
+            <div class="stat-card-value">
+              <similarity-display :similarity="averageSimilarity" text />
+            </div>
+            <div class="stat-card-subtitle text--secondary">
+              Median similarity: {{ (medianSimilarity * 100).toFixed(0) }}%
+            </div>
+          </div>
+        </v-card>
+
+        <v-card class="stat-card">
+          <div class="stat-card-icon">
+            <div class="stat-card-icon-background primary"></div>
+            <v-icon color="primary" x-large>mdi-account-group-outline</v-icon>
+          </div>
+
+          <div class="stat-card-content">
+            <h3 class="stat-card-title">
+              Clusters
+
+              <info-dot>
+                Submissions are grouped into clusters based on their similarity.
+                If a submission pair has a similarity above the threshold, they will belong to the same cluster.
+              </info-dot>
+            </h3>
+            <div class="stat-card-value">{{ clustering.length }}</div>
+            <div class="stat-card-subtitle text--secondary">Largest cluster: {{ largestCluster }} submissions</div>
+          </div>
         </v-card>
       </v-col>
 
       <!-- Similarity distribution -->
       <v-col cols="12" lg="5">
-        <v-card>
+        <v-card class="graph-card">
           <v-row justify="space-between" align="center" no-wrap no-gutters>
             <v-col cols="auto">
               <v-card-title>
-                Similarity Distribution &nbsp;
-                <v-tooltip top>
-                  <template v-slot:activator="{ attrs, on }">
-                    <v-icon v-bind="attrs" v-on="on">mdi-information</v-icon>
-                  </template>
+                Similarity distribution &nbsp;
 
-                  <span class="tooltip">
-                    This plot shows the distribution of the similarity for this
-                    dataset. This distribution looks different for every
-                    dataset, and shows you which degrees of similarity may be
-                    interesting to look at. You can also use it to tweak the
-                    interpolated cluster cutoff value.
-                  </span>
-                </v-tooltip>
+                <info-dot>
+                  This plot shows the distribution of the similarity for the
+                  analysed submissions. This distribution looks different for
+                  every dataset, and shows you which degrees of similarity may
+                  be interesting to look at. You can also use it to tweak the
+                  interpolated cluster cutoff value.
+                </info-dot>
               </v-card-title>
             </v-col>
 
@@ -88,11 +162,11 @@
 
       <v-col cols="12">
         <v-card>
-          <div class="d-flex flex-column flex-sm-row flex-no-wrap justify-center">
+          <div class="d-flex flex-column flex-md-row flex-no-wrap justify-center">
             <div class="ma-4 d-flex align-center justify-center">
               <v-img
                 src="../assets/soco-java-graph.png"
-                :max-width="breakpoints.desktop ? 270 : '60%'"
+                :max-width="270"
                 contain
               />
             </div>
@@ -124,8 +198,9 @@
               </v-card-text>
               <v-card-actions>
                 <v-spacer />
-                <v-btn color="success" depressed to="/graph">
+                <v-btn color="primary" depressed to="/graph">
                   Go to graph view
+                  <v-icon right>mdi-chevron-right</v-icon>
                 </v-btn>
               </v-card-actions>
             </div>
@@ -135,11 +210,11 @@
 
       <v-col cols="12">
         <v-card>
-          <div class="d-flex flex-column flex-sm-row flex-no-wrap justify-start">
+          <div class="d-flex flex-column flex-md-row flex-no-wrap justify-start">
             <div class="ma-4 d-flex align-center justify-center">
               <v-img
                 src="../assets/file-comparison.png"
-                :max-width="breakpoints.desktop ? 270 : '70%'"
+                :max-width="270"
                 contain
               />
             </div>
@@ -166,12 +241,14 @@
                 </p>
               </v-card-text>
               <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn color="success" depressed to="/pairs">
+                <v-spacer />
+                <v-btn color="primary" text to="/pairs">
                   Go to pair view
+                  <v-icon right>mdi-chevron-right</v-icon>
                 </v-btn>
-                <v-btn color="success" depressed to="/fileanalysis">
+                <v-btn color="primary" depressed to="/fileanalysis">
                   Go to file analysis
+                  <v-icon right>mdi-chevron-right</v-icon>
                 </v-btn>
               </v-card-actions>
             </div>
@@ -179,13 +256,13 @@
         </v-card>
       </v-col>
     </v-row>
-  </div>
+  </v-container>
 </template>
 
 <script lang="ts" setup>
 import { computed } from "vue";
 import { storeToRefs } from "pinia";
-import { useBreakpoints, useClustering } from "@/composables";
+import { useClustering } from "@/composables";
 import { Pair } from "@/api/models";
 import {
   useApiStore,
@@ -196,8 +273,11 @@ import {
 import { getClusterElements } from "@/util/clustering-algorithms/ClusterFunctions";
 import OverviewBarchart from "@/components/overview/OverviewBarchart.vue";
 import SimilaritySetting from "@/components/settings/SimilaritySetting.vue";
+import SimilarityDisplay from "@/components/pair/SimilarityDisplay.vue";
+import InfoDot from "@/components/InfoDot.vue";
+import LabelDot from "@/components/LabelDot.vue";
+import { FileInterestingnessCalculator } from "@/util/FileInterestingness";
 
-const breakpoints = useBreakpoints();
 const apiStore = useApiStore();
 const fileStore = useFileStore();
 const pairStore = usePairStore();
@@ -226,15 +306,49 @@ const highestSimilarity = computed(() => {
   return pair?.similarity ?? 0;
 });
 
-// Average similarity.
-const averageSimilarity = computed(() => {
-  const divident = pairStore.pairsList.reduce(
-    (a, b) => a + b.similarity,
-    0
+// Similarities map for every file
+// Contains the max similarity for each file.
+const similarities = computed(() => {
+  const scoringCalculator = new FileInterestingnessCalculator(pairStore.pairsList);
+  const scoredFiles = fileStore.filesList.map((file) =>
+    scoringCalculator.calculateSimilarityScore(file)
   );
-  const divisor = Object.keys(pairStore.pairs).length;
 
-  return (divident / divisor * 100).toFixed(0);
+  return scoredFiles.map(f => f?.similarity || 0);
+});
+
+// Average maximum similarity.
+const averageSimilarity = computed(() => {
+  const mean = similarities.value.reduce((a, b) => a + b, 0) / similarities.value.length;
+  return mean;
+});
+
+// Median maximum similarity.
+const medianSimilarity = computed(() => {
+  const sorted = [...similarities.value].sort();
+  const middle = Math.floor(sorted.length / 2);
+  const median = sorted[middle];
+  return median;
+});
+
+// Map containing the the amount of files for each label.
+const labelFilesCount = computed(() => {
+  const values: { [key: string]: number } = {};
+
+  for (const file of fileStore.filesList) {
+    const label = file.extra.labels;
+    if (!label) continue;
+    if (!values[label]) values[label] = 0;
+    values[label] += 1;
+  }
+
+  return values;
+});
+
+// Programming language, capitalized.
+const language = computed(() => {
+  const lang = metadataStore.metadata.language;
+  return lang.charAt(0).toUpperCase() + lang.slice(1);
 });
 
 // Clustering.
@@ -251,40 +365,107 @@ const largestCluster = computed(() =>
 </script>
 
 <style lang="scss" scoped>
-.main-container {
-  margin-top: 1rem;
-}
-
-.info-card {
-  text-align: center;
-  font-size: 1.25rem !important;
-  font-weight: 500;
-  line-height: 2rem;
-
-  display: flex;
-  justify-content: center;
-  flex-direction: column;
-  height: 100%;
+.hero {
+  padding-bottom: 1rem;
 
   &-title {
-    text-transform: uppercase;
-    margin-bottom: 0.5rem;
+    font-size: 2.5rem;
   }
 
   &-subtitle {
-    color: #6e8eaf;
-    margin-bottom: 1rem;
+    font-size: 1.25rem;
   }
 }
 
-.tooltip {
-  max-width: 600px;
-  display: inline-block;
+.stat-cards {
+  display: flex;
+  flex-direction: column;
+  justify-content: stretch;
+  gap: 1rem;
 }
 
-.tooltip-bearer {
-  text-decoration: underline;
-  text-decoration-style: dotted;
+.stat-card {
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-grow: 1;
+
+  &-icon {
+    height: 110px;
+    width: 110px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px !important;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+
+    &:before {
+      content: " ";
+      position: absolute;
+      z-index: 1;
+      width: 100%;
+      height: 100%;
+      inset: 0;
+      z-index: -1;
+      background-color: var(--v-primary-base);
+      opacity: 0.15;
+    }
+  }
+
+  &-title {
+    font-size: 1.25rem;
+    font-weight: 500;
+  }
+
+  &-value {
+    font-size: 2.25rem;
+    font-weight: 700;
+  }
+}
+
+.info-cards {
+  display: flex;
+  flex-direction: column;
+  justify-content: stretch;
+  gap: 1rem;
+}
+
+.info-card {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+
+  &-subtitle {
+    font-size: 1rem;
+    font-weight: 500;
+  }
+
+  &-actions {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-end;
+  }
+
+  &-labels {
+    max-height: 300px;
+    margin-top: 0.5rem;
+  }
+}
+
+.info-list {
+  &-item {
+    display: flex;
+    gap: 0.5rem;
+    width: 100%;
+  }
+}
+
+.graph-card {
+  height: 100%;
 }
 
 .label-text {
@@ -292,10 +473,5 @@ const largestCluster = computed(() =>
   padding: 5px 15px;
   width: 100%;
   display: block;
-}
-
-.info-text {
-  font-weight: 400;
-  font-size: 0.95rem;
 }
 </style>

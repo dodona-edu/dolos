@@ -1,7 +1,7 @@
 <template>
   <v-row>
     <v-col cols="12" md="4" order="2" order-md="1">
-      <GraphElementList
+      <GraphElementListCard
         :cluster="cluster"
         :selected-files="selectedFiles"
         max-height="400px"
@@ -37,7 +37,7 @@ import { getClusterElementsArray } from "@/util/clustering-algorithms/ClusterFun
 import { Pair, File } from "@/api/models";
 import { SelectionManager } from "@/util/FileSelectionManager";
 import { useClustering, useLegend } from "@/composables";
-import GraphElementList from "@/d3-tools/GraphElementList.vue";
+import GraphElementListCard from "@/d3-tools/GraphElementListCard.vue";
 import Graph from "../graph/Graph.vue";
 import GraphLegend from "../../d3-tools/GraphLegend.vue";
 

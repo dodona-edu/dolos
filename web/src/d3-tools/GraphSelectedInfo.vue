@@ -3,17 +3,31 @@
     <transition name="scale-transition" mode="out-in">
       <div v-if="selectedNode">
         <v-card>
-          <v-card-title> Selected node </v-card-title>
+          <v-card-title>
+            Selected node
+          </v-card-title>
 
-          <v-card-text>
-            The author of this submission is
-            <b>{{ selectedNode.extra.fullName || "unknown" }}</b>
-            , belonging to group
-            <b>{{ selectedNode.extra.labels }}</b>
-            . The last hand-in date was
-            <b>{{ selectedNodeTimestamp || "not available." }}</b
-            >.
-          </v-card-text>
+          <v-list class="selected-info-list" dense>
+            <v-list-item class="selected-info-list-item">
+              <v-icon>mdi-account-outline</v-icon>
+              <span>{{ selectedNode.extra.fullName || selectedNode.shortPath || "unknown" }}</span>
+            </v-list-item>
+
+            <v-list-item class="selected-info-list-item">
+              <div class="selected-info-list-dot">
+                <label-dot
+                  :label="selectedNodeLegend?.label || 'unknown'"
+                  :color="selectedNodeLegend?.color || 'grey'"
+                />
+              </div>
+              <span>{{ selectedNode.extra.labels || "unknown" }}</span>
+            </v-list-item>
+
+            <v-list-item v-if="selectedNodeTimestamp" class="selected-info-list-item">
+              <v-icon>mdi-clock-outline</v-icon>
+              <span>{{ selectedNodeTimestamp }}</span>
+            </v-list-item>
+          </v-list>
         </v-card>
       </div>
     </transition>
@@ -21,27 +35,31 @@
     <transition name="scale-transition" mode="out-in">
       <div v-if="selectedCluster">
         <v-card>
-          <v-card-title> Selected cluster </v-card-title>
+          <v-card-title>
+            Selected cluster
+          </v-card-title>
 
-          <v-card-text>
-            You selected a cluster of size
-            <b>{{ clusterFilesSet.size }}</b>
-            , which has an average similarity of
-            <b>{{ clusterAverageSimilarity.toFixed(2) * 100 }}%</b>.
-          </v-card-text>
+          <v-list class="selected-info-list" dense>
+            <v-list-item class="selected-info-list-item">
+              <v-icon>mdi-account-group-outline</v-icon>
+              <span>{{ clusterFilesSet.size }} submissions</span>
+            </v-list-item>
 
-          <v-card-text class="namecontainer">
-            These files are present in the cluster:
-            <ul>
-              <li v-for="el of clusterFilesSet" :key="el.id">
-                {{ el.shortPath }}
-              </li>
-            </ul>
-          </v-card-text>
+            <v-list-item class="selected-info-list-item">
+              <v-icon>mdi-approximately-equal</v-icon>
+              <span>{{ clusterAverageSimilarity.toFixed(2) * 100 }}% average similarity</span>
+            </v-list-item>
+          </v-list>
+
+          <graph-element-list
+            :cluster="selectedCluster"
+            max-height="30vh"
+            scroll
+          />
 
           <v-card-actions>
             <v-spacer />
-            <v-btn color="success" text @click="goToInfo">More information</v-btn>
+            <v-btn color="primary" text @click="goToInfo">More information</v-btn>
           </v-card-actions>
         </v-card>
       </div>
@@ -49,98 +67,97 @@
   </div>
 </template>
 
-<script lang="ts">
-import {
-  defineComponent,
-  PropType,
-  computed,
-  toRef,
-} from "vue";
+<script lang="ts" setup>
+import { computed, toRef } from "vue";
 import { useCluster, useVuetify, useRouter } from "@/composables";
-import { File } from "@/api/models";
+import { File, Legend } from "@/api/models";
 import { Cluster, Clustering } from "@/util/clustering-algorithms/ClusterTypes";
 import { DateTime } from "luxon";
 import { getClusterElements } from "@/util/clustering-algorithms/ClusterFunctions";
+import LabelDot from "@/components/LabelDot.vue";
+import GraphElementList from "./GraphElementList.vue";
 
-export default defineComponent({
-  props: {
-    currentClustering: {
-      type: Array as PropType<Clustering>,
-      required: true,
-    },
+interface Props {
+  currentClustering: Clustering;
+  legend: Legend;
+  selectedNode?: File | undefined;
+  selectedCluster?: Cluster | undefined;
+}
 
-    selectedNode: {
-      type: Object as PropType<File>,
-      required: false,
-    },
+const props = withDefaults(defineProps<Props>(), {});
 
-    selectedCluster: {
-      type: Set as PropType<Cluster | undefined>,
-      required: false,
-    },
-  },
+const vuetify = useVuetify();
+const router = useRouter();
+const { clusterFilesSet, clusterAverageSimilarity } = useCluster(toRef(props, "selectedCluster"));
 
-  setup(props) {
-    const vuetify = useVuetify();
-    const router = useRouter();
-    const { clusterFilesSet, clusterAverageSimilarity } =
-      useCluster(toRef(props, "selectedCluster"));
-
-    // Timestamp of the selected node.
-    const selectedNodeTimestamp = computed(() => {
-      if (props.selectedNode?.extra.timestamp) {
-        return DateTime.fromJSDate(
-          props.selectedNode.extra.timestamp
-        ).toLocaleString(DateTime.DATETIME_MED);
-      }
-      return null;
-    });
-
-    // index of the selected cluster.
-    const selectedClusterIndex = computed(() => {
-      if (!props.selectedCluster) return 0;
-
-      const sortFn = (a: Cluster, b:Cluster): number => getClusterElements(b).size - getClusterElements(a).size;
-      const sortedClustering = Array.from(props.currentClustering).sort(sortFn);
-      return sortedClustering.indexOf(props.selectedCluster);
-    });
-
-    // Go to the information section of this cluster.
-    const goToInfo = (): void => {
-      const clusterHash = `#clustering-card-${selectedClusterIndex.value}`;
-      // Navigate to the cluster card.
-      // The hash will be used by the clustering table to expand the correct cluster.
-      router.replace("#");
-      router.replace(clusterHash);
-
-      // Scroll to the cluster card.
-      vuetify.goTo(clusterHash);
-    };
-
-    return {
-      clusterFilesSet,
-      clusterAverageSimilarity,
-      selectedNodeTimestamp,
-      goToInfo,
-    };
-  },
+// Timestamp of the selected node.
+const selectedNodeTimestamp = computed(() => {
+  if (props.selectedNode?.extra.timestamp) {
+    return DateTime.fromJSDate(
+      props.selectedNode.extra.timestamp
+    ).toLocaleString(DateTime.DATETIME_MED);
+  }
+  return null;
 });
+
+// Legend entry of the selected node.
+const selectedNodeLegend = computed(() => {
+  if (props.selectedNode?.extra.labels) {
+    return props.legend[props.selectedNode.extra.labels];
+  }
+  return null;
+});
+
+// index of the selected cluster.
+const selectedClusterIndex = computed(() => {
+  if (!props.selectedCluster) return 0;
+
+  const sortFn = (a: Cluster, b:Cluster): number => getClusterElements(b).size - getClusterElements(a).size;
+  const sortedClustering = Array.from(props.currentClustering).sort(sortFn);
+  return sortedClustering.indexOf(props.selectedCluster);
+});
+
+// Go to the information section of this cluster.
+const goToInfo = (): void => {
+  const clusterHash = `#clustering-card-${selectedClusterIndex.value}`;
+  // Navigate to the cluster card.
+  // The hash will be used by the clustering table to expand the correct cluster.
+  router.replace("#");
+  router.replace(clusterHash);
+
+  // Scroll to the cluster card.
+  vuetify.goTo(clusterHash);
+};
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .selected-info {
-  max-width: 350px;
+  width: 400px;
+  max-width: 30vw;
   position: absolute;
   top: 0;
   left: 0;
-  z-index: 4;
+  z-index: 2;
   display: flex;
   flex-direction: column;
   gap: 1rem;
-}
 
-.namecontainer {
-  max-height: 35vh;
-  overflow-y: auto;
+  &-list {
+    padding-top: 0;
+
+    &-item {
+      display: flex;
+      gap: 0.5rem;
+      width: 100%;
+    }
+
+    &-dot {
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
 }
 </style>

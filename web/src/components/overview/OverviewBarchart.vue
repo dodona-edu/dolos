@@ -68,7 +68,7 @@ export default defineComponent({
     };
     const barchartSize = useElementSize(barchartElement);
     const width = computed(() => (barchartSize.width.value || 600) - margin.left - margin.right);
-    const height = computed(() => 400 - margin.top - margin.bottom);
+    const height = computed(() => 415 - margin.top - margin.bottom);
 
     // Barchart D3
     const barchart = d3
@@ -125,7 +125,7 @@ export default defineComponent({
       const yAxis = barchartContent
         .append("g")
         .attr("transform", "translate(0, 0)")
-        .call(d3.axisLeft(xScale));
+        .call(d3.axisLeft(xScale).tickFormat(d3.format(".0%")));
       yAxis.append("text")
         .text("Similarity")
         .attr("font-size", 15)

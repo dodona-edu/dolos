@@ -52,7 +52,7 @@ export default defineComponent({
 
     const getBinColor = (d: d3.Bin<number, number>): string => {
       const defaultColor = "#1976D2";
-      const warningColor = "red";
+      const warningColor = "#ff5252";
 
       if (
         props.extraLine !== undefined &&
