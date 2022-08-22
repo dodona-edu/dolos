@@ -70,17 +70,18 @@
               Highest similarity
 
               <info-dot>
-                The highest similarity we've found between two submissions is {{ (highestSimilarity * 100).toFixed(0) }}%
+                The highest similarity we've found between two submissions is
+                {{ (highestSimilarity * 100).toFixed(0) }}%
               </info-dot>
             </h3>
             <div class="stat-card-value">
               <similarity-display :similarity="highestSimilarity" text />
             </div>
             <RouterLink
-              :to="`/compare/${highestSimilarityPair?.id}`"
               class="stat-card-subtitle text--secondary"
+              to="/pairs"
             >
-              View pair
+              View pairs
             </RouterLink>
           </div>
         </v-card>

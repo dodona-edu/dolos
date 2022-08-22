@@ -2,7 +2,6 @@
   <v-card outlined>
     <v-card-title>Submissions in this cluster </v-card-title>
 
-
     <graph-element-list
       :cluster="props.cluster"
       :selected-files="props.selectedFiles"
