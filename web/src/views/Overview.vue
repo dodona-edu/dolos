@@ -96,7 +96,7 @@
               Average similarity
 
               <info-dot>
-                Average of the maximum similarity for each submission.
+                Average of the highest similarity for each submission.
               </info-dot>
             </h3>
             <div class="stat-card-value">
