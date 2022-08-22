@@ -38,6 +38,20 @@ const maxFileData = computed(() =>
   })
 );
 
+// Field name
+const fieldName = computed(() => {
+  if (props.field === "similarity") {
+    return "Similarity";
+  }
+  if (props.field === "totalOverlap") {
+    return "Total Overlap";
+  }
+  if (props.field === "longestFragment") {
+    return "Longest Fragment";
+  }
+  return "";
+});
+
 // Line for the file
 const lineValue = computed(() => {
   const score = scoredFiles.value.get(props.file);
@@ -193,7 +207,9 @@ const draw = (): void => {
     .select("g")
     .selectAll("rect")
     .on("mouseover", (e: MouseEvent, d: any) => {
-      const message = `There are <b>${d.length}</b> files that have a value between <b>${d.x0}</b> and <b>${d.x1}</b>`;
+      const message = `There are <b>${d.length}</b> files
+                      that have a ${fieldName.value.toLowerCase()} between 
+                      <b>${d.x0}</b> and <b>${d.x1}</b>`;
       tooltip.onMouseOver(e, message);
     })
     .on("mousemove", (e: MouseEvent) => {

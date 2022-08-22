@@ -109,7 +109,20 @@
                   field="similarity"
                   :file="file"
                   :ticks="25"
-                  :height="300"
+                  :height="325"
+                />
+              </v-card-text>
+            </v-card>
+
+            <v-card class="mt-4">
+              <v-card-title>Longest Fragment Graph</v-card-title>
+              <v-card-subtitle>Lorem ipsum dolor sit amet</v-card-subtitle>
+              <v-card-text>
+                <pair-stat-histogram
+                  field="longestFragment"
+                  :file="file"
+                  :ticks="25"
+                  :height="325"
                 />
               </v-card-text>
             </v-card>
