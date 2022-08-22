@@ -77,7 +77,9 @@
 
             <v-card class="mt-4">
               <v-card-title>Cluster Graph</v-card-title>
-              <v-card-subtitle>Visual representation of submissions in the same cluster</v-card-subtitle>
+              <v-card-subtitle>
+                Visual representation of submissions in the same cluster.
+              </v-card-subtitle>
               <v-card-text v-if="!cluster">
                 Submission is not part of any cluster.
               </v-card-text>

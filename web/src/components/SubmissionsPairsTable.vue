@@ -74,7 +74,7 @@
 
       <v-tooltip top>
         <template #activator="{ on, attrs }">
-          <v-btn class="ml-2" icon small v-bind="attrs" v-on="on" :to="`/pair/${item.id}`">
+          <v-btn class="ml-2" icon small v-bind="attrs" v-on="on" :to="`/pairs/${item.id}`">
             <v-icon>mdi-compare-horizontal</v-icon>
           </v-btn>
         </template>
@@ -101,7 +101,6 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {});
-const router = useRouter();
 const fileStore = useFileStore();
 const pairStore = usePairStore();
 
