@@ -274,13 +274,12 @@ import SimilaritySetting from "@/components/settings/SimilaritySetting.vue";
 import SimilarityDisplay from "@/components/pair/SimilarityDisplay.vue";
 import InfoDot from "@/components/InfoDot.vue";
 import LabelDot from "@/components/LabelDot.vue";
-import { FileInterestingnessCalculator } from "@/util/FileInterestingness";
 
 const apiStore = useApiStore();
 const fileStore = useFileStore();
 const pairStore = usePairStore();
 const metadataStore = useMetadataStore();
-const { legend } = storeToRefs(fileStore);
+const { legend, similaritiesList } = storeToRefs(fileStore);
 const { clustering } = storeToRefs(pairStore);
 
 // File legend.
@@ -307,14 +306,9 @@ const highestSimilarity = computed(() => {
 
 // Similarities map for every file
 // Contains the max similarity for each file.
-const similarities = computed(() => {
-  const scoringCalculator = new FileInterestingnessCalculator(pairStore.pairsList);
-  const scoredFiles = fileStore.filesList.map((file) =>
-    scoringCalculator.calculateSimilarityScore(file)
-  );
-
-  return scoredFiles.map(f => f?.similarity || 0);
-});
+const similarities = computed(() =>
+  similaritiesList.value.map(f => f?.similarity || 0)
+);
 
 // Average maximum similarity.
 const averageSimilarity = computed(() => {

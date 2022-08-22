@@ -90,7 +90,7 @@ const headers = computed<DataTableHeader[]>(() => {
   }
 
   h.push({ text: "Highest similarity", value: "similarity", sortable: true, filterable: false });
-  h.push({ text: "File length", value: "length", sortable: true, filterable: false });
+  h.push({ text: "Lines", value: "lines", sortable: true, filterable: false });
 
   return h;
 });
@@ -106,7 +106,7 @@ const items = computed(() => {
       label: fileStore.getLabel(file),
       similarity: similarities.value.get(file)?.similarity ?? 0,
       timestamp: file.extra.timestamp,
-      length: file.content.split("\n").length ?? 0,
+      lines: file.content.split("\n").length ?? 0,
     }));
 });
 

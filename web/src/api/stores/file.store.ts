@@ -38,6 +38,10 @@ export const useFileStore = defineStore("files", () => {
     return similarities;
   });
 
+  // Similarities list for every file
+  // Contains the highest similarity for each file.
+  const similaritiesList = computed(() => [...similarities.value.values()]);
+
   // Parse the files from a CSV string.
   function parse(fileData: any[]): ObjMap<File> {
     const randomNameGenerator = (): string => uniqueNamesGenerator({
@@ -165,6 +169,7 @@ export const useFileStore = defineStore("files", () => {
     files,
     filesList,
     similarities,
+    similaritiesList,
     hydrated,
     hydrate,
     legend,

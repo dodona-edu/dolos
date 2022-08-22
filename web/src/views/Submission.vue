@@ -1,5 +1,5 @@
 <template>
-  <v-container fluid fill-height>
+  <v-container fluid>
     <transition name="slide-y-transition" mode="out-in">
       <div v-if="file" :key="file.id">
         <div class="heading">
@@ -100,6 +100,17 @@
                 </graph>
               </v-card-text>
             </v-card>
+
+            <v-card class="mt-4">
+              <v-card-title>Similarity Graph</v-card-title>
+              <v-card-subtitle>Lorem ipsum dolor sit amet</v-card-subtitle>
+              <v-card-text>
+                <!-- <pair-stat-histogram
+                  pair-field="similarity"
+                  :numberOfTicks="25"
+                /> -->
+              </v-card-text>
+            </v-card>
           </v-col>
         </v-row>
       </div>
@@ -131,6 +142,7 @@ import Graph from "@/components/graph/Graph.vue";
 import GraphLegend from "@/d3-tools/GraphLegend.vue";
 import TimeSeries from "@/components/clustering/TimeSeries.vue";
 import SubmissionCode from "@/components/SubmissionCode.vue";
+import PairStatHistogram from "@/components/summary/PairStatHistogram.vue";
 
 interface Props {
   fileId: string;

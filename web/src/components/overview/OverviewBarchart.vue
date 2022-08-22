@@ -6,15 +6,13 @@
 import {
   defineComponent,
   PropType,
-  ref,
   shallowRef,
   computed,
   watch,
   onMounted,
 } from "vue";
 import { storeToRefs } from "pinia";
-import { useFileStore, usePairStore } from "@/api/stores";
-import { FileInterestingnessCalculator } from "@/util/FileInterestingness";
+import { useFileStore } from "@/api/stores";
 import { useElementSize } from "@vueuse/core";
 import { TooltipTool } from "@/d3-tools/TooltipTool";
 import * as d3 from "d3";
@@ -39,18 +37,11 @@ export default defineComponent({
   },
 
   setup(props) {
-    const { filesList } = storeToRefs(useFileStore());
-    const { pairsList } = storeToRefs(usePairStore());
+    const { similaritiesList } = storeToRefs(useFileStore());
 
-    const maxFileData = computed(() => {
-      const scoringCalculator = new FileInterestingnessCalculator(pairsList.value);
-
-      const scoredFiles = filesList.value.map((file) =>
-        scoringCalculator.calculateSimilarityScore(file)
-      );
-
-      return scoredFiles.map(f => f?.similarity || 0);
-    });
+    const maxFileData = computed(() =>
+      similaritiesList.value.map(f => f?.similarity || 0)
+    );
 
     const getBinColor = (_: unknown): string => {
       return "#1976D2";
