@@ -62,6 +62,7 @@ import LabelDot from "@/components/LabelDot.vue";
 interface Props {
   files: File[];
   search?: string;
+  maxHeight?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {});
@@ -119,7 +120,7 @@ const rowClicked = (item: { id: string }): void => {
 <style lang="scss" scoped>
 .submissions {
   &-table {
-    max-height: calc(100vh - 175px);
+    max-height: v-bind("props.maxHeight");
   }
 }
 
