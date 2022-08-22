@@ -74,7 +74,7 @@
 
       <v-tooltip top>
         <template #activator="{ on, attrs }">
-          <v-btn class="ml-2" icon small v-bind="attrs" v-on="on" :to="`/compare/${item.id}`">
+          <v-btn class="ml-2" icon small v-bind="attrs" v-on="on" :to="`/pair/${item.id}`">
             <v-icon>mdi-compare-horizontal</v-icon>
           </v-btn>
         </template>

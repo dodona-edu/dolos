@@ -84,7 +84,7 @@ onMounted(() => calculateItems());
 
 // When a row is clicked.
 const rowClicked = (item: { pair: Pair }): void => {
-  router.push(`/compare/${item.pair.id}`);
+  router.push(`/pair/${item.pair.id}`);
 };
 </script>
 
