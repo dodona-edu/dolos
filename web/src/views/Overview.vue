@@ -79,9 +79,9 @@
             </div>
             <RouterLink
               class="stat-card-subtitle text--secondary"
-              to="/pairs"
+              to="/submissions"
             >
-              View pairs
+              View submissions
             </RouterLink>
           </div>
         </v-card>
