@@ -291,7 +291,7 @@ const onClick = (_: unknown, [first, second]: [File, File]): void => {
   const pair = getPair(first, second);
 
   if (pair) {
-    router.push(`/compare/${pair.id}`);
+    router.push(`/pair/${pair.id}`);
   }
 };
 </script>

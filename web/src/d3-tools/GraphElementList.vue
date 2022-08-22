@@ -2,7 +2,7 @@
   <v-simple-table class="graph-list" fixed-header>
     <thead>
       <tr>
-        <th>File</th>
+        <th>Submission</th>
         <th v-if="hasTimestamp">Timestamp</th>
       </tr>
     </thead>

@@ -70,17 +70,18 @@
               Highest similarity
 
               <info-dot>
-                The highest similarity we've found between two files is {{ (highestSimilarity * 100).toFixed(0) }}%
+                The highest similarity we've found between two submissions is
+                {{ (highestSimilarity * 100).toFixed(0) }}%
               </info-dot>
             </h3>
             <div class="stat-card-value">
               <similarity-display :similarity="highestSimilarity" text />
             </div>
             <RouterLink
-              :to="`/compare/${highestSimilarityPair?.id}`"
               class="stat-card-subtitle text--secondary"
+              to="/pairs"
             >
-              View pair
+              View pairs
             </RouterLink>
           </div>
         </v-card>
@@ -96,7 +97,7 @@
               Average similarity
 
               <info-dot>
-                Average of the maximum similarity for each submission.
+                Average of the highest similarity for each submission.
               </info-dot>
             </h3>
             <div class="stat-card-value">
@@ -119,12 +120,12 @@
               Clusters
 
               <info-dot>
-                Files are grouped into clusters based on their similarity.
-                If a file pair has a similarity above the threshold, they will belong to the same cluster.
+                Submissions are grouped into clusters based on their similarity.
+                If a submission pair has a similarity above the threshold, they will belong to the same cluster.
               </info-dot>
             </h3>
             <div class="stat-card-value">{{ clustering.length }}</div>
-            <div class="stat-card-subtitle text--secondary">Largest cluster: {{ largestCluster }} files</div>
+            <div class="stat-card-subtitle text--secondary">Largest cluster: {{ largestCluster }} submissions</div>
           </div>
         </v-card>
       </v-col>
@@ -138,10 +139,10 @@
                 Similarity distribution &nbsp;
 
                 <info-dot>
-                  This plot shows the distribution of the similarity for this
-                  dataset. This distribution looks different for every
-                  dataset, and shows you which degrees of similarity may be
-                  interesting to look at. You can also use it to tweak the
+                  This plot shows the distribution of the similarity for the
+                  analysed submissions. This distribution looks different for
+                  every dataset, and shows you which degrees of similarity may
+                  be interesting to look at. You can also use it to tweak the
                   interpolated cluster cutoff value.
                 </info-dot>
               </v-card-title>
@@ -318,7 +319,7 @@ const averageSimilarity = computed(() => {
 
 // Median maximum similarity.
 const medianSimilarity = computed(() => {
-  const sorted = [...similarities.value].sort((a, b) => a - b);
+  const sorted = [...similarities.value].sort();
   const middle = Math.floor(sorted.length / 2);
   const median = sorted[middle];
   return median;

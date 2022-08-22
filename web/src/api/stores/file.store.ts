@@ -3,7 +3,7 @@ import { shallowRef, computed, nextTick } from "vue";
 import { DATA_URL } from "@/api";
 import { File, Label, ObjMap } from "@/api/models";
 import { useApiStore, usePairStore } from "@/api/stores";
-import { colors, names, uniqueNamesGenerator } from "unique-names-generator";
+import { names, uniqueNamesGenerator } from "unique-names-generator";
 import { useLegend } from "@/composables";
 import { commonFilenamePrefix, parseCsv } from "../utils";
 import { FileInterestingnessCalculator, SimilarityScore } from "@/util/FileInterestingness";
@@ -45,8 +45,8 @@ export const useFileStore = defineStore("files", () => {
   // Parse the files from a CSV string.
   function parse(fileData: any[]): ObjMap<File> {
     const randomNameGenerator = (): string => uniqueNamesGenerator({
-      dictionaries: [colors, names],
-      length: 2
+      dictionaries: [names],
+      length: 1
     });
 
     const timeOffset = Math.random() * 1000 * 60 * 60 * 24 * 20;
@@ -71,9 +71,10 @@ export const useFileStore = defineStore("files", () => {
 
       // Store pseudo details.
       const pseudoName = randomNameGenerator();
+      const pseudoPath = `${pseudoName}.${filePathExtension}`;
       file.pseudo = {
-        path: `/exercise/${pseudoName}.${filePathExtension}`,
-        shortPath: "",
+        path: pseudoPath,
+        shortPath: pseudoPath,
         fullName: pseudoName,
         timestamp: extra.timestamp ? new Date(extra.timestamp.getTime() + timeOffset) : undefined,
         labels: String(labels.indexOf(extra.labels)) ?? "",
@@ -95,11 +96,8 @@ export const useFileStore = defineStore("files", () => {
     // Find the common path in the files.
     const commonPath = commonFilenamePrefix(Object.values(files), (f) => f.path);
     const commonPathLength = commonPath.length;
-    const commonPseudoPath = commonFilenamePrefix(Object.values(files), (f) => f.pseudo.path);
-    const commonPseudoPathLength = commonPseudoPath.length;
     for (const file of Object.values(files)) {
       file.shortPath = file.path.substring(commonPathLength);
-      file.pseudo.shortPath = file.pseudo.path.substring(commonPseudoPathLength);
       file.original.shortPath = file.shortPath;
     }
 
