@@ -70,7 +70,7 @@
               Highest similarity
 
               <info-dot>
-                The highest similarity we've found between two files is {{ (highestSimilarity * 100).toFixed(0) }}%
+                The highest similarity we've found between two submissions is {{ (highestSimilarity * 100).toFixed(0) }}%
               </info-dot>
             </h3>
             <div class="stat-card-value">
