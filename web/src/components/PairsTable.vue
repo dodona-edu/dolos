@@ -6,7 +6,7 @@
     :sort-by="'similarity'"
     :sort-desc="true"
     :items-per-page="15"
-    :search="search"
+    :search="searchValue"
     :footer-props="footerProps"
     :hide-default-footer="props.pairs.length <= props.itemsPerPage"
     @click:row="rowClicked"
@@ -20,20 +20,24 @@
 <script lang="ts" setup>
 import { shallowRef, onMounted } from "vue";
 import { useRouter, useRoute } from "@/composables";
+import { useVModel } from "@vueuse/core";
 import { Pair } from "@/api/models";
 import { DataTableHeader } from "vuetify";
 import SimilarityDisplay from "@/components/pair/SimilarityDisplay.vue";
 
 interface Props {
   pairs: Pair[];
-  itemsPerPage: number;
+  itemsPerPage?: number;
+  search?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   itemsPerPage: 15,
 });
+const emit = defineEmits(["update:search"]);
 const router = useRouter();
 const route = useRoute();
+const searchValue = useVModel(props, "search", emit);
 
 // Table headers
 const headers: DataTableHeader[] = [
@@ -51,9 +55,6 @@ const footerProps = {
   showFirstLastPage: true,
 };
 
-// Search value.
-const search = shallowRef("");
-
 // Items in the format for the the data-table.
 const items = shallowRef<any[]>([]);
 
@@ -61,7 +62,7 @@ const items = shallowRef<any[]>([]);
 const calculateItems = (): void => {
   const str = route.value.query.showIds as string | null;
 
-  items.value = Object.values(props.pairs)
+  items.value = props.pairs
     .map((pair) => ({
       pair,
       left: pair.leftFile.shortPath,

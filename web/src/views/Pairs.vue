@@ -25,14 +25,16 @@
     </v-row>
 
     <v-card>
-      <PairsTable :pairs="pairStore.pairs" />
+      <PairsTable :search.sync="search" :pairs="pairStore.pairsList" />
     </v-card>
   </v-container>
 </template>
 
 <script lang="ts" setup>
+import { shallowRef } from "vue";
 import { usePairStore } from "@/api/stores";
 import PairsTable from "@/components/PairsTable.vue";
 
 const pairStore = usePairStore();
+const search = shallowRef("");
 </script>
