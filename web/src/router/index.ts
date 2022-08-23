@@ -42,7 +42,13 @@ const routes: Array<RouteConfig> = [
 const router = new VueRouter({
   mode: "hash",
   base: process.env.BASE_URL,
-  routes
+  routes,
+  scrollBehavior: () => {
+    return {
+      x: 0,
+      y: 0
+    };
+  },
 });
 
 export default router;
