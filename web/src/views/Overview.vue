@@ -219,7 +219,7 @@
               />
             </div>
             <div>
-              <v-card-title> File Analysis </v-card-title>
+              <v-card-title> Submission Analysis </v-card-title>
               <v-card-text class="info-text">
                 <p>
                   In certain situations you want to be certain there is no
@@ -229,7 +229,7 @@
                   to be able to examine the most suspicious pairs in detail.
                 </p>
                 <p>
-                  Dolos' file analysis page uses different metrics to examine
+                  Dolos' submissions page uses different metrics to examine
                   the different files, and return the most interesting file
                   pairs to examine. You can use this indication to look at the
                   files in further detail using the compare view.
@@ -246,8 +246,8 @@
                   Go to pair view
                   <v-icon right>mdi-chevron-right</v-icon>
                 </v-btn>
-                <v-btn color="primary" depressed to="/fileanalysis">
-                  Go to file analysis
+                <v-btn color="primary" depressed to="/submissions">
+                  Go to submissions
                   <v-icon right>mdi-chevron-right</v-icon>
                 </v-btn>
               </v-card-actions>
