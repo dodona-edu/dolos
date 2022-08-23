@@ -71,8 +71,9 @@ const timeseries = d3
   .create("svg")
   .attr("width", 900)
   .attr("height", 200);
-const timeseriesContent = timeseries
-  .append("g");
+const timeseriesContent = timeseries.append("g");
+
+// Selected outline
 
 // Node cursor
 const nodeCursor = computed(() => props.nodeClickable ? "pointer" : "default");
@@ -131,6 +132,7 @@ const draw = (): void => {
     .data(files)
     .enter()
     .append("circle")
+    .attr("id", (node: any) => `circle-${node.file.id}`)
     .classed("timeseries-node", true)
     .attr("r", props.nodeSize)
     .attr("cx", d => xScale(d.file.extra.timestamp!))
@@ -179,6 +181,25 @@ const draw = (): void => {
         .attr("cx", (d: TimeDataType) => d?.x || 0)
         .attr("cy", (d: TimeDataType) => d?.y || 0);
     });
+
+  drawSelected();
+};
+
+// Draw the selected files.
+const drawSelected = (): void => {
+  // Deselect all nodes.
+  timeseriesContent
+    .select(".selected")
+    .classed("selected", false);
+
+  if (!props.selectedFiles) return;
+
+  // Select the selected nodes.
+  for (const file of props.selectedFiles) {
+    timeseriesContent
+      .select(`#circle-${file.id}`)
+      .classed("selected", true);
+  }
 };
 
 // Redraw the timeseries when the cluster changes.
@@ -208,14 +229,10 @@ watch(
 // Draw red circles around the selected files.
 watch(
   () => props.selectedFiles,
-  (selectedFiles) => {
-    if (!selectedFiles) return;
-    timeseriesContent
-      .selectAll<any, TimeDataType>("circle")
-      .style("stroke", d => d.file && selectedFiles.map(f => f.id).includes(d.file.id) ? "red" : "")
-      .classed("glow", d => selectedFiles.map(f => f.id).includes(d.file.id))
-      .attr("r", d => d.file && selectedFiles.map(f => f.id).includes(d.file.id) ? 8.5 : 6.5);
-  }
+  () => {
+    drawSelected();
+  },
+  { immediate: true }
 );
 
 onMounted(() => {
@@ -234,6 +251,11 @@ onUnmounted(() => {
 
   &-node {
     cursor: v-bind("nodeCursor");
+
+    &.selected {
+      stroke: red;
+      stroke-width: 3;
+    }
   }
 }
 </style>
