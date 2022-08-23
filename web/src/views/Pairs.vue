@@ -1,6 +1,5 @@
 <template>
   <v-container fluid>
-
     <v-row class="heading" align="center">
       <v-col cols="12" md="6">
         <h2 class="heading-title">
