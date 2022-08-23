@@ -12,18 +12,18 @@ const routes: Array<RouteConfig> = [
   },
   {
     path: "/pairs",
-    name: "Pairs",
+    name: "View by pair",
     component: () => import(/* webpackChunkName: "overview" */ "../views/Pairs.vue")
   },
   {
     path: "/pairs/:id",
-    name: "Pair",
+    name: "Compare",
     props: route => ({ pairId: route.params.id }),
     component: () => import(/* webpackChunkName: "compare" */ "../views/Pair.vue")
   },
   {
     path: "/submissions",
-    name: "Submissions",
+    name: "View by submission",
     component: () => import(/* webpackChunkName: "submissions" */ "../views/Submissions.vue")
   },
   {
@@ -34,7 +34,7 @@ const routes: Array<RouteConfig> = [
   },
   {
     path: "/graph",
-    name: "Graph",
+    name: "View by cluster",
     component: () => import(/* webpackChunkName: "graph" */ "../views/Graph.vue")
   },
 ];
