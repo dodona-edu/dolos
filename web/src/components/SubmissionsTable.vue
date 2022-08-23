@@ -68,15 +68,10 @@ const props = withDefaults(defineProps<Props>(), {});
 const emit = defineEmits(["update:search"]);
 const router = useRouter();
 const fileStore = useFileStore();
-const { similarities } = storeToRefs(fileStore);
+const { similarities, hasTimestamp } = storeToRefs(fileStore);
 
 // Search value.
 const searchValue = useVModel(props, "search", emit);
-
-// If the timestamp is available for the elements of the cluster.
-const hasTimestamp = computed(() => {
-  return props.files.some((f) => f.extra.timestamp);
-});
 
 // Table headers
 const headers = computed<DataTableHeader[]>(() => {

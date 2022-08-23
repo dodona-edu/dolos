@@ -32,6 +32,10 @@
                 Submission is not part of any cluster.
               </v-card-text>
 
+              <v-card-text v-else-if="!hasTimestamp">
+                Timestamps are not available in this dataset.
+              </v-card-text>
+
               <v-card-text v-else>
                 <time-series
                   :cluster="cluster"
@@ -68,7 +72,7 @@
                   <span>{{ file.shortPath }}</span>
                 </div>
 
-                <div class="info-item">
+                <div class="info-item" v-if="hasTimestamp">
                   <v-icon>mdi-clock-outline</v-icon>
                   <file-timestamp :file="file" long />
                 </div>
@@ -170,6 +174,7 @@ const props = withDefaults(defineProps<Props>(), {});
 const router = useRouter();
 const fileStore = useFileStore();
 const pairStore = usePairStore();
+const { hasTimestamp } = storeToRefs(fileStore);
 const { clustering } = storeToRefs(pairStore);
 
 // Get the file by id.

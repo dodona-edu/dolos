@@ -52,6 +52,8 @@ import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
 import { getClusterElementsArray } from "@/util/clustering-algorithms/ClusterFunctions";
 import { timestampSort } from "@/util/SortingFunctions";
 import { useVuetify } from "@/composables";
+import { useFileStore } from "@/api/stores";
+import { storeToRefs } from "pinia";
 import LabelDot from "@/components/LabelDot.vue";
 import FileTimestamp from "@/components/FileTimestamp.vue";
 
@@ -66,6 +68,7 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {});
 const emit = defineEmits(["select-click"]);
 const vuetify = useVuetify();
+const { hasTimestamp } = storeToRefs(useFileStore());
 
 // List of files in the cluster.
 // Sorted by timestamp.
@@ -73,11 +76,6 @@ const files = computed(() => {
   return getClusterElementsArray(props.cluster).sort(timestampSort<File>(
     (f) => f.extra.timestamp || new Date()
   ));
-});
-
-// If the timestamp is available for the elements of the cluster.
-const hasTimestamp = computed(() => {
-  return files.value.some((f) => f.extra.timestamp);
 });
 
 // Row cursor

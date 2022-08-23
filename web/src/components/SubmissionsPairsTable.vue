@@ -90,11 +90,11 @@ import { computed } from "vue";
 import { DataTableHeader } from "vuetify";
 import { useFileStore, usePairStore } from "@/api/stores";
 import { File } from "@/api/models";
-import { useRouter } from "@/composables";
 import SimilarityDisplay from "@/components/pair/SimilarityDisplay.vue";
 import FileTimestamp from "@/components/FileTimestamp.vue";
 import LabelText from "@/components/LabelText.vue";
 import LabelDot from "@/components/LabelDot.vue";
+import { storeToRefs } from "pinia";
 
 interface Props {
   file: File;
@@ -103,6 +103,7 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {});
 const fileStore = useFileStore();
 const pairStore = usePairStore();
+const { hasTimestamp } = storeToRefs(fileStore);
 
 // List with pairs for the file.
 const pairs = computed(() => {
@@ -112,11 +113,6 @@ const pairs = computed(() => {
 // Cluster of the file.
 const cluster = computed(() => {
   return pairStore.getCluster(props.file);
-});
-
-// If the timestamp is available for pairs.
-const hasTimestamp = computed(() => {
-  return pairs.value.some((p) => p.leftFile.extra.timestamp || p.rightFile.extra.timestamp);
 });
 
 // Table headers

@@ -178,6 +178,11 @@ export const useFileStore = defineStore("files", () => {
     return legend.value[file?.extra?.labels ?? ""] ?? defaultLabel;
   }
 
+  // If timestamp is available for the files.
+  const hasTimestamp = computed(() =>
+    filesList.value.some((file) => file.extra.timestamp)
+  );
+
   return {
     files,
     filesList,
@@ -190,6 +195,7 @@ export const useFileStore = defineStore("files", () => {
     legend,
     anonymize,
     getFile,
-    getLabel
+    getLabel,
+    hasTimestamp,
   };
 });
