@@ -215,12 +215,10 @@ const selectNode = (node: any | null): void => {
   emit("selectedNodeInfo", node);
 
   // Deselect all other nodes.
-  for (const node of nodes.value) node.selected = false;
   graph.select(".selected").classed("selected", false);
 
   // Select the new node (if not null).
   if (node) {
-    node.selected = true;
     graph.select(`#circle-${node.id}`).classed("selected", true);
 
     // Select the cluster that contains the node (if any).
