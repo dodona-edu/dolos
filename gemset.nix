@@ -222,6 +222,17 @@
     };
     version = "3.1.0";
   };
+  docker-api = {
+    dependencies = ["excon" "multi_json"];
+    groups = ["default"];
+    platforms = [];
+    source = {
+      remotes = ["https://rubygems.org"];
+      sha256 = "0g7dbniz15b3l2sy6xh0j0998dr5jypf3xg3bsygp0108vv7waxy";
+      type = "gem";
+    };
+    version = "2.2.0";
+  };
   erubi = {
     groups = ["default"];
     platforms = [];
@@ -231,6 +242,16 @@
       type = "gem";
     };
     version = "1.11.0";
+  };
+  excon = {
+    groups = ["default"];
+    platforms = [];
+    source = {
+      remotes = ["https://rubygems.org"];
+      sha256 = "0cdc76kgr4f1mq4jwbmq1qvr9c15hb4r1cx4dvrdra13vy9sckb5";
+      type = "gem";
+    };
+    version = "0.92.4";
   };
   globalid = {
     dependencies = ["activesupport"];
@@ -382,6 +403,16 @@
       type = "gem";
     };
     version = "1.5.4";
+  };
+  multi_json = {
+    groups = ["default"];
+    platforms = [];
+    source = {
+      remotes = ["https://rubygems.org"];
+      sha256 = "0pb1g1y3dsiahavspyzkdy39j4q377009f6ix0bh1ag4nqw43l0z";
+      type = "gem";
+    };
+    version = "1.15.0";
   };
   mysql2 = {
     groups = ["default"];

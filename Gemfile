@@ -18,6 +18,9 @@ gem "rubyzip", "~> 2.3"
 # Validate ActiveStorage attachments
 gem "active_storage_validations", "~> 0.9"
 
+# interfacing with docker
+gem 'docker-api', '~> 2.2.0'
+
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]
 # gem "jbuilder"
 

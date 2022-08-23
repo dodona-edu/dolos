@@ -11,11 +11,13 @@
 #
 
 one:
+  id: 1
   name: Simple dataset
   programming_language: javascript
   file_count:
 
 two:
+  id: 2
   name: Advanced dataset
   programming_language: java
   file_count:

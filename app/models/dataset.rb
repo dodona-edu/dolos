@@ -13,6 +13,7 @@ require 'zip'
 
 class Dataset < ApplicationRecord
   has_one_attached :zipfile
+  has_many :reports
 
   validates :zipfile,
             attached: true,

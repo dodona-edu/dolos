@@ -12,10 +12,6 @@
 require "test_helper"
 
 class DatasetTest < ActiveSupport::TestCase
-  # test "the truth" do
-  #   assert true
-  # end
-
   setup do
     @dataset = datasets(:one)
     @dataset.zipfile.attach(io: File.open(Rails.root.join("test/files/simple-dataset.zip")),
