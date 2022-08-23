@@ -4,22 +4,30 @@ import { useRoute, useRouter } from "@/composables";
 /**
  * Composable for getting/setting a value using a router query.
  */
-export function useRouteQuery(key: string, defaultValue?: string): WritableComputedRef<string> {
+export function useRouteQuery<T>(key: string, defaultValue: T, converter?: (v: string) => T): WritableComputedRef<T> {
   const route = useRoute();
   const router = useRouter();
 
   return computed<any>({
     get() {
-      return route.value.query[key] ?? defaultValue;
+      const value = route.value.query[key] as string;
+      return (converter ? converter(value) : value) ?? defaultValue;
     },
 
     set(value: string) {
-      router.push({
+      const newRoute = {
         query: {
           ...route.value.query,
-          [key]: value ?? defaultValue,
+          [key]: String(value ?? defaultValue),
         }
-      });
+      } as any;
+
+      // Remove the key from the query if there is no value.
+      if (!value) {
+        delete newRoute.query[key];
+      }
+
+      router.replace(newRoute);
     }
   });
 }
