@@ -28,13 +28,13 @@ const items = computed(() => {
   if (previousPage.value) {
     items.push({
       text: previousPage.value.name,
-      to: previousPage.value.path,
+      to: previousPage.value,
       exact: true,
     });
   } else if (props.previousFallback) {
     items.push({
       text: props.previousFallback.name,
-      to: props.previousFallback.path,
+      to: props.previousFallback,
       exact: true,
     });
   }

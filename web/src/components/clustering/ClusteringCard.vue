@@ -102,7 +102,9 @@ watch(
 
 // Go to the element when it is active on mounted.
 onMounted(() => {
-  vuetify.goTo(element.value);
+  if (props.active) {
+    vuetify.goTo(element.value);
+  }
 });
 </script>
 

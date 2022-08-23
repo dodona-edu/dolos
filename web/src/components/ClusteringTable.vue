@@ -13,7 +13,7 @@
         v-for="(cluster, index) in sortedClustering"
         :key="index"
         :cluster="cluster"
-        :active="panel === index"
+        :active="index >= 0 && panel === index"
       />
     </v-expansion-panels>
   </v-card>
