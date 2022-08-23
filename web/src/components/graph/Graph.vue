@@ -576,7 +576,7 @@ onUnmounted(() => {
 
       &.selected {
         stroke: red;
-        stroke-width: 2;
+        stroke-width: 3;
       }
 
       &:hover {
