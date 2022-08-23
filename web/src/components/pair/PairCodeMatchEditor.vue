@@ -1,10 +1,6 @@
 <template>
   <div class="editor">
-    <div class="editor-title text--primary">
-      <v-icon left>mdi-file-outline</v-icon>
-      {{ file.shortPath }}
-    </div>
-
+    <pair-code-file-info :file="file" />
     <div ref="editorElem" class="editor-element"></div>
   </div>
 </template>
@@ -22,6 +18,7 @@ import {
 import { Pair, Metadata, Match } from "@/api/models";
 import * as monaco from "monaco-editor";
 import { useVModel } from "@vueuse/core";
+import PairCodeFileInfo from "@/components/pair/PairCodeFileInfo.vue";
 
 interface Props {
   side: "left" | "right";
