@@ -4,6 +4,7 @@
       <tr>
         <th>Submission</th>
         <th v-if="hasTimestamp">Timestamp</th>
+        <th></th>
       </tr>
     </thead>
 
@@ -26,6 +27,18 @@
 
         <td v-if="hasTimestamp">
           <file-timestamp :file="file" />
+        </td>
+
+        <td class="text-end">
+          <v-tooltip top>
+            <template #activator="{ on, attrs }">
+              <v-btn icon small v-bind="attrs" v-on="on" :to="`/submissions/${file.id}`">
+                <v-icon>mdi-eye-outline</v-icon>
+              </v-btn>
+            </template>
+
+            View submission
+          </v-tooltip>
         </td>
       </tr>
     </tbody>
