@@ -30,10 +30,10 @@
 </template>
 
 <script lang="ts" setup>
-import { shallowRef } from "vue";
 import { usePairStore } from "@/api/stores";
+import { useRouteQuery } from "@/composables";
 import PairsTable from "@/components/PairsTable.vue";
 
 const pairStore = usePairStore();
-const search = shallowRef("");
+const search = useRouteQuery("search", "");
 </script>
