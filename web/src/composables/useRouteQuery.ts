@@ -23,11 +23,11 @@ export function useRouteQuery<T>(key: string, defaultValue: T, converter?: (v: s
       } as any;
 
       // Remove the key from the query if there is no value.
-      if (!value) {
+      if (value === null || value === undefined || value === "") {
         delete newRoute.query[key];
       }
 
-      router.replace(newRoute);
+      router.replace(newRoute).catch(() => { return false; });
     }
   });
 }

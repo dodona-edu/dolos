@@ -41,7 +41,7 @@
             v-if="item.cluster !== ClusterRelation.NONE"
             v-bind="attrs"
             v-on="on"
-            to="/graph"
+            :to="`/graph?cluster=${item.clusterIndex}`"
             :color="item.cluster === ClusterRelation.SAME ? 'primary' : ''"
             icon
             small
@@ -95,6 +95,7 @@ import FileTimestamp from "@/components/FileTimestamp.vue";
 import LabelText from "@/components/LabelText.vue";
 import LabelDot from "@/components/LabelDot.vue";
 import { storeToRefs } from "pinia";
+import { useCluster } from "@/composables";
 
 interface Props {
   file: File;
@@ -174,6 +175,7 @@ const items = computed(() => {
         similarity: pair.similarity,
         label: fileStore.getLabel(otherFile),
         cluster: relation,
+        clusterIndex: pairStore.getClusterIndex(otherCluster),
       };
     });
 });
