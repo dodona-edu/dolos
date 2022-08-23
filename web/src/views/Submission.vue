@@ -7,7 +7,7 @@
             Submission by {{ file.extra.fullName ?? file.shortPath }}
           </h2>
           <div class="heading-subtitle text--secondary">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+            Relevant information about the current submission.
           </div>
         </div>
 
@@ -108,27 +108,31 @@
             </v-card>
 
             <v-card class="mt-4">
-              <v-card-title>Similarity Graph</v-card-title>
-              <v-card-subtitle>Lorem ipsum dolor sit amet</v-card-subtitle>
+              <v-card-title>Similarity histogram</v-card-title>
+              <v-card-subtitle>
+                Highest similarity of this submission (red) compared to the highest similarity of other submissions.
+              </v-card-subtitle>
               <v-card-text>
                 <pair-stat-histogram
                   field="similarity"
                   :file="file"
                   :ticks="25"
-                  :height="325"
+                  :height="315"
                 />
               </v-card-text>
             </v-card>
 
             <v-card class="mt-4">
-              <v-card-title>Longest Fragment Graph</v-card-title>
-              <v-card-subtitle>Lorem ipsum dolor sit amet</v-card-subtitle>
+              <v-card-title>Longest fragment histogram</v-card-title>
+              <v-card-subtitle>
+                Longest fragment of this submission (red) compared to the longest fragment of other submissions.
+              </v-card-subtitle>
               <v-card-text>
                 <pair-stat-histogram
                   field="longestFragment"
                   :file="file"
                   :ticks="25"
-                  :height="325"
+                  :height="315"
                 />
               </v-card-text>
             </v-card>

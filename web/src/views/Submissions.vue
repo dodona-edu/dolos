@@ -6,7 +6,7 @@
           Submissions
         </h2>
         <div class="heading-subtitle text--secondary">
-          Some subtitle text here...
+          All analyzed submissions with their highest similarity.
         </div>
       </v-col>
 
