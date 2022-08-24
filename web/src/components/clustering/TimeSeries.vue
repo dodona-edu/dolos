@@ -102,7 +102,7 @@ const draw = (): void => {
   // Add the x-axis.
   const xScale = d3
     .scaleTime<number, number>()
-    .domain(d3.extent(files.map(f => f.file.extra.timestamp!)) as [Date, Date])
+    .domain(d3.extent(files.map(f => f.file.extra.timestamp ?? new Date())) as [Date, Date])
     .range([0, width]);
   timeseriesContent
     .append("g")
@@ -116,7 +116,7 @@ const draw = (): void => {
     .enter()
     .append("circle")
     .attr("r", 6.5)
-    .attr("cx", d => xScale(d.file.extra.timestamp!))
+    .attr("cx", d => xScale(d.file.extra.timestamp ?? new Date()))
     .attr("cy", height / 2)
     .attr("fill", d => getColor((d.file)))
     .attr("visibility", d => getVisibility(d.file));

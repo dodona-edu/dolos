@@ -16,7 +16,7 @@
       "objects": "only-multiline",
       "imports": "only-multiline",
       "exports": "only-multiline",
-      "functions": "only-multiline",
+      "functions": "only-multiline"
     }],
     "semi": ["error","always"],
     "indent": ["error", 2],
@@ -29,7 +29,11 @@
     "require-jsdoc": "off",
     "space-before-function-paren": [
       "error",
-      { "anonymous": "always", "named": "never", "asyncArrow": "always" }
+      {
+        "anonymous": "always",
+        "named": "never",
+        "asyncArrow": "always"
+      }
     ]
   }
 }

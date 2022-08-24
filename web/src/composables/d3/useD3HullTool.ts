@@ -43,7 +43,8 @@ export function useD3HullTool<T>(options: UseD3HullToolOptions<T>): UseD3HullToo
       d3Coordinates.push([point2[0] + 0.001, point2[1] - 0.001]);
     }
 
-    const polygon = d3.polygonHull(d3Coordinates)!;
+    const polygon = d3.polygonHull(d3Coordinates);
+    if (!polygon) return;
     polygon.push(polygon[0]);
     polygon.push(polygon[1]);
 
