@@ -33,7 +33,7 @@ const timestamp = computed(() =>
   props.file?.extra?.timestamp ?? props.timestamp
 );
 const timeShort = computed(() =>
-  DateTime.fromJSDate(timestamp.value).toFormat("dd/MM hh:mm")
+  DateTime.fromJSDate(timestamp.value).toLocaleString(DateTime.DATETIME_SHORT)
 );
 const timeLong = computed(() =>
   DateTime.fromJSDate(timestamp.value).toLocaleString(DateTime.DATETIME_MED)
