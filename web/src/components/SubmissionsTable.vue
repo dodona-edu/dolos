@@ -133,11 +133,6 @@ const rowClicked = (item: { id: string }): void => {
     padding-bottom: 0.5rem;
   }
 
-  &-name {
-    font-weight: 500;
-    font-size: 1.1rem;
-  }
-
   &-label,
   &-path {
     display: flex;
