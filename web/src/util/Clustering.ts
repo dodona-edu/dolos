@@ -1,7 +1,6 @@
 import { ObjMap, Pair, File } from "@/api/models";
 import { Cluster, Edge } from "./Cluster";
 import { ListMap } from "./ListMap";
-import { Clustering } from "@/util/clustering-algorithms/ClusterTypes";
 
 type ClusteringGraph = ListMap<number, Edge>;
 
