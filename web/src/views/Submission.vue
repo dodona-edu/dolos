@@ -94,7 +94,7 @@
                 <graph
                   :pairs="clusterPairs"
                   :files="clusterFiles"
-                  :legend="legendValue"
+                  :legend="legend"
                   :clustering="clustering"
                   :height="350"
                   :selected-node="file"
@@ -104,7 +104,7 @@
                   @click:node="onNodeClick"
                 >
                   <graph-legend
-                    :legend.sync="legendValue"
+                    :legend.sync="legend"
                   />
                 </graph>
               </v-card-text>
@@ -158,7 +158,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref } from "vue";
+import { computed } from "vue";
 import { File } from "@/api/models";
 import { useFileStore, usePairStore } from "@/api/stores";
 import { useCluster, useRouter } from "@/composables";
@@ -171,7 +171,6 @@ import GraphLegend from "@/d3-tools/GraphLegend.vue";
 import TimeSeries from "@/components/clustering/TimeSeries.vue";
 import SubmissionCode from "@/components/SubmissionCode.vue";
 import PairStatHistogram from "@/components/summary/PairStatHistogram.vue";
-import { useLegend } from "../composables";
 
 interface Props {
   fileId: string;
@@ -181,7 +180,7 @@ const props = withDefaults(defineProps<Props>(), {});
 const router = useRouter();
 const fileStore = useFileStore();
 const pairStore = usePairStore();
-const { hasTimestamp, hasLabels } = storeToRefs(fileStore);
+const { legend, hasTimestamp, hasLabels } = storeToRefs(fileStore);
 const { clustering } = storeToRefs(pairStore);
 
 // Get the file by id.
@@ -195,11 +194,6 @@ const cluster = computed(() => pairStore.getCluster(file.value));
 
 // Cluster
 const { clusterPairs, clusterFiles } = useCluster(cluster);
-
-// Legend
-const legend = useLegend(clusterFiles);
-const legendValue = ref(legend.value);
-
 // Go to the submission when a node is clicked.
 const onNodeClick = (file: File): void => {
   router.push(`/submissions/${file.id}`);

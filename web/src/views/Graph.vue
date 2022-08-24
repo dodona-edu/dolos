@@ -53,13 +53,8 @@
 <script lang="ts" setup>
 import { shallowRef, computed } from "vue";
 import { storeToRefs } from "pinia";
-<<<<<<< HEAD:web/src/views/Graph.vue
-import { File, Legend } from "@/api/models";
-import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
-=======
 import { File } from "@/api/models";
 import { Cluster } from "@/util/Cluster";
->>>>>>> Make graph legend global:web/src/views/GraphView.vue
 import { useFileStore, usePairStore } from "@/api/stores";
 import { useRoute } from "@/composables";
 import GraphSelectedInfo from "@/d3-tools/GraphSelectedInfo.vue";

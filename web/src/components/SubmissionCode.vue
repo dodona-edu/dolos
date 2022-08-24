@@ -7,7 +7,6 @@ import { onMounted, onUnmounted, ref, shallowRef } from "vue";
 import * as monaco from "monaco-editor";
 import { File } from "@/api/models";
 import { useMetadataStore } from "@/api/stores";
-import { watch } from "fs";
 
 interface Props {
   file: File;
