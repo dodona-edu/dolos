@@ -7,7 +7,7 @@
         </v-card-title>
 
         <v-card-subtitle>
-          <div class="submission-card-info">
+          <div class="submission-card-info" v-if="hasLabels">
             <v-icon :color="label.color" small>mdi-label-outline</v-icon>
             <label-text :label="label.label" :color="label.color" colored />
           </div>
@@ -31,6 +31,7 @@
 <script lang="ts" setup>
 import { File } from "@/api/models";
 import { useFileStore } from "@/api/stores";
+import { storeToRefs } from "pinia";
 import { computed } from "vue";
 import LabelText from "./LabelText.vue";
 import SimilarityDisplay from "./pair/SimilarityDisplay.vue";
@@ -41,6 +42,7 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {});
 const fileStore = useFileStore();
+const { hasLabels } = storeToRefs(fileStore);
 const label = computed(() => fileStore.getLabel(props.file));
 const similarity = computed(() => fileStore.similarities.get(props.file));
 </script>
