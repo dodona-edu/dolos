@@ -1,5 +1,6 @@
 <template>
   <v-data-table
+    class="row-pointer"
     :headers="headers"
     :items="items"
     :footer-props="footerProps"
@@ -8,6 +9,7 @@
     must-sort
     fixed-header
     dense
+    @click:row="(i) => $router.push(`/submissions/${i.fileId}`)"
   >
     <template #item.name="{ item }">
       <div class="submission-name">
@@ -62,25 +64,10 @@
     </template>
 
     <template #item.actions="{ item }">
-      <v-tooltip top>
-        <template #activator="{ on, attrs }">
-          <v-btn icon small v-bind="attrs" v-on="on" :to="`/submissions/${item.fileId}`">
-            <v-icon>mdi-file-document-outline</v-icon>
-          </v-btn>
-        </template>
-
-        View submission
-      </v-tooltip>
-
-      <v-tooltip top>
-        <template #activator="{ on, attrs }">
-          <v-btn class="ml-2" icon small v-bind="attrs" v-on="on" :to="`/pairs/${item.id}`">
-            <v-icon>mdi-compare-horizontal</v-icon>
-          </v-btn>
-        </template>
-
-        Compare with current submission
-      </v-tooltip>
+      <v-btn class="ml-2" color="primary" text small v-bind="attrs" v-on="on" :to="`/pairs/${item.id}`">
+        Compare
+        <v-icon right>mdi-chevron-right</v-icon>
+      </v-btn>
     </template>
   </v-data-table>
 </template>

@@ -4,18 +4,18 @@
       <tr>
         <th>Submission</th>
         <th v-if="hasTimestamp">Timestamp</th>
-        <th></th>
       </tr>
     </thead>
 
     <tbody class="graph-list-body">
-      <tr
+      <router-link
         v-for="file in files"
         :key="file.id"
         :id="`file-${file.id}`"
+        tag="tr"
         class="graph-list-row"
         :class="{ selected: selectedFiles?.includes(file) }"
-        @click="rowClick(file)"
+        :to="`/submissions/${file.id}`"
       >
         <td class="d-flex align-center">
           <label-dot
@@ -28,19 +28,7 @@
         <td v-if="hasTimestamp">
           <file-timestamp :file="file" />
         </td>
-
-        <td class="text-end">
-          <v-tooltip top>
-            <template #activator="{ on, attrs }">
-              <v-btn icon small v-bind="attrs" v-on="on" :to="`/submissions/${file.id}`">
-                <v-icon>mdi-file-document-outline</v-icon>
-              </v-btn>
-            </template>
-
-            View submission
-          </v-tooltip>
-        </td>
-      </tr>
+      </router-link>
     </tbody>
   </v-simple-table>
 </template>
@@ -66,7 +54,6 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {});
-const emit = defineEmits(["select-click"]);
 const vuetify = useVuetify();
 const { hasTimestamp } = storeToRefs(useFileStore());
 
@@ -82,11 +69,6 @@ const files = computed(() => {
 const rowCursor = computed(() => {
   return props.clickable ? "pointer" : "default";
 });
-
-// When a row is clicked.
-const rowClick = (file: File): void => {
-  emit("select-click", file);
-};
 
 watch(
   () => props.selectedFiles,
