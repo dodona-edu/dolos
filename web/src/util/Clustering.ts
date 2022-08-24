@@ -1,7 +1,6 @@
 import { ObjMap, Pair, File } from "@/api/models";
 import { Cluster, Edge } from "./Cluster";
 import { ListMap } from "./ListMap";
-import { Clustering } from "@/util/clustering-algorithms/ClusterTypes";
 
 type ClusteringGraph = ListMap<number, Edge>;
 
@@ -13,7 +12,7 @@ export function cluster(
   const clusterGraph = getGraph(pairs);
   const alreadySeenFileSet = new Set<number>();
 
-  const clusters = [];
+  const clusters: Cluster[] = [];
 
   for (const fileIndex in files) {
     const file = files[fileIndex];

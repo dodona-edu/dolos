@@ -6,6 +6,7 @@ export class SelectionManager {
   private currentSelection: File[] = [];
 
   constructor(private readonly limit = 1, private readonly selectedChangeListener?: SelectedChangeListener) {
+    // eslint-disable-next-line no-console
     console.assert(limit > 0, "The limit needs to be larger than zero.");
   }
 

@@ -27,7 +27,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from "vue";
-import { File, Legend } from "@/api/models";
+import { Legend } from "@/api/models";
 import { useVModel } from "@vueuse/core";
 
 export default defineComponent({

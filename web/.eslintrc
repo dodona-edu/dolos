@@ -5,8 +5,8 @@
   },
   "extends": [
     "plugin:vue/essential",
-    "@vue/standard",
     "@vue/typescript/recommended",
+    "eslint:recommended",
     "../.eslintrc"
   ],
   "parserOptions": {
@@ -17,6 +17,7 @@
     "no-debugger": "warn",
     "arrow-parens": "off",
     "vue/multi-word-component-names": "off",
-    "vue/valid-v-slot": "off"
+    "vue/valid-v-slot": "off",
+    "@typescript-eslint/no-explicit-any": "off"
   }
 }
