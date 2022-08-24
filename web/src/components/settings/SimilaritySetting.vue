@@ -2,7 +2,6 @@
   <div class="similarity-setting">
     <label class="text--secondary">Threshold ≥ {{ (cutoff * 100).toFixed(0) }}%</label>
 
-
     <div class="similarity-setting-actions">
       <v-slider
         v-model.number="cutoff"
