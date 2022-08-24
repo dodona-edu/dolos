@@ -33,7 +33,7 @@
           <v-tooltip top>
             <template #activator="{ on, attrs }">
               <v-btn icon small v-bind="attrs" v-on="on" :to="`/submissions/${file.id}`">
-                <v-icon>mdi-eye-outline</v-icon>
+                <v-icon>mdi-file-document-outline</v-icon>
               </v-btn>
             </template>
 
