@@ -6,7 +6,6 @@
 import {
   defineComponent,
   PropType,
-  ref,
   shallowRef,
   computed,
   watch,
@@ -52,7 +51,7 @@ export default defineComponent({
       return scoredFiles.map(f => f?.similarity || 0);
     });
 
-    const getBinColor = (_: unknown): string => {
+    const getBinColor = (): string => {
       return "#1976D2";
     };
 
@@ -148,7 +147,7 @@ export default defineComponent({
         .attr("width", (d) => {
           return yScale(d.length);
         })
-        .style("fill", d => getBinColor(d));
+        .style("fill", () => getBinColor());
 
       // Add extra line, if specified.
       if (props.extraLine) {
