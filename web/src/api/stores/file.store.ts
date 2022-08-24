@@ -1,12 +1,12 @@
 import { defineStore } from "pinia";
-import { shallowRef, computed, nextTick } from "vue";
+import { shallowRef, computed, nextTick, watch } from "vue";
 import { DATA_URL } from "@/api";
-import { File, Label, ObjMap } from "@/api/models";
+import { File, Label, Legend, ObjMap } from "@/api/models";
 import { useApiStore, usePairStore } from "@/api/stores";
 import { names, uniqueNamesGenerator } from "unique-names-generator";
-import { useLegend } from "@/composables";
 import { commonFilenamePrefix, parseCsv } from "../utils";
 import { FileInterestingnessCalculator, FileScoring, SimilarityScore } from "@/util/FileInterestingness";
+import * as d3 from "d3";
 
 /**
  * Store containing the file data & helper functions.
@@ -18,9 +18,6 @@ export const useFileStore = defineStore("files", () => {
 
   // If this store has been hydrated.
   const hydrated = shallowRef(false);
-
-  // Legend of files.
-  const legend = useLegend(files);
 
   const pairStore = usePairStore();
   const scoringCalculator: any = computed(() =>
@@ -175,7 +172,7 @@ export const useFileStore = defineStore("files", () => {
       color: "grey",
     };
 
-    return legend.value[file?.extra?.labels ?? ""] ?? defaultLabel;
+    return legend.value?.[file?.extra?.labels ?? ""] ?? defaultLabel;
   }
 
   // If timestamp is available for the files.
@@ -187,6 +184,35 @@ export const useFileStore = defineStore("files", () => {
   const hasLabels = computed(() =>
     filesList.value.some((file) => file.extra.labels)
   );
+
+  // Legend
+  const legend = shallowRef<Legend>();
+
+  // Create a legend for a given set of files.
+  function createLegend(files: File[]): Legend {
+    // Labels for the files.
+    const labels = new Set<string>();
+    for (const file of files) {
+      labels.add(file.extra.labels || "N/A");
+    }
+
+    const colorScale = d3
+      .scaleOrdinal(d3.schemeCategory10.filter((c) => c !== "#7f7f7f"))
+      .domain([...labels].reverse());
+
+    const legendList = [...labels].sort().map((p) => ({
+      label: p,
+      selected: legend.value?.[p]?.selected ?? true,
+      color: colorScale(p),
+    }));
+
+    return Object.fromEntries(legendList.map((l) => [l.label, l]));
+  }
+
+  // Calculate the legend when the files change.
+  watch(filesList, (files) => {
+    legend.value = createLegend(files);
+  });
 
   return {
     files,

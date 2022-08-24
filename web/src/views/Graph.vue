@@ -4,7 +4,7 @@
       <v-col cols="12" class="no-y-padding">
         <Graph
           :showSingletons="showSingletons"
-          :legend="legendValue"
+          :legend="legend"
           :clustering="clustering"
           :files="filesList"
           :pairs="pairsList"
@@ -26,14 +26,14 @@
 
           <GraphLegend
             v-if="showLegend"
-            :legend.sync="legendValue"
+            :legend.sync="legend"
           />
 
           <GraphSelectedInfo
             :current-clustering="clustering"
             :selected-node="selectedNode"
             :selected-cluster="selectedCluster"
-            :legend="legendValue"
+            :legend="legend"
           />
         </Graph>
       </v-col>
@@ -51,10 +51,15 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, shallowRef, computed } from "vue";
+import { shallowRef, computed } from "vue";
 import { storeToRefs } from "pinia";
+<<<<<<< HEAD:web/src/views/Graph.vue
 import { File, Legend } from "@/api/models";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
+=======
+import { File } from "@/api/models";
+import { Cluster } from "@/util/Cluster";
+>>>>>>> Make graph legend global:web/src/views/GraphView.vue
 import { useFileStore, usePairStore } from "@/api/stores";
 import { useRoute } from "@/composables";
 import GraphSelectedInfo from "@/d3-tools/GraphSelectedInfo.vue";
@@ -69,9 +74,6 @@ const { pairsList, clustering } = storeToRefs(usePairStore());
 
 // Show singletons in the graph.
 const showSingletons = shallowRef(false);
-
-// Legend.
-const legendValue = ref<Legend>(legend.value);
 
 // Node in the graph that is currently selected (file).
 const selectedNode = shallowRef<File>();

@@ -3,7 +3,7 @@
     <label v-if="!compact" class="text--secondary">Threshold ≥ {{ (cutoff * 100).toFixed(0) }}%</label>
 
     <div class="similarity-setting-actions">
-      <span v-if="compact">
+      <span v-if="props.compact">
         Threshold ≥ {{ (cutoff * 100).toFixed(0) }}%
       </span>
       <v-slider

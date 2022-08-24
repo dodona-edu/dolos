@@ -1,12 +1,11 @@
 <template>
   <div class="timeseries" ref="timeseriesElement">
-    <GraphLegend :legend.sync="legendValue" />
+    <GraphLegend :legend.sync="legend" />
   </div>
 </template>
 
 <script lang="ts" setup>
 import {
-  ref,
   shallowRef,
   watch,
   toRef,
@@ -18,7 +17,7 @@ import { storeToRefs } from "pinia";
 import { useApiStore } from "@/api/stores";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
 import { File } from "@/api/models";
-import { useCluster, useD3Tooltip, useLegend } from "@/composables";
+import { useCluster, useD3Tooltip, usePartialLegend } from "@/composables";
 import { SelectionTool, xCoord } from "@/d3-tools/SelectionTool";
 import GraphLegend from "@/d3-tools/GraphLegend.vue";
 import * as d3 from "d3";
@@ -47,8 +46,7 @@ const emit = defineEmits(["filedata", "click:node"]);
 
 const { clusterFiles } = useCluster(toRef(props, "cluster"));
 const { cutoffDebounced } = storeToRefs(useApiStore());
-const legend = useLegend(clusterFiles);
-const legendValue = ref(legend.value);
+const legend = usePartialLegend(clusterFiles);
 
 // Timeseries template ref.
 const timeseriesElement = shallowRef();
@@ -86,15 +84,15 @@ const simulation = shallowRef();
 
 // Get the color for a file.
 const getColor = (f: File): string => {
-  return f.extra?.labels && legendValue.value
-    ? legendValue.value[f.extra.labels].color
+  return f.extra?.labels && legend.value
+    ? legend.value[f.extra.labels].color
     : "#1976D2";
 };
 
 // Get the visibility of a file.
 const getVisibility = (f: File): string => {
-  return f.extra?.labels && legendValue.value
-    ? legendValue.value[f.extra.labels].selected ? "visibile" : "hidden"
+  return f.extra?.labels && legend.value
+    ? legend.value[f.extra.labels].selected ? "visibile" : "hidden"
     : "visible";
 };
 
@@ -204,7 +202,7 @@ const drawSelected = (): void => {
 
 // Redraw the timeseries when the cluster changes.
 watch(
-  () => [cutoffDebounced.value, legendValue.value],
+  () => [cutoffDebounced.value, legend.value],
   () => {
     draw();
   }
@@ -214,7 +212,7 @@ watch(
 watch(
   () => legend.value,
   (legend) => {
-    legendValue.value = legend;
+    legend.value = legend;
   }
 );
 
