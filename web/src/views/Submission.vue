@@ -33,7 +33,10 @@
               </v-card-text>
 
               <v-card-text v-else-if="!hasTimestamp">
-                Timestamps are not available in this dataset.
+                <v-alert type="warning" text>
+                  The dataset you analyzed did not contain timestamps, so some visualizations will not be available.
+                  Learn how to add metadata <a href="https://dolos.ugent.be/guide/dodona.html" target="_blank">here</a>.
+                </v-alert>
               </v-card-text>
 
               <v-card-text v-else>
