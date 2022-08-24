@@ -1,12 +1,8 @@
 import * as d3 from "d3";
 import { ComputedRef, computed, unref } from "vue";
 import { MaybeRef } from "@/util/Types";
-import { File, ObjMap } from "@/api/models";
+import { File, ObjMap, Legend } from "@/api/models";
 import { useFileStore } from "@/api/stores";
-
-export type Legend = {
-  [key: string]: { label: string; selected: boolean; color: string };
-};
 
 /**
  * Create a legend for the given files.

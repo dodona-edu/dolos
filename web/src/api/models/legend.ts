@@ -1,9 +1,5 @@
-export type Label = {
-  label: string;
-  selected: boolean;
-  color: string;
-};
+import { Label } from "@/api/models";
 
-export type Legend = {
+export interface Legend {
   [key: string]: Label;
 };
