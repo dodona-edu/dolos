@@ -15,12 +15,17 @@
     <template #item.name="{ item }">
       <div class="submission-info">
         <div class="submission-name">
-          {{ item.name }}
-        </div>
+          <v-tooltip top>
+            <template v-slot:activator="{ on, attrs }">
+              <span v-on="on" v-bind="attrs">
+                {{ item.name }}
+              </span>
+            </template>
 
-        <div class="submission-path text--secondary">
-          <v-icon small>mdi-file-document-outline</v-icon>
-          <span>{{ item.path }}</span>
+            <div class="submission-path">
+              <span>{{ item.path }}</span>
+            </div>
+          </v-tooltip>
         </div>
       </div>
     </template>
@@ -101,7 +106,7 @@ const items = computed(() => {
     .map((file) => ({
       id: file.id,
       name: file.extra.fullName ?? file.shortPath,
-      path: file.shortPath,
+      path: file.path,
       label: fileStore.getLabel(file),
       similarity: similarities.value.get(file)?.similarity ?? 0,
       timestamp: file.extra.timestamp,
