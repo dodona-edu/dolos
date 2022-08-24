@@ -12,7 +12,7 @@ export function cluster(
   const clusterGraph = getGraph(pairs);
   const alreadySeenFileSet = new Set<number>();
 
-  const clusters = [];
+  const clusters: Cluster[] = [];
 
   for (const fileIndex in files) {
     const file = files[fileIndex];
