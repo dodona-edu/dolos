@@ -22,7 +22,7 @@ export function getCountByMinmax(
  * @param step
  */
 export function getBinnedCount(pairs: Pair[], step = 0.05): number[] {
-  const results = [];
+  const results: number[] = [];
   for (let i = 0; i <= 1; i += step) {
     const min = i - step;
     const max = i + step;
@@ -50,7 +50,7 @@ export function weightedDistributionIndex(index: number, top = 0.8): number {
  * @param array
  */
 export function getLocalMinima(array: number[]): number[] {
-  const results = [];
+  const results: number[] = [];
   let currentDirection = array[0] < array[1];
 
   let i = 0;
