@@ -1,6 +1,6 @@
 <template>
   <div class="file">
-    <div>
+    <div class="file-info">
       <div class="file-info-title">
         <v-icon color="primary">mdi-file-outline</v-icon>
         {{ props.file.shortPath }}
@@ -45,25 +45,32 @@ const props = withDefaults(defineProps<Props>(), {});
   align-items: center;
   justify-content: space-between;
 
-  &-info-title,
-  &-info-subtitle {
+  &-info {
     display: flex;
+    flex-wrap: wrap;
     gap: 0.5rem;
-    align-items: center;
-  }
 
-  &-info-title {
-    font-weight: bold;
-    color: var(--v-primary-base);
-  }
+    &-title,
+    &-subtitle {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
 
-  &-info-subtitle {
-    font-size: 0.9rem;
-    margin-left: 2rem;
+    &-title {
+      font-weight: bold;
+      color: var(--v-primary-base);
+    }
+
+    &-subtitle {
+      font-size: 0.9rem;
+    }
   }
 
   &-actions {
     margin-right: 1.5rem;
+    display: flex;
+    gap: 0.5rem;
   }
 }
 </style>
