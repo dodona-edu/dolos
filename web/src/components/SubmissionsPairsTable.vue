@@ -103,7 +103,7 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {});
 const fileStore = useFileStore();
 const pairStore = usePairStore();
-const { hasTimestamp } = storeToRefs(fileStore);
+const { hasTimestamp, hasLabels } = storeToRefs(fileStore);
 
 // List with pairs for the file.
 const pairs = computed(() => {
@@ -119,7 +119,11 @@ const cluster = computed(() => {
 const headers = computed<DataTableHeader[]>(() => {
   const h = [] as DataTableHeader[];
   h.push({ text: "Submission", value: "name", sortable: true });
-  h.push({ text: "Label", value: "label", sortable: true });
+
+  // Only add the label header if there are labels.
+  if (hasLabels.value) {
+    h.push({ text: "Label", value: "label", sortable: true });
+  }
 
   // Only add timestamp header when present.
   if (hasTimestamp.value) {

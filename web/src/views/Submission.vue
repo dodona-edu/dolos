@@ -62,7 +62,7 @@
             <v-card>
               <v-card-title>Information</v-card-title>
               <v-card-text>
-                <div class="info-item">
+                <div class="info-item" v-if="hasLabels">
                   <v-icon :color="label.color">mdi-label-outline</v-icon>
                   <label-text :label="label.label" :color="label.color" colored />
                 </div>
@@ -178,7 +178,7 @@ const props = withDefaults(defineProps<Props>(), {});
 const router = useRouter();
 const fileStore = useFileStore();
 const pairStore = usePairStore();
-const { hasTimestamp } = storeToRefs(fileStore);
+const { hasTimestamp, hasLabels } = storeToRefs(fileStore);
 const { clustering } = storeToRefs(pairStore);
 
 // Get the file by id.

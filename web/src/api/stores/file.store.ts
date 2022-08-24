@@ -183,6 +183,11 @@ export const useFileStore = defineStore("files", () => {
     filesList.value.some((file) => file.extra.timestamp)
   );
 
+  // If labels are available for the files.
+  const hasLabels = computed(() =>
+    filesList.value.some((file) => file.extra.labels)
+  );
+
   return {
     files,
     filesList,
@@ -197,5 +202,6 @@ export const useFileStore = defineStore("files", () => {
     getFile,
     getLabel,
     hasTimestamp,
+    hasLabels,
   };
 });

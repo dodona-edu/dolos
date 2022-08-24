@@ -68,7 +68,7 @@ const props = withDefaults(defineProps<Props>(), {});
 const emit = defineEmits(["update:search"]);
 const router = useRouter();
 const fileStore = useFileStore();
-const { similarities, hasTimestamp } = storeToRefs(fileStore);
+const { similarities, hasTimestamp, hasLabels } = storeToRefs(fileStore);
 
 // Search value.
 const searchValue = useVModel(props, "search", emit);
@@ -77,7 +77,11 @@ const searchValue = useVModel(props, "search", emit);
 const headers = computed<DataTableHeader[]>(() => {
   const h = [];
   h.push({ text: "Submission", value: "name", sortable: true });
-  h.push({ text: "Label", value: "label", sortable: true });
+
+  // Only add the label header if there are labels.
+  if (hasLabels.value) {
+    h.push({ text: "Label", value: "label", sortable: true });
+  }
 
   // Only add timestamp header when present.
   if (hasTimestamp.value) {
