@@ -253,7 +253,7 @@ onUnmounted(() => {
     cursor: v-bind("nodeCursor");
 
     &.selected {
-      stroke: red;
+      stroke: black;
       stroke-width: 3;
     }
   }
