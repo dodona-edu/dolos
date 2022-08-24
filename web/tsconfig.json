@@ -12,6 +12,7 @@
     "sourceMap": true,
     "baseUrl": ".",
     "resolveJsonModule": true,
+    "noImplicitAny": false,
     "plugins": [
       { "transform": "typescript-is/lib/transform-inline/transformer" }
     ],
