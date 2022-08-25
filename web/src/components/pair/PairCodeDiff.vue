@@ -1,14 +1,12 @@
 <template>
   <div class="editor">
     <v-row>
-      <v-col class="editor-title text--primary">
-        <v-icon left>mdi-file-outline</v-icon>
-        {{ props.pair.leftFile.shortPath }}
+      <v-col>
+        <pair-code-file-info :file="props.pair.leftFile" />
       </v-col>
 
-      <v-col class="editor-title text--primary">
-        <v-icon left>mdi-file-outline</v-icon>
-        {{ props.pair.rightFile.shortPath }}
+      <v-col>
+        <pair-code-file-info :file="props.pair.rightFile" />
       </v-col>
     </v-row>
 
@@ -20,6 +18,7 @@
 import { withDefaults, ref, shallowRef, onMounted, watch, onUnmounted } from "vue";
 import { Pair, Metadata } from "@/api/models";
 import * as monaco from "monaco-editor";
+import PairCodeFileInfo from "@/components/pair/PairCodeFileInfo.vue";
 
 interface Props {
   pair: Pair;
