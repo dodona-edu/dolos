@@ -67,17 +67,6 @@
         <v-divider />
 
         <v-list nav dense>
-          <v-list-item class="anonymize">
-            <v-list-item-icon>
-              <v-badge :color="isAnonymous ? 'red' : ''" dot overlap>
-                <v-icon>mdi-incognito</v-icon>
-              </v-badge>
-            </v-list-item-icon>
-            <div class="anonymize-content">
-              <v-list-item-title>Anonymize</v-list-item-title>
-              <v-switch class="anonymize-switch" v-model="isAnonymous" :disabled="!isLoaded" />
-            </div>
-          </v-list-item>
           <v-list-item
             href="https://github.com/dodona-edu/dolos"
             target="_blank"
@@ -273,25 +262,6 @@ useBreadcrumbStore();
   a {
     color: inherit !important;
     text-decoration: none;
-  }
-}
-
-.anonymize {
-  &-content {
-    display: flex;
-    overflow: visible;
-    flex-wrap: nowrap;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-  }
-
-  &-switch {
-    max-height: 35px !important;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 !important;
   }
 }
 
