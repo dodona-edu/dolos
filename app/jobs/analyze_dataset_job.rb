@@ -46,9 +46,9 @@ class AnalyzeDatasetJob < ApplicationJob
   def execute
     docker_options = {
       Cmd: [
-        '-f', 'csv'
-        '-o', '../' + RESULT_PATH
-        '-l', @dataset.programming_language
+        '-f', 'csv',
+        '-o', '../' + RESULT_PATH,
+        '-l', @dataset.programming_language,
         'info.csv'
       ],
       Image: DOLOS_IMAGE,

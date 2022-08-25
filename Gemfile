@@ -48,6 +48,12 @@ gem "bootsnap", require: false
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[ mri mingw x64_mingw ]
+
+  # Factory bot for testing factories
+  gem "factory_bot_rails", "~> 6.2.0"
+
+  # Faker for generating test data
+  gem "faker", "~> 2.22.0"
 end
 
 group :development do

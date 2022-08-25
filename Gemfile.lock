@@ -89,6 +89,13 @@ GEM
       multi_json
     erubi (1.11.0)
     excon (0.92.4)
+    factory_bot (6.2.1)
+      activesupport (>= 5.0.0)
+    factory_bot_rails (6.2.0)
+      factory_bot (~> 6.2.0)
+      railties (>= 5.0.0)
+    faker (2.22.0)
+      i18n (>= 1.8.11, < 2)
     globalid (1.0.0)
       activesupport (>= 5.0)
     i18n (1.12.0)
@@ -209,6 +216,8 @@ DEPENDENCIES
   bootsnap
   debug
   docker-api (~> 2.2.0)
+  factory_bot_rails (~> 6.2.0)
+  faker (~> 2.22.0)
   mysql2 (~> 0.5)
   puma (~> 5.0)
   rails (~> 7.0.3)

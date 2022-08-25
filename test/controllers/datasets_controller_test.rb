@@ -2,7 +2,7 @@ require "test_helper"
 
 class DatasetsControllerTest < ActionDispatch::IntegrationTest
   setup do
-    @dataset = datasets(:one)
+    @dataset = create(:dataset)
     @zipfile = fixture_file_upload(Rails.root.join('test/files/simple-dataset.zip'), 'application/zip')
   end
 
@@ -25,6 +25,16 @@ class DatasetsControllerTest < ActionDispatch::IntegrationTest
   test "should show dataset" do
     get dataset_url(@dataset), as: :json
     assert_response :success
+  end
+
+  test "should analyze dataset" do
+    assert_difference("Report.count") do
+      post analyze_dataset_url(@dataset), as: :json
+      assert_response :created
+    end
+
+    report = Report.order(:created_at).last
+    assert_equal "queued", report.status
   end
 
   test "should destroy dataset" do

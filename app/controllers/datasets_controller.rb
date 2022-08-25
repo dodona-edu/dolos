@@ -1,5 +1,5 @@
 class DatasetsController < ApplicationController
-  before_action :set_dataset, only: %i[ show update destroy ]
+  before_action :set_dataset, only: %i[ show analyze destroy ]
 
   # GET /datasets
   def index
@@ -20,6 +20,17 @@ class DatasetsController < ApplicationController
       render json: @dataset, status: :created, location: @dataset
     else
       render json: @dataset.errors, status: :unprocessable_entity
+    end
+  end
+
+  # POST /datasets/1/analyze
+  def analyze
+    @report = Report.new(dataset: @dataset)
+
+    if @report.save
+      render json: @report, status: :created, location: @report
+    else
+      render json: @report.errors, status: :unprocessable_entity
     end
   end
 

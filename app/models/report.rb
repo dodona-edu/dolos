@@ -35,14 +35,7 @@ class Report < ApplicationRecord
 
   enum :status, { unknown: 0, queued: 1, running: 2, failed: 3, error: 4, finished: 5}
 
-  validate :dataset_is_analyzed, on: :create
-
   after_create :queue_analysis
-
-  def dataset_is_analyzed
-    return if dataset.nil?
-    errors.add(:dataset, 'not yet analyzed') if !dataset.zipfile.analyzed?
-  end
 
   def queue_analysis
     self.update(status: :queued)

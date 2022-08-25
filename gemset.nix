@@ -253,6 +253,39 @@
     };
     version = "0.92.4";
   };
+  factory_bot = {
+    dependencies = ["activesupport"];
+    groups = ["default" "development" "test"];
+    platforms = [];
+    source = {
+      remotes = ["https://rubygems.org"];
+      sha256 = "1pfk942d6qwhw151hxaz7n4knk6whyxqvvywdx2cdw9yhykyaqzq";
+      type = "gem";
+    };
+    version = "6.2.1";
+  };
+  factory_bot_rails = {
+    dependencies = ["factory_bot" "railties"];
+    groups = ["development" "test"];
+    platforms = [];
+    source = {
+      remotes = ["https://rubygems.org"];
+      sha256 = "18fhcihkc074gk62iwqgbdgc3ymim4fm0b4p3ipffy5hcsb9d2r7";
+      type = "gem";
+    };
+    version = "6.2.0";
+  };
+  faker = {
+    dependencies = ["i18n"];
+    groups = ["development" "test"];
+    platforms = [];
+    source = {
+      remotes = ["https://rubygems.org"];
+      sha256 = "1na8p9r9zdvz75aihjczhamlygrjs9dj7pcbxgg8vfavrx8d89b5";
+      type = "gem";
+    };
+    version = "2.22.0";
+  };
   globalid = {
     dependencies = ["activesupport"];
     groups = ["default"];

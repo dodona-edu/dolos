@@ -13,9 +13,9 @@ require "test_helper"
 
 class DatasetTest < ActiveSupport::TestCase
   setup do
-    @dataset = datasets(:one)
-    @dataset.zipfile.attach(io: File.open(Rails.root.join("test/files/simple-dataset.zip")),
-                            filename: 'simple-dataset.zip')
+    @dataset = create(:dataset)
+    #@dataset.zipfile.attach(io: File.open(Rails.root.join("test/files/simple-dataset.zip")),
+    #                        filename: 'simple-dataset.zip')
   end
 
   test "should have zipfile attached" do
