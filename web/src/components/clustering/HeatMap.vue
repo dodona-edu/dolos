@@ -39,9 +39,9 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {});
 const router = useRouter();
-const { files } = storeToRefs(useFileStore());
+const { filesActive } = storeToRefs(useFileStore());
 const { cutoff, cutoffDebounced } = storeToRefs(useApiStore());
-const { pairsList } = storeToRefs(usePairStore());
+const { pairsActiveList } = storeToRefs(usePairStore());
 const { clusterFiles } = useCluster(toRef(props, "cluster"));
 
 // List of selected files.
@@ -75,7 +75,7 @@ const heatmapLegendContent = heatmapLegend
   .attr("transform", "rotate(-90) translate(-205, 0)");
 
 // Nested pairs map
-const pairMap = computed(() => pairsAsNestedMap(pairsList.value));
+const pairMap = computed(() => pairsAsNestedMap(pairsActiveList.value));
 
 // Get a pair for 2 given files.
 const getPair = (file1: File, file2: File): Pair | null => {
@@ -120,13 +120,13 @@ const draw = (): void => {
     .axisBottom(xBand)
     .tickFormat(
       (d) =>
-        `${files.value[d].extra.fullName ?? files.value[d].shortPath}`
+        `${filesActive.value[d].extra.fullName ?? filesActive.value[d].shortPath}`
     );
   const yAxis = d3
     .axisLeft(yBand)
     .tickFormat(
       (d) =>
-        `${files.value[d].extra.fullName ?? files.value[d].shortPath}`
+        `${filesActive.value[d].extra.fullName ?? filesActive.value[d].shortPath}`
     );
 
   // Append the axes to the heatmap.
@@ -237,12 +237,10 @@ onMounted(() => {
 });
 
 // Redraw the heatmap when the cluster changes.
-watch(
-  () => cutoffDebounced.value,
-  () => {
-    draw();
-  }
-);
+watch(cutoffDebounced, () => draw());
+
+// Redraw the heatmap when the cluster changes.
+watch(clusterFiles, () => draw());
 
 // When the user hovers over a square in the heatmap.
 const onMouseOver = (e: MouseEvent, [first, second]: [File, File]): void => {
