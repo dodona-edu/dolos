@@ -229,19 +229,28 @@ export const useFileStore = defineStore("files", () => {
   // Create a legend for a given set of files.
   function createLegend(files: File[]): Legend {
     // Labels for the files.
-    const labels = new Set<string>();
+    const labels = new Set<{ label: string, original: string }>();
     for (const file of files) {
-      labels.add(file.extra.labels || "N/A");
+      labels.add({
+        label: file.extra.labels ?? "N/A",
+        original: file.original.labels ?? "N/A",
+      });
     }
+
+    // Sort labels on original name.
+    // This is necessary to retain the original order of the labels when anonymizing.
+    const sortedLabels = [...labels].sort((a, b) => a.original.localeCompare(b.original));
 
     const colorScale = d3
       .scaleOrdinal(d3.schemeCategory10.filter((c) => c !== "#7f7f7f"))
-      .domain([...labels].reverse());
+      .domain([...sortedLabels].map(l => l.original).reverse());
 
-    const legendList = [...labels].sort().map((p) => ({
-      label: p,
-      selected: legend.value?.[p]?.selected ?? true,
-      color: colorScale(p),
+    const oldLegend = Object.values(legend.value);
+    const legendList = [...sortedLabels].sort().map((p) => ({
+      label: p.label,
+      selected: oldLegend.find(l => l.original === p.original)?.selected ?? true,
+      color: colorScale(p.original),
+      original: p.original,
     }));
 
     return Object.fromEntries(legendList.map((l) => [l.label, l]));
