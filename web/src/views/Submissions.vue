@@ -25,7 +25,7 @@
 
     <v-card>
       <submissions-table
-        :files="filesList"
+        :files="filesActiveList"
         :search.sync="search"
       />
     </v-card>
@@ -38,6 +38,6 @@ import { useFileStore } from "@/api/stores";
 import { useRouteQuery } from "@/composables";
 import SubmissionsTable from "@/components/SubmissionsTable.vue";
 
-const { filesList } = storeToRefs(useFileStore());
+const { filesActiveList } = storeToRefs(useFileStore());
 const search = useRouteQuery("search", "");
 </script>

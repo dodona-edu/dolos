@@ -39,7 +39,6 @@
 </template>
 
 <script lang="ts" setup>
-import { computed } from "vue";
 import { useFileStore } from "@/api/stores";
 import { storeToRefs } from "pinia";
 import LabelDot from "@/components/LabelDot.vue";
@@ -50,19 +49,5 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {});
 const fileStore = useFileStore();
-const { legend } = storeToRefs(fileStore);
-
-// Map containing the the amount of files for each label.
-const labelFilesCount = computed(() => {
-  const values: { [key: string]: number } = {};
-
-  for (const file of fileStore.filesList) {
-    const label = file.extra.labels;
-    if (!label) continue;
-    if (!values[label]) values[label] = 0;
-    values[label] += 1;
-  }
-
-  return values;
-});
+const { legend, labelFilesCount } = storeToRefs(fileStore);
 </script>

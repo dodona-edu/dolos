@@ -16,25 +16,66 @@ export const useFileStore = defineStore("files", () => {
   const files = shallowRef<ObjMap<File>>({});
   const filesList = computed<File[]>(() => Object.values(files.value));
 
+  // Legend
+  const legend = ref<Legend>({});
+
+  // List of files to display (with active labels)
+  const filesActive = shallowRef<ObjMap<File>>({});
+  const filesActiveList = computed(() => {
+    return Object.values(filesActive.value);
+  });
+
+  // Calculate the active files list.
+  function calculateActiveFiles(): void {
+    // Return all files if no labels are available.
+    if (!hasLabels.value) {
+      filesActive.value = files.value;
+      return;
+    }
+    
+    const filesFiltered = { ...files.value };
+
+    // Delete all files that don't have any active labels.
+    for (const file of filesList.value) {
+      const label = getLabel(file);
+      if (!label.selected) {
+        delete filesFiltered[file.id];
+      }
+    }
+
+    filesActive.value = filesFiltered;
+  }
+
+  const pairStore = usePairStore();
+
+  // Update the files to display when the files or active labels change
+  watch(legend, () => {
+    calculateActiveFiles();
+    pairStore.calculateActivePairs();
+  }, { deep: true });
+  watch(files, () => {
+    calculateActiveFiles();
+    pairStore.calculateActivePairs();
+  });
+
   // If this store has been hydrated.
   const hydrated = shallowRef(false);
 
-  const pairStore = usePairStore();
   const scoringCalculator: any = computed(() =>
-    new FileInterestingnessCalculator(pairStore.pairsList)
+    new FileInterestingnessCalculator(pairStore.pairsActiveList)
   );
 
   // Scored file map.
   const scoredFiles = computed(() => {
     const scores = new Map<File, FileScoring>();
-    for (const file of filesList.value) {
+    for (const file of filesActiveList.value) {
       scores.set(file, scoringCalculator.value.calculateFileScoring(file));
     }
     return scores;
   });
 
   // Scored file list
-  const scoredFilesList = computed(() => filesList.value.map((file) =>
+  const scoredFilesList = computed(() => filesActiveList.value.map((file) =>
     scoringCalculator.value.calculateFileScoring(file)
   ));
 
@@ -43,7 +84,7 @@ export const useFileStore = defineStore("files", () => {
   const similarities = computed(() => {
     // Create a map for storing the highest similarity for each file.
     const similarities = new Map<File, SimilarityScore | null>();
-    for (const file of filesList.value) {
+    for (const file of filesActiveList.value) {
       similarities.set(file, scoringCalculator.value.calculateSimilarityScore(file));
     }
 
@@ -185,9 +226,6 @@ export const useFileStore = defineStore("files", () => {
     filesList.value.some((file) => file.extra.labels)
   );
 
-  // Legend
-  const legend = ref<Legend>({});
-
   // Create a legend for a given set of files.
   function createLegend(files: File[]): Legend {
     // Labels for the files.
@@ -214,9 +252,23 @@ export const useFileStore = defineStore("files", () => {
     legend.value = createLegend(files);
   });
 
+  // Map containing the the amount of files for each label.
+  const labelFilesCount = computed(() => {
+    const values: { [key: string]: number } = {};
+
+    for (const file of filesList.value) {
+      const label = file.extra.labels;
+      if (!label) continue;
+      if (!values[label]) values[label] = 0;
+      values[label] += 1;
+    }
+
+    return values;
+  });
+
   return {
-    files,
-    filesList,
+    filesActive,
+    filesActiveList,
     scoredFiles,
     scoredFilesList,
     similarities,
@@ -229,5 +281,6 @@ export const useFileStore = defineStore("files", () => {
     getLabel,
     hasTimestamp,
     hasLabels,
+    labelFilesCount,
   };
 });

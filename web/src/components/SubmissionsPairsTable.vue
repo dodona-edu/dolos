@@ -65,7 +65,7 @@
     </template>
 
     <template #item.actions="{ item }">
-      <v-btn class="ml-2" color="primary" text small v-bind="attrs" v-on="on" :to="`/pairs/${item.id}`" @click.stop="">
+      <v-btn class="ml-2" color="primary" text small :to="`/pairs/${item.id}`" @click.stop="">
         Compare
         <v-icon right>mdi-chevron-right</v-icon>
       </v-btn>
@@ -83,7 +83,6 @@ import FileTimestamp from "@/components/FileTimestamp.vue";
 import LabelText from "@/components/LabelText.vue";
 import LabelDot from "@/components/LabelDot.vue";
 import { storeToRefs } from "pinia";
-import { useCluster } from "@/composables";
 
 interface Props {
   file: File;

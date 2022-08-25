@@ -260,14 +260,14 @@ const { legend, similaritiesList } = storeToRefs(fileStore);
 const { clustering } = storeToRefs(pairStore);
 
 // File legend.
-const legendCount = computed(() => Object.keys(legend.value).length);
+const legendCount = computed(() => Object.keys(legend.value ?? {}).length);
 
 // Amount of files.
-const filesCount = computed(() => Object.keys(fileStore.files).length);
+const filesCount = computed(() => Object.keys(fileStore.filesActive).length);
 
 // Highest similarity pair.
 const highestSimilarityPair = computed<Pair | null>(() => {
-  const pairs = Object.values(pairStore.pairs);
+  const pairs = Object.values(pairStore.pairsActive);
   return pairs.reduce(
     (a: Pair | null, b: Pair) =>
       (a?.similarity ?? 0) > b.similarity ? a : b,
@@ -289,8 +289,8 @@ const similarities = computed(() =>
 
 // Average maximum similarity.
 const averageSimilarity = computed(() => {
-  const mean = similarities.value.reduce((a, b) => a + b, 0) / similarities.value.length;
-  return mean;
+  const mean = similarities.value.reduce((a, b) => a + b, 0) / similarities.value.length ?? 0;
+  return isNaN(mean) ? 0 : mean;
 });
 
 // Median maximum similarity.
@@ -298,7 +298,7 @@ const medianSimilarity = computed(() => {
   const sorted = [...similarities.value].sort();
   const middle = Math.floor(sorted.length / 2);
   const median = sorted[middle];
-  return median;
+  return isNaN(median) ? 0 : median;
 });
 
 // Programming language, capitalized.

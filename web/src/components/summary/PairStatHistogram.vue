@@ -266,12 +266,10 @@ watch(
 );
 
 // Update the histogram when the width changes.
-watch(
-  width,
-  () => {
-    draw();
-  },
-);
+watch(width, () => draw());
+
+// Update the histogram when the file data changes.
+watch(maxFileData, () => draw());
 
 onMounted(() => {
   histogramElement.value?.prepend(histogramChart.node() ?? "");

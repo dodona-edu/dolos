@@ -24,7 +24,7 @@
     </v-row>
 
     <v-card>
-      <PairsTable :search.sync="search" :pairs="pairStore.pairsList" />
+      <PairsTable :search.sync="search" :pairs="pairStore.pairsActiveList" />
     </v-card>
   </v-container>
 </template>

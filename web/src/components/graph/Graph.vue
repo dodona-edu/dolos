@@ -341,8 +341,13 @@ const updateGraph = (): void => {
 
 // Update the graph when the data changes.
 watch(
-  () => [cutoffDebounced.value, props.showSingletons, props.legend],
+  () => [cutoffDebounced.value, props.showSingletons],
   () => updateGraph()
+);
+watch(
+  () => [props.legend],
+  () => updateGraph(),
+  { deep: true }
 );
 
 // D3 Simulation force link

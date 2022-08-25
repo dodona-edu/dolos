@@ -6,7 +6,7 @@
           :showSingletons="showSingletons"
           :legend="legend"
           :clustering="clustering"
-          :files="filesList"
+          :files="filesActiveList"
           :pairs="pairsList"
           :zoomTo="'#clustering-table'"
           :selected-node.sync="selectedNode"
@@ -61,7 +61,7 @@ import GraphLegend from "@/d3-tools/GraphLegend.vue";
 import SimilaritySetting from "@/components/settings/SimilaritySetting.vue";
 
 const route = useRoute();
-const { filesList, legend } = storeToRefs(useFileStore());
+const { filesActiveList, legend } = storeToRefs(useFileStore());
 const { pairsList, clustering } = storeToRefs(usePairStore());
 
 // Show singletons in the graph.
