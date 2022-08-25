@@ -28,9 +28,11 @@ class DatasetsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should analyze dataset" do
-    assert_difference("Report.count") do
-      post analyze_dataset_url(@dataset), as: :json
-      assert_response :created
+    assert_enqueued_jobs 1 do
+      assert_difference("Report.count") do
+        post analyze_dataset_url(@dataset), as: :json
+        assert_response :created
+      end
     end
 
     report = Report.order(:created_at).last

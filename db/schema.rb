@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2022_08_22_113458) do
+ActiveRecord::Schema[7.0].define(version: 2022_08_25_081411) do
   create_table "active_storage_attachments", charset: "utf8mb4", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -45,6 +45,21 @@ ActiveRecord::Schema[7.0].define(version: 2022_08_22_113458) do
     t.integer "file_count"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "delayed_jobs", charset: "utf8mb4", force: :cascade do |t|
+    t.integer "priority", default: 0, null: false
+    t.integer "attempts", default: 0, null: false
+    t.text "handler", null: false
+    t.text "last_error"
+    t.datetime "run_at"
+    t.datetime "locked_at"
+    t.datetime "failed_at"
+    t.string "locked_by"
+    t.string "queue"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.index ["priority", "run_at"], name: "delayed_jobs_priority"
   end
 
   create_table "reports", charset: "utf8mb4", force: :cascade do |t|
