@@ -145,7 +145,6 @@ export const useFileStore = defineStore("files", () => {
     });
 
     const timeOffset = Math.random() * 1000 * 60 * 60 * 24 * 20;
-    const labels: string[] = [];
 
     const filesMap = fileData.map((row: any) => {
       const file = row as File;
@@ -159,11 +158,6 @@ export const useFileStore = defineStore("files", () => {
       file.astAndMappingLoaded = true;
       file.amountOfKgrams = file.amountOfKgrams || file.ast.length;
 
-      // Add the label to the labels list, if it doesn't exist yet.
-      if (!labels.includes(row.label)) {
-        labels.push(extra.labels);
-      }
-
       // Store pseudo details.
       const pseudoName = randomNameGenerator();
       const pseudoPath = `${pseudoName}.${filePathExtension}`;
@@ -172,7 +166,6 @@ export const useFileStore = defineStore("files", () => {
         shortPath: pseudoPath,
         fullName: pseudoName,
         timestamp: extra.timestamp ? new Date(extra.timestamp.getTime() + timeOffset) : undefined,
-        labels: String(labels.indexOf(extra.labels)) ?? "",
       };
 
       // Store original details.
@@ -226,7 +219,7 @@ export const useFileStore = defineStore("files", () => {
         file.shortPath = file.pseudo.shortPath;
         file.extra.fullName = file.pseudo.fullName;
         file.extra.timestamp = file.pseudo.timestamp;
-        file.extra.labels = file.pseudo.labels;
+        file.extra.labels = getLabel(file).pseudoLabel;
       } else {
         file.path = file.original.path;
         file.shortPath = file.original.shortPath;
@@ -252,7 +245,7 @@ export const useFileStore = defineStore("files", () => {
     const defaultLabel = {
       label: "No Label",
       selected: false,
-      color: "grey",
+      color: "#1976d2",
     };
 
     return legend.value?.[file?.extra?.labels ?? ""] ?? defaultLabel;
@@ -276,10 +269,10 @@ export const useFileStore = defineStore("files", () => {
       const oldLabel = oldLegend.find(ol => ol.originalLabel === l.originalLabel);
       
       return {
+        label: (apiStore.isAnonymous ? l.pseudoLabel : l.originalLabel) ?? "N/A",
         pseudoLabel: l.pseudoLabel ?? "N/A",
         originalLabel: l.originalLabel ?? "N/A",
-        color: l.color ?? "grey",
-        label: (apiStore.isAnonymous ? l.pseudoLabel : l.originalLabel) ?? "N/A",
+        color: l.color ?? "#1976d2",
         selected: oldLabel ? oldLabel.selected : true,
       };
     });

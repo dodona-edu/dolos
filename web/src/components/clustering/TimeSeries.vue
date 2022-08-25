@@ -14,7 +14,7 @@ import {
   computed,
 } from "vue";
 import { storeToRefs } from "pinia";
-import { useApiStore } from "@/api/stores";
+import { useApiStore, useFileStore } from "@/api/stores";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
 import { File } from "@/api/models";
 import { useCluster, useD3Tooltip, usePartialLegend } from "@/composables";
@@ -44,6 +44,7 @@ const props = withDefaults(defineProps<Props>(), {
 });
 const emit = defineEmits(["filedata", "click:node"]);
 
+const fileStore = useFileStore();
 const { clusterFiles } = useCluster(toRef(props, "cluster"));
 const { cutoffDebounced } = storeToRefs(useApiStore());
 const legend = usePartialLegend(clusterFiles);
@@ -84,16 +85,12 @@ const simulation = shallowRef();
 
 // Get the color for a file.
 const getColor = (f: File): string => {
-  return f.extra?.labels && legend.value
-    ? legend.value[f.extra.labels].color
-    : "#1976D2";
+  return fileStore.getLabel(f).color;
 };
 
 // Get the visibility of a file.
 const getVisibility = (f: File): string => {
-  return f.extra?.labels && legend.value
-    ? legend.value[f.extra.labels].selected ? "visibile" : "hidden"
-    : "visible";
+  return fileStore.getLabel(f).selected ? "visibile" : "hidden";
 };
 
 // Draw the timeseries

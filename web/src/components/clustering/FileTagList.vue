@@ -21,7 +21,8 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {});
-const { legend } = storeToRefs(useFileStore());
+const fileStore = useFileStore();
+const { legend } = storeToRefs(fileStore);
 
 // List template ref.
 const listElement = shallowRef();
@@ -74,7 +75,7 @@ const draw = (): void => {
   groups
     .append("circle")
     .attr("r", 20)
-    .attr("fill", (file) => file.extra.labels ? legend.value[file.extra.labels].color : "blue");
+    .attr("fill", (file) => fileStore.getLabel(file).color);
   groups
     .append("text")
     .text((file) => {
