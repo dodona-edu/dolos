@@ -130,7 +130,7 @@
           </v-row>
 
           <OverviewBarchart
-            :number-of-ticks="10"
+            :ticks="20"
             :extra-line="apiStore.cutoff"
           />
         </v-card>

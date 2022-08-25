@@ -16,7 +16,7 @@ import { TooltipTool } from "@/d3-tools/TooltipTool";
 import * as d3 from "d3";
 
 interface Props {
-  numberOfTicks?: number;
+  ticks?: number;
   extraLine?: number;
   pairField?: "similarity" | "longestFragment" | "totalOverlap";
 }
@@ -74,7 +74,7 @@ const draw = (): void => {
     .domain([0, 1] as [number, number])
     .range([0, height.value]);
   const domain = xScale.domain();
-  const ticks = xScale.ticks(props.numberOfTicks);
+  const ticks = xScale.ticks(props.ticks);
   const adjustedTicks = ticks[ticks.length - 1] === domain[1] ? ticks.slice(0, -1) : ticks;
   const histogram = d3.bin().domain([0, 1]).thresholds(adjustedTicks);
   const bins = histogram(maxFileData.value);
