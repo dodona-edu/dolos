@@ -29,18 +29,5 @@ module.exports = {
       }),
       new MonacoWebpackPlugin()
     ]);
-
-    // Add ComLink loader for handling webworkers.
-    config.module.rules.unshift({
-      test: /\.worker\.ts$/i,
-      use: [
-        {
-          loader: "comlink-loader",
-          options: {
-            singleton: true,
-          },
-        },
-      ],
-    });
   },
 };

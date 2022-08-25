@@ -16,7 +16,8 @@ import {
   ObjMap,
   File,
 } from "@/api/models";
-import * as DataWorker from "@/api/workers/data.worker";
+import * as Comlink from "comlink";
+import { DataWorker } from "@/api/workers/data.worker";
 
 /**
  * Store containing the pair data & helper functions.
@@ -28,6 +29,9 @@ export const usePairStore = defineStore("pairs", () => {
 
   // If this store has been hydrated.
   const hydrated = shallowRef(false);
+
+  // Data worker
+  const dataWorker = Comlink.wrap<DataWorker>(new Worker(new URL("../workers/data.worker.ts", import.meta.url)));
 
   // Parse the pairs from a CSV string.
   function parse(pairData: any[], files: ObjMap<File>): ObjMap<Pair> {
@@ -90,7 +94,7 @@ export const usePairStore = defineStore("pairs", () => {
     const kmers = kgramStore.kgrams;
     const occurrences = semanticStore.occurrences;
 
-    const pairWithFragments = await DataWorker.populateFragments(pair, customOptions, kmers, occurrences);
+    const pairWithFragments = await dataWorker.populateFragments(pair, customOptions, kmers, occurrences);
     pairs.value[pair.id] = pairWithFragments;
     return pairWithFragments;
   }
@@ -99,7 +103,7 @@ export const usePairStore = defineStore("pairs", () => {
   async function populateSemantic(pair: Pair): Promise<Pair> {
     const occurrences = semanticStore.occurrences;
 
-    const pairWithSemantic = await DataWorker.populateSemantic(pair, occurrences);
+    const pairWithSemantic = await dataWorker.populateSemantic(pair, occurrences);
     pairs.value[pair.id] = pairWithSemantic;
     return pairWithSemantic;
   }
