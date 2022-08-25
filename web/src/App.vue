@@ -188,6 +188,7 @@ import { shallowRef, computed } from "vue";
 import { storeToRefs } from "pinia";
 import { useBreakpoints } from "@/composables";
 import { useApiStore } from "@/api/stores";
+import { useBreadcrumbStore } from "@/stores";
 import Loading from "@/components/Loading.vue";
 import packageJson from "../package.json";
 import SimilaritySetting from "./components/settings/SimilaritySetting.vue";
@@ -206,6 +207,9 @@ const version = computed(() => packageJson.version);
 
 // Hydrate all the stores (fetch all the data).
 api.hydrate();
+
+// Hydrate the breadcrumbs store.
+useBreadcrumbStore();
 </script>
 
 <style lang="scss">

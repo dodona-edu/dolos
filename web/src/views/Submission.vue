@@ -2,6 +2,11 @@
   <v-container fluid>
     <transition name="slide-y-transition" mode="out-in">
       <div v-if="file" :key="file.id">
+        <breadcrumbs
+          :current-override="{ name: file.extra.fullName ?? file.shortPath }"
+          :previous-fallback="{ name: 'View by submissions', path: '/submissions' }"
+        />
+
         <div class="heading">
           <h2 class="heading-title">
             Submission by {{ file.extra.fullName ?? file.shortPath }}
@@ -33,10 +38,16 @@
               </v-card-text>
 
               <v-card-text v-else-if="!hasTimestamp">
-                <v-alert type="warning" text>
-                  The dataset you analyzed did not contain timestamps, so some visualizations will not be available.
-                  Learn how to add metadata <a href="https://dolos.ugent.be/guide/dodona.html" target="_blank">here</a>.
-                </v-alert>
+                <div class="d-flex align-center info-text">
+                  <v-icon color="info">mdi-information</v-icon>
+
+                  <span class="ml-2">
+                    The dataset you analyzed did not contain timestamps,
+                    so some visualizations will not be available.
+                    Learn how to add metadata
+                    <a href="https://dolos.ugent.be/guide/dodona.html" target="_blank">here</a>.
+                  </span>
+                </div>
               </v-card-text>
 
               <v-card-text v-else>
@@ -171,6 +182,7 @@ import GraphLegend from "@/d3-tools/GraphLegend.vue";
 import TimeSeries from "@/components/clustering/TimeSeries.vue";
 import SubmissionCode from "@/components/SubmissionCode.vue";
 import PairStatHistogram from "@/components/summary/PairStatHistogram.vue";
+import Breadcrumbs from "@/components/Breadcrumbs.vue";
 
 interface Props {
   fileId: string;

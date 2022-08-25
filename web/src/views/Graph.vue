@@ -41,10 +41,7 @@
 
     <v-row>
       <v-col cols="12">
-        <ClusteringTable
-          :current-clustering="clustering"
-          :selected-cluster="selectedCluster"
-        />
+        <clustering-table />
       </v-col>
     </v-row>
   </v-container>

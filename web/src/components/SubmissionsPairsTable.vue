@@ -43,10 +43,11 @@
             v-if="item.cluster !== ClusterRelation.NONE"
             v-bind="attrs"
             v-on="on"
-            to="/graph"
+            :to="`/graph?cluster=${item.clusterIndex}`"
             :color="item.cluster === ClusterRelation.SAME ? 'primary' : ''"
             icon
             small
+            @click.stop=""
           >
             <v-icon v-if="item.cluster === ClusterRelation.SAME">mdi-circle-multiple</v-icon>
             <v-icon v-if="item.cluster === ClusterRelation.DIFFERENT">mdi-circle-multiple-outline</v-icon>
@@ -64,7 +65,7 @@
     </template>
 
     <template #item.actions="{ item }">
-      <v-btn class="ml-2" color="primary" text small v-bind="attrs" v-on="on" :to="`/pairs/${item.id}`">
+      <v-btn class="ml-2" color="primary" text small v-bind="attrs" v-on="on" :to="`/pairs/${item.id}`" @click.stop="">
         Compare
         <v-icon right>mdi-chevron-right</v-icon>
       </v-btn>
@@ -82,6 +83,7 @@ import FileTimestamp from "@/components/FileTimestamp.vue";
 import LabelText from "@/components/LabelText.vue";
 import LabelDot from "@/components/LabelDot.vue";
 import { storeToRefs } from "pinia";
+import { useCluster } from "@/composables";
 
 interface Props {
   file: File;
@@ -148,7 +150,7 @@ const items = computed(() => {
       // Cluster of the other file.
       const otherCluster = pairStore.getCluster(otherFile);
       // If the other file is part of the cluster of the current file.
-      const inSameCluster = otherCluster === cluster.value;
+      const inSameCluster = cluster.value && otherCluster === cluster.value;
 
       // Determin the clustering relation.
       const relation = inSameCluster
@@ -165,6 +167,7 @@ const items = computed(() => {
         similarity: pair.similarity,
         label: fileStore.getLabel(otherFile),
         cluster: relation,
+        clusterIndex: pairStore.getClusterIndex(otherCluster),
       };
     });
 });

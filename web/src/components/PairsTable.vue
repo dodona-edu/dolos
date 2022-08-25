@@ -6,7 +6,7 @@
     :sort-by="'similarity'"
     :sort-desc="true"
     :items-per-page="15"
-    :search="searchValue"
+    :search.sync="searchValue"
     :footer-props="footerProps"
     :hide-default-footer="props.pairs.length <= props.itemsPerPage"
     @click:row="rowClicked"
@@ -34,7 +34,7 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   itemsPerPage: 15,
 });
-const emit = defineEmits(["update:search"]);
+const emit = defineEmits(["update:search", "update:page"]);
 const router = useRouter();
 const route = useRoute();
 const searchValue = useVModel(props, "search", emit);

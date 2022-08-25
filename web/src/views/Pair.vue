@@ -1,5 +1,9 @@
 <template>
   <v-container fluid fill-height>
+    <Breadcrumbs
+      :previous-fallback="{ name: 'View by pairs', path: '/pairs' }"
+    />
+
     <v-row justify="center">
       <v-col cols="12" class="no-y-padding">
         <template v-if="!isLoaded">
@@ -28,6 +32,7 @@
 import { shallowRef, onMounted } from "vue";
 import { usePairStore, useMetadataStore } from "@/api/stores";
 import CompareCard from "@/components/CompareCard.vue";
+import Breadcrumbs from "@/components/Breadcrumbs.vue";
 
 interface Props {
   pairId: string;
