@@ -9,7 +9,7 @@
     </thead>
 
     <tbody>
-      <tr v-for="label, index of legend" :key="index">
+      <tr v-for="label, index of labels" :key="index">
         <td class="d-flex align-center">
           <label-dot
             :label="label.label"
@@ -49,5 +49,5 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {});
 const fileStore = useFileStore();
-const { legend, labelFilesCount } = storeToRefs(fileStore);
+const { labels, labelFilesCount } = storeToRefs(fileStore);
 </script>

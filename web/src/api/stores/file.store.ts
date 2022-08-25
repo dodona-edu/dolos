@@ -16,8 +16,50 @@ export const useFileStore = defineStore("files", () => {
   const files = shallowRef<ObjMap<File>>({});
   const filesList = computed<File[]>(() => Object.values(files.value));
 
+  // Partial labels set.
+  // Contains fixed values for the label such as color.
+  // Does not contain dynamic properties such as current label name or selected.
+  const partialLabels = computed<Partial<Label>[]>(() => {
+    // Labels for the files.
+    const labels: Partial<Label>[] = [];
+    for (const file of filesList.value) {
+      const originalLabel = file.original.labels ?? "N/A";
+      if (labels.find(l => l.originalLabel === originalLabel)) continue;
+
+      labels.push({
+        originalLabel: originalLabel,
+      });
+    }
+
+    // Sort labels on original name.
+    // This is necessary to retain the original order of the labels when anonymizing.
+    const sortedLabels = [...labels].sort((a, b) => 
+      (a.originalLabel ?? "").localeCompare(b.originalLabel ?? "")
+    );
+
+    // Add the pseudo label for each label in the set.
+    // The pseudo label is the index in the array of labels.
+    for (const label of sortedLabels) {
+      label.pseudoLabel = String(sortedLabels.indexOf(label)) ?? "N/A";
+    }
+
+    // Create a colorscale for the labels.
+    const colorScale = d3
+      .scaleOrdinal(d3.schemeCategory10.filter((c) => c !== "#7f7f7f"))
+      .domain([...sortedLabels].map(l => l.originalLabel ?? "N/A").reverse());
+
+    // Add the colorscale to the labels.
+    for (const label of sortedLabels) {
+      label.color = colorScale(label.originalLabel ?? "N/A");
+    }
+
+    return sortedLabels;
+  });
+
   // Legend
   const legend = ref<Legend>({});
+  // Labels
+  const labels = ref<Label[]>([]);
 
   // List of files to display (with active labels)
   const filesActive = shallowRef<ObjMap<File>>({});
@@ -226,39 +268,23 @@ export const useFileStore = defineStore("files", () => {
     filesList.value.some((file) => file.extra.labels)
   );
 
-  // Create a legend for a given set of files.
-  function createLegend(files: File[]): Legend {
-    // Labels for the files.
-    const labels = new Set<{ label: string, original: string }>();
-    for (const file of files) {
-      labels.add({
-        label: file.extra.labels ?? "N/A",
-        original: file.original.labels ?? "N/A",
-      });
-    }
-
-    // Sort labels on original name.
-    // This is necessary to retain the original order of the labels when anonymizing.
-    const sortedLabels = [...labels].sort((a, b) => a.original.localeCompare(b.original));
-
-    const colorScale = d3
-      .scaleOrdinal(d3.schemeCategory10.filter((c) => c !== "#7f7f7f"))
-      .domain([...sortedLabels].map(l => l.original).reverse());
-
-    const oldLegend = Object.values(legend.value);
-    const legendList = [...sortedLabels].sort().map((p) => ({
-      label: p.label,
-      selected: oldLegend.find(l => l.original === p.original)?.selected ?? true,
-      color: colorScale(p.original),
-      original: p.original,
-    }));
-
-    return Object.fromEntries(legendList.map((l) => [l.label, l]));
-  }
-
   // Calculate the legend when the files change.
-  watch(filesList, (files) => {
-    legend.value = createLegend(files);
+  watch(filesList, () => {
+    const oldLegend = Object.values(legend.value);
+
+    labels.value = partialLabels.value.map((l) => {
+      const oldLabel = oldLegend.find(ol => ol.originalLabel === l.originalLabel);
+      
+      return {
+        pseudoLabel: l.pseudoLabel ?? "N/A",
+        originalLabel: l.originalLabel ?? "N/A",
+        color: l.color ?? "grey",
+        label: (apiStore.isAnonymous ? l.pseudoLabel : l.originalLabel) ?? "N/A",
+        selected: oldLabel ? oldLabel.selected : true,
+      };
+    });
+
+    legend.value = Object.fromEntries(labels.value.map((l) => [l.label, l]));
   });
 
   // Map containing the the amount of files for each label.
@@ -285,6 +311,7 @@ export const useFileStore = defineStore("files", () => {
     hydrated,
     hydrate,
     legend,
+    labels,
     anonymize,
     getFile,
     getLabel,
