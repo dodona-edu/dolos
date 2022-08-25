@@ -131,7 +131,8 @@
             The similarity threshold is the minimum similarity a file pair must have to be considered plagiarised.
           </span>
         </div>
-        <similarity-setting compact />
+        <similarity-setting v-if="isLoaded" compact />
+        <v-skeleton-loader v-else type="heading" />
       </v-card-text>
 
       <v-card-text>
@@ -159,7 +160,8 @@
         </div>
       </v-card-text>
       
-      <labels-table class="settings-labels" />
+      <labels-table v-if="isLoaded" class="settings-labels" />
+      <v-skeleton-loader v-else class="px-4" type="table-row-divider@4" />
     </v-navigation-drawer>
   </v-app>
 </template>
