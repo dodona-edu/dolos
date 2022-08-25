@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-app-bar clipped-left app color="primary" dark dense>
+    <v-app-bar clipped-left clipped-right app color="primary" dark dense>
       <v-app-bar-nav-icon
         v-if="!breakpoints.desktop"
         @click.stop="drawer = !drawer"
@@ -14,7 +14,7 @@
 
       <v-spacer />
 
-      <v-btn icon @click="settings = true">
+      <v-btn icon @click="settings = !settings">
         <v-icon>mdi-cog</v-icon>
       </v-btn>
     </v-app-bar>
@@ -128,6 +128,7 @@
     </v-main>
 
     <v-dialog
+      v-if="false"
       v-model="settings"
       max-width="700"
     >
@@ -184,6 +185,51 @@
         </div>
       </v-card>  
     </v-dialog>
+
+    <v-navigation-drawer :value="settings" app clipped right>
+      <v-card-title>
+        Global settings
+      </v-card-title>
+      <v-card-subtitle>
+        Configure global parameters of the analysis results.
+      </v-card-subtitle>
+      <v-card-text>
+        <div>
+          <h4>Similarity Threshold</h4>
+          <span class="text--secondary">
+            The similarity threshold is the minimum similarity a file pair must have to be considered plagiarised.
+          </span>
+        </div>
+        <similarity-setting compact />
+      </v-card-text>
+
+      <v-card-text>
+        <div>
+          <h4>Anonymize Dataset</h4>
+          <span class="text--secondary">
+            Anonymize the dataset by removing the names of the authors and the files.
+          </span>
+        </div>
+
+        <v-switch
+          v-model="isAnonymous"
+          :disabled="!isLoaded"
+          :label="isAnonymous ? 'Enabled' : 'Disabled'"
+          inset
+        />
+      </v-card-text>
+
+      <v-card-text class="pb-0">
+        <div>
+          <h4>Active labels</h4>
+          <span class="text--secondary">
+            Select the labels that should be displayed in the visualizations.
+          </span>
+        </div>
+      </v-card-text>
+      
+      <labels-table style="margin-left: 1px" />
+    </v-navigation-drawer>
   </v-app>
 </template>
 

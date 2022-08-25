@@ -4,7 +4,7 @@
 
     <div class="similarity-setting-actions">
       <span v-if="props.compact">
-        Threshold ≥ {{ (cutoff * 100).toFixed(0) }}%
+        {{ (cutoff * 100).toFixed(0) }}%
       </span>
       <v-slider
         v-model.number="cutoff"
