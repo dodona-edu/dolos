@@ -1,5 +1,6 @@
 <template>
   <v-data-table
+    class="row-pointer"
     :headers="headers"
     :items="items"
     :footer-props="footerProps"
@@ -8,6 +9,7 @@
     must-sort
     fixed-header
     dense
+    @click:row="(i) => $router.push(`/submissions/${i.fileId}`)"
   >
     <template #item.name="{ item }">
       <div class="submission-name">
@@ -45,6 +47,7 @@
             :color="item.cluster === ClusterRelation.SAME ? 'primary' : ''"
             icon
             small
+            @click.stop=""
           >
             <v-icon v-if="item.cluster === ClusterRelation.SAME">mdi-circle-multiple</v-icon>
             <v-icon v-if="item.cluster === ClusterRelation.DIFFERENT">mdi-circle-multiple-outline</v-icon>
@@ -62,25 +65,10 @@
     </template>
 
     <template #item.actions="{ item }">
-      <v-tooltip top>
-        <template #activator="{ on, attrs }">
-          <v-btn icon small v-bind="attrs" v-on="on" :to="`/submissions/${item.fileId}`">
-            <v-icon>mdi-eye-outline</v-icon>
-          </v-btn>
-        </template>
-
-        View submission
-      </v-tooltip>
-
-      <v-tooltip top>
-        <template #activator="{ on, attrs }">
-          <v-btn class="ml-2" icon small v-bind="attrs" v-on="on" :to="`/pairs/${item.id}`">
-            <v-icon>mdi-compare-horizontal</v-icon>
-          </v-btn>
-        </template>
-
-        Compare with current submission
-      </v-tooltip>
+      <v-btn class="ml-2" color="primary" text small v-bind="attrs" v-on="on" :to="`/pairs/${item.id}`" @click.stop="">
+        Compare
+        <v-icon right>mdi-chevron-right</v-icon>
+      </v-btn>
     </template>
   </v-data-table>
 </template>
@@ -104,7 +92,7 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {});
 const fileStore = useFileStore();
 const pairStore = usePairStore();
-const { hasTimestamp } = storeToRefs(fileStore);
+const { hasTimestamp, hasLabels } = storeToRefs(fileStore);
 
 // List with pairs for the file.
 const pairs = computed(() => {
@@ -120,7 +108,11 @@ const cluster = computed(() => {
 const headers = computed<DataTableHeader[]>(() => {
   const h = [] as DataTableHeader[];
   h.push({ text: "Submission", value: "name", sortable: true });
-  h.push({ text: "Label", value: "label", sortable: true });
+
+  // Only add the label header if there are labels.
+  if (hasLabels.value) {
+    h.push({ text: "Label", value: "label", sortable: true });
+  }
 
   // Only add timestamp header when present.
   if (hasTimestamp.value) {
@@ -158,7 +150,7 @@ const items = computed(() => {
       // Cluster of the other file.
       const otherCluster = pairStore.getCluster(otherFile);
       // If the other file is part of the cluster of the current file.
-      const inSameCluster = otherCluster === cluster.value;
+      const inSameCluster = cluster.value && otherCluster === cluster.value;
 
       // Determin the clustering relation.
       const relation = inSameCluster

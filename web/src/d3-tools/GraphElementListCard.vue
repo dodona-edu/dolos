@@ -8,7 +8,6 @@
       :max-height="props.maxHeight"
       :scroll="props.scroll"
       :clickable="props.clickable"
-      @click="f => emit('select-click', f)"
     />
   </v-card>
 </template>

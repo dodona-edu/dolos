@@ -15,12 +15,17 @@
     <template #item.name="{ item }">
       <div class="submission-info">
         <div class="submission-name">
-          {{ item.name }}
-        </div>
+          <v-tooltip top>
+            <template v-slot:activator="{ on, attrs }">
+              <span v-on="on" v-bind="attrs">
+                {{ item.name }}
+              </span>
+            </template>
 
-        <div class="submission-path text--secondary">
-          <v-icon small>mdi-file-document-outline</v-icon>
-          <span>{{ item.path }}</span>
+            <div class="submission-path">
+              <span>{{ item.path }}</span>
+            </div>
+          </v-tooltip>
         </div>
       </div>
     </template>
@@ -68,7 +73,7 @@ const props = withDefaults(defineProps<Props>(), {});
 const emit = defineEmits(["update:search"]);
 const router = useRouter();
 const fileStore = useFileStore();
-const { similarities, hasTimestamp } = storeToRefs(fileStore);
+const { similarities, hasTimestamp, hasLabels } = storeToRefs(fileStore);
 
 // Search value.
 const searchValue = useVModel(props, "search", emit);
@@ -77,7 +82,11 @@ const searchValue = useVModel(props, "search", emit);
 const headers = computed<DataTableHeader[]>(() => {
   const h = [];
   h.push({ text: "Submission", value: "name", sortable: true });
-  h.push({ text: "Label", value: "label", sortable: true });
+
+  // Only add the label header if there are labels.
+  if (hasLabels.value) {
+    h.push({ text: "Label", value: "label", sortable: true });
+  }
 
   // Only add timestamp header when present.
   if (hasTimestamp.value) {
@@ -97,7 +106,7 @@ const items = computed(() => {
     .map((file) => ({
       id: file.id,
       name: file.extra.fullName ?? file.shortPath,
-      path: file.shortPath,
+      path: file.path,
       label: fileStore.getLabel(file),
       similarity: similarities.value.get(file)?.similarity ?? 0,
       timestamp: file.extra.timestamp,
@@ -122,11 +131,6 @@ const rowClicked = (item: { id: string }): void => {
   &-info {
     padding-top: 0.5rem;
     padding-bottom: 0.5rem;
-  }
-
-  &-name {
-    font-weight: 500;
-    font-size: 1.1rem;
   }
 
   &-label,

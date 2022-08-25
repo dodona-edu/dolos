@@ -38,7 +38,16 @@
               </v-card-text>
 
               <v-card-text v-else-if="!hasTimestamp">
-                Timestamps are not available in this dataset.
+                <div class="d-flex align-center info-text">
+                  <v-icon color="info">mdi-information</v-icon>
+
+                  <span class="ml-2">
+                    The dataset you analyzed did not contain timestamps,
+                    so some visualizations will not be available.
+                    Learn how to add metadata
+                    <a href="https://dolos.ugent.be/guide/dodona.html" target="_blank">here</a>.
+                  </span>
+                </div>
               </v-card-text>
 
               <v-card-text v-else>
@@ -67,7 +76,7 @@
             <v-card>
               <v-card-title>Information</v-card-title>
               <v-card-text>
-                <div class="info-item">
+                <div class="info-item" v-if="hasLabels">
                   <v-icon :color="label.color">mdi-label-outline</v-icon>
                   <label-text :label="label.label" :color="label.color" colored />
                 </div>
@@ -184,7 +193,7 @@ const props = withDefaults(defineProps<Props>(), {});
 const router = useRouter();
 const fileStore = useFileStore();
 const pairStore = usePairStore();
-const { hasTimestamp } = storeToRefs(fileStore);
+const { hasTimestamp, hasLabels } = storeToRefs(fileStore);
 const { clustering } = storeToRefs(pairStore);
 
 // Get the file by id.

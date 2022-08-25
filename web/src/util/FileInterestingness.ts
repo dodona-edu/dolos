@@ -1,7 +1,7 @@
 import { Pair, File } from "@/api/models";
 import { pairsAsNestedMap } from "./PairAsNestedMap";
 import { DecodedSemanticResult } from "@dodona/dolos-lib";
-import { useSemanticStore, usePairStore } from "@/api/stores";
+import { usePairStore } from "@/api/stores";
 
 export type SimilarityScore = {
   similarity: number;

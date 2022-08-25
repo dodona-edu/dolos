@@ -10,7 +10,7 @@ export function singleLinkageCluster(
   const clusterGraph = getClusteringGraph(new Set(Object.values(pairs)), similarity);
   const alreadySeenFileSet = new Set<number>();
 
-  const clusters = [];
+  const clusters: Cluster[] = [];
 
   for (const fileIndex in files) {
     const file = files[fileIndex];

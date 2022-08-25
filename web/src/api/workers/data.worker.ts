@@ -19,9 +19,10 @@ import {
   DecodedSemanticResult,
   PairedSemanticGroups,
 } from "@dodona/dolos-lib";
+import * as Comlink from "comlink";
 
 // Parse a list of Dolos fragments into a list of fragment models.
-export function parseFragments(
+function parseFragments(
   dolosFragments: DolosFragment[],
   kmersMap: Map<Hash, Kgram>
 ): Fragment[] {
@@ -44,7 +45,7 @@ export function parseFragments(
 }
 
 // Populate the fragments for a given pair.
-export async function populateFragments(
+async function populateFragments(
   pair: Pair,
   metadata: Metadata,
   kgrams: ObjMap<Kgram>,
@@ -142,7 +143,7 @@ export async function populateFragments(
 }
 
 // Populate the semantic matches for a given pair.
-export async function populateSemantic(pair: Pair, occurrences: number[][]): Promise<Pair> {
+async function populateSemantic(pair: Pair, occurrences: number[][]): Promise<Pair> {
   const leftFile = fileToTokenizedFile(pair.leftFile);
   const rightFile = fileToTokenizedFile(pair.rightFile);
   if (!pair.leftFile.semanticMap || !pair.rightFile.semanticMap) return pair;
@@ -160,3 +161,13 @@ export async function populateSemantic(pair: Pair, occurrences: number[][]): Pro
 
   return pair;
 }
+
+const expose = {
+  parseFragments,
+  populateFragments,
+  populateSemantic,
+};
+
+Comlink.expose(expose);
+
+export type DataWorker = typeof expose;
