@@ -33,7 +33,7 @@ export const useFileStore = defineStore("files", () => {
 
     // Sort labels on original name.
     // This is necessary to retain the original order of the labels when anonymizing.
-    const sortedLabels = [...labels].sort((a, b) => 
+    const sortedLabels = [...labels].sort((a, b) =>
       (a.originalLabel ?? "").localeCompare(b.originalLabel ?? "")
     );
 
@@ -43,10 +43,32 @@ export const useFileStore = defineStore("files", () => {
       label.pseudoLabel = String(sortedLabels.indexOf(label)) ?? "N/A";
     }
 
+    // Category 20 colors.
+    const colorCategory20 = [
+      "#1f77b4",
+      "#ff7f0e",
+      "#2ca02c",
+      "#d62728",
+      "#9467bd",
+      "#8c564b",
+      "#e377c2",
+      "#bcbd22",
+      "#17becf",
+      "#aec7e8",
+      "#ffbb78",
+      "#98df8a",
+      "#ff9896",
+      "#c5b0d5",
+      "#c49c94",
+      "#f7b6d2",
+      "#dbdb8d",
+      "#9edae5",
+    ];
+
     // Create a colorscale for the labels.
     const colorScale = d3
-      .scaleOrdinal(d3.schemeCategory10.filter((c) => c !== "#7f7f7f"))
-      .domain([...sortedLabels].map(l => l.originalLabel ?? "N/A").reverse());
+      .scaleOrdinal(colorCategory20)
+      .domain(sortedLabels.map(l => l.originalLabel ?? "N/A"));
 
     // Add the colorscale to the labels.
     for (const label of sortedLabels) {
@@ -74,7 +96,7 @@ export const useFileStore = defineStore("files", () => {
       filesActive.value = files.value;
       return;
     }
-    
+
     const filesFiltered = { ...files.value };
 
     // Delete all files that don't have any active labels.
@@ -267,7 +289,7 @@ export const useFileStore = defineStore("files", () => {
 
     labels.value = partialLabels.value.map((l) => {
       const oldLabel = oldLegend.find(ol => ol.originalLabel === l.originalLabel);
-      
+
       return {
         label: (apiStore.isAnonymous ? l.pseudoLabel : l.originalLabel) ?? "N/A",
         pseudoLabel: l.pseudoLabel ?? "N/A",
