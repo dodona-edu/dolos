@@ -146,38 +146,42 @@
           Configure global parameters of the analysis results.
         </v-card-subtitle>
 
-        <v-card-text>
-          <div>
-            <h4>Similarity Threshold</h4>
-            <span class="text--secondary">
-              The similarity threshold is the minimum similarity a file pair must have to be considered plagiarised.
-            </span>
-          </div>
-          <similarity-setting compact />
-        </v-card-text>
+        <div>
+          <v-card-text>
+            <div>
+              <h4>Similarity Threshold</h4>
+              <span class="text--secondary">
+                The similarity threshold is the minimum similarity a file pair must have to be considered plagiarised.
+              </span>
+            </div>
+            <similarity-setting compact />
+          </v-card-text>
 
-        <v-card-text class="d-flex justify-space-between align-center">
-          <div>
-            <h4>Anonymize Dataset</h4>
-            <span class="text--secondary">
-              Anonymize the dataset by removing the names of the authors and the files.
-            </span>
-          </div>
+          <v-card-text class="d-flex justify-space-between align-center">
+            <div>
+              <h4>Anonymize Dataset</h4>
+              <span class="text--secondary">
+                Anonymize the dataset by removing the names of the authors and the files.
+              </span>
+            </div>
 
-          <v-switch
-            v-model="isAnonymous"
-            :disabled="!isLoaded"
-          />
-        </v-card-text>
+            <v-switch
+              v-model="isAnonymous"
+              :disabled="!isLoaded"
+            />
+          </v-card-text>
 
-        <v-card-text>
-          <div>
-            <h4>Active labels</h4>
-            <span class="text--secondary">
-              Select the labels that should be displayed in the visualizations.
-            </span>
-          </div>
-        </v-card-text>
+          <v-card-text>
+            <div>
+              <h4>Active labels</h4>
+              <span class="text--secondary">
+                Select the labels that should be displayed in the visualizations.
+              </span>
+            </div>
+
+            <labels-table />
+          </v-card-text>
+        </div>
       </v-card>  
     </v-dialog>
   </v-app>
@@ -192,6 +196,7 @@ import { useBreadcrumbStore } from "@/stores";
 import Loading from "@/components/Loading.vue";
 import packageJson from "../package.json";
 import SimilaritySetting from "./components/settings/SimilaritySetting.vue";
+import LabelsTable from "./components/LabelsTable.vue";
 
 const breakpoints = useBreakpoints();
 const api = useApiStore();

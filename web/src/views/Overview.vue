@@ -30,31 +30,7 @@
             {{ legendCount }} labels detected
           </v-card-title>
 
-          <v-simple-table class="info-card-labels" fixed-header dense>
-            <thead>
-              <tr>
-                <th>Label</th>
-                <th>Submissions</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              <tr v-for="label in Object.values(legend)" :key="label.label">
-                <td class="d-flex align-center">
-                  <label-dot
-                    :label="label.label"
-                    :color="label.color"
-                  />
-
-                  <span class="ml-2">{{ label.label }}</span>
-                </td>
-
-                <td>
-                  {{ labelFilesCount[label.label] }}
-                </td>
-              </tr>
-            </tbody>
-          </v-simple-table>
+          <labels-table class="info-card-labels" show-submissions />
         </v-card>
       </v-col>
 
@@ -274,7 +250,7 @@ import OverviewBarchart from "@/components/overview/OverviewBarchart.vue";
 import SimilaritySetting from "@/components/settings/SimilaritySetting.vue";
 import SimilarityDisplay from "@/components/pair/SimilarityDisplay.vue";
 import InfoDot from "@/components/InfoDot.vue";
-import LabelDot from "@/components/LabelDot.vue";
+import LabelsTable from "@/components/LabelsTable.vue";
 
 const apiStore = useApiStore();
 const fileStore = useFileStore();
@@ -323,20 +299,6 @@ const medianSimilarity = computed(() => {
   const middle = Math.floor(sorted.length / 2);
   const median = sorted[middle];
   return median;
-});
-
-// Map containing the the amount of files for each label.
-const labelFilesCount = computed(() => {
-  const values: { [key: string]: number } = {};
-
-  for (const file of fileStore.filesList) {
-    const label = file.extra.labels;
-    if (!label) continue;
-    if (!values[label]) values[label] = 0;
-    values[label] += 1;
-  }
-
-  return values;
 });
 
 // Programming language, capitalized.

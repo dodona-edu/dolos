@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { shallowRef, computed, nextTick, watch } from "vue";
+import { shallowRef, computed, nextTick, watch, ref } from "vue";
 import { DATA_URL } from "@/api";
 import { File, Label, Legend, ObjMap } from "@/api/models";
 import { useApiStore, usePairStore } from "@/api/stores";
@@ -186,7 +186,7 @@ export const useFileStore = defineStore("files", () => {
   );
 
   // Legend
-  const legend = shallowRef<Legend>();
+  const legend = ref<Legend>({});
 
   // Create a legend for a given set of files.
   function createLegend(files: File[]): Legend {
