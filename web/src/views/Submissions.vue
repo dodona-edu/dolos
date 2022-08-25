@@ -35,9 +35,9 @@
 <script lang="ts" setup>
 import { storeToRefs } from "pinia";
 import { useFileStore } from "@/api/stores";
+import { useRouteQuery } from "@/composables";
 import SubmissionsTable from "@/components/SubmissionsTable.vue";
-import { shallowRef } from "vue";
 
 const { filesList } = storeToRefs(useFileStore());
-const search = shallowRef("");
+const search = useRouteQuery("search", "");
 </script>

@@ -2,6 +2,11 @@
   <v-container fluid>
     <transition name="slide-y-transition" mode="out-in">
       <div v-if="file" :key="file.id">
+        <breadcrumbs
+          :current-override="{ name: file.extra.fullName ?? file.shortPath }"
+          :previous-fallback="{ name: 'View by submissions', path: '/submissions' }"
+        />
+
         <div class="heading">
           <h2 class="heading-title">
             Submission by {{ file.extra.fullName ?? file.shortPath }}
@@ -177,6 +182,7 @@ import GraphLegend from "@/d3-tools/GraphLegend.vue";
 import TimeSeries from "@/components/clustering/TimeSeries.vue";
 import SubmissionCode from "@/components/SubmissionCode.vue";
 import PairStatHistogram from "@/components/summary/PairStatHistogram.vue";
+import Breadcrumbs from "@/components/Breadcrumbs.vue";
 import { useLegend } from "../composables";
 
 interface Props {

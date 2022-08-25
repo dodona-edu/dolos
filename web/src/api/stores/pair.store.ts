@@ -16,6 +16,7 @@ import {
   ObjMap,
   File,
 } from "@/api/models";
+import { getClusterElements } from "@/util/clustering-algorithms/ClusterFunctions";
 import * as Comlink from "comlink";
 import { DataWorker } from "@/api/workers/data.worker";
 
@@ -123,6 +124,12 @@ export const usePairStore = defineStore("pairs", () => {
     singleLinkageCluster(pairs.value, fileStore.files, apiStore.cutoffDebounced)
   );
 
+  // Sorted Clustering
+  const sortedClustering = computed(() => {
+    const sortFn = (a: Cluster, b: Cluster): number => getClusterElements(b).size - getClusterElements(a).size;
+    return [...clustering.value].sort(sortFn);
+  });
+
   // Get the cluster for a given file.
   function getCluster(file: File | undefined): Cluster | undefined {
     if (!file) return undefined;
@@ -131,6 +138,11 @@ export const usePairStore = defineStore("pairs", () => {
     return clustering.value.find((cluster) =>
       [...cluster].some((pair) => pair.leftFile === file || pair.rightFile === file)
     );
+  }
+
+  // Get the index of the cluster for a given cluster.
+  function getClusterIndex(cluster: Cluster): number {
+    return sortedClustering.value.findIndex((c) => c === cluster);
   }
 
   return {
@@ -143,6 +155,8 @@ export const usePairStore = defineStore("pairs", () => {
     getPair,
     getPairs,
     clustering,
+    sortedClustering,
     getCluster,
+    getClusterIndex,
   };
 });

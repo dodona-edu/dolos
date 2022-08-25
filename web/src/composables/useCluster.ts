@@ -1,12 +1,14 @@
 import { ComputedRef, computed, unref } from "vue";
 import { MaybeRef } from "@/util/Types";
 import { File, Pair } from "@/api/models";
+import { usePairStore } from "@/api/stores";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
 import {
   getAverageClusterSimilarity,
   getClusterElements,
   getClusterElementsArray,
 } from "@/util/clustering-algorithms/ClusterFunctions";
+import { storeToRefs } from "pinia";
 
 /**
  * Return type for the composable.
@@ -16,6 +18,7 @@ export interface UseClusterReturn {
   clusterFilesSet: ComputedRef<Set<File>>;
   clusterPairs: ComputedRef<Pair[]>;
   clusterAverageSimilarity: ComputedRef<number>;
+  clusterIndex: ComputedRef<number>;
 }
 
 /**
@@ -24,6 +27,8 @@ export interface UseClusterReturn {
 export function useCluster(
   cluster: MaybeRef<Cluster | null | undefined>
 ): UseClusterReturn {
+  const pairStore = usePairStore();
+
   // List of files in the cluster.
   const clusterFiles = computed(() => {
     const value = unref(cluster);
@@ -48,10 +53,17 @@ export function useCluster(
     return value ? getAverageClusterSimilarity(value) : 0;
   });
 
+  // Cluster index in the clustering
+  const clusterIndex = computed(() => {
+    const value = unref(cluster);
+    return value ? pairStore.getClusterIndex(value) : -1;
+  });
+
   return {
     clusterFiles,
     clusterFilesSet,
     clusterPairs,
     clusterAverageSimilarity,
+    clusterIndex,
   };
 }

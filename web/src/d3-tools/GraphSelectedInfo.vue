@@ -119,14 +119,11 @@ const selectedClusterIndex = computed(() => {
 
 // Go to the information section of this cluster.
 const goToInfo = (): void => {
-  const clusterHash = `#clustering-card-${selectedClusterIndex.value}`;
-  // Navigate to the cluster card.
-  // The hash will be used by the clustering table to expand the correct cluster.
-  router.replace("#");
-  router.replace(clusterHash);
-
-  // Scroll to the cluster card.
-  vuetify.goTo(clusterHash);
+  router.replace({
+    query: {
+      cluster: String(selectedClusterIndex.value),
+    }
+  });
 };
 </script>
 
