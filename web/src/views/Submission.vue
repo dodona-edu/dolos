@@ -33,10 +33,16 @@
               </v-card-text>
 
               <v-card-text v-else-if="!hasTimestamp">
-                <v-alert type="warning" text>
-                  The dataset you analyzed did not contain timestamps, so some visualizations will not be available.
-                  Learn how to add metadata <a href="https://dolos.ugent.be/guide/dodona.html" target="_blank">here</a>.
-                </v-alert>
+                <div class="d-flex align-center info-text">
+                  <v-icon color="info">mdi-information</v-icon>
+
+                  <span class="ml-2">
+                    The dataset you analyzed did not contain timestamps,
+                    so some visualizations will not be available.
+                    Learn how to add metadata
+                    <a href="https://dolos.ugent.be/guide/dodona.html" target="_blank">here</a>.
+                  </span>
+                </div>
               </v-card-text>
 
               <v-card-text v-else>
