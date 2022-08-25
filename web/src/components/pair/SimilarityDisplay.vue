@@ -9,7 +9,7 @@
       v-model="value"
       :color="color"
       :dark="contrast"
-      height="25"
+      :height="props.dense ? 18 : 25"
       class="similarity-progress"
     >
       <strong>{{ value }}%</strong>
@@ -30,6 +30,7 @@
 </template>
 
 <script lang="ts" setup>
+import { useApiStore } from "@/api/stores";
 import { computed } from "vue";
 
 interface Props {
@@ -37,13 +38,17 @@ interface Props {
   size?: number;
   text?: boolean;
   progress?: boolean;
+  dense?: boolean;
+  dimBelowCutoff?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   size: 42,
   text: false,
   progress: false,
+  dense: false,
 });
+const apiStore = useApiStore();
 
 // Convert the similarity value into a percentage.
 const value = computed(() => {
@@ -52,7 +57,9 @@ const value = computed(() => {
 
 // Determine the color of the similarity value.
 const color = computed(() => {
-  if (props.similarity < 0.5) {
+  if (props.dimBelowCutoff && props.similarity < apiStore.cutoff) {
+    return "grey";
+  } else if (props.similarity < 0.5) {
     return "success";
   } else if (props.similarity < 0.75) {
     return "warning";

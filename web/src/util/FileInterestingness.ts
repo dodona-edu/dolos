@@ -3,7 +3,7 @@ import { pairsAsNestedMap } from "./PairAsNestedMap";
 import { DecodedSemanticResult } from "@dodona/dolos-lib";
 import { usePairStore } from "@/api/stores";
 
-type SimilarityScore = {
+export type SimilarityScore = {
   similarity: number;
   weightedScore: number;
   pair: Pair;

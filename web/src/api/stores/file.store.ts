@@ -1,11 +1,12 @@
 import { defineStore } from "pinia";
 import { shallowRef, computed, nextTick } from "vue";
 import { DATA_URL } from "@/api";
-import { File, ObjMap } from "@/api/models";
-import { useApiStore } from "@/api/stores";
+import { File, Label, ObjMap } from "@/api/models";
+import { useApiStore, usePairStore } from "@/api/stores";
 import { names, uniqueNamesGenerator } from "unique-names-generator";
 import { useLegend } from "@/composables";
 import { commonFilenamePrefix, parseCsv } from "../utils";
+import { FileInterestingnessCalculator, FileScoring, SimilarityScore } from "@/util/FileInterestingness";
 
 /**
  * Store containing the file data & helper functions.
@@ -20,6 +21,41 @@ export const useFileStore = defineStore("files", () => {
 
   // Legend of files.
   const legend = useLegend(files);
+
+  const pairStore = usePairStore();
+  const scoringCalculator: any = computed(() =>
+    new FileInterestingnessCalculator(pairStore.pairsList)
+  );
+
+  // Scored file map.
+  const scoredFiles = computed(() => {
+    const scores = new Map<File, FileScoring>();
+    for (const file of filesList.value) {
+      scores.set(file, scoringCalculator.value.calculateFileScoring(file));
+    }
+    return scores;
+  });
+
+  // Scored file list
+  const scoredFilesList = computed(() => filesList.value.map((file) =>
+    scoringCalculator.value.calculateFileScoring(file)
+  ));
+
+  // Similarities map for every file
+  // Contains the max similarity for each file.
+  const similarities = computed(() => {
+    // Create a map for storing the highest similarity for each file.
+    const similarities = new Map<File, SimilarityScore | null>();
+    for (const file of filesList.value) {
+      similarities.set(file, scoringCalculator.value.calculateSimilarityScore(file));
+    }
+
+    return similarities;
+  });
+
+  // Similarities list for every file
+  // Contains the highest similarity for each file.
+  const similaritiesList = computed(() => [...similarities.value.values()]);
 
   // Parse the files from a CSV string.
   function parse(fileData: any[]): ObjMap<File> {
@@ -126,12 +162,46 @@ export const useFileStore = defineStore("files", () => {
     });
   }
 
+  // Get a file by its ID.
+  function getFile(id: number): File | undefined {
+    return files.value[id];
+  }
+
+  // Get the label for a file from the legend.
+  function getLabel(file: File | undefined): Label {
+    const defaultLabel = {
+      label: "No Label",
+      selected: false,
+      color: "grey",
+    };
+
+    return legend.value[file?.extra?.labels ?? ""] ?? defaultLabel;
+  }
+
+  // If timestamp is available for the files.
+  const hasTimestamp = computed(() =>
+    filesList.value.some((file) => file.extra.timestamp)
+  );
+
+  // If labels are available for the files.
+  const hasLabels = computed(() =>
+    filesList.value.some((file) => file.extra.labels)
+  );
+
   return {
     files,
     filesList,
+    scoredFiles,
+    scoredFilesList,
+    similarities,
+    similaritiesList,
     hydrated,
     hydrate,
     legend,
-    anonymize
+    anonymize,
+    getFile,
+    getLabel,
+    hasTimestamp,
+    hasLabels,
   };
 });

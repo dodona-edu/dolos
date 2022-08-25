@@ -9,10 +9,9 @@
           :files="filesList"
           :pairs="pairsList"
           :zoomTo="'#clustering-table'"
-          :selected-node="selectedNode"
+          :selected-node.sync="selectedNode"
+          :selected-cluster.sync="selectedCluster"
           polygon
-          @selectedNodeInfo="setSelectedNode"
-          @selectedClusterInfo="setSelectedCluster"
         >
           <!-- Extra UI elements to be added as overlay over the graph -->
           <v-form class="graph-settings">
@@ -55,9 +54,9 @@
 import { ref, shallowRef, computed } from "vue";
 import { storeToRefs } from "pinia";
 import { File, Legend } from "@/api/models";
-import { Cluster } from "@/util/Cluster";
+import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
 import { useFileStore, usePairStore } from "@/api/stores";
-import { useRoute, useClustering } from "@/composables";
+import { useRoute } from "@/composables";
 import GraphSelectedInfo from "@/d3-tools/GraphSelectedInfo.vue";
 import ClusteringTable from "@/components/ClusteringTable.vue";
 import Graph from "@/components/graph/Graph.vue";
@@ -66,7 +65,7 @@ import SimilaritySetting from "@/components/settings/SimilaritySetting.vue";
 
 const route = useRoute();
 const { filesList, legend } = storeToRefs(useFileStore());
-const { pairsList } = storeToRefs(usePairStore());
+const { pairsList, clustering } = storeToRefs(usePairStore());
 
 // Show singletons in the graph.
 const showSingletons = shallowRef(false);
@@ -80,24 +79,11 @@ const selectedNode = shallowRef<File>();
 // Cluster that is currently selected.
 const selectedCluster = shallowRef<Cluster>();
 
-// Clustering
-const clustering = useClustering();
-
 // Should the legend be displayed.
 const showLegend = computed(() => {
   const { ...colors } = route.value.query;
   return Array.from(Object.values(colors)).length === 0;
 });
-
-// Set the selected node.
-const setSelectedNode = (node: File | undefined): void => {
-  selectedNode.value = node;
-};
-
-// Set the selected cluster.
-const setSelectedCluster = (cluster: Cluster | undefined): void => {
-  selectedCluster.value = cluster;
-};
 </script>
 
 <style lang="scss" scoped>

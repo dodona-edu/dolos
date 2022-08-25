@@ -31,26 +31,28 @@
           </v-list-item-content>
         </v-list-item>
 
-        <v-list-item to="/pairs" link>
+        <v-list-item to="/submissions" link exact>
           <v-list-item-icon>
-            <v-icon>mdi-format-list-bulleted-square</v-icon>
+            <v-icon>mdi-file-document-multiple-outline</v-icon>
           </v-list-item-icon>
 
-          <v-list-item-title>File pairs</v-list-item-title>
+          <v-list-item-title>View by submission</v-list-item-title>
         </v-list-item>
 
-        <v-list-item to="/graph" link>
+        <v-list-item to="/graph" link  exact>
           <v-list-item-icon>
             <v-icon>mdi-graph</v-icon>
           </v-list-item-icon>
 
-          <v-list-item-title>Plagiarism graph</v-list-item-title>
+          <v-list-item-title>View by cluster</v-list-item-title>
         </v-list-item>
-        <v-list-item to="/fileanalysis" link>
+
+        <v-list-item to="/pairs" link exact>
           <v-list-item-icon>
-            <v-icon> mdi-clipboard-text-outline </v-icon>
+            <v-icon>mdi-file-table-box-multiple-outline</v-icon>
           </v-list-item-icon>
-          <v-list-item-title>File Analysis</v-list-item-title>
+
+          <v-list-item-title>View by pair</v-list-item-title>
         </v-list-item>
       </v-list>
 
@@ -192,6 +194,13 @@ api.hydrate();
 
   .v-data-table__wrapper {
     overflow: unset !important;
+  }
+}
+
+// Cursor pointer on data table rows.
+.row-pointer {
+  tbody tr:hover {
+    cursor: pointer;
   }
 }
 </style>

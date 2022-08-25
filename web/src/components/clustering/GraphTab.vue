@@ -7,7 +7,6 @@
         max-height="400px"
         scroll
         clickable
-        @select-click="setSelectedNodeInfo"
       />
     </v-col>
 
@@ -18,9 +17,8 @@
         :legend="legendValue"
         :polygon="false"
         :clustering="clustering"
-        :selected-node="selectionManager.currentSelections()[0]"
+        :selected-node.sync="selectedNode"
         :height="400"
-        @selectedNodeInfo="setSelectedNodeInfo"
       >
         <GraphLegend
           :legend.sync="legendValue"
@@ -35,8 +33,9 @@ import { shallowRef, ref, watch, onMounted } from "vue";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
 import { getClusterElementsArray } from "@/util/clustering-algorithms/ClusterFunctions";
 import { Pair, File } from "@/api/models";
-import { SelectionManager } from "@/util/FileSelectionManager";
-import { useClustering, useLegend } from "@/composables";
+import { useLegend } from "@/composables";
+import { storeToRefs } from "pinia";
+import { usePairStore } from "@/api/stores";
 import GraphElementListCard from "@/d3-tools/GraphElementListCard.vue";
 import Graph from "../graph/Graph.vue";
 import GraphLegend from "../../d3-tools/GraphLegend.vue";
@@ -46,16 +45,19 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {});
+const pairStore = usePairStore();
 const clusterFiles = shallowRef<File[]>([]);
 const clusterPairs = shallowRef<Pair[]>([]);
 const selectedFiles = shallowRef<File[]>([]);
-const selectionManager = shallowRef(new SelectionManager(1));
 
 const legend = useLegend(clusterFiles);
 const legendValue = ref(legend.value);
 
 // Clustering.
-const clustering = useClustering();
+const { clustering } = storeToRefs(pairStore);
+
+// Selected node.
+const selectedNode = shallowRef<File>();
 
 const updateClusterValues = (): void => {
   if (props.cluster) {
@@ -66,11 +68,6 @@ const updateClusterValues = (): void => {
     clusterPairs.value = [];
   }
 };
-
-const setSelectedNodeInfo = (s: File): void => {
-  selectionManager.value.select(s);
-};
-
 watch(
   () => legend.value,
   (legend) => {
@@ -85,11 +82,11 @@ watch(
   }
 );
 
+watch(selectedNode, (selectedNode) => {
+  selectedFiles.value = selectedNode ? [selectedNode] : [];
+});
+
 onMounted(() => {
   updateClusterValues();
-
-  selectionManager.value = new SelectionManager(1, (v) => {
-    selectedFiles.value = v;
-  });
 });
 </script>

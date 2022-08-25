@@ -6,42 +6,36 @@ Vue.use(VueRouter);
 
 const routes: Array<RouteConfig> = [
   {
-    path: "/pairs/",
-    name: "Pairs",
-    component: Pairs
-  },
-  {
-    path: "/compare/:id",
-    name: "Compare",
-    props: route => ({ pairId: route.params.id }),
-    // route level code-splitting
-    // this generates a separate chunk (compare.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "compare" */ "../views/Compare.vue")
-  },
-  {
-    path: "/graph/",
-    name: "Graph",
-    // route level code-splitting
-    // this generates a separate chunk (compare.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "graph" */ "../views/GraphView.vue")
-  },
-  {
-    path: "/fileanalysis/",
-    name: "File Analysis",
-    // route level code-splitting
-    // this generates a separate chunk (compare.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "graph" */ "../views/FileAnalysis.vue")
-  },
-  {
     path: "/",
     name: "Overview",
-    // route level code-splitting
-    // this generates a separate chunk (compare.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "graph" */ "../views/Overview.vue")
+    component: () => import(/* webpackChunkName: "overview" */ "../views/Overview.vue")
+  },
+  {
+    path: "/pairs",
+    name: "Pairs",
+    component: () => import(/* webpackChunkName: "overview" */ "../views/Pairs.vue")
+  },
+  {
+    path: "/pairs/:id",
+    name: "Pair",
+    props: route => ({ pairId: route.params.id }),
+    component: () => import(/* webpackChunkName: "compare" */ "../views/Pair.vue")
+  },
+  {
+    path: "/submissions",
+    name: "Submissions",
+    component: () => import(/* webpackChunkName: "submissions" */ "../views/Submissions.vue")
+  },
+  {
+    path: "/submissions/:id",
+    name: "Submission",
+    props: route => ({ fileId: route.params.id }),
+    component: () => import(/* webpackChunkName: "submission" */ "../views/Submission.vue")
+  },
+  {
+    path: "/graph",
+    name: "Graph",
+    component: () => import(/* webpackChunkName: "graph" */ "../views/Graph.vue")
   },
 ];
 

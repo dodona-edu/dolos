@@ -1,5 +1,5 @@
 <template>
-  <ul v-if="Object.values(legend).length > 1" class="legend">
+  <ul v-if="Object.values(legend).length > 0" class="legend">
     <li
       v-for="legendDatum of Object.values(legendValue).sort()"
       :key="legendDatum.label"

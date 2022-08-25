@@ -219,7 +219,7 @@
               />
             </div>
             <div>
-              <v-card-title> File Analysis </v-card-title>
+              <v-card-title> Submission Analysis </v-card-title>
               <v-card-text class="info-text">
                 <p>
                   In certain situations you want to be certain there is no
@@ -229,7 +229,7 @@
                   to be able to examine the most suspicious pairs in detail.
                 </p>
                 <p>
-                  Dolos' file analysis page uses different metrics to examine
+                  Dolos' submissions page uses different metrics to examine
                   the different files, and return the most interesting file
                   pairs to examine. You can use this indication to look at the
                   files in further detail using the compare view.
@@ -246,8 +246,8 @@
                   Go to pair view
                   <v-icon right>mdi-chevron-right</v-icon>
                 </v-btn>
-                <v-btn color="primary" depressed to="/fileanalysis">
-                  Go to file analysis
+                <v-btn color="primary" depressed to="/submissions">
+                  Go to submissions
                   <v-icon right>mdi-chevron-right</v-icon>
                 </v-btn>
               </v-card-actions>
@@ -262,7 +262,6 @@
 <script lang="ts" setup>
 import { computed } from "vue";
 import { storeToRefs } from "pinia";
-import { useClustering } from "@/composables";
 import { Pair } from "@/api/models";
 import {
   useApiStore,
@@ -276,13 +275,13 @@ import SimilaritySetting from "@/components/settings/SimilaritySetting.vue";
 import SimilarityDisplay from "@/components/pair/SimilarityDisplay.vue";
 import InfoDot from "@/components/InfoDot.vue";
 import LabelDot from "@/components/LabelDot.vue";
-import { FileInterestingnessCalculator } from "@/util/FileInterestingness";
 
 const apiStore = useApiStore();
 const fileStore = useFileStore();
 const pairStore = usePairStore();
 const metadataStore = useMetadataStore();
-const { legend } = storeToRefs(fileStore);
+const { legend, similaritiesList } = storeToRefs(fileStore);
+const { clustering } = storeToRefs(pairStore);
 
 // File legend.
 const legendCount = computed(() => Object.keys(legend.value).length);
@@ -308,14 +307,9 @@ const highestSimilarity = computed(() => {
 
 // Similarities map for every file
 // Contains the max similarity for each file.
-const similarities = computed(() => {
-  const scoringCalculator = new FileInterestingnessCalculator(pairStore.pairsList);
-  const scoredFiles = fileStore.filesList.map((file) =>
-    scoringCalculator.calculateSimilarityScore(file)
-  );
-
-  return scoredFiles.map(f => f?.similarity || 0);
-});
+const similarities = computed(() =>
+  similaritiesList.value.map(f => f?.similarity || 0)
+);
 
 // Average maximum similarity.
 const averageSimilarity = computed(() => {
@@ -350,9 +344,6 @@ const language = computed(() => {
   const lang = metadataStore.metadata.language;
   return lang.charAt(0).toUpperCase() + lang.slice(1);
 });
-
-// Clustering.
-const clustering = useClustering();
 
 // Largest cluster
 const largestCluster = computed(() =>

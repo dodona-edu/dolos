@@ -8,35 +8,27 @@
     </thead>
 
     <tbody class="graph-list-body">
-      <tr
+      <router-link
         v-for="file in files"
         :key="file.id"
         :id="`file-${file.id}`"
+        tag="tr"
         class="graph-list-row"
         :class="{ selected: selectedFiles?.includes(file) }"
-        @click="rowClick(file)"
+        :to="`/submissions/${file.id}`"
       >
         <td class="d-flex align-center">
           <label-dot
-            :label="file.extra.labels || 'No label'"
-            :color="getColor(file)"
+            :file="file"
           />
 
           <span class="ml-2">{{ file.extra.fullName ?? file.shortPath }}</span>
         </td>
 
         <td v-if="hasTimestamp">
-          <v-tooltip top>
-            <template #activator="{ on, attrs }">
-              <span class="short-timestamp" v-bind="attrs" v-on="on">
-                {{ formatTime(file.extra.timestamp)}}
-              </span>
-            </template>
-
-            {{ formatTimeLong(file.extra.timestamp) }}
-          </v-tooltip>
+          <file-timestamp :file="file" />
         </td>
-      </tr>
+      </router-link>
     </tbody>
   </v-simple-table>
 </template>
@@ -46,12 +38,12 @@ import { computed, watch } from "vue";
 import { File } from "@/api/models";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
 import { getClusterElementsArray } from "@/util/clustering-algorithms/ClusterFunctions";
-import { DateTime } from "luxon";
 import { timestampSort } from "@/util/SortingFunctions";
+import { useVuetify } from "@/composables";
 import { useFileStore } from "@/api/stores";
 import { storeToRefs } from "pinia";
-import { useVuetify } from "@/composables";
 import LabelDot from "@/components/LabelDot.vue";
+import FileTimestamp from "@/components/FileTimestamp.vue";
 
 interface Props {
   cluster: Cluster;
@@ -62,9 +54,8 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {});
-const emit = defineEmits(["select-click"]);
 const vuetify = useVuetify();
-const { legend } = storeToRefs(useFileStore());
+const { hasTimestamp } = storeToRefs(useFileStore());
 
 // List of files in the cluster.
 // Sorted by timestamp.
@@ -74,36 +65,10 @@ const files = computed(() => {
   ));
 });
 
-// If the timestamp is available for the elements of the cluster.
-const hasTimestamp = computed(() => {
-  return files.value.some((f) => f.extra.timestamp);
-});
-
-const formatTime = (time?: Date): string => {
-  if (!time) return "";
-  return DateTime.fromJSDate(time).toFormat("dd/MM HH:mm");
-};
-
-const formatTimeLong = (time?: Date): string => {
-  if (!time) return "";
-  return DateTime.fromJSDate(time).toLocaleString(DateTime.DATETIME_MED);
-};
-
-// Get the label color for a file in the cluster.
-const getColor = (file: File): string => {
-  if (!legend.value || !file.extra.labels || !legend.value[file.extra.labels]) return "";
-  return legend.value[file.extra.labels].color;
-};
-
 // Row cursor
 const rowCursor = computed(() => {
   return props.clickable ? "pointer" : "default";
 });
-
-// When a row is clicked.
-const rowClick = (file: File): void => {
-  emit("select-click", file);
-};
 
 watch(
   () => props.selectedFiles,
@@ -138,10 +103,5 @@ watch(
       border-radius: 50%;
     }
   }
-}
-
-.short-timestamp {
-  text-decoration: underline dotted;
-  text-decoration-color: rgba(0, 0, 0, 0.5);
 }
 </style>

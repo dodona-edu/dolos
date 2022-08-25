@@ -3,7 +3,7 @@
     <!-- Extra (optional) UI elements can be added to this container  -->
     <slot />
 
-    <!-- Optiosn -->
+    <!-- Options -->
     <div class="graph-options">
       <v-btn
         :color="simulationPaused ? 'success' : 'warning'"
@@ -35,9 +35,9 @@ import {
 } from "vue";
 import { useApiStore } from "@/api/stores";
 import { Pair, File, Legend } from "@/api/models";
-import { useCluster, useD3HullTool } from "@/composables";
+import { useCluster, useD3HullTool, useD3Tooltip } from "@/composables";
 import { storeToRefs } from "pinia";
-import { useElementSize } from "@vueuse/core";
+import { useElementSize, useVModel } from "@vueuse/core";
 import { Clustering, Cluster } from "@/util/clustering-algorithms/ClusterTypes";
 import { getClusterElements } from "@/util/clustering-algorithms/ClusterFunctions";
 import { DefaultMap } from "@dodona/dolos-lib";
@@ -51,13 +51,19 @@ interface Props {
   files: File[];
   pairs: Pair[];
   zoomTo?: string;
-  selectedNode: File;
+  selectedNode?: File | undefined;
+  selectedCluster?: Cluster | undefined;
   width?: number;
   height?: number;
+  nodeTooltip?: boolean;
+  nodeClickable?: boolean;
+  nodeSize?: number;
 }
 
-const props = withDefaults(defineProps<Props>(), {});
-const emit = defineEmits(["selectedClusterInfo", "selectedNodeInfo"]);
+const props = withDefaults(defineProps<Props>(), {
+  nodeSize: 7,
+});
+const emit = defineEmits(["update:selectedNode", "update:selectedCluster", "click:node"]);
 
 const { cutoff, cutoffDebounced } = storeToRefs(useApiStore());
 
@@ -69,9 +75,11 @@ const containerSize = useElementSize(container);
 const width = computed(() => props.width ?? containerSize.width.value);
 const height = computed(() => props.height ?? containerSize.height.value);
 
+// Selected node
+const selectedNodeValue = useVModel(props, "selectedNode", emit);
 // Selected cluser
-const selectedCluster = shallowRef<Cluster | null>(null);
-const selectedClusterMeta = useCluster(selectedCluster);
+const selectedClusterValue = useVModel(props, "selectedCluster", emit);
+const selectedClusterMeta = useCluster(selectedClusterValue);
 
 // Map of nodes (files) in the graph.
 //  - key: file id
@@ -131,26 +139,18 @@ const clusterColors = computed(() => {
       if (count > counter.get(maxKey)) maxKey = key as any;
     }
 
-    clusterColorsMap.set(cluster, labels[maxKey].color);
+    clusterColorsMap.set(cluster, labels[maxKey]?.color ?? "grey");
   }
 
   return clusterColorsMap;
 });
 
-// Select a cluster
-const selectCluster = (cluster: Cluster | null): void => {
-  selectedCluster.value = cluster;
-  emit("selectedClusterInfo", cluster);
-
-  // The graph must be updated to update the fills of the nodes.
-  // This is not the most efficient implementation and can definitely be improved.
-  // For the simplicity of the refactor to the Composition API, this is taken from the previous version for now.
-  updateGraph();
-};
-
 // SVG element of the simulation.
 const graph = d3.create("svg").attr("height", 500).attr("width", 500);
 const graphContainer = graph.append("g");
+
+// Graph tooltip
+const graphTooltip = useD3Tooltip({ relativeToMouse: true });
 
 // If the graph has been rendered the first time.
 const graphRendered = shallowRef(false);
@@ -164,6 +164,33 @@ const graphEdges = shallowRef();
 // Nodes in the graph.
 const graphNodesBase = graphContainer.append("g");
 const graphNodes = shallowRef();
+
+// Determin the node cursor.
+const graphNodeCursor = computed(() => {
+  return props.nodeClickable ? "pointer" : "grab";
+});
+
+// Select a cluster
+const selectCluster = (cluster: Cluster | null): void => {
+  selectedClusterValue.value = cluster ?? undefined;
+};
+
+// Select a node
+const selectNode = (node: any | null): void => {
+  selectedNodeValue.value = node;
+
+  // Select the cluster that contains the node (if any).
+  const cluster = props.clustering.find(c => getClusterElements(c).has(node));
+  if (cluster) selectCluster(cluster);
+};
+
+// Watch the selected cluster and change the graph accordingly.
+watch(selectedClusterValue, () => {
+  // The graph must be updated to update the fills of the nodes.
+  // This is not the most efficient implementation and can definitely be improved.
+  // For the simplicity of the refactor to the Composition API, this is taken from the previous version for now.
+  updateGraph();
+});
 
 // Convex hull tool for creating hulls around clusters.
 const graphHullTool = useD3HullTool({
@@ -196,25 +223,6 @@ graph
   .attr("orient", "auto")
   .append("svg:path")
   .attr("d", "M5,-5L10,0L5,5M0,-5L5,0L0,5");
-
-// Select a node
-const selectNode = (node: any | null): void => {
-  emit("selectedNodeInfo", node);
-
-  // Deselect all other nodes.
-  for (const node of nodes.value) node.selected = false;
-  graph.select(".selected").classed("selected", false);
-
-  // Select the new node (if not null).
-  if (node) {
-    node.selected = true;
-    graph.select(`#circle-${node.id}`).classed("selected", true);
-
-    // Select the cluster that contains the node (if any).
-    const cluster = props.clustering.find(c => getClusterElements(c).has(node));
-    if (cluster) selectCluster(cluster);
-  }
-};
 
 // Handler for clicking on empty void in the graph.
 // Deselect the node & cluster.
@@ -307,7 +315,7 @@ const calculateNodes = (): any[] => {
     const defaultColor = labels[node.label] ? labels[node.label].color : d3.schemeCategory10[0];
     // When a cluster is selected
     // Make all other nodes gray, except for the nodes in the cluster.
-    if (selectedCluster.value) {
+    if (selectedClusterValue.value) {
       node.fillColor = selectedClusterMeta.clusterFilesSet.value.has(node.file) ? defaultColor : "grey";
     } else {
       node.fillColor = defaultColor;
@@ -382,8 +390,18 @@ const simulationDrag = d3
 
     // When the user clicks on the graph.
     if (!event.subject.justDragged) {
+      // Do not select the node when clickable.
+      // Instead execute the click action.
+      if (props.nodeClickable) {
+        emit("click:node", event.subject.file);
+        return;
+      }
+
       // Toggle the selected file.
-      if (event.subject.file && props.selectedNode && event.subject.file.id === props.selectedNode.id) {
+      if (
+        event.subject.file && selectedNodeValue.value &&
+        event.subject.file.id === selectedNodeValue.value.id
+      ) {
         selectNode(null);
         return;
       }
@@ -407,7 +425,8 @@ simulation.on("tick", () => {
   if (graphNodes.value) {
     graphNodes.value
       .attr("cx", (node: any) => node.x ?? 0)
-      .attr("cy", (node: any) => node.y ?? 0);
+      .attr("cy", (node: any) => node.y ?? 0)
+      .classed("selected", (node: any) => node.id === selectedNodeValue.value?.id);
   }
 
   // Clear the hulls
@@ -418,8 +437,8 @@ simulation.on("tick", () => {
     // If any cluster is selected, make sure only the selected cluster is colored.
     // Else, color the cluster in the most appropriate color.
     let color = clusterColors.value.get(cluster);
-    if (selectedCluster.value && selectedCluster.value === cluster) color = color ?? "blue";
-    if (selectedCluster.value && selectedCluster.value !== cluster) color = "grey";
+    if (selectedClusterValue.value && selectedClusterValue.value === cluster) color = color ?? "blue";
+    if (selectedClusterValue.value && selectedClusterValue.value !== cluster) color = "grey";
 
     // Add convex hull to the cluster.
     const elements = getClusterElements(cluster);
@@ -463,10 +482,22 @@ watch(
       .join("circle")
       .classed("node", true)
       .classed("source", (node: any) => node.source)
-      .attr("r", 7)
+      .attr("r", props.nodeSize)
       .attr("fill", (node: any) => node.fillColor)
       .attr("id", (node: any) => `circle-${node.file.id}`)
-      .call(simulationDrag as any);
+      .call(simulationDrag as any)
+      .on("mouseover", (e: MouseEvent, node: any) => {
+        if (!props.nodeTooltip) return;
+        graphTooltip.onMouseOver(e, node.file.extra.fullName ?? node.file.shortPath);
+      })
+      .on("mousemove", (e: MouseEvent) => {
+        if (!props.nodeTooltip) return;
+        graphTooltip.onMouseMove(e);
+      })
+      .on("mouseleave", (e: MouseEvent) => {
+        if (!props.nodeTooltip) return;
+        graphTooltip.onMouseOut(e);
+      });
 
     // Set the nodes/edges of the simulation & restart.
     simulation.nodes(nodes);
@@ -543,12 +574,12 @@ onUnmounted(() => {
       }
 
       &.selected {
-        stroke: red;
-        stroke-width: 2;
+        stroke: black;
+        stroke-width: 3;
       }
 
       &:hover {
-        cursor: grab;
+        cursor: v-bind("graphNodeCursor");
       }
     }
 
