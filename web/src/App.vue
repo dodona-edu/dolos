@@ -15,7 +15,8 @@
       <v-spacer />
 
       <v-btn icon @click="settings = !settings">
-        <v-icon>mdi-cog</v-icon>
+        <v-icon v-if="!settings">mdi-cog</v-icon>
+        <v-icon v-else>mdi-close</v-icon>
       </v-btn>
     </v-app-bar>
 
@@ -228,7 +229,7 @@
         </div>
       </v-card-text>
       
-      <labels-table style="margin-left: 1px" />
+      <labels-table class="settings-labels" />
     </v-navigation-drawer>
   </v-app>
 </template>
@@ -291,6 +292,12 @@ useBreadcrumbStore();
     align-items: center;
     justify-content: center;
     margin: 0 !important;
+  }
+}
+
+.settings {
+  &-labels {
+    margin-left: 1px;
   }
 }
 
