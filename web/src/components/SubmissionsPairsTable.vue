@@ -149,7 +149,7 @@ const items = computed(() => {
       // Cluster of the other file.
       const otherCluster = pairStore.getCluster(otherFile);
       // If the other file is part of the cluster of the current file.
-      const inSameCluster = otherCluster === cluster.value;
+      const inSameCluster = cluster.value && otherCluster === cluster.value;
 
       // Determin the clustering relation.
       const relation = inSameCluster
