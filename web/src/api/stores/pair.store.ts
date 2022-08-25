@@ -16,7 +16,6 @@ import {
   ObjMap,
   File,
 } from "@/api/models";
-import * as DataWorker from "@/api/workers/data.worker";
 import { getClusterElements } from "@/util/clustering-algorithms/ClusterFunctions";
 import * as Comlink from "comlink";
 import { DataWorker } from "@/api/workers/data.worker";
