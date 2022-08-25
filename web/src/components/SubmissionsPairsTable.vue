@@ -47,6 +47,7 @@
             :color="item.cluster === ClusterRelation.SAME ? 'primary' : ''"
             icon
             small
+            @click.stop=""
           >
             <v-icon v-if="item.cluster === ClusterRelation.SAME">mdi-circle-multiple</v-icon>
             <v-icon v-if="item.cluster === ClusterRelation.DIFFERENT">mdi-circle-multiple-outline</v-icon>
@@ -64,7 +65,7 @@
     </template>
 
     <template #item.actions="{ item }">
-      <v-btn class="ml-2" color="primary" text small v-bind="attrs" v-on="on" :to="`/pairs/${item.id}`">
+      <v-btn class="ml-2" color="primary" text small v-bind="attrs" v-on="on" :to="`/pairs/${item.id}`" @click.stop="">
         Compare
         <v-icon right>mdi-chevron-right</v-icon>
       </v-btn>
