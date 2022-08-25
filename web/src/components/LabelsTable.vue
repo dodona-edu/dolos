@@ -4,7 +4,7 @@
       <tr>
         <th>Label</th>
         <th v-if="props.showSubmissions">Submissions</th>
-        <th></th>
+        <th class="text-right">Enabled</th>
       </tr>
     </thead>
 
@@ -24,23 +24,14 @@
         </td>
 
         <td class="text-end">
-          <v-tooltip top>
-            <template v-slot:activator="{ on, attrs }">
-              <v-btn
-                v-on="on"
-                v-bind="attrs"
-                icon
-                small
-                @click="label.selected = !label.selected"
-              >
-                <v-icon v-if="label.selected" color="primary">mdi-eye</v-icon>
-                <v-icon v-else>mdi-eye-off</v-icon>
-              </v-btn>
-            </template>
-
-            <span v-if="label.selected">Hide the label globally</span>
-            <span v-else>Show the label globally</span>
-          </v-tooltip>
+          <v-btn
+            icon
+            small
+            @click="label.selected = !label.selected"
+          >
+            <v-icon v-if="label.selected" color="primary">mdi-eye</v-icon>
+            <v-icon v-else>mdi-eye-off</v-icon>
+          </v-btn>
         </td>
       </tr>
     </tbody>

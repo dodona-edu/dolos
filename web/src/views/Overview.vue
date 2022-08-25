@@ -125,7 +125,7 @@
             </v-col>
 
             <v-col cols="auto">
-              <SimilaritySetting class="px-4 pt-4" />
+              <similarity-setting class="px-4 pt-4" />
             </v-col>
           </v-row>
 
