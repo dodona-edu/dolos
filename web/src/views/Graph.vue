@@ -7,7 +7,7 @@
           :legend="legend"
           :clustering="clustering"
           :files="filesActiveList"
-          :pairs="pairsList"
+          :pairs="pairsActiveList"
           :zoomTo="'#clustering-table'"
           :selected-node.sync="selectedNode"
           :selected-cluster.sync="selectedCluster"
@@ -62,7 +62,7 @@ import SimilaritySetting from "@/components/settings/SimilaritySetting.vue";
 
 const route = useRoute();
 const { filesActiveList, legend } = storeToRefs(useFileStore());
-const { pairsList, clustering } = storeToRefs(usePairStore());
+const { pairsActiveList, clustering } = storeToRefs(usePairStore());
 
 // Show singletons in the graph.
 const showSingletons = shallowRef(false);
