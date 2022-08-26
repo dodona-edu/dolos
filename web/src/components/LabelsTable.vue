@@ -24,8 +24,13 @@
         </td>
 
         <td class="text-end">
-          <v-switch class="labels-switch" inset small>
-          </v-switch>
+          <v-switch 
+            class="labels-switch"
+            :value="label.selected"
+            @change="v => label.selected = v"
+            inset
+            small
+          />
         </td>
       </tr>
     </tbody>
