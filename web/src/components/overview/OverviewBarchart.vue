@@ -13,7 +13,7 @@ import { storeToRefs } from "pinia";
 import { useApiStore, useFileStore } from "@/api/stores";
 import { useElementSize } from "@vueuse/core";
 import * as d3 from "d3";
-import { useD3Tooltip } from "@/composables";
+import { useD3Tooltip, useRouter } from "@/composables";
 
 interface Props {
   ticks?: number;
@@ -26,6 +26,7 @@ const props = withDefaults(defineProps<Props>(), {
   pairField: "similarity",
 });
 
+const router = useRouter();
 const { cutoff } = storeToRefs(useApiStore());
 const { similaritiesList } = storeToRefs(useFileStore());
 const maxFileData = computed(() =>
@@ -120,9 +121,23 @@ const draw = (): void => {
     .attr("width", (d) => x(d.x1 ?? 0) - x(d.x0 ?? 0) - 1)
     .attr("height", (d) => height.value - y(d.length))
     .style("fill", (d) => getBinColor(d))
+    .style("cursor", "pointer")
     .on("mouseover", (e: MouseEvent, d) => tooltip.onMouseOver(e, tooltipMessage(d)))
     .on("mousemove", (e: MouseEvent) => tooltip.onMouseMove(e))
-    .on("mouseleave", (e: MouseEvent) => tooltip.onMouseOut(e));
+    .on("mouseleave", (e: MouseEvent) => tooltip.onMouseOut(e))
+    .on("click", (_: MouseEvent, d) => {
+      const x0 = d.x0 ?? 0;
+      const x1 = d.x1 ?? 1;
+
+      // Go to the submissions page.
+      router.push({
+        path: "/submissions",
+        query: {
+          startSimilarity: x0.toString(),
+          endSimilarity: x1.toString(),
+        },
+      });
+    });
 
   // Add extra line, if specified.
   if (props.extraLine) {
