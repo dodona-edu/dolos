@@ -73,12 +73,21 @@ const filesActiveListFiltered = computed(() => {
     return similarity >= startSimilarity.value && similarity <= endSimilarity.value;
   });
 });
+
+// Table height.
+const tableHeight = computed(() => {
+  if (isSimilarityFilterApplied.value) {
+    return "max(500px, calc(100vh - 230px))";
+  } else {
+    return "max(500px, calc(100vh - 180px))";
+  }
+});
 </script>
 
 <style lang="scss" scoped>
 .submissions {
   &-table {
-    max-height: calc(100vh - 180px);
+    max-height: v-bind("tableHeight");
   }
 }
 </style>
