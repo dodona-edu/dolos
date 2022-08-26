@@ -13,7 +13,6 @@ import { storeToRefs } from "pinia";
 import { useApiStore, useFileStore } from "@/api/stores";
 import { useElementSize } from "@vueuse/core";
 import { useD3Tooltip, useRouter } from "@/composables";
-import { gaussian } from "@/util";
 import * as d3 from "d3";
 
 interface Props {
@@ -40,7 +39,7 @@ const barchartElement = shallowRef();
 // Barchart element size
 const margin = {
   top: 10,
-  bottom: 50,
+  bottom: 55,
   left: 70,
   right: 45,
 };
@@ -68,7 +67,7 @@ const barchartYScale = shallowRef();
 const getBinColor = (d): string => {
   // If the x1 coordinate is below the threshold return an greyed out color.
   // x1 represents the end value of the bin.
-  return d.x1 <= cutoff.value ? "grey" : "#1976D2";
+  return d.x1 <= cutoff.value ? "rgba(25, 118, 210, 0.25)" : "#1976D2";
 };
 
 // Draw the barchart.
@@ -89,13 +88,13 @@ const draw = (): void => {
   const xAxis = barchartContent
     .append("g")
     .attr("transform", "translate(0," + height.value + ")")
-    .call(d3.axisBottom(x).tickFormat(d3.format(".0%")));
+    .call(d3.axisBottom(x).tickFormat(d3.format(".0%")))
+    .classed("d3-tick", true);
   xAxis
     .append("text")
     .text("Similarity")
-    .attr("font-size", 15)
-    .attr("fill", "black")
-    .attr("transform", `translate(${width.value / 2}, 35)`);
+    .classed("d3-label", true)
+    .attr("transform", `translate(${width.value / 2}, 42)`);
 
   // X-ticks
   const xDomain = x.domain();
@@ -117,12 +116,12 @@ const draw = (): void => {
     .domain([0, d3.max(bins, d => d.length)]);
   const yAxis = barchartContent
     .append("g")
-    .call(d3.axisLeft(y));
+    .call(d3.axisLeft(y))
+    .classed("d3-tick", true);
   yAxis
     .append("text")
     .text("Amount of files")
-    .attr("font-size", 15)
-    .attr("fill", "black")
+    .classed("d3-label", true)
     .attr("transform", `translate(-50, ${height.value / 2 + 35}) rotate(90)`);
 
   // Add the data.
