@@ -125,33 +125,36 @@ const draw = (): void => {
     .attr("transform", `translate(-50, ${height.value / 2 + 35}) rotate(90)`);
 
   // Add the data.
-  barchartContent
-    .selectAll("rect")
-    .data(bins)
-    .enter()
-    .append("rect")
-    .attr("x", 1)
-    .attr("transform", (d) => "translate(" + (x(d.x0 ?? 0)) + "," + y(d.length) + ")")
-    .attr("width", (d) => x(d.x1 ?? 0) - x(d.x0 ?? 0) - 1)
-    .attr("height", (d) => height.value - y(d.length))
-    .style("fill", (d) => getBinColor(d))
-    .style("cursor", "pointer")
-    .on("mouseover", (e: MouseEvent, d) => tooltip.onMouseOver(e, tooltipMessage(d)))
-    .on("mousemove", (e: MouseEvent) => tooltip.onMouseMove(e))
-    .on("mouseleave", (e: MouseEvent) => tooltip.onMouseOut(e))
-    .on("click", (_: MouseEvent, d) => {
-      const x0 = d.x0 ?? 0;
-      const x1 = d.x1 ?? 1;
+  // Only add the data if there are any files available.
+  if (maxFileData.value.length > 0) {
+    barchartContent
+      .selectAll("rect")
+      .data(bins)
+      .enter()
+      .append("rect")
+      .attr("x", 1)
+      .attr("transform", (d) => "translate(" + (x(d.x0 ?? 0)) + "," + y(d.length) + ")")
+      .attr("width", (d) => x(d.x1 ?? 0) - x(d.x0 ?? 0) - 1)
+      .attr("height", (d) => height.value - y(d.length))
+      .style("fill", (d) => getBinColor(d))
+      .style("cursor", "pointer")
+      .on("mouseover", (e: MouseEvent, d) => tooltip.onMouseOver(e, tooltipMessage(d)))
+      .on("mousemove", (e: MouseEvent) => tooltip.onMouseMove(e))
+      .on("mouseleave", (e: MouseEvent) => tooltip.onMouseOut(e))
+      .on("click", (_: MouseEvent, d) => {
+        const x0 = d.x0 ?? 0;
+        const x1 = d.x1 ?? 1;
 
-      // Go to the submissions page.
-      router.push({
-        path: "/submissions",
-        query: {
-          startSimilarity: x0.toString(),
-          endSimilarity: x1.toString(),
-        },
+        // Go to the submissions page.
+        router.push({
+          path: "/submissions",
+          query: {
+            startSimilarity: x0.toString(),
+            endSimilarity: x1.toString(),
+          },
+        });
       });
-    });
+  }
 
   // Add extra line, if specified.
   if (props.extraLine) {
