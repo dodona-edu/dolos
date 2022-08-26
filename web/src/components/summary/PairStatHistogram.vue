@@ -165,7 +165,7 @@ const draw = (): void => {
   histogramContent
     .append("g")
     .attr("transform", "translate(0," + height.value + ")")
-    .call(d3.axisBottom(xScale));
+    .call(d3.axisBottom(xScale).tickFormat(d3.format(".0%")));
   histogramContent
     .append("g")
     .call(d3.axisLeft(yScale));

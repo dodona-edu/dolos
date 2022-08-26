@@ -249,7 +249,7 @@ text {
 
 // D3 re-usable graph styles.
 .d3 {
-  &-tick {
+  &-ticks {
     font-size: 0.9rem;
   }
 

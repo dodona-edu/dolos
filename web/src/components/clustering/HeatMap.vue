@@ -199,7 +199,6 @@ const draw = (): void => {
     .attr("text-anchor", "end")
     .attr("x", 175)
     .attr("y", 50)
-    .attr("font-size", 15)
     .text("Similarity cutoff value");
 
   // Setup the data

@@ -89,7 +89,7 @@ const draw = (): void => {
     .append("g")
     .attr("transform", "translate(0," + height.value + ")")
     .call(d3.axisBottom(x).tickFormat(d3.format(".0%")))
-    .classed("d3-tick", true);
+    .classed("d3-ticks", true);
   xAxis
     .append("text")
     .text("Similarity")
@@ -117,7 +117,7 @@ const draw = (): void => {
   const yAxis = barchartContent
     .append("g")
     .call(d3.axisLeft(y))
-    .classed("d3-tick", true);
+    .classed("d3-ticks", true);
   yAxis
     .append("text")
     .text("Amount of files")
