@@ -202,3 +202,15 @@ test("should read CSV-files", async t => {
   const { similarity } = report.scoredPairs[0];
   t.true(similarity > 0.75);
 });
+
+test("should read ZIP-files", async t => {
+  const dolos = new Dolos();
+
+  const report = await dolos.analyzePaths(["../samples/javascript/simple-dataset.zip"]);
+
+  t.is(4, report.files().length);
+
+  t.is(5, report.scoredPairs.length);
+  const { similarity } = report.scoredPairs[0];
+  t.true(similarity > 0.75);
+});

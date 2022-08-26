@@ -11,6 +11,8 @@ module.exports = {
       fallback: {
         path: false,
         fs: false,
+        os: false,
+        child_process: false,
         assert: require.resolve("assert/"),
       },
       ...config.resolve
