@@ -15,7 +15,11 @@ import { Dolos, Options } from "@dodona/dolos-lib";
 
 export function runCommand(program: Command): Command {
   return new Command("run")
-    .arguments("<paths...>")
+    .argument(
+      "<paths...>",
+      "Input file(s) for the analysis. Can be a list of source code files, " +
+      "a CSV-file, or a zip-file with a top level info.csv file."
+    )
     .description("Run an analysis and show the results.")
     .option(
       "-l, --language <language>",
