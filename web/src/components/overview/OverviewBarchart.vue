@@ -12,8 +12,9 @@ import {
 import { storeToRefs } from "pinia";
 import { useApiStore, useFileStore } from "@/api/stores";
 import { useElementSize } from "@vueuse/core";
-import * as d3 from "d3";
 import { useD3Tooltip, useRouter } from "@/composables";
+import { gaussian } from "@/util";
+import * as d3 from "d3";
 
 interface Props {
   ticks?: number;
@@ -165,9 +166,10 @@ const draw = (): void => {
       .attr("y1", 0)
       .attr("x2", x(props.extraLine))
       .attr("y2", height.value)
-      .attr("stroke", "black");
+      .attr("stroke", "black")
+      .attr("stroke-width", 1.5);
   }
-
+  
   // Store the axis scales.
   barchartXScale.value = x;
   barchartYScale.value = y;

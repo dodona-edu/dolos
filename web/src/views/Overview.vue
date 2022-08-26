@@ -101,7 +101,7 @@
               </info-dot>
             </h3>
             <div class="stat-card-value">{{ clustering.length }}</div>
-            <div class="stat-card-subtitle text--secondary">Largest cluster: {{ largestCluster }} submissions</div>
+            <div class="stat-card-subtitle text--secondary">Based on current threshold</div>
           </div>
         </v-card>
       </v-col>
@@ -130,7 +130,7 @@
           </v-row>
 
           <OverviewBarchart
-            :ticks="40"
+            :ticks="20"
             :extra-line="apiStore.cutoff"
           />
         </v-card>
