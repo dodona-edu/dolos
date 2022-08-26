@@ -55,7 +55,7 @@ const timeseriesElement = shallowRef();
 // Timeseries element size
 const margin = {
   top: 10,
-  bottom: 30,
+  bottom: 50,
   left: 20,
   right: 100,
 };
@@ -63,7 +63,7 @@ const margin = {
 const size = useElementSize(timeseriesElement);
 // Width & height
 const width = computed(() => (props.width ?? size.width.value) - margin.left - margin.right);
-const height = computed(() => (props.height ?? 200) - margin.top - margin.bottom);
+const height = computed(() => (props.height ?? 300) - margin.top - margin.bottom);
 
 // Timeseries D3
 const timeseries = d3
@@ -116,10 +116,16 @@ const draw = (): void => {
     .scaleTime<number, number>()
     .domain(d3.extent(files.map(f => f.file.extra.timestamp ?? new Date())) as [Date, Date])
     .range([0, width.value]);
-  timeseriesContent
+  const xAxis = timeseriesContent
     .append("g")
     .attr("transform", `translate(0, ${height.value})`)
+    .classed("d3-ticks", true)
     .call(d3.axisBottom(xScale));
+  xAxis
+    .append("text")
+    .text("Submission date")
+    .classed("d3-label", true)
+    .attr("transform", `translate(${width.value / 2}, 50)`);
 
   // Add the data points
   timeseriesContent

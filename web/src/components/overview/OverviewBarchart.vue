@@ -39,8 +39,8 @@ const barchartElement = shallowRef();
 // Barchart element size
 const margin = {
   top: 10,
-  bottom: 55,
-  left: 70,
+  bottom: 60,
+  left: 75,
   right: 45,
 };
 const barchartSize = useElementSize(barchartElement);
@@ -94,7 +94,7 @@ const draw = (): void => {
     .append("text")
     .text("Similarity")
     .classed("d3-label", true)
-    .attr("transform", `translate(${width.value / 2}, 42)`);
+    .attr("transform", `translate(${width.value / 2}, 50)`);
 
   // X-ticks
   const xDomain = x.domain();
@@ -122,7 +122,7 @@ const draw = (): void => {
     .append("text")
     .text("Amount of files")
     .classed("d3-label", true)
-    .attr("transform", `translate(-50, ${height.value / 2 + 35}) rotate(90)`);
+    .attr("transform", `translate(-55, ${height.value / 2 + 35}) rotate(90)`);
 
   // Add the data.
   // Only add the data if there are any files available.
