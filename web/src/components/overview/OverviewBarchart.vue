@@ -39,8 +39,8 @@ const barchartElement = shallowRef();
 // Barchart element size
 const margin = {
   top: 10,
-  bottom: 40,
-  left: 45,
+  bottom: 50,
+  left: 70,
   right: 45,
 };
 const barchartSize = useElementSize(barchartElement);
@@ -85,9 +85,16 @@ const draw = (): void => {
     .scaleLinear()
     .domain([0, 1])
     .range([0, width.value]);
-  barchartContent.append("g")
+  const xAxis = barchartContent
+    .append("g")
     .attr("transform", "translate(0," + height.value + ")")
     .call(d3.axisBottom(x).tickFormat(d3.format(".0%")));
+  xAxis
+    .append("text")
+    .text("Similarity")
+    .attr("font-size", 15)
+    .attr("fill", "black")
+    .attr("transform", `translate(${width.value / 2}, 35)`);
 
   // X-ticks
   const xDomain = x.domain();
@@ -107,8 +114,15 @@ const draw = (): void => {
     .scaleLinear()
     .range([height.value, 0])
     .domain([0, d3.max(bins, d => d.length)]);
-  barchartContent.append("g")
+  const yAxis = barchartContent
+    .append("g")
     .call(d3.axisLeft(y));
+  yAxis
+    .append("text")
+    .text("Amount of files")
+    .attr("font-size", 15)
+    .attr("fill", "black")
+    .attr("transform", `translate(-50, ${height.value / 2 + 35}) rotate(90)`);
 
   // Add the data.
   barchartContent
