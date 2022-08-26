@@ -113,7 +113,7 @@ const draw = (): void => {
   const y = d3
     .scaleLinear()
     .range([height.value, 0])
-    .domain([0, d3.max(bins, d => d.length)]);
+    .domain([0, d3.max<any, any>(bins, d => d.length)]);
   const yAxis = barchartContent
     .append("g")
     .call(d3.axisLeft(y))

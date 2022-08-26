@@ -255,8 +255,8 @@ text {
 
   &-label {
     font-size: 1rem;
-    font-weight: 600;
-    fill: #000;
+    font-weight: 500;
+    fill: rgba(0, 0, 0, 0.87);
   }
 }
 </style>
