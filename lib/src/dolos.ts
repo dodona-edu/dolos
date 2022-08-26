@@ -7,7 +7,9 @@ import { csvParse, DSVRowString } from "d3-dsv";
 import * as path from "path";
 import { Tokenizer } from "./lib/tokenizer/tokenizer";
 import { CharTokenizer } from "./lib/tokenizer/charTokenizer";
-import { default as fsWithCallbacks } from "fs";
+import { default as fsWithCallbacks, constants } from "fs";
+import { spawnSync as spawn } from "child_process";
+import { tmpdir } from "os";
 const fs = fsWithCallbacks.promises;
 
 function newTokenizer(language: string): Tokenizer {
@@ -31,37 +33,66 @@ export class Dolos {
     this.index = new Index(this.tokenizer, this.options);
   }
 
+  private async fromZIP(zipPath: string): Promise<Result<File[]>> {
+    const tmpDir = await fs.mkdtemp(path.join(tmpdir(), "dolos-unzip-"));
+    try {
+      const { status, error, stderr } = spawn("unzip", [zipPath, "-d", tmpDir]);
+      if (error) {
+        throw error;
+      } else if (status != 0) {
+        throw new Error(`Unzipping failed with exit status ${ status }, stderr: \n${stderr}`);
+      }
+      const infoPath = path.join(tmpDir, "info.csv");
+      try {
+        await fs.access(infoPath, constants.R_OK);
+      } catch {
+        throw new Error("Zip does not contain a required 'info.csv' file");
+      }
+      return await this.fromCSV(infoPath);
+    } finally {
+      await fs.rm(tmpDir, { recursive: true });
+    }
+  }
+
+  private async fromCSV(infoPath: string): Promise<Result<File[]>> {
+    const dirname = path.dirname(infoPath);
+    try {
+      const files = csvParse((await fs.readFile(infoPath)).toString())
+        .map((row:  DSVRowString) => ({
+          filename: row.filename as string,
+          fullName: row.full_name as string,
+          id: row.id as string,
+          status: row.status as string,
+          submissionID: row.submission_id as string,
+          nameEN: row.name_en as string,
+          nameNL: row.name_nl as string,
+          exerciseID: row.exercise_id as string,
+          createdAt: new Date(row.created_at as string),
+          labels: row.labels as string
+        }))
+        .map((row: ExtraInfo) => File.fromPath(path.join(dirname, row.filename), row));
+      return await Result.all(files);
+    } catch(e) {
+      throw new Error("The given '.csv'-file could not be opened");
+    }
+  }
+
+
   public async analyzePaths(paths: string[]): Promise<Report> {
     let files = null;
     if(paths.length == 1) {
-      const infoPath = paths[0];
-      if(infoPath.toLowerCase().endsWith(".csv")) {
-        const dirname = path.dirname(infoPath);
-        try {
-          files = csvParse((await fs.readFile(infoPath)).toString())
-            .map((row:  DSVRowString) => ({
-              filename: row.filename as string,
-              fullName: row.full_name as string,
-              id: row.id as string,
-              status: row.status as string,
-              submissionID: row.submission_id as string,
-              nameEN: row.name_en as string,
-              nameNL: row.name_nl as string,
-              exerciseID: row.exercise_id as string,
-              createdAt: new Date(row.created_at as string),
-              labels: row.labels as string
-            }))
-            .map((row: ExtraInfo) => File.fromPath(path.join(dirname, row.filename), row));
-        } catch(e) {
-          throw new Error("The given '.csv'-file could not be opened");
-        }
+      const inputFile = paths[0];
+      if(inputFile.toLowerCase().endsWith(".zip")) {
+        files = this.fromZIP(inputFile);
+      } else if(inputFile.toLowerCase().endsWith(".csv")) {
+        files = this.fromCSV(inputFile);
       } else {
-        throw new Error("You only gave one file wich is not a '.csv.'-file. ");
+        throw new Error("You gave one input file, but is not a CSV file or a ZIP archive.");
       }
     } else {
-      files = paths.map(location => File.fromPath(location));
+      files = Result.all(paths.map(location => File.fromPath(location)));
     }
-    return this.analyze((await Result.all(files)).ok());
+    return this.analyze((await files).ok());
   }
 
   public async analyze(
