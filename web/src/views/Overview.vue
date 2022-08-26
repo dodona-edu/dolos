@@ -245,7 +245,6 @@ import {
   usePairStore,
   useMetadataStore,
 } from "@/api/stores";
-import { getClusterElements } from "@/util/clustering-algorithms/ClusterFunctions";
 import OverviewBarchart from "@/components/overview/OverviewBarchart.vue";
 import SimilaritySetting from "@/components/settings/SimilaritySetting.vue";
 import SimilarityDisplay from "@/components/pair/SimilarityDisplay.vue";
@@ -306,15 +305,6 @@ const language = computed(() => {
   const lang = metadataStore.metadata.language;
   return lang.charAt(0).toUpperCase() + lang.slice(1);
 });
-
-// Largest cluster
-const largestCluster = computed(() =>
-  clustering.value.reduce(
-    (a, b) =>
-      a > getClusterElements(b).size ? a : getClusterElements(b).size,
-    0
-  )
-);
 </script>
 
 <style lang="scss" scoped>

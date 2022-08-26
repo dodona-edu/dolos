@@ -8,7 +8,6 @@ import {
   getClusterElements,
   getClusterElementsArray,
 } from "@/util/clustering-algorithms/ClusterFunctions";
-import { storeToRefs } from "pinia";
 
 /**
  * Return type for the composable.

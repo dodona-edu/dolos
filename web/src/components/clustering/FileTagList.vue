@@ -10,7 +10,6 @@ import {
   onMounted,
 } from "vue";
 import { useElementSize } from "@vueuse/core";
-import { storeToRefs } from "pinia";
 import { useFileStore } from "@/api/stores";
 import { File } from "@/api/models";
 import { useD3Tooltip } from "@/composables";
@@ -22,7 +21,6 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {});
 const fileStore = useFileStore();
-const { legend } = storeToRefs(fileStore);
 
 // List template ref.
 const listElement = shallowRef();
