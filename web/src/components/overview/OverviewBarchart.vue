@@ -10,7 +10,7 @@ import {
   onMounted,
 } from "vue";
 import { storeToRefs } from "pinia";
-import { useFileStore } from "@/api/stores";
+import { useApiStore, useFileStore } from "@/api/stores";
 import { useElementSize } from "@vueuse/core";
 import { TooltipTool } from "@/d3-tools/TooltipTool";
 import * as d3 from "d3";
@@ -25,14 +25,11 @@ const props = withDefaults(defineProps<Props>(), {
   pairField: "similarity",
 });
 
+const { cutoff } = storeToRefs(useApiStore());
 const { similaritiesList } = storeToRefs(useFileStore());
 const maxFileData = computed(() =>
   similaritiesList.value.map(f => f?.similarity || 0)
 );
-
-const getBinColor = (): string => {
-  return "#1976D2";
-};
 
 // Barchart template ref.
 const barchartElement = shallowRef();
@@ -57,6 +54,13 @@ const barchartContent = barchart
 
 const barchartXScale = shallowRef();
 const barchartYScale = shallowRef();
+
+// Determin the color of a given bin.
+const getBinColor = (d): string => {
+  // If the x1 coordinate is below the threshold return an greyed out color.
+  // x1 represents the end value of the bin.
+  return d.x1 < cutoff.value ? "grey" : "#1976D2";
+};
 
 // Draw the barchart.
 const draw = (): void => {
@@ -126,7 +130,7 @@ const draw = (): void => {
     .attr("width", (d) => {
       return yScale(d.length);
     })
-    .style("fill", () => getBinColor());
+    .style("fill", (d) => getBinColor(d));
 
   // Add extra line, if specified.
   if (props.extraLine) {
@@ -168,6 +172,14 @@ watch(width, () => draw());
 
 // Update the barchart when the file data changes.
 watch(maxFileData, () => draw());
+
+// Update the barchart when the cutoff changes.
+watch(cutoff, () => {
+  barchart
+    .select("g")
+    .selectAll("rect")
+    .style("fill", (d) => getBinColor(d));
+});
 
 onMounted(() => {
   barchartElement.value?.prepend(barchart.node() ?? "");
