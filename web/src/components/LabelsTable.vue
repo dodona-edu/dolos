@@ -25,9 +25,8 @@
 
         <td class="text-end">
           <v-switch 
+            v-model="label.selected"
             class="labels-switch"
-            :value="label.selected"
-            @change="v => label.selected = v"
             inset
             small
           />
@@ -53,8 +52,6 @@ const { labels, labelFilesCount } = storeToRefs(fileStore);
 
 <style lang="scss" scoped>
 .labels {
-  height: 100%;
-
   &-switch {
     margin-top: 0;
 

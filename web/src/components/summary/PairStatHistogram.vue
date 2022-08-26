@@ -243,15 +243,15 @@ const draw = (): void => {
     .attr("y2", height.value)
     .attr("stroke", "black")
     .attr("stroke-width", 1)
-    .attr("stroke-dasharray", "5,5")
+    .attr("stroke-dasharray", "3,3")
     .attr("z-index", 2)
     .attr("visibility", "hidden");
   const number = histogramChart.select("g")
     .append("text")
+    .classed("d3-ticks", true)
     .attr("x", x(0.5))
-    .attr("y", height.value + 8)
+    .attr("y", 0)
     .attr("dy", "0.71em")
-    .attr("font-size", 15)
     .attr("visibility", "hidden");
 
   histogramChart.on("mouseenter", () => {
@@ -262,8 +262,8 @@ const draw = (): void => {
     const xCoord = d3.pointer(o)[0] - margin.left;
     line.attr("x1", xCoord);
     line.attr("x2", xCoord);
-    number.attr("x", xCoord);
-    number.text(x.invert(xCoord).toFixed(2));
+    number.attr("x", xCoord + 8);
+    number.text(`${(x.invert(xCoord) * 100).toFixed(0)}%`);
 
     // Hide if the x-coordinate is not between 0 and width.
     if (xCoord < 0 || xCoord > width.value) {
