@@ -87,7 +87,7 @@ const draw = (): void => {
   const elements = clusterFiles.value;
   const margin = {
     top: 0,
-    bottom: 50,
+    bottom: 80,
     left: 125,
     right: 30,
   };
