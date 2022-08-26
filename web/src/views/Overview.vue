@@ -10,7 +10,7 @@
     </div>
 
     <v-row>
-      <v-col cols="12" md="6" lg="4" class="info-cards">
+      <v-col cols="12" md="6" lg="3" class="info-cards">
         <v-card class="info-card">
           <v-card-title class="pb-0">Submissions</v-card-title>
 
@@ -107,7 +107,7 @@
       </v-col>
 
       <!-- Similarity distribution -->
-      <v-col cols="12" lg="5">
+      <v-col cols="12" lg="6">
         <v-card class="graph-card">
           <v-row justify="space-between" align="center" no-wrap no-gutters>
             <v-col cols="auto">
@@ -130,7 +130,7 @@
           </v-row>
 
           <OverviewBarchart
-            :ticks="20"
+            :ticks="40"
             :extra-line="apiStore.cutoff"
           />
         </v-card>
