@@ -77,12 +77,8 @@ const filesActiveListFiltered = computed(() => {
 
 <style lang="scss" scoped>
 .submissions {
-  display: flex;
-  flex-direction: column;
-  max-height: calc(100vh - 100px);
-
   &-table {
-    min-height: auto
+    max-height: calc(100vh - 180px);
   }
 }
 </style>
