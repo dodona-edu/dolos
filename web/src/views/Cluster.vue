@@ -25,11 +25,11 @@
 
             <v-tabs-items v-model="activeTab" class="mt-2">
               <v-tab-item>
-                <submissions-table :files="clusterFiles" dense pagination />
+                <submissions-table :files="clusterFiles" :items-per-page="15" dense pagination />
               </v-tab-item>
 
               <v-tab-item>
-                <pairs-table :pairs="clusterPairs" :items-per-page="10" dense />
+                <pairs-table :pairs="clusterPairs" :items-per-page="15" dense />
               </v-tab-item>
             </v-tabs-items>
           </v-card>
