@@ -91,7 +91,7 @@ export default defineComponent({
       const fileAst = props.file.ast as string[];
 
       return props.semanticMatches.map(v => {
-        const m = v as SemanticMatch & { tokenName: string };
+        const m = v as any & { tokenName: string };
         m.tokenName = `${fileAst[v.leftMatch.ownNodes[0]] || "Full file"}`;
         return m;
       });
