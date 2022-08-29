@@ -5,7 +5,7 @@
     </v-card-title>
 
     <v-expansion-panels v-model="panel" class="elevation-0">
-      <ClusteringCard
+      <clustering-card
         v-for="(cluster, index) in sortedClustering"
         :key="index"
         :cluster="cluster"
