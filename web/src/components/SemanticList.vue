@@ -55,7 +55,7 @@ import { File } from "@/api/models";
 export default defineComponent({
   props: {
     semanticMatches: {
-      type: Array as PropType<SemanticMatch[]>,
+      type: Array as PropType<any[]>,
       required: true,
     },
 
