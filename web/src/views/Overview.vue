@@ -101,7 +101,9 @@
               </info-dot>
             </h3>
             <div class="stat-card-value">{{ clustering.length }}</div>
-            <div class="stat-card-subtitle text--secondary">Based on current threshold</div>
+            <div class="stat-card-subtitle text--secondary">
+              Based on the current threshold ({{ (apiStore.cutoff * 100).toFixed(0) }}%)
+            </div>
           </div>
         </v-card>
       </v-col>
