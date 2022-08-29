@@ -57,10 +57,12 @@ const headers = computed<DataTableHeader[]>(() => {
 // In the format for the Vuetify data-table.
 const items = computed(() => {
   return sortedClustering.value.map((cluster) => {
+    const files = getClusterElementsArray(cluster);
+
     return {
       id: pairStore.getClusterIndex(cluster ),
-      submissions: getClusterElementsArray(cluster),
-      size: cluster.size,
+      submissions: files,
+      size: files.length,
       similarity: [...cluster].reduce((acc, pair) => acc + pair.similarity, 0) / cluster.size,
       cluster,
     };
