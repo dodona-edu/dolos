@@ -28,6 +28,14 @@
               <span>{{ selectedNodeTimestamp }}</span>
             </v-list-item>
           </v-list>
+
+          <v-card-actions>
+            <v-spacer />
+            <v-btn color="primary" text :to="`/submissions/${selectedNode.id}`">
+              View submission
+              <v-icon right>mdi-chevron-right</v-icon>
+            </v-btn>
+          </v-card-actions>
         </v-card>
       </div>
     </transition>
@@ -59,7 +67,10 @@
 
           <v-card-actions>
             <v-spacer />
-            <v-btn color="primary" text @click="goToInfo">More information</v-btn>
+            <v-btn color="primary" text :to="`/clusters/${selectedClusterIndex}`">
+              View cluster
+              <v-icon right>mdi-chevron-right</v-icon>
+            </v-btn>
           </v-card-actions>
         </v-card>
       </div>
