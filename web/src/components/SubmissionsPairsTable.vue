@@ -19,8 +19,8 @@
 
     <template #item.label="{ item }">
       <span class="submission-label">
-        <LabelDot :label="item.label.label" :color="item.label.color" />
-        <LabelText :label="item.label.label" />
+        <label-dot :label="item.label.label" :color="item.label.color" />
+        <label-text :label="item.label.label" />
       </span>
     </template>
 
@@ -78,10 +78,6 @@ import { computed } from "vue";
 import { DataTableHeader } from "vuetify";
 import { useFileStore, usePairStore } from "@/api/stores";
 import { File } from "@/api/models";
-import SimilarityDisplay from "@/components/pair/SimilarityDisplay.vue";
-import FileTimestamp from "@/components/FileTimestamp.vue";
-import LabelText from "@/components/LabelText.vue";
-import LabelDot from "@/components/LabelDot.vue";
 import { storeToRefs } from "pinia";
 
 interface Props {

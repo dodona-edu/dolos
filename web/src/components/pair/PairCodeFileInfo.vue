@@ -28,7 +28,6 @@
 
 <script lang="ts" setup>
 import { File } from "@/api/models";
-import FileTimestamp from "@/components/FileTimestamp.vue";
 
 interface Props {
   file: File;

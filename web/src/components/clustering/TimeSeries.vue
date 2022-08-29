@@ -1,6 +1,6 @@
 <template>
   <div class="timeseries" ref="timeseriesElement">
-    <GraphLegend :legend.sync="legend" />
+    <graph-legend :legend.sync="legend" />
   </div>
 </template>
 
@@ -18,10 +18,9 @@ import { useApiStore, useFileStore } from "@/api/stores";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
 import { File } from "@/api/models";
 import { useCluster, useD3Tooltip, usePartialLegend } from "@/composables";
-import { SelectionTool, xCoord } from "@/d3-tools/SelectionTool";
-import GraphLegend from "@/d3-tools/GraphLegend.vue";
-import * as d3 from "d3";
+import { SelectionTool, xCoord } from "@/util/SelectionTool";
 import { useElementSize } from "@vueuse/core";
+import * as d3 from "d3";
 
 interface TimeDataType extends xCoord {
   file: File,

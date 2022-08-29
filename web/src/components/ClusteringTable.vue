@@ -5,7 +5,7 @@
     </v-card-title>
 
     <v-expansion-panels v-model="panel" class="elevation-0">
-      <ClusteringCard
+      <clustering-card
         v-for="(cluster, index) in sortedClustering"
         :key="index"
         :cluster="cluster"
@@ -19,7 +19,6 @@
 import { useRouteQuery } from "@/composables";
 import { storeToRefs } from "pinia";
 import { usePairStore } from "@/api/stores";
-import ClusteringCard from "@/components/clustering/ClusteringCard.vue";
 
 const { sortedClustering } = storeToRefs(usePairStore());
 

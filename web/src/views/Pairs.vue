@@ -24,7 +24,7 @@
     </v-row>
 
     <v-card>
-      <PairsTable :search.sync="search" :pairs="pairStore.pairsActiveList" />
+      <pairs-table :search.sync="search" :pairs="pairStore.pairsActiveList" />
     </v-card>
   </v-container>
 </template>
@@ -32,7 +32,6 @@
 <script lang="ts" setup>
 import { usePairStore } from "@/api/stores";
 import { useRouteQuery } from "@/composables";
-import PairsTable from "@/components/PairsTable.vue";
 
 const pairStore = usePairStore();
 const search = useRouteQuery("search", "");

@@ -2,7 +2,7 @@
   <v-container fluid fill-height>
     <v-row class="graph-container">
       <v-col cols="12" class="no-y-padding">
-        <Graph
+        <graph
           :showSingletons="showSingletons"
           :legend="legend"
           :clustering="clustering"
@@ -15,7 +15,7 @@
         >
           <!-- Extra UI elements to be added as overlay over the graph -->
           <v-form class="graph-settings">
-            <SimilaritySetting />
+            <similarity-setting />
 
             <v-checkbox
               v-model="showSingletons"
@@ -24,18 +24,18 @@
             />
           </v-form>
 
-          <GraphLegend
+          <graph-legend
             v-if="showLegend"
             :legend.sync="legend"
           />
 
-          <GraphSelectedInfo
+          <graph-selected-info
             :current-clustering="clustering"
             :selected-node="selectedNode"
             :selected-cluster="selectedCluster"
             :legend="legend"
           />
-        </Graph>
+        </graph>
       </v-col>
     </v-row>
 
@@ -54,11 +54,6 @@ import { File } from "@/api/models";
 import { Cluster } from "@/util/Cluster";
 import { useFileStore, usePairStore } from "@/api/stores";
 import { useRoute } from "@/composables";
-import GraphSelectedInfo from "@/d3-tools/GraphSelectedInfo.vue";
-import ClusteringTable from "@/components/ClusteringTable.vue";
-import Graph from "@/components/graph/Graph.vue";
-import GraphLegend from "@/d3-tools/GraphLegend.vue";
-import SimilaritySetting from "@/components/settings/SimilaritySetting.vue";
 
 const route = useRoute();
 const { filesActiveList, legend } = storeToRefs(useFileStore());

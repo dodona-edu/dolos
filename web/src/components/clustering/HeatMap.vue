@@ -1,7 +1,7 @@
 <template>
   <v-row class="heatmap">
     <v-col cols="12" md="4" order="2" order-md="1">
-      <GraphElementListCard
+      <graph-element-list-card
         :selected-files="selectedFiles"
         :cluster="cluster"
         max-height="400px"
@@ -30,7 +30,6 @@ import { useCluster, useRouter, useD3Tooltip } from "@/composables";
 import { Pair, File } from "@/api/models";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
 import { pairsAsNestedMap } from "@/util/PairAsNestedMap";
-import GraphElementListCard from "@/d3-tools/GraphElementListCard.vue";
 import * as d3 from "d3";
 
 interface Props {

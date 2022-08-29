@@ -42,8 +42,6 @@ import { timestampSort } from "@/util/SortingFunctions";
 import { useVuetify } from "@/composables";
 import { useFileStore } from "@/api/stores";
 import { storeToRefs } from "pinia";
-import LabelDot from "@/components/LabelDot.vue";
-import FileTimestamp from "@/components/FileTimestamp.vue";
 
 interface Props {
   cluster: Cluster;

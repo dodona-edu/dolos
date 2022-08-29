@@ -23,7 +23,6 @@ import { useRouter, useRoute } from "@/composables";
 import { useVModel } from "@vueuse/core";
 import { Pair } from "@/api/models";
 import { DataTableHeader } from "vuetify";
-import SimilarityDisplay from "@/components/pair/SimilarityDisplay.vue";
 
 interface Props {
   pairs: Pair[];

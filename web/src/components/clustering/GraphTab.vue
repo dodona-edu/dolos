@@ -1,7 +1,7 @@
 <template>
   <v-row>
     <v-col cols="12" md="4" order="2" order-md="1">
-      <GraphElementListCard
+      <graph-element-list-card
         :cluster="cluster"
         :selected-files="selectedFiles"
         max-height="400px"
@@ -11,7 +11,7 @@
     </v-col>
 
     <v-col cols="12" md="8" order="1" order-md="2">
-      <Graph
+      <graph
         :pairs="clusterPairs"
         :files="clusterFiles"
         :legend="legend"
@@ -20,10 +20,10 @@
         :selected-node.sync="selectedNode"
         :height="400"
       >
-        <GraphLegend
+        <graph-legend
           :legend.sync="legend"
         />
-      </Graph>
+      </graph>
     </v-col>
   </v-row>
 </template>
@@ -36,9 +36,6 @@ import { Pair, File } from "@/api/models";
 import { usePartialLegend } from "@/composables";
 import { storeToRefs } from "pinia";
 import { usePairStore } from "@/api/stores";
-import GraphElementListCard from "@/d3-tools/GraphElementListCard.vue";
-import Graph from "../graph/Graph.vue";
-import GraphLegend from "../../d3-tools/GraphLegend.vue";
 
 interface Props {
   cluster: Cluster;

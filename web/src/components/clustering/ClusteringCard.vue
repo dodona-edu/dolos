@@ -1,7 +1,7 @@
 <template>
   <v-expansion-panel class="clustering-card" ref="element">
     <v-expansion-panel-header>
-      <FileTagList :current-files="clusterFiles" />
+      <file-tag-list :current-files="clusterFiles" />
     </v-expansion-panel-header>
 
     <v-expansion-panel-content>
@@ -25,19 +25,19 @@
 
       <v-tabs-items v-model="activeTab" class="mt-4">
         <v-tab-item>
-          <PairsTable v-if="showPairs" :pairs="clusterPairs" :items-per-page="10" />
+          <pairs-table v-if="showPairs" :pairs="clusterPairs" :items-per-page="10" />
         </v-tab-item>
 
         <v-tab-item v-show="cluster && showClusterTimeline">
-          <TimeSeriesCard v-if="showTimeseries" :cluster="cluster" />
+          <time-series-card v-if="showTimeseries" :cluster="cluster" />
         </v-tab-item>
 
         <v-tab-item>
-          <HeatMap v-if="showHeatmap" :cluster="props.cluster" />
+          <heat-map v-if="showHeatmap" :cluster="props.cluster" />
         </v-tab-item>
 
         <v-tab-item>
-          <GraphTab v-if="showGraph" :cluster="props.cluster" />
+          <graph-tab v-if="showGraph" :cluster="props.cluster" />
         </v-tab-item>
       </v-tabs-items>
     </v-expansion-panel-content>
@@ -49,11 +49,6 @@ import { shallowRef, computed, toRef, watch, ref, onMounted } from "vue";
 import { useCluster, useVuetify } from "@/composables";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
 import { getClusterElementsArray } from "@/util/clustering-algorithms/ClusterFunctions";
-import HeatMap from "./HeatMap.vue";
-import GraphTab from "./GraphTab.vue";
-import TimeSeriesCard from "./TimeSeriesCard.vue";
-import FileTagList from "@/components/clustering/FileTagList.vue";
-import PairsTable from "../PairsTable.vue";
 
 interface Props {
   cluster: Cluster;

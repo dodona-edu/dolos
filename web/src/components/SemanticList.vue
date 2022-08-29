@@ -51,12 +51,11 @@
 import { defineComponent, PropType, computed } from "vue";
 import { useVModel } from "@vueuse/core";
 import { File } from "@/api/models";
-import { SemanticMatch } from "@/components/CompareCard.vue";
 
 export default defineComponent({
   props: {
     semanticMatches: {
-      type: Array as PropType<SemanticMatch[]>,
+      type: Array as PropType<any[]>,
       required: true,
     },
 
@@ -92,7 +91,7 @@ export default defineComponent({
       const fileAst = props.file.ast as string[];
 
       return props.semanticMatches.map(v => {
-        const m = v as SemanticMatch & { tokenName: string };
+        const m = v as any & { tokenName: string };
         m.tokenName = `${fileAst[v.leftMatch.ownNodes[0]] || "Full file"}`;
         return m;
       });

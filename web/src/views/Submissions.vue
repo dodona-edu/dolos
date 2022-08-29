@@ -47,7 +47,6 @@ import { computed } from "vue";
 import { storeToRefs } from "pinia";
 import { useFileStore } from "@/api/stores";
 import { useRouteQuery } from "@/composables";
-import SubmissionsTable from "@/components/SubmissionsTable.vue";
 
 const fileStore = useFileStore();
 const { filesActiveList } = storeToRefs(fileStore);

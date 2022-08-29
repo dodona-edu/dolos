@@ -1,6 +1,6 @@
 <template>
   <v-container fluid fill-height>
-    <Breadcrumbs
+    <breadcrumbs
       :previous-fallback="{ name: 'View by pairs', path: '/pairs' }"
     />
 
@@ -11,7 +11,7 @@
           <v-skeleton-loader type="table" />
         </template>
 
-        <CompareCard
+        <compare-card
           v-else-if="pair && pair.fragments"
           :loaded="isLoaded"
           :pair="pair"
@@ -31,8 +31,6 @@
 <script lang="ts" setup>
 import { shallowRef, onMounted } from "vue";
 import { usePairStore, useMetadataStore } from "@/api/stores";
-import CompareCard from "@/components/CompareCard.vue";
-import Breadcrumbs from "@/components/Breadcrumbs.vue";
 
 interface Props {
   pairId: string;

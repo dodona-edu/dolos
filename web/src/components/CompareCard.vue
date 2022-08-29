@@ -90,9 +90,6 @@
 <script lang="ts" setup>
 import { computed, shallowRef, watch, withDefaults } from "vue";
 import { Pair, Metadata } from "@/api/models";
-import PairCodeDiff from "@/components/pair/PairCodeDiff.vue";
-import PairCodeMatch from "@/components/pair/PairCodeMatch.vue";
-import SimilarityDisplay from "@/components/pair/SimilarityDisplay.vue";
 
 interface Props {
   pair: Pair;

@@ -39,7 +39,6 @@
 <script lang="ts" setup>
 import { useFileStore } from "@/api/stores";
 import { storeToRefs } from "pinia";
-import LabelDot from "@/components/LabelDot.vue";
 
 interface Props {
   showSubmissions?: boolean;

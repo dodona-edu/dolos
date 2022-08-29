@@ -15,7 +15,6 @@
 <script lang="ts" setup>
 import { File } from "@/api/models";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
-import GraphElementList from "@/d3-tools/GraphElementList.vue";
 
 interface Props {
   cluster: Cluster;
