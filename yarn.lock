@@ -1939,10 +1939,10 @@
   resolved "https://registry.yarnpkg.com/@types/normalize-package-data/-/normalize-package-data-2.4.1.tgz#d3357479a0fdfdd5907fe67e17e0a85c906e1301"
   integrity sha512-Gj7cI7z+98M282Tqmp2K5EIsoouUEzbBJhQQzDE3jSIRk6r9gsz0oUokqIUR4u1R3dMHo0pDHM7sNOHyhulypw==
 
-"@types/papaparse@5.3.3":
-  version "5.3.3"
-  resolved "https://registry.yarnpkg.com/@types/papaparse/-/papaparse-5.3.3.tgz#59c4db7efcb5ecbca18ba0e6f6d62b3949f35ed0"
-  integrity sha512-i7fV8u843vb7nIGpcwdCsG3WjfBONeytRHK1mQL9d5KQAvFeAK2rRisDHicreYpoQ0MXocUDEqunKHTeXdvibg==
+"@types/papaparse@5.3.4":
+  version "5.3.4"
+  resolved "https://registry.yarnpkg.com/@types/papaparse/-/papaparse-5.3.4.tgz#57f7366540a349675c4fa57ef01e5c8775aced2b"
+  integrity sha512-61/jki1Ri+v1/Fobrf4rlIo6ExNM8P0CHYwId8wkrC2WiKfDwiRtn/hiAa6jXj8vPa4oFZ14uFKME547V4VGyQ==
   dependencies:
     "@types/node" "*"
 
