@@ -8,19 +8,17 @@ export {}
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
     Breadcrumbs: typeof import('./../components/Breadcrumbs.vue')['default']
-    ClusteringCard: typeof import('./../components/clustering/ClusteringCard.vue')['default']
     ClusteringTable: typeof import('./../components/ClusteringTable.vue')['default']
     ClustersTable: typeof import('./../components/clustering/ClustersTable.vue')['default']
+    ClusterTags: typeof import('./../components/clustering/ClusterTags.vue')['default']
     CompareCard: typeof import('./../components/CompareCard.vue')['default']
     CompareSide: typeof import('./../components/CompareSide.vue')['default']
-    FileTagList: typeof import('./../components/clustering/FileTagList.vue')['default']
     FileTimestamp: typeof import('./../components/FileTimestamp.vue')['default']
     Graph: typeof import('./../components/graph/Graph.vue')['default']
     GraphElementList: typeof import('./../components/GraphElementList.vue')['default']
     GraphElementListCard: typeof import('./../components/GraphElementListCard.vue')['default']
     GraphLegend: typeof import('./../components/GraphLegend.vue')['default']
     GraphSelectedInfo: typeof import('./../components/GraphSelectedInfo.vue')['default']
-    GraphTab: typeof import('./../components/clustering/GraphTab.vue')['default']
     HeatMap: typeof import('./../components/clustering/HeatMap.vue')['default']
     InfoDot: typeof import('./../components/InfoDot.vue')['default']
     LabelDot: typeof import('./../components/LabelDot.vue')['default']
@@ -44,6 +42,5 @@ declare module '@vue/runtime-core' {
     SubmissionsPairsTable: typeof import('./../components/SubmissionsPairsTable.vue')['default']
     SubmissionsTable: typeof import('./../components/SubmissionsTable.vue')['default']
     TimeSeries: typeof import('./../components/clustering/TimeSeries.vue')['default']
-    TimeSeriesCard: typeof import('./../components/clustering/TimeSeriesCard.vue')['default']
   }
 }

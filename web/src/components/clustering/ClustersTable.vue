@@ -12,11 +12,21 @@
     @click:row="rowClicked"
   >
     <template #item.submissions="{ item }">
-      <file-tag-list class="clusters-submissions" :current-files="item.submissions" />
+      <cluster-tags class="clusters-submissions" :current-files="item.submissions" />
     </template>
 
     <template #item.size="{ item }">
       {{ item.size }} submissions
+    </template>
+
+    <template #item.similarity="{ item }">
+      <span class="submission-similarity">
+        <similarity-display
+          :similarity="item.similarity"
+          progress
+          dim-below-cutoff
+        />
+      </span>
     </template>
   </v-data-table>
 </template>
@@ -38,6 +48,7 @@ const headers = computed<DataTableHeader[]>(() => {
   const h = [];
   h.push({ text: "Submissions", value: "submissions", sortable: false });
   h.push({ text: "Size", value: "size", sortable: true });
+  h.push({ text: "Average similarity", value: "similarity", sortable: true });
 
   return h;
 });
@@ -50,6 +61,7 @@ const items = computed(() => {
       id: pairStore.getClusterIndex(cluster ),
       submissions: getClusterElementsArray(cluster),
       size: cluster.size,
+      similarity: [...cluster].reduce((acc, pair) => acc + pair.similarity, 0) / cluster.size,
       cluster,
     };
   });
@@ -64,7 +76,7 @@ const rowClicked = (item: { id: string }): void => {
 <style lang="scss" scoped>
 .clusters {
   &-submissions {
-    max-width: 80%;
+    max-width: 70%;
   }
 }
 </style>
