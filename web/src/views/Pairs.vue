@@ -32,7 +32,6 @@
 <script lang="ts" setup>
 import { usePairStore } from "@/api/stores";
 import { useRouteQuery } from "@/composables";
-import PairsTable from "@/components/PairsTable.vue";
 
 const pairStore = usePairStore();
 const search = useRouteQuery("search", "");

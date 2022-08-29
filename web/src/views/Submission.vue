@@ -174,15 +174,6 @@ import { File } from "@/api/models";
 import { useFileStore, usePairStore } from "@/api/stores";
 import { useCluster, useRouter } from "@/composables";
 import { storeToRefs } from "pinia";
-import LabelText from "@/components/LabelText.vue";
-import FileTimestamp from "@/components/FileTimestamp.vue";
-import SubmissionsPairsTable from "@/components/SubmissionsPairsTable.vue";
-import Graph from "@/components/graph/Graph.vue";
-import GraphLegend from "@/d3-tools/GraphLegend.vue";
-import TimeSeries from "@/components/clustering/TimeSeries.vue";
-import SubmissionCode from "@/components/SubmissionCode.vue";
-import PairStatHistogram from "@/components/summary/PairStatHistogram.vue";
-import Breadcrumbs from "@/components/Breadcrumbs.vue";
 
 interface Props {
   fileId: string;

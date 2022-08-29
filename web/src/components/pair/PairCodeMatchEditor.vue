@@ -18,7 +18,6 @@ import {
 import { Pair, Metadata, Match } from "@/api/models";
 import * as monaco from "monaco-editor";
 import { useVModel } from "@vueuse/core";
-import PairCodeFileInfo from "@/components/pair/PairCodeFileInfo.vue";
 
 interface Props {
   side: "left" | "right";

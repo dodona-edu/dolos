@@ -172,10 +172,7 @@ import { storeToRefs } from "pinia";
 import { useBreakpoints } from "@/composables";
 import { useApiStore } from "@/api/stores";
 import { useBreadcrumbStore } from "@/stores";
-import Loading from "@/components/Loading.vue";
 import packageJson from "../package.json";
-import SimilaritySetting from "./components/settings/SimilaritySetting.vue";
-import LabelsTable from "./components/LabelsTable.vue";
 
 const breakpoints = useBreakpoints();
 const api = useApiStore();

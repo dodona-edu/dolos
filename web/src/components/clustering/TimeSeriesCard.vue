@@ -27,8 +27,6 @@
 import { shallowRef } from "vue";
 import { File } from "@/api/models";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
-import TimeSeries from "@/components/clustering/TimeSeries.vue";
-import GraphElementListCard from "@/d3-tools/GraphElementListCard.vue";
 
 interface Props {
   cluster: Cluster;

@@ -54,11 +54,6 @@ import { File } from "@/api/models";
 import { Cluster } from "@/util/Cluster";
 import { useFileStore, usePairStore } from "@/api/stores";
 import { useRoute } from "@/composables";
-import GraphSelectedInfo from "@/d3-tools/GraphSelectedInfo.vue";
-import ClusteringTable from "@/components/ClusteringTable.vue";
-import Graph from "@/components/graph/Graph.vue";
-import GraphLegend from "@/d3-tools/GraphLegend.vue";
-import SimilaritySetting from "@/components/settings/SimilaritySetting.vue";
 
 const route = useRoute();
 const { filesActiveList, legend } = storeToRefs(useFileStore());

@@ -74,8 +74,6 @@ import { File, Legend } from "@/api/models";
 import { Cluster, Clustering } from "@/util/clustering-algorithms/ClusterTypes";
 import { DateTime } from "luxon";
 import { getClusterElements } from "@/util/clustering-algorithms/ClusterFunctions";
-import LabelDot from "@/components/LabelDot.vue";
-import GraphElementList from "./GraphElementList.vue";
 
 interface Props {
   currentClustering: Clustering;

@@ -247,11 +247,6 @@ import {
   usePairStore,
   useMetadataStore,
 } from "@/api/stores";
-import OverviewBarchart from "@/components/overview/OverviewBarchart.vue";
-import SimilaritySetting from "@/components/settings/SimilaritySetting.vue";
-import SimilarityDisplay from "@/components/pair/SimilarityDisplay.vue";
-import InfoDot from "@/components/InfoDot.vue";
-import LabelsTable from "@/components/LabelsTable.vue";
 
 const apiStore = useApiStore();
 const fileStore = useFileStore();

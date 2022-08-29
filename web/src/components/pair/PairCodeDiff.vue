@@ -18,7 +18,6 @@
 import { withDefaults, ref, shallowRef, onMounted, watch, onUnmounted } from "vue";
 import { Pair, Metadata } from "@/api/models";
 import * as monaco from "monaco-editor";
-import PairCodeFileInfo from "@/components/pair/PairCodeFileInfo.vue";
 
 interface Props {
   pair: Pair;

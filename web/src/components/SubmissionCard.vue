@@ -33,8 +33,6 @@ import { File } from "@/api/models";
 import { useFileStore } from "@/api/stores";
 import { storeToRefs } from "pinia";
 import { computed } from "vue";
-import LabelText from "./LabelText.vue";
-import SimilarityDisplay from "./pair/SimilarityDisplay.vue";
 
 interface Props {
   file: File;

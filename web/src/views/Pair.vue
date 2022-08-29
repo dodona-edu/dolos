@@ -31,8 +31,6 @@
 <script lang="ts" setup>
 import { shallowRef, onMounted } from "vue";
 import { usePairStore, useMetadataStore } from "@/api/stores";
-import CompareCard from "@/components/CompareCard.vue";
-import Breadcrumbs from "@/components/Breadcrumbs.vue";
 
 interface Props {
   pairId: string;

@@ -19,7 +19,6 @@
 import { useRouteQuery } from "@/composables";
 import { storeToRefs } from "pinia";
 import { usePairStore } from "@/api/stores";
-import ClusteringCard from "@/components/clustering/ClusteringCard.vue";
 
 const { sortedClustering } = storeToRefs(usePairStore());
 

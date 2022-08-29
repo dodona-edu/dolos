@@ -49,11 +49,6 @@ import { shallowRef, computed, toRef, watch, ref, onMounted } from "vue";
 import { useCluster, useVuetify } from "@/composables";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
 import { getClusterElementsArray } from "@/util/clustering-algorithms/ClusterFunctions";
-import HeatMap from "./HeatMap.vue";
-import GraphTab from "./GraphTab.vue";
-import TimeSeriesCard from "./TimeSeriesCard.vue";
-import FileTagList from "@/components/clustering/FileTagList.vue";
-import PairsTable from "../PairsTable.vue";
 
 interface Props {
   cluster: Cluster;

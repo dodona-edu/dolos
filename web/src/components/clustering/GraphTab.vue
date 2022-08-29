@@ -36,9 +36,6 @@ import { Pair, File } from "@/api/models";
 import { usePartialLegend } from "@/composables";
 import { storeToRefs } from "pinia";
 import { usePairStore } from "@/api/stores";
-import GraphElementListCard from "@/d3-tools/GraphElementListCard.vue";
-import Graph from "../graph/Graph.vue";
-import GraphLegend from "../../d3-tools/GraphLegend.vue";
 
 interface Props {
   cluster: Cluster;

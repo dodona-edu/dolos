@@ -22,7 +22,6 @@
 <script lang="ts" setup>
 import { shallowRef, withDefaults } from "vue";
 import { Pair, Metadata, Match } from "@/api/models";
-import PairCodeMatchEditor from "@/components/pair/PairCodeMatchEditor.vue";
 
 interface Props {
   pair: Pair;

@@ -59,10 +59,6 @@ import { useFileStore } from "@/api/stores";
 import { File } from "@/api/models";
 import { useRouter } from "@/composables";
 import { useVModel } from "@vueuse/core";
-import SimilarityDisplay from "@/components/pair/SimilarityDisplay.vue";
-import FileTimestamp from "@/components/FileTimestamp.vue";
-import LabelText from "@/components/LabelText.vue";
-import LabelDot from "@/components/LabelDot.vue";
 
 interface Props {
   files: File[];

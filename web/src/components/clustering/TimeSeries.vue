@@ -19,9 +19,8 @@ import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
 import { File } from "@/api/models";
 import { useCluster, useD3Tooltip, usePartialLegend } from "@/composables";
 import { SelectionTool, xCoord } from "@/d3-tools/SelectionTool";
-import GraphLegend from "@/d3-tools/GraphLegend.vue";
-import * as d3 from "d3";
 import { useElementSize } from "@vueuse/core";
+import * as d3 from "d3";
 
 interface TimeDataType extends xCoord {
   file: File,
