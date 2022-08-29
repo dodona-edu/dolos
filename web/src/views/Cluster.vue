@@ -16,23 +16,22 @@
       </div>
 
       <v-row>
-        <v-col cols="12" md="7">
+        <v-col cols="12" md="8">
           <v-card>
-            <v-card-title>Pairs</v-card-title>
-            <v-card-subtitle class="pb-2">
-              Pairs in this cluster.
-            </v-card-subtitle>
+            <v-tabs v-model="activeTab">
+              <v-tab>Submissions</v-tab>
+              <v-tab>Pairs</v-tab>
+            </v-tabs>
 
-            <pairs-table :pairs="clusterPairs" :items-per-page="10" dense />
-          </v-card>
+            <v-tabs-items v-model="activeTab" class="mt-2">
+              <v-tab-item>
+                <submissions-table :files="clusterFiles" dense pagination />
+              </v-tab-item>
 
-          <v-card class="mt-4" v-if="false">
-            <v-card-title>Submissions</v-card-title>
-            <v-card-subtitle class="pb-2">
-              Submissions in this cluster.
-            </v-card-subtitle>
-
-            <submissions-table :files="clusterFiles" dense pagination />
+              <v-tab-item>
+                <pairs-table :pairs="clusterPairs" :items-per-page="10" dense />
+              </v-tab-item>
+            </v-tabs-items>
           </v-card>
 
           <v-card class="mt-4">
@@ -58,7 +57,6 @@
               <time-series 
                 :cluster="cluster"
                 :node-size="8"
-                :height="412"
                 node-tooltip
                 node-clickable
                 @click:node="onNodeClick"
@@ -67,7 +65,7 @@
           </v-card>
         </v-col>
 
-        <v-col cols="12" md="5">
+        <v-col cols="12" md="4">
           <v-card>
             <v-card-title>Cluster Graph</v-card-title>
             <v-card-subtitle>
@@ -126,7 +124,7 @@ import { useFileStore, usePairStore } from "@/api/stores";
 import { File } from "@/api/models";
 import { useCluster, usePartialLegend, useRouter } from "@/composables";
 import { storeToRefs } from "pinia";
-import { computed } from "vue";
+import { computed, shallowRef } from "vue";
 
 interface Props {
   clusterId: string;
@@ -141,6 +139,8 @@ const { hasTimestamp } = storeToRefs(fileStore);
 const { clustering } = storeToRefs(pairStore);
 const { clusterFiles, clusterPairs } = useCluster(cluster);
 const legend = usePartialLegend(clusterFiles);
+
+const activeTab = shallowRef(0);
 
 // Go to the submission when a node is clicked.
 const onNodeClick = (file: File): void => {

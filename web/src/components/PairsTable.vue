@@ -1,5 +1,6 @@
 <template>
   <v-data-table
+    class="row-pointer"
     :headers="headers"
     :items="items"
     :must-sort="true"
