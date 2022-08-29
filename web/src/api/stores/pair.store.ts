@@ -1,5 +1,5 @@
-import { defineStore } from "pinia";
-import { shallowRef, computed } from "vue";
+import { defineStore, storeToRefs } from "pinia";
+import { shallowRef, computed, watch } from "vue";
 import { DATA_URL } from "@/api";
 import { assertType, parseCsv } from "@/api/utils";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
@@ -27,6 +27,48 @@ export const usePairStore = defineStore("pairs", () => {
   // List of pairs.
   const pairs = shallowRef<ObjMap<Pair>>({});
   const pairsList = computed<Pair[]>(() => Object.values(pairs.value));
+
+  // Reference to the other stores.
+  const fileStore = useFileStore();
+  const kgramStore = useKgramStore();
+  const metadataStore = useMetadataStore();
+  const semanticStore = useSemanticStore();
+  const apiStore = useApiStore();
+
+  // List of pairs to display (with active labels)
+  const pairsActive = shallowRef<ObjMap<Pair>>({});
+  const pairsActiveList = computed(() => {
+    return Object.values(pairsActive.value);
+  });
+
+  // Calculate the active pairs list.
+  function calculateActivePairs(): void {
+    // Return all files if no labels are available.
+    if (!fileStore.hasLabels) {
+      pairsActive.value = pairs.value;
+      return;
+    }
+    
+    const pairsFiltered = { ...pairs.value };
+
+    // Delete all the pairs that contain a file that shouldn't be displayed.
+
+    for (const pair of pairsList.value) {
+      if (
+        !fileStore.filesActiveList.includes(pair.leftFile) ||
+        !fileStore.filesActiveList.includes(pair.rightFile)
+      ) {
+        delete pairsFiltered[pair.id];
+      }
+    }
+
+    pairsActive.value = pairsFiltered;
+  }
+
+  // Update the pairs to display when the pairs change.
+  // The changing of files or legend is handled by the file store.
+  watch(pairs, () => calculateActivePairs());
+  
 
   // If this store has been hydrated.
   const hydrated = shallowRef(false);
@@ -71,13 +113,6 @@ export const usePairStore = defineStore("pairs", () => {
     return await parseCsv(url);
   }
 
-  // Reference to the other stores.
-  const fileStore = useFileStore();
-  const kgramStore = useKgramStore();
-  const metadataStore = useMetadataStore();
-  const semanticStore = useSemanticStore();
-  const apiStore = useApiStore();
-
   // Hydrate the store
   async function hydrate(): Promise<void> {
     // Make sure the file store is hydrated.
@@ -85,7 +120,7 @@ export const usePairStore = defineStore("pairs", () => {
       throw new Error("The file store must be hydrated before the pair store.");
     }
 
-    pairs.value = parse(await fetch(), fileStore.files);
+    pairs.value = parse(await fetch(), fileStore.filesActive);
     hydrated.value = true;
   }
 
@@ -111,17 +146,17 @@ export const usePairStore = defineStore("pairs", () => {
 
   // Get a pair by its ID.
   function getPair(id: number): Pair {
-    return pairs.value[id];
+    return pairsActive.value[id];
   }
 
   // Get a list of pairs for a given file.
   function getPairs(file: File): Pair[] {
-    return pairsList.value.filter((pair) => pair.leftFile === file || pair.rightFile === file) ?? [];
+    return pairsActiveList.value.filter((pair) => pair.leftFile === file || pair.rightFile === file) ?? [];
   }
 
   // Clustering
   const clustering = computed(() =>
-    singleLinkageCluster(pairs.value, fileStore.files, apiStore.cutoffDebounced)
+    singleLinkageCluster(pairsActive.value, fileStore.filesActive, apiStore.cutoffDebounced)
   );
 
   // Sorted Clustering
@@ -141,13 +176,14 @@ export const usePairStore = defineStore("pairs", () => {
   }
 
   // Get the index of the cluster for a given cluster.
-  function getClusterIndex(cluster: Cluster): number {
+  function getClusterIndex(cluster: Cluster | undefined): number {
     return sortedClustering.value.findIndex((c) => c === cluster);
   }
 
   return {
-    pairs,
-    pairsList,
+    pairsActive,
+    pairsActiveList,
+    calculateActivePairs,
     hydrated,
     hydrate,
     populateFragments,

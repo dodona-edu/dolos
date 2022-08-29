@@ -22,7 +22,6 @@ export interface FileIndeterminate {
     shortPath: string;
     fullName?: string;
     timestamp?: Date;
-    labels?: string;
   },
 
   original: {

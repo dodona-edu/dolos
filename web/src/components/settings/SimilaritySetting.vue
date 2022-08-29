@@ -1,8 +1,11 @@
 <template>
   <div class="similarity-setting">
-    <label class="text--secondary">Threshold ≥ {{ (cutoff * 100).toFixed(0) }}%</label>
+    <label v-if="!compact" class="text--secondary">Threshold ≥ {{ (cutoff * 100).toFixed(0) }}%</label>
 
     <div class="similarity-setting-actions">
+      <span v-if="props.compact">
+        {{ (cutoff * 100).toFixed(0) }}%
+      </span>
       <v-slider
         v-model.number="cutoff"
         min="0.25"
@@ -14,7 +17,7 @@
       <v-btn color="primary" icon small @click="resetCutoff">
         <v-icon>mdi-restore</v-icon>
       </v-btn>
-      </div>
+    </div>
   </div>
 </template>
 
@@ -22,6 +25,11 @@
 import { storeToRefs } from "pinia";
 import { useApiStore } from "@/api/stores";
 
+interface Props {
+  compact?: boolean;
+}
+
+const props = withDefaults(defineProps<Props>(), {});
 const { cutoff, cutoffDefault } = storeToRefs(useApiStore());
 
 // Reset the cutoff to the default value.

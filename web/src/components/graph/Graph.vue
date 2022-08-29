@@ -33,7 +33,7 @@ import {
   onMounted,
   onUnmounted,
 } from "vue";
-import { useApiStore } from "@/api/stores";
+import { useApiStore, useFileStore } from "@/api/stores";
 import { Pair, File, Legend } from "@/api/models";
 import { useCluster, useD3HullTool, useD3Tooltip } from "@/composables";
 import { storeToRefs } from "pinia";
@@ -65,6 +65,7 @@ const props = withDefaults(defineProps<Props>(), {
 });
 const emit = defineEmits(["update:selectedNode", "update:selectedCluster", "click:node"]);
 
+const fileStore = useFileStore();
 const { cutoff, cutoffDebounced } = storeToRefs(useApiStore());
 
 // Reference to the container element.
@@ -89,7 +90,7 @@ const selectedClusterMeta = useCluster(selectedClusterValue);
 const nodesMap = computed(() => {
   const nodesMap = new Map<number, any>();
   for (const file of props.files) {
-    const label = file.extra.labels ?? "N/A";
+    const label = fileStore.getLabel(file).label;
 
     nodesMap.set(file.id, {
       id: file.id,
@@ -130,7 +131,8 @@ const clusterColors = computed(() => {
     // Count for each label the number of files in the cluster.
     const counter = new DefaultMap(() => 0);
     for (const element of elements) {
-      counter.set(element.extra.labels, counter.get(element.extra.labels) + 1);
+      const label = fileStore.getLabel(element).label;
+      counter.set(label, counter.get(label) + 1);
     }
 
     // Find the label with the most files in the cluster.
@@ -341,8 +343,13 @@ const updateGraph = (): void => {
 
 // Update the graph when the data changes.
 watch(
-  () => [cutoffDebounced.value, props.showSingletons, props.legend],
+  () => [cutoffDebounced.value, props.showSingletons],
   () => updateGraph()
+);
+watch(
+  () => [props.legend],
+  () => updateGraph(),
+  { deep: true }
 );
 
 // D3 Simulation force link

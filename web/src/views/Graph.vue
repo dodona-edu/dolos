@@ -4,10 +4,10 @@
       <v-col cols="12" class="no-y-padding">
         <Graph
           :showSingletons="showSingletons"
-          :legend="legendValue"
+          :legend="legend"
           :clustering="clustering"
-          :files="filesList"
-          :pairs="pairsList"
+          :files="filesActiveList"
+          :pairs="pairsActiveList"
           :zoomTo="'#clustering-table'"
           :selected-node.sync="selectedNode"
           :selected-cluster.sync="selectedCluster"
@@ -26,14 +26,14 @@
 
           <GraphLegend
             v-if="showLegend"
-            :legend.sync="legendValue"
+            :legend.sync="legend"
           />
 
           <GraphSelectedInfo
             :current-clustering="clustering"
             :selected-node="selectedNode"
             :selected-cluster="selectedCluster"
-            :legend="legendValue"
+            :legend="legend"
           />
         </Graph>
       </v-col>
@@ -48,10 +48,10 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, shallowRef, computed } from "vue";
+import { shallowRef, computed } from "vue";
 import { storeToRefs } from "pinia";
-import { File, Legend } from "@/api/models";
-import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
+import { File } from "@/api/models";
+import { Cluster } from "@/util/Cluster";
 import { useFileStore, usePairStore } from "@/api/stores";
 import { useRoute } from "@/composables";
 import GraphSelectedInfo from "@/d3-tools/GraphSelectedInfo.vue";
@@ -61,14 +61,11 @@ import GraphLegend from "@/d3-tools/GraphLegend.vue";
 import SimilaritySetting from "@/components/settings/SimilaritySetting.vue";
 
 const route = useRoute();
-const { filesList, legend } = storeToRefs(useFileStore());
-const { pairsList, clustering } = storeToRefs(usePairStore());
+const { filesActiveList, legend } = storeToRefs(useFileStore());
+const { pairsActiveList, clustering } = storeToRefs(usePairStore());
 
 // Show singletons in the graph.
 const showSingletons = shallowRef(false);
-
-// Legend.
-const legendValue = ref<Legend>(legend.value);
 
 // Node in the graph that is currently selected (file).
 const selectedNode = shallowRef<File>();

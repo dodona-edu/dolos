@@ -1,12 +1,11 @@
 <template>
   <div class="timeseries" ref="timeseriesElement">
-    <GraphLegend :legend.sync="legendValue" />
+    <GraphLegend :legend.sync="legend" />
   </div>
 </template>
 
 <script lang="ts" setup>
 import {
-  ref,
   shallowRef,
   watch,
   toRef,
@@ -15,10 +14,10 @@ import {
   computed,
 } from "vue";
 import { storeToRefs } from "pinia";
-import { useApiStore } from "@/api/stores";
+import { useApiStore, useFileStore } from "@/api/stores";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
 import { File } from "@/api/models";
-import { useCluster, useD3Tooltip, useLegend } from "@/composables";
+import { useCluster, useD3Tooltip, usePartialLegend } from "@/composables";
 import { SelectionTool, xCoord } from "@/d3-tools/SelectionTool";
 import GraphLegend from "@/d3-tools/GraphLegend.vue";
 import * as d3 from "d3";
@@ -45,10 +44,10 @@ const props = withDefaults(defineProps<Props>(), {
 });
 const emit = defineEmits(["filedata", "click:node"]);
 
+const fileStore = useFileStore();
 const { clusterFiles } = useCluster(toRef(props, "cluster"));
 const { cutoffDebounced } = storeToRefs(useApiStore());
-const legend = useLegend(clusterFiles);
-const legendValue = ref(legend.value);
+const legend = usePartialLegend(clusterFiles);
 
 // Timeseries template ref.
 const timeseriesElement = shallowRef();
@@ -86,16 +85,12 @@ const simulation = shallowRef();
 
 // Get the color for a file.
 const getColor = (f: File): string => {
-  return f.extra?.labels && legendValue.value
-    ? legendValue.value[f.extra.labels].color
-    : "#1976D2";
+  return fileStore.getLabel(f).color;
 };
 
 // Get the visibility of a file.
 const getVisibility = (f: File): string => {
-  return f.extra?.labels && legendValue.value
-    ? legendValue.value[f.extra.labels].selected ? "visibile" : "hidden"
-    : "visible";
+  return fileStore.getLabel(f).selected ? "visibile" : "hidden";
 };
 
 // Draw the timeseries
@@ -204,7 +199,7 @@ const drawSelected = (): void => {
 
 // Redraw the timeseries when the cluster changes.
 watch(
-  () => [cutoffDebounced.value, legendValue.value],
+  () => [cutoffDebounced.value, legend.value],
   () => {
     draw();
   }
@@ -214,7 +209,7 @@ watch(
 watch(
   () => legend.value,
   (legend) => {
-    legendValue.value = legend;
+    legend.value = legend;
   }
 );
 

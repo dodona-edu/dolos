@@ -30,31 +30,7 @@
             {{ legendCount }} labels detected
           </v-card-title>
 
-          <v-simple-table class="info-card-labels" fixed-header dense>
-            <thead>
-              <tr>
-                <th>Label</th>
-                <th>Submissions</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              <tr v-for="label in Object.values(legend)" :key="label.label">
-                <td class="d-flex align-center">
-                  <label-dot
-                    :label="label.label"
-                    :color="label.color"
-                  />
-
-                  <span class="ml-2">{{ label.label }}</span>
-                </td>
-
-                <td>
-                  {{ labelFilesCount[label.label] }}
-                </td>
-              </tr>
-            </tbody>
-          </v-simple-table>
+          <labels-table class="info-card-labels" show-submissions />
         </v-card>
       </v-col>
 
@@ -149,7 +125,7 @@
             </v-col>
 
             <v-col cols="auto">
-              <SimilaritySetting class="px-4 pt-4" />
+              <similarity-setting class="px-4 pt-4" />
             </v-col>
           </v-row>
 
@@ -274,7 +250,7 @@ import OverviewBarchart from "@/components/overview/OverviewBarchart.vue";
 import SimilaritySetting from "@/components/settings/SimilaritySetting.vue";
 import SimilarityDisplay from "@/components/pair/SimilarityDisplay.vue";
 import InfoDot from "@/components/InfoDot.vue";
-import LabelDot from "@/components/LabelDot.vue";
+import LabelsTable from "@/components/LabelsTable.vue";
 
 const apiStore = useApiStore();
 const fileStore = useFileStore();
@@ -284,14 +260,14 @@ const { legend, similaritiesList } = storeToRefs(fileStore);
 const { clustering } = storeToRefs(pairStore);
 
 // File legend.
-const legendCount = computed(() => Object.keys(legend.value).length);
+const legendCount = computed(() => Object.keys(legend.value ?? {}).length);
 
 // Amount of files.
-const filesCount = computed(() => Object.keys(fileStore.files).length);
+const filesCount = computed(() => Object.keys(fileStore.filesActive).length);
 
 // Highest similarity pair.
 const highestSimilarityPair = computed<Pair | null>(() => {
-  const pairs = Object.values(pairStore.pairs);
+  const pairs = Object.values(pairStore.pairsActive);
   return pairs.reduce(
     (a: Pair | null, b: Pair) =>
       (a?.similarity ?? 0) > b.similarity ? a : b,
@@ -313,8 +289,8 @@ const similarities = computed(() =>
 
 // Average maximum similarity.
 const averageSimilarity = computed(() => {
-  const mean = similarities.value.reduce((a, b) => a + b, 0) / similarities.value.length;
-  return mean;
+  const mean = similarities.value.reduce((a, b) => a + b, 0) / similarities.value.length ?? 0;
+  return isNaN(mean) ? 0 : mean;
 });
 
 // Median maximum similarity.
@@ -322,21 +298,7 @@ const medianSimilarity = computed(() => {
   const sorted = [...similarities.value].sort();
   const middle = Math.floor(sorted.length / 2);
   const median = sorted[middle];
-  return median;
-});
-
-// Map containing the the amount of files for each label.
-const labelFilesCount = computed(() => {
-  const values: { [key: string]: number } = {};
-
-  for (const file of fileStore.filesList) {
-    const label = file.extra.labels;
-    if (!label) continue;
-    if (!values[label]) values[label] = 0;
-    values[label] += 1;
-  }
-
-  return values;
+  return isNaN(median) ? 0 : median;
 });
 
 // Programming language, capitalized.

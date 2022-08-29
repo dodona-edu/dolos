@@ -69,7 +69,7 @@
 
 <script lang="ts" setup>
 import { computed, toRef } from "vue";
-import { useCluster, useVuetify, useRouter } from "@/composables";
+import { useCluster, useRouter } from "@/composables";
 import { File, Legend } from "@/api/models";
 import { Cluster, Clustering } from "@/util/clustering-algorithms/ClusterTypes";
 import { DateTime } from "luxon";
@@ -86,7 +86,6 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {});
 
-const vuetify = useVuetify();
 const router = useRouter();
 const { clusterFilesSet, clusterAverageSimilarity } = useCluster(toRef(props, "selectedCluster"));
 

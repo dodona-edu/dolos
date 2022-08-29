@@ -2,10 +2,6 @@
   <v-card>
     <v-card-title>
       Clusters
-      <v-spacer />
-      <v-form>
-       <SimilaritySetting />
-      </v-form>
     </v-card-title>
 
     <v-expansion-panels v-model="panel" class="elevation-0">
@@ -24,7 +20,6 @@ import { useRouteQuery } from "@/composables";
 import { storeToRefs } from "pinia";
 import { usePairStore } from "@/api/stores";
 import ClusteringCard from "@/components/clustering/ClusteringCard.vue";
-import SimilaritySetting from "@/components/settings/SimilaritySetting.vue";
 
 const { sortedClustering } = storeToRefs(usePairStore());
 

@@ -60,7 +60,7 @@ export const useSemanticStore = defineStore("semantic", () => {
     }
 
     if (metadataStore.metadata.semantic) {
-      occurrences.value = parse(await fetch(), fileStore.files);
+      occurrences.value = parse(await fetch(), fileStore.filesActiveList);
     }
 
     hydrated.value = true;

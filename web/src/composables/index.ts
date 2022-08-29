@@ -2,8 +2,8 @@ export * from "./useVuetify";
 export * from "./useBreakpoints";
 export * from "./useRouter";
 export * from "./useRoute";
+export * from "./usePartialLegend";
 export * from "./useRouteQuery";
-export * from "./useLegend";
 export * from "./useCluster";
 
 export * from "./d3/useD3Tooltip";

@@ -52,7 +52,7 @@ export const useApiStore = defineStore("api", () => {
 
     // Calculate the initial cut-off value.
     loadingText.value = "Calculating initial cut-off...";
-    cutoff.value = getInterpolatedSimilarity(pairStore.pairsList);
+    cutoff.value = getInterpolatedSimilarity(pairStore.pairsActiveList);
     cutoffDefault.value = cutoff.value;
 
     isLoaded.value = true;

@@ -1,12 +1,12 @@
 import { defineStore } from "pinia";
-import { shallowRef, computed, nextTick } from "vue";
+import { shallowRef, computed, nextTick, watch, ref } from "vue";
 import { DATA_URL } from "@/api";
-import { File, Label, ObjMap } from "@/api/models";
+import { File, Label, Legend, ObjMap } from "@/api/models";
 import { useApiStore, usePairStore } from "@/api/stores";
 import { names, uniqueNamesGenerator } from "unique-names-generator";
-import { useLegend } from "@/composables";
 import { commonFilenamePrefix, parseCsv } from "../utils";
 import { FileInterestingnessCalculator, FileScoring, SimilarityScore } from "@/util/FileInterestingness";
+import * as d3 from "d3";
 
 /**
  * Store containing the file data & helper functions.
@@ -16,28 +16,130 @@ export const useFileStore = defineStore("files", () => {
   const files = shallowRef<ObjMap<File>>({});
   const filesList = computed<File[]>(() => Object.values(files.value));
 
+  // Partial labels set.
+  // Contains fixed values for the label such as color.
+  // Does not contain dynamic properties such as current label name or selected.
+  const partialLabels = computed<Partial<Label>[]>(() => {
+    // Labels for the files.
+    const labels: Partial<Label>[] = [];
+    for (const file of filesList.value) {
+      const originalLabel = file.original.labels ?? "N/A";
+      if (labels.find(l => l.originalLabel === originalLabel)) continue;
+
+      labels.push({
+        originalLabel: originalLabel,
+      });
+    }
+
+    // Sort labels on original name.
+    // This is necessary to retain the original order of the labels when anonymizing.
+    const sortedLabels = [...labels].sort((a, b) =>
+      (a.originalLabel ?? "").localeCompare(b.originalLabel ?? "")
+    );
+
+    // Add the pseudo label for each label in the set.
+    // The pseudo label is the index in the array of labels.
+    for (const label of sortedLabels) {
+      label.pseudoLabel = String(sortedLabels.indexOf(label)) ?? "N/A";
+    }
+
+    // Category 20 colors.
+    const colorCategory20 = [
+      "#1f77b4",
+      "#ff7f0e",
+      "#2ca02c",
+      "#d62728",
+      "#9467bd",
+      "#8c564b",
+      "#e377c2",
+      "#bcbd22",
+      "#17becf",
+      "#aec7e8",
+      "#ffbb78",
+      "#98df8a",
+      "#ff9896",
+      "#c5b0d5",
+      "#c49c94",
+      "#f7b6d2",
+      "#dbdb8d",
+      "#9edae5",
+    ];
+
+    // Create a colorscale for the labels.
+    const colorScale = d3
+      .scaleOrdinal(colorCategory20)
+      .domain(sortedLabels.map(l => l.originalLabel ?? "N/A"));
+
+    // Add the colorscale to the labels.
+    for (const label of sortedLabels) {
+      label.color = colorScale(label.originalLabel ?? "N/A");
+    }
+
+    return sortedLabels;
+  });
+
+  // Legend
+  const legend = ref<Legend>({});
+  // Labels
+  const labels = ref<Label[]>([]);
+
+  // List of files to display (with active labels)
+  const filesActive = shallowRef<ObjMap<File>>({});
+  const filesActiveList = computed(() => {
+    return Object.values(filesActive.value);
+  });
+
+  // Calculate the active files list.
+  function calculateActiveFiles(): void {
+    // Return all files if no labels are available.
+    if (!hasLabels.value) {
+      filesActive.value = files.value;
+      return;
+    }
+
+    const filesFiltered = { ...files.value };
+
+    // Delete all files that don't have any active labels.
+    for (const file of filesList.value) {
+      const label = getLabel(file);
+      if (!label.selected) {
+        delete filesFiltered[file.id];
+      }
+    }
+
+    filesActive.value = filesFiltered;
+  }
+
+  const pairStore = usePairStore();
+
+  // Update the files to display when the files or active labels change
+  watch(legend, () => {
+    calculateActiveFiles();
+    pairStore.calculateActivePairs();
+  }, { deep: true });
+  watch(files, () => {
+    calculateActiveFiles();
+    pairStore.calculateActivePairs();
+  });
+
   // If this store has been hydrated.
   const hydrated = shallowRef(false);
 
-  // Legend of files.
-  const legend = useLegend(files);
-
-  const pairStore = usePairStore();
   const scoringCalculator: any = computed(() =>
-    new FileInterestingnessCalculator(pairStore.pairsList)
+    new FileInterestingnessCalculator(pairStore.pairsActiveList)
   );
 
   // Scored file map.
   const scoredFiles = computed(() => {
     const scores = new Map<File, FileScoring>();
-    for (const file of filesList.value) {
+    for (const file of filesActiveList.value) {
       scores.set(file, scoringCalculator.value.calculateFileScoring(file));
     }
     return scores;
   });
 
   // Scored file list
-  const scoredFilesList = computed(() => filesList.value.map((file) =>
+  const scoredFilesList = computed(() => filesActiveList.value.map((file) =>
     scoringCalculator.value.calculateFileScoring(file)
   ));
 
@@ -46,7 +148,7 @@ export const useFileStore = defineStore("files", () => {
   const similarities = computed(() => {
     // Create a map for storing the highest similarity for each file.
     const similarities = new Map<File, SimilarityScore | null>();
-    for (const file of filesList.value) {
+    for (const file of filesActiveList.value) {
       similarities.set(file, scoringCalculator.value.calculateSimilarityScore(file));
     }
 
@@ -65,7 +167,6 @@ export const useFileStore = defineStore("files", () => {
     });
 
     const timeOffset = Math.random() * 1000 * 60 * 60 * 24 * 20;
-    const labels: string[] = [];
 
     const filesMap = fileData.map((row: any) => {
       const file = row as File;
@@ -79,11 +180,6 @@ export const useFileStore = defineStore("files", () => {
       file.astAndMappingLoaded = true;
       file.amountOfKgrams = file.amountOfKgrams || file.ast.length;
 
-      // Add the label to the labels list, if it doesn't exist yet.
-      if (!labels.includes(row.label)) {
-        labels.push(extra.labels);
-      }
-
       // Store pseudo details.
       const pseudoName = randomNameGenerator();
       const pseudoPath = `${pseudoName}.${filePathExtension}`;
@@ -92,7 +188,6 @@ export const useFileStore = defineStore("files", () => {
         shortPath: pseudoPath,
         fullName: pseudoName,
         timestamp: extra.timestamp ? new Date(extra.timestamp.getTime() + timeOffset) : undefined,
-        labels: String(labels.indexOf(extra.labels)) ?? "",
       };
 
       // Store original details.
@@ -146,7 +241,7 @@ export const useFileStore = defineStore("files", () => {
         file.shortPath = file.pseudo.shortPath;
         file.extra.fullName = file.pseudo.fullName;
         file.extra.timestamp = file.pseudo.timestamp;
-        file.extra.labels = file.pseudo.labels;
+        file.extra.labels = getLabel(file).pseudoLabel;
       } else {
         file.path = file.original.path;
         file.shortPath = file.original.shortPath;
@@ -172,10 +267,10 @@ export const useFileStore = defineStore("files", () => {
     const defaultLabel = {
       label: "No Label",
       selected: false,
-      color: "grey",
+      color: "#1976d2",
     };
 
-    return legend.value[file?.extra?.labels ?? ""] ?? defaultLabel;
+    return legend.value?.[file?.extra?.labels ?? ""] ?? defaultLabel;
   }
 
   // If timestamp is available for the files.
@@ -188,9 +283,42 @@ export const useFileStore = defineStore("files", () => {
     filesList.value.some((file) => file.extra.labels)
   );
 
+  // Calculate the legend when the files change.
+  watch(filesList, () => {
+    const oldLegend = Object.values(legend.value);
+
+    labels.value = partialLabels.value.map((l) => {
+      const oldLabel = oldLegend.find(ol => ol.originalLabel === l.originalLabel);
+
+      return {
+        label: (apiStore.isAnonymous ? l.pseudoLabel : l.originalLabel) ?? "N/A",
+        pseudoLabel: l.pseudoLabel ?? "N/A",
+        originalLabel: l.originalLabel ?? "N/A",
+        color: l.color ?? "#1976d2",
+        selected: oldLabel ? oldLabel.selected : true,
+      };
+    });
+
+    legend.value = Object.fromEntries(labels.value.map((l) => [l.label, l]));
+  });
+
+  // Map containing the the amount of files for each label.
+  const labelFilesCount = computed(() => {
+    const values: { [key: string]: number } = {};
+
+    for (const file of filesList.value) {
+      const label = file.extra.labels;
+      if (!label) continue;
+      if (!values[label]) values[label] = 0;
+      values[label] += 1;
+    }
+
+    return values;
+  });
+
   return {
-    files,
-    filesList,
+    filesActive,
+    filesActiveList,
     scoredFiles,
     scoredFilesList,
     similarities,
@@ -198,10 +326,12 @@ export const useFileStore = defineStore("files", () => {
     hydrated,
     hydrate,
     legend,
+    labels,
     anonymize,
     getFile,
     getLabel,
     hasTimestamp,
     hasLabels,
+    labelFilesCount,
   };
 });

@@ -14,14 +14,14 @@
       <Graph
         :pairs="clusterPairs"
         :files="clusterFiles"
-        :legend="legendValue"
+        :legend="legend"
         :polygon="false"
         :clustering="clustering"
         :selected-node.sync="selectedNode"
         :height="400"
       >
         <GraphLegend
-          :legend.sync="legendValue"
+          :legend.sync="legend"
         />
       </Graph>
     </v-col>
@@ -29,11 +29,11 @@
 </template>
 
 <script lang="ts" setup>
-import { shallowRef, ref, watch, onMounted } from "vue";
+import { shallowRef, watch, onMounted } from "vue";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
 import { getClusterElementsArray } from "@/util/clustering-algorithms/ClusterFunctions";
 import { Pair, File } from "@/api/models";
-import { useLegend } from "@/composables";
+import { usePartialLegend } from "@/composables";
 import { storeToRefs } from "pinia";
 import { usePairStore } from "@/api/stores";
 import GraphElementListCard from "@/d3-tools/GraphElementListCard.vue";
@@ -50,8 +50,7 @@ const clusterFiles = shallowRef<File[]>([]);
 const clusterPairs = shallowRef<Pair[]>([]);
 const selectedFiles = shallowRef<File[]>([]);
 
-const legend = useLegend(clusterFiles);
-const legendValue = ref(legend.value);
+const legend = usePartialLegend(clusterFiles);
 
 // Clustering.
 const { clustering } = storeToRefs(pairStore);
@@ -68,13 +67,6 @@ const updateClusterValues = (): void => {
     clusterPairs.value = [];
   }
 };
-watch(
-  () => legend.value,
-  (legend) => {
-    legendValue.value = legend;
-  }
-);
-
 watch(
   () => props.cluster,
   () => {

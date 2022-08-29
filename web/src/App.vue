@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-app-bar clipped-left app color="primary" dark dense>
+    <v-app-bar clipped-left clipped-right app color="primary" dark dense>
       <v-app-bar-nav-icon
         v-if="!breakpoints.desktop"
         @click.stop="drawer = !drawer"
@@ -11,6 +11,13 @@
           DOLOS
         </RouterLink>
       </v-toolbar-title>
+
+      <v-spacer />
+
+      <v-btn icon @click="settings = !settings">
+        <v-icon v-if="!settings">mdi-cog</v-icon>
+        <v-icon v-else>mdi-close</v-icon>
+      </v-btn>
     </v-app-bar>
 
     <v-navigation-drawer
@@ -60,17 +67,6 @@
         <v-divider />
 
         <v-list nav dense>
-          <v-list-item class="anonymize">
-            <v-list-item-icon>
-              <v-badge :color="isAnonymous ? 'red' : ''" dot overlap>
-                <v-icon>mdi-incognito</v-icon>
-              </v-badge>
-            </v-list-item-icon>
-            <div class="anonymize-content">
-              <v-list-item-title>Anonymize</v-list-item-title>
-              <v-switch class="anonymize-switch" v-model="isAnonymous" :disabled="!isLoaded" />
-            </div>
-          </v-list-item>
           <v-list-item
             href="https://github.com/dodona-edu/dolos"
             target="_blank"
@@ -120,6 +116,53 @@
         <loading v-else :text="loadingText" />
       </v-container>
     </v-main>
+
+    <v-navigation-drawer :value="settings" app clipped right>
+      <v-card-title>
+        Global settings
+      </v-card-title>
+      <v-card-subtitle>
+        Configure global parameters of the analysis results.
+      </v-card-subtitle>
+      <v-card-text>
+        <div>
+          <h4>Similarity Threshold</h4>
+          <span class="text--secondary">
+            The similarity threshold is the minimum similarity a file pair must have to be considered plagiarised.
+          </span>
+        </div>
+        <similarity-setting v-if="isLoaded" compact />
+        <v-skeleton-loader v-else type="heading" />
+      </v-card-text>
+
+      <v-card-text>
+        <div>
+          <h4>Anonymize Dataset</h4>
+          <span class="text--secondary">
+            Anonymize the dataset by removing the names of the authors and the files.
+          </span>
+        </div>
+
+        <v-switch
+          v-model="isAnonymous"
+          :disabled="!isLoaded"
+          :label="isAnonymous ? 'Enabled' : 'Disabled'"
+          inset
+        />
+      </v-card-text>
+
+      <v-card-text class="pb-0">
+        <div>
+          <h4>Active labels</h4>
+          <span class="text--secondary">
+            Select the labels that should be displayed in the visualizations.
+          </span>
+        </div>
+      </v-card-text>
+      
+      <labels-table v-if="isLoaded" class="settings-labels" />
+      <v-skeleton-loader v-else class="px-4" type="table-row-divider@4" />
+    </v-navigation-drawer>
   </v-app>
 </template>
 
@@ -131,6 +174,8 @@ import { useApiStore } from "@/api/stores";
 import { useBreadcrumbStore } from "@/stores";
 import Loading from "@/components/Loading.vue";
 import packageJson from "../package.json";
+import SimilaritySetting from "./components/settings/SimilaritySetting.vue";
+import LabelsTable from "./components/LabelsTable.vue";
 
 const breakpoints = useBreakpoints();
 const api = useApiStore();
@@ -138,6 +183,8 @@ const { isLoaded, isAnonymous, loadingText } = storeToRefs(api);
 
 // If the drawer is open/closed.
 const drawer = shallowRef(breakpoints.value.desktop);
+// If the global settings dialog is open/closed.
+const settings = shallowRef(false);
 
 // Current version of the application.
 const version = computed(() => packageJson.version);
@@ -161,22 +208,9 @@ useBreadcrumbStore();
   }
 }
 
-.anonymize {
-  &-content {
-    display: flex;
-    overflow: visible;
-    flex-wrap: nowrap;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-  }
-
-  &-switch {
-    max-height: 35px !important;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 !important;
+.settings {
+  &-labels {
+    margin-left: 1px;
   }
 }
 

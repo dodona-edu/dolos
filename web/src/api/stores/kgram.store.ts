@@ -55,7 +55,7 @@ export const useKgramStore = defineStore("kgrams", () => {
       );
     }
 
-    kgrams.value = parse(await fetch(), fileStore.files);
+    kgrams.value = parse(await fetch(), fileStore.filesActiveList);
     hydrated.value = true;
   }
 
