@@ -24,7 +24,7 @@
             />
           </v-form>
 
-          <GraphLegend
+          <graph-legend
             v-if="showLegend"
             :legend.sync="legend"
           />

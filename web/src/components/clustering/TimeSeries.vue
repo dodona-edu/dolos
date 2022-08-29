@@ -1,6 +1,6 @@
 <template>
   <div class="timeseries" ref="timeseriesElement">
-    <GraphLegend :legend.sync="legend" />
+    <graph-legend :legend.sync="legend" />
   </div>
 </template>
 

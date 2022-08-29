@@ -11,7 +11,7 @@
     </v-col>
 
     <v-col cols="12" md="8" order="1" order-md="2">
-      <Graph
+      <graph
         :pairs="clusterPairs"
         :files="clusterFiles"
         :legend="legend"
@@ -20,10 +20,10 @@
         :selected-node.sync="selectedNode"
         :height="400"
       >
-        <GraphLegend
+        <graph-legend
           :legend.sync="legend"
         />
-      </Graph>
+      </graph>
     </v-col>
   </v-row>
 </template>
