@@ -70,11 +70,14 @@ import { useVModel } from "@vueuse/core";
 interface Props {
   files: File[];
   search?: string;
+  itemsPerPage?: number;
   dense?: boolean;
   pagination?: boolean;
 }
 
-const props = withDefaults(defineProps<Props>(), {});
+const props = withDefaults(defineProps<Props>(), {
+  itemsPerPage: 15,
+});
 const emit = defineEmits(["update:search"]);
 const router = useRouter();
 const fileStore = useFileStore();
@@ -106,7 +109,7 @@ const headers = computed<DataTableHeader[]>(() => {
 
 // Footer props
 const footerProps = {
-  itemsPerPageOptions: [10, 25, 50, 100, -1],
+  itemsPerPageOptions: [props.itemsPerPage, 25, 50, 100, -1],
   showCurrentPage: true,
   showFirstLastPage: true,
 };
