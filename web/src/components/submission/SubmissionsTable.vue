@@ -52,21 +52,26 @@
 
     <template #item.timestamp="{ item }">
       <span class="submission-timestamp">
-        <file-timestamp :timestamp="item.timestamp" long />
         <v-tooltip top>
           <template v-slot:activator="{ on, attrs }">
             <span
-              v-if="props.highlightFirst && firstSubmitted?.id === item.id"
+              v-if="props.order"
               v-on="on"
               v-bind="attrs"
-              class="error--text"
+              :class="item.order === 1 ? 'primary--text' : 'text--secondary'"
             >
-              (#1)
+              #{{ item.order }}
             </span>
           </template>
 
-          <span>This is the first submission in the cluster</span>
+          <span>This is the #{{ item.order }} submission in the cluster</span>
         </v-tooltip>
+        
+        <file-timestamp
+          :class="props.order && item.order === 1 ? 'primary--text' : ''"
+          :timestamp="item.timestamp"
+          long
+        />
       </span>
     </template>
   </v-data-table>
@@ -87,7 +92,7 @@ interface Props {
   itemsPerPage?: number;
   dense?: boolean;
   pagination?: boolean;
-  highlightFirst?: boolean;
+  order?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -100,18 +105,6 @@ const { similarities, hasTimestamp, hasLabels } = storeToRefs(fileStore);
 
 // Search value.
 const searchValue = useVModel(props, "search", emit);
-
-// Find the first submitted file.
-// The first submitted file is the with the smallest tiemstamp.
-const firstSubmitted = computed(() => {
-  if (props.files.length === 0) return null;
-  return props.files.reduce((prev, curr) => {
-    if (prev === null || (curr.extra.timestamp ?? 0) < (prev.extra.timestamp ?? 0)) {
-      return curr;
-    }
-    return prev;
-  });
-});
 
 // Table headers
 const headers = computed<DataTableHeader[]>(() => {
@@ -144,6 +137,13 @@ const footerProps = {
 // Table items
 // In the format for the Vuetify data-table.
 const items = computed(() => {
+  // Sort files on submission date.
+  const sortedFiles = [...props.files].sort((a, b) => {
+    if (!a.extra.timestamp) return 1;
+    if (!b.extra.timestamp) return -1;
+    return a.extra.timestamp - b.extra.timestamp;
+  });
+
   return props.files
     .map((file) => ({
       id: file.id,
@@ -153,6 +153,7 @@ const items = computed(() => {
       similarity: similarities.value.get(file)?.similarity ?? 0,
       timestamp: file.extra.timestamp,
       lines: file.content.split("\n").length ?? 0,
+      order: sortedFiles.indexOf(file) + 1,
     }));
 });
 
