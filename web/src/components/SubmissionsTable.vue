@@ -41,7 +41,12 @@
 
     <template #item.similarity="{ item }">
       <span class="submission-similarity">
-        <similarity-display :similarity="item.similarity" progress dim-below-cutoff />
+        <similarity-display
+          :similarity="item.similarity"
+          :dense="props.dense"
+          progress
+          dim-below-cutoff
+        />
       </span>
     </template>
 
