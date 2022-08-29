@@ -51,7 +51,8 @@ export const usePairStore = defineStore("pairs", () => {
     
     const pairsFiltered = { ...pairs.value };
 
-    // Delete all fthe pairs that contain a file that shouldn't be displayed.
+    // Delete all the pairs that contain a file that shouldn't be displayed.
+
     for (const pair of pairsList.value) {
       if (
         !fileStore.filesActiveList.includes(pair.leftFile) ||
