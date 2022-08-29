@@ -40,7 +40,6 @@ interface Props {
   progress?: boolean;
   dense?: boolean;
   dimBelowCutoff?: boolean;
-  showGreen?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
