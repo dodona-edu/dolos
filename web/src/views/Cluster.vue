@@ -25,7 +25,7 @@
 
             <v-tabs-items v-model="activeTab" class="mt-2">
               <v-tab-item>
-                <submissions-table :files="clusterFiles" :items-per-page="15" dense pagination highlight-first />
+                <submissions-table :files="clusterFiles" :items-per-page="15" dense pagination order />
               </v-tab-item>
 
               <v-tab-item>
