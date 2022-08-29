@@ -20,7 +20,7 @@
 </template>
 
 <script lang="ts" setup>
-import { shallowRef, onMounted } from "vue";
+import { shallowRef, onMounted, watch } from "vue";
 import { useRouter, useRoute } from "@/composables";
 import { useVModel } from "@vueuse/core";
 import { Pair } from "@/api/models";
@@ -83,6 +83,9 @@ const calculateItems = (): void => {
 
 // Calculate the items on mount.
 onMounted(() => calculateItems());
+
+// Calculate the items when the pairs change.
+watch(() => props.pairs, () => calculateItems());
 
 // When a row is clicked.
 const rowClicked = (item: { pair: Pair }): void => {
