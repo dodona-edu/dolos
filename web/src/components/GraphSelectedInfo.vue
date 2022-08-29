@@ -116,11 +116,7 @@ const selectedClusterIndex = computed(() => {
 
 // Go to the information section of this cluster.
 const goToInfo = (): void => {
-  router.replace({
-    query: {
-      cluster: String(selectedClusterIndex.value),
-    }
-  });
+  router.replace(`/clusters/${selectedClusterIndex.value}`);
 };
 </script>
 
