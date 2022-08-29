@@ -7,9 +7,9 @@
       />
 
       <v-toolbar-title>
-        <RouterLink to="/">
+        <router-link to="/">
           DOLOS
-        </RouterLink>
+        </router-link>
       </v-toolbar-title>
 
       <v-spacer />

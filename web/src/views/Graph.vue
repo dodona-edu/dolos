@@ -2,7 +2,7 @@
   <v-container fluid fill-height>
     <v-row class="graph-container">
       <v-col cols="12" class="no-y-padding">
-        <Graph
+        <graph
           :showSingletons="showSingletons"
           :legend="legend"
           :clustering="clustering"
@@ -15,7 +15,7 @@
         >
           <!-- Extra UI elements to be added as overlay over the graph -->
           <v-form class="graph-settings">
-            <SimilaritySetting />
+            <similarity-setting />
 
             <v-checkbox
               v-model="showSingletons"
@@ -29,13 +29,13 @@
             :legend.sync="legend"
           />
 
-          <GraphSelectedInfo
+          <graph-selected-info
             :current-clustering="clustering"
             :selected-node="selectedNode"
             :selected-cluster="selectedCluster"
             :legend="legend"
           />
-        </Graph>
+        </graph>
       </v-col>
     </v-row>
 

@@ -25,32 +25,21 @@
   </ul>
 </template>
 
-<script lang="ts">
-import { defineComponent, PropType } from "vue";
+<script lang="ts" setup>
 import { Legend } from "@/api/models";
 import { useVModel } from "@vueuse/core";
 
-export default defineComponent({
-  props: {
-    legend: {
-      type: Object as PropType<Legend>,
-      required: true,
-    },
-  },
+interface Props {
+  legend: Legend;
+}
 
-  setup(props, { emit }) {
-    const legendValue = useVModel(props, "legend", emit);
+const props = withDefaults(defineProps<Props>(), {});
+const emit = defineEmits(["update:legend"]);
+const legendValue = useVModel(props, "legend", emit);
 
-    const onCheckChange = (): void => {
-      legendValue.value = Object.assign({}, legendValue.value);
-    };
-
-    return {
-      legendValue,
-      onCheckChange,
-    };
-  }
-});
+const onCheckChange = (): void => {
+  legendValue.value = Object.assign({}, legendValue.value);
+};
 </script>
 
 <style scoped lang="scss">

@@ -1,7 +1,7 @@
 <template>
   <v-row>
     <v-col cols="12" md="4" order="2" order-md="1">
-      <GraphElementListCard
+      <graph-element-list-card
         :cluster="cluster"
         :selected-files="selectedFiles"
         max-height="400px"

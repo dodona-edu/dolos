@@ -19,8 +19,8 @@
 
     <template #item.label="{ item }">
       <span class="submission-label">
-        <LabelDot :label="item.label.label" :color="item.label.color" />
-        <LabelText :label="item.label.label" />
+        <label-dot :label="item.label.label" :color="item.label.color" />
+        <label-text :label="item.label.label" />
       </span>
     </template>
 

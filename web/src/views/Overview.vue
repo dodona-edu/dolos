@@ -53,12 +53,12 @@
             <div class="stat-card-value">
               <similarity-display :similarity="highestSimilarity" text />
             </div>
-            <RouterLink
+            <router-link
               class="stat-card-subtitle text--secondary"
               to="/pairs"
             >
               View pairs
-            </RouterLink>
+            </router-link>
           </div>
         </v-card>
 
@@ -131,7 +131,7 @@
             </v-col>
           </v-row>
 
-          <OverviewBarchart
+          <overview-barchart
             :ticks="20"
             :extra-line="apiStore.cutoff"
           />
