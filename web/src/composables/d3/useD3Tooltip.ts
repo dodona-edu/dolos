@@ -20,15 +20,10 @@ export function useD3Tooltip(options: UseD3TooltipOptions = {}): UseD3TooltipRet
     .select(".v-application--wrap")
     .append("div")
     .attr("class", "tooltip")
-    .style("padding", "10px 18px")
+    .attr("class", "v-tooltip__content")
     .style("opacity", 0)
     .style("position", "absolute")
     .style("z-index", 1)
-    .style("color", "white")
-    .style("background-color", "rgba(0, 0, 0, 0.7)")
-    .style("color", "#fff")
-    .style("border", "1px solid")
-    .style("border-radius", "4px")
     .style("transform", "translateY(-100%)")
     .style("pointer-events", "none");
 

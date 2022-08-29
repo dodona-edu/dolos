@@ -10,29 +10,28 @@ import {
   onMounted,
 } from "vue";
 import { storeToRefs } from "pinia";
-import { useFileStore } from "@/api/stores";
+import { useApiStore, useFileStore } from "@/api/stores";
 import { useElementSize } from "@vueuse/core";
-import { TooltipTool } from "@/d3-tools/TooltipTool";
+import { useD3Tooltip, useRouter } from "@/composables";
 import * as d3 from "d3";
 
 interface Props {
-  numberOfTicks?: number;
+  ticks?: number;
   extraLine?: number;
   pairField?: "similarity" | "longestFragment" | "totalOverlap";
 }
 
 const props = withDefaults(defineProps<Props>(), {
+  ticks: 20,
   pairField: "similarity",
 });
 
+const router = useRouter();
+const { cutoff } = storeToRefs(useApiStore());
 const { similaritiesList } = storeToRefs(useFileStore());
 const maxFileData = computed(() =>
   similaritiesList.value.map(f => f?.similarity || 0)
 );
-
-const getBinColor = (): string => {
-  return "#1976D2";
-};
 
 // Barchart template ref.
 const barchartElement = shallowRef();
@@ -41,8 +40,8 @@ const barchartElement = shallowRef();
 const margin = {
   top: 10,
   bottom: 60,
-  left: 70,
-  right: 70,
+  left: 75,
+  right: 45,
 };
 const barchartSize = useElementSize(barchartElement);
 const width = computed(() => (barchartSize.width.value || 600) - margin.left - margin.right);
@@ -55,8 +54,21 @@ const barchartContent = barchart
   .append("g")
   .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
+// Tooltip
+const tooltip = useD3Tooltip({ relativeToMouse: true });
+const tooltipMessage = (d): string => {
+  return `There are <b>${d.length}</b> files that have a value between <b>${d.x0}</b> and <b>${d.x1}</b>`;
+};
+
 const barchartXScale = shallowRef();
 const barchartYScale = shallowRef();
+
+// Determin the color of a given bin.
+const getBinColor = (d): string => {
+  // If the x1 coordinate is below the threshold return an greyed out color.
+  // x1 represents the end value of the bin.
+  return d.x1 <= cutoff.value ? "rgba(25, 118, 210, 0.25)" : "#1976D2";
+};
 
 // Draw the barchart.
 const draw = (): void => {
@@ -68,88 +80,98 @@ const draw = (): void => {
   // Clear the barchart.
   barchartContent.selectAll("*").remove();
 
-  // Create the axes.
-  const xScale = d3
+  // X-axis
+  const x = d3
     .scaleLinear()
-    .domain([0, 1] as [number, number])
-    .range([0, height.value]);
-  const domain = xScale.domain();
-  const ticks = xScale.ticks(props.numberOfTicks);
-  const adjustedTicks = ticks[ticks.length - 1] === domain[1] ? ticks.slice(0, -1) : ticks;
-  const histogram = d3.bin().domain([0, 1]).thresholds(adjustedTicks);
-  const bins = histogram(maxFileData.value);
-  const yScale = d3
-    .scaleLinear()
-    .range([0, width.value])
-    .domain([
-      0,
-      d3.max<d3.Bin<number, number>, number>(bins, ({ length }) => length),
-    ] as number[]);
-
-  barchartXScale.value = xScale;
-  barchartYScale.value = yScale;
-
+    .domain([0, 1])
+    .range([0, width.value]);
   const xAxis = barchartContent
     .append("g")
-    .attr("transform", "translate(0, " + height.value + ")")
-    .call(d3.axisBottom(yScale));
+    .attr("transform", "translate(0," + height.value + ")")
+    .call(d3.axisBottom(x).tickFormat(d3.format(".0%")))
+    .classed("d3-ticks", true);
   xAxis
     .append("text")
-    .text("Amount of pairs")
-    .attr("font-size", 15)
-    .attr("fill", "black")
-    .attr("transform", `translate(${width.value / 2}, 35)`);
+    .text("Similarity")
+    .classed("d3-label", true)
+    .attr("transform", `translate(${width.value / 2}, 50)`);
 
+  // X-ticks
+  const xDomain = x.domain();
+  const xTicks = x.ticks(props.ticks);
+  const xTicksAjusted = xTicks[xTicks.length - 1] === xDomain[1] ? xTicks.slice(0, -1) : xTicks;
+
+  // Histogram
+  const histogram = d3
+    .bin()
+    .domain([0, 1])
+    .thresholds(xTicksAjusted);
+  // Bins
+  const bins = histogram(maxFileData.value);
+  
+  // Y-axis
+  const y = d3
+    .scaleLinear()
+    .range([height.value, 0])
+    .domain([0, d3.max<any, any>(bins, d => d.length)]);
   const yAxis = barchartContent
     .append("g")
-    .attr("transform", "translate(0, 0)")
-    .call(d3.axisLeft(xScale).tickFormat(d3.format(".0%")));
-  yAxis.append("text")
-    .text("Similarity")
-    .attr("font-size", 15)
-    .attr("fill", "black")
-    .attr("transform", `translate(-50, ${height.value / 2 + 35}) rotate(90)`);
+    .call(d3.axisLeft(y))
+    .classed("d3-ticks", true);
+  yAxis
+    .append("text")
+    .text("Amount of files")
+    .classed("d3-label", true)
+    .attr("transform", `translate(-55, ${height.value / 2 + 35}) rotate(90)`);
 
   // Add the data.
-  barchartContent
-    .selectAll("rect")
-    .data(bins)
-    .enter()
-    .append("rect")
-    .attr("x", 0)
-    .attr("transform", (d) => {
-      return "translate(" + 0 + "," + xScale(d.x0 || 0) + ")";
-    })
-    .attr("height", (d) => {
-      return xScale(d.x1 || 0) - xScale(d.x0 || 0) - 1;
-    })
-    .attr("width", (d) => {
-      return yScale(d.length);
-    })
-    .style("fill", () => getBinColor());
+  // Only add the data if there are any files available.
+  if (maxFileData.value.length > 0) {
+    barchartContent
+      .selectAll("rect")
+      .data(bins)
+      .enter()
+      .append("rect")
+      .attr("x", 1)
+      .attr("transform", (d) => "translate(" + (x(d.x0 ?? 0)) + "," + y(d.length) + ")")
+      .attr("width", (d) => x(d.x1 ?? 0) - x(d.x0 ?? 0) - 1)
+      .attr("height", (d) => height.value - y(d.length))
+      .style("fill", (d) => getBinColor(d))
+      .style("cursor", "pointer")
+      .on("mouseover", (e: MouseEvent, d) => tooltip.onMouseOver(e, tooltipMessage(d)))
+      .on("mousemove", (e: MouseEvent) => tooltip.onMouseMove(e))
+      .on("mouseleave", (e: MouseEvent) => tooltip.onMouseOut(e))
+      .on("click", (_: MouseEvent, d) => {
+        const x0 = d.x0 ?? 0;
+        const x1 = d.x1 ?? 1;
+
+        // Go to the submissions page.
+        router.push({
+          path: "/submissions",
+          query: {
+            startSimilarity: x0.toString(),
+            endSimilarity: x1.toString(),
+          },
+        });
+      });
+  }
 
   // Add extra line, if specified.
   if (props.extraLine) {
     barchartContent
       .append("line")
       .attr("class", "extra-line")
-      .attr("x1", 0)
-      .attr("y1", xScale(props.extraLine))
-      .attr("x2", width.value)
-      .attr("y2", xScale(props.extraLine))
-      .attr("stroke", "black");
+      .attr("x1", x(props.extraLine))
+      .attr("y1", 0)
+      .attr("x2", x(props.extraLine))
+      .attr("y2", height.value)
+      .attr("stroke", "black")
+      .attr("stroke-width", 1.5);
   }
-
-  // Add tooltip
-  const tool = new TooltipTool<d3.Bin<number, number>>(h => `
-    There are <b>${h.length}</b> files that have a value between <b>${h.x0}</b> and <b>${h.x1}</b>
-  `);
-  barchart
-    .select("g")
-    .selectAll("rect")
-    .on("mouseenter", (e, d) =>
-      tool.mouseEnter(e, d as d3.Bin<number, number>, true))
-    .on("mouseleave", () => tool.mouseOut());
+  
+  // Store the axis scales.
+  barchartXScale.value = x;
+  barchartYScale.value = y;
 };
 
 // Update the extra line when the value changes.
@@ -158,8 +180,8 @@ watch(
   (extraLine) => {
     barchartContent
       .select(".extra-line")
-      .attr("y1", barchartXScale.value(extraLine))
-      .attr("y2", barchartXScale.value(extraLine));
+      .attr("x1", barchartXScale.value(extraLine))
+      .attr("x2", barchartXScale.value(extraLine));
   }
 );
 
@@ -168,6 +190,14 @@ watch(width, () => draw());
 
 // Update the barchart when the file data changes.
 watch(maxFileData, () => draw());
+
+// Update the barchart when the cutoff changes.
+watch(cutoff, () => {
+  barchart
+    .select("g")
+    .selectAll("rect")
+    .style("fill", (d) => getBinColor(d));
+});
 
 onMounted(() => {
   barchartElement.value?.prepend(barchart.node() ?? "");

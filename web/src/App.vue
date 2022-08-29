@@ -241,4 +241,22 @@ useBreadcrumbStore();
     cursor: pointer;
   }
 }
+
+// Apply font family to D3 graphs.
+text {
+  font-family: "Roboto", sans-serif !important;
+}
+
+// D3 re-usable graph styles.
+.d3 {
+  &-ticks {
+    font-size: 0.9rem;
+  }
+
+  &-label {
+    font-size: 1rem;
+    font-weight: 500;
+    fill: rgba(0, 0, 0, 0.87);
+  }
+}
 </style>

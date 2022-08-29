@@ -1,10 +1,10 @@
 <template>
-  <v-simple-table fixed-header dense>
+  <v-simple-table class="labels" fixed-header dense>
     <thead>
       <tr>
         <th>Label</th>
         <th v-if="props.showSubmissions">Submissions</th>
-        <th class="text-right">Enabled</th>
+        <th></th>
       </tr>
     </thead>
 
@@ -24,14 +24,12 @@
         </td>
 
         <td class="text-end">
-          <v-btn
-            icon
+          <v-switch 
+            v-model="label.selected"
+            class="labels-switch"
+            inset
             small
-            @click="label.selected = !label.selected"
-          >
-            <v-icon v-if="label.selected" color="primary">mdi-eye</v-icon>
-            <v-icon v-else>mdi-eye-off</v-icon>
-          </v-btn>
+          />
         </td>
       </tr>
     </tbody>
@@ -51,3 +49,32 @@ const props = withDefaults(defineProps<Props>(), {});
 const fileStore = useFileStore();
 const { labels, labelFilesCount } = storeToRefs(fileStore);
 </script>
+
+<style lang="scss" scoped>
+.labels {
+  &-switch {
+    margin-top: 0;
+
+    :deep(.v-input--switch__track) {
+      height: 22px;
+    }
+
+    :deep(.v-input--switch__thumb),
+    :deep(.v-input--selection-controls__ripple) {
+      height: 14px;
+      width: 14px;
+    }
+
+    :deep(.v-input--selection-controls__ripple) {
+      height: 24px;
+      width: 24px;
+      left: -12px;
+      top: -10px;
+    }
+
+    :deep(.v-input__slot) {
+      margin-bottom: 0;
+    }
+  }
+}
+</style>

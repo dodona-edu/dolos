@@ -10,7 +10,7 @@
     </div>
 
     <v-row>
-      <v-col cols="12" md="6" lg="4" class="info-cards">
+      <v-col cols="12" md="6" lg="3" class="info-cards">
         <v-card class="info-card">
           <v-card-title class="pb-0">Submissions</v-card-title>
 
@@ -101,13 +101,15 @@
               </info-dot>
             </h3>
             <div class="stat-card-value">{{ clustering.length }}</div>
-            <div class="stat-card-subtitle text--secondary">Largest cluster: {{ largestCluster }} submissions</div>
+            <div class="stat-card-subtitle text--secondary">
+              Based on the current threshold ({{ (apiStore.cutoff * 100).toFixed(0) }}%)
+            </div>
           </div>
         </v-card>
       </v-col>
 
       <!-- Similarity distribution -->
-      <v-col cols="12" lg="5">
+      <v-col cols="12" lg="6">
         <v-card class="graph-card">
           <v-row justify="space-between" align="center" no-wrap no-gutters>
             <v-col cols="auto">
@@ -130,7 +132,7 @@
           </v-row>
 
           <OverviewBarchart
-            :number-of-ticks="10"
+            :ticks="20"
             :extra-line="apiStore.cutoff"
           />
         </v-card>
@@ -245,7 +247,6 @@ import {
   usePairStore,
   useMetadataStore,
 } from "@/api/stores";
-import { getClusterElements } from "@/util/clustering-algorithms/ClusterFunctions";
 import OverviewBarchart from "@/components/overview/OverviewBarchart.vue";
 import SimilaritySetting from "@/components/settings/SimilaritySetting.vue";
 import SimilarityDisplay from "@/components/pair/SimilarityDisplay.vue";
@@ -306,15 +307,6 @@ const language = computed(() => {
   const lang = metadataStore.metadata.language;
   return lang.charAt(0).toUpperCase() + lang.slice(1);
 });
-
-// Largest cluster
-const largestCluster = computed(() =>
-  clustering.value.reduce(
-    (a, b) =>
-      a > getClusterElements(b).size ? a : getClusterElements(b).size,
-    0
-  )
-);
 </script>
 
 <style lang="scss" scoped>

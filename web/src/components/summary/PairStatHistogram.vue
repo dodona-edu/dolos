@@ -4,7 +4,7 @@
 
 <script lang="ts" setup>
 import { shallowRef, computed, watch, onMounted } from "vue";
-import { useD3Tooltip } from "@/composables";
+import { useD3Tooltip, useRouter } from "@/composables";
 import { useElementSize } from "@vueuse/core";
 import { useFileStore } from "@/api/stores";
 import { File } from "@/api/models";
@@ -21,6 +21,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {});
+const router = useRouter();
 const { scoredFiles, scoredFilesList } = storeToRefs(useFileStore());
 
 const maxFileData = computed(() =>
@@ -107,9 +108,9 @@ const histogramElement = shallowRef();
 // Histogram element size
 const margin = {
   top: 10,
-  bottom: 30,
-  left: 40,
-  right: 30,
+  bottom: 55,
+  left: 60,
+  right: 45,
 };
 // Container size
 const size = useElementSize(histogramElement);
@@ -126,11 +127,17 @@ const histogramContent = histogramChart
   .append("g")
   .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
+// Tooltip
+const tooltip = useD3Tooltip({ relativeToMouse: true });
+const tooltipMessage = (d): string => {
+  return `
+    There are <b>${d.length}</b> submissions that have a
+    highest similarity between <b>${d.x0}</b> and <b>${d.x1}</b>
+  `;
+};
+
 const histogramXScale = shallowRef();
 const histogramYScale = shallowRef();
-
-// Tooltip tool
-const tooltip = useD3Tooltip({ relativeToTarget: true });
 
 // Draw the histogram.
 const draw = (): void => {
@@ -142,99 +149,112 @@ const draw = (): void => {
   // Clear the histogram.
   histogramContent.selectAll("*").remove();
 
-  // Create the axes.
-  const xScale = d3
+  // X-axis
+  const x = d3
     .scaleLinear()
-    .domain([0, 1] as [number, number])
+    .domain([0, 1])
     .range([0, width.value]);
-  const domain = xScale.domain();
-  const ticks = xScale.ticks(props.ticks);
-  const adjustedTicks = ticks[ticks.length - 1] === domain[1] ? ticks.slice(0, -1) : ticks;
+  const xAxis = histogramContent
+    .append("g")
+    .attr("transform", "translate(0," + height.value + ")")
+    .call(d3.axisBottom(x).tickFormat(d3.format(".0%")))
+    .classed("d3-ticks", true);
+  xAxis
+    .append("text")
+    .text(fieldName.value)
+    .classed("d3-label", true)
+    .attr("transform", `translate(${width.value / 2}, 50)`);
+
+  // X-ticks
+  const xDomain = x.domain();
+  const xTicks = x.ticks(props.ticks);
+  const xTicksAjusted = xTicks[xTicks.length - 1] === xDomain[1] ? xTicks.slice(0, -1) : xTicks;
+
+  // Histogram
   const histogram = d3
     .bin()
     .domain([0, 1])
-    .thresholds(adjustedTicks);
+    .thresholds(xTicksAjusted);
+  // Bins
   const bins = histogram(maxFileData.value);
-  const yScale = d3
+  
+  // Y-axis
+  const y = d3
     .scaleLinear()
     .range([height.value, 0])
-    .domain([
-      0,
-      d3.max<d3.Bin<number, number>, number>(bins, ({ length }) => length),
-    ] as number[]);
-  histogramContent
+    .domain([0, d3.max<any, any>(bins, d => d.length)]);
+  const yAxis = histogramContent
     .append("g")
-    .attr("transform", "translate(0," + height.value + ")")
-    .call(d3.axisBottom(xScale));
-  histogramContent
-    .append("g")
-    .call(d3.axisLeft(yScale));
-
-  histogramXScale.value = xScale;
-  histogramYScale.value = yScale;
+    .call(d3.axisLeft(y))
+    .classed("d3-ticks", true);
+  yAxis
+    .append("text")
+    .text("Amount of files")
+    .classed("d3-label", true)
+    .attr("transform", `translate(-55, ${height.value / 2 + 35}) rotate(90)`);
 
   // Add the data.
-  histogramContent
-    .selectAll("rect")
-    .data<d3.Bin<number, number>>(bins)
-    .enter()
-    .append("rect")
-    .attr("x", 1)
-    .attr("transform", (d) => {
-      return "translate(" + xScale(d.x0 || 0) + "," + yScale(d.length) + ")";
-    })
-    .attr("width", (d) => {
-      return Math.max(xScale(d.x1 || 0) - xScale(d.x0 || 0) - 1, 0);
-    })
-    .attr("height", (d) => {
-      return height.value - yScale(d.length);
-    })
-    .style("fill", d => getBinColor(d));
+  // Only add the data if there are any files available.
+  if (maxFileData.value.length > 0) {
+    histogramContent
+      .selectAll("rect")
+      .data(bins)
+      .enter()
+      .append("rect")
+      .attr("x", 1)
+      .attr("transform", (d) => "translate(" + (x(d.x0 ?? 0)) + "," + y(d.length) + ")")
+      .attr("width", (d) => x(d.x1 ?? 0) - x(d.x0 ?? 0) - 1)
+      .attr("height", (d) => height.value - y(d.length))
+      .style("fill", (d) => getBinColor(d))
+      .style("cursor", "pointer")
+      .on("mouseover", (e: MouseEvent, d) => tooltip.onMouseOver(e, tooltipMessage(d)))
+      .on("mousemove", (e: MouseEvent) => tooltip.onMouseMove(e))
+      .on("mouseleave", (e: MouseEvent) => tooltip.onMouseOut(e))
+      .on("click", (_: MouseEvent, d) => {
+        const x0 = d.x0 ?? 0;
+        const x1 = d.x1 ?? 1;
+
+        // Go to the submissions page.
+        router.push({
+          path: "/submissions",
+          query: {
+            startSimilarity: x0.toString(),
+            endSimilarity: x1.toString(),
+          },
+        });
+      });
+  }
 
   // Add extra line, if specified.
   if (lineValue.value) {
     histogramContent
       .append("line")
-      .attr("x1", xScale(lineValue.value))
+      .attr("x1", x(lineValue.value))
       .attr("y1", 0)
-      .attr("x2", xScale(lineValue.value))
+      .attr("x2", x(lineValue.value))
       .attr("y2", height.value)
       .attr("stroke", "black");
   }
 
-  // Add tooltip
-  histogramChart
-    .select("g")
-    .selectAll("rect")
-    .on("mouseover", (e: MouseEvent, d: any) => {
-      const message = `There are <b>${d.length}</b> files
-                      that have a ${fieldName.value.toLowerCase()} between 
-                      <b>${d.x0}</b> and <b>${d.x1}</b>`;
-      tooltip.onMouseOver(e, message);
-    })
-    .on("mousemove", (e: MouseEvent) => {
-      tooltip.onMouseMove(e);
-    })
-    .on("mouseleave", (e: MouseEvent) => {
-      tooltip.onMouseOut(e);
-    });
-
   // Add hover line.
   const line = histogramChart
     .select("g")
-    .insert("line", "rect")
-    .attr("x1", xScale(0.5))
+    .append("line")
+    .attr("x1", x(0.5))
     .attr("y1", 0)
-    .attr("x2", xScale(0.5))
+    .attr("x2", x(0.5))
     .attr("y2", height.value)
     .attr("stroke", "black")
+    .attr("stroke-width", 1)
+    .attr("stroke-dasharray", "3,3")
+    .attr("z-index", 2)
     .attr("visibility", "hidden");
   const number = histogramChart.select("g")
     .append("text")
-    .attr("x", xScale(0.5))
-    .attr("y", height.value + 8)
+    .classed("d3-ticks", true)
+    .attr("x", x(0.5))
+    .attr("y", 0)
     .attr("dy", "0.71em")
-    .attr("font-size", 15)
     .attr("visibility", "hidden");
 
   histogramChart.on("mouseenter", () => {
@@ -245,13 +265,26 @@ const draw = (): void => {
     const xCoord = d3.pointer(o)[0] - margin.left;
     line.attr("x1", xCoord);
     line.attr("x2", xCoord);
-    number.attr("x", xCoord);
-    number.text(xScale.invert(xCoord).toFixed(2));
+    number.attr("x", xCoord + 8);
+    number.text(`${(x.invert(xCoord) * 100).toFixed(0)}%`);
+
+    // Hide if the x-coordinate is not between 0 and width.
+    if (xCoord < 0 || xCoord > width.value) {
+      line.attr("visibility", "hidden");
+      number.attr("visibility", "hidden");
+    } else {
+      line.attr("visibility", "visible");
+      number.attr("visibility", "visible");
+    }
   });
   histogramChart.on("mouseleave", () => {
     line.attr("visibility", "hidden");
     number.attr("visibility", "hidden");
   });
+
+  // Store the axis scales.
+  histogramXScale.value = x;
+  histogramYScale.value = y;
 };
 
 // Update the extra line when the value changes.

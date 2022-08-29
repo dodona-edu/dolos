@@ -87,7 +87,7 @@ const draw = (): void => {
   const elements = clusterFiles.value;
   const margin = {
     top: 0,
-    bottom: 50,
+    bottom: 80,
     left: 125,
     right: 30,
   };
@@ -199,7 +199,6 @@ const draw = (): void => {
     .attr("text-anchor", "end")
     .attr("x", 175)
     .attr("y", 50)
-    .attr("font-size", 15)
     .text("Similarity cutoff value");
 
   // Setup the data

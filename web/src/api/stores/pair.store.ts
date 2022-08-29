@@ -1,4 +1,4 @@
-import { defineStore, storeToRefs } from "pinia";
+import { defineStore } from "pinia";
 import { shallowRef, computed, watch } from "vue";
 import { DATA_URL } from "@/api";
 import { assertType, parseCsv } from "@/api/utils";

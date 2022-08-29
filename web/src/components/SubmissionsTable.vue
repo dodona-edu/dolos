@@ -1,6 +1,6 @@
 <template>
   <v-data-table
-    class="submissions-table row-pointer"
+    class="row-pointer"
     :headers="headers"
     :items="items"
     :search="searchValue"
@@ -121,12 +121,6 @@ const rowClicked = (item: { id: string }): void => {
 </script>
 
 <style lang="scss" scoped>
-.submissions {
-  &-table {
-    max-height: calc(100vh - 175px);
-  }
-}
-
 .submission {
   &-info {
     padding-top: 0.5rem;

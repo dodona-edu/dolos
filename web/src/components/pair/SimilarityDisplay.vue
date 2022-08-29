@@ -59,7 +59,7 @@ const value = computed(() => {
 const color = computed(() => {
   if (props.dimBelowCutoff && props.similarity < apiStore.cutoff) {
     return "grey";
-  } else if (props.similarity < 0.5) {
+  } else if (props.similarity < 0.5 && !props.dimBelowCutoff) {
     return "success";
   } else if (props.similarity < 0.75) {
     return "warning";

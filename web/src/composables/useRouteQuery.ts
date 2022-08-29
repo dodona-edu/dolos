@@ -11,7 +11,7 @@ export function useRouteQuery<T>(key: string, defaultValue: T, converter?: (v: s
   return computed<any>({
     get() {
       const value = route.value.query[key] as string;
-      return (converter ? converter(value) : value) ?? defaultValue;
+      return (value ? (converter  ? converter(value) : value) : defaultValue) ?? defaultValue;
     },
 
     set(value: string) {
