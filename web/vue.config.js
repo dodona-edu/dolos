@@ -1,6 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const webpack = require("webpack");
 const MonacoWebpackPlugin = require("monaco-editor-webpack-plugin");
+const VueComponents = require("unplugin-vue-components/webpack");
 
 module.exports = {
   publicPath: "./",
@@ -27,7 +28,17 @@ module.exports = {
         resourceRegExp: /codeTokenizer/,
         contextRegExp: /library/,
       }),
-      new MonacoWebpackPlugin()
+
+      // Monaco Editor plugin.
+      // Will automatically configure webworkers.
+      new MonacoWebpackPlugin(),
+
+      // Auto import components plugin.
+      // Will automatically import components from the "components" dir.
+      VueComponents({
+        dts: "src/types/imports-components.d.ts",
+        dirs: ["src/components"],
+      }),
     ]);
   },
 };
