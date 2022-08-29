@@ -23,7 +23,7 @@ export function useD3Tooltip(options: UseD3TooltipOptions = {}): UseD3TooltipRet
     .attr("class", "v-tooltip__content")
     .style("opacity", 0)
     .style("position", "absolute")
-    .style("z-index", 1)
+    .style("z-index", 5)
     .style("transform", "translateY(-100%)")
     .style("pointer-events", "none");
 
