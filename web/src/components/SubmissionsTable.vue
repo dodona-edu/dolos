@@ -53,6 +53,20 @@
     <template #item.timestamp="{ item }">
       <span class="submission-timestamp">
         <file-timestamp :timestamp="item.timestamp" long />
+        <v-tooltip top>
+          <template v-slot:activator="{ on, attrs }">
+            <span
+              v-if="props.highlightFirst && firstSubmitted?.id === item.id"
+              v-on="on"
+              v-bind="attrs"
+              class="error--text"
+            >
+              (#1)
+            </span>
+          </template>
+
+          <span>This is the first submission in the cluster</span>
+        </v-tooltip>
       </span>
     </template>
   </v-data-table>
@@ -73,6 +87,7 @@ interface Props {
   itemsPerPage?: number;
   dense?: boolean;
   pagination?: boolean;
+  highlightFirst?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -85,6 +100,18 @@ const { similarities, hasTimestamp, hasLabels } = storeToRefs(fileStore);
 
 // Search value.
 const searchValue = useVModel(props, "search", emit);
+
+// Find the first submitted file.
+// The first submitted file is the with the smallest tiemstamp.
+const firstSubmitted = computed(() => {
+  if (props.files.length === 0) return null;
+  return props.files.reduce((prev, curr) => {
+    if (prev === null || (curr.extra.timestamp ?? 0) < (prev.extra.timestamp ?? 0)) {
+      return curr;
+    }
+    return prev;
+  });
+});
 
 // Table headers
 const headers = computed<DataTableHeader[]>(() => {
