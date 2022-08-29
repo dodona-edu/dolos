@@ -1,0 +1,70 @@
+<template>
+  <v-data-table
+    class="row-pointer"
+    :headers="headers"
+    :items="items"
+    sort-by="size"
+    sort-desc
+    hide-default-footer
+    disable-pagination
+    must-sort
+    fixed-header
+    @click:row="rowClicked"
+  >
+    <template #item.submissions="{ item }">
+      <file-tag-list class="clusters-submissions" :current-files="item.submissions" />
+    </template>
+
+    <template #item.size="{ item }">
+      {{ item.size }} submissions
+    </template>
+  </v-data-table>
+</template>
+
+<script lang="ts" setup>
+import { storeToRefs } from "pinia";
+import { computed } from "vue";
+import { DataTableHeader } from "vuetify";
+import { usePairStore } from "@/api/stores"; 
+import { useRouter } from "@/composables";
+import { getClusterElementsArray } from "@/util/clustering-algorithms/ClusterFunctions";
+
+const router = useRouter();
+const pairStore = usePairStore();
+const { sortedClustering } = storeToRefs(pairStore);
+
+// Table headers
+const headers = computed<DataTableHeader[]>(() => {
+  const h = [];
+  h.push({ text: "Submissions", value: "submissions", sortable: false });
+  h.push({ text: "Size", value: "size", sortable: true });
+
+  return h;
+});
+
+// Table items
+// In the format for the Vuetify data-table.
+const items = computed(() => {
+  return sortedClustering.value.map((cluster) => {
+    return {
+      id: pairStore.getClusterIndex(cluster ),
+      submissions: getClusterElementsArray(cluster),
+      size: cluster.size,
+      cluster,
+    };
+  });
+});
+
+// When a row is clicked.
+const rowClicked = (item: { id: string }): void => {
+  router.push(`/clusters/${item.id}`);
+};
+</script>
+
+<style lang="scss" scoped>
+.clusters {
+  &-submissions {
+    max-width: 80%;
+  }
+}
+</style>
