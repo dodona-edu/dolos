@@ -9,7 +9,7 @@
       v-model="value"
       :color="color"
       :dark="contrast"
-      :height="props.dense ? 18 : 25"
+      :height="props.dense ? 20 : 25"
       class="similarity-progress"
     >
       <strong>{{ value }}%</strong>

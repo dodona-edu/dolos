@@ -4,10 +4,12 @@
     :headers="headers"
     :items="items"
     :search="searchValue"
+    :dense="props.dense"
+    :hide-default-footer="!props.pagination"
+    :disable-pagination="!props.pagination"
+    :footer-props="footerProps"
     sort-by="similarity"
     sort-desc
-    hide-default-footer
-    disable-pagination
     must-sort
     fixed-header
     @click:row="rowClicked"
@@ -63,6 +65,8 @@ import { useVModel } from "@vueuse/core";
 interface Props {
   files: File[];
   search?: string;
+  dense?: boolean;
+  pagination?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {});
@@ -94,6 +98,13 @@ const headers = computed<DataTableHeader[]>(() => {
 
   return h;
 });
+
+// Footer props
+const footerProps = {
+  itemsPerPageOptions: [10, 25, 50, 100, -1],
+  showCurrentPage: true,
+  showFirstLastPage: true,
+};
 
 // Table items
 // In the format for the Vuetify data-table.

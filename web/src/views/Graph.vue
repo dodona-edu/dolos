@@ -38,12 +38,6 @@
         </graph>
       </v-col>
     </v-row>
-
-    <v-row>
-      <v-col cols="12">
-        <clustering-table />
-      </v-col>
-    </v-row>
   </v-container>
 </template>
 
@@ -78,7 +72,7 @@ const showLegend = computed(() => {
 <style lang="scss" scoped>
 .graph {
   &-container {
-    height: calc(100vh - 75px);
+    height: calc(100vh - 85px);
   }
 
   &-settings {

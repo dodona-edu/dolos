@@ -1,19 +1,8 @@
 <template>
-  <v-row class="heatmap">
-    <v-col cols="12" md="4" order="2" order-md="1">
-      <graph-element-list-card
-        :selected-files="selectedFiles"
-        :cluster="cluster"
-        max-height="400px"
-        scroll
-      />
-    </v-col>
-
-    <v-col cols="12" md="8" class="d-flex" order="1" order-md="2">
-      <div ref="heatmapElement" class="svg-container"></div>
-      <div ref="heatmapLegendElement"></div>
-    </v-col>
-  </v-row>
+  <div class="d-flex">
+    <div ref="heatmapElement" class="svg-container"></div>
+    <div ref="heatmapLegendElement"></div>
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -31,9 +20,12 @@ import { Pair, File } from "@/api/models";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
 import { pairsAsNestedMap } from "@/util/PairAsNestedMap";
 import * as d3 from "d3";
+import { useElementSize } from "@vueuse/core";
 
 interface Props {
   cluster: Cluster;
+  height?: number;
+  width?: number;
 }
 
 const props = withDefaults(defineProps<Props>(), {});
@@ -53,14 +45,20 @@ const hoveredPair = shallowRef<Pair | null>(null);
 const heatmapElement = shallowRef<SVGSVGElement>();
 const heatmapLegendElement = shallowRef<SVGSVGElement>();
 
-// Heatmap element size
-const { width, height } = {
-  width: 450,
-  height: 450,
+const margin = {
+  top: 0,
+  bottom: 80,
+  left: 125,
+  right: 30,
 };
+// Container size
+const size = useElementSize(heatmapElement);
+// Width & height
+const width = computed(() => (props.width ?? size.width.value) - margin.left - margin.right);
+const height = computed(() => (props.height ?? 450) - margin.top - margin.bottom);
 
 // Heatmap D3
-const heatmap = d3.create("svg").attr("width", width).attr("height", height);
+const heatmap = d3.create("svg").attr("width", width.value).attr("height", height.value);
 const heatmapContent = heatmap.append("g");
 const heatmapTooltip = useD3Tooltip({ relativeToMouse: true });
 
@@ -84,17 +82,11 @@ const getPair = (file1: File, file2: File): Pair | null => {
 // Draw the heatmap
 const draw = (): void => {
   const elements = clusterFiles.value;
-  const margin = {
-    top: 0,
-    bottom: 80,
-    left: 125,
-    right: 30,
-  };
 
   // Resize the heatmap.
   heatmap
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom);
+    .attr("width", width.value + margin.left + margin.right)
+    .attr("height", height.value + margin.top + margin.bottom);
   heatmapContent.attr(
     "transform",
     `translate(${margin.left}, ${margin.top / 2})`
@@ -107,12 +99,12 @@ const draw = (): void => {
   // Create the axes.
   const xBand = d3
     .scaleBand<number>()
-    .range([0, width])
+    .range([0, width.value])
     .domain(elements.map((d) => d.id).reverse())
     .padding(0.01);
   const yBand = d3
     .scaleBand<number>()
-    .range([height, 0])
+    .range([height.value, 0])
     .domain(elements.map((d) => d.id))
     .padding(0.01);
   const xAxis = d3
@@ -131,7 +123,7 @@ const draw = (): void => {
   // Append the axes to the heatmap.
   heatmapContent
     .append("g")
-    .attr("transform", "translate(0," + height + ")")
+    .attr("transform", "translate(0," + height.value + ")")
     .call(xAxis)
     .selectAll("text")
     .style("text-anchor", "end")
@@ -240,6 +232,9 @@ watch(cutoffDebounced, () => draw());
 // Redraw the heatmap when the cluster changes.
 watch(clusterFiles, () => draw());
 
+// Redraw the heatmap when the width changes.
+watch(width, () => draw());
+
 // When the user hovers over a square in the heatmap.
 const onMouseOver = (e: MouseEvent, [first, second]: [File, File]): void => {
   if (e.target) {
@@ -255,9 +250,9 @@ const onMouseOver = (e: MouseEvent, [first, second]: [File, File]): void => {
 
   // Show the tooltip
   heatmapTooltip.onMouseOver(e, `
-    <span>Similarity: ${pair.similarity.toFixed(2)}</span>
-    <span>Longest fragment: ${pair.longestFragment}</span>
-    <span>Common overlap: ${pair.totalOverlap}</span>
+    <span>${first.extra.fullName ?? first.shortPath} &</span>
+    <span>${second.extra.fullName ?? second.shortPath}</span>
+    <span>(Similarity: ${(pair.similarity * 100).toFixed(0)}%)</span>
   `);
 };
 
@@ -297,7 +292,7 @@ const onClick = (_: unknown, [first, second]: [File, File]): void => {
   display: flex;
   flex-direction: row;
   justify-content: center;
-  min-width: 400px;
+  width: 100%;
 }
 
 :deep(.heatmap-tile) {

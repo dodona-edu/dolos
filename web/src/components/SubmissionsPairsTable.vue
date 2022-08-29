@@ -43,7 +43,7 @@
             v-if="item.cluster !== ClusterRelation.NONE"
             v-bind="attrs"
             v-on="on"
-            :to="`/graph?cluster=${item.clusterIndex}`"
+            :to="`/clusters/${item.clusterIndex}`"
             :color="item.cluster === ClusterRelation.SAME ? 'primary' : ''"
             icon
             small

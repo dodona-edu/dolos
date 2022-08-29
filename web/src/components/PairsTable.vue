@@ -9,10 +9,11 @@
     :search.sync="searchValue"
     :footer-props="footerProps"
     :hide-default-footer="props.pairs.length <= props.itemsPerPage"
+    :dense="props.dense"
     @click:row="rowClicked"
   >
     <template #item.similarity="{ item }">
-      <similarity-display :similarity="+item.similarity" progress />
+      <similarity-display :similarity="+item.similarity" progress :dense="props.dense" />
     </template>
   </v-data-table>
 </template>
@@ -28,6 +29,7 @@ interface Props {
   pairs: Pair[];
   itemsPerPage?: number;
   search?: string;
+  dense?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
