@@ -22,7 +22,6 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {});
 const fileStore = useFileStore();
-const { legend } = storeToRefs(fileStore);
 
 // List template ref.
 const listElement = shallowRef();
