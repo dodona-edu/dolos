@@ -47,8 +47,8 @@ const { sortedClustering } = storeToRefs(pairStore);
 const headers = computed<DataTableHeader[]>(() => {
   const h = [];
   h.push({ text: "Submissions", value: "submissions", sortable: false });
-  h.push({ text: "Size", value: "size", sortable: true });
   h.push({ text: "Average similarity", value: "similarity", sortable: true });
+  h.push({ text: "Size", value: "size", sortable: true });
 
   return h;
 });
