@@ -31,10 +31,10 @@
       <v-list nav dense>
         <v-list-item to="/" link>
           <v-list-item-icon>
-            <v-icon>mdi-home-outline</v-icon>
+            <v-icon>mdi-chart-bar</v-icon>
           </v-list-item-icon>
           <v-list-item-content>
-            <v-list-item-title>Home</v-list-item-title>
+            <v-list-item-title>Overview</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
 
