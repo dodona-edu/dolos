@@ -235,6 +235,7 @@ export const useFileStore = defineStore("files", () => {
     apiStore.isLoaded = false;
     apiStore.loadingText = "Anonymizing files...";
 
+    // Update the files.
     for (const file of Object.values(files.value)) {
       if (apiStore.isAnonymous) {
         file.path = file.pseudo.path;
@@ -251,8 +252,15 @@ export const useFileStore = defineStore("files", () => {
       }
     }
 
+    // Update the pairs.
+    for (const pair of pairStore.pairsList) {
+      pair.leftFile = files.value[pair.leftFile.id];
+      pair.rightFile = files.value[pair.rightFile.id];
+    }
+
     nextTick(() => {
       files.value = { ...files.value };
+      pairStore.pairs = { ...pairStore.pairs };
       apiStore.isLoaded = true;
     });
   }
@@ -317,6 +325,8 @@ export const useFileStore = defineStore("files", () => {
   });
 
   return {
+    files,
+    filesList,
     filesActive,
     filesActiveList,
     scoredFiles,
