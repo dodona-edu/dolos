@@ -160,8 +160,13 @@
         </div>
       </v-card-text>
       
-      <labels-table v-if="isLoaded" class="settings-labels" />
-      <v-skeleton-loader v-else class="px-4" type="table-row-divider@4" />
+      <v-skeleton-loader v-if="!isLoaded" class="px-4" type="table-row-divider@4" />
+      <labels-table v-else-if="hasLabels" class="settings-labels" />
+      <v-card-text v-else class="text--secondary">
+        The dataset you analyzed did not contain labels.  
+        Learn how to add metadata
+        <a href="https://dolos.ugent.be/guide/dodona.html" target="_blank">here</a>.
+      </v-card-text>
     </v-navigation-drawer>
   </v-app>
 </template>
@@ -170,13 +175,15 @@
 import { shallowRef, computed } from "vue";
 import { storeToRefs } from "pinia";
 import { useBreakpoints } from "@/composables";
-import { useApiStore } from "@/api/stores";
+import { useApiStore, useFileStore } from "@/api/stores";
 import { useBreadcrumbStore } from "@/stores";
 import packageJson from "../package.json";
 
 const breakpoints = useBreakpoints();
 const api = useApiStore();
+const files = useFileStore();
 const { isLoaded, isAnonymous, loadingText } = storeToRefs(api);
+const { hasLabels } = storeToRefs(files);
 
 // If the drawer is open/closed.
 const drawer = shallowRef(breakpoints.value.desktop);
