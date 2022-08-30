@@ -32,23 +32,31 @@
 </template>
 
 <script lang="ts" setup>
-import { storeToRefs } from "pinia";
 import { computed } from "vue";
 import { DataTableHeader } from "vuetify";
 import { usePairStore } from "@/api/stores"; 
 import { useRouter } from "@/composables";
 import { getClusterElementsArray } from "@/util/clustering-algorithms/ClusterFunctions";
+import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
 
+interface Props {
+  clusters: Cluster[];
+  concise?: boolean;
+}
+
+const props = withDefaults(defineProps<Props>(), {});
 const router = useRouter();
 const pairStore = usePairStore();
-const { sortedClustering } = storeToRefs(pairStore);
 
 // Table headers
 const headers = computed<DataTableHeader[]>(() => {
   const h = [];
   h.push({ text: "Submissions", value: "submissions", sortable: false });
-  h.push({ text: "Average similarity", value: "similarity", sortable: true });
-  h.push({ text: "Size", value: "size", sortable: true });
+  
+  if (!props.concise) {
+    h.push({ text: "Average similarity", value: "similarity", sortable: true });
+    h.push({ text: "Size", value: "size", sortable: true });
+  }
 
   return h;
 });
@@ -56,17 +64,26 @@ const headers = computed<DataTableHeader[]>(() => {
 // Table items
 // In the format for the Vuetify data-table.
 const items = computed(() => {
-  return sortedClustering.value.map((cluster) => {
+  return props.clusters.map((cluster) => {
     const files = getClusterElementsArray(cluster);
 
     return {
-      id: pairStore.getClusterIndex(cluster ),
+      id: pairStore.getClusterIndex(cluster),
       submissions: files,
       size: files.length,
       similarity: [...cluster].reduce((acc, pair) => acc + pair.similarity, 0) / cluster.size,
       cluster,
     };
   });
+});
+
+// Max width of the submissions
+const maxWidth = computed(() => {
+  if (props.concise) {
+    return "99%";
+  }
+
+  return "70%";
 });
 
 // When a row is clicked.
@@ -78,7 +95,7 @@ const rowClicked = (item: { id: string }): void => {
 <style lang="scss" scoped>
 .clusters {
   &-submissions {
-    max-width: 70%;
+    max-width: v-bind("maxWidth");
   }
 }
 </style>

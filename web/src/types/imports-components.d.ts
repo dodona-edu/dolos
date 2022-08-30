@@ -8,7 +8,6 @@ export {}
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
     Breadcrumbs: typeof import('./../components/Breadcrumbs.vue')['default']
-    ClusteringTable: typeof import('./../components/clustering/ClusteringTable.vue')['default']
     ClustersTable: typeof import('./../components/clustering/ClustersTable.vue')['default']
     ClusterTags: typeof import('./../components/clustering/ClusterTags.vue')['default']
     CompareCard: typeof import('./../components/CompareCard.vue')['default']

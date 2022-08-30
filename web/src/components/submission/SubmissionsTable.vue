@@ -93,6 +93,7 @@ interface Props {
   dense?: boolean;
   pagination?: boolean;
   order?: boolean;
+  concise?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -117,12 +118,15 @@ const headers = computed<DataTableHeader[]>(() => {
   }
 
   // Only add timestamp header when present.
-  if (hasTimestamp.value) {
+  if (hasTimestamp.value && !props.concise) {
     h.push({ text: "Timestamp", value: "timestamp", sortable: true, filterable: false });
   }
 
   h.push({ text: "Highest similarity", value: "similarity", sortable: true, filterable: false });
-  h.push({ text: "Lines", value: "lines", sortable: true, filterable: false });
+
+  if (!props.concise) {
+    h.push({ text: "Lines", value: "lines", sortable: true, filterable: false });
+  }
 
   return h;
 });
