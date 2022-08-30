@@ -80,7 +80,7 @@
 
 <script lang="ts" setup>
 import { computed, toRef } from "vue";
-import { useCluster, useRouter } from "@/composables";
+import { useCluster } from "@/composables";
 import { File, Legend } from "@/api/models";
 import { Cluster, Clustering } from "@/util/clustering-algorithms/ClusterTypes";
 import { DateTime } from "luxon";
