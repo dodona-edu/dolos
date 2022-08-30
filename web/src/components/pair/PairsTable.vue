@@ -9,7 +9,6 @@
     :items-per-page="15"
     :search.sync="searchValue"
     :footer-props="footerProps"
-    :hide-default-footer="props.pairs.length <= props.itemsPerPage"
     :dense="props.dense"
     @click:row="rowClicked"
   >
