@@ -124,11 +124,6 @@ const selectedClusterIndex = computed(() => {
   const sortedClustering = Array.from(props.currentClustering).sort(sortFn);
   return sortedClustering.indexOf(props.selectedCluster);
 });
-
-// Go to the information section of this cluster.
-const goToInfo = (): void => {
-  router.replace(`/clusters/${selectedClusterIndex.value}`);
-};
 </script>
 
 <style lang="scss" scoped>
