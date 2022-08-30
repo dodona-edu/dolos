@@ -145,7 +145,7 @@
           <v-card-title>Submissions</v-card-title>
           <v-card-subtitle>Highlights the most suspicious individual submissions, useful for exams.</v-card-subtitle>
 
-          <submissions-table :files="submissionsOverview" concise />
+          <submissions-table :files="submissionsOverview" concise disable-sorting />
 
           <v-card-actions>
             <v-spacer />
@@ -163,7 +163,7 @@
           <v-card-title>Clusters</v-card-title>
           <v-card-subtitle>Aggregates submissions in groups, useful for exercises.</v-card-subtitle>
 
-          <clusters-table :clusters="clustersOverview" concise />
+          <clusters-table :clusters="clustersOverview" concise disable-sorting />
 
           <v-card-actions>
             <v-spacer />

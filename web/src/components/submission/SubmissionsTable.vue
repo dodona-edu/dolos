@@ -94,6 +94,7 @@ interface Props {
   pagination?: boolean;
   order?: boolean;
   concise?: boolean;
+  disableSorting?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -109,23 +110,46 @@ const searchValue = useVModel(props, "search", emit);
 
 // Table headers
 const headers = computed<DataTableHeader[]>(() => {
-  const h = [];
-  h.push({ text: "Submission", value: "name", sortable: true });
+  const h = [] as DataTableHeader[];
+  h.push({
+    text: "Submission",
+    value: "name",
+    sortable: props.disableSorting ? false : true,
+  });
 
   // Only add the label header if there are labels.
   if (hasLabels.value) {
-    h.push({ text: "Label", value: "label", sortable: true });
+    h.push({
+      text: "Label",
+      value: "label",
+      sortable: props.disableSorting ? false : true,
+    });
   }
 
   // Only add timestamp header when present.
   if (hasTimestamp.value && !props.concise) {
-    h.push({ text: "Timestamp", value: "timestamp", sortable: true, filterable: false });
+    h.push({
+      text: "Timestamp",
+      value: "timestamp",
+      sortable: props.disableSorting ? false : true,
+      filterable: false,
+    });
   }
 
-  h.push({ text: "Highest similarity", value: "similarity", sortable: true, filterable: false });
+  h.push({
+    text: "Highest similarity",
+    value: "similarity",
+    sortable: props.disableSorting ? false : true,
+    filterable: false,
+  });
 
   if (!props.concise) {
-    h.push({ text: "Lines", value: "lines", sortable: true, filterable: false });
+    h.push({
+      text: "Lines",
+      value: "lines",
+      sortable: props.disableSorting ? false : true,
+      filterable: false,
+    });
   }
 
   return h;

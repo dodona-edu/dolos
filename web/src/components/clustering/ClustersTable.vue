@@ -42,6 +42,7 @@ import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
 interface Props {
   clusters: Cluster[];
   concise?: boolean;
+  disableSorting?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {});
@@ -50,16 +51,29 @@ const pairStore = usePairStore();
 
 // Table headers
 const headers = computed<DataTableHeader[]>(() => {
-  const h = [];
-  h.push({ text: "Submissions", value: "submissions", sortable: false });
-  
+  const h = [] as DataTableHeader[];
+  h.push({
+    text: "Submissions",
+    value: "submissions",
+    sortable: false,
+  });
+
   if (!props.concise) {
-    h.push({ text: "Average similarity", value: "similarity", sortable: true });
-    h.push({ text: "Size", value: "size", sortable: true });
+    h.push({
+      text: "Average similarity",
+      value: "similarity",
+      sortable: props.disableSorting ? false : true,
+    });
+    h.push({
+      text: "Size",
+      value: "size",
+      sortable: props.disableSorting ? false : true,
+    });
   }
 
   return h;
 });
+
 
 // Table items
 // In the format for the Vuetify data-table.
