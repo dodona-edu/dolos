@@ -7,8 +7,7 @@ class AnalyzeDatasetJob < ApplicationJob
   queue_as :default
 
   TMPDIR_PATH = "/tmp".freeze
-  INPUTS_PATH = "inputs".freeze
-  RESULT_PATH = "result".freeze
+  OUTPUT_DIRNAME = "result".freeze
   DOLOS_IMAGE = "ghcr.io/dodona-edu/dolos:latest".freeze
   TIMEOUT = 60.seconds
   MEMORY_LIMIT = 100_000_000
@@ -22,7 +21,9 @@ class AnalyzeDatasetJob < ApplicationJob
     @mac = RUBY_PLATFORM.include?('darwin')
 
     prepare
-    execute
+    @dataset.zipfile.open do |zipfile_tmp|
+      execute(zipfile_tmp.path)
+    end
   rescue StandardError => e
     @report.update(
       status: 'error',
@@ -38,18 +39,17 @@ class AnalyzeDatasetJob < ApplicationJob
     @report.update(status: 'running')
 
     @mount = Pathname.new Dir.mktmpdir(nil, @mac ? TMPDIR_PATH : nil)
-    @mountinputs = @mount.join(INPUTS_PATH).mkdir
-    @mountresult = @mount.join(RESULT_PATH).mkdir
-    @dataset.unzip_to(@mountinputs)
+    @output_dir = @mount.join(OUTPUT_DIRNAME)
+    @output_dir.mkdir
   end
 
-  def execute
+  def execute(zipfile_path)
     docker_options = {
       Cmd: [
         '-f', 'csv',
-        '-o', '../' + RESULT_PATH,
+        '-o', OUTPUT_DIRNAME,
         '-l', @dataset.programming_language,
-        'info.csv'
+        '/input.zip'
       ],
       Image: DOLOS_IMAGE,
       name: "dolos-#{ @report.id }",
@@ -57,8 +57,11 @@ class AnalyzeDatasetJob < ApplicationJob
       HostConfig: {
         Memory: MEMORY_LIMIT,
         MemorySwap: MEMORY_LIMIT,
-        PidsLimit: 8,
-        Binds: ["#{@mount}:/dolos"]
+        PidsLimit: -1,
+        Binds: [
+          "#{zipfile_path}:/input.zip:ro",
+          "#{@mount}:/dolos"
+        ]
       }
     }
 
@@ -99,7 +102,7 @@ class AnalyzeDatasetJob < ApplicationJob
     timeout = nil
 
     timer = Thread.new do
-      while Time.zone.now - before_time < time_limit
+      while Time.zone.now - before_time < TIMEOUT
         sleep 1
         next if Rails.env.test?
         # Check if container is still alive
@@ -141,7 +144,7 @@ class AnalyzeDatasetJob < ApplicationJob
       run_time: (after_time - before_time),
     )
 
-    @report.collect_files
+    @report.collect_files_from(@output_dir)
 
     if exit_status != 0
       @report.update(status: 'failed', error: 'non-zero exit code')
