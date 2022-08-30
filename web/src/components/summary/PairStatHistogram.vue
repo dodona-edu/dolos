@@ -247,6 +247,7 @@ const draw = (): void => {
     .attr("stroke", "black")
     .attr("stroke-width", 1)
     .attr("stroke-dasharray", "3,3")
+    .attr("pointer-events", "none")
     .attr("z-index", 2)
     .attr("visibility", "hidden");
   const number = histogramChart.select("g")
