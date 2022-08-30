@@ -181,6 +181,8 @@ export const usePairStore = defineStore("pairs", () => {
   }
 
   return {
+    pairs,
+    pairsList,
     pairsActive,
     pairsActiveList,
     calculateActivePairs,
