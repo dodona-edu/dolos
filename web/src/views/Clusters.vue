@@ -12,7 +12,15 @@
     </v-row>
 
     <v-card>
-      <clusters-table />
+      <clusters-table class="clusters-table" />
     </v-card>
   </v-container>
 </template>
+
+<style lang="scss" scoped>
+.clusters {
+  &-table {
+    max-height: max(500px, calc(100vh - 180px));
+  }
+}
+</style>
