@@ -143,7 +143,7 @@
       <v-col cols="12" md="6">
         <v-card>
           <v-card-title>Submissions</v-card-title>
-          <v-card-subtitle>This is a sentence that must be filled in.</v-card-subtitle>
+          <v-card-subtitle>Highlights the most suspicious individual submissions, useful for exams.</v-card-subtitle>
 
           <submissions-table :files="submissionsOverview" concise />
 
@@ -161,7 +161,7 @@
       <v-col cols="12" md="6">
         <v-card>
           <v-card-title>Clusters</v-card-title>
-          <v-card-subtitle>This is a sentence that must be filled in.</v-card-subtitle>
+          <v-card-subtitle>Aggregates submissions in groups, useful for exercises.</v-card-subtitle>
 
           <clusters-table :clusters="clustersOverview" concise />
 
