@@ -25,12 +25,14 @@
               <span>{{ language }}</span>
             </v-list-item>
           </v-list>
+          
+          <template>
+            <v-card-title class="info-card-subtitle pt-0 pb-0">
+              {{ hasLabels ? legendCount : "No" }} labels detected
+            </v-card-title>
 
-          <v-card-title class="info-card-subtitle pt-0 pb-0">
-            {{ legendCount }} labels detected
-          </v-card-title>
-
-          <labels-table class="info-card-labels" show-submissions />
+            <labels-table class="info-card-labels" show-submissions />
+          </template>
         </v-card>
       </v-col>
 
@@ -252,7 +254,7 @@ const apiStore = useApiStore();
 const fileStore = useFileStore();
 const pairStore = usePairStore();
 const metadataStore = useMetadataStore();
-const { legend, similaritiesList } = storeToRefs(fileStore);
+const { legend, similaritiesList, hasLabels } = storeToRefs(fileStore);
 const { clustering } = storeToRefs(pairStore);
 
 // File legend.

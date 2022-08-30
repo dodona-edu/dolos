@@ -29,8 +29,8 @@
 </template>
 
 <script lang="ts" setup>
-import { shallowRef, onMounted } from "vue";
-import { usePairStore, useMetadataStore } from "@/api/stores";
+import { shallowRef, onMounted, watch } from "vue";
+import { usePairStore, useFileStore, useMetadataStore } from "@/api/stores";
 
 interface Props {
   pairId: string;
@@ -39,6 +39,7 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {});
 
 const pairStore = usePairStore();
+const filesStore = useFileStore();
 const metadataStore = useMetadataStore();
 
 // If the fragments for a pair are loaded.
@@ -46,6 +47,16 @@ const isLoaded = shallowRef(false);
 
 // Pair to display.
 const pair = shallowRef(pairStore.getPair(parseInt(props.pairId)));
+
+// Update the pair when the pairs change.
+watch(
+  () => filesStore,
+  () => {
+    alert("CHANGED");
+    pair.value = pairStore.getPair(parseInt(props.pairId));
+  },
+  { deep: true }
+);
 
 // Fetch the pair's fragments.
 onMounted(async () => {
