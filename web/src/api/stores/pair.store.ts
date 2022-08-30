@@ -180,6 +180,11 @@ export const usePairStore = defineStore("pairs", () => {
     return sortedClustering.value.findIndex((c) => c === cluster);
   }
 
+  // Get a cluster by its id.
+  function getClusterById(id: number): Cluster | undefined {
+    return sortedClustering.value[id];
+  }
+
   return {
     pairsActive,
     pairsActiveList,
@@ -194,5 +199,6 @@ export const usePairStore = defineStore("pairs", () => {
     sortedClustering,
     getCluster,
     getClusterIndex,
+    getClusterById,
   };
 });

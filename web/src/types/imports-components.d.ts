@@ -10,6 +10,7 @@ declare module '@vue/runtime-core' {
     Breadcrumbs: typeof import('./../components/Breadcrumbs.vue')['default']
     ClusteringCard: typeof import('./../components/clustering/ClusteringCard.vue')['default']
     ClusteringTable: typeof import('./../components/ClusteringTable.vue')['default']
+    ClustersTable: typeof import('./../components/clustering/ClustersTable.vue')['default']
     CompareCard: typeof import('./../components/CompareCard.vue')['default']
     CompareSide: typeof import('./../components/CompareSide.vue')['default']
     FileTagList: typeof import('./../components/clustering/FileTagList.vue')['default']
