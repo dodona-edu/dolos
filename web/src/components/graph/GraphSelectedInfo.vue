@@ -95,7 +95,6 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {});
 
-const router = useRouter();
 const { clusterFilesSet, clusterAverageSimilarity } = useCluster(toRef(props, "selectedCluster"));
 
 // Timestamp of the selected node.
