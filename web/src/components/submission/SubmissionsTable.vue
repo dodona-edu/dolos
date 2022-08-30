@@ -165,11 +165,6 @@ const rowClicked = (item: { id: string }): void => {
 
 <style lang="scss" scoped>
 .submission {
-  &-info {
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
-  }
-
   &-label,
   &-path {
     display: flex;
