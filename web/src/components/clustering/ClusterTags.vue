@@ -27,7 +27,7 @@ const listElement = shallowRef();
 
 // List element size.
 const listElementSize = useElementSize(listElement);
-const width = computed(() => listElementSize.width.value || 870);
+const width = computed(() => listElementSize.width.value ?? 50);
 const height = computed(() => 40);
 
 // Ideal width for each element.
@@ -106,20 +106,9 @@ const draw = (): void => {
 };
 
 // Update the list when the files change.
-watch(
-  () => props.currentFiles,
-  () => {
-    draw();
-  }
-);
-
+watch(() => props.currentFiles, () => draw());
 // Update the list when the width changes.
-watch(
-  () => [width.value],
-  () => {
-    draw();
-  }
-);
+watch(width, () => draw());
 
 onMounted(() => {
   listElement.value?.prepend(list.node() ?? "");
