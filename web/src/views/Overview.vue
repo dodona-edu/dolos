@@ -26,24 +26,12 @@
             </v-list-item>
           </v-list>
           
-          <template v-if="hasLabels">
+          <template>
             <v-card-title class="info-card-subtitle pt-0 pb-0">
-              {{ legendCount }} labels detected
+              {{ hasLabels ? legendCount : "No" }} labels detected
             </v-card-title>
 
             <labels-table class="info-card-labels" show-submissions />
-          </template>
-
-          <template v-else>
-            <v-card-text class="d-flex align-center info-text pt-0">
-              <v-icon color="info">mdi-information</v-icon>
-
-              <span class="ml-2">
-                The dataset you analyzed did not contain labels.  
-                Learn how to add metadata
-                <a href="https://dolos.ugent.be/guide/dodona.html" target="_blank">here</a>.
-              </span>
-            </v-card-text>
           </template>
         </v-card>
       </v-col>

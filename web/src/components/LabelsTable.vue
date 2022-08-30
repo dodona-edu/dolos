@@ -9,29 +9,41 @@
     </thead>
 
     <tbody>
-      <tr v-for="label, index of labels" :key="index">
-        <td class="d-flex align-center">
-          <label-dot
-            :label="label.label"
-            :color="label.color"
-          />
+      <template v-if="hasLabels">
+        <tr v-for="label, index of labels" :key="index">
+          <td class="d-flex align-center">
+            <label-dot
+              :label="label.label"
+              :color="label.color"
+            />
 
-          <span class="ml-2">{{ label.label }}</span>
-        </td>
+            <span class="ml-2">{{ label.label }}</span>
+          </td>
 
-        <td v-if="props.showSubmissions">
-          {{ labelFilesCount[label.label] }}
-        </td>
+          <td v-if="props.showSubmissions">
+            {{ labelFilesCount[label.label] }}
+          </td>
 
-        <td class="text-end">
-          <v-switch 
-            v-model="label.selected"
-            class="labels-switch"
-            inset
-            small
-          />
-        </td>
-      </tr>
+          <td class="text-end">
+            <v-switch 
+              v-model="label.selected"
+              class="labels-switch"
+              inset
+              small
+            />
+          </td>
+        </tr>
+      </template>
+      
+      <template v-else>
+        <tr>
+          <td colspan="3" class="py-4">
+            The dataset you analyzed did not contain labels.  
+            Learn how to add metadata
+            <a href="https://dolos.ugent.be/guide/dodona.html" target="_blank">here</a>.
+          </td>
+        </tr>
+      </template>
     </tbody>
   </v-simple-table>
 </template>
@@ -46,7 +58,7 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {});
 const fileStore = useFileStore();
-const { labels, labelFilesCount } = storeToRefs(fileStore);
+const { labels, labelFilesCount, hasLabels } = storeToRefs(fileStore);
 </script>
 
 <style lang="scss" scoped>
