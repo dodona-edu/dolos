@@ -42,7 +42,7 @@ function exploreCluster(
   const neighbours = graph
     .get(currentNode)
     ?.filter(nb => !cluster.has(nb)) // no double edges
-    .filter(nb => nb.similarity > similarity); // above minimum similarity
+    .filter(nb => nb.similarity >= similarity); // above minimum similarity
 
   neighbours?.forEach(n => cluster.add(n));
 
