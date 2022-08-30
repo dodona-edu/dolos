@@ -27,13 +27,11 @@ const listElement = shallowRef();
 
 // List element size.
 const listElementSize = useElementSize(listElement);
-const width = computed(() => listElementSize.width.value || 870);
+const width = computed(() => listElementSize.width.value ?? 50);
 const height = computed(() => 40);
 
 // Ideal width for each element.
-const elementIdealWidth = 45;
-// Margin between elements.
-const elementMargin = 8;
+const elementIdealWidth = 38;
 
 // List D3
 const list = d3.create("svg");
@@ -61,7 +59,7 @@ const draw = (): void => {
   const groups = listContent
     .attr(
       "transform",
-      `translate(${elementIdealWidth / 2}, ${((elementIdealWidth - elementMargin) / 2) + 1.5})`
+      `translate(${elementIdealWidth / 2}, ${((elementIdealWidth) / 2) + 1.5})`
     )
     .selectAll("g")
     .data(props.currentFiles)
@@ -72,7 +70,7 @@ const draw = (): void => {
   // Add the avatars
   groups
     .append("circle")
-    .attr("r", 20)
+    .attr("r", 16)
     .attr("fill", (file) => fileStore.getLabel(file).color);
   groups
     .append("text")
@@ -108,20 +106,9 @@ const draw = (): void => {
 };
 
 // Update the list when the files change.
-watch(
-  () => props.currentFiles,
-  () => {
-    draw();
-  }
-);
-
+watch(() => props.currentFiles, () => draw());
 // Update the list when the width changes.
-watch(
-  () => [width.value],
-  () => {
-    draw();
-  }
-);
+watch(width, () => draw());
 
 onMounted(() => {
   listElement.value?.prepend(list.node() ?? "");

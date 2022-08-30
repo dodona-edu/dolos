@@ -1,5 +1,6 @@
 <template>
   <v-data-table
+    class="row-pointer"
     :headers="headers"
     :items="items"
     :must-sort="true"
@@ -8,17 +9,17 @@
     :items-per-page="15"
     :search.sync="searchValue"
     :footer-props="footerProps"
-    :hide-default-footer="props.pairs.length <= props.itemsPerPage"
+    :dense="props.dense"
     @click:row="rowClicked"
   >
     <template #item.similarity="{ item }">
-      <similarity-display :similarity="+item.similarity" progress />
+      <similarity-display :similarity="+item.similarity" progress :dense="props.dense" />
     </template>
   </v-data-table>
 </template>
 
 <script lang="ts" setup>
-import { shallowRef, onMounted } from "vue";
+import { shallowRef, onMounted, watch } from "vue";
 import { useRouter, useRoute } from "@/composables";
 import { useVModel } from "@vueuse/core";
 import { Pair } from "@/api/models";
@@ -28,6 +29,7 @@ interface Props {
   pairs: Pair[];
   itemsPerPage?: number;
   search?: string;
+  dense?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -80,6 +82,9 @@ const calculateItems = (): void => {
 
 // Calculate the items on mount.
 onMounted(() => calculateItems());
+
+// Calculate the items when the pairs change.
+watch(() => props.pairs, () => calculateItems());
 
 // When a row is clicked.
 const rowClicked = (item: { pair: Pair }): void => {

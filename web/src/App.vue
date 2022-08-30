@@ -31,10 +31,10 @@
       <v-list nav dense>
         <v-list-item to="/" link>
           <v-list-item-icon>
-            <v-icon>mdi-home</v-icon>
+            <v-icon>mdi-chart-bar</v-icon>
           </v-list-item-icon>
           <v-list-item-content>
-            <v-list-item-title>Home</v-list-item-title>
+            <v-list-item-title>Overview</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
 
@@ -46,12 +46,20 @@
           <v-list-item-title>View by submission</v-list-item-title>
         </v-list-item>
 
-        <v-list-item to="/graph" link  exact>
+        <v-list-item to="/clusters" link  exact>
           <v-list-item-icon>
-            <v-icon>mdi-graph</v-icon>
+            <v-icon>mdi-account-group-outline</v-icon>
           </v-list-item-icon>
 
-          <v-list-item-title>View by cluster</v-list-item-title>
+          <v-list-item-title>View by clusters</v-list-item-title>
+        </v-list-item>
+
+        <v-list-item to="/graph" link  exact>
+          <v-list-item-icon>
+            <v-icon>mdi-graph-outline</v-icon>
+          </v-list-item-icon>
+
+          <v-list-item-title>View by graph</v-list-item-title>
         </v-list-item>
 
         <v-list-item to="/pairs" link exact>
@@ -80,14 +88,14 @@
 
           <v-list-item href="https://dolos.ugent.be" target="_blank" link>
             <v-list-item-icon>
-              <v-icon>mdi-help-circle</v-icon>
+              <v-icon>mdi-help-circle-outline</v-icon>
             </v-list-item-icon>
             <v-list-item-title>Documentation</v-list-item-title>
           </v-list-item>
 
           <v-list-item href="mailto:dodona@ugent.be" link>
             <v-list-item-icon>
-              <v-icon>mdi-email</v-icon>
+              <v-icon>mdi-email-outline</v-icon>
             </v-list-item-icon>
             <v-list-item-title>Contact</v-list-item-title>
           </v-list-item>
@@ -102,7 +110,7 @@
             link
           >
             <v-list-item-icon>
-              <v-icon>mdi-tag</v-icon>
+              <v-icon>mdi-tag-outline</v-icon>
             </v-list-item-icon>
             <v-list-item-title> Dolos - v{{ version }} </v-list-item-title>
           </v-list-item>

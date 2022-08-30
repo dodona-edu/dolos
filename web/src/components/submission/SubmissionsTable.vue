@@ -4,10 +4,12 @@
     :headers="headers"
     :items="items"
     :search="searchValue"
+    :dense="props.dense"
+    :hide-default-footer="!props.pagination"
+    :disable-pagination="!props.pagination"
+    :footer-props="footerProps"
     sort-by="similarity"
     sort-desc
-    hide-default-footer
-    disable-pagination
     must-sort
     fixed-header
     @click:row="rowClicked"
@@ -39,13 +41,37 @@
 
     <template #item.similarity="{ item }">
       <span class="submission-similarity">
-        <similarity-display :similarity="item.similarity" progress dim-below-cutoff />
+        <similarity-display
+          :similarity="item.similarity"
+          :dense="props.dense"
+          progress
+          dim-below-cutoff
+        />
       </span>
     </template>
 
     <template #item.timestamp="{ item }">
       <span class="submission-timestamp">
-        <file-timestamp :timestamp="item.timestamp" long />
+        <v-tooltip top>
+          <template v-slot:activator="{ on, attrs }">
+            <span
+              v-if="props.order"
+              v-on="on"
+              v-bind="attrs"
+              :class="item.order === 1 ? 'primary--text' : 'text--secondary'"
+            >
+              #{{ item.order }}
+            </span>
+          </template>
+
+          <span>This is the #{{ item.order }} submission in the cluster</span>
+        </v-tooltip>
+        
+        <file-timestamp
+          :class="props.order && item.order === 1 ? 'primary--text' : ''"
+          :timestamp="item.timestamp"
+          long
+        />
       </span>
     </template>
   </v-data-table>
@@ -63,9 +89,15 @@ import { useVModel } from "@vueuse/core";
 interface Props {
   files: File[];
   search?: string;
+  itemsPerPage?: number;
+  dense?: boolean;
+  pagination?: boolean;
+  order?: boolean;
 }
 
-const props = withDefaults(defineProps<Props>(), {});
+const props = withDefaults(defineProps<Props>(), {
+  itemsPerPage: 15,
+});
 const emit = defineEmits(["update:search"]);
 const router = useRouter();
 const fileStore = useFileStore();
@@ -95,9 +127,23 @@ const headers = computed<DataTableHeader[]>(() => {
   return h;
 });
 
+// Footer props
+const footerProps = {
+  itemsPerPageOptions: [props.itemsPerPage, 25, 50, 100, -1],
+  showCurrentPage: true,
+  showFirstLastPage: true,
+};
+
 // Table items
 // In the format for the Vuetify data-table.
 const items = computed(() => {
+  // Sort files on submission date.
+  const sortedFiles = [...props.files].sort((a, b) => {
+    if (!a.extra.timestamp) return 1;
+    if (!b.extra.timestamp) return -1;
+    return a.extra.timestamp - b.extra.timestamp;
+  });
+
   return props.files
     .map((file) => ({
       id: file.id,
@@ -107,6 +153,7 @@ const items = computed(() => {
       similarity: similarities.value.get(file)?.similarity ?? 0,
       timestamp: file.extra.timestamp,
       lines: file.content.split("\n").length ?? 0,
+      order: sortedFiles.indexOf(file) + 1,
     }));
 });
 
@@ -118,11 +165,6 @@ const rowClicked = (item: { id: string }): void => {
 
 <style lang="scss" scoped>
 .submission {
-  &-info {
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
-  }
-
   &-label,
   &-path {
     display: flex;

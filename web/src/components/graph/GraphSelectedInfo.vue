@@ -28,6 +28,14 @@
               <span>{{ selectedNodeTimestamp }}</span>
             </v-list-item>
           </v-list>
+
+          <v-card-actions>
+            <v-spacer />
+            <v-btn color="primary" text :to="`/submissions/${selectedNode.id}`">
+              View submission
+              <v-icon right>mdi-chevron-right</v-icon>
+            </v-btn>
+          </v-card-actions>
         </v-card>
       </div>
     </transition>
@@ -59,7 +67,10 @@
 
           <v-card-actions>
             <v-spacer />
-            <v-btn color="primary" text @click="goToInfo">More information</v-btn>
+            <v-btn color="primary" text :to="`/clusters/${selectedClusterIndex}`">
+              View cluster
+              <v-icon right>mdi-chevron-right</v-icon>
+            </v-btn>
           </v-card-actions>
         </v-card>
       </div>
@@ -69,7 +80,7 @@
 
 <script lang="ts" setup>
 import { computed, toRef } from "vue";
-import { useCluster, useRouter } from "@/composables";
+import { useCluster } from "@/composables";
 import { File, Legend } from "@/api/models";
 import { Cluster, Clustering } from "@/util/clustering-algorithms/ClusterTypes";
 import { DateTime } from "luxon";
@@ -84,7 +95,6 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {});
 
-const router = useRouter();
 const { clusterFilesSet, clusterAverageSimilarity } = useCluster(toRef(props, "selectedCluster"));
 
 // Timestamp of the selected node.
@@ -113,15 +123,6 @@ const selectedClusterIndex = computed(() => {
   const sortedClustering = Array.from(props.currentClustering).sort(sortFn);
   return sortedClustering.indexOf(props.selectedCluster);
 });
-
-// Go to the information section of this cluster.
-const goToInfo = (): void => {
-  router.replace({
-    query: {
-      cluster: String(selectedClusterIndex.value),
-    }
-  });
-};
 </script>
 
 <style lang="scss" scoped>

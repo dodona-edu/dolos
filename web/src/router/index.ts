@@ -33,8 +33,19 @@ const routes: Array<RouteConfig> = [
   },
   {
     path: "/graph",
-    name: "View by cluster",
+    name: "View by cluster graph",
     component: () => import(/* webpackChunkName: "graph" */ "../views/Graph.vue")
+  },
+  {
+    path: "/clusters",
+    name: "View by clusters",
+    component: () => import(/* webpackChunkName: "graph" */ "../views/Clusters.vue")
+  },
+  {
+    path: "/clusters/:id",
+    name: "Cluster",
+    props: route => ({ clusterId: route.params.id }),
+    component: () => import(/* webpackChunkName: "compare" */ "../views/Cluster.vue")
   },
 ];
 
