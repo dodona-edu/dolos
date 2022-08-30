@@ -1,0 +1,22 @@
+version: "3.9"
+services:
+  db:
+    image: mariadb:latest
+    volumes:
+      - dolos-db-data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: dolos
+  web:
+    build: .
+    command: bash -c "rm -f tmp/pids/server.pid && bundle exec rails s -p 3000 -b '0.0.0.0'"
+    volumes:
+      - .:/dolos
+    ports:
+      - "3000:3000"
+    environment:
+      DOLOS_API_DATABASE_PASSWORD: dolos
+      DATABASE_ROOT_PASSWORD: dolos
+    depends_on:
+      - db
+volumes:
+  dolos-db-data:
