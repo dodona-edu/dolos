@@ -9,7 +9,7 @@
     must-sort
     fixed-header
     dense
-    @click:row="(i) => $router.push(`/submissions/${i.fileId}`)"
+    @click:row="(i) => $router.push(`${analysisPath}/submissions/${i.fileId}`)"
   >
     <template #item.name="{ item }">
       <div class="submission-name">
@@ -43,7 +43,7 @@
             v-if="item.cluster !== ClusterRelation.NONE"
             v-bind="attrs"
             v-on="on"
-            :to="`/clusters/${item.clusterIndex}`"
+            :to="`${analysisPath}/clusters/${item.clusterIndex}`"
             :color="item.cluster === ClusterRelation.SAME ? 'primary' : ''"
             icon
             small
@@ -65,7 +65,7 @@
     </template>
 
     <template #item.actions="{ item }">
-      <v-btn class="ml-2" color="primary" text small :to="`/pairs/${item.id}`" @click.stop="">
+      <v-btn class="ml-2" color="primary" text small :to="`${analysisPath}/pairs/${item.id}`" @click.stop="">
         Compare
         <v-icon right>mdi-chevron-right</v-icon>
       </v-btn>
@@ -75,6 +75,7 @@
 
 <script lang="ts" setup>
 import { computed } from "vue";
+import { analysisPath } from "@/router";
 import { DataTableHeader } from "vuetify";
 import { useFileStore, usePairStore } from "@/api/stores";
 import { File } from "@/api/models";

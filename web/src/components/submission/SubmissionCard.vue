@@ -1,5 +1,5 @@
 <template>
-  <v-card class="submission-card" :to="`/submissions/${file.id}`">
+  <v-card class="submission-card" :to="`${analysisPath}/submissions/${file.id}`">
     <v-row align="center" justify="space-between">
       <v-col>
         <v-card-title>
@@ -29,6 +29,7 @@
 </template>
 
 <script lang="ts" setup>
+  import { analysisPath } from "@/router";
 import { File } from "@/api/models";
 import { useFileStore } from "@/api/stores";
 import { storeToRefs } from "pinia";

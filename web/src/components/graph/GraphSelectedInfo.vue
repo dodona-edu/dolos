@@ -31,7 +31,7 @@
 
           <v-card-actions>
             <v-spacer />
-            <v-btn color="primary" text :to="`/submissions/${selectedNode.id}`">
+            <v-btn color="primary" text :to="`${analysisPath}/submissions/${selectedNode.id}`">
               View submission
               <v-icon right>mdi-chevron-right</v-icon>
             </v-btn>
@@ -67,7 +67,7 @@
 
           <v-card-actions>
             <v-spacer />
-            <v-btn color="primary" text :to="`/clusters/${selectedClusterIndex}`">
+            <v-btn color="primary" text :to="`${analysisPath}/clusters/${selectedClusterIndex}`">
               View cluster
               <v-icon right>mdi-chevron-right</v-icon>
             </v-btn>
@@ -80,6 +80,7 @@
 
 <script lang="ts" setup>
 import { computed, toRef } from "vue";
+import { analysisPath } from "@/router";
 import { useCluster } from "@/composables";
 import { File, Legend } from "@/api/models";
 import { Cluster, Clustering } from "@/util/clustering-algorithms/ClusterTypes";

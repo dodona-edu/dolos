@@ -80,6 +80,7 @@
 <script lang="ts" setup>
 import { storeToRefs } from "pinia";
 import { computed } from "vue";
+import { analysisPath } from "@/router";
 import { DataTableHeader } from "vuetify";
 import { useFileStore } from "@/api/stores";
 import { File } from "@/api/models";
@@ -187,7 +188,7 @@ const items = computed(() => {
 
 // When a row is clicked.
 const rowClicked = (item: { id: string }): void => {
-  router.push(`/submissions/${item.id}`);
+  router.push(`${analysisPath}/submissions/${item.id}`);
 };
 </script>
 

@@ -13,6 +13,7 @@ import {
   onMounted,
   toRef,
 } from "vue";
+import { analysisPath } from "@/router";
 import { storeToRefs } from "pinia";
 import { useFileStore, usePairStore, useApiStore } from "@/api/stores";
 import { useCluster, useRouter, useD3Tooltip } from "@/composables";
@@ -282,7 +283,7 @@ const onClick = (_: unknown, [first, second]: [File, File]): void => {
   const pair = getPair(first, second);
 
   if (pair) {
-    router.push(`/pairs/${pair.id}`);
+    router.push(`${analysisPath}/pairs/${pair.id}`);
   }
 };
 </script>

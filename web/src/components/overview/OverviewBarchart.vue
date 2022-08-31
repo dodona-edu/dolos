@@ -9,6 +9,7 @@ import {
   watch,
   onMounted,
 } from "vue";
+import { analysisPath } from "@/router";
 import { storeToRefs } from "pinia";
 import { useApiStore, useFileStore } from "@/api/stores";
 import { useElementSize } from "@vueuse/core";
@@ -147,7 +148,7 @@ const draw = (): void => {
 
         // Go to the submissions page.
         router.push({
-          path: "/submissions",
+          path: `${analysisPath}/submissions`,
           query: {
             startSimilarity: x0.toString(),
             endSimilarity: x1.toString(),

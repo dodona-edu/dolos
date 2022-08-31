@@ -170,6 +170,7 @@
 
 <script lang="ts" setup>
 import { computed } from "vue";
+import { analysisPath } from "@/router";
 import { File } from "@/api/models";
 import { useFileStore, usePairStore } from "@/api/stores";
 import { useCluster, useRouter } from "@/composables";
@@ -199,7 +200,7 @@ const cluster = computed(() => pairStore.getCluster(file.value));
 const { clusterPairs, clusterFiles } = useCluster(cluster);
 // Go to the submission when a node is clicked.
 const onNodeClick = (file: File): void => {
-  router.push(`/submissions/${file.id}`);
+  router.push(`${analysisPath}/submissions/${file.id}`);
 };
 </script>
 

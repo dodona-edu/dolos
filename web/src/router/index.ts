@@ -1,52 +1,68 @@
-import Vue from "vue";
+import { useRoute } from "@/composables";
+import Vue, { computed } from "vue";
 import VueRouter, { RouteConfig } from "vue-router";
 
 Vue.use(VueRouter);
 
+// Upload path.
+export const uploadPathPrefix = process.env.VUE_APP_MODE === "server" ? "/" : "/upload";
+// Analysis path.
+export const analysisPathPrefix = process.env.VUE_APP_MODE === "server" ? "/reports/:reportId" : "";
+// Computed analysis path.
+export const analysisPath = computed(() => {
+  const route = useRoute();
+  return analysisPathPrefix.replace(":reportId", route.value.params.reportId ?? "");
+});
+
 const routes: Array<RouteConfig> = [
   {
-    path: "/",
+    path: `${analysisPathPrefix}/`,
     name: "Overview",
-    component: () => import(/* webpackChunkName: "overview" */ "../views/Overview.vue")
+    component: () => import(/* webpackChunkName: "overview" */ "../views/analysis/overview.vue")
   },
   {
-    path: "/pairs",
+    path: `${analysisPathPrefix}/pairs`,
     name: "View by pair",
-    component: () => import(/* webpackChunkName: "overview" */ "../views/Pairs.vue")
+    component: () => import(/* webpackChunkName: "overview" */ "../views/analysis/pairs.vue")
   },
   {
-    path: "/pairs/:id",
+    path: `${analysisPathPrefix}/pairs/:id`,
     name: "Compare",
     props: route => ({ pairId: route.params.id }),
-    component: () => import(/* webpackChunkName: "compare" */ "../views/Pair.vue")
+    component: () => import(/* webpackChunkName: "compare" */ "../views/analysis/pair.vue")
   },
   {
-    path: "/submissions",
+    path: `${analysisPathPrefix}/submissions/:id`,
     name: "View by submission",
-    component: () => import(/* webpackChunkName: "submissions" */ "../views/Submissions.vue")
+    component: () => import(/* webpackChunkName: "submissions" */ "../views/analysis/submissions.vue")
   },
   {
-    path: "/submissions/:id",
+    path: `${analysisPathPrefix}/submissions/:id`,
     name: "Submission",
     props: route => ({ fileId: route.params.id }),
-    component: () => import(/* webpackChunkName: "submission" */ "../views/Submission.vue")
+    component: () => import(/* webpackChunkName: "submission" */ "../views/analysis/submission.vue")
   },
   {
-    path: "/graph",
+    path: `${analysisPathPrefix}/graph`,
     name: "View by cluster graph",
-    component: () => import(/* webpackChunkName: "graph" */ "../views/Graph.vue")
+    component: () => import(/* webpackChunkName: "graph" */ "../views/analysis/graph.vue")
   },
   {
-    path: "/clusters",
+    path: `${analysisPathPrefix}/clusters`,
     name: "View by clusters",
-    component: () => import(/* webpackChunkName: "graph" */ "../views/Clusters.vue")
+    component: () => import(/* webpackChunkName: "graph" */ "../views/analysis/clusters.vue")
   },
   {
-    path: "/clusters/:id",
+    path: `${analysisPathPrefix}/clusters/:id`,
     name: "Cluster",
     props: route => ({ clusterId: route.params.id }),
-    component: () => import(/* webpackChunkName: "compare" */ "../views/Cluster.vue")
+    component: () => import(/* webpackChunkName: "compare" */ "../views/analysis/cluster.vue")
   },
+  {
+    path: `${uploadPathPrefix}/`,
+    name: "Upload",
+    component: () => import(/* webpackChunkName: "upload" */ "../views/upload/upload.vue")
+  }
 ];
 
 const router = new VueRouter({

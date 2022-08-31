@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
-import { computed, shallowRef } from "vue";
-import { DATA_URL } from "@/api";
+
 import { parseCsv } from "@/api/utils";
+import { shallowRef, computed, watch } from "vue";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
 import {
   singleLinkageCluster
@@ -85,9 +85,8 @@ export const usePairStore = defineStore("pairs", () => {
   }
 
   // Fetch the pairs from the CSV file.
-  async function fetch(
-    url: string = DATA_URL + "pairs.csv"
-  ): Promise<any[]> {
+  async function fetch(): Promise<any[]> {
+    const url = apiStore.url + "/pairs.csv";
     return await parseCsv(url);
   }
 

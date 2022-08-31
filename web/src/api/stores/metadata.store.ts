@@ -1,8 +1,8 @@
 import { defineStore } from "pinia";
 import { shallowRef } from "vue";
-import { DATA_URL } from "@/api";
 import { Metadata } from "@/api/models";
 import { castToType, parseCsv } from "@/api/utils";
+import { useApiStore } from "@/api/stores";
 
 /**
  * Store containing the metadata & helper functions.
@@ -21,10 +21,12 @@ export const useMetadataStore = defineStore("metadata", () => {
     );
   }
 
+  // Reference to other stores.
+  const apiStore = useApiStore();
+
   // Fetch the metadata from the CSV file.
-  async function fetch(
-    url: string = DATA_URL + "metadata.csv"
-  ): Promise<any[]> {
+  async function fetch(): Promise<any[]> {
+    const url = apiStore.url + "/metadata.csv";
     return await parseCsv(url);
   }
 

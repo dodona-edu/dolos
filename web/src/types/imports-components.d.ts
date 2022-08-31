@@ -21,6 +21,7 @@ declare module 'vue' {
     LabelsTable: typeof import('./../components/LabelsTable.vue')['default']
     LabelText: typeof import('./../components/LabelText.vue')['default']
     Loading: typeof import('./../components/Loading.vue')['default']
+    Navbar: typeof import('./../components/layout/Navbar.vue')['default']
     OverviewBarchart: typeof import('./../components/overview/OverviewBarchart.vue')['default']
     PairCodeDiff: typeof import('./../components/pair/PairCodeDiff.vue')['default']
     PairCodeFileInfo: typeof import('./../components/pair/PairCodeFileInfo.vue')['default']
@@ -30,6 +31,8 @@ declare module 'vue' {
     PairStatHistogram: typeof import('./../components/summary/PairStatHistogram.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    SemanticList: typeof import('./../components/SemanticList.vue')['default']
+    Sidebar: typeof import('./../components/layout/Sidebar.vue')['default']
     SimilarityDisplay: typeof import('./../components/SimilarityDisplay.vue')['default']
     SimilaritySetting: typeof import('./../components/settings/SimilaritySetting.vue')['default']
     SubmissionCard: typeof import('./../components/submission/SubmissionCard.vue')['default']
@@ -37,5 +40,7 @@ declare module 'vue' {
     SubmissionsPairsTable: typeof import('./../components/submission/SubmissionsPairsTable.vue')['default']
     SubmissionsTable: typeof import('./../components/submission/SubmissionsTable.vue')['default']
     TimeSeries: typeof import('./../components/clustering/TimeSeries.vue')['default']
+    UploadInput: typeof import('./../components/upload/UploadInput.vue')['default']
+    UploadsTable: typeof import('./../components/upload/UploadsTable.vue')['default']
   }
 }

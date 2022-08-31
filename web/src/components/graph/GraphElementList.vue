@@ -15,7 +15,7 @@
         tag="tr"
         class="graph-list-row"
         :class="{ selected: selectedFiles?.includes(file) }"
-        :to="`/submissions/${file.id}`"
+        :to="`${analysisPath}/submissions/${file.id}`"
       >
         <td class="d-flex align-center">
           <label-dot
@@ -35,6 +35,7 @@
 
 <script lang="ts" setup>
 import { computed, watch } from "vue";
+import { analysisPath } from "@/router";
 import { File } from "@/api/models";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
 import { getClusterElementsArray } from "@/util/clustering-algorithms/ClusterFunctions";

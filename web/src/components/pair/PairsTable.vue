@@ -20,6 +20,7 @@
 
 <script lang="ts" setup>
 import { shallowRef, onMounted, watch } from "vue";
+import { analysisPath } from "@/router";
 import { useRouter, useRoute } from "@/composables";
 import { useVModel } from "@vueuse/core";
 import { Pair } from "@/api/models";
@@ -88,7 +89,7 @@ watch(() => props.pairs, () => calculateItems());
 
 // When a row is clicked.
 const rowClicked = (item: { pair: Pair }): void => {
-  router.push(`/pairs/${item.pair.id}`);
+  router.push(`${analysisPath}/pairs/${item.pair.id}`);
 };
 </script>
 

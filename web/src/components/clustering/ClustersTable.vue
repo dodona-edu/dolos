@@ -32,9 +32,11 @@
 </template>
 
 <script lang="ts" setup>
+import { storeToRefs } from "pinia";
+import { analysisPath } from "@/router";
 import { computed } from "vue";
 import { DataTableHeader } from "vuetify";
-import { usePairStore } from "@/api/stores"; 
+import { usePairStore } from "@/api/stores";
 import { useRouter } from "@/composables";
 import { getClusterElementsArray } from "@/util/clustering-algorithms/ClusterFunctions";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
@@ -102,7 +104,7 @@ const maxWidth = computed(() => {
 
 // When a row is clicked.
 const rowClicked = (item: { id: string }): void => {
-  router.push(`/clusters/${item.id}`);
+  router.push(`${analysisPath}/clusters/${item.id}`);
 };
 </script>
 

@@ -1,6 +1,7 @@
+import { DATA_URL } from "@/api";
 import { defineStore } from "pinia";
-import { shallowRef, watch } from "vue";
-import { guessSimilarityThreshold } from "@/api/utils";
+import { useRoute } from "@/composables";
+import { shallowRef, watch, computed } from "vue";
 import {
   useFileStore,
   useKgramStore,
@@ -8,6 +9,7 @@ import {
   usePairStore,
 } from "@/api/stores";
 import { refDebounced } from "@vueuse/shared";
+import { guessSimilarityThreshold } from "../utils";
 
 /**
  * Store managing the API.
@@ -18,6 +20,18 @@ export const useApiStore = defineStore("api", () => {
   const kgramStore = useKgramStore();
   const metadataStore = useMetadataStore();
   const pairStore = usePairStore();
+
+  // Current route.
+  const route = useRoute();
+
+  // URL to the data.
+  const url = computed(() => {
+    if (process.env.VUE_APP_MODE === "server") {
+      return `${process.env.VUE_APP_API_URL}/reports/${route.value.params.reportId}/data`;
+    } else {
+      return DATA_URL;
+    }
+  });
 
   // If the data is loaded.
   const isLoaded = shallowRef(false);
@@ -55,14 +69,12 @@ export const useApiStore = defineStore("api", () => {
   };
 
   // Re-hydrate the API stores when the anonymous value changes.
-  watch(
-    isAnonymous,
-    () => {
-      fileStore.anonymize();
-    }
-  );
+  watch(isAnonymous, () => fileStore.anonymize());
+  // Re-hydrate the API stores when the url value changes.
+  watch(url, () => hydrate());
 
   return {
+    url,
     isAnonymous,
     isLoaded,
     loadingText,

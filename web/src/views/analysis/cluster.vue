@@ -121,6 +121,7 @@
 
 <script lang="ts" setup>
 import { useFileStore, usePairStore } from "@/api/stores";
+import { analysisPath } from "@/router";
 import { File } from "@/api/models";
 import { useCluster, usePartialLegend, useRouter } from "@/composables";
 import { storeToRefs } from "pinia";
@@ -144,6 +145,6 @@ const activeTab = shallowRef(0);
 
 // Go to the submission when a node is clicked.
 const onNodeClick = (file: File): void => {
-  router.push(`/submissions/${file.id}`);
+  router.push(`${analysisPath}/submissions/${file.id}`);
 };
 </script>

@@ -46,6 +46,7 @@
     "@dodona/dolos-lib": "2.0.2",
     "@mdi/font": "^7.0.96",
     "@vueuse/core": "^9.0.2",
+    "axios": "^0.27.2",
     "comlink": "^4.3.1",
     "d3": "^7.0.0",
     "luxon": "^3.0.1",
