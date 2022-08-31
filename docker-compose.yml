@@ -19,5 +19,16 @@ services:
       DOLOS_API_DATABASE_HOST: db
     depends_on:
       - db
+  worker:
+    build: .
+    command: bash -c "bundle exec rails jobs:work"
+    volumes:
+      - .:/dolos
+    environment:
+      DOLOS_API_DATABASE_USERNAME: root
+      DOLOS_API_DATABASE_PASSWORD: dolos
+      DOLOS_API_DATABASE_HOST: db
+    depends_on:
+      - db
 volumes:
   dolos-db-data:
