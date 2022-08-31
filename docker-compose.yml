@@ -14,8 +14,9 @@ services:
     ports:
       - "3000:3000"
     environment:
+      DOLOS_API_DATABASE_USERNAME: root
       DOLOS_API_DATABASE_PASSWORD: dolos
-      DATABASE_ROOT_PASSWORD: dolos
+      DOLOS_API_DATABASE_HOST: db
     depends_on:
       - db
 volumes:
