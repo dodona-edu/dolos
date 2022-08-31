@@ -27,7 +27,7 @@ class DatasetTest < ActiveSupport::TestCase
     assert @dataset.zipfile.analyzed?
     expected =  { "identified" => true,
                   "file_count" => 0,
-                  "has_info_csv" => false,
+                  "has_info_csv" => true,
                   "most_common_ext" => "js",
                   "most_common_ext_count" => 4,
                   "analyzed" => true

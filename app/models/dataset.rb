@@ -9,7 +9,6 @@
 #  created_at           :datetime         not null
 #  updated_at           :datetime         not null
 #
-require 'zip'
 
 class Dataset < ApplicationRecord
   has_one_attached :zipfile

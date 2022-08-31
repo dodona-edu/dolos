@@ -18,6 +18,21 @@ class ReportsController < ApplicationController
     @report.destroy
   end
 
+  # POST /reports
+  def create
+    @dataset = Dataset.new(dataset_params)
+    if @dataset.save
+      @report = Report.new(dataset: @dataset)
+      if @report.save
+        render json: @report, status: :created, location: @report
+      else
+        render json: @dataset.errors, status: :unprocessable_entity
+      end
+    else
+      render json: @dataset.errors, status: :unprocessable_entity
+    end
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_report
@@ -27,5 +42,9 @@ class ReportsController < ApplicationController
     # Only allow a list of trusted parameters through.
     def report_params
       params.require(:report).permit(:dataset)
+    end
+
+    def dataset_params
+      params.require(:dataset).permit(:zipfile, :name, :programming_language)
     end
 end

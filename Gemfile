@@ -42,6 +42,9 @@ group :development, :test do
 
   # Faker for generating test data
   gem "faker", "~> 2.22.0"
+
+  # Stubbing and mocking
+  gem "mocha", "~> 1.14.0"
 end
 
 group :development do

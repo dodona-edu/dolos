@@ -449,6 +449,16 @@
     };
     version = "5.16.2";
   };
+  mocha = {
+    groups = ["development" "test"];
+    platforms = [];
+    source = {
+      remotes = ["https://rubygems.org"];
+      sha256 = "0ffd7zn24lwhp3xp747jfg4zxgqbm04ar7shhjy2iv5xg1pz01lr";
+      type = "gem";
+    };
+    version = "1.14.0";
+  };
   msgpack = {
     groups = ["default"];
     platforms = [];
