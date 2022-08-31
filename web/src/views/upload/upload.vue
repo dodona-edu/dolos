@@ -108,10 +108,6 @@
                   </v-btn>
                 </div>
               </v-stepper-content>
-
-              <v-stepper-content step="4">
-                Done!
-              </v-stepper-content>
             </v-stepper>
           </v-card-text>
         </v-card>
@@ -248,9 +244,9 @@ const onSubmit = async (): Promise<void> => {
   // Make sure the form is valid.
   if (valid.value) {
     const data = new FormData();
-    data.append("zip", file.value ?? new Blob());
-    data.append("name", name.value ?? "");
-    data.append("language", language.value ?? "");
+    data.append("dataset[zipfile]", file.value ?? new Blob());
+    data.append("dataset[name]", name.value ?? "");
+    data.append("dataset[language]", language.value ?? "");
 
     // Go to the next step.
     step.value = 2;
@@ -270,6 +266,11 @@ const onSubmit = async (): Promise<void> => {
 
       // Get the analysis status URL.
       analysisStatusUrl.value = response.headers["Location"];
+
+      // Make sure a status url was provided.
+      if (!analysisStatusUrl.value) {
+        handleError("No analysis status URL was provided by the API.");
+      }
     } catch (e: any) {
       handleError(e.message);
     } finally {
@@ -309,7 +310,7 @@ onMounted(() => {
         handleError(e.message);
       }
     }
-  });
+  }, 1000);
 });
 onUnmounted(() => {
   clearInterval(interval.value);
