@@ -24,6 +24,7 @@ services:
     command: bash -c "bundle exec rails jobs:work"
     volumes:
       - .:/dolos
+      - /var/run/docker.sock:/var/run/docker.sock
     environment:
       DOLOS_API_DATABASE_USERNAME: root
       DOLOS_API_DATABASE_PASSWORD: dolos
