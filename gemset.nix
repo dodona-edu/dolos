@@ -596,6 +596,17 @@
     };
     version = "2.2.4";
   };
+  rack-cors = {
+    dependencies = ["rack"];
+    groups = ["default"];
+    platforms = [];
+    source = {
+      remotes = ["https://rubygems.org"];
+      sha256 = "0jvs0mq8jrsz86jva91mgql16daprpa3qaipzzfvngnnqr5680j7";
+      type = "gem";
+    };
+    version = "1.1.1";
+  };
   rack-test = {
     dependencies = ["rack"];
     groups = ["default"];
