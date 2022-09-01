@@ -93,7 +93,7 @@
           <v-card class="mt-4">
             <v-card-title>Cluster Heatmap</v-card-title>
             <v-card-subtitle>
-              This is a description of this card.
+              Visualization of the pairs within this cluster, darker is more similar.
             </v-card-subtitle>
             <v-card-text>
               <heat-map

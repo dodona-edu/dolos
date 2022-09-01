@@ -12,10 +12,18 @@
     </v-row>
 
     <v-card>
-      <clusters-table class="clusters-table" />
+      <clusters-table class="clusters-table" :clusters="sortedClustering" />
     </v-card>
   </v-container>
 </template>
+
+<script lang="ts" setup>
+import { usePairStore } from "@/api/stores";
+import { storeToRefs } from "pinia";
+
+const pairStore = usePairStore();
+const { sortedClustering } = storeToRefs(pairStore);
+</script>
 
 <style lang="scss" scoped>
 .clusters {

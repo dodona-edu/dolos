@@ -57,9 +57,9 @@
             </div>
             <router-link
               class="stat-card-subtitle text--secondary"
-              to="/pairs"
+              to="/submissions"
             >
-              View pairs
+              View submissions
             </router-link>
           </div>
         </v-card>
@@ -140,99 +140,39 @@
         </v-card>
       </v-col>
 
-      <v-col cols="12">
+      <v-col cols="12" md="6">
         <v-card>
-          <div class="d-flex flex-column flex-md-row flex-no-wrap justify-center">
-            <div class="ma-4 d-flex align-center justify-center">
-              <v-img
-                src="../assets/soco-java-graph.png"
-                :max-width="270"
-                contain
-              />
-            </div>
-            <div>
-              <v-card-title> Cluster Analysis </v-card-title>
-              <v-card-text class="info-text">
-                <p>
-                  When there is a lot of plagiarism in your dataset (such as
-                  during a regular exercise) you may want to look for larger
-                  groups of students who share their solutions. This allows you
-                  to intervene if the groups become too big, by finding the
-                  person who shares the solutions with the rest of the group.
-                </p>
-                <p>
-                  The clustering page of Dolos visualizes the graph, to give you
-                  general information about the different groups in the dataset.
-                  The groups are determined by the similarity cutoff value,
-                  which we automatically determine when the cluster is loaded
-                  in. You can see the results of tweaking this value on the
-                  clustering page.
-                </p>
-                <p>
-                  Once you've found an interesting group of exercises, you can
-                  click on them and press the 'More information' button. This
-                  gives you further details on the cluster you picked, including
-                  a timeline of the files which may allow you to discover the
-                  source of plagiarism in the cluster.
-                </p>
-              </v-card-text>
-              <v-card-actions>
-                <v-spacer />
-                <v-btn color="primary" depressed to="/graph">
-                  Go to graph view
-                  <v-icon right>mdi-chevron-right</v-icon>
-                </v-btn>
-              </v-card-actions>
-            </div>
-          </div>
+          <v-card-title>Submissions</v-card-title>
+          <v-card-subtitle>Highlights the most suspicious individual submissions, useful for exams.</v-card-subtitle>
+
+          <submissions-table :files="submissionsOverview" concise disable-sorting />
+
+          <v-card-actions>
+            <v-spacer />
+            <v-btn color="primary" text block to="/submissions">
+              <span v-if="submissionsCount > 1">View all {{ submissionsCount }} submissions</span>
+              <span v-else>View all submissions</span>
+              <v-icon right>mdi-chevron-right</v-icon>
+            </v-btn>
+          </v-card-actions>
         </v-card>
       </v-col>
 
-      <v-col cols="12">
+      <v-col cols="12" md="6">
         <v-card>
-          <div class="d-flex flex-column flex-md-row flex-no-wrap justify-start">
-            <div class="ma-4 d-flex align-center justify-center">
-              <v-img
-                src="../assets/file-comparison.png"
-                :max-width="270"
-                contain
-              />
-            </div>
-            <div>
-              <v-card-title> Submission Analysis </v-card-title>
-              <v-card-text class="info-text">
-                <p>
-                  In certain situations you want to be certain there is no
-                  plagiarism in your dataset. This is often the case on
-                  evaluations or exams, where each student needs to work
-                  entirely independently of each other. In this case, you need
-                  to be able to examine the most suspicious pairs in detail.
-                </p>
-                <p>
-                  Dolos' submissions page uses different metrics to examine
-                  the different files, and return the most interesting file
-                  pairs to examine. You can use this indication to look at the
-                  files in further detail using the compare view.
-                </p>
-                <p>
-                  If you want to look at the exhaustive list of pairs, you can
-                  use the pair view. This allows you to see all comparisons
-                  Dolos made without extra filters.
-                </p>
-              </v-card-text>
-              <v-card-actions>
-                <v-spacer />
-                <v-btn color="primary" text to="/pairs">
-                  Go to pair view
-                  <v-icon right>mdi-chevron-right</v-icon>
-                </v-btn>
-                <v-btn color="primary" depressed to="/submissions">
-                  Go to submissions
-                  <v-icon right>mdi-chevron-right</v-icon>
-                </v-btn>
-              </v-card-actions>
-            </div>
-          </div>
+          <v-card-title>Clusters</v-card-title>
+          <v-card-subtitle>Aggregates submissions in groups, useful for exercises.</v-card-subtitle>
+
+          <clusters-table :clusters="clustersOverview" concise disable-sorting />
+
+          <v-card-actions>
+            <v-spacer />
+            <v-btn color="primary" text block to="/clusters">
+              <span v-if="clustersCount > 1">View all {{ clustersCount }} clusters</span>
+              <span v-else>View all clusters</span>
+              <v-icon right>mdi-chevron-right</v-icon>
+            </v-btn>
+          </v-card-actions>
         </v-card>
       </v-col>
     </v-row>
@@ -255,7 +195,7 @@ const fileStore = useFileStore();
 const pairStore = usePairStore();
 const metadataStore = useMetadataStore();
 const { legend, similaritiesList, hasLabels } = storeToRefs(fileStore);
-const { clustering } = storeToRefs(pairStore);
+const { clustering, sortedClustering } = storeToRefs(pairStore);
 
 // File legend.
 const legendCount = computed(() => Object.keys(legend.value ?? {}).length);
@@ -304,6 +244,24 @@ const language = computed(() => {
   const lang = metadataStore.metadata.language;
   return lang.charAt(0).toUpperCase() + lang.slice(1);
 });
+
+// First x amount of submissions to display.
+// Sorted by highest similarity
+const submissionsOverview = computed(() => {
+  const submissions = Object.values(fileStore.filesActive);
+  return submissions.sort((a, b) => b.similarity - a.similarity).slice(0, 10);
+});
+
+// Total amount of submissions
+const submissionsCount = computed(() => Object.keys(fileStore.filesActive).length);
+
+// First x amount of clusters to display.
+const clustersOverview = computed(() => {
+  return sortedClustering.value.slice(0, 10);
+});
+
+// Total amount of clusters
+const clustersCount = computed(() => sortedClustering.value.length);
 </script>
 
 <style lang="scss" scoped>
