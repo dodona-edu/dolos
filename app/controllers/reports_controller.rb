@@ -21,15 +21,11 @@ class ReportsController < ApplicationController
   # POST /reports
   def create
     @dataset = Dataset.new(dataset_params)
-    if @dataset.save
-      @report = Report.new(dataset: @dataset)
-      if @report.save
-        render json: @report, status: :created, location: @report
-      else
-        render json: @dataset.errors, status: :unprocessable_entity
-      end
+    @report = Report.new(dataset: @dataset)
+    if @report.save
+      render json: @report, status: :created, location: @report
     else
-      render json: @dataset.errors, status: :unprocessable_entity
+      render json: @report.errors, status: :unprocessable_entity
     end
   end
 

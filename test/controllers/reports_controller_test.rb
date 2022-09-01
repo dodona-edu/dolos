@@ -17,10 +17,13 @@ class ReportsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should upload dataset and create report" do
-    zipfile = fixture_file_upload(Rails.root.join('test/files/simple-dataset.zip'), 'application/zip')
-    assert_difference("Report.count") do
-      post(reports_url, params: { dataset: { name: @dataset.name, programming_language: @dataset.programming_language, zipfile: zipfile } })
-      assert_response :created
+
+    assert_enqueued_jobs 1, only: AnalyzeDatasetJob do
+      zipfile = fixture_file_upload(Rails.root.join('test/files/simple-dataset.zip'), 'application/zip')
+      assert_difference("Report.count") do
+        post(reports_url, params: { dataset: { name: @dataset.name, programming_language: @dataset.programming_language, zipfile: zipfile } })
+        assert_response :created
+      end
     end
   end
 
