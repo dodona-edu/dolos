@@ -33,6 +33,9 @@ gem "delayed_job_active_record"
 # CORS middleware
 gem "rack-cors"
 
+# Use ActiveModelSerializer for serializing to JSON
+gem "active_model_serializers", "~> 0.10"
+
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[ mri mingw x64_mingw ]

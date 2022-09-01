@@ -65,6 +65,17 @@
     };
     version = "7.0.3.1";
   };
+  active_model_serializers = {
+    dependencies = ["actionpack" "activemodel" "case_transform" "jsonapi-renderer"];
+    groups = ["default"];
+    platforms = [];
+    source = {
+      remotes = ["https://rubygems.org"];
+      sha256 = "0xdp7cpj3yj3wl4vj0nqq44kzjavlxi1wq3cf9zp0whkir0ym0gy";
+      type = "gem";
+    };
+    version = "0.10.13";
+  };
   active_storage_validations = {
     dependencies = ["activejob" "activemodel" "activestorage" "activesupport"];
     groups = ["default"];
@@ -172,6 +183,17 @@
       type = "gem";
     };
     version = "3.2.4";
+  };
+  case_transform = {
+    dependencies = ["activesupport"];
+    groups = ["default"];
+    platforms = [];
+    source = {
+      remotes = ["https://rubygems.org"];
+      sha256 = "0fzyws6spn5arqf6q604dh9mrj84a36k5hsc8z7jgcpfvhc49bg2";
+      type = "gem";
+    };
+    version = "0.2";
   };
   concurrent-ruby = {
     groups = ["default"];
@@ -376,6 +398,16 @@
       type = "gem";
     };
     version = "2.6.2";
+  };
+  jsonapi-renderer = {
+    groups = ["default"];
+    platforms = [];
+    source = {
+      remotes = ["https://rubygems.org"];
+      sha256 = "0ys4drd0k9rw5ixf8n8fx8v0pjh792w4myh0cpdspd317l1lpi5m";
+      type = "gem";
+    };
+    version = "0.2.2";
   };
   loofah = {
     dependencies = ["crass" "nokogiri"];
