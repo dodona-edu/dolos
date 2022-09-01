@@ -1,6 +1,6 @@
 Rails.application.routes.draw do
   resources :reports, except: %i[update]
-  resources :datasets, except: %i[update] do
+  resources :datasets, except: %i[update create] do
     member do
       post 'analyze'
     end

@@ -11,17 +11,6 @@ class DatasetsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test "should create dataset" do
-    assert_difference("Dataset.count") do
-      post datasets_url, params: { dataset: { name: @dataset.name, programming_language: @dataset.programming_language, zipfile: @zipfile } }
-
-      assert_response :created
-
-      dataset = Dataset.order(:created_at).last
-      assert dataset.zipfile.attached?
-    end
-  end
-
   test "should show dataset" do
     get dataset_url(@dataset), as: :json
     assert_response :success

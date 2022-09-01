@@ -13,16 +13,6 @@ class DatasetsController < ApplicationController
     render json: @dataset
   end
 
-  # POST /datasets
-  def create
-    @dataset = Dataset.new(dataset_params)
-    if @dataset.save
-      render json: @dataset, status: :created, location: @dataset
-    else
-      render json: @dataset.errors, status: :unprocessable_entity
-    end
-  end
-
   # POST /datasets/1/analyze
   def analyze
     @report = Report.new(dataset: @dataset)
