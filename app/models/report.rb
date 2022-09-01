@@ -10,6 +10,7 @@
 #  status      :integer
 #  stderr      :text(65535)
 #  stdout      :text(65535)
+#  token       :string(255)      not null
 #  created_at  :datetime         not null
 #  updated_at  :datetime         not null
 #  dataset_id  :bigint           not null
@@ -17,8 +18,13 @@
 # Indexes
 #
 #  index_reports_on_dataset_id  (dataset_id)
+#  index_reports_on_token       (token)
 #
 class Report < ApplicationRecord
+  include Tokenable
+
+  token_generator :token
+
   belongs_to :dataset
 
   RESULT_FILES = {
@@ -35,6 +41,7 @@ class Report < ApplicationRecord
 
   enum :status, { unknown: 0, queued: 1, running: 2, failed: 3, error: 4, finished: 5}
 
+  before_create :generate_token
   after_create :queue_analysis
 
   def queue_analysis
