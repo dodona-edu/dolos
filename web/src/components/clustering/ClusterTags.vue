@@ -75,16 +75,12 @@ const draw = (): void => {
   groups
     .append("text")
     .text((file) => {
-      if (file.extra.fullName) {
-        const splitName = file.extra.fullName.split(" ");
-        if (splitName.length === 2) {
-          return (splitName[0][0] + splitName[1][0]).toUpperCase();
-        } else {
-          return file.extra.fullName[0].toUpperCase();
-        }
+      const name = file.extrafullName ?? file.shortPath;
+      const splitName = name.split(" ");
+      if (splitName.length === 2) {
+        return (splitName[0][0] + splitName[1][0]).toUpperCase();
       } else {
-        const path = file.shortPath;
-        return path[path.length - 1][0].toUpperCase();
+        return name[0].toUpperCase();
       }
     })
     .attr("stroke", "white")
