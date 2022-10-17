@@ -1,6 +1,6 @@
 ---
 home: true
-heroImage: /images/soco-java-graph-circle.png
+heroImage: /images/demo-exercise-graph-circle.png
 heroAlt: The Dolos plagiarism graph
 heroText: Dolos
 tagline: Source code plagiarism detection

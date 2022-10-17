@@ -9,9 +9,9 @@ parser library, to support a broad range of programming languages.
 - [Install Dolos](/guide/installation.html)
 - [How to use Dolos](/guide/running.html)
 
-By using powerful visualizations, you can see in a glance how similar the analyzed files are. See for example the difference between the submissions for the same exercise used for an exam (left) and later as a normal exercise (right):
+By using powerful visualizations, you can see in a glance how similar the analyzed files are. See for example the difference between the submissions for the same exercise used for an test (left) and later as a mandatory exercise (right):
 
-![Two plagiarism graphs. The first plagiarism graph is of an evaluation exercise in academic year 2018-2019 with no connected nodes on the graph. The second plagiarism graph is of the same exercise given as a normal exercises in the academic year 2019-2020 and shows a lot of connected nodes, indicating a lot of plagiarism.](/images/figure08.png)
+![Two plagiarism graphs. The first plagiarism graph is of solutions submitted for a test in academic year 2020-2021 with only two connected nodes in the graph. The second plagiarism graph is of the same exercise given as a mandatory exercise in the academic year 2021-2022 and shows a lot of connected nodes, indicating a lot of plagiarism.](/images/comparison-exercise-evaluation.png)
 
 ## Why a new tool?
 
