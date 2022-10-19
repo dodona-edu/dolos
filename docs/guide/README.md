@@ -9,9 +9,16 @@ parser library, to support a broad range of programming languages.
 - [Install Dolos](/guide/installation.html)
 - [How to use Dolos](/guide/running.html)
 
-By using powerful visualizations, you can see in a glance how similar the analyzed files are. See for example the difference between the submissions for the same exercise used for an test (left) and later as a mandatory exercise (right):
+By using powerful visualizations, you can see in a glance how similar the analyzed files are. Based on our experience with teaching programming courses, Dolos focuses on two main use cases:
+
+**Tests and exams** where no communication or collaboration is allowed and thus no similar submissions are expected. Submissions with a high similarity or with similar parts could a be a sign of possible cheating behavior and are immediately visible in the interface.
+
+**Regular exercises** where collaboration is allowed between (small) groups of students where teachers want to see if solutions are not exchanged among larger groups of students. Dolos groups submissions within clusters to easily identify problematic groups.
+
+The example below shows the difference between submissions for the same exercise used for an test where no communication or collaboration is allowed (left) and later as a mandatory exercise where students are allowed to collaborate in small groups (right):
 
 ![Two plagiarism graphs. The first plagiarism graph is of solutions submitted for a test in academic year 2020-2021 with only two connected nodes in the graph. The second plagiarism graph is of the same exercise given as a mandatory exercise in the academic year 2021-2022 and shows a lot of connected nodes, indicating a lot of plagiarism.](/images/comparison-exercise-evaluation.png)
+
 
 ## Why a new tool?
 
