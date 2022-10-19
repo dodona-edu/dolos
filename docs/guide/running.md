@@ -23,6 +23,8 @@ dolos run -l javascript another_copied_function.js  copied_function.js  copy_of_
 dolos run -l javascript *.js
 # or by passing the info.csv
 dolos run -l javascript info.csv
+# or by passing the ZIP-archive
+dolos run -l javascript simple-dataset.zip
 ```
 The output in your terminal will should look like this:
 ```
@@ -40,26 +42,22 @@ You can show all the command-line options by passing the `-h` or `--help` flag
 or by running `dolos help run`.
 :::
 
-## Passing metadata
+## Adding metadata
 
 You can improve your analysis results by giving a CSV-file instead of a list of file. This file can contain extra metadata for each submission. However, only the row `filename` with the path to each submission is required.
 
 In addition, you can add the following rows to enhance the results:
-- `createdAt`: the timestamp at which the submission was handed in
-- `fullName`: the full name of the author of the submission
-- `labels`: label used to group submissions together
+- `created_at`: the timestamp at which the submission was handed in
+- `full_name`: the full name of the author of the submission
+- `labels`: label used to group submissions together (only one label is supported currently)
 
 ```shell
 dolos run -l javascript info.csv
 ```
 
-## Passing a ZIP-archive
-
-It is also possible to pass a ZIP-file with an `info.csv` file in it as argument to Dolos.
-
-```shell
-dolos run -l javascript simple-dataset.zip
-```
+::: tip
+The format of the CSV-file and the ZIP-archive that Dolos is able to analyse, is the format in which [Dodona](https://dodona.ugent.be) exports its submissions. Go to [the Dodona use case](./dodona.html) to learn how you can analyse Dodona submissions with Dolos.
+:::
 
 ## Modifying analysis parameters
 
