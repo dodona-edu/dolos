@@ -42,7 +42,7 @@ Analysis performed on all 392 submissions for a mandatory assignment. Communicat
 
 ## Benchmark dataset
 
-This demo shows how Dolos performs on the [SOCO dataset](https://pan.webis.de/fire14/pan14-web/soco.html). The inputs of Dolos were enhanced by adding [labels](/guide/import.html#Labels)
+This demo shows how Dolos performs on the [SOCO dataset](https://pan.webis.de/fire14/pan14-web/soco.html). The inputs of Dolos were enhanced by adding [labels](../guide/running.html#adding-metadata)
 indicating whether a file is involved in plagiarism (orange) or not (blue).
 
 
