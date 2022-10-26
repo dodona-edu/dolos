@@ -5,7 +5,7 @@ sidebar: false
 
 On this page you can find the results of a plagiarism analysis for a few different cases.
 
-## Anonymized dataset
+## Classroom dataset
 
 This analysis was performed on submissions for the same exercise: once as a graded test where no communication was allowed between students, and once as a mandatory exercise where collaboration is expected between small groups of students.
 
