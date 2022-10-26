@@ -1,5 +1,6 @@
 import { defineUserConfig, defaultTheme } from 'vuepress';
 import { searchPlugin } from "@vuepress/plugin-search";
+import { path } from '@vuepress/utils';
 
 export default defineUserConfig({
   lang: 'en-US',
@@ -27,7 +28,7 @@ export default defineUserConfig({
       },
       {
         text: 'Try Dolos',
-        link: '/try/'
+        link: '/demo/'
       },
     ],
 
@@ -48,6 +49,10 @@ export default defineUserConfig({
       }
     ],
   }),
+
+  alias: {
+    '@theme/HomeHero.vue': path.resolve(__dirname, './.vuepress/components/HomeHero.vue'),
+  },
 
   plugins: [
     searchPlugin({

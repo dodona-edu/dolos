@@ -1,25 +1,30 @@
 # Running Dolos
 
-If you want to follow along, we have provided a [ZIP with sample files](/dolos-js-samples.zip).
+If you want to follow along, we have provided a [ZIP with sample files](/simple-dataset.zip).
 Download and extract this in your terminal.
 
 On Unix, you can accomplish this using the following commands:
+
 ```shell
-wget https://dolos.ugent.be/dolos-js-samples.zip
-unzip dolos-js-samples.zip
-cd dolos-js-samples/
+wget https://dolos.ugent.be/simple-dataset.zip
+unzip simple-dataset.zip
 ls
-# another_copied_function.js  copied_function.js  copy_of_sample.js  sample.js
+# another_copied_function.js  copied_function.js  copy_of_sample.js info.csv sample.js
 ```
 
 ## Simple start
 
 The simplest way to run Dolos is to set the language using the `-l` or `--language`
 flag and pass it a list of all the files you want to analyze:
+
 ```shell
 dolos run -l javascript another_copied_function.js  copied_function.js  copy_of_sample.js  sample.js
-# or shorter using file globbing
+# or shorter using file globbing (does not work on Windows)
 dolos run -l javascript *.js
+# or by passing the info.csv
+dolos run -l javascript info.csv
+# or by passing the ZIP-archive
+dolos run -l javascript simple-dataset.zip
 ```
 The output in your terminal will should look like this:
 ```
@@ -31,9 +36,27 @@ another_copied_function.js   sample.js                    0.350427    14        
 copied_function.js           copy_of_sample.js            0.153846    8              16
 copied_function.js           sample.js                    0.153846    8              16
 ```
+
 ::: tip
 You can show all the command-line options by passing the `-h` or `--help` flag
 or by running `dolos help run`.
+:::
+
+## Adding metadata
+
+You can improve your analysis results by giving a CSV-file instead of a list of file. This file can contain extra metadata for each submission. However, only the row `filename` with the path to each submission is required.
+
+In addition, you can add the following rows to enhance the results:
+- `created_at`: the timestamp at which the submission was handed in
+- `full_name`: the full name of the author of the submission
+- `labels`: label used to group submissions together (only one label is supported currently)
+
+```shell
+dolos run -l javascript info.csv
+```
+
+::: tip
+The format of the CSV-file and the ZIP-archive that Dolos is able to analyse, is the format in which [Dodona](https://dodona.ugent.be) exports its submissions. Go to [the Dodona use case](./dodona.html) to learn how you can analyse Dodona submissions with Dolos.
 :::
 
 ## Modifying analysis parameters

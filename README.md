@@ -2,7 +2,7 @@
 
 <p align="center">
   <a href="https://dolos.ugent.be/" target="_blank">
-    <img width="180" src="https://github.com/dodona-edu/dolos/blob/main/docs/public/images/soco-java-graph-circle.png" alt="A plagiarism graph showing a lot of plagiarism.">
+    <img width="180" src="https://github.com/dodona-edu/dolos/blob/main/docs/public/images/demo-exercise-graph-circle.png" alt="A plagiarism graph showing a lot of plagiarism.">
   </a>
 </p>
 

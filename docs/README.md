@@ -1,6 +1,7 @@
 ---
 home: true
-heroImage: /images/soco-java-graph-circle.png
+heroImage: /images/demo-exercise-graph-circle.png
+heroImageLink: https://dolos.ugent.be/demo/pyramidal-constants/exercise/#/graph
 heroAlt: The Dolos plagiarism graph
 heroText: Dolos
 tagline: Source code plagiarism detection
@@ -9,7 +10,7 @@ actions:
   link: /guide/
   type: secondary
 - text: Try it out →
-  link: /try/
+  link: /demo/
   type: primary
 
 footer: Made by Team Dodona with ❤️
