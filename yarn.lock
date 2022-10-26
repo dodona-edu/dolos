@@ -2657,6 +2657,15 @@
     postcss "^8.4.14"
     source-map "^0.6.1"
 
+"@vue/compiler-sfc@2.7.13":
+  version "2.7.13"
+  resolved "https://registry.yarnpkg.com/@vue/compiler-sfc/-/compiler-sfc-2.7.13.tgz#818944f4a9616b752d48dac6a56bffe2db88bdff"
+  integrity sha512-zzu2rLRZlgIU+OT3Atbr7Y6PG+LW4wVQpPfNRrGDH3dM9PsrcVfa+1pKb8bW467bGM3aDOvAnsYLWVpYIv3GRg==
+  dependencies:
+    "@babel/parser" "^7.18.4"
+    postcss "^8.4.14"
+    source-map "^0.6.1"
+
 "@vue/component-compiler-utils@^3.1.0", "@vue/component-compiler-utils@^3.3.0":
   version "3.3.0"
   resolved "https://registry.yarnpkg.com/@vue/component-compiler-utils/-/component-compiler-utils-3.3.0.tgz#f9f5fb53464b0c37b2c8d2f3fbfe44df60f61dc9"
@@ -2673,10 +2682,10 @@
   optionalDependencies:
     prettier "^1.18.2 || ^2.0.0"
 
-"@vue/devtools-api@^6.4.4":
-  version "6.4.4"
-  resolved "https://registry.yarnpkg.com/@vue/devtools-api/-/devtools-api-6.4.4.tgz#0b024fc8ca91bb4b6035abaf53c5aecc17119b3b"
-  integrity sha512-Ku31WzpOV/8cruFaXaEZKF81WkNnvCSlBY4eOGtz5WMSdJvX1v1WWlSMGZeqUwPtQ27ZZz7B62erEMq8JDjcXw==
+"@vue/devtools-api@^6.2.1":
+  version "6.4.5"
+  resolved "https://registry.yarnpkg.com/@vue/devtools-api/-/devtools-api-6.4.5.tgz#d54e844c1adbb1e677c81c665ecef1a2b4bb8380"
+  integrity sha512-JD5fcdIuFxU4fQyXUu3w2KpAJHzTVdN+p4iOX2lMWSHMOoQdMAcpFLZzm9Z/2nmsoZ1a96QEhZ26e50xLBsgOQ==
 
 "@vue/eslint-config-standard@8.0.1":
   version "8.0.1"
@@ -9557,12 +9566,12 @@ pify@^4.0.1:
   resolved "https://registry.yarnpkg.com/pify/-/pify-4.0.1.tgz#4b2cd25c50d598735c50292224fd8c6df41e3231"
   integrity sha512-uB80kBFb/tfd68bVleG9T5GGsGPjJrLAUpR5PZIrhBnIaRTQRjqdJSsIKkOP6OAIFbj7GOrcudc5pNjZ+geV2g==
 
-pinia@^2.0.17:
-  version "2.0.23"
-  resolved "https://registry.yarnpkg.com/pinia/-/pinia-2.0.23.tgz#570f5f82160b656b412602789683faa95502d227"
-  integrity sha512-N15hFf4o5STrxpNrib1IEb1GOArvPYf1zPvQVRGOO1G1d74Ak0J0lVyalX/SmrzdT4Q0nlEFjbURsmBmIGUR5Q==
+pinia@2.0.20:
+  version "2.0.20"
+  resolved "https://registry.yarnpkg.com/pinia/-/pinia-2.0.20.tgz#3b7f1a5a660282fab6a0c83bae62c48ee0b1bc1f"
+  integrity sha512-fdHHumXW/0U5HhxmY1emo3I4z85p8NJPdbtFQSlmJXFe3ktuF0pYNVgVtk2q+j2zCtTufY763xzaEMx0t6T59g==
   dependencies:
-    "@vue/devtools-api" "^6.4.4"
+    "@vue/devtools-api" "^6.2.1"
     vue-demi "*"
 
 pinkie-promise@^2.0.0:
@@ -12144,12 +12153,20 @@ vue-template-es2015-compiler@^1.9.0:
   resolved "https://registry.yarnpkg.com/vue-template-es2015-compiler/-/vue-template-es2015-compiler-1.9.1.tgz#1ee3bc9a16ecbf5118be334bb15f9c46f82f5825"
   integrity sha512-4gDntzrifFnCEvyoO8PqyJDmguXgVPxKiIxrBKjIowvL9l+N66196+72XVYR8BBf1Uv1Fgt3bGevJ+sEmxfZzw==
 
-vue@^2.6.14, vue@^2.7.8:
+vue@^2.6.14:
   version "2.7.12"
   resolved "https://registry.yarnpkg.com/vue/-/vue-2.7.12.tgz#895162c258dc1f88d2accf3cae4824a51c1d4988"
   integrity sha512-yRS44vPsCj6b5IZQHdEYqIwnay8stCnL8RsaVsm5aGtOhka00aoG+3ybaBAELDsXtNlzECe8myb2ukdzn19IOg==
   dependencies:
     "@vue/compiler-sfc" "2.7.12"
+    csstype "^3.1.0"
+
+vue@^2.7.13:
+  version "2.7.13"
+  resolved "https://registry.yarnpkg.com/vue/-/vue-2.7.13.tgz#e9e499cc6da46dc7941c2510193b15aa6a84a79f"
+  integrity sha512-QnM6ULTNnPmn71eUO+4hdjfBIA3H0GLsBnchnI/kS678tjI45GOUZhXd0oP/gX9isikXz1PAzSnkPspp9EUNfQ==
+  dependencies:
+    "@vue/compiler-sfc" "2.7.13"
     csstype "^3.1.0"
 
 vuetify-loader@1.9.2:

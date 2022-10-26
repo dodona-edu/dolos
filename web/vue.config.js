@@ -7,6 +7,8 @@ module.exports = {
   publicPath: "./",
   transpileDependencies: ["vuetify"],
   configureWebpack: (config) => {
+    // Uncomment when debugging dependencies (like vue)
+    // config.optimization = { minimize: false, ...config.optimization };
     // Webpack resolve paths of dependencies.
     config.resolve = {
       fallback: {
