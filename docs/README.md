@@ -1,6 +1,7 @@
 ---
 home: true
 heroImage: /images/demo-exercise-graph-circle.png
+heroImageLink: https://dolos.ugent.be/demo/pyramidal-constants/exercise/#/graph
 heroAlt: The Dolos plagiarism graph
 heroText: Dolos
 tagline: Source code plagiarism detection
