@@ -5,7 +5,7 @@ uses [tree-sitter](https://tree-sitter.github.io/tree-sitter/), an incremental
 parser library, to support a broad range of programming languages. 
 
 
-- [Try Dolos](/demo/)
+- [Try Dolos](/try/)
 - [Install Dolos](/guide/installation.html)
 - [How to use Dolos](/guide/running.html)
 
