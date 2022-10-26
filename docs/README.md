@@ -10,7 +10,7 @@ actions:
   link: /guide/
   type: secondary
 - text: Try it out →
-  link: /try/
+  link: /demo/
   type: primary
 
 footer: Made by Team Dodona with ❤️

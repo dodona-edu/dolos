@@ -28,7 +28,7 @@ export default defineUserConfig({
       },
       {
         text: 'Try Dolos',
-        link: '/try/'
+        link: '/demo/'
       },
     ],
 
