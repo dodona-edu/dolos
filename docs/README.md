@@ -25,17 +25,17 @@ detection and prevention.
   <div class="feature">
     <h2>Install & Run</h2>
     <p>Minimal installation instructions and intuitive user interface.</p>
-    <p><router-link to="/guide/installation">Install Dolos →</router-link></p>
+    <p><router-link to="/guide/installation.html">Install Dolos →</router-link></p>
   </div>
   <div class="feature">
     <h2>Programming languages</h2>
     <p>Dolos supports many programming languages by leveraging the <b>tree-sitter</b> parser library.</p>
-    <p><router-link to="/guide/languages">Supported languages →</router-link></p>
+    <p><router-link to="/guide/languages.html">Supported languages →</router-link></p>
   </div>
 
   <div class="feature">
     <h2>Powerful algorithms</h2>
     <p>Using state-of-the-art algorithms, Dolos helps you discover plagiarism.</p>
-    <p><router-link to="/guide/algorithm">How it works →</router-link></p>
+    <p><router-link to="/guide/algorithm.html">How it works →</router-link></p>
   </div>
 </div>
