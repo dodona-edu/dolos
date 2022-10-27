@@ -1,11 +1,8 @@
 import { View } from "./view";
 import { stringify } from "csv-stringify";
 import { Writable } from "stream";
-import { createWriteStream, promises, promises as fs } from "fs";
+import { createWriteStream, promises as fs } from "fs";
 import {
-  Fragment,
-  Pair,
-  PairedOccurrence,
   Report,
   ScoredPairs,
   SharedFingerprint,
@@ -47,35 +44,6 @@ export class FileView extends View {
     super();
     this.outputDestination =
       options.outputDestination || `dolos-report-${ new Date().toISOString().replace(/[.:-]/g, "") }`;
-  }
-
-  private convertFragmentsToJSON(fragments: Fragment[]): string {
-    return JSON.stringify(fragments.map( fragment => {
-      return {
-        leftSelection: fragment.leftSelection,
-        rightSelection: fragment.rightSelection,
-        data: fragment.mergedData,
-        pairedOccurrences: fragment.pairs.map((pair: PairedOccurrence) => {
-          return {
-            sharedFingerprint: pair.fingerprint.id,
-            left: {
-              start: pair.left.start,
-              stop: pair.left.stop,
-              index: pair.left.index,
-            },
-            right: {
-              start: pair.right.start,
-              stop: pair.right.stop,
-              index: pair.right.index,
-            }
-          };
-        })
-      };
-    }), null, 2);
-  }
-
-  public async writeFragments(out: promises.FileHandle, pair: Pair): Promise<void> {
-    await out.write(this.convertFragmentsToJSON(pair.fragments()));
   }
 
   public writePairs(out: Writable): void {
@@ -145,7 +113,7 @@ export class FileView extends View {
     );
   }
 
-  async writeToDirectory(writeFragments = false): Promise<string> {
+  async writeToDirectory(): Promise<string> {
     const dirName = this.outputDestination;
     await fs.mkdir(dirName, { recursive: true });
 
@@ -153,26 +121,15 @@ export class FileView extends View {
     this.writeMetadata(createWriteStream(`${dirName}/metadata.csv`));
     console.log("Metadata written.");
     this.writePairs(createWriteStream(`${dirName}/pairs.csv`));
+
     console.log("Pairs written.");
     if(this.report.options.semantic) {
       this.writeSemantic(createWriteStream(`${dirName}/semantic.json`));
       console.log("Semantic output written.");
     }
 
-    if (writeFragments) {
-
-      await fs.mkdir(`${dirName}/fragments`);
-      for (const pair of this.report.scoredPairs) {
-        const id = pair.pair.id;
-        const file = await fs.open(`${dirName}/fragments/${id}.json`, "w");
-        await this.writeFragments(file, pair.pair);
-        await file.close();
-      }
-      console.log("Fragments written");
-
-    }
     this.writekgrams(createWriteStream(`${dirName}/kgrams.csv`));
-    console.log("kgrams written.");
+    console.log("Kgrams written.");
     this.writeFiles(createWriteStream(`${dirName}/files.csv`));
     console.log("Files written.");
     console.log("Completed");
@@ -180,7 +137,7 @@ export class FileView extends View {
   }
 
   async show(): Promise<void> {
-    await this.writeToDirectory(true);
+    await this.writeToDirectory();
   }
 
 }
