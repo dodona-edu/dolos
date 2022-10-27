@@ -396,7 +396,7 @@ jobs:
 
       - name: Parse tag
         id: parse_tag
-        run: "echo ${{ github.ref }} | sed 's#^refs/tags/#::set-output name=version::#'"
+        run: "echo ${{ github.ref }} | sed 's#^refs/tags/#version=#' >> $GITHUB_OUTPUT"
 
       - name: Draft release
         id: create_release
@@ -551,7 +551,7 @@ jobs:
 
       - name: Parse tag (without v)
         id: parse_tag
-        run: "echo ${{ github.ref }} | sed 's#^refs/tags/v#::set-output name=version::#'"
+        run: "echo ${{ github.ref }} | sed 's#^refs/tags/v#version=#' >> $GITHUB_OUTPUT"
 
       - name: Build the new image
         run: docker build docker/ -t ghcr.io/dodona-edu/dolos:${{ steps.parse_tag.outputs.version }}
