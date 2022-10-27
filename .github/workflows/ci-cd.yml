@@ -180,7 +180,7 @@ jobs:
         run: |
           cd lib/
           yarn lint
-  
+
 
   web-build-deploy:
     name: "Web 🌐 - build & deploy 🔧"
@@ -483,37 +483,54 @@ jobs:
           cd analysis
           rsync \
               -e 'ssh -p 4840' \
-              dodona@dolos.ugent.be:soco-with-labels.zip \
+              dodona@dolos.ugent.be:demo-datasets.zip \
               .
-          unzip soco-with-labels.zip
+          unzip demo-datasets.zip
 
       - name: Run analysis on samples
         run: |
           cd analysis
-          dolos -l javascript -f csv --semantic -o samples-results samples/*.js
+          dolos -l javascript -f csv -o samples-results samples/info.csv
 
-      - name: Run analysis on Java files
+      - name: Run analysis on SOCO Java
         run: |
           cd analysis
-          dolos -l java -f csv -o java-results --semantic java-labels.csv
+          dolos -l java -f csv -o java-results soco/java-labels.csv
 
-      - name: Run analysis on C files
+      - name: Run analysis on SOCO C
         run: |
           cd analysis
-          dolos -l c -f csv -o c-results --semantic c-labels.csv
+          dolos -l c -f csv -o c-results soco/c-labels.csv
+
+      - name: Run analysis on Pyramidal constants exercise
+        run: |
+          cd analysis
+          dolos -l python -f csv -o pyramidal-exercise-results "exercise - Pyramidal constants/info.csv"
+
+      - name: Run analysis on Pyramidal constants evaluation
+        run: |
+          cd analysis
+          dolos -l python -f csv -o pyramidal-evaluation-results "evaluation - Pyramidal constants/info.csv"
 
       - name: Deploy results to demo site
         run: |
           cd analysis
           npm pack @dodona/dolos-web
           tar xzf dodona-dolos-web-*.tgz
+          mkdir -p demo/sample
           mkdir -p demo/soco
+          mkdir -p demo/pyramidal-constants/exercise
+          mkdir -p demo/pyramidal-constants/evaluation
           cp -r package/dist demo/sample
           cp -r package/dist demo/soco/java
           cp -r package/dist demo/soco/c
+          cp -r package/dist demo/pyramidal-constants/exercise
+          cp -r package/dist demo/pyramidal-constants/evaluation
           mv samples-results demo/sample/data
           mv java-results demo/soco/java/data
           mv c-results demo/soco/c/data
+          mv pyramidal-exercise-results demo/pyramidal-constants/exercise/data
+          mv pyramidal-evaluation-results demo/pyramidal-constants/evaluation/data
           rsync -glpPrtvz \
              -e 'ssh -p 4840' \
              demo/ \
