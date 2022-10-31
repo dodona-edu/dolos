@@ -1111,14 +1111,7 @@
   dependencies:
     "@jridgewell/trace-mapping" "0.3.9"
 
-"@elm-tooling/tree-sitter-elm@5.6.2":
-  version "5.6.2"
-  resolved "https://registry.yarnpkg.com/@elm-tooling/tree-sitter-elm/-/tree-sitter-elm-5.6.2.tgz#ca130dd937c6231d559a8d822597e88909ee1ff9"
-  integrity sha512-ehmIeKld9eJFYQ2PPBbVmzyPyQTbSHVRHB3y5UfyQVvPJRpyHJnRwPnzEUFSi8xJwkTE8Tlx57YqZ0ExJ73vbw==
-  dependencies:
-    nan "^2.15.0"
-
-"@elm-tooling/tree-sitter-elm@^5.6.0":
+"@elm-tooling/tree-sitter-elm@5.6.3", "@elm-tooling/tree-sitter-elm@^5.6.0":
   version "5.6.3"
   resolved "https://registry.yarnpkg.com/@elm-tooling/tree-sitter-elm/-/tree-sitter-elm-5.6.3.tgz#7e9d86a607bd7ad11f1bd375efbaebf805583011"
   integrity sha512-WkB27PjjvfoDLcxDP3cUdJhR33VdENRAOgf5MeqfnCaHWL9u7CwE4QuFGN1zhn6zdHGh9AIgutzwyYwg1ytYFQ==
