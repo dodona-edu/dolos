@@ -30,10 +30,22 @@
         cargo-watch
         cargo-limit
       ];
-      shellHook = ''
-        mkdir .dev
-        ln -sf ${rust} .dev/rust
-        ln -sf ${rust-bin.stable.latest.rust-src} .dev/rust-src
+      shellHook = let
+        rev = rust.name;
+        versionFile = ".dev/version.rev";
+      in ''
+        mkdir -p .dev
+        echo "Checking..."
+        if [[ -f ${versionFile} && "${rev}" = "$(cat ${versionFile})" ]]; then
+          echo "Rust version up to date"
+        else
+          rm -rf .dev/*
+          cp -r ${rust} .dev/rust
+          cp -r ${rust-bin.stable.latest.rust-src} .dev/rust-src
+          chmod u+w -R .dev/
+          echo "${ rev }" > ${versionFile}
+          echo "Rust version updated to ${rev}"
+        fi
       '';
     };
   });

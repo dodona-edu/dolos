@@ -1,5 +1,5 @@
 [package]
-name = "dolos-rs"
+name = "dolos"
 version = "0.1.0"
 edition = "2021"
 
@@ -9,4 +9,9 @@ edition = "2021"
 clap = { version = "3.0", features = ["derive"] }
 tree-sitter = "0.19"
 tree-sitter-java = "0.19"
+
+[dev-dependencies]
+serde = "1"
+serde_json = "1"
+serde_any = "0.5"
 

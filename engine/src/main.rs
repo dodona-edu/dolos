@@ -1,23 +1,19 @@
 
-extern crate tree_sitter;
-extern crate tree_sitter_java;
-extern crate clap;
-extern crate core;
 
-mod dolos;
-mod file;
-mod language;
-mod opts;
+use clap::Parser;
+use dolos::opts::{Opts, Command};
+use dolos::dolos::Dolos;
 
-use crate::clap::Parser;
-use opts::{Opts, Command};
-use dolos::Dolos;
-
+///
+/// Main function
+/// ```
+/// assert_eq!(true, false)
+/// ```
 fn main() {
     let opts = Opts::parse();
 
     match opts.command {
-        Command::Run{ files } => { 
+        Command::Run{ files } => {
             let dolos = Dolos::from_files(files);
             dbg!(dolos);
         }

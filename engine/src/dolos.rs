@@ -1,8 +1,8 @@
 use std::fmt;
-use std::path::PathBuf;
 use crate::file::File;
 use tree_sitter::Parser;
 use crate::language::Language;
+use crate::winnowing::tokens::Tokens;
 
 pub struct Dolos {
     files: Vec<File>,
@@ -24,11 +24,13 @@ impl Dolos {
         dolos
     }
 
-    pub fn add_file(&mut self, mut file: File) {
+    pub fn add_file(&mut self, file: File) {
         if !file.lang.eq(&Some(self.lang)) {
             panic!("Language does not match")
         }
-        file.tree = self.parser.parse(file.content().expect("content"), None);
+        let tree = self.parser.parse(file.content().expect("content"), None).expect("tree");
+        let tokens = Tokens::tokens(&tree);
+
         self.files.push(file);
     }
 
