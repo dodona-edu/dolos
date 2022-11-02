@@ -1,8 +1,6 @@
-
-
 use clap::Parser;
-use dolos::opts::{Opts, Command};
 use dolos::dolos::Dolos;
+use dolos::opts::{Command, Opts};
 
 ///
 /// Main function
@@ -13,10 +11,9 @@ fn main() {
     let opts = Opts::parse();
 
     match opts.command {
-        Command::Run{ files } => {
+        Command::Run { files } => {
             let dolos = Dolos::from_files(files);
             dbg!(dolos);
         }
     }
-
 }

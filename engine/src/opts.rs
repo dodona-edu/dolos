@@ -14,7 +14,6 @@ pub enum Command {
     /// Run a similarity analysis on the given files.
     Run {
         /// Files to analyse
-        files: Vec<File>
+        files: Vec<File>,
     },
 }
-
