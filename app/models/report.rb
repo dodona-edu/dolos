@@ -28,10 +28,10 @@ class Report < ApplicationRecord
   belongs_to :dataset
 
   RESULT_FILES = {
-    metadata: "metadata.csv",
-    files: "files.csv",
-    kgrams: "kgrams.csv",
-    pairs: "pairs.csv"
+    "metadata.csv" => :metadata,
+    "files.csv" => :files,
+    "kgrams.csv" => :kgrams,
+    "pairs.csv" => :pairs
   }.freeze
 
   has_one_attached :metadata
@@ -45,16 +45,27 @@ class Report < ApplicationRecord
   after_create :queue_analysis
 
   def queue_analysis
+    return if finished?
+
     self.update(status: :queued)
     AnalyzeDatasetJob.perform_later(self)
   end
 
   def all_files_present?
-    RESULT_FILES.keys.all?{ |attachment| self.send(attachment).attached? }
+    RESULT_FILES.values.all?{ |attachment| self.send(attachment).attached? }
+  end
+
+  def attachment_by_filename(file)
+    name = RESULT_FILES[file]
+    if name.nil? || !self.send(name).attached?
+      raise ActiveRecord::RecordNotFound.new('Result file not found')
+    else
+      self.send(name)
+    end
   end
 
   def collect_files_from(result_dir)
-    RESULT_FILES.map do |name, file|
+    RESULT_FILES.map do |file, name|
       path = result_dir.join(file)
       next if !File.readable?(path)
       self.send(name).attach(

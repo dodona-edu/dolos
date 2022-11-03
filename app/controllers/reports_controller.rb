@@ -1,5 +1,5 @@
 class ReportsController < ApplicationController
-  before_action :set_report, only: %i[ show destroy ]
+  before_action :set_report, only: %i[ show destroy data ]
 
   # GET /reports
   def index
@@ -27,6 +27,12 @@ class ReportsController < ApplicationController
     else
       render json: @report.errors, status: :unprocessable_entity
     end
+  end
+
+  # GET /reports/:id/data/:file
+  def data
+    attachment = @report.attachment_by_filename(params[:file] + '.' + params[:format])
+    redirect_to rails_blob_path(attachment, disposition: 'attachment')
   end
 
   private

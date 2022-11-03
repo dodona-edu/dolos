@@ -16,6 +16,13 @@ class ReportsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "should report files" do
+    %w[metadata.csv files.csv kgrams.csv pairs.csv].each do |f|
+      get data_report_url(@report, f)
+      assert_response :redirect, "Expected #{f} to be present"
+    end
+  end
+
   test "should upload dataset and create report" do
 
     assert_enqueued_jobs 1, only: AnalyzeDatasetJob do

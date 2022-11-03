@@ -1,5 +1,9 @@
 Rails.application.routes.draw do
-  resources :reports, except: %i[update]
+  resources :reports, except: %i[update] do
+    member do
+      get 'data/:file', to: 'reports#data', as: 'data'
+    end
+  end
   resources :datasets, except: %i[update create] do
     member do
       post 'analyze'
