@@ -6,11 +6,6 @@ class ReportsControllerTest < ActionDispatch::IntegrationTest
     @dataset = @report.dataset
   end
 
-  test "should get index" do
-    get reports_url, as: :json
-    assert_response :success
-  end
-
   test "should show report" do
     get report_url(@report), as: :json
     assert_response :success

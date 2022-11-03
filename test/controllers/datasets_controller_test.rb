@@ -6,11 +6,6 @@ class DatasetsControllerTest < ActionDispatch::IntegrationTest
     @zipfile = fixture_file_upload(Rails.root.join('test/files/simple-dataset.zip'), 'application/zip')
   end
 
-  test "should get index" do
-    get datasets_url, as: :json
-    assert_response :success
-  end
-
   test "should show dataset" do
     get dataset_url(@dataset), as: :json
     assert_response :success

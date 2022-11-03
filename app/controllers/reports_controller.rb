@@ -1,13 +1,6 @@
 class ReportsController < ApplicationController
   before_action :set_report, only: %i[ show destroy data ]
 
-  # GET /reports
-  def index
-    @reports = Report.all
-
-    render json: @reports
-  end
-
   # GET /reports/1
   def show
     render json: @report

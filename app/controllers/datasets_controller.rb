@@ -1,13 +1,6 @@
 class DatasetsController < ApplicationController
   before_action :set_dataset, only: %i[ show analyze destroy ]
 
-  # GET /datasets
-  def index
-    @datasets = Dataset.all
-
-    render json: @datasets
-  end
-
   # GET /datasets/1
   def show
     render json: @dataset
