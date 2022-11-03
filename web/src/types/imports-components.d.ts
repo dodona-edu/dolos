@@ -31,7 +31,6 @@ declare module 'vue' {
     PairStatHistogram: typeof import('./../components/summary/PairStatHistogram.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
-    SemanticList: typeof import('./../components/SemanticList.vue')['default']
     Sidebar: typeof import('./../components/layout/Sidebar.vue')['default']
     SimilarityDisplay: typeof import('./../components/SimilarityDisplay.vue')['default']
     SimilaritySetting: typeof import('./../components/settings/SimilaritySetting.vue')['default']

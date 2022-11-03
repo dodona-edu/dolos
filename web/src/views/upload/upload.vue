@@ -10,7 +10,7 @@
     <v-row>
       <v-col cols="12" sm="8" md="6">
         <v-card>
-          <v-card-title>Analyse a dataset.</v-card-title>
+          <v-card-title>Analyze a dataset.</v-card-title>
           <v-card-subtitle>Upload a dataset to analyze.</v-card-subtitle>
 
           <v-card-text>
@@ -76,7 +76,7 @@
                   >
                     <strong>{{ uploadProgress }}%</strong>
                   </v-progress-linear>
-                  
+
                   <div class="d-flex">
                     <v-spacer />
                     <v-btn color="error" text depressed @click="handleCancel">
@@ -88,14 +88,14 @@
               </v-stepper-items>
 
               <v-stepper-content step="3">
-                <span v-if="analysisStatus === 'queued'">Waiting for analysis to start...</span>
-                <span v-if="analysisStatus === 'running'">Running analysis...</span>
+                <span v-if="reportStatus === 'queued'">Waiting for analysis to start...</span>
+                <span v-if="reportStatus === 'running'">Running analysis...</span>
                 <v-progress-linear
-                  :color="analysisStatus === 'queued' ? 'warning' : 'primary'"
-                  :stream="analysisStatus === 'queued'"
-                  :buffer-value="analysisStatus === 'queued' ? 0 : undefined"
-                  :value="analysisStatus === 'queued' ? 0 : undefined"
-                  :indeterminate="analysisStatus === 'running'"
+                  :color="reportStatus === 'queued' ? 'warning' : 'primary'"
+                  :stream="reportStatus === 'queued'"
+                  :buffer-value="reportStatus === 'queued' ? 0 : undefined"
+                  :value="reportStatus === 'queued' ? 0 : undefined"
+                  :indeterminate="reportStatus === 'running'"
                   class="mt-2"
                   height="25"
                 />
@@ -108,12 +108,21 @@
                   </v-btn>
                 </div>
               </v-stepper-content>
+              <v-stepper-content step="4">
+                <div class="d-flex">
+                  <v-spacer />
+                  <v-btn color="success" text depressed :to="`/reports/${ reportID }/`">
+                    View results
+                    <v-icon color="success" right>mdi-check</v-icon>
+                  </v-btn>
+                </div>
+              </v-stepper-content>
             </v-stepper>
           </v-card-text>
         </v-card>
       </v-col>
 
-      <!-- 
+      <!--
       <v-col cols="12" md="6">
         <v-card>
           <v-row align="center" no-gutters>
@@ -148,7 +157,11 @@
 
 <script lang="ts" setup>
 import { shallowRef, watch, onMounted, onUnmounted } from "vue";
+import { useRouter } from "@/composables";
 import axios from "axios";
+
+
+const router = useRouter();
 
 // Step in the analysis process.
 const step = shallowRef(1);
@@ -213,9 +226,11 @@ const languages = [
 // Upload progress
 const uploadProgress = shallowRef(25);
 // Analysis status URL.
-const analysisStatusUrl = shallowRef<string>();
+const reportStatusURL = shallowRef<string>();
 // Analysis status.
-const analysisStatus = shallowRef<"queued" | "running">("queued");
+const reportStatus = shallowRef<"queued" | "running" | "failed" | "error" | "finished">("queued");
+// Analysis result URL.
+const reportID = shallowRef<string>();
 
 // Clear the form.
 const clearForm = (): void => {
@@ -227,16 +242,21 @@ const clearForm = (): void => {
 // Cancel the analysis.
 const handleCancel = (): void => {
   step.value = 1;
-  analysisStatusUrl.value = null;
-  analysisStatus.value = "queued";
+  reportStatusURL.value = null;
+  reportStatus.value = "queued";
 };
 
 // Handle an error.
 const handleError = (message: string): void => {
   error.value = message;
   step.value = 1;
-  analysisStatusUrl.value = null;
-  analysisStatus.value = "queued";
+  reportStatusURL.value = null;
+  reportStatus.value = "queued";
+};
+
+const gotoReport = (): void => {
+  // go to report
+  router.push({ name: "report", params: { id: reportID.value } });
 };
 
 // When the form is submitted.
@@ -246,7 +266,7 @@ const onSubmit = async (): Promise<void> => {
     const data = new FormData();
     data.append("dataset[zipfile]", file.value ?? new Blob());
     data.append("dataset[name]", name.value ?? "");
-    data.append("dataset[language]", language.value ?? "");
+    data.append("dataset[programming_language]", language.value ?? "");
 
     // Go to the next step.
     step.value = 2;
@@ -265,11 +285,12 @@ const onSubmit = async (): Promise<void> => {
       });
 
       // Get the analysis status URL.
-      analysisStatusUrl.value = response.headers["Location"];
+      reportStatusURL.value = response.data["url"];
+      reportID.value = response.data["id"].toString();
 
       // Make sure a status url was provided.
-      if (!analysisStatusUrl.value) {
-        handleError("No analysis status URL was provided by the API.");
+      if (!reportStatusURL.value) {
+        handleError("No analysis URL was provided by the API.");
       }
     } catch (e: any) {
       handleError(e.message);
@@ -284,20 +305,24 @@ const interval = shallowRef();
 onMounted(() => {
   interval.value = setInterval(async () => {
     // Do not poll when no analysis is running
-    if (!analysisStatusUrl.value) return;
-  
+    if (!reportStatusURL.value) return;
+
     try {
-      const response = await axios.get(analysisStatusUrl.value);
+      const response = await axios.get(reportStatusURL.value);
 
       if (response.data.status === "running") {
-        analysisStatus.value = "running";
+        reportStatus.value = "running";
       }
 
       if (response.data.status === "error") {
-        handleError(response.data.message);
+        handleError(response.data.error);
       }
 
-      if (response.data.status === "success") {
+      if (response.data.status === "failed") {
+        handleError(response.data.error);
+      }
+
+      if (response.data.status === "finished") {
         // Go to the results page.
         step.value = 4;
         // Clear the form.
