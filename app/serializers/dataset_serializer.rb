@@ -1,9 +1,7 @@
 class DatasetSerializer < ApplicationSerializer
-  attributes :id, :token, :programming_language
+  attributes :token, :programming_language, :zipfile
 
-  attribute :zipfile do
-    {
-      href: url_for(object.zipfile)
-    }
+  def zipfile
+    url_for(object.zipfile)
   end
 end
