@@ -10,7 +10,7 @@ class AnalyzeDatasetJob < ApplicationJob
   OUTPUT_DIRNAME = "result".freeze
   DOLOS_IMAGE = "ghcr.io/dodona-edu/dolos:latest".freeze
   TIMEOUT = 60.seconds
-  MEMORY_LIMIT = 100_000_000
+  MEMORY_LIMIT = 2_000_000_000
   OUTPUT_LIMIT = 65_000
 
   def perform(report, **options)
@@ -146,7 +146,9 @@ class AnalyzeDatasetJob < ApplicationJob
 
     @report.collect_files_from(@output_dir)
 
-    if exit_status != 0
+    if exit_status == 137
+      @report.update(status: 'failed', error: 'out-of-memory')
+    elsif exit_status != 0
       @report.update(status: 'failed', error: 'non-zero exit code')
     elsif !@report.all_files_present?
       @report.update(status: 'failed', error: 'some output files missing')
