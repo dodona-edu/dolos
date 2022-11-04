@@ -37,12 +37,12 @@ test("tokenizer creation throws error for unsupported language", t => {
 });
 
 test("registering a new installed language works", t => {
-  CodeTokenizer.registerLanguage("python");
+  CodeTokenizer.languageModule("python");
   t.is(true, true);
 });
 
 test("registering a new invalid language throws error", t => {
-  t.throws(() => CodeTokenizer.registerLanguage("some string"));
+  t.throws(() => CodeTokenizer.languageModule("some string"));
 });
 
 test("tokenizer with or without location is equal", async t => {

@@ -16,20 +16,26 @@ export class CodeTokenizer extends Tokenizer {
   }
 
   /**
-   * Registers an additional language to Dolos. For this to work, the supporting
-   * module of the name `tree-sitter-someLanguage` must first be installed
-   * manually through yarn or npm.
+   * Find the relevant tree-sitter module for the given language.
+   * For this to work, the supporting module of the name
+   * `tree-sitter-someLanguage` must first be installed manually through yarn or
+   * npm. Some tree-sitter modules are not named like this, so we have to
+   * manually map them to the correct module name.
    *
    * The function will throw an error when the supported module is not found.
    *
-   * @param language The name of the language to register
+   * @param language The name of the language to find the module for
    */
-  public static registerLanguage(language: string): void {
+  public static languageModule(language: string): any {
     try {
       if (language === "elm") {
-        require("@elm-tooling/tree-sitter-elm");
+        return require("@elm-tooling/tree-sitter-elm");
+      } else if (language === "typescript") {
+        return require("tree-sitter-typescript").typescript;
+      } else if (language === "tsx") {
+        return require("tree-sitter-typescript").tsx;
       } else {
-        require("tree-sitter-" + language);
+        return require("tree-sitter-" + language);
       }
     } catch (error) {
       throw new Error(
@@ -37,10 +43,8 @@ export class CodeTokenizer extends Tokenizer {
         "Try to install it using npm or yarn, but it may not be supported (yet)."
       );
     }
-    this.supportedLanguages.push(language);
   }
 
-  public readonly language: string;
   private readonly parser: Parser;
 
   /**
@@ -50,21 +54,10 @@ export class CodeTokenizer extends Tokenizer {
    *
    * @param language The language to use for this tokenizer.
    */
-  constructor(language: string) {
+  constructor(public readonly language: string) {
     super();
-    if (!CodeTokenizer.isSupportedLanguage(language)) {
-      CodeTokenizer.registerLanguage(language);
-    }
-
-    this.language = language;
     this.parser = new Parser();
-    let languageModule;
-    if (language === "elm") {
-      languageModule = require("@elm-tooling/tree-sitter-elm");
-    } else {
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      languageModule = require("tree-sitter-" + language);
-    }
+    const languageModule = CodeTokenizer.languageModule(language);
     this.parser.setLanguage(languageModule);
   }
 
