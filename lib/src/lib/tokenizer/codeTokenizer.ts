@@ -26,13 +26,16 @@ export class CodeTokenizer extends Tokenizer {
    *
    * @param language The name of the language to find the module for
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public static languageModule(language: string): any {
     try {
       if (language === "elm") {
         return require("@elm-tooling/tree-sitter-elm");
       } else if (language === "typescript") {
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
         return require("tree-sitter-typescript").typescript;
       } else if (language === "tsx") {
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
         return require("tree-sitter-typescript").tsx;
       } else {
         // eslint-disable-next-line @typescript-eslint/no-var-requires
