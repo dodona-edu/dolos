@@ -12,6 +12,8 @@ const languageFiles = {
   "char": "../samples/char/caesar.txt",
   "c": "../samples/c/caesar.c",
   "elm": "../samples/elm/Caesar.elm",
+  "typescript": "../samples/typescript/caesar.ts",
+  "tsx": "../samples/tsx/sample.tsx",
 } as {[key: string]: string};
 
 for (const language of CodeTokenizer.supportedLanguages) {
@@ -37,12 +39,12 @@ test("tokenizer creation throws error for unsupported language", t => {
 });
 
 test("registering a new installed language works", t => {
-  CodeTokenizer.registerLanguage("python");
+  CodeTokenizer.languageModule("python");
   t.is(true, true);
 });
 
 test("registering a new invalid language throws error", t => {
-  t.throws(() => CodeTokenizer.registerLanguage("some string"));
+  t.throws(() => CodeTokenizer.languageModule("some string"));
 });
 
 test("tokenizer with or without location is equal", async t => {
