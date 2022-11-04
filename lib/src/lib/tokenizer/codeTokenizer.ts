@@ -4,7 +4,7 @@ import { Token, Tokenizer } from "./tokenizer";
 
 export class CodeTokenizer extends Tokenizer {
   public static supportedLanguages =
-    ["c", "c-sharp", "bash", "java", "javascript", "python", "elm"];
+    ["c", "c-sharp", "bash", "java", "javascript", "python", "elm", "typescript", "tsx"];
 
   /**
    * Returns true if the grammar of the given language is supported.
@@ -35,6 +35,7 @@ export class CodeTokenizer extends Tokenizer {
       } else if (language === "tsx") {
         return require("tree-sitter-typescript").tsx;
       } else {
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
         return require("tree-sitter-" + language);
       }
     } catch (error) {
@@ -93,7 +94,7 @@ export class CodeTokenizer extends Tokenizer {
     );
 
     const location = Region.diff(fullSpan, ...this.getChildrenRegions(node))[0];
-    
+
     yield this.newToken("(", location);
 
     // "(node.type child1 child2 ...)"
@@ -113,7 +114,7 @@ export class CodeTokenizer extends Tokenizer {
       node.endPosition.column
     );
 
-    const getChildrenRegion = 
+    const getChildrenRegion =
     (node: SyntaxNode): Region[] =>
       node.children.reduce<Region[]>((list, child) => [...list, ...getChildrenRegion(child), nodeToRegion(node)], []);
 
