@@ -88,10 +88,10 @@ async function populateFragments(
 
   // Check if a given selection is contained within another selection.
   const isContained = (selection: Selection, region: Region): boolean => {
-    return Region.diff(
+    return Region.firstDiff(
       new Region(selection.startRow, selection.startCol, selection.endRow, selection.endCol),
-      region,
-    ).length === 0;
+      [region],
+    ) === null;
   };
 
   // Convert the paired matches into a map of ranges.

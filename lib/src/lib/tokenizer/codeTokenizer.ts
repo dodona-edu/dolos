@@ -1,6 +1,7 @@
 import { default as Parser, SyntaxNode } from "tree-sitter";
 import { Region } from "../util/region";
 import { Token, Tokenizer } from "./tokenizer";
+import assert from "assert";
 
 export class CodeTokenizer extends Tokenizer {
   public static supportedLanguages =
@@ -96,7 +97,8 @@ export class CodeTokenizer extends Tokenizer {
       node.endPosition.column
     );
 
-    const location = Region.diff(fullSpan, ...this.getChildrenRegions(node))[0];
+    const location = Region.firstDiff(fullSpan, this.getChildrenRegions(node));
+    assert(location !== null, "There should be at least one diff'ed region");
 
     yield this.newToken("(", location);
 
