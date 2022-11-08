@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: [ "14", "16" ]
+        node: [ "16", "18" ]
       fail-fast: false
     steps:
       - name: Checkout 🛎️
@@ -38,7 +38,7 @@ jobs:
     needs: install-deps
     strategy:
       matrix:
-        node:  [ "14", "16" ]
+        node:  [ "16", "18" ]
       fail-fast: false
     steps:
       - name: Checkout 🛎️
@@ -75,7 +75,7 @@ jobs:
     needs: install-deps
     strategy:
       matrix:
-        node: [ "16" ]
+        node: [ "18" ]
       fail-fast: false
     steps:
       - name: Checkout 🛎️
@@ -112,7 +112,7 @@ jobs:
     needs: install-deps
     strategy:
       matrix:
-        node: [ "14", "16" ]
+        node: [ "16", "18" ]
       fail-fast: false
     steps:
       - name: Checkout 🛎️
@@ -150,7 +150,7 @@ jobs:
     needs: install-deps
     strategy:
       matrix:
-        node: [ "16" ]
+        node: [ "18" ]
       fail-fast: false
     steps:
       - name: Checkout 🛎️
@@ -188,7 +188,7 @@ jobs:
     needs: install-deps
     strategy:
       matrix:
-        node: [ "14", "16" ]
+        node: [ "16", "18" ]
       fail-fast: false
     steps:
       - name: Checkout 🛎️
@@ -225,7 +225,7 @@ jobs:
           yarn build --skip-plugins eslint
 
       - name: Deploy to staging 🚀
-        if: ${{ matrix.node == '16' }}
+        if: ${{ matrix.node == '18' }}
         run: |
           if [ -n "$KNOWN_HOSTS" ]; then
             cd web/
@@ -256,7 +256,7 @@ jobs:
     needs: install-deps
     strategy:
       matrix:
-        node: [ "16" ]
+        node: [ "18" ]
       fail-fast: false
     steps:
       - name: Checkout 🛎️
@@ -293,7 +293,7 @@ jobs:
     needs: install-deps
     strategy:
       matrix:
-        node:  [ "16" ]
+        node:  [ "18" ]
       fail-fast: false
     steps:
       - name: Checkout 🛎️
@@ -339,7 +339,7 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/v')
     strategy:
       matrix:
-        node:  [ "16" ]
+        node:  [ "18" ]
       fail-fast: false
     steps:
       - name: Checkout 🛎️
@@ -453,7 +453,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: [ "16" ]
+        node: [ "18" ]
       fail-fast: false
     steps:
       - name: Setup Node 📚

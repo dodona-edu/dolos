@@ -5,7 +5,7 @@
   "description": "Code similarity detection based on the Winnowing algorithm",
   "types": "dist/index.d.ts",
   "engines": {
-    "node": ">12 <17"
+    "node": ">12"
   },
   "scripts": {
     "hash": "tsc && node dist/bin/hash.js",
