@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <navbar :drawer.sync="drawer" :settings.sync="settings" :to="analysisPath" />
+    <navbar :drawer.sync="drawer" :settings.sync="settings" :to="{ name: 'Overview' }"/>
     <sidebar v-model="drawer" variant="analysis" />
 
     <v-main>
@@ -52,11 +52,11 @@
           </span>
         </div>
       </v-card-text>
-      
+
       <v-skeleton-loader v-if="!isLoaded" class="px-4" type="table-row-divider@4" />
       <labels-table v-else-if="hasLabels" class="settings-labels" />
       <v-card-text v-else class="text--secondary">
-        The dataset you analyzed did not contain labels.  
+        The dataset you analyzed did not contain labels.
         Learn how to add metadata
         <a href="https://dolos.ugent.be/guide/dodona.html" target="_blank">here</a>.
       </v-card-text>
@@ -67,7 +67,6 @@
 <script lang="ts" setup>
 import { shallowRef } from "vue";
 import { storeToRefs } from "pinia";
-import { analysisPath } from "@/router";
 import { useBreakpoints } from "@/composables";
 import { useApiStore, useFileStore } from "@/api/stores";
 import { useBreadcrumbStore } from "@/stores";

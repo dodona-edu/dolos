@@ -21,17 +21,16 @@
 </template>
 
 <script lang="ts" setup>
-import { analysisPath } from "@/router";
 import { useVModel } from "@vueuse/core";
 import { useBreakpoints } from "@/composables";
 
 interface Props {
   drawer?: boolean;
   settings?: boolean;
-  to?: string;
+  to?: { name: string };
 }
 const props = withDefaults(defineProps<Props>(), {
-  to: analysisPath,
+  to: () => { return { name: "Overview" }; },
   settings: undefined,
 });
 const emit = defineEmits(["update:settings", "update:drawer"]);

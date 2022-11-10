@@ -4,7 +4,6 @@
 
 <script lang="ts" setup>
 import { shallowRef, computed, watch, onMounted } from "vue";
-import { analysisPath } from "@/router";
 import { useD3Tooltip, useRouter } from "@/composables";
 import { useElementSize } from "@vueuse/core";
 import { useFileStore } from "@/api/stores";
@@ -217,7 +216,7 @@ const draw = (): void => {
 
         // Go to the submissions page.
         router.push({
-          path: `${analysisPath}/submissions`,
+          name: "Submissions",
           query: {
             startSimilarity: x0.toString(),
             endSimilarity: x1.toString(),

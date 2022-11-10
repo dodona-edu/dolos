@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <navbar :drawer.sync="drawer" :to="uploadPathPrefix" />
+    <navbar :drawer.sync="drawer" :to="{ name: 'Upload' }" />
     <sidebar v-model="drawer" variant="upload" />
 
     <v-main>
@@ -13,7 +13,6 @@
 
 <script lang="ts" setup>
 import { shallowRef } from "vue";
-import { uploadPathPrefix } from "@/router";
 import { useBreakpoints } from "@/composables";
 
 const breakpoints = useBreakpoints();

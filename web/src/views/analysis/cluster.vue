@@ -2,8 +2,8 @@
   <v-container class="submissions" fluid>
     <template v-if="cluster">
       <breadcrumbs
-        :current-override="{ name: `Cluster ${clusterId}` }"
-        :previous-fallback="{ name: 'View by clusters', path: '/clusters' }"
+        :current-override="{ text: `Cluster ${clusterId}`, to: { name: 'Cluster' }, params: { id: clusterId } }"
+        :previous-fallback="{ text: 'View by clusters', to: { name: 'Clusters' } }"
       />
 
       <div class="heading">
@@ -121,7 +121,6 @@
 
 <script lang="ts" setup>
 import { useFileStore, usePairStore } from "@/api/stores";
-import { analysisPath } from "@/router";
 import { File } from "@/api/models";
 import { useCluster, usePartialLegend, useRouter } from "@/composables";
 import { storeToRefs } from "pinia";
@@ -145,6 +144,6 @@ const activeTab = shallowRef(0);
 
 // Go to the submission when a node is clicked.
 const onNodeClick = (file: File): void => {
-  router.push(`${analysisPath}/submissions/${file.id}`);
+  router.push({ name: "Submission", params: { id: file.id } });
 };
 </script>

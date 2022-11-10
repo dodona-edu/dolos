@@ -12,13 +12,27 @@ import { useRoute } from "@/composables";
 import { useBreadcrumbStore } from "@/stores";
 import { storeToRefs } from "pinia";
 import { computed } from "vue";
-import { Route } from "vue-router";
+import { Location } from "vue-router";
+
 
 interface Props {
   // Current page information (override)
-  currentOverride?: Partial<Route>;
+  currentOverride?: {
+    text: string;
+    to?: Location;
+  };
   // Previous page information (fallback)
-  previousFallback?: Partial<Route>;
+  previousFallback?: {
+    text: string;
+    to: Location;
+  };
+}
+
+interface BreadcrumbItem {
+  text: string;
+  to?: Location;
+  disabled?: boolean;
+  exact?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {});
@@ -28,26 +42,24 @@ const { previousPage } = storeToRefs(breadcrumbs);
 
 // Breadcrumb items
 const items = computed(() => {
-  const items = [];
+  const items: BreadcrumbItem[] = [];
 
   if (previousPage.value) {
     items.push({
-      text: previousPage.value.name,
-      to: previousPage.value,
       exact: true,
+      ...previousPage.value,
     });
   } else if (props.previousFallback) {
     items.push({
-      text: props.previousFallback.name,
-      to: props.previousFallback,
       exact: true,
+      ...props.previousFallback,
     });
   }
 
   if (route.value) {
     items.push({
-      text: props.currentOverride?.name ?? route.value.name,
-      to: props.currentOverride?.path ?? route.value.path,
+      text: props.currentOverride?.text ?? route.value.name ?? "#",
+      to: props.currentOverride?.location ?? route.value.path,
       disabled: true,
     });
   }
@@ -57,7 +69,7 @@ const items = computed(() => {
 
 // Back navigation
 const backItem = computed(() => {
-  return items.value[items.value.length - 2].to;
+  return items.value[items.value.length - 2].location;
 });
 </script>
 

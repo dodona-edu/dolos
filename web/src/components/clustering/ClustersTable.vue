@@ -32,8 +32,6 @@
 </template>
 
 <script lang="ts" setup>
-import { storeToRefs } from "pinia";
-import { analysisPath } from "@/router";
 import { computed } from "vue";
 import { DataTableHeader } from "vuetify";
 import { usePairStore } from "@/api/stores";
@@ -104,7 +102,7 @@ const maxWidth = computed(() => {
 
 // When a row is clicked.
 const rowClicked = (item: { id: string }): void => {
-  router.push(`${analysisPath}/clusters/${item.id}`);
+  router.push({ name: "Cluster", params: { id: item.id } });
 };
 </script>
 

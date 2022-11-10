@@ -111,7 +111,7 @@
               <v-stepper-content step="4">
                 <div class="d-flex">
                   <v-spacer />
-                  <v-btn color="success" text depressed :to="`/reports/${ reportID }/`">
+                  <v-btn color="success" text depressed :to="{ name: 'Reports', params: { id: reportID } }">
                     View results
                     <v-icon color="success" right>mdi-check</v-icon>
                   </v-btn>
@@ -157,11 +157,8 @@
 
 <script lang="ts" setup>
 import { shallowRef, watch, onMounted, onUnmounted } from "vue";
-import { useRouter } from "@/composables";
 import axios from "axios";
 
-
-const router = useRouter();
 
 // Step in the analysis process.
 const step = shallowRef(1);
@@ -252,11 +249,6 @@ const handleError = (message: string): void => {
   step.value = 1;
   reportStatusURL.value = null;
   reportStatus.value = "queued";
-};
-
-const gotoReport = (): void => {
-  // go to report
-  router.push({ name: "report", params: { id: reportID.value } });
 };
 
 // When the form is submitted.

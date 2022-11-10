@@ -8,7 +8,7 @@
     left
   >
     <v-list v-if="props.variant === 'analysis'" nav dense>
-      <v-list-item :to="`${analysisPath}/`" link>
+      <v-list-item :to="{ name: 'Overview' }" link>
         <v-list-item-icon>
           <v-icon>mdi-chart-bar</v-icon>
         </v-list-item-icon>
@@ -17,7 +17,7 @@
         </v-list-item-content>
       </v-list-item>
 
-      <v-list-item :to="`${analysisPath}/submissions`" link exact>
+      <v-list-item :to="{ name: 'Submissions' }" link exact>
         <v-list-item-icon>
           <v-icon>mdi-file-document-multiple-outline</v-icon>
         </v-list-item-icon>
@@ -25,7 +25,7 @@
         <v-list-item-title>View by submission</v-list-item-title>
       </v-list-item>
 
-      <v-list-item :to="`${analysisPath}/clusters`" link exact>
+      <v-list-item :to="{ name: 'Clusters' }" link exact>
         <v-list-item-icon>
           <v-icon>mdi-account-group-outline</v-icon>
         </v-list-item-icon>
@@ -33,7 +33,7 @@
         <v-list-item-title>View by clusters</v-list-item-title>
       </v-list-item>
 
-      <v-list-item :to="`${analysisPath}/graph`" link exact>
+      <v-list-item :to="{ name: 'Graph' }" link exact>
         <v-list-item-icon>
           <v-icon>mdi-graph-outline</v-icon>
         </v-list-item-icon>
@@ -41,7 +41,7 @@
         <v-list-item-title>View by graph</v-list-item-title>
       </v-list-item>
 
-      <v-list-item :to="`${analysisPath}/pairs`" link exact>
+      <v-list-item :to="{ name: 'Pairs'}" link exact>
         <v-list-item-icon>
           <v-icon>mdi-file-table-box-multiple-outline</v-icon>
         </v-list-item-icon>
@@ -51,7 +51,7 @@
     </v-list>
 
     <v-list v-if="props.variant === 'upload'" nav dense>
-      <v-list-item to="/" link>
+      <v-list-item :to="{ name: 'Upload' }" link>
         <v-list-item-icon>
           <v-icon>mdi-paperclip</v-icon>
         </v-list-item-icon>
@@ -111,7 +111,6 @@
 
 <script lang="ts" setup>
 import { computed } from "vue";
-import { analysisPath } from "@/router";
 import { useBreakpoints } from "@/composables";
 import { useVModel } from "@vueuse/core";
 import packageJson from "@/../package.json";

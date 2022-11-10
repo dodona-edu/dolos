@@ -18,7 +18,7 @@
     </div>
 
     <div class="file-actions">
-      <v-btn text small :to="`${analysisPath}/submissions/${file.id}`">
+      <v-btn text small :to="{ name: 'Submission', params: { id: file.id }}">
         View submission
         <v-icon right>mdi-chevron-right</v-icon>
       </v-btn>
@@ -27,7 +27,6 @@
 </template>
 
 <script lang="ts" setup>
-import { analysisPath } from "@/router";
 import { File } from "@/api/models";
 
 interface Props {

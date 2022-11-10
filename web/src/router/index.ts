@@ -1,18 +1,12 @@
-import { useRoute } from "@/composables";
-import Vue, { computed } from "vue";
+import Vue from "vue";
 import VueRouter, { RouteConfig } from "vue-router";
 
 Vue.use(VueRouter);
 
-// Upload path.
+// Upload path
 export const uploadPathPrefix = process.env.VUE_APP_MODE === "server" ? "/" : "/upload";
-// Analysis path.
-export const analysisPathPrefix = process.env.VUE_APP_MODE === "server" ? "/reports/:reportId" : "";
-// Computed analysis path.
-export const analysisPath = computed(() => {
-  const route = useRoute();
-  return analysisPathPrefix.replace(":reportId", route.value.params.reportId ?? "");
-});
+// Analysis path
+const analysisPathPrefix = process.env.VUE_APP_MODE === "server" ? "/reports/:reportId" : "";
 
 const routes: Array<RouteConfig> = [
   {
@@ -22,18 +16,18 @@ const routes: Array<RouteConfig> = [
   },
   {
     path: `${analysisPathPrefix}/pairs`,
-    name: "View by pair",
+    name: "Pairs",
     component: () => import(/* webpackChunkName: "overview" */ "../views/analysis/pairs.vue")
   },
   {
     path: `${analysisPathPrefix}/pairs/:id`,
-    name: "Compare",
+    name: "Pair",
     props: route => ({ pairId: route.params.id }),
     component: () => import(/* webpackChunkName: "compare" */ "../views/analysis/pair.vue")
   },
   {
-    path: `${analysisPathPrefix}/submissions/:id`,
-    name: "View by submission",
+    path: `${analysisPathPrefix}/submissions/`,
+    name: "Submissions",
     component: () => import(/* webpackChunkName: "submissions" */ "../views/analysis/submissions.vue")
   },
   {
@@ -44,12 +38,12 @@ const routes: Array<RouteConfig> = [
   },
   {
     path: `${analysisPathPrefix}/graph`,
-    name: "View by cluster graph",
+    name: "Graph",
     component: () => import(/* webpackChunkName: "graph" */ "../views/analysis/graph.vue")
   },
   {
     path: `${analysisPathPrefix}/clusters`,
-    name: "View by clusters",
+    name: "Clusters",
     component: () => import(/* webpackChunkName: "graph" */ "../views/analysis/clusters.vue")
   },
   {

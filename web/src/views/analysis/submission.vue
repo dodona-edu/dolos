@@ -3,8 +3,8 @@
     <transition name="slide-y-transition" mode="out-in">
       <div v-if="file" :key="file.id">
         <breadcrumbs
-          :current-override="{ name: file.extra.fullName ?? file.shortPath }"
-          :previous-fallback="{ name: 'View by submission', path: '/submissions' }"
+          :current-override="{ text: file.extra.fullName ?? file.shortPath }"
+          :previous-fallback="{ text: 'View by submissions', to: { name: 'Submissions' } }"
         />
 
         <div class="heading">
@@ -170,7 +170,6 @@
 
 <script lang="ts" setup>
 import { computed } from "vue";
-import { analysisPath } from "@/router";
 import { File } from "@/api/models";
 import { useFileStore, usePairStore } from "@/api/stores";
 import { useCluster, useRouter } from "@/composables";
@@ -200,7 +199,7 @@ const cluster = computed(() => pairStore.getCluster(file.value));
 const { clusterPairs, clusterFiles } = useCluster(cluster);
 // Go to the submission when a node is clicked.
 const onNodeClick = (file: File): void => {
-  router.push(`${analysisPath}/submissions/${file.id}`);
+  router.push({ name: "Submissions", params: { id: file.id } });
 };
 </script>
 
