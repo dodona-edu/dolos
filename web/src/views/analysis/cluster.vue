@@ -3,7 +3,7 @@
     <template v-if="cluster">
       <breadcrumbs
         :current-override="{ text: `Cluster ${clusterId}`, to: { name: 'Cluster' }, params: { id: clusterId } }"
-        :previous-fallback="{ text: 'View by clusters', to: { name: 'Clusters' } }"
+        :previous-fallback="{ text: 'View by cluster', to: { name: 'Clusters' } }"
       />
 
       <div class="heading">
@@ -127,7 +127,7 @@ import { storeToRefs } from "pinia";
 import { computed, shallowRef } from "vue";
 
 interface Props {
-  clusterId: string;
+  clusterId: string | number;
 }
 
 const props = withDefaults(defineProps<Props>(), {});

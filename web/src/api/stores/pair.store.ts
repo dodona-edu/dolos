@@ -41,6 +41,7 @@ export const usePairStore = defineStore("pairs", () => {
     const activeFiles = fileStore.filesActiveList;
     const pairs: Pair[] = [];
     // Add all pairs that have both files active
+
     for (const pair of pairsList.value) {
       if (activeFiles[pair.leftFile.id] && activeFiles[pair.rightFile.id]) {
         pairs[pair.id] = pair;
@@ -148,8 +149,12 @@ export const usePairStore = defineStore("pairs", () => {
   }
 
   // Get a cluster by its id.
-  function getClusterById(id: number): Cluster | undefined {
-    return sortedClustering.value[id];
+  function getClusterById(id: number | string): Cluster | undefined {
+    if (typeof id === "string") {
+      return sortedClustering.value[parseInt(id)];
+    } else {
+      return sortedClustering.value[id];
+    }
   }
 
   return {

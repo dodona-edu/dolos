@@ -8,7 +8,7 @@
     left
   >
     <v-list v-if="props.variant === 'analysis'" nav dense>
-      <v-list-item :to="{ name: 'Overview' }" link>
+      <v-list-item :to="{ name: 'Overview' }" link exact>
         <v-list-item-icon>
           <v-icon>mdi-chart-bar</v-icon>
         </v-list-item-icon>
@@ -30,7 +30,7 @@
           <v-icon>mdi-account-group-outline</v-icon>
         </v-list-item-icon>
 
-        <v-list-item-title>View by clusters</v-list-item-title>
+        <v-list-item-title>View by cluster</v-list-item-title>
       </v-list-item>
 
       <v-list-item :to="{ name: 'Graph' }" link exact>

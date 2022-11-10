@@ -34,7 +34,7 @@ import { usePairStore, useMetadataStore } from "@/api/stores";
 import { Pair } from "@/api/models";
 
 interface Props {
-  pairId: string;
+  pairId: string | number;
 }
 
 const props = withDefaults(defineProps<Props>(), {});
@@ -48,9 +48,10 @@ const isLoaded = shallowRef(false);
 // Pair to display.
 const pair = shallowRef<Pair>();
 
+
 // Update the pair when the pairs change.
 watchEffect(() => {
-  pair.value = pairStore.pairs[parseInt(props.pairId)];
+  pair.value = pairStore.pairs[+props.pairId];
 });
 
 // Fetch the pair's fragments.
