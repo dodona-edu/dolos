@@ -1,7 +1,7 @@
 export interface DolosOptions {
   kgramLength: number;
   kgramsInWindow: number;
-  language: string;
+  language: string | null;
   limitResults: number | null;
   maxFingerprintCount: number | null;
   maxFingerprintPercentage: number | null;
@@ -50,7 +50,6 @@ export class Options implements DolosOptions {
 
   public static defaultKgramLength = 23;
   public static defaultKgramsInWindow = 17;
-  public static defaultLanguage = "javascript";
   public static defaultMinFragmentLength = 0;
   public static defaultMinSimilarity = 0;
   public static defaultSortBy = "total";
@@ -92,8 +91,8 @@ export class Options implements DolosOptions {
     return definedOrNull(this.custom.limitResults);
   }
 
-  get language(): string {
-    return definedOrDefault(this.custom.language, Options.defaultLanguage);
+  get language(): string | null {
+    return definedOrNull(this.custom.language);
   }
 
   get kgramLength(): number {
