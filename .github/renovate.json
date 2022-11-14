@@ -4,6 +4,7 @@
     "config:base",
     "schedule:weekly"
   ],
+  "prHourlyLimit": 0,
   "rangeStrategy": "update-lockfile",
   "lockFileMaintenance": { "enabled": true },
   "timezone": "Europe/Brussels",
