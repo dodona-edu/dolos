@@ -1,6 +1,6 @@
 {
   "name": "dolos-server",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Prototype Dolos server",
   "main": "dist/index.js",
   "license": "MIT",
@@ -24,9 +24,9 @@
     "typescript": "4.7.4"
   },
   "dependencies": {
-    "@dodona/dolos": "2.0.0",
-    "@dodona/dolos-web": "2.0.0",
-    "@dodona/dolos-lib": "2.0.0",
+    "@dodona/dolos": "2.0.1",
+    "@dodona/dolos-web": "2.0.1",
+    "@dodona/dolos-lib": "2.0.1",
     "eta": "1.12.3",
     "express": "4.18.2",
     "express-fileupload": "1.4.0",
