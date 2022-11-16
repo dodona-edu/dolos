@@ -1,6 +1,7 @@
 import { Result } from "../util/result";
 import { default as fsWithCallbacks } from "fs";
 import Identifiable from "../util/identifiable";
+import path from "path";
 const fs = fsWithCallbacks.promises;
 
 export interface ExtraInfo {
@@ -79,5 +80,9 @@ export class File extends Identifiable {
 
   get content(): string {
     return this.lines.join("\n");
+  }
+
+  get extension(): string {
+    return path.extname(this.path);
   }
 }

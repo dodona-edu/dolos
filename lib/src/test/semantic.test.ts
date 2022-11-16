@@ -19,8 +19,8 @@ test("equal content should match on the module level", async t => {
 
   const report = await dolos.analyze(
     [
-      new File("file1", content),
-      new File("file2", content),
+      new File("file1.js", content),
+      new File("file2.js", content),
     ]
   );
 

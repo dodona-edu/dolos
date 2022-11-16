@@ -2,53 +2,9 @@ import { default as Parser, SyntaxNode } from "tree-sitter";
 import { Region } from "../util/region";
 import { Token, Tokenizer } from "./tokenizer";
 import assert from "assert";
+import {ProgrammingLanguage} from "../util/language";
 
 export class CodeTokenizer extends Tokenizer {
-  public static supportedLanguages =
-    ["c", "c-sharp", "bash", "java", "javascript", "python", "elm", "typescript", "tsx"];
-
-  /**
-   * Returns true if the grammar of the given language is supported.
-   *
-   * @param language The name of the language to check
-   */
-  public static isSupportedLanguage(language: string): boolean {
-    return this.supportedLanguages.includes(language);
-  }
-
-  /**
-   * Find the relevant tree-sitter module for the given language.
-   * For this to work, the supporting module of the name
-   * `tree-sitter-someLanguage` must first be installed manually through yarn or
-   * npm. Some tree-sitter modules are not named like this, so we have to
-   * manually map them to the correct module name.
-   *
-   * The function will throw an error when the supported module is not found.
-   *
-   * @param language The name of the language to find the module for
-   */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public static languageModule(language: string): any {
-    try {
-      if (language === "elm") {
-        return require("@elm-tooling/tree-sitter-elm");
-      } else if (language === "typescript") {
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
-        return require("tree-sitter-typescript").typescript;
-      } else if (language === "tsx") {
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
-        return require("tree-sitter-typescript").tsx;
-      } else {
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
-        return require("tree-sitter-" + language);
-      }
-    } catch (error) {
-      throw new Error(
-        `The module 'tree-sitter-${language}' could not be found. ` +
-        "Try to install it using npm or yarn, but it may not be supported (yet)."
-      );
-    }
-  }
 
   private readonly parser: Parser;
 
@@ -59,11 +15,10 @@ export class CodeTokenizer extends Tokenizer {
    *
    * @param language The language to use for this tokenizer.
    */
-  constructor(public readonly language: string) {
+  constructor(public readonly language: ProgrammingLanguage) {
     super();
     this.parser = new Parser();
-    const languageModule = CodeTokenizer.languageModule(language);
-    this.parser.setLanguage(languageModule);
+    this.parser.setLanguage(language.getLanguageModule());
   }
 
   /**
