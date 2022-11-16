@@ -4,7 +4,7 @@ import { View } from "./view";
 import UI from "cliui";
 import chalk from "chalk";
 import { Writable } from "stream";
-import { closestMatch } from "../../lib/util/utils";
+import { closestMatch } from "../util/utils";
 import { Report, ScoredPairs } from "@dodona/dolos-lib";
 import { Fragment } from "@dodona/dolos-lib";
 import { Region } from "@dodona/dolos-lib";

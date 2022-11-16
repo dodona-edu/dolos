@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import * as Utils from "./lib/util/utils";
+import * as Utils from "./cli/util/utils";
 import { Command } from "commander";
 import { runCommand } from "./cli/commands/run";
 import { serveCommand } from "./cli/commands/serve";

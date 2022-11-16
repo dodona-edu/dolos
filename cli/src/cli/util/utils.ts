@@ -1,3 +1,4 @@
+import { LanguageError } from "@dodona/dolos-lib";
 /*
  * This module contains shared helper functions.
  */
@@ -128,10 +129,13 @@ export async function tryCatch(verbose: boolean, run: () => Promise<void>): Prom
   try {
     await run();
   } catch (err) {
+    let message = err.message;
+    if (err instanceof LanguageError) {
+      message += "\nPlease specify the language with the --language flag.";
+    }
+    error(message);
     if (verbose) {
       error(err.stack);
-    } else {
-      error(err.message);
     }
     process.exit(1);
   }

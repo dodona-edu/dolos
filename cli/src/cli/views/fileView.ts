@@ -92,7 +92,7 @@ export class FileView extends View {
   }
 
   public writeMetadata(out: Writable): void {
-    const metaData = this.report.options.asObject();
+    const metaData = this.report.metadata();
     writeCSVto<[string, string]>(
       out,
       Object.entries(metaData),
