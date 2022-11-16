@@ -3,6 +3,9 @@ import { CodeTokenizer } from "../tokenizer/codeTokenizer";
 import { CharTokenizer } from "../tokenizer/charTokenizer";
 import { File } from "../file/file";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type TreeSitterLanguage = any;
+
 export abstract class Language {
   constructor(
     readonly name: string,
@@ -13,7 +16,7 @@ export abstract class Language {
     return this.extensions.some(ext => filename.endsWith(ext));
   }
 
-  public checkLanguage(file: File) {
+  public checkLanguage(file: File): void {
     if (!this.extensionMatches(file.extension)) {
       throw new LanguageError(
         "We tried to guess the language based on the extension of the first " +
@@ -29,9 +32,9 @@ export abstract class Language {
 
 export class ProgrammingLanguage extends Language {
 
-  protected languageModule: any | undefined;
+  protected languageModule: TreeSitterLanguage | undefined;
 
-  public getLanguageModule(): any {
+  public getLanguageModule(): TreeSitterLanguage {
     try {
       if (this.languageModule === undefined) {
         this.languageModule = require(`tree-sitter-${this.name}`);
@@ -54,12 +57,12 @@ export class CustomTreeSitterLanguage extends ProgrammingLanguage {
   constructor(
     readonly name: string,
     readonly extensions: string[],
-    readonly customTreeSitterPackage: string | (() => Promise<any>)
+    readonly customTreeSitterPackage: string | (() => Promise<TreeSitterLanguage>)
   ) {
     super(name, extensions);
   }
 
-  public getLanguageModule(): any {
+  public getLanguageModule(): TreeSitterLanguage {
     if (this.languageModule === undefined) {
       if (typeof this.customTreeSitterPackage === "string") {
         this.languageModule = require(this.customTreeSitterPackage);
@@ -75,13 +78,13 @@ export class CustomTokenizerLanguage extends Language {
   constructor(
     readonly name: string,
     readonly extensions: string[],
-    readonly customTokenizer: (() => Tokenizer)
+    readonly customTokenizer: ((self: Language) => Tokenizer)
   ) {
     super(name, extensions);
   }
 
   public createTokenizer(): Tokenizer {
-    return this.customTokenizer();
+    return this.customTokenizer(this);
   }
 }
 
@@ -104,9 +107,11 @@ export class LanguagePicker {
     new ProgrammingLanguage("java", [".java"]),
     new ProgrammingLanguage("javascript", [".js"]),
     new CustomTreeSitterLanguage("elm", [".elm"], "@elm-tooling/tree-sitter-elm"),
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     new CustomTreeSitterLanguage("typescript", [".ts"], () => require("tree-sitter-typescript").typescript),
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     new CustomTreeSitterLanguage("tsx", [".tsx"], () => require("tree-sitter-typescript").tsx),
-    new CustomTokenizerLanguage("char", [".txt", ".md"], () => new CharTokenizer()),
+    new CustomTokenizerLanguage("char", [".txt", ".md"], self => new CharTokenizer(self)),
   ];
 
   private readonly byExtension: Map<string, Language> = new Map();
@@ -133,7 +138,7 @@ export class LanguagePicker {
     const language = this.byExtension.get(firstFile.extension);
     if (language == null) {
       throw new LanguageError(
-        `Could not detect language for ${firstFile.path} (unknown extension).`
+        `Could not detect language based on extension (${firstFile.extension}).`
       );
     }
     for (const file of files) {

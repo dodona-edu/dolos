@@ -83,13 +83,13 @@ export class Index {
     tokenizedFiles: TokenizedFile[],
     hashFilter = this.hashFilter
   ): Promise<Report> {
-    const report = new Report(this.options, tokenizedFiles);
+    const report = new Report(this.options, this.tokenizer.language, tokenizedFiles);
     const map = await this.createMatches(tokenizedFiles, hashFilter);
 
     for(const [hash, occurrences] of map.entries()) {
       report.addOccurrences(hash, ...occurrences);
     }
-  
+
     if(this.options.semantic) {
       const semanticAnalyzer = new SemanticAnalyzer(this);
       const [occurrences, result] = await semanticAnalyzer.semanticAnalysis(

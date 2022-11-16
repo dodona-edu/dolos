@@ -1,6 +1,6 @@
 import test from "ava";
 import { File } from "../lib/file/file";
-import {LanguagePicker} from "../lib/util/language";
+import { LanguagePicker } from "../lib/util/language";
 
 const languageFiles = {
   "python": "../samples/python/caesar.py",

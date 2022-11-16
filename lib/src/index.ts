@@ -8,9 +8,10 @@ export { TokenizedFile } from "./lib/file/tokenizedFile";
 export { Index } from "./lib/analyze/index";
 export { Dolos } from "./dolos";
 export { EmptyTokenizer } from "./lib/tokenizer/emptyTokenizer";
-export { SemanticAnalyzer, PairedSemanticGroups, NodeStats, UnpairedSemanticGroups } 
+export { SemanticAnalyzer, PairedSemanticGroups, NodeStats, UnpairedSemanticGroups }
   from "./lib/analyze/SemanticAnalyzer";
 export { SharedFingerprint } from "./lib/analyze/sharedFingerprint";
 export { PairedOccurrence } from "./lib/analyze/pairedOccurrence";
 export { DefaultMap } from "./lib/util/defaultMap";
+export { Language, LanguagePicker, LanguageError } from "./lib/util/language";
 export * from "./lib/util/utils";

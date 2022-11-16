@@ -6,7 +6,7 @@ import { Fragment } from "../lib/analyze/fragment";
 import { Region } from "../lib/util/region";
 import { SharedFingerprint } from "../lib/analyze/sharedFingerprint";
 import { WinnowFilter } from "../lib/hashing/winnowFilter";
-import {LanguagePicker} from "../lib/util/language";
+import { LanguagePicker } from "../lib/util/language";
 
 
 test("fragment should fully reconstruct matched kgrams when k > w", async t => {

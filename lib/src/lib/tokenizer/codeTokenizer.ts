@@ -2,7 +2,7 @@ import { default as Parser, SyntaxNode } from "tree-sitter";
 import { Region } from "../util/region";
 import { Token, Tokenizer } from "./tokenizer";
 import assert from "assert";
-import {ProgrammingLanguage} from "../util/language";
+import { ProgrammingLanguage } from "../util/language";
 
 export class CodeTokenizer extends Tokenizer {
 
@@ -15,8 +15,8 @@ export class CodeTokenizer extends Tokenizer {
    *
    * @param language The language to use for this tokenizer.
    */
-  constructor(public readonly language: ProgrammingLanguage) {
-    super();
+  constructor(language: ProgrammingLanguage) {
+    super(language);
     this.parser = new Parser();
     this.parser.setLanguage(language.getLanguageModule());
   }
