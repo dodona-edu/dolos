@@ -1,6 +1,4 @@
 import { Tokenizer } from "../tokenizer/tokenizer";
-import { CodeTokenizer } from "../tokenizer/codeTokenizer";
-import { CharTokenizer } from "../tokenizer/charTokenizer";
 import { File } from "../file/file";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -49,6 +47,8 @@ export class ProgrammingLanguage extends Language {
   }
 
   createTokenizer(): Tokenizer {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const { CodeTokenizer } = require("../tokenizer/codeTokenizer");
     return new CodeTokenizer(this);
   }
 }
@@ -111,7 +111,11 @@ export class LanguagePicker {
     new CustomTreeSitterLanguage("typescript", [".ts"], () => require("tree-sitter-typescript").typescript),
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     new CustomTreeSitterLanguage("tsx", [".tsx"], () => require("tree-sitter-typescript").tsx),
-    new CustomTokenizerLanguage("char", [".txt", ".md"], self => new CharTokenizer(self)),
+    new CustomTokenizerLanguage("char", [".txt", ".md"], self => {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const { CharTokenizer } = require("../tokenizer/charTokenizer");
+      return new CharTokenizer(self);
+    }),
   ];
 
   private readonly byExtension: Map<string, Language> = new Map();
