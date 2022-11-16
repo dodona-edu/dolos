@@ -6,32 +6,30 @@ import { Result } from "./lib/util/result";
 import { csvParse, DSVRowString } from "d3-dsv";
 import * as path from "path";
 import { Tokenizer } from "./lib/tokenizer/tokenizer";
-import { CharTokenizer } from "./lib/tokenizer/charTokenizer";
 import { default as fsWithCallbacks, constants } from "fs";
 import { spawnSync as spawn } from "child_process";
 import { tmpdir } from "os";
+import {
+  Language,
+  LanguagePicker
+} from "./lib/util/language";
 const fs = fsWithCallbacks.promises;
 
-function newTokenizer(language: string): Tokenizer {
-  if (language == "chars") {
-    return new CharTokenizer();
-  } else {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const CodeTokenizer = require("./lib/tokenizer/codeTokenizer").CodeTokenizer;
-    return new CodeTokenizer(language);
-  }
-}
 
 export class Dolos {
   readonly options: Options;
-  private readonly tokenizer: Tokenizer;
-  private readonly index: Index;
+
+  private languageDetected = false;
+  private language: Language | null = null;
+  private tokenizer: Tokenizer | null = null;
+  private index: Index | null = null;
+
+  private readonly languagePicker = new LanguagePicker();
 
   constructor(customOptions?: CustomOptions) {
     this.options = new Options(customOptions);
-    this.tokenizer = newTokenizer(this.options.language);
-    this.index = new Index(this.tokenizer, this.options);
   }
+
 
   private async fromZIP(zipPath: string): Promise<Result<File[]>> {
     const tmpDir = await fs.mkdtemp(path.join(tmpdir(), "dolos-unzip-"));
@@ -103,9 +101,23 @@ export class Dolos {
       throw new Error("You need to supply at least two files");
     } else if (files.length == 2 && this.options.maxFingerprintPercentage !== null) {
       throw new Error("You have given a maximum hash percentage but your are " +
-                      "comparing two files. Each matching hash will thus " +
-                      "be present in 100% of the files. This option does only" +
-                      "make sense when comparing more than two files.");
+        "comparing two files. Each matching hash will thus " +
+        "be present in 100% of the files. This option does only" +
+        "make sense when comparing more than two files.");
+    } else if (this.index == null) {
+      if (this.options.language) {
+        this.language = this.languagePicker.findLanguage(this.options.language);
+      } else {
+        this.language = this.languagePicker.detectLanguage(files);
+        this.languageDetected = true;
+      }
+      this.tokenizer = this.language.createTokenizer();
+      this.index = new Index(this.tokenizer, this.options);
+    }
+    if (this.languageDetected) {
+      for (const file of files) {
+        this.language?.checkLanguage(file);
+      }
     }
     return this.index.compareFiles(files);
   }

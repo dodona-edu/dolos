@@ -1,6 +1,7 @@
 import { File } from "../file/file";
 import { Region } from "../util/region";
 import { TokenizedFile } from "../file/tokenizedFile";
+import { Language } from "../util/language";
 
 export interface Token {
   token: string;
@@ -8,6 +9,9 @@ export interface Token {
 }
 
 export abstract class Tokenizer {
+
+  constructor(public readonly language: Language) {}
+
 
   /**
    * Runs the tokenizer on a given Buffer. Returns an async iterator returning

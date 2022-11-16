@@ -18,6 +18,7 @@ import {
   SemanticAnalyzer,
   DecodedSemanticResult,
   PairedSemanticGroups,
+  LanguagePicker,
 } from "@dodona/dolos-lib";
 import * as Comlink from "comlink";
 
@@ -54,7 +55,7 @@ async function populateFragments(
   const customOptions = metadata;
   const kmers = kgrams;
 
-  const emptyTokenizer = new EmptyTokenizer();
+  const emptyTokenizer = new EmptyTokenizer(new LanguagePicker().findLanguage(metadata.language));
   const options = new Options(customOptions);
   const index = new Index(emptyTokenizer, options);
   const leftFile = fileToTokenizedFile(pair.leftFile);

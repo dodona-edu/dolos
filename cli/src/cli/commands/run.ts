@@ -3,14 +3,14 @@ import {
   setLogging,
   tryCatch,
   warning
-} from "../../lib/util/utils";
+} from "../util/utils";
 
 import { DEFAULT_HOST, DEFAULT_PORT } from "../server";
 import { TerminalView } from "../views/terminalView";
 import { FileView } from "../views/fileView";
 import { WebView } from "../views/webView";
 import { Command } from "commander";
-import * as Utils from "../../lib/util/utils";
+import * as Utils from "../util/utils";
 import { Dolos, Options } from "@dodona/dolos-lib";
 
 export function runCommand(program: Command): Command {
@@ -25,10 +25,8 @@ export function runCommand(program: Command): Command {
       "-l, --language <language>",
       Utils.indent(
         "Programming language used in the submitted files. Or 'chars' to do " +
-        "a character by character comparison.",
-        Options.defaultLanguage
+        "a character by character comparison. Detect automatically if not given.",
       ),
-      Options.defaultLanguage
     )
     .option(
       "-m, --max-fingerprint-count <integer>",

@@ -1,11 +1,10 @@
 import test from "ava";
-import { CodeTokenizer } from "../lib/tokenizer/codeTokenizer";
 import { File } from "../lib/file/file";
+import { LanguagePicker } from "../lib/util/language";
 
 const languageFiles = {
   "python": "../samples/python/caesar.py",
   "javascript": "../samples/javascript/sample.js",
-  "haskell": "../samples/haskell/Caesar.hs",
   "c-sharp": "../samples/c-sharp/Caesar.cs",
   "java": "../samples/java/Caesar.java",
   "bash": "../samples/bash/caesar.sh",
@@ -16,43 +15,42 @@ const languageFiles = {
   "tsx": "../samples/tsx/sample.tsx",
 } as {[key: string]: string};
 
-for (const language of CodeTokenizer.supportedLanguages) {
-  test(`tokenizer works for ${language}`, async t => {
-    const tokenizer =  new CodeTokenizer(language);
+for (const [languageName, languageFile] of Object.entries(languageFiles)) {
+  test(`LanguagePicker can find ${languageName} correctly by name`, async t => {
+    const language = new LanguagePicker().findLanguage(languageName);
+    t.truthy(language, `language detection failed for name: '${languageName}'`);
+    t.deepEqual(language.name, languageName);
+  });
+
+  test(`LanguagePicker can detect ${languageName} correctly by extension`, async t => {
+    const file = (await File.fromPath(languageFile)).ok();
+    const language = new LanguagePicker().detectLanguage([file]);
+    t.truthy(language, `language detection failed for name: '${languageName}'`);
+    t.deepEqual(language.name, languageName);
+  });
+
+
+  test(`tokenizer works for ${languageName}`, async t => {
+    const file = (await File.fromPath(languageFile)).ok();
+    const language = new LanguagePicker().detectLanguage([file]);
+
+    const tokenizer = language.createTokenizer();
     t.truthy(tokenizer);
 
-    const sampleFile:  string | undefined = languageFiles[language];
-
-    if (sampleFile === undefined) {
-      t.fail(`${language} doesn't have a sample file`);
-    } else {
-      const file = (await File.fromPath(sampleFile)).ok();
-      const tokens = (await tokenizer.tokenizeFile(file)).ast;
-      t.truthy(tokens);
-      t.snapshot(tokens, "stable tokenization");
-    }
+    const tokens = (await tokenizer.tokenizeFile(file)).ast;
+    t.truthy(tokens);
+    t.snapshot(tokens, "stable tokenization");
   });
 }
 
-test("tokenizer creation throws error for unsupported language", t => {
-  t.throws(() => new CodeTokenizer("some string"));
+test("language picker should trow an error for non-existing language", t => {
+  t.throws(() => new LanguagePicker().findLanguage("non-existing-language"));
 });
 
-test("registering a new installed language works", t => {
-  CodeTokenizer.languageModule("python");
-  t.is(true, true);
+test("language picker should throw an error for unknown extension", t => {
+  t.throws(() => new LanguagePicker().detectLanguage([new File("unknown.extension", "")]));
 });
 
-test("registering a new invalid language throws error", t => {
-  t.throws(() => CodeTokenizer.languageModule("some string"));
-});
-
-test("tokenizer with or without location is equal", async t => {
-  const tokenizer = new CodeTokenizer("javascript");
-  const file = (await File.fromPath(languageFiles["javascript"])).ok();
-
-  const tokenized = (await tokenizer.tokenizeFile(file));
-
-  t.snapshot(tokenized.ast);
-  t.snapshot(tokenized.mapping);
+test("language picker should throw an error for different languages", t => {
+  t.throws(() => new LanguagePicker().detectLanguage([new File("file.py", ""), new File("file.js", "")]));
 });

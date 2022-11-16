@@ -1,4 +1,4 @@
-import { error } from "../lib/util/utils";
+import { error } from "./util/utils";
 import { default as express, Express } from "express";
 import http from "http";
 import path from "path";

@@ -5,10 +5,11 @@ import { File } from "../file/file";
 import { TokenizedFile } from "../file/tokenizedFile";
 import { PairedOccurrence, ASTRegion } from "./pairedOccurrence";
 import { Range } from "../util/range";
-import { Options } from "../util/options";
+import { DolosOptions, Options } from "../util/options";
 import { SharedFingerprint } from "./sharedFingerprint";
 import { closestMatch } from "../util/utils";
 import { NodeStats } from "./SemanticAnalyzer";
+import { Language } from "../util/language";
 
 type Hash = number;
 
@@ -32,6 +33,10 @@ export interface SemanticResult {
   childrenTotal: number,
   ownNodes: Array<number>
   childrenMatch: number;
+}
+
+export interface Metadata extends DolosOptions {
+  languageDetected: boolean;
 }
 
 export interface EncodedSemanticResult extends SemanticResult {
@@ -59,6 +64,7 @@ export class Report {
 
   constructor(
     public readonly options: Options,
+    public readonly language: Language,
     files: TokenizedFile[],
   ) {
     this.fileSet = new Set(files);
@@ -100,7 +106,7 @@ export class Report {
     });
 
     ints = ints.filter(i => i.fragmentCount > 0);
-    
+
     this.semanticResults = this.encodeSemanticResults(this.results);
 
     this.scored = ints.map(i => this.calculateScore(i));
@@ -130,6 +136,14 @@ export class Report {
 
   public sharedFingerprints(): Array<SharedFingerprint> {
     return Array.of(...this.fingerprints.values());
+  }
+
+  public metadata(): Metadata {
+    return {
+      ...this.options.asObject(),
+      language: this.language.name,
+      languageDetected: this.options.language == undefined,
+    };
   }
 
   /**
@@ -212,7 +226,7 @@ export class Report {
           .filter(n => n.childrenTotal > this.options.semanticMatchLength);
         if(filtered.length === 0)
           continue;
-        
+
 
         for(const nodeStat of filtered) {
           encodedResults.push({
