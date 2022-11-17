@@ -20,6 +20,8 @@
 #  index_reports_on_dataset_id  (dataset_id)
 #  index_reports_on_token       (token)
 #
+require 'csv'
+
 class Report < ApplicationRecord
   include Tokenable
 
@@ -65,9 +67,17 @@ class Report < ApplicationRecord
   end
 
   def collect_files_from(result_dir)
+    read_programming_language = self.dataset.programming_language.nil?
+
     RESULT_FILES.map do |file, name|
       path = result_dir.join(file)
       next if !File.readable?(path)
+
+      if name == :metadata && read_programming_language
+        lang = CSV.read(path).filter_map{ |k, v, _| v if k == 'language' }.first
+        self.dataset.update(programming_language: lang)
+      end
+
       self.send(name).attach(
         io: File.open(path),
         filename: file,

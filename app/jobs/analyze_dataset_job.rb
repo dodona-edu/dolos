@@ -44,13 +44,15 @@ class AnalyzeDatasetJob < ApplicationJob
   end
 
   def execute(zipfile_path)
-    docker_options = {
-      Cmd: [
+    cmd = [
+        '-V', # enable verbose errors
         '-f', 'csv',
         '-o', OUTPUT_DIRNAME,
-        '-l', @dataset.programming_language,
         '/input.zip'
-      ],
+    ]
+    cmd += [ '-l', @dataset.programming_language ] if @dataset.programming_language.present?
+    docker_options = {
+      Cmd: cmd,
       Image: DOLOS_IMAGE,
       name: "dolos-#{ @report.id }",
       NetworkDisabled: true,
