@@ -521,16 +521,16 @@ jobs:
           mkdir -p demo/soco
           mkdir -p demo/pyramidal-constants/exercise
           mkdir -p demo/pyramidal-constants/evaluation
-          cp -r package/dist demo/sample
-          cp -r package/dist demo/soco/java
-          cp -r package/dist demo/soco/c
-          cp -r package/dist demo/pyramidal-constants/exercise
-          cp -r package/dist demo/pyramidal-constants/evaluation
-          mv samples-results demo/sample/data
-          mv java-results demo/soco/java/data
-          mv c-results demo/soco/c/data
-          mv pyramidal-exercise-results demo/pyramidal-constants/exercise/data
-          mv pyramidal-evaluation-results demo/pyramidal-constants/evaluation/data
+          cp -r package/dist/. demo/sample
+          cp -r package/dist/. demo/soco/java
+          cp -r package/dist/. demo/soco/c
+          cp -r package/dist/. demo/pyramidal-constants/exercise
+          cp -r package/dist/. demo/pyramidal-constants/evaluation
+          cp -r samples-results demo/sample/data
+          cp -r java-results demo/soco/java/data
+          cp -r c-results demo/soco/c/data
+          cp -r pyramidal-exercise-results demo/pyramidal-constants/exercise/data
+          cp -r pyramidal-evaluation-results demo/pyramidal-constants/evaluation/data
           rsync -glpPrtvz \
              -e 'ssh -p 4840' \
              demo/ \
