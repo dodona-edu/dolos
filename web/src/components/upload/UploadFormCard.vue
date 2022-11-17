@@ -12,48 +12,71 @@
                 {{ error }}
               </v-alert>
             </transition>
-
             <v-form v-model="valid" class="pt-2" @submit="onSubmit">
-              <v-file-input
-                  v-model="file"
-                  :rules="fileRules"
-                  :truncate-length="80"
-                  :show-size="1000"
-                  prepend-icon=""
-                  prepend-inner-icon="$file"
-                  accept="zip, application/zip"
-                  label="Upload a file (*.zip)"
-                  outlined
-                  dense
-              />
+              <v-row>
+                <v-col cols="12" md="6">
+                  <v-file-input
+                      v-model="file"
+                      :rules="fileRules"
+                      :truncate-length="80"
+                      :show-size="1000"
+                      prepend-icon=""
+                      prepend-inner-icon="$file"
+                      accept="zip, application/zip"
+                      label="Upload a file (*.zip)"
+                      outlined
+                      dense
+                  />
 
-              <v-text-field
-                  v-model="name"
-                  :rules="nameRules"
-                  label="File name"
-                  outlined
-                  dense
-              />
+                  <v-text-field
+                      v-model="name"
+                      :rules="nameRules"
+                      label="File name"
+                      outlined
+                      dense
+                  />
 
-              <v-autocomplete
-                  v-model="language"
-                  :rules="languageRules"
-                  :items="languages"
-                  label="Programming language"
-                  item-text="name"
-                  item-value="value"
-                  outlined
-                  dense
-              />
+                  <v-autocomplete
+                      v-model="language"
+                      :rules="languageRules"
+                      :items="languages"
+                      label="Programming language"
+                      item-text="name"
+                      item-value="value"
+                      outlined
+                      dense
+                  />
+                </v-col>
 
-              <div class="d-flex">
-                <v-spacer />
-                <v-btn color="primary" depressed :disabled="!valid" @click="onSubmit">
-                  Analyze
-                  <v-icon right>mdi-folder-search-outline</v-icon>
-                </v-btn>
-              </div>
+                <v-col cols="12" md="6">
+                  <p>
+                    When you upload a dataset, it will be analyzed and you you
+                    will be able to view the results with a secret link. Anyone
+                    with the link to the results will be able to view them, do
+                    not share the link with anyone you do not trust.
+                  </p>
+                  <p>
+                    The dataset
+                    and the resulting report will be deleted after 30 days.
+                  </p>
+                  <v-checkbox
+                      v-model="accept"
+                      :rules="acceptRules"
+                      label="I accept the above conditions."
+                      outlined>
+
+                  </v-checkbox>
+                </v-col>
+              </v-row>
             </v-form>
+            <div class="d-flex">
+              <v-spacer />
+              <v-btn color="primary" depressed :disabled="!valid" @click="onSubmit">
+                Analyze
+                <v-icon right>mdi-folder-search-outline</v-icon>
+              </v-btn>
+            </div>
+
           </v-stepper-content>
 
           <v-stepper-content step="2">
@@ -201,6 +224,10 @@ const languages = [
     name: "TSX",
     value: "tsx",
   },
+];
+
+const acceptRules = [
+  (v: boolean) => v || "Please accept the conditions if you want to continue."
 ];
 
 // Upload progress
