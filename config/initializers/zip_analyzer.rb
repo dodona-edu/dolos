@@ -21,12 +21,15 @@ class ZipAnalyzer < ActiveStorage::Analyzer
     files_by_ext = Hash.new(0)
     Zip::File.open(file.path) do |zip_file|
       zip_file.entries.each do |entry|
-        if entry.name == "info.csv"
-          has_info_csv = true
-        elsif entry.ftype == :file
-          parts = entry.name.split('.')
-          if parts.size > 1
-            files_by_ext[parts.last] += 1
+        if entry.ftype == :file
+          file_count += 1
+          if entry.name == "info.csv"
+            has_info_csv = true
+          else
+            parts = entry.name.split('.')
+            if parts.size > 1
+              files_by_ext[parts.last] += 1
+            end
           end
         end
       end

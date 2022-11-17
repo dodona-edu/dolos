@@ -19,8 +19,6 @@ require "test_helper"
 class DatasetTest < ActiveSupport::TestCase
   setup do
     @dataset = create(:dataset)
-    #@dataset.zipfile.attach(io: File.open(Rails.root.join("test/files/simple-dataset.zip")),
-    #                        filename: 'simple-dataset.zip')
   end
 
   test "should have zipfile attached" do
@@ -31,7 +29,7 @@ class DatasetTest < ActiveSupport::TestCase
     @dataset.zipfile.analyze
     assert @dataset.zipfile.analyzed?
     expected =  { "identified" => true,
-                  "file_count" => 0,
+                  "file_count" => 5,
                   "has_info_csv" => true,
                   "most_common_ext" => "js",
                   "most_common_ext_count" => 4,
