@@ -39,6 +39,7 @@ declare module 'vue' {
     SubmissionsPairsTable: typeof import('./../components/submission/SubmissionsPairsTable.vue')['default']
     SubmissionsTable: typeof import('./../components/submission/SubmissionsTable.vue')['default']
     TimeSeries: typeof import('./../components/clustering/TimeSeries.vue')['default']
+    UploadFormCard: typeof import('./../components/upload/UploadFormCard.vue')['default']
     UploadInput: typeof import('./../components/upload/UploadInput.vue')['default']
     UploadsTable: typeof import('./../components/upload/UploadsTable.vue')['default']
   }
