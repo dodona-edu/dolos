@@ -5,8 +5,9 @@
   "main": "dist/index.html",
   "scripts": {
     "serve": "vue-cli-service serve",
-    "serve:watch": "vue-cli-service serve --watch",
+    "serve:server": "VUE_APP_MODE=server vue-cli-service serve",
     "build": "vue-cli-service build",
+    "build:server": "VUE_APP_MODE=server vue-cli-service build",
     "lint": "vue-cli-service lint --format stylish"
   },
   "devDependencies": {
