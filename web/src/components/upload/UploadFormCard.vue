@@ -299,7 +299,12 @@ const onSubmit = async (): Promise<void> => {
         handleError("No analysis URL was provided by the API.");
       }
     } catch (e: any) {
-      handleError(e.message);
+      console.log(e);
+      if (e.code == "ERR_NETWORK") {
+        handleError("Could not connect to the API.");
+      } else {
+        handleError("An error occurred while uploading the file: " + e.message);
+      }
     } finally {
       uploadProgress.value = 0;
     }
