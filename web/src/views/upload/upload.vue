@@ -8,7 +8,7 @@
     </div>
 
     <v-row>
-      <v-col cols="12">
+      <v-col cols="12" md="6" offset-md="3">
         <upload-form-card />
       </v-col>
 
@@ -46,12 +46,7 @@
 </template>
 
 <script lang="ts" setup>
-import { shallowRef, watch, onMounted, onUnmounted } from "vue";
-import { useRouter } from "@/composables";
-import axios from "axios";
 import UploadFormCard from "@/components/upload/UploadFormCard.vue";
-
-const router = useRouter();
 
 </script>
 

@@ -14,7 +14,7 @@
             </transition>
             <v-form v-model="valid" class="pt-2" @submit="onSubmit">
               <v-row>
-                <v-col cols="12" md="6">
+                <v-col cols="12">
                   <v-file-input
                       v-model="file"
                       :rules="fileRules"
@@ -48,7 +48,7 @@
                   />
                 </v-col>
 
-                <v-col cols="12" md="6">
+                <v-col cols="12">
                   <p>
                     When you upload a dataset, it will be analyzed and you you
                     will be able to view the results with a secret link. Anyone
@@ -122,11 +122,24 @@
           </div>
         </v-stepper-content>
         <v-stepper-content step="4">
+
           <div class="d-flex">
+            <v-alert
+                type="success"
+                border="left"
+                class="flex-grow-1"
+                text>
+              Your dataset has been analysed.
+            </v-alert>
+            <v-alert type="info">
+              <b>Note</b> that anyone with the link to the results will be able
+              to view them. The dataset and the resulting report will be deleted
+              after 30 days.
+            </v-alert>
             <v-spacer />
-            <v-btn color="success" text depressed @click="gotoReport">
+            <v-btn color="success" primary :to="reportRoute">
               View results
-              <v-icon color="success" right>mdi-check</v-icon>
+              <v-icon right>mdi-arrow-right</v-icon>
             </v-btn>
           </div>
         </v-stepper-content>
@@ -136,9 +149,9 @@
 </template>
 
 <script lang="ts" setup>
-import { shallowRef, watch, onMounted, onUnmounted } from "vue";
+import { shallowRef, computed, watch, onMounted, onUnmounted } from "vue";
 import { useRouter } from "@/composables";
-import axios from "axios";
+import { default as axios } from "axios";
 
 const router = useRouter();
 
@@ -172,7 +185,7 @@ watch(file, (file) => {
 });
 
 // Selected language.
-const language = shallowRef<string>(null);
+const language = shallowRef<string | null>(null);
 const languageRules = [];
 
 // List with available programming languages.
@@ -226,6 +239,7 @@ const languages = [
   },
 ];
 
+const accept = shallowRef<boolean>(false);
 const acceptRules = [
   (v: boolean) => v || "Please accept the conditions if you want to continue."
 ];
@@ -239,9 +253,22 @@ const reportStatus = shallowRef<"queued" | "running" | "failed" | "error" | "fin
 // Analysis result URL.
 const reportID = shallowRef<string>();
 
+const reportRoute = computed(() => {
+  if (reportID.value) {
+    return {
+      name: "Overview",
+      params: {
+        reportId: reportID.value,
+      },
+    };
+  } else {
+    return null;
+  }
+});
+
 // Clear the form.
 const clearForm = (): void => {
-  file.value = null;
+  file.value = undefined;
   name.value = "";
   language.value = null;
 };
@@ -249,7 +276,7 @@ const clearForm = (): void => {
 // Cancel the analysis.
 const handleCancel = (): void => {
   step.value = 1;
-  reportStatusURL.value = null;
+  reportStatusURL.value = undefined;
   reportStatus.value = "queued";
 };
 
@@ -257,12 +284,8 @@ const handleCancel = (): void => {
 const handleError = (message: string): void => {
   error.value = message;
   step.value = 1;
-  reportStatusURL.value = null;
+  reportStatusURL.value = undefined;
   reportStatus.value = "queued";
-};
-
-const gotoReport = (): void => {
-  router.push({ name: "Overview", params: { reportId: reportID.value } });
 };
 
 // When the form is submitted.
@@ -299,7 +322,6 @@ const onSubmit = async (): Promise<void> => {
         handleError("No analysis URL was provided by the API.");
       }
     } catch (e: any) {
-      console.log(e);
       if (e.code == "ERR_NETWORK") {
         handleError("Could not connect to the API.");
       } else {
@@ -339,7 +361,7 @@ onMounted(() => {
         // Clear the form.
         clearForm();
       }
-    } catch (e) {
+    } catch (e: any) {
       // If the error cause was on the serve side,
       // cancel the analysis.
       if (e.response) {
@@ -360,6 +382,14 @@ onUnmounted(() => {
     :deep(.v-stepper__content) {
       padding: 0 !important;
     }
+  }
+}
+
+.info-list {
+  &-item {
+    display: flex;
+    gap: 0.5rem;
+    width: 100%;
   }
 }
 </style>
