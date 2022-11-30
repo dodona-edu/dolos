@@ -50,4 +50,6 @@ test:
 #
 production:
   <<: *default
-  database: dolos_api_production
+  database: dolos
+  username: <%= Rails.application.credentials[:db_user] %>
+  password: <%= Rails.application.credentials[:db_password] %>
