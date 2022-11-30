@@ -58,3 +58,14 @@ group :development do
   gem 'rubocop-rails', '~> 2.15'
 end
 
+# Use Capistrano for deployment
+gem 'capistrano', '~> 3.10', group: :development
+gem 'capistrano3-delayed-job', '~> 1.7.6'
+gem 'capistrano-passenger', '~> 0.2.1', group: :development
+gem 'capistrano-rails', '~> 1.6.2', group: :development
+gem 'capistrano-rvm', '~> 0.1.2', group: :development
+gem 'capistrano-yarn', '~> 2.0.2'
+
+# Needed to support ecc keys
+gem 'bcrypt_pbkdf'
+gem 'ed25519'
