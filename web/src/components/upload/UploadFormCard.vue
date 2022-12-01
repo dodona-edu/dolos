@@ -122,20 +122,19 @@
           </div>
         </v-stepper-content>
         <v-stepper-content step="4">
-
+          <v-alert
+              type="success"
+              border="left"
+              class="flex-grow-1"
+              text>
+            Your dataset has been analysed.
+          </v-alert>
+          <v-alert type="info">
+            <b>Note</b> that anyone with the link to the results will be able
+            to view them. The dataset and the resulting report will be deleted
+            after 30 days.
+          </v-alert>
           <div class="d-flex">
-            <v-alert
-                type="success"
-                border="left"
-                class="flex-grow-1"
-                text>
-              Your dataset has been analysed.
-            </v-alert>
-            <v-alert type="info">
-              <b>Note</b> that anyone with the link to the results will be able
-              to view them. The dataset and the resulting report will be deleted
-              after 30 days.
-            </v-alert>
             <v-spacer />
             <v-btn color="success" primary :to="reportRoute">
               View results
