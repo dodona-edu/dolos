@@ -155,6 +155,10 @@ import { default as axios } from "axios";
 
 const router = useRouter();
 
+
+const pollInterval = 1000;
+const maxPolls = 60;
+
 // Step in the analysis process.
 const step = shallowRef(1);
 
@@ -278,6 +282,7 @@ const handleCancel = (): void => {
   step.value = 1;
   reportStatusURL.value = undefined;
   reportStatus.value = "queued";
+  stopPolling();
 };
 
 // Handle an error.
@@ -286,6 +291,7 @@ const handleError = (message: string): void => {
   step.value = 1;
   reportStatusURL.value = undefined;
   reportStatus.value = "queued";
+  stopPolling();
 };
 
 // When the form is submitted.
@@ -321,6 +327,8 @@ const onSubmit = async (): Promise<void> => {
       if (!reportStatusURL.value) {
         handleError("No analysis URL was provided by the API.");
       }
+
+      startPolling();
     } catch (e: any) {
       if (e.code == "ERR_NETWORK") {
         handleError("Could not connect to the API.");
@@ -335,44 +343,72 @@ const onSubmit = async (): Promise<void> => {
 
 // Poll for the analysis results every 5 seconds.
 const interval = shallowRef();
-onMounted(() => {
+
+const startPolling = (): void => {
+  if (interval.value) {
+    stopPolling();
+  }
+  let pollsSinceUpdate = 0;
   interval.value = setInterval(async () => {
     // Do not poll when no analysis is running
-    if (!reportStatusURL.value) return;
+    if (!reportStatusURL.value || (reportStatus.value != "queued" && reportStatus.value != "running")) {
+      stopPolling();
+      return;
+    }
+
+    console.log("Poll " + pollsSinceUpdate + " of " + maxPolls);
 
     try {
       const response = await axios.get(reportStatusURL.value);
 
-      if (response.data.status === "running") {
-        reportStatus.value = "running";
+      if (response.data.status !== reportStatus.value) {
+        pollsSinceUpdate = 0;
+        reportStatus.value = response.data.status;
       }
 
-      if (response.data.status === "error") {
+      if (response.data.status === "error" || response.data.status === "failed") {
         handleError(response.data.error);
       }
 
-      if (response.data.status === "failed") {
-        handleError(response.data.error);
+      if (pollsSinceUpdate >= maxPolls) {
+        handleError("The analysis took too long to complete.");
       }
 
       if (response.data.status === "finished") {
         // Go to the results page.
         step.value = 4;
+        stopPolling();
         // Clear the form.
         clearForm();
       }
+
     } catch (e: any) {
       // If the error cause was on the serve side,
       // cancel the analysis.
       if (e.response) {
         handleError(e.message);
       }
+    } finally {
+      pollsSinceUpdate += 1;
     }
-  }, 1000);
+  }, pollInterval);
+};
+
+const stopPolling = (): void => {
+  if (interval.value) {
+    clearInterval(interval.value);
+  }
+  interval.value = undefined;
+};
+
+onMounted(() => {
+  startPolling();
 });
+
 onUnmounted(() => {
-  clearInterval(interval.value);
+  stopPolling();
 });
+
 </script>
 
 <style lang="scss" scoped>
