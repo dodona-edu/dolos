@@ -34,11 +34,20 @@ class ReportsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "should destroy report" do
-    assert_difference("Report.count", -1) do
-      delete report_url(@report), as: :json
-    end
-
+  test "should purge report, but keep records" do
+    delete report_url(@report), as: :json
     assert_response :no_content
+
+    @report.reload
+    @dataset.reload
+
+    assert_equal @report.status, "purged"
+
+    assert_not @report.all_files_present?
+
+    %w[metadata.csv files.csv kgrams.csv pairs.csv].each do |f|
+      get data_report_url(@report, f)
+      assert_response :not_found
+    end
   end
 end

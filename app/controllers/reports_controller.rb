@@ -8,7 +8,7 @@ class ReportsController < ApplicationController
 
   # DELETE /reports/1
   def destroy
-    @report.destroy
+    @report.purge_files!
   end
 
   # POST /reports
@@ -26,6 +26,8 @@ class ReportsController < ApplicationController
   def data
     attachment = @report.attachment_by_filename(params[:file] + '.' + params[:format])
     redirect_to rails_blob_path(attachment, disposition: 'attachment')
+  rescue ActiveRecord::RecordNotFound
+    render status: :not_found
   end
 
   private

@@ -30,4 +30,9 @@ class Dataset < ApplicationRecord
 
   before_create :generate_token
 
+  def purge_files!
+    if self.zipfile.attached?
+      self.zipfile.purge
+    end
+  end
 end

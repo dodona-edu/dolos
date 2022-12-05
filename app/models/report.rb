@@ -29,6 +29,8 @@ class Report < ApplicationRecord
 
   belongs_to :dataset
 
+  AUTOMATICALLY_DELETE_AFTER = 30.days
+
   RESULT_FILES = {
     "metadata.csv" => :metadata,
     "files.csv" => :files,
@@ -41,7 +43,7 @@ class Report < ApplicationRecord
   has_one_attached :kgrams
   has_one_attached :pairs
 
-  enum :status, { unknown: 0, queued: 1, running: 2, failed: 3, error: 4, finished: 5}
+  enum :status, { unknown: 0, queued: 1, running: 2, failed: 3, error: 4, finished: 5, purged: 6 }
 
   before_create :generate_token
   after_create :queue_analysis
@@ -51,6 +53,8 @@ class Report < ApplicationRecord
 
     self.update(status: :queued)
     AnalyzeDatasetJob.perform_later(self)
+
+    delay(run_at: AUTOMATICALLY_DELETE_AFTER.from_now).purge_files!
   end
 
   def all_files_present?
@@ -85,5 +89,20 @@ class Report < ApplicationRecord
         identify: false
       )
     end
+  end
+
+  def purge_files!
+    return if self.purged?
+
+    RESULT_FILES.each do |_file, name|
+      attachment = self.send(name)
+      if attachment.attached?
+        attachment.purge
+      end
+    end
+
+    self.dataset.purge_files!
+
+    self.update(status: :purged)
   end
 end

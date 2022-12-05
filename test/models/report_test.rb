@@ -23,7 +23,40 @@
 require "test_helper"
 
 class ReportTest < ActiveSupport::TestCase
-  # test "the truth" do
-  #   assert true
-  # end
+  setup do
+    @report = create(:report)
+    @dataset = @report.dataset
+  end
+
+  test "purge_files should remove all attached files, but keep records" do
+    @report.purge_files!
+
+    @report.reload
+    @dataset.reload
+
+    assert_equal @report.status, "purged"
+
+    assert_not @report.all_files_present?
+
+    %w[metadata.csv files.csv kgrams.csv pairs.csv].each do |f|
+      assert_raises ActiveRecord::RecordNotFound do
+        @report.attachment_by_filename(f)
+      end
+    end
+
+    assert_not @dataset.zipfile.attached?
+  end
+
+  test "calling purge_files multiple times should not crash" do
+    @report.purge_files!
+
+    @report.reload
+    @dataset.reload
+
+    assert_equal @report.status, "purged"
+
+    @report.purge_files!
+
+    assert_equal @report.status, "purged"
+  end
 end
