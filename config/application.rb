@@ -23,5 +23,9 @@ module DolosApi
     # Middleware like session, flash, cookies can be added back manually.
     # Skip views, helpers and assets when generating a new resource.
     config.api_only = true
+
+    # Delayed::Job is pretty much the only MySQL-compatible job runner
+    # and has been running smoothly with Dodona for many years
+    config.active_job.queue_adapter = :delayed_job
   end
 end

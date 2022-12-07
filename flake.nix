@@ -53,6 +53,8 @@
               (pkgs.lowPrio gems.wrappedRuby)
               pkgs.nixpkgs-fmt
               pkgs.mariadb_108
+              pkgs.docker-compose
+              pkgs.docker
             ];
             env = [
               {
