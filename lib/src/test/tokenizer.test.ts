@@ -3,16 +3,18 @@ import { File } from "../lib/file/file";
 import { LanguagePicker } from "../lib/util/language";
 
 const languageFiles = {
-  "python": "../samples/python/caesar.py",
-  "javascript": "../samples/javascript/sample.js",
-  "c-sharp": "../samples/c-sharp/Caesar.cs",
-  "java": "../samples/java/Caesar.java",
   "bash": "../samples/bash/caesar.sh",
-  "char": "../samples/char/caesar.txt",
   "c": "../samples/c/caesar.c",
+  "c-sharp": "../samples/c-sharp/Caesar.cs",
+  "char": "../samples/char/caesar.txt",
+  "cpp": "../samples/cpp/caesar.cpp",
   "elm": "../samples/elm/Caesar.elm",
-  "typescript": "../samples/typescript/caesar.ts",
+  "java": "../samples/java/Caesar.java",
+  "javascript": "../samples/javascript/sample.js",
+  "python": "../samples/python/caesar.py",
+  "php": "../samples/php/caesar.php",
   "tsx": "../samples/tsx/sample.tsx",
+  "typescript": "../samples/typescript/caesar.ts",
 } as {[key: string]: string};
 
 for (const [languageName, languageFile] of Object.entries(languageFiles)) {
