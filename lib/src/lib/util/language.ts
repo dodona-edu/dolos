@@ -27,7 +27,6 @@ export abstract class Language {
   public abstract createTokenizer(): Tokenizer;
 }
 
-
 export class ProgrammingLanguage extends Language {
 
   protected languageModule: TreeSitterLanguage | undefined;
