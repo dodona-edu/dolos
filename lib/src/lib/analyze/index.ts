@@ -15,7 +15,7 @@ type Hash = number;
 export class Index {
   private readonly kgramLength: number;
   private readonly kgramsInWindow: number;
-  private readonly tokenizer: Tokenizer;
+  private readonly tokenizer: Tokenizer | null;
   protected readonly hashFilter: HashFilter;
 
   /**
@@ -33,7 +33,7 @@ export class Index {
    * the rolling hashing function.
    */
   constructor(
-    tokenizer: Tokenizer,
+    tokenizer: Tokenizer | null,
     private readonly options: Options = new Options(),
     hashFilter?: HashFilter
   ) {
@@ -61,9 +61,13 @@ export class Index {
     files: File[],
     hashFilter = this.hashFilter
   ): Promise<Report> {
+    if (this.tokenizer) {
+      const tokenizedFiles = files.map(f => this.tokenizer!.tokenizeFile(f));
+      return this.compareTokenizedFiles(tokenizedFiles, hashFilter);
+    } else {
+      throw new Error("Index#compareFiles was called, but the tokenizer is null");
+    }
 
-    const tokenizedFiles = files.map(f => this.tokenizer.tokenizeFile(f));
-    return this.compareTokenizedFiles(tokenizedFiles, hashFilter);
   }
 
 
@@ -83,7 +87,11 @@ export class Index {
     tokenizedFiles: TokenizedFile[],
     hashFilter = this.hashFilter
   ): Promise<Report> {
-    const report = new Report(this.options, this.tokenizer.language, tokenizedFiles);
+    const report = new Report(
+      this.options,
+      this.tokenizer?.language ?? null,
+      tokenizedFiles
+    );
     const map = await this.createMatches(tokenizedFiles, hashFilter);
 
     for(const [hash, occurrences] of map.entries()) {

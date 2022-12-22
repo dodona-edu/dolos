@@ -64,7 +64,7 @@ export class Report {
 
   constructor(
     public readonly options: Options,
-    public readonly language: Language,
+    public readonly language: Language | null,
     files: TokenizedFile[],
   ) {
     this.fileSet = new Set(files);
@@ -141,7 +141,7 @@ export class Report {
   public metadata(): Metadata {
     return {
       ...this.options.asObject(),
-      language: this.language.name,
+      language: this.language?.name ?? null,
       languageDetected: this.options.language == undefined,
     };
   }

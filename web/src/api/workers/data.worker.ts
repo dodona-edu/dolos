@@ -11,7 +11,6 @@ import {
 } from "@/api/models";
 import {
   Fragment as DolosFragment,
-  EmptyTokenizer,
   Options,
   Index,
   Region,
@@ -55,9 +54,8 @@ async function populateFragments(
   const customOptions = metadata;
   const kmers = kgrams;
 
-  const emptyTokenizer = new EmptyTokenizer(new LanguagePicker().findLanguage(metadata.language));
   const options = new Options(customOptions);
-  const index = new Index(emptyTokenizer, options);
+  const index = new Index(null, options);
   const leftFile = fileToTokenizedFile(pair.leftFile);
   const rightFile = fileToTokenizedFile(pair.rightFile);
   const report = await index.compareTokenizedFiles([leftFile, rightFile]);
