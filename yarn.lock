@@ -11572,6 +11572,13 @@ tree-sitter-c@^0.20.1:
   dependencies:
     nan "^2.14.0"
 
+tree-sitter-cpp@^0.20.0:
+  version "0.20.0"
+  resolved "https://registry.yarnpkg.com/tree-sitter-cpp/-/tree-sitter-cpp-0.20.0.tgz#42499b1f2d3f61f74703cc9f13fcaf65173c96a4"
+  integrity sha512-ka1KoFfmLX9dmus8S+NrXxEN+k2PWJOZi60vO3hnR2lnRIr4FYBSXZKmTgQnCd8/w0UM7sNtgETvW1SM1qJ9og==
+  dependencies:
+    nan "^2.14.0"
+
 tree-sitter-java@^0.19.1:
   version "0.19.1"
   resolved "https://registry.yarnpkg.com/tree-sitter-java/-/tree-sitter-java-0.19.1.tgz#c1bf59caaa81bf8a4a6dda99e7c97e51b3bd26d4"
@@ -11585,6 +11592,13 @@ tree-sitter-javascript@^0.19.0:
   integrity sha512-SNykDdNgmlJZhX02ZIu0TQF9P7t847jV7769SxA9XrZ2QXjofQsVTMEi9+LpXZKsI0UoFYI25FnZm3fFm0z2yw==
   dependencies:
     nan "^2.12.1"
+
+tree-sitter-php@^0.19.0:
+  version "0.19.0"
+  resolved "https://registry.yarnpkg.com/tree-sitter-php/-/tree-sitter-php-0.19.0.tgz#f194d2c542a5a3cf8a0bf5de4b96df6c2333f10e"
+  integrity sha512-YchOF4ai+CIP8AMHuNDohEOG4T+9+6YwVqyNwWS9+BIBze41D32V9FCc88/v4W5YRvvCdRqJk8V+hWtnCHrUcw==
+  dependencies:
+    nan "^2.14.0"
 
 tree-sitter-python@^0.20.1:
   version "0.20.1"
