@@ -13,7 +13,7 @@
     "force-build": "tsc --build --verbose  --force"
   },
   "devDependencies": {
-    "@types/express": "4.17.14",
+    "@types/express": "4.17.15",
     "@types/express-fileupload": "1.4.1",
     "@types/node": "18.11.17",
     "@types/unzipper": "0.10.5",
