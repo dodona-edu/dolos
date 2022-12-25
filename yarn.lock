@@ -12135,9 +12135,9 @@ vuetify-loader@1.9.2:
     loader-utils "^2.0.0"
 
 vuetify@^2.6.10:
-  version "2.6.12"
-  resolved "https://registry.yarnpkg.com/vuetify/-/vuetify-2.6.12.tgz#ef1871c720834d53e00fef142b9841a3e8c1a4f9"
-  integrity sha512-qe3hcMpWmT1O15tp+p65lOS7UKZ/hQYQktCsw9iXx2u3RwVbX6GR82gY2iROrKsiAzYDvMgrYxWQwY/pUfkekw==
+  version "2.6.13"
+  resolved "https://registry.yarnpkg.com/vuetify/-/vuetify-2.6.13.tgz#6c7dd1a43b5cee0e474fbe840f0fe86439d54502"
+  integrity sha512-HhJi52IzhfrmWFwcYFUiA1GRIzz9smbR06Lj61Ml5HgD5PBcMiDywUnNPVid1VsXO4qWpBU6kO3O89uTxH1yzw==
 
 watchpack@^2.4.0:
   version "2.4.0"
