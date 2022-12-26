@@ -1,3 +1,3 @@
 pub mod hashes;
-pub mod kgrams;
+pub mod index;
 pub mod tokens;

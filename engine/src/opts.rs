@@ -1,6 +1,6 @@
 use clap::{Parser, Subcommand};
 
-use crate::file::File;
+use std::path::PathBuf;
 
 #[derive(Parser, Debug)]
 #[clap(author, version, about, long_about = None)]
@@ -13,7 +13,7 @@ pub struct Opts {
 pub enum Command {
     /// Run a similarity analysis on the given files.
     Run {
-        /// Files to analyse
-        files: Vec<File>,
+        /// Files to analyze
+        files: Vec<PathBuf>,
     },
 }

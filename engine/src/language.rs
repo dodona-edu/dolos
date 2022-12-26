@@ -13,6 +13,13 @@ impl Language {
         Self::from_ext(path.extension().expect("file has no extension"))
     }
 
+    pub fn matches(&self, path: &PathBuf) -> bool {
+        if let Some(lang) = Self::guess_from_path(path) {
+            return self == &lang;
+        };
+        false
+    }
+
     pub fn from_ext(ext: &OsStr) -> Option<Language> {
         if ext.eq_ignore_ascii_case("java") {
             Some(Self::Java)

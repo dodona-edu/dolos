@@ -2,24 +2,24 @@ use crate::winnowing::hashes::{hash_token, RollingHash};
 use tree_sitter::{Range, Tree};
 
 #[derive(Debug)]
-pub struct Tokens<'a> {
-    nodes: Vec<Token<'a>>,
+pub struct Tokens {
+    nodes: Vec<Token>,
 }
 
 #[derive(Debug, PartialEq, Clone)]
-pub struct Token<'a> {
-    pub name: &'a str,
+pub struct Token {
+    pub name: String,
     pub range: Range,
     pub hash: usize,
 }
 
 #[derive(Debug, PartialEq)]
-pub struct Fingerprint<'a> {
-    pub kgram: Vec<Token<'a>>,
+pub struct Fingerprint {
+    pub kgram: Vec<Token>,
     pub hash: usize,
 }
 
-impl<'a> Tokens<'a> {
+impl Tokens {
     pub(crate) fn from_tree(tree: &Tree) -> Self {
         let mut cursor = tree.walk();
         Tokens {
@@ -29,7 +29,7 @@ impl<'a> Tokens<'a> {
                 .map(|node| {
                     let name = node.kind();
                     Token {
-                        name,
+                        name: name.to_string(),
                         range: node.range(),
                         hash: hash_token(name),
                     }
@@ -121,7 +121,7 @@ mod tests {
         let mut tokens = Vec::new();
         for i in 0..token_names.len() {
             tokens.push(Token {
-                name: &token_names[i],
+                name: token_names[i].to_string(),
                 range,
                 hash: hashes[i],
             });
@@ -156,7 +156,7 @@ mod tests {
         let mut tokens = Vec::new();
         for i in 0..token_names.len() {
             tokens.push(Token {
-                name: &token_names[i],
+                name: token_names[i].to_string(),
                 range,
                 hash: hashes[i],
             });
@@ -191,7 +191,7 @@ mod tests {
         let mut tokens = Vec::new();
         for i in 0..token_names.len() {
             tokens.push(Token {
-                name: &token_names[i],
+                name: token_names[i].to_string(),
                 range,
                 hash: hashes[i],
             });
@@ -208,7 +208,11 @@ mod tests {
                 "Hash mismatch:\n{:?}\n{:?}",
                 fingerprint, winnowed[i]
             );
-            let data: Vec<&str> = fingerprint.kgram.iter().map(|t| t.name).collect();
+            let data: Vec<String> = fingerprint
+                .kgram
+                .iter()
+                .map(|t| t.name.to_string())
+                .collect();
             assert_eq!(
                 data, winnowed[i].data,
                 "Kgrams mismatch:\n{:?}\n{:?}",

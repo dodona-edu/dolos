@@ -1,60 +1,32 @@
 use crate::file::File;
 use crate::language::Language;
-use crate::winnowing::tokens::Tokens;
+use crate::winnowing::index::Index;
 use std::fmt;
+use std::path::PathBuf;
 use tree_sitter::Parser;
 
 pub struct Dolos {
-    files: Vec<File>,
-    lang: Language,
-    parser: Parser,
+    index: Index,
+    language: Language,
 }
 
 impl Dolos {
-    pub fn from_files(files: Vec<File>) -> Self {
-        let lang = files
-            .first()
-            .expect("no files given")
-            .lang
-            .expect("unknown extension");
-        let mut parser = Parser::new();
-        parser
-            .set_language(lang.tree_sitter_language())
-            .expect("set language");
-        let mut dolos = Dolos {
-            files: vec![],
-            lang,
-            parser,
-        };
-        dolos.add_files(files);
+    pub fn from_paths(paths: Vec<PathBuf>) -> Self {
+        let first = paths.first().expect("no paths given");
+        let language = Language::guess_from_path(first).expect("lang");
+
+        let index = Index::new(23, 17, language);
+        let mut dolos = Dolos { index, language };
+        dolos.index.add_files(paths);
         dolos
-    }
-
-    pub fn add_file(&mut self, file: File) {
-        if !file.lang.eq(&Some(self.lang)) {
-            panic!("Language does not match")
-        }
-        let tree = self
-            .parser
-            .parse(file.content().expect("content"), None)
-            .expect("tree");
-        let tokens = Tokens::from_tree(&tree).winnow(23, 17);
-
-        self.files.push(file);
-    }
-
-    pub fn add_files(&mut self, files: Vec<File>) {
-        for file in files {
-            self.add_file(file);
-        }
     }
 }
 
 impl fmt::Debug for Dolos {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
         fmt.debug_struct("Dolos")
-            .field("files", &self.files)
-            .field("parser", &self.parser.language())
+            .field("files", &self.index.files)
+            .field("language", &self.language)
             .finish()
     }
 }

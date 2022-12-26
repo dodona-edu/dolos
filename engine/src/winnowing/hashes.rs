@@ -1,4 +1,4 @@
-type Hash = usize;
+pub type Hash = usize;
 
 /// The modulus used in the hash calculations.
 ///

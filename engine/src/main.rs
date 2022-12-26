@@ -12,7 +12,7 @@ fn main() {
 
     match opts.command {
         Command::Run { files } => {
-            let dolos = Dolos::from_files(files);
+            let dolos = Dolos::from_paths(files);
             dbg!(dolos);
         }
     }
