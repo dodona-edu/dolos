@@ -1,9 +1,7 @@
-use crate::file::File;
 use crate::language::Language;
 use crate::winnowing::index::Index;
 use std::fmt;
 use std::path::PathBuf;
-use tree_sitter::Parser;
 
 pub struct Dolos {
     index: Index,
