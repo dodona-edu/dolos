@@ -9,4 +9,5 @@ pub mod dolos;
 pub mod file;
 pub mod language;
 pub mod opts;
+pub mod tokenizer;
 pub mod winnowing;

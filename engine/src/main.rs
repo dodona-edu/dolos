@@ -13,7 +13,7 @@ fn main() {
     match opts.command {
         Command::Run { files } => {
             let dolos = Dolos::from_paths(files);
-            dbg!(dolos);
+            dbg!(dolos.build_report());
         }
     }
 }

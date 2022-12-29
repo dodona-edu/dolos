@@ -63,7 +63,6 @@ impl RollingHash {
 
 /// Creates a quick hash of a string (token)
 pub fn hash_token(token: &str) -> Hash {
-    dbg!(token);
     token
         .bytes()
         .fold(0, |hash, byte| ((hash + byte as usize) * BASE_TOKEN) % MOD)

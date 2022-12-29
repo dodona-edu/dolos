@@ -1,5 +1,6 @@
+use crate::tokenizer::Token;
 use crate::winnowing::hashes::{hash_token, RollingHash};
-use tree_sitter::{Range, Tree};
+use tree_sitter::{Range, Tree, TreeCursor};
 
 #[derive(Debug)]
 pub struct Tokens {
@@ -7,14 +8,8 @@ pub struct Tokens {
 }
 
 #[derive(Debug, PartialEq, Clone)]
-pub struct Token {
-    pub name: String,
-    pub range: Range,
-    pub hash: usize,
-}
-
-#[derive(Debug, PartialEq)]
 pub struct Fingerprint {
+    pub index: usize,
     pub kgram: Vec<Token>,
     pub hash: usize,
 }
@@ -22,20 +17,32 @@ pub struct Fingerprint {
 impl Tokens {
     pub(crate) fn from_tree(tree: &Tree) -> Self {
         let mut cursor = tree.walk();
-        Tokens {
-            nodes: tree
-                .root_node()
-                .named_children(&mut cursor)
-                .map(|node| {
+        let mut progress = true;
+        let mut descended = true;
+        let mut nodes = Vec::new();
+
+        while progress {
+            if descended {
+                let node = cursor.node();
+                if node.is_named() {
                     let name = node.kind();
-                    Token {
+                    nodes.push(Token {
                         name: name.to_string(),
                         range: node.range(),
-                        hash: hash_token(name),
-                    }
-                })
-                .collect(),
+                        //hash: hash_token(name),
+                    });
+                }
+                descended = cursor.goto_first_child() || cursor.goto_next_sibling();
+                if !descended {
+                    cursor.goto_parent();
+                }
+            } else if cursor.goto_next_sibling() {
+                descended = true;
+            } else if !cursor.goto_parent() {
+                progress = false;
+            }
         }
+        Tokens { nodes }
     }
 
     /// Returns a filtered list of fingerprints: the kgrams (of length k) with the minimum hashing
@@ -49,12 +56,12 @@ impl Tokens {
         let mut filtered = Vec::new();
 
         for token in self.nodes.iter().take(k - 1) {
-            rolling.next_hash(token.hash);
+            rolling.next_hash(hash_token(&token.name));
         }
 
         let mut min_index = 0;
         for (token_index, token) in self.nodes.iter().enumerate().skip(k - 1) {
-            window[token_index % w] = rolling.next_hash(token.hash);
+            window[token_index % w] = rolling.next_hash(hash_token(&token.name));
 
             if (token_index % w) == (min_index % w) {
                 // we've overwritten the previous minimum, search for the next minimum
@@ -65,6 +72,7 @@ impl Tokens {
                 }
 
                 filtered.push(Fingerprint {
+                    index: filtered.len(),
                     hash: window[min_index % w],
                     kgram: self
                         .nodes
@@ -78,6 +86,7 @@ impl Tokens {
                 min_index = token_index;
 
                 filtered.push(Fingerprint {
+                    index: filtered.len(),
                     hash: window[min_index % w],
                     kgram: self
                         .nodes
@@ -99,8 +108,9 @@ mod tests {
     extern crate serde_any;
 
     use super::*;
+    use crate::file::File;
     use serde::Deserialize;
-    use tree_sitter::Point;
+    use tree_sitter::{Parser, Point};
 
     #[derive(Debug, Deserialize)]
     struct DolosFingerprint {
@@ -123,7 +133,6 @@ mod tests {
             tokens.push(Token {
                 name: token_names[i].to_string(),
                 range,
-                hash: hashes[i],
             });
         }
         let tokens = Tokens { nodes: tokens };
@@ -158,7 +167,6 @@ mod tests {
             tokens.push(Token {
                 name: token_names[i].to_string(),
                 range,
-                hash: hashes[i],
             });
         }
         let tokens = Tokens { nodes: tokens };
@@ -193,7 +201,6 @@ mod tests {
             tokens.push(Token {
                 name: token_names[i].to_string(),
                 range,
-                hash: hashes[i],
             });
         }
         let tokens = Tokens { nodes: tokens };
