@@ -3,7 +3,7 @@ use crate::language::Language;
 
 use std::path::PathBuf;
 
-use tree_sitter::{Parser, Range, Tree};
+use tree_sitter::{Node, Parser, Range, Tree, TreeCursor};
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct Token {
@@ -44,58 +44,37 @@ impl Tokenizer {
     // does not really make sense...
     fn tokens(tree: &Tree) -> Vec<Token> {
         let mut cursor = tree.walk();
-        let mut progress = true;
-        let mut ascended = false;
         let mut tokens = Vec::new();
 
+        Self::recursive_add(cursor.node(), &mut tokens, cursor);
+        tokens
+    }
+
+    fn recursive_add<'a: 'b, 'b>(
+        node: Node<'a>,
+        tokens: &mut Vec<Token>,
+        mut cursor: TreeCursor<'b>,
+    ) {
         tokens.push(Token {
             name: "(".to_string(),
-            range: cursor.node().range(),
+            range: node.range(),
         });
 
-        while progress {
-            if !ascended {
-                let node = cursor.node();
-                if node.is_named() {
-                    let name = node.kind();
-                    tokens.push(Token {
-                        name: name.to_string(),
-                        range: node.range(),
-                    });
-                }
-            }
-            if !ascended && cursor.goto_first_child() {
-                tokens.push(Token {
-                    name: "(".to_string(),
-                    range: cursor.node().range(),
-                });
-            } else if cursor.goto_next_sibling() {
-                ascended = false;
-                tokens.push(Token {
-                    name: ")".to_string(),
-                    range: cursor.node().range(),
-                });
-                tokens.push(Token {
-                    name: "(".to_string(),
-                    range: cursor.node().range(),
-                });
-            } else if cursor.goto_parent() {
-                ascended = true;
-                tokens.push(Token {
-                    name: ")".to_string(),
-                    range: cursor.node().range(),
-                });
-            } else {
-                progress = false;
-            }
+        tokens.push(Token {
+            name: node.kind().to_string(),
+            range: node.range(),
+        });
+
+        let children = node.named_children(&mut cursor).collect::<Vec<Node>>();
+
+        for child in children {
+            Self::recursive_add(child, tokens, cursor.clone());
         }
 
         tokens.push(Token {
             name: ")".to_string(),
-            range: cursor.node().range(),
+            range: node.range(),
         });
-
-        tokens
     }
 }
 
@@ -130,7 +109,8 @@ mod tests {
             .map(|t| t.name)
             .collect::<Vec<String>>();
 
-        dbg!(&actual);
+        dbg!(std::iter::zip(&expected, &actual).collect::<Vec<(&String, &String)>>());
+
         for i in 0..expected.len() {
             assert_eq!(dbg!(&expected[i]), dbg!(&actual[i]), "Mismatch at {}", i);
         }

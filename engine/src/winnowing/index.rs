@@ -3,7 +3,7 @@ use crate::language::Language;
 use crate::tokenizer::Tokenizer;
 use crate::winnowing::hashes::Hash;
 use crate::winnowing::report::Report;
-use crate::winnowing::tokens::{Fingerprint, Tokens};
+use crate::winnowing::tokens::{Fingerprint, Tokens, Winnow};
 use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 use std::hash::{Hash as MapHash, Hasher};
@@ -184,8 +184,7 @@ impl Index {
         let file = Rc::new(self.tokenizer.parse(path));
         self.files.push(file.clone());
 
-        let tokens = Tokens::from_tree(&file.tree);
-        let winnowed = tokens.winnow(self.k, self.w);
+        let winnowed = file.tokens.winnow(self.k, self.w);
         for fingerprint in winnowed {
             dbg!(&fingerprint);
             match self.fingerprints.entry(fingerprint.hash) {

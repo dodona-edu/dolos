@@ -14,53 +14,32 @@ pub struct Fingerprint {
     pub hash: usize,
 }
 
-impl Tokens {
-    pub(crate) fn from_tree(tree: &Tree) -> Self {
-        let mut cursor = tree.walk();
-        let mut progress = true;
-        let mut descended = true;
-        let mut nodes = Vec::new();
-
-        while progress {
-            if descended {
-                let node = cursor.node();
-                if node.is_named() {
-                    let name = node.kind();
-                    nodes.push(Token {
-                        name: name.to_string(),
-                        range: node.range(),
-                        //hash: hash_token(name),
-                    });
-                }
-                descended = cursor.goto_first_child() || cursor.goto_next_sibling();
-                if !descended {
-                    cursor.goto_parent();
-                }
-            } else if cursor.goto_next_sibling() {
-                descended = true;
-            } else if !cursor.goto_parent() {
-                progress = false;
-            }
-        }
-        Tokens { nodes }
-    }
-
+pub trait Winnow {
     /// Returns a filtered list of fingerprints: the kgrams (of length k) with the minimum hashing
     /// value in a window of length w
     ///
     /// Code based on pseudocode from http://theory.stanford.edu/~aiken/publications/papers/sigmod03.pdf
     ///
-    pub(crate) fn winnow(&self, k: usize, w: usize) -> Vec<Fingerprint> {
+    fn winnow(&self, k: usize, w: usize) -> Vec<Fingerprint>;
+}
+
+impl Winnow for Vec<Token> {
+    /// Returns a filtered list of fingerprints: the kgrams (of length k) with the minimum hashing
+    /// value in a window of length w
+    ///
+    /// Code based on pseudocode from http://theory.stanford.edu/~aiken/publications/papers/sigmod03.pdf
+    ///
+    fn winnow(&self, k: usize, w: usize) -> Vec<Fingerprint> {
         let mut rolling = RollingHash::new(k);
         let mut window = vec![usize::MAX; w];
         let mut filtered = Vec::new();
 
-        for token in self.nodes.iter().take(k - 1) {
+        for token in self.iter().take(k - 1) {
             rolling.next_hash(hash_token(&token.name));
         }
 
         let mut min_index = 0;
-        for (token_index, token) in self.nodes.iter().enumerate().skip(k - 1) {
+        for (token_index, token) in self.iter().enumerate().skip(k - 1) {
             window[token_index % w] = rolling.next_hash(hash_token(&token.name));
 
             if (token_index % w) == (min_index % w) {
@@ -75,7 +54,6 @@ impl Tokens {
                     index: filtered.len(),
                     hash: window[min_index % w],
                     kgram: self
-                        .nodes
                         .windows(k)
                         .nth(min_index + 1 - k)
                         .expect("incorrect kgram index")
@@ -89,7 +67,6 @@ impl Tokens {
                     index: filtered.len(),
                     hash: window[min_index % w],
                     kgram: self
-                        .nodes
                         .windows(k)
                         .nth(min_index + 1 - k)
                         .expect("incorrect kgram index")
@@ -135,7 +112,6 @@ mod tests {
                 range,
             });
         }
-        let tokens = Tokens { nodes: tokens };
 
         let winnowed: Vec<DolosFingerprint> =
             serde_any::from_file("fixtures/sample.winnowk17w23.json").unwrap();
@@ -169,7 +145,6 @@ mod tests {
                 range,
             });
         }
-        let tokens = Tokens { nodes: tokens };
 
         let winnowed: Vec<DolosFingerprint> =
             serde_any::from_file("fixtures/sample.winnowk3w5.json").unwrap();
@@ -203,7 +178,6 @@ mod tests {
                 range,
             });
         }
-        let tokens = Tokens { nodes: tokens };
 
         let winnowed: Vec<DolosFingerprint> =
             serde_any::from_file("fixtures/sample.winnowk16w8.json").unwrap();
