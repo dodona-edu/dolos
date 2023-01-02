@@ -1,11 +1,5 @@
 use crate::tokenizer::Token;
 use crate::winnowing::hashes::{hash_token, RollingHash};
-use tree_sitter::{Range, Tree, TreeCursor};
-
-#[derive(Debug)]
-pub struct Tokens {
-    nodes: Vec<Token>,
-}
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct Fingerprint {
@@ -85,9 +79,10 @@ mod tests {
     extern crate serde_any;
 
     use super::*;
-    use crate::file::File;
+    use crate::language::Language;
+    use crate::tokenizer::Tokenizer;
     use serde::Deserialize;
-    use tree_sitter::{Parser, Point};
+    use tree_sitter::{Point, Range};
 
     #[derive(Debug, Deserialize)]
     struct DolosFingerprint {
@@ -95,41 +90,55 @@ mod tests {
         hash: usize,
     }
 
+    const TEST_K_W: [(usize, usize); 3] = [(17, 23), (3, 5), (16, 8)];
+
     #[test]
-    fn test_winnow_k17_w23() {
-        let range = Range {
-            start_byte: 0,
-            end_byte: 1,
-            start_point: Point::new(0, 0),
-            end_point: Point::new(0, 1),
-        };
-        let token_names: Vec<String> = serde_any::from_file("fixtures/sample.tokens.json").unwrap();
-        let hashes: Vec<usize> = serde_any::from_file("fixtures/sample.hashes.json").unwrap();
-        let mut tokens = Vec::new();
-        for i in 0..token_names.len() {
-            tokens.push(Token {
-                name: token_names[i].to_string(),
-                range,
-            });
-        }
+    fn test_tokenization_and_winnowwing() {
+        let mut tokenizer = Tokenizer::new(Language::Javascript);
 
-        let winnowed: Vec<DolosFingerprint> =
-            serde_any::from_file("fixtures/sample.winnowk17w23.json").unwrap();
+        for (k, w) in TEST_K_W {
+            let expected: Vec<DolosFingerprint> =
+                serde_any::from_file(format!("fixtures/sample.winnowk{}w{}.json", k, w)).unwrap();
 
-        let mut length = 0;
-        for (i, fingerprint) in tokens.winnow(17, 23).iter().enumerate() {
+            let actual = tokenizer
+                .parse("fixtures/sample.js".into())
+                .tokens
+                .winnow(k, w);
+
+            let mut length = 0;
+            for (i, fingerprint) in actual.iter().enumerate() {
+                assert_eq!(
+                    fingerprint.hash, expected[i].hash,
+                    "Mismatch (k={}, w={}): {:?} and {:?}",
+                    k, w, fingerprint, expected[i]
+                );
+                assert_eq!(
+                    fingerprint
+                        .kgram
+                        .iter()
+                        .map(|t| t.name.to_string())
+                        .collect::<Vec<String>>(),
+                    expected[i].data,
+                    "Mismatch (k={}, w={}): {:?} and {:?}",
+                    k,
+                    w,
+                    fingerprint,
+                    expected[i]
+                );
+                length = i;
+            }
             assert_eq!(
-                fingerprint.hash, winnowed[i].hash,
-                "Mismatch: {:?} and {:?}",
-                fingerprint, winnowed[i]
+                length + 1,
+                expected.len(),
+                "Too few winnowed tokens for k={} w={}",
+                k,
+                w
             );
-            length = i;
         }
-        assert_eq!(length + 1, winnowed.len(), "Too few winnowed tokens");
     }
 
     #[test]
-    fn test_winnow_k3_w5() {
+    fn test_winnowing() {
         let range = Range {
             start_byte: 0,
             end_byte: 1,
@@ -137,7 +146,6 @@ mod tests {
             end_point: Point::new(0, 1),
         };
         let token_names: Vec<String> = serde_any::from_file("fixtures/sample.tokens.json").unwrap();
-        let hashes: Vec<usize> = serde_any::from_file("fixtures/sample.hashes.json").unwrap();
         let mut tokens = Vec::new();
         for i in 0..token_names.len() {
             tokens.push(Token {
@@ -146,61 +154,41 @@ mod tests {
             });
         }
 
-        let winnowed: Vec<DolosFingerprint> =
-            serde_any::from_file("fixtures/sample.winnowk3w5.json").unwrap();
+        for (k, w) in TEST_K_W {
+            let expected: Vec<DolosFingerprint> =
+                serde_any::from_file(format!("fixtures/sample.winnowk{}w{}.json", k, w)).unwrap();
 
-        let mut length = 0;
-        for (i, fingerprint) in tokens.winnow(3, 5).iter().enumerate() {
+            let actual = tokens.winnow(k, w);
+
+            let mut length = 0;
+            for (i, fingerprint) in actual.iter().enumerate() {
+                assert_eq!(
+                    fingerprint.hash, expected[i].hash,
+                    "Mismatch (k={}, w={}): {:?} and {:?}",
+                    k, w, fingerprint, expected[i]
+                );
+                assert_eq!(
+                    fingerprint
+                        .kgram
+                        .iter()
+                        .map(|t| t.name.to_string())
+                        .collect::<Vec<String>>(),
+                    expected[i].data,
+                    "Mismatch (k={}, w={}): {:?} and {:?}",
+                    k,
+                    w,
+                    fingerprint,
+                    expected[i]
+                );
+                length = i;
+            }
             assert_eq!(
-                fingerprint.hash, winnowed[i].hash,
-                "Mismatch: {:?} and {:?}",
-                fingerprint, winnowed[i]
+                length + 1,
+                expected.len(),
+                "Too few winnowed tokens for k={} w={}",
+                k,
+                w
             );
-            length = i;
         }
-        assert_eq!(length + 1, winnowed.len(), "Too few winnowed tokens");
-    }
-
-    #[test]
-    fn test_winnow_k16_w8() {
-        let range = Range {
-            start_byte: 0,
-            end_byte: 1,
-            start_point: Point::new(0, 0),
-            end_point: Point::new(0, 1),
-        };
-        let token_names: Vec<String> = serde_any::from_file("fixtures/sample.tokens.json").unwrap();
-        let hashes: Vec<usize> = serde_any::from_file("fixtures/sample.hashes.json").unwrap();
-        let mut tokens = Vec::new();
-        for i in 0..token_names.len() {
-            tokens.push(Token {
-                name: token_names[i].to_string(),
-                range,
-            });
-        }
-
-        let winnowed: Vec<DolosFingerprint> =
-            serde_any::from_file("fixtures/sample.winnowk16w8.json").unwrap();
-
-        let mut length = 0;
-        for (i, fingerprint) in tokens.winnow(16, 8).iter().enumerate() {
-            assert_eq!(
-                fingerprint.hash, winnowed[i].hash,
-                "Hash mismatch:\n{:?}\n{:?}",
-                fingerprint, winnowed[i]
-            );
-            let data: Vec<String> = fingerprint
-                .kgram
-                .iter()
-                .map(|t| t.name.to_string())
-                .collect();
-            assert_eq!(
-                data, winnowed[i].data,
-                "Kgrams mismatch:\n{:?}\n{:?}",
-                fingerprint, winnowed[i]
-            );
-            length = i;
-        }
-        assert_eq!(length + 1, winnowed.len(), "Too few winnowed tokens");
     }
 }

@@ -116,38 +116,24 @@ mod tests {
     }
 
     #[test]
-    fn test_rolling_hash_k3() {
+    fn test_rolling_hash() {
         let tokens: Vec<String> = serde_any::from_file("fixtures/sample.tokens.json").unwrap();
         let token_hashes: Vec<usize> = serde_any::from_file("fixtures/sample.hashes.json").unwrap();
-        let rolling_hashes: Vec<usize> =
-            serde_any::from_file("fixtures/sample.rolling3.json").unwrap();
-        let mut hasher = RollingHash::new(3);
 
-        for i in 0..tokens.len() {
-            assert_eq!(
-                hasher.next_hash(token_hashes[i]),
-                rolling_hashes[i],
-                "Mismatch for '{}'",
-                tokens[i]
-            );
-        }
-    }
+        for k in [3, 17] {
+            let rolling_hashes: Vec<usize> =
+                serde_any::from_file(format!("fixtures/sample.rolling{}.json", k)).unwrap();
+            let mut hasher = RollingHash::new(k);
 
-    #[test]
-    fn test_rolling_hash_k17() {
-        let tokens: Vec<String> = serde_any::from_file("fixtures/sample.tokens.json").unwrap();
-        let token_hashes: Vec<usize> = serde_any::from_file("fixtures/sample.hashes.json").unwrap();
-        let rolling_hashes: Vec<usize> =
-            serde_any::from_file("fixtures/sample.rolling17.json").unwrap();
-        let mut hasher = RollingHash::new(17);
-
-        for i in 0..tokens.len() {
-            assert_eq!(
-                hasher.next_hash(token_hashes[i]),
-                rolling_hashes[i],
-                "Mismatch for '{}'",
-                tokens[i]
-            );
+            for i in 0..tokens.len() {
+                assert_eq!(
+                    hasher.next_hash(token_hashes[i]),
+                    rolling_hashes[i],
+                    "Mismatch at k={} for '{}'",
+                    k,
+                    tokens[i]
+                );
+            }
         }
     }
 }

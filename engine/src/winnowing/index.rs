@@ -3,13 +3,12 @@ use crate::language::Language;
 use crate::tokenizer::Tokenizer;
 use crate::winnowing::hashes::Hash;
 use crate::winnowing::report::Report;
-use crate::winnowing::tokens::{Fingerprint, Tokens, Winnow};
+use crate::winnowing::tokens::{Fingerprint, Winnow};
 use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 use std::hash::{Hash as MapHash, Hasher};
 use std::path::PathBuf;
 use std::rc::Rc;
-use tree_sitter::Parser;
 
 /// A single kgram (fingerprint) within a file
 #[derive(Debug, Clone)]

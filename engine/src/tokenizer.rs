@@ -46,14 +46,14 @@ impl Tokenizer {
         let mut cursor = tree.walk();
         let mut tokens = Vec::new();
 
-        Self::recursive_add(cursor.node(), &mut tokens, cursor);
+        Self::recursive_add(cursor.node(), &mut tokens, &mut cursor);
         tokens
     }
 
     fn recursive_add<'a: 'b, 'b>(
         node: Node<'a>,
         tokens: &mut Vec<Token>,
-        mut cursor: TreeCursor<'b>,
+        cursor: &mut TreeCursor<'b>,
     ) {
         tokens.push(Token {
             name: "(".to_string(),
@@ -65,10 +65,10 @@ impl Tokenizer {
             range: node.range(),
         });
 
-        let children = node.named_children(&mut cursor).collect::<Vec<Node>>();
+        let children = node.named_children(cursor).collect::<Vec<Node>>();
 
         for child in children {
-            Self::recursive_add(child, tokens, cursor.clone());
+            Self::recursive_add(child, tokens, cursor);
         }
 
         tokens.push(Token {
@@ -86,15 +86,6 @@ mod tests {
     extern crate tree_sitter_javascript;
 
     use super::*;
-    use crate::file::File;
-    use serde::Deserialize;
-    use tree_sitter::{Parser, Point};
-
-    #[derive(Debug, Deserialize)]
-    struct DolosFingerprint {
-        data: Vec<String>,
-        hash: usize,
-    }
 
     #[test]
     fn test_tokenize() {
