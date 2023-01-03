@@ -1,4 +1,4 @@
-use crate::winnowing::index::Pair;
+use crate::winnowing::pair::Pair;
 
 pub struct ScoredPair {
     pair: Pair,
