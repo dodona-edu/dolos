@@ -1,6 +1,6 @@
 use crate::file::File;
 use crate::language::Language;
-use crate::tokenizer::Tokenizer;
+use crate::tokenizer::{Tokenizer, Tokens};
 use crate::winnowing::hashes::Hash;
 use crate::winnowing::pair::Pair;
 use crate::winnowing::report::Report;
@@ -44,17 +44,24 @@ impl Index {
             panic!("Language does not match")
         }
 
-        let file = Rc::new(self.tokenizer.parse(path));
+        let tree = self.tokenizer.parse(&path);
+        let tokens = tree.tokens();
+        let fingerprints = tokens.winnow(self.k, self.w);
+        let file = Rc::new(File {
+            path,
+            fingerprints,
+            language: self.language,
+        });
+
         self.files.push(file.clone());
 
-        let winnowed = file.tokens.winnow(self.k, self.w);
-        for fingerprint in winnowed {
+        for fingerprint in &file.fingerprints {
             match self.fingerprints.entry(fingerprint.hash) {
                 Entry::Occupied(mut o) => {
-                    o.get_mut().add(fingerprint, file.clone());
+                    o.get_mut().add(fingerprint.clone(), file.clone());
                 }
                 Entry::Vacant(v) => {
-                    v.insert(SharedFingerprint::new(fingerprint, file.clone()));
+                    v.insert(SharedFingerprint::new(fingerprint.clone(), file.clone()));
                 }
             };
         }

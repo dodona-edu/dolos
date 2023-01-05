@@ -1,3 +1,4 @@
+use std::ffi::OsStr;
 use std::fmt;
 use std::hash::{Hash, Hasher};
 use std::io::Read;
@@ -7,12 +8,12 @@ use tree_sitter::Tree;
 
 use crate::language::Language;
 use crate::tokenizer::Token;
+use crate::winnowing::tokens::Fingerprint;
 
 pub struct File {
     pub path: PathBuf,
     pub language: Language,
-    pub tree: Tree,
-    pub tokens: Vec<Token>,
+    pub fingerprints: Vec<Fingerprint>,
 }
 
 impl File {
@@ -20,6 +21,15 @@ impl File {
         let mut content = String::new();
         std::fs::File::open(path)?.read_to_string(&mut content)?;
         Ok(content)
+    }
+
+    pub fn file_name(&self) -> &str {
+        self.path
+            .as_path()
+            .file_name()
+            .expect("should be a file")
+            .to_str()
+            .expect("should be valid UTF-8")
     }
 }
 
@@ -43,6 +53,12 @@ impl Eq for File {}
 impl PartialOrd for File {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
         self.path.partial_cmp(&other.path)
+    }
+}
+
+impl Ord for File {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        self.path.cmp(&other.path)
     }
 }
 

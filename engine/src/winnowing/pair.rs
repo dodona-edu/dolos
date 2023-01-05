@@ -5,7 +5,7 @@ use crate::file::File;
 use crate::winnowing::fragment::Fragment;
 use crate::winnowing::index::Occurrence;
 
-#[derive(Debug)]
+#[derive(PartialEq, Eq, Debug)]
 pub struct Pair {
     pub left: Rc<File>,
     pub right: Rc<File>,
@@ -150,10 +150,11 @@ mod tests {
     use tree_sitter::{Point, Range, Tree};
 
     fn dummy_file(name: &str) -> Rc<File> {
-        let mut tokenizer = Tokenizer::new(Language::Javascript);
-        let mut file = tokenizer.parse("fixtures/empty.js".into());
-        file.path = name.into();
-        Rc::new(file)
+        Rc::new(File {
+            path: name.into(),
+            language: Language::Javascript,
+            fingerprints: Vec::new(),
+        })
     }
 
     fn dummy_fingerprint(name: &str, index: usize) -> Fingerprint {

@@ -80,7 +80,7 @@ mod tests {
 
     use super::*;
     use crate::language::Language;
-    use crate::tokenizer::Tokenizer;
+    use crate::tokenizer::{Tokenizer, Tokens};
     use serde::Deserialize;
     use tree_sitter::{Point, Range};
 
@@ -101,8 +101,8 @@ mod tests {
                 serde_any::from_file(format!("fixtures/sample.winnowk{}w{}.json", k, w)).unwrap();
 
             let actual = tokenizer
-                .parse("fixtures/sample.js".into())
-                .tokens
+                .parse(&"fixtures/sample.js".into())
+                .tokens()
                 .winnow(k, w);
 
             let mut length = 0;

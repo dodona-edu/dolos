@@ -16,10 +16,12 @@ fn main() {
             let report = dolos.build_report();
             for pair in report.pairs {
                 println!(
-                    "{} - {} similarity {:.2}%",
-                    pair.pair.left.path.display(),
-                    pair.pair.right.path.display(),
-                    pair.similarity * 100f64
+                    "{} - {} (sim: {:.2}%, longest: {}, total: {})",
+                    pair.pair.left.file_name(),
+                    pair.pair.right.file_name(),
+                    pair.similarity * 100f64,
+                    pair.longest,
+                    pair.overlap
                 )
             }
         }

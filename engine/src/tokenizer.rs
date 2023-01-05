@@ -25,56 +25,51 @@ impl Tokenizer {
         Tokenizer { language, parser }
     }
 
-    pub fn parse(&mut self, path: PathBuf) -> File {
-        let content = File::read(&path).expect("content");
-        let tree = self.parser.parse(content, None).expect("tree");
-        let tokens = Self::tokens(&tree);
-        File {
-            path,
-            tree,
-            tokens,
-            language: self.language,
-        }
+    pub fn parse(&mut self, path: &PathBuf) -> Tree {
+        let content = File::read(path).expect("content");
+        self.parser.parse(content, None).expect("tree")
+    }
+}
+
+fn recursive_add<'a: 'b, 'b>(node: Node<'a>, tokens: &mut Vec<Token>, cursor: &mut TreeCursor<'b>) {
+    tokens.push(Token {
+        name: "(".to_string(),
+        range: node.range(),
+    });
+
+    tokens.push(Token {
+        name: node.kind().to_string(),
+        range: node.range(),
+    });
+
+    let children = node.named_children(cursor).collect::<Vec<Node>>();
+
+    for child in children {
+        recursive_add(child, tokens, cursor);
     }
 
+    tokens.push(Token {
+        name: ")".to_string(),
+        range: node.range(),
+    });
+}
+
+pub trait Tokens {
+    fn tokens(&self) -> Vec<Token>;
+}
+
+impl Tokens for Tree {
     /// Serialize all named nodes in Tree-sitter's Concrete Syntax Tree (CST)
     /// into a list of tokens.
     // TODO: we insert special tokens '(' and ')' to sign descending and
     // ascending in the tree, but they have a location associated with them that
     // does not really make sense...
-    fn tokens(tree: &Tree) -> Vec<Token> {
-        let mut cursor = tree.walk();
+    fn tokens(&self) -> Vec<Token> {
+        let mut cursor = self.walk();
         let mut tokens = Vec::new();
 
-        Self::recursive_add(cursor.node(), &mut tokens, &mut cursor);
+        recursive_add(cursor.node(), &mut tokens, &mut cursor);
         tokens
-    }
-
-    fn recursive_add<'a: 'b, 'b>(
-        node: Node<'a>,
-        tokens: &mut Vec<Token>,
-        cursor: &mut TreeCursor<'b>,
-    ) {
-        tokens.push(Token {
-            name: "(".to_string(),
-            range: node.range(),
-        });
-
-        tokens.push(Token {
-            name: node.kind().to_string(),
-            range: node.range(),
-        });
-
-        let children = node.named_children(cursor).collect::<Vec<Node>>();
-
-        for child in children {
-            Self::recursive_add(child, tokens, cursor);
-        }
-
-        tokens.push(Token {
-            name: ")".to_string(),
-            range: node.range(),
-        });
     }
 }
 
@@ -93,9 +88,9 @@ mod tests {
         let expected: Vec<String> = serde_any::from_file("fixtures/sample.tokens.json").unwrap();
         let mut tokenizer = Tokenizer::new(Language::Javascript);
 
-        let file = tokenizer.parse(path.into());
-        let actual = file
-            .tokens
+        let actual = tokenizer
+            .parse(&path.into())
+            .tokens()
             .into_iter()
             .map(|t| t.name)
             .collect::<Vec<String>>();
