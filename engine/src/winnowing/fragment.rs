@@ -1,6 +1,7 @@
 use crate::winnowing::index::Occurrence;
 use std::cmp::Ordering;
 use std::hash::{Hash as MapHash, Hasher};
+use std::rc::Rc;
 
 #[derive(Debug, Clone)]
 pub struct Fragment {
@@ -45,6 +46,34 @@ impl PartialOrd for Fragment {
 }
 
 impl Fragment {
+    fn overlap<F: Iterator<Item = (usize, usize)>>(ranges: F) -> usize {
+        let mut ranges = ranges.collect::<Vec<(usize, usize)>>();
+        ranges.sort();
+        let mut total = 0;
+        let mut last = 0;
+        for (from, to) in ranges {
+            if last < to {
+                total += to - std::cmp::max(last, from);
+                last = to;
+            }
+        }
+        total
+    }
+
+    pub fn total_overlap(fragments: &Vec<&Rc<Fragment>>) -> (usize, usize) {
+        (
+            Self::overlap(fragments.iter().map(|f| f.left_range())),
+            Self::overlap(fragments.iter().map(|f| f.right_range())),
+        )
+    }
+
+    pub fn envelops(&self, other: &Self) -> bool {
+        self.start.0 <= other.start.0
+            && other.end.0 <= self.end.0
+            && self.start.1 <= other.start.1
+            && other.end.1 <= self.end.1
+    }
+
     pub fn extend_with(&mut self, other: &mut Fragment) {
         debug_assert!(self.end == other.start);
         self.end = other.end;
@@ -57,5 +86,21 @@ impl Fragment {
         self.end = (left.fingerprint.index + 1, right.fingerprint.index + 1);
         self.occurrences.0.push(left);
         self.occurrences.1.push(right);
+    }
+
+    pub fn len(&self) -> usize {
+        let len = self.end.0 - self.start.0;
+        debug_assert!(len == self.end.1 - self.start.1);
+        debug_assert!(len == self.occurrences.0.len());
+        debug_assert!(len == self.occurrences.1.len());
+        len
+    }
+
+    fn left_range(&self) -> (usize, usize) {
+        (self.start.0, self.end.0)
+    }
+
+    fn right_range(&self) -> (usize, usize) {
+        (self.start.1, self.end.1)
     }
 }

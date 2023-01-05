@@ -100,10 +100,10 @@ mod tests {
             .map(|t| t.name)
             .collect::<Vec<String>>();
 
-        dbg!(std::iter::zip(&expected, &actual).collect::<Vec<(&String, &String)>>());
+        //dbg!(std::iter::zip(&expected, &actual).collect::<Vec<(&String, &String)>>());
 
         for i in 0..expected.len() {
-            assert_eq!(dbg!(&expected[i]), dbg!(&actual[i]), "Mismatch at {}", i);
+            assert_eq!(&expected[i], &actual[i], "Mismatch at {}", i);
         }
         assert_eq!(expected.len(), actual.len());
     }

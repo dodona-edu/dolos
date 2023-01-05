@@ -59,6 +59,12 @@ impl Pair {
         }
     }
 
+    pub fn fragments<'a>(&'a self) -> Vec<&'a Rc<Fragment>> {
+        let mut fragments: Vec<&Rc<Fragment>> = self.by_start.values().collect();
+        fragments.sort();
+        fragments
+    }
+
     /// Make this Pair more compact by removing fragments that are contained in a bigger fragment.
     ///
     pub fn squash(&mut self) {
@@ -78,12 +84,7 @@ impl Pair {
             while fragment != &sorted_by_end[i] {
                 let candidate = sorted_by_end[i];
                 seen.insert(candidate);
-                if fragment.start.0 <= candidate.start.0
-                    && candidate.end.0 <= fragment.end.0
-                    && fragment.start.1 <= candidate.start.1
-                    && candidate.end.1 <= fragment.end.1
-                {
-                    // fragment fully envelops candidate
+                if fragment.envelops(candidate) {
                     remove.insert(candidate);
                 }
                 i += 1;
@@ -135,12 +136,6 @@ impl Pair {
             .drain()
             .map(|(_k, f)| Rc::try_unwrap(f).unwrap())
             .collect()
-    }
-
-    fn fragments<'a>(&'a self) -> Vec<&'a Rc<Fragment>> {
-        let mut fragments: Vec<&Rc<Fragment>> = self.by_start.values().collect();
-        fragments.sort();
-        fragments
     }
 }
 

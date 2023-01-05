@@ -49,7 +49,6 @@ impl Index {
 
         let winnowed = file.tokens.winnow(self.k, self.w);
         for fingerprint in winnowed {
-            dbg!(&fingerprint);
             match self.fingerprints.entry(fingerprint.hash) {
                 Entry::Occupied(mut o) => {
                     o.get_mut().add(fingerprint, file.clone());
@@ -67,9 +66,9 @@ impl Index {
         }
     }
 
-    pub fn build_report(&self) -> Vec<Pair> {
+    pub fn build_report(&self) -> Report {
         // TODO filter fingerprints
-        let filtered = dbg!(self.fingerprints.values());
+        let filtered = self.fingerprints.values();
         let mut pairs: HashMap<(Rc<File>, Rc<File>), Pair> = HashMap::new();
 
         for fingerprint in filtered {
@@ -88,6 +87,6 @@ impl Index {
             }
         }
 
-        pairs.into_values().collect()
+        Report::from(pairs.into_values())
     }
 }

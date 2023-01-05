@@ -13,7 +13,15 @@ fn main() {
     match opts.command {
         Command::Run { files } => {
             let dolos = Dolos::from_paths(files);
-            dbg!(dolos.build_report());
+            let report = dolos.build_report();
+            for pair in report.pairs {
+                println!(
+                    "{} - {} similarity {:.2}%",
+                    pair.pair.left.path.display(),
+                    pair.pair.right.path.display(),
+                    pair.similarity * 100f64
+                )
+            }
         }
     }
 }

@@ -1,6 +1,7 @@
 use crate::language::Language;
 use crate::winnowing::index::Index;
 use crate::winnowing::pair::Pair;
+use crate::winnowing::report::Report;
 use std::fmt;
 use std::path::PathBuf;
 
@@ -14,13 +15,13 @@ impl Dolos {
         let first = paths.first().expect("no paths given");
         let language = Language::guess_from_path(first).expect("lang");
 
-        let index = Index::new(23, 17, dbg!(language));
+        let index = Index::new(23, 17, language);
         let mut dolos = Dolos { index, language };
         dolos.index.add_files(paths);
         dolos
     }
 
-    pub fn build_report(&self) -> Vec<Pair> {
+    pub fn build_report(&self) -> Report {
         self.index.build_report()
     }
 }
