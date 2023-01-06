@@ -35,6 +35,7 @@ export class TerminalView extends View {
     this.compare = options.compare == undefined
       ? report.files().length == 2
       : options.compare;
+    this.fragmentSortBy = options.fragmentSortBy;
     this.output = process.stdout;
     this.width = process.stdout.columns;
     this.c = new ChalkInstance();
