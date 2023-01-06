@@ -84,7 +84,7 @@ export class SemanticAnalyzer {
     if(!matchedLevels)
       return new Map();
 
-    const filterNodeList = (list: NodeStats[]): NodeStats[] => 
+    const filterNodeList = (list: NodeStats[]): NodeStats[] =>
       list.filter(p => p.ownNodes.length + p.childrenTotal > 15);
 
     return mapValues(filterNodeList, matchedLevels);
@@ -161,7 +161,8 @@ export class SemanticAnalyzer {
 
     // This set contains all the occurrences (hashes) that are used as 'proof' of matching
     // Useful to later identify common groups
-    const occurrences = new Set([...childrenOccurrences.map(v => [...v]), ...currentOccurrences].flat());
+
+    const occurrences = new Set(Array.from(childrenOccurrences.map(v => Array.from(v))).concat(currentOccurrences).flat());
 
     // This is the preliminary result of our analysis, grouping all relevant information together.
     // We will use this information to decide (per file) whether this node is part of a larger group or not.
@@ -178,10 +179,8 @@ export class SemanticAnalyzer {
     // These are all the files where this node could be part of a group.
     // The files which are not candidate files have no matches in this node or the children,
     // so don't have to be analyzed
-    const candidateFiles = [
-      ...ownMatchesCountByFile.keys(),
-      ...currentChildren.map(c => [...c.lastMatchedLevels.keys()]).flat()
-    ];
+    const candidateFiles = Array.from(ownMatchesCountByFile.keys())
+      .concat(currentChildren.map(c => Array.from(c.lastMatchedLevels.keys())).flat());
 
     const lastMatchedLevels = new Map();
 
@@ -193,7 +192,7 @@ export class SemanticAnalyzer {
 
       // Decides whether the group should be made or not.
       const thisMatches = this.doesLevelMatch(
-        ownNodes, 
+        ownNodes,
         ownMatchesCountByFile.get(candidateFile) || 0,
         totalChildrenMatchByFile.get(candidateFile) || 0,
         totalChildrenCount);
@@ -206,13 +205,15 @@ export class SemanticAnalyzer {
         2. We don't match the node: this means that we don't consider this node and its children as a group. If the
            children themselves have formed groups, we will return these as the result of this subtree.
        */
-      
+
       let returnedGroups: NodeStats[];
       if(thisMatches) {
         returnedGroups = [nodeStats];
       } else {
-        returnedGroups = currentChildren.reduce<NodeStats[]>((prev, ch) =>
-          [...prev, ...(ch.lastMatchedLevels.get(candidateFile) || [])], []);
+        returnedGroups = currentChildren.reduce<NodeStats[]>(
+          (prev, ch) => prev.concat(ch.lastMatchedLevels.get(candidateFile) || []),
+          []
+        );
       }
 
       lastMatchedLevels.set(candidateFile, returnedGroups);
@@ -262,7 +263,7 @@ export class SemanticAnalyzer {
   ): Promise<DefaultMap<TokenizedFile, AstWithMatches>> {
 
     const occurrenceMap = await this.index.createMatches(tokenizedFiles, hashFilter);
-    const groupedOccurrences = [...occurrenceMap.values()];
+    const groupedOccurrences = Array.from(occurrenceMap.values());
     const getDefault = (): AstWithMatches => ({ tokenToGroup: new Map(), groups: groupedOccurrences });
     const astMap = new DefaultMap<TokenizedFile, AstWithMatches>(getDefault);
 
@@ -330,13 +331,13 @@ export class SemanticAnalyzer {
   ): [PairedSemanticGroups<T>[], UnpairedSemanticGroups<T>[]] {
     const pairs: PairedSemanticGroups<T>[] = [];
     const notPaired: UnpairedSemanticGroups<T>[] = [];
-    
+
     const pairedRightMatches = new Set();
-    
+
     // We look for a pair to every group of the left files
     for(const leftMatch of leftMatches) {
       let assigned = false;
-      
+
       for(const rightMatch of rightMatches) {
         const is = intersect(leftMatch.occurrences, rightMatch.occurrences);
         if(is.size > leftMatch.occurrences.size * this.PAIRING_TOLERANCE
@@ -350,7 +351,7 @@ export class SemanticAnalyzer {
       // If we can't find any right group that corresponds to a left group, we push the rest of the assignments as
       // unpaired groups
       if(!assigned) {
-        const occs = new Array(...leftMatch.occurrences)
+        const occs = Array.from(leftMatch.occurrences)
           .map(n => occurrenceGroups[n])
           .flat()
           .filter(o => o === fileRight.id);
@@ -362,7 +363,7 @@ export class SemanticAnalyzer {
     // Any right groups that didn't find a left pair in the previous step get pushed as unpaired right groups.
     for(const rightMatch of rightMatches) {
       if(!pairedRightMatches.has(rightMatch)) {
-        const occs = new Array(...rightMatch.occurrences)
+        const occs = Array.from(rightMatch.occurrences)
           .map(n => occurrenceGroups[n])
           .flat()
           .filter(o => o === fileLeft.id);

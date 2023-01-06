@@ -108,7 +108,7 @@ export class Region {
     // This is how we will identify the closing point of this token
     const pointMap = new Map(pointArray);
 
-    const points = [startPoint, endPoint, ...pointMap.keys(), ...pointMap.values()];
+    const points = [startPoint, endPoint].concat(Array.from(pointMap.keys())).concat(Array.from(pointMap.values()));
     const sortfunc = (a: Point, b: Point): number => a[0] == b[0] ? (a[1] - b[1]) : (a[0] - b[0]);
     points.sort(sortfunc);
 

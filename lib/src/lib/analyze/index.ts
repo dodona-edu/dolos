@@ -95,7 +95,7 @@ export class Index {
     const map = await this.createMatches(tokenizedFiles, hashFilter);
 
     for(const [hash, occurrences] of map.entries()) {
-      report.addOccurrences(hash, ...occurrences);
+      report.addOccurrences(hash, occurrences);
     }
 
     if(this.options.semantic) {

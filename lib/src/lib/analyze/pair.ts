@@ -14,6 +14,7 @@ export class Pair extends Identifiable {
 
   private fragmentStart: Map<LeftRight, Fragment> = new Map();
   private fragmentEnd: Map<LeftRight, Fragment> = new Map();
+  public longestFragment: number = 0;
 
   constructor(
     public readonly leftFile: TokenizedFile,
@@ -29,7 +30,7 @@ export class Pair extends Identifiable {
    * leftkgrams range.
    */
   public fragments(): Array<Fragment> {
-    return Array.of(...this.fragmentStart.values())
+    return Array.from(this.fragmentStart.values())
       .sort((a , b) => Range.compare(a.leftkgrams, b.leftkgrams));
   }
 
@@ -78,6 +79,7 @@ export class Pair extends Identifiable {
       // no fragment after us, just set our end position
       this.fragmentEnd.set(end, fragment);
     }
+    this.longestFragment = Math.max(fragment.pairs.length, this.longestFragment);
   }
 
   /**
@@ -87,13 +89,6 @@ export class Pair extends Identifiable {
     return Range.totalCovered(
       this.fragments().map(m => m.leftkgrams).sort(Range.compare)
     );
-  }
-
-  /**
-   * Returns the length (in kgrams) of the largest fragment in this pair.
-   */
-  public longestFragment(): number {
-    return Math.max(...this.fragments().map(f => f.pairs.length));
   }
 
   /**

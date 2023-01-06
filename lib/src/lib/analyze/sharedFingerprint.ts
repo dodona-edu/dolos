@@ -22,12 +22,12 @@ export class SharedFingerprint extends Identifiable {
   }
 
   public parts(): Array<Occurrence> {
-    return Array.of(...this.partMap.values())
-      .map(set => Array.of(...set))
+    return Array.from(this.partMap.values())
+      .map(set => Array.from(set))
       .flat();
   }
 
   public files(): Array<TokenizedFile> {
-    return Array.of(...new Set(this.parts().map(p => p.file)));
+    return Array.from(new Set(this.parts().map(p => p.file)));
   }
 }

@@ -28,10 +28,10 @@ export function sumByKey<V>(dict1: Map<V, number>, dict2: Map<V, number>): Map<V
 }
 
 export function combineByKey<K, V>(dict1: Map<K, V[]>, dict2: Map<K, V[]>): Map<K,V[]>  {
-  const copy = new Map([...dict2.entries()].map(([key, values]) => [key, [...values]]));
+  const copy = new Map(dict2);
 
   for(const [key, values] of dict1) {
-    copy.set(key, [...(copy.get(key) || []), ...values]);
+    copy.set(key, (copy.get(key) || []).concat(values));
   }
 
   return copy;
@@ -39,19 +39,19 @@ export function combineByKey<K, V>(dict1: Map<K, V[]>, dict2: Map<K, V[]>): Map<
 
 export function intersect<T>(set1: Set<T>, set2: Set<T>): Set<T> {
   const copy = new Set(set1);
-    
+
   for(const el of set1) {
     if(!set2.has(el)) {
       copy.delete(el);
     }
   }
-    
+
   return copy;
 }
 
 export function mapValues<K, V1, V2>(mapper: (a: V1) => V2, map: Map<K, V1>): Map<K, V2> {
   return new Map(
-    [...map.entries()].map(([key, val]) => [key, mapper(val)])
+    Array.from(map.entries()).map(([key, val]) => [key, mapper(val)])
   );
 }
 

@@ -79,7 +79,7 @@ export class FileView extends View {
   public writeFiles(out: Writable): void {
     writeCSVto<TokenizedFile>(
       out,
-      this.report.files(),
+      this.report.files,
       {
         "id": f => f.id,
         "path": f => f.path,
