@@ -2,7 +2,7 @@ import { View } from "./view";
 
 /// <reference types="../../../typings/cliui" />
 import UI from "cliui";
-import chalk from "chalk";
+import { Chalk, Instance as ChalkInstance, bold, red } from "chalk";
 import { Writable } from "stream";
 import { closestMatch } from "../util/utils";
 import { Report, ScoredPairs } from "@dodona/dolos-lib";
@@ -19,7 +19,7 @@ export class TerminalView extends View {
   private readonly fragmentSortBy?: string;
   private readonly compare: boolean;
   private readonly width: number;
-  private readonly c: chalk.Chalk;
+  private readonly c: Chalk;
   private readonly context: number = 3;
 
   constructor(
@@ -37,8 +37,7 @@ export class TerminalView extends View {
       : options.compare;
     this.output = process.stdout;
     this.width = process.stdout.columns;
-    const colorLevel = Math.min(3, process.stdout?.getColorDepth() || 0);
-    this.c = new chalk.Instance({ level: colorLevel as 0 | 1 | 2 | 3 });
+    this.c = new ChalkInstance();
     this.ui = new UI({
       wrap: true,
       width: this.width,
@@ -64,27 +63,27 @@ export class TerminalView extends View {
 
     // header
     this.ui.div({
-      text: chalk.bold("File path"),
+      text: bold("File path"),
       width: pathWidth,
       padding: [1, 1, 1, 1]
     },
     {
-      text: chalk.bold("File path"),
+      text: bold("File path"),
       width: pathWidth,
       padding: [1, 1, 1, 1]
     },
     {
-      text: chalk.bold("Similarity"),
+      text: bold("Similarity"),
       width: similarityWidth,
       padding: [1, 1, 1, 1]
     },
     {
-      text: chalk.bold("Longest fragment"),
+      text: bold("Longest fragment"),
       width: overlapWidth,
       padding: [1, 1, 1, 1]
     },
     {
-      text: chalk.bold("Total overlap"),
+      text: bold("Total overlap"),
       width: overlapWidth,
       padding: [1, 1, 1, 1]
     });
@@ -128,19 +127,19 @@ export class TerminalView extends View {
     const rightLines = pair.rightFile.lines;
 
     this.ui.div({
-      text: chalk.bold(pair.leftFile.path),
+      text: bold(pair.leftFile.path),
       padding: [1, 1, 1, 1],
     },
     {
-      text: chalk.bold(pair.rightFile.path),
+      text: bold(pair.rightFile.path),
       padding: [1, 1, 1, 1],
     });
     this.ui.div({
-      text: chalk.bold("Total overlap: ") + overlap.toString() + " kgrams",
+      text: bold("Total overlap: ") + overlap.toString() + " kgrams",
       padding: [0, 1, 0, 1],
     });
     this.ui.div({
-      text: chalk.bold("Similarity score: ") + similarity.toString(),
+      text: bold("Similarity score: ") + similarity.toString(),
       padding: [0, 1, 1, 1],
     });
 
@@ -171,15 +170,15 @@ export class TerminalView extends View {
       const fragment = fragments[i];
 
       this.ui.div({
-        text: chalk.bold(`Fragment ${i+1}/${fragments.length}:` +
+        text: bold(`Fragment ${i+1}/${fragments.length}:` +
                          ` ${fragment.leftkgrams.length} kgrams`),
         align: "center",
         padding: [1, 0, 1, 0],
       });
 
       this.ui.div({
-        text: chalk.bold("Tokens: ") + "'" +
-              chalk.red(fragment.mergedData) + "'",
+        text: bold("Tokens: ") + "'" +
+              red(fragment.mergedData) + "'",
         padding: [0, 0, 1, 0],
       });
 
