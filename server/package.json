@@ -15,7 +15,7 @@
   "devDependencies": {
     "@types/express": "4.17.15",
     "@types/express-fileupload": "1.4.1",
-    "@types/node": "18.11.17",
+    "@types/node": "18.11.18",
     "@types/unzipper": "0.10.5",
     "@types/express-rate-limit": "6.0.0",
     "@types/async-csv": "2.1.1",
