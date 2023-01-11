@@ -1,11 +1,11 @@
 import { TokenizedFile } from "../file/tokenizedFile";
-import { Index } from "./index";
 import { DefaultMap } from "../util/defaultMap";
-import { HashFilter } from "../hashing/hashFilter";
 import { Region } from "../util/region";
 import { countByKey, intersect, mapValues, sumByKey } from "../util/utils";
 import { Occurrence } from "./report";
-import {SharedFingerprint} from "./sharedFingerprint";
+import { SharedFingerprint } from "./sharedFingerprint";
+import { DolosOptions } from "../util/options";
+import { Hash } from "./index";
 
 // The AST needs to be annotated with the matching information gotten from @link{Index} to produce information on
 // which nodes in the AST are matched.
@@ -51,6 +51,27 @@ export type Pairable = {
   occurrences: Set<number>;
 }
 
+export interface SemanticData {
+  results: Array<EncodedSemanticResult>,
+  occurrences: Array<Array<Occurrence>>,
+}
+
+export interface SemanticResult {
+  left: number,
+  right: number,
+  childrenTotal: number,
+  ownNodes: Array<number>
+  childrenMatch: number;
+}
+
+export interface EncodedSemanticResult extends SemanticResult {
+  occurrences: Array<number>;
+}
+
+export interface DecodedSemanticResult extends SemanticResult {
+  occurrences: Set<number>;
+}
+
 // Additional helper type for the return value of 'recurse'.
 type ReturnData = {
   nodeStats: NodeStats;
@@ -60,20 +81,22 @@ type ReturnData = {
 
 export class SemanticAnalyzer {
 
-  constructor(private index: Index) {}
+  constructor(private options: DolosOptions) {}
 
   public async semanticAnalysis(
+    fingerprints: Map<Hash, SharedFingerprint>,
     tokenizedFiles: TokenizedFile[],
-    hashFilter?: HashFilter
-  ): Promise<[Occurrence[][], Map<number, Map<number, NodeStats[]>>]> {
+  ): Promise<SemanticData> {
     const results = new Map();
-    const astMap = await this.astWithMatches(tokenizedFiles, hashFilter);
+    const astMap = await this.astWithMatches(fingerprints);
     for(const tokenizedFile of tokenizedFiles) {
       results.set(tokenizedFile.id, this.semanticAnalysisOneFile(tokenizedFile, astMap.get(tokenizedFile)));
     }
 
-
-    return [astMap.get(tokenizedFiles[0]).groups, results];
+    return {
+      occurrences: astMap.get(tokenizedFiles[0]).groups,
+      results: this.encodeSemanticResults(results),
+    };
   }
 
   private semanticAnalysisOneFile(
@@ -259,12 +282,9 @@ export class SemanticAnalyzer {
 
 
   private async astWithMatches(
-    tokenizedFiles: TokenizedFile[],
-    hashFilter?: HashFilter
+    fingerprints: Map<Hash, SharedFingerprint>,
   ): Promise<DefaultMap<TokenizedFile, AstWithMatches>> {
-
-    const occurrenceMap = await this.index.createMatches(tokenizedFiles, hashFilter);
-    const groupedOccurrences = Array.from(occurrenceMap.values()).map((f: SharedFingerprint) => f.parts());
+    const groupedOccurrences = Array.from(fingerprints.values()).map((f: SharedFingerprint) => f.parts());
     const getDefault = (): AstWithMatches => ({ tokenToGroup: new Map(), groups: groupedOccurrences });
     const astMap = new DefaultMap<TokenizedFile, AstWithMatches>(getDefault);
 
@@ -376,4 +396,31 @@ export class SemanticAnalyzer {
     return [pairs, notPaired];
   }
 
+  private encodeSemanticResults(results: Map<number, Map<number, NodeStats[]>>): EncodedSemanticResult[] {
+    const encodedResults: EncodedSemanticResult[] = [];
+
+    for(const [id1, map] of results.entries()) {
+      for(const [id2, nodestats] of map.entries()) {
+        const filtered = nodestats
+          .filter(n => n.childrenTotal > this.options.semanticMatchLength);
+        if(filtered.length === 0)
+          continue;
+
+
+        for(const nodeStat of filtered) {
+          encodedResults.push({
+            left: id1,
+            right: id2,
+            childrenTotal: nodeStat.childrenTotal,
+            occurrences: Array.from(nodeStat.occurrences),
+            ownNodes: nodeStat.ownNodes,
+            childrenMatch: nodeStat.childrenMatch.get(id2) || 0,
+          });
+
+        }
+      }
+    }
+
+    return encodedResults;
+  }
 }

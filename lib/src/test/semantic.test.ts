@@ -24,7 +24,7 @@ test("equal content should match on the module level", async t => {
     ]
   );
 
-  t.deepEqual(report.semanticResults, [
+  t.deepEqual(report.semanticData?.results, [
     {
       left: 0,
       right: 1,

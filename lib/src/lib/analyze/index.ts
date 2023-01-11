@@ -11,7 +11,7 @@ import { TokenizedFile } from "../file/tokenizedFile";
 import { SemanticAnalyzer } from "./SemanticAnalyzer";
 import {SharedFingerprint} from "./sharedFingerprint";
 
-type Hash = number;
+export type Hash = number;
 
 export class Index {
   private readonly kgramLength: number;
@@ -99,12 +99,10 @@ export class Index {
     );
 
     if(this.options.semantic) {
-      const semanticAnalyzer = new SemanticAnalyzer(this);
-      const [occurrences, result] = await semanticAnalyzer.semanticAnalysis(
-        tokenizedFiles, hashFilter);
-
-      report.occurrences = occurrences;
-      report.results = result;
+      const semanticAnalyzer = new SemanticAnalyzer(this.options);
+      report.setSemanticData(
+        await semanticAnalyzer.semanticAnalysis(fingerprints, tokenizedFiles)
+      );
     }
 
     report.finish();
@@ -117,7 +115,11 @@ export class Index {
   ): Promise<Map<Hash, SharedFingerprint>> {
     const index = new Map();
 
-    tokenizedFiles.forEach(t => t.kgrams.splice(0, t.kgrams.length));
+    for (const f of tokenizedFiles) {
+      if (f.kgrams.length > 0) {
+        throw new Error(`This file has already been analyzed: ${f.file.path}`);
+      }
+    }
 
     for (const file of tokenizedFiles) {
       let kgram = 0;

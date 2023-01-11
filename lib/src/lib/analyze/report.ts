@@ -7,7 +7,7 @@ import { Range } from "../util/range";
 import { DolosOptions, Options } from "../util/options";
 import { SharedFingerprint } from "./sharedFingerprint";
 import { closestMatch } from "../util/utils";
-import { NodeStats } from "./SemanticAnalyzer";
+import { SemanticData } from "./SemanticAnalyzer";
 import { Language } from "../util/language";
 
 type Hash = number;
@@ -26,24 +26,8 @@ export interface Occurrence {
   side: ASTRegion;
 }
 
-export interface SemanticResult {
-  left: number,
-  right: number,
-  childrenTotal: number,
-  ownNodes: Array<number>
-  childrenMatch: number;
-}
-
 export interface Metadata extends DolosOptions {
   languageDetected: boolean;
-}
-
-export interface EncodedSemanticResult extends SemanticResult {
-  occurrences: Array<number>;
-}
-
-export interface DecodedSemanticResult extends SemanticResult {
-  occurrences: Set<number>;
 }
 
 export class Report {
@@ -52,9 +36,7 @@ export class Report {
   // only defined after finished() is called
   private scored?: Array<ScoredPairs>;
 
-  public occurrences: Occurrence[][] = [];
-  public results: Map<number, Map<number, NodeStats[]>> = new Map();
-  public semanticResults: Array<EncodedSemanticResult> = [];
+  public semanticData?: SemanticData;
 
   constructor(
     public readonly options: Options,
@@ -91,8 +73,6 @@ export class Report {
 
     ints = ints.filter(i => i.fragmentCount > 0);
 
-    this.semanticResults = this.encodeSemanticResults(this.results);
-
     this.scored = ints.map(i => this.calculateScore(i));
 
     this.scored = this.scored.filter(s =>
@@ -107,6 +87,10 @@ export class Report {
     }
 
     Object.freeze(this);
+  }
+
+  public setSemanticData(data: SemanticData) {
+    this.semanticData = data;
   }
 
   public get scoredPairs(): Array<ScoredPairs> {
@@ -191,33 +175,5 @@ export class Report {
       leftCovered,
       rightCovered
     };
-  }
-
-  private encodeSemanticResults(results: Map<number, Map<number, NodeStats[]>>): EncodedSemanticResult[] {
-    const encodedResults: EncodedSemanticResult[] = [];
-
-    for(const [id1, map] of results.entries()) {
-      for(const [id2, nodestats] of map.entries()) {
-        const filtered = nodestats
-          .filter(n => n.childrenTotal > this.options.semanticMatchLength);
-        if(filtered.length === 0)
-          continue;
-
-
-        for(const nodeStat of filtered) {
-          encodedResults.push({
-            left: id1,
-            right: id2,
-            childrenTotal: nodeStat.childrenTotal,
-            occurrences: Array.from(nodeStat.occurrences),
-            ownNodes: nodeStat.ownNodes,
-            childrenMatch: nodeStat.childrenMatch.get(id2) || 0,
-          });
-
-        }
-      }
-    }
-
-    return encodedResults;
   }
 }

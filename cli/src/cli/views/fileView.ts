@@ -107,8 +107,8 @@ export class FileView extends View {
 
     out.write(
       JSON.stringify({
-        semanticMapResults: this.report.semanticResults,
-        occurrences: this.report.occurrences.map(o => o.map(f => f.file.id)),
+        semanticMapResults: this.report.semanticData?.results,
+        occurrences: this.report.semanticData?.occurrences.map(o => o.map(f => f.file.id)),
       })
     );
   }
