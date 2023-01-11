@@ -38,4 +38,8 @@ export class DefaultMap<K, V> {
   public entries(): IterableIterator<[K, V]> {
     return this.map.entries();
   }
+
+  get size(): number {
+    return this.map.size
+  }
 }

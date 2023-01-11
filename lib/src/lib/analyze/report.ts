@@ -52,10 +52,6 @@ export class Report {
   // only defined after finished() is called
   private scored?: Array<ScoredPairs>;
 
-  // collection of all shared fingerprints
-  private fingerprints: Map<Hash, SharedFingerprint> = new Map();
-
-
   public occurrences: Occurrence[][] = [];
   public results: Map<number, Map<number, NodeStats[]>> = new Map();
   public semanticResults: Array<EncodedSemanticResult> = [];
@@ -64,17 +60,8 @@ export class Report {
     public readonly options: Options,
     public readonly language: Language | null,
     public files: TokenizedFile[],
+    private fingerprints: Map<Hash, SharedFingerprint>
   ) {
-  }
-
-  public addOccurrences(hash: Hash, parts: Array<Occurrence>): void {
-    assert(parts.length > 0);
-    let fingerprint = this.fingerprints.get(hash);
-    if(!fingerprint) {
-      fingerprint = new SharedFingerprint(hash, parts[0].side.data);
-      this.fingerprints.set(hash, fingerprint);
-    }
-    fingerprint.addAll(parts);
   }
 
   /**
@@ -159,7 +146,7 @@ export class Report {
     }
 
     const filteredFingerprints = Array.from(this.fingerprints.values())
-      .filter(k => k.files().length <= maxFiles);
+      .filter((k: SharedFingerprint) => k.fileCount() <= maxFiles);
 
     // create pairs
     for (const fingerprint of filteredFingerprints) {

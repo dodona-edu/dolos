@@ -5,6 +5,7 @@ import { HashFilter } from "../hashing/hashFilter";
 import { Region } from "../util/region";
 import { countByKey, intersect, mapValues, sumByKey } from "../util/utils";
 import { Occurrence } from "./report";
+import {SharedFingerprint} from "./sharedFingerprint";
 
 // The AST needs to be annotated with the matching information gotten from @link{Index} to produce information on
 // which nodes in the AST are matched.
@@ -263,7 +264,7 @@ export class SemanticAnalyzer {
   ): Promise<DefaultMap<TokenizedFile, AstWithMatches>> {
 
     const occurrenceMap = await this.index.createMatches(tokenizedFiles, hashFilter);
-    const groupedOccurrences = Array.from(occurrenceMap.values());
+    const groupedOccurrences = Array.from(occurrenceMap.values()).map((f: SharedFingerprint) => f.parts());
     const getDefault = (): AstWithMatches => ({ tokenToGroup: new Map(), groups: groupedOccurrences });
     const astMap = new DefaultMap<TokenizedFile, AstWithMatches>(getDefault);
 

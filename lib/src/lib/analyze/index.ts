@@ -9,6 +9,7 @@ import { File } from "../file/file";
 import { Report, Occurrence } from "./report";
 import { TokenizedFile } from "../file/tokenizedFile";
 import { SemanticAnalyzer } from "./SemanticAnalyzer";
+import {SharedFingerprint} from "./sharedFingerprint";
 
 type Hash = number;
 
@@ -87,16 +88,15 @@ export class Index {
     tokenizedFiles: TokenizedFile[],
     hashFilter = this.hashFilter
   ): Promise<Report> {
+
+    const fingerprints = await this.createMatches(tokenizedFiles, hashFilter);
+
     const report = new Report(
       this.options,
       this.tokenizer?.language ?? null,
-      tokenizedFiles
+      tokenizedFiles,
+      fingerprints
     );
-    const map = await this.createMatches(tokenizedFiles, hashFilter);
-
-    for(const [hash, occurrences] of map.entries()) {
-      report.addOccurrences(hash, occurrences);
-    }
 
     if(this.options.semantic) {
       const semanticAnalyzer = new SemanticAnalyzer(this);
@@ -109,13 +109,12 @@ export class Index {
 
     report.finish();
     return report;
-
   }
 
   public async createMatches(
     tokenizedFiles: TokenizedFile[],
     hashFilter = this.hashFilter
-  ): Promise<Map<Hash, Array<Occurrence>>> {
+  ): Promise<Map<Hash, SharedFingerprint>> {
     const index = new Map();
 
     tokenizedFiles.forEach(t => t.kgrams.splice(0, t.kgrams.length));
@@ -159,16 +158,17 @@ export class Index {
         };
 
         // look if the index already contains the given hashing
-        const matches = index.get(hash);
+        const matches: SharedFingerprint | undefined = index.get(hash);
 
 
         if (matches) {
           // add our matching part to the index
-          matches.push(part);
+          matches.add(part);
         } else {
-
           // if the hashing does not yet exist in the index, add it
-          index.set(hash, [part]);
+          const shared = new SharedFingerprint(hash, data);
+          shared.add(part);
+          index.set(hash, shared);
         }
 
         kgram += 1;

@@ -28,6 +28,10 @@ export class SharedFingerprint extends Identifiable {
   }
 
   public files(): Array<TokenizedFile> {
-    return Array.from(new Set(this.parts().map(p => p.file)));
+    return Array.from(this.partMap.keys());
+  }
+
+  public fileCount(): number {
+    return this.partMap.size;
   }
 }
