@@ -6,12 +6,18 @@ import { Region } from "../util/region";
 import { Tokenizer } from "../tokenizer/tokenizer";
 import { WinnowFilter } from "../hashing/winnowFilter";
 import { File } from "../file/file";
-import { Report, Occurrence } from "./report";
+import { Report } from "./report";
 import { TokenizedFile } from "../file/tokenizedFile";
 import { SemanticAnalyzer } from "./SemanticAnalyzer";
-import {SharedFingerprint} from "./sharedFingerprint";
+import { SharedFingerprint } from "./sharedFingerprint";
+import { ASTRegion } from "./pairedOccurrence";
 
 export type Hash = number;
+
+export interface Occurrence {
+  file: TokenizedFile;
+  side: ASTRegion;
+}
 
 export class Index {
   private readonly kgramLength: number;
@@ -105,7 +111,6 @@ export class Index {
       );
     }
 
-    report.finish();
     return report;
   }
 
@@ -160,18 +165,17 @@ export class Index {
         };
 
         // look if the index already contains the given hashing
-        const matches: SharedFingerprint | undefined = index.get(hash);
+        let shared: SharedFingerprint | undefined = index.get(hash);
 
 
-        if (matches) {
-          // add our matching part to the index
-          matches.add(part);
-        } else {
+        if (!shared) {
           // if the hashing does not yet exist in the index, add it
-          const shared = new SharedFingerprint(hash, data);
-          shared.add(part);
+          shared = new SharedFingerprint(hash, data);
           index.set(hash, shared);
         }
+
+        shared.add(part);
+        file.shared.add(shared);
 
         kgram += 1;
       }

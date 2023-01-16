@@ -19,7 +19,7 @@ export interface ASTRegion {
    */
   index: number;
   /**
-   * The selection in the actual file corrresponding to this kgram.
+   * The selection in the actual file corresponding to this kgram.
    */
   location: Region;
   /**

@@ -3,8 +3,16 @@ import { PairedOccurrence } from "./pairedOccurrence";
 import { Fragment } from "./fragment";
 import { TokenizedFile } from "../file/tokenizedFile";
 import Identifiable from "../util/identifiable";
+import { SharedFingerprint } from "./sharedFingerprint";
+import { Occurrence } from "./index";
 
 type LeftRight = string;
+
+interface Kgram {
+  hash: number,
+  index: number,
+}
+
 
 /**
  * This class represents all the fragments between two files (i.e. the
@@ -12,25 +20,122 @@ type LeftRight = string;
  */
 export class Pair extends Identifiable {
 
-  private fragmentStart: Map<LeftRight, Fragment> = new Map();
-  private fragmentEnd: Map<LeftRight, Fragment> = new Map();
-  public longestFragment: number = 0;
+  private readonly shared: Array<SharedFingerprint>;
+
+  public readonly leftCovered;
+  public readonly rightCovered;
+  public readonly leftTotal;
+  public readonly rightTotal;
+  public readonly longest;
+  public readonly similarity;
 
   constructor(
     public readonly leftFile: TokenizedFile,
     public readonly rightFile: TokenizedFile
-  ) { super(); }
+  ) {
+    super();
+    let small, large;
+    this.shared = [];
+    if (leftFile.shared.size < rightFile.shared.size) {
+      small = leftFile;
+      large = rightFile;
+    } else {
+      small = rightFile;
+      large = leftFile;
+    }
 
-  get fragmentCount(): number {
-    return this.fragmentStart.size;
+    for (const fingeprint of small.shared) {
+      if (large.shared.has(fingeprint)) {
+        this.shared.push(fingeprint);
+      }
+    }
+
+    const left: Kgram[] = this.shared
+      .map(f => Array.from(f.occurrencesOf(this.leftFile)).map(occ => { return { index: occ.side.index, hash: f.hash }}))
+      .flat()
+      .sort((a, b) => a.index - b.index);
+
+    const right: Kgram[] = this.shared
+      .map(f => Array.from(f.occurrencesOf(this.rightFile)).map(occ => { return { index: occ.side.index, hash: f.hash }}))
+      .flat()
+      .sort((a, b) => a.index - b.index);
+
+    this.longest = this.longestCommonSubstring(left, right);
+
+    this.leftCovered = left.length;
+    this.rightCovered = right.length;
+    this.leftTotal = leftFile.kgrams.length;
+    this.rightTotal = rightFile.kgrams.length;
+    this.similarity = (this.leftCovered + this.rightCovered) / (this.leftTotal + this.rightTotal);
   }
 
-  /**
-   * Creates an array of fragments in this pair, sorted by their
-   * leftkgrams range.
-   */
-  public fragments(): Array<Fragment> {
-    return Array.from(this.fragmentStart.values())
+  private longestCommonSubstring(l: Kgram[], r: Kgram[]): number {
+    let short, long;
+    if (l.length < r.length) {
+      short = l;
+      long = r;
+    } else {
+      short = r;
+      long = l;
+    }
+
+    let longest = 0;
+    let prev: Array<number> = [];
+    let curr: Array<number> = [];
+    for (const l of long) {
+      for (const s of short) {
+        if (l.hash == s.hash) {
+          curr[s.index] = (prev[s.index - 1] || 0) + 1;
+          longest = curr[s.index] > longest ? curr[s.index] : longest;
+        }
+      }
+      let tmp = prev;
+      tmp.length = 0;
+      prev = curr;
+      curr = tmp;
+    }
+
+    return longest;
+  }
+
+  public totalCoverLeft(): number {
+    return this.leftCovered;
+  }
+
+  public totalCoverRight(): number {
+    return this.rightCovered;
+  }
+
+  get overlap(): number {
+    return this.leftCovered + this.rightCovered;
+  }
+
+  public buildFragments(minimumOccurrences?: number): Array<Fragment> {
+    minimumOccurrences = minimumOccurrences || 1;
+    const fragmentStart: Map<LeftRight, Fragment> = new Map();
+    const fragmentEnd: Map<LeftRight, Fragment> = new Map();
+
+    for (const fingerprint of this.shared) {
+      const left = Array.from(fingerprint.occurrencesOf(this.leftFile).values());
+      const right = Array.from(fingerprint.occurrencesOf(this.rightFile).values());
+      for (let i = 0; i < left.length; i++) {
+        const leftOcc: Occurrence = left[i];
+        for (let j = 0; j < right.length; j++) {
+          const rightOcc: Occurrence = right[j];
+          const occ = new PairedOccurrence(leftOcc.side, rightOcc.side, fingerprint);
+          this.addPair(fragmentStart, fragmentEnd, occ);
+        }
+      }
+    }
+    this.squash(fragmentStart, fragmentEnd);
+
+    for (const fragment of fragmentStart.values()) {
+      if (fragment.pairs.length < minimumOccurrences) {
+        this.removefragment(fragmentStart, fragmentEnd, fragment);
+      }
+    }
+
+    return Array.from(fragmentStart.values())
       .sort((a , b) => Range.compare(a.leftkgrams, b.leftkgrams));
   }
 
@@ -39,71 +144,53 @@ export class Pair extends Identifiable {
    *
    * Tries to extend existing fragments, or creates a new fragment.
    */
-  public addPair(newPair: PairedOccurrence): void {
+  private addPair(fragmentStart: Map<LeftRight, Fragment>, fragmentEnd: Map<LeftRight, Fragment>, newPair: PairedOccurrence): Fragment {
     const start = this.key(newPair.left.index, newPair.right.index);
     const end = this.key(newPair.left.index + 1, newPair.right.index + 1);
 
-    let fragment = this.fragmentEnd.get(start);
+    let fragment = fragmentEnd.get(start);
     if (fragment) {
 
       // extend fragment at starting position
-      this.fragmentEnd.delete(start);
+      fragmentEnd.delete(start);
       fragment.extendWith(newPair);
 
     } else {
 
       // no fragment on our starting position, create a new one
       fragment = new Fragment(newPair);
-      this.fragmentStart.set(start, fragment);
-      this.fragmentEnd.set(end, fragment);
+      fragmentStart.set(start, fragment);
+      fragmentEnd.set(end, fragment);
     }
 
-    const nextfragment = this.fragmentStart.get(end);
+    const nextfragment = fragmentStart.get(end);
 
     if (nextfragment) {
       // there is a fragment directly after us we can extend
 
       // remove next fragment's start position
-      this.fragmentStart.delete(end);
+      fragmentStart.delete(end);
 
       // extend ourselves
       fragment.extendWithFragment(nextfragment);
 
       // overwrite the end position of the next fragment with ours
-      this.fragmentEnd.set(
+      fragmentEnd.set(
         this.key(nextfragment.leftkgrams.to, nextfragment.rightkgrams.to),
         fragment
       );
     } else {
 
       // no fragment after us, just set our end position
-      this.fragmentEnd.set(end, fragment);
+      fragmentEnd.set(end, fragment);
     }
-    this.longestFragment = Math.max(fragment.pairs.length, this.longestFragment);
-  }
-
-  /**
-   * Calculate how much kgrams both files share. Each kgram is only counted once.
-   */
-  public totalOverlapkgrams(): number {
-    return Range.totalCovered(
-      this.fragments().map(m => m.leftkgrams).sort(Range.compare)
-    );
-  }
-
-  /**
-   * Remove fragments which have fewer than the given minimum of pairedOccurrences.
-   */
-  public removeSmallerThan(minimum: number): void {
-    this.fragments()
-      .filter(f => f.pairs.length < minimum)
-      .forEach(f => this.removefragment(f));
+    return fragment;
   }
 
   /**
    * Remove each Fragment that is contained in a bigger Fragment.
    */
-  public squash(): void {
+  private squash(fragmentStart: Map<LeftRight, Fragment>, fragmentEnd: Map<LeftRight, Fragment>): void {
     // This algorithm only looks to the `leftkgrams` range of an fragment.
     // If a fragment is contained within another on the left side, we check if
     // this is also the case on the right side, before removing the fragment.
@@ -113,7 +200,8 @@ export class Pair extends Identifiable {
     // be O(n²).
 
     // A list with the fragments sorted by the start of their range interval
-    const sortedByStart = this.fragments();
+    const sortedByStart = Array.from(fragmentStart.values())
+      .sort((a , b) => Range.compare(a.leftkgrams, b.leftkgrams));
 
     // A list with the fragments sorted by the end of their range interval
     const sortedByEnd = Array.from(sortedByStart);
@@ -144,7 +232,7 @@ export class Pair extends Identifiable {
         if (started.leftkgrams.contains(candidate.leftkgrams) &&
           started.rightkgrams.contains(candidate.rightkgrams)) {
           // If this is the case, remove the contained fragment.
-          this.removefragment(candidate);
+          this.removefragment(fragmentStart, fragmentEnd, candidate);
         }
         j += 1;
       }
@@ -152,11 +240,11 @@ export class Pair extends Identifiable {
     }
   }
 
-  private removefragment(fragment: Fragment): void {
-    this.fragmentStart.delete(
+  private removefragment(fragmentStart: Map<LeftRight, Fragment>, fragmentEnd: Map<LeftRight, Fragment>, fragment: Fragment): void {
+    fragmentStart.delete(
       this.key(fragment.leftkgrams.from, fragment.rightkgrams.from)
     );
-    this.fragmentEnd.delete(
+    fragmentEnd.delete(
       this.key(fragment.leftkgrams.to, fragment.rightkgrams.to)
     );
   }

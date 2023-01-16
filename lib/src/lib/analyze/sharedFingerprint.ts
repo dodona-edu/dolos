@@ -1,4 +1,4 @@
-import { Occurrence } from "./report";
+import { Occurrence } from "./index";
 import { DefaultMap } from "../util/defaultMap";
 import { TokenizedFile } from "../file/tokenizedFile";
 import Identifiable from "../util/identifiable";
@@ -19,6 +19,10 @@ export class SharedFingerprint extends Identifiable {
 
   public addAll(parts: Array<Occurrence>): void {
     parts.forEach(p => this.add(p));
+  }
+
+  public occurrencesOf(file: TokenizedFile): Set<Occurrence> {
+    return this.partMap.get(file);
   }
 
   public parts(): Array<Occurrence> {

@@ -2,10 +2,9 @@ import { TokenizedFile } from "../file/tokenizedFile";
 import { DefaultMap } from "../util/defaultMap";
 import { Region } from "../util/region";
 import { countByKey, intersect, mapValues, sumByKey } from "../util/utils";
-import { Occurrence } from "./report";
 import { SharedFingerprint } from "./sharedFingerprint";
 import { DolosOptions } from "../util/options";
-import { Hash } from "./index";
+import { Hash, Occurrence } from "./index";
 
 // The AST needs to be annotated with the matching information gotten from @link{Index} to produce information on
 // which nodes in the AST are matched.

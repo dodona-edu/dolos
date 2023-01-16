@@ -18,18 +18,17 @@ test("equal content should be a full match", async t => {
   }
   `;
 
-  const report = await dolos.analyze(
-    [
-      new File("file1.js", content),
-      new File("file2.js", content),
-    ]
-  );
+  const f1 = new File("file1.js", content);
+  const f2 = new File("file2.js", content);
+  const report = await dolos.analyze([f1, f2]);
 
-  t.is(1, report.scoredPairs.length);
-  const { pair, similarity } = report.scoredPairs[0];
-  t.is(similarity, 1.0);
+  t.is(report.files.length, 2);
 
-  const fragments = pair.fragments();
+  const pair = report.getPair(report.files[0], report.files[1]);
+  t.is(pair.similarity, 1.0);
+
+  const fragments = pair.buildFragments();
+  debugger;
   t.is(fragments.length, 1);
   const match = fragments[0];
 
@@ -71,18 +70,17 @@ test("renamed variables should be a full match", async t => {
   }
   `;
 
-  const report = await dolos.analyze(
-    [
-      new File("file1.js", original),
-      new File("file2.js", changed),
-    ]
-  );
+  const f1 = new File("file1.js", original);
+  const f2 = new File("file2.js", changed);
+  const report = await dolos.analyze([f1, f2]);
 
-  t.is(1, report.scoredPairs.length);
-  const { pair, similarity } = report.scoredPairs[0];
-  t.is(similarity, 1.0);
+  t.is(report.files.length, 2);
 
-  const fragments = pair.fragments();
+  const pair = report.getPair(report.files[0], report.files[1]);
+
+  t.is(pair.similarity, 1.0);
+
+  const fragments = pair.buildFragments();
   t.is(fragments.length, 1);
   const match = fragments[0];
 
@@ -126,18 +124,17 @@ test("changed whitespace and semicolons should be a full match", async t => {
   }
   `;
 
-  const report = await dolos.analyze(
-    [
-      new File("file1.js", original),
-      new File("file2.js", changed),
-    ]
-  );
+  const f1 = new File("file1.js", original);
+  const f2 = new File("file2.js", changed);
+  const report = await dolos.analyze([f1, f2]);
 
-  t.is(1, report.scoredPairs.length);
-  const { pair, similarity } = report.scoredPairs[0];
-  t.is(similarity, 1.0);
+  t.is(report.files.length, 2);
 
-  const fragments = pair.fragments();
+  const pair = report.getPair(report.files[0], report.files[1]);
+
+  t.is(pair.similarity, 1.0);
+
+  const fragments = pair.buildFragments();
   t.is(fragments.length, 1);
   const match = fragments[0];
 
@@ -175,19 +172,20 @@ test("changed order should be a good match", async t => {
   }
   `;
 
-  const report = await dolos.analyze(
-    [
-      new File("file1.js", original),
-      new File("file2.js", changed),
-    ]
-  );
+  const f1 = new File("file1.js", original);
+  const f2 = new File("file2.js", changed);
+  const report = await dolos.analyze([f1, f2]);
 
-  t.is(1, report.scoredPairs.length);
-  const { pair, similarity } = report.scoredPairs[0];
-  t.true(similarity > 0.75);
+  t.is(report.files.length, 2);
+
+  const pair = report.getPair(report.files[0], report.files[1]);
+
+  t.true(pair.similarity > 0.75);
+
+  const fragments = pair.buildFragments();
 
   // four fragments: program declaration, hello(), world() and helloWorld()
-  t.is(4, pair.fragments().length);
+  t.is(4, fragments.length);
 
 });
 
@@ -198,9 +196,9 @@ test("should read CSV-files", async t => {
 
   t.is(4, report.files.length);
 
-  t.is(5, report.scoredPairs.length);
-  const { similarity } = report.scoredPairs[0];
-  t.true(similarity > 0.75);
+  const pairs = report.allPairs();
+  t.is(6, pairs.length);
+  t.true(pairs[0].similarity > 0.75);
 });
 
 test("should read ZIP-files", async t => {
@@ -210,7 +208,7 @@ test("should read ZIP-files", async t => {
 
   t.is(4, report.files.length);
 
-  t.is(5, report.scoredPairs.length);
-  const { similarity } = report.scoredPairs[0];
-  t.true(similarity > 0.75);
+  const pairs = report.allPairs();
+  t.is(6, pairs.length);
+  t.true(pairs[0].similarity > 0.75);
 });
