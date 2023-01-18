@@ -1,11 +1,10 @@
-import assert from "assert";
 import { Pair } from "./pair";
 import { TokenizedFile } from "../file/tokenizedFile";
 import { DolosOptions, Options } from "../util/options";
 import { SharedFingerprint } from "./sharedFingerprint";
 import { SemanticData } from "./SemanticAnalyzer";
 import { Language } from "../util/language";
-import {closestMatch} from "../util/utils";
+import { closestMatch } from "../util/utils";
 
 type Hash = number;
 
@@ -44,9 +43,6 @@ export class Report {
 
 
   public getPair(file1: TokenizedFile, file2: TokenizedFile): Pair {
-
-    assert(file1.shared.size > 0, `file1 (${file1.path}) does not seem to be analyzed yet.`);
-    assert(file2.shared.size > 0, `file2 (${file2.path}) does not seem to be analyzed yet.`);
     return new Pair(file1, file2);
   }
 
@@ -76,7 +72,7 @@ export class Report {
 
 
 
-  public setSemanticData(data: SemanticData) {
+  public setSemanticData(data: SemanticData): void {
     this.semanticData = data;
   }
 

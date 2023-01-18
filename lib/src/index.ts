@@ -7,7 +7,8 @@ export { File } from "./lib/file/file";
 export { TokenizedFile } from "./lib/file/tokenizedFile";
 export { Index, Occurrence } from "./lib/analyze/index";
 export { Dolos } from "./dolos";
-export { SemanticAnalyzer, PairedSemanticGroups, NodeStats, UnpairedSemanticGroups, EncodedSemanticResult, DecodedSemanticResult }
+export { SemanticAnalyzer, PairedSemanticGroups, NodeStats,
+  UnpairedSemanticGroups, EncodedSemanticResult, DecodedSemanticResult }
   from "./lib/analyze/SemanticAnalyzer";
 export { SharedFingerprint } from "./lib/analyze/sharedFingerprint";
 export { PairedOccurrence } from "./lib/analyze/pairedOccurrence";

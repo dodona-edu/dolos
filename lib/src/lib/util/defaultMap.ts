@@ -40,6 +40,6 @@ export class DefaultMap<K, V> {
   }
 
   get size(): number {
-    return this.map.size
+    return this.map.size;
   }
 }

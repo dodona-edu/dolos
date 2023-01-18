@@ -6,7 +6,7 @@ import { Region } from "../lib/util/region";
 import { Range } from "../lib/util/range";
 import { SharedFingerprint } from "../lib/analyze/sharedFingerprint";
 import { Dolos } from "../dolos";
-import {Occurrence} from "../lib/analyze";
+import { Occurrence } from "../lib/analyze";
 
 function createFakeFile(name: string): TokenizedFile {
   return new TokenizedFile(
@@ -26,7 +26,7 @@ function createOccurrence(file: TokenizedFile, index: number): Occurrence {
       location: new Region(0, 0, 0, 0),
       data: null,
     }
-  }
+  };
 }
 
 test("paired occurrence merging & squashing", t => {

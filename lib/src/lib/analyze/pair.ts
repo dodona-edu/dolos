@@ -51,12 +51,18 @@ export class Pair extends Identifiable {
     }
 
     const left: Kgram[] = this.shared
-      .map(f => Array.from(f.occurrencesOf(this.leftFile)).map(occ => { return { index: occ.side.index, hash: f.hash }}))
+      .map(f =>
+        Array.from(f.occurrencesOf(this.leftFile))
+          .map(occ => { return { index: occ.side.index, hash: f.hash };})
+      )
       .flat()
       .sort((a, b) => a.index - b.index);
 
     const right: Kgram[] = this.shared
-      .map(f => Array.from(f.occurrencesOf(this.rightFile)).map(occ => { return { index: occ.side.index, hash: f.hash }}))
+      .map(f =>
+        Array.from(f.occurrencesOf(this.rightFile))
+          .map(occ => { return { index: occ.side.index, hash: f.hash };})
+      )
       .flat()
       .sort((a, b) => a.index - b.index);
 
@@ -89,7 +95,7 @@ export class Pair extends Identifiable {
           longest = curr[s.index] > longest ? curr[s.index] : longest;
         }
       }
-      let tmp = prev;
+      const tmp = prev;
       tmp.length = 0;
       prev = curr;
       curr = tmp;
@@ -110,8 +116,7 @@ export class Pair extends Identifiable {
     return this.leftCovered + this.rightCovered;
   }
 
-  public buildFragments(minimumOccurrences?: number): Array<Fragment> {
-    minimumOccurrences = minimumOccurrences || 1;
+  public buildFragments(minimumOccurrences = 1): Array<Fragment> {
     const fragmentStart: Map<LeftRight, Fragment> = new Map();
     const fragmentEnd: Map<LeftRight, Fragment> = new Map();
 
@@ -144,7 +149,11 @@ export class Pair extends Identifiable {
    *
    * Tries to extend existing fragments, or creates a new fragment.
    */
-  private addPair(fragmentStart: Map<LeftRight, Fragment>, fragmentEnd: Map<LeftRight, Fragment>, newPair: PairedOccurrence): Fragment {
+  private addPair(
+    fragmentStart: Map<LeftRight, Fragment>,
+    fragmentEnd: Map<LeftRight, Fragment>,
+    newPair: PairedOccurrence
+  ): Fragment {
     const start = this.key(newPair.left.index, newPair.right.index);
     const end = this.key(newPair.left.index + 1, newPair.right.index + 1);
 
@@ -240,7 +249,11 @@ export class Pair extends Identifiable {
     }
   }
 
-  private removefragment(fragmentStart: Map<LeftRight, Fragment>, fragmentEnd: Map<LeftRight, Fragment>, fragment: Fragment): void {
+  private removefragment(
+    fragmentStart: Map<LeftRight, Fragment>,
+    fragmentEnd: Map<LeftRight, Fragment>,
+    fragment: Fragment
+  ): void {
     fragmentStart.delete(
       this.key(fragment.leftkgrams.from, fragment.rightkgrams.from)
     );

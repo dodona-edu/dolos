@@ -17,7 +17,6 @@ import {
   SemanticAnalyzer,
   DecodedSemanticResult,
   PairedSemanticGroups,
-  LanguagePicker,
 } from "@dodona/dolos-lib";
 import * as Comlink from "comlink";
 
@@ -59,7 +58,7 @@ async function populateFragments(
   const leftFile = fileToTokenizedFile(pair.leftFile);
   const rightFile = fileToTokenizedFile(pair.rightFile);
   const report = await index.compareTokenizedFiles([leftFile, rightFile]);
-  const reportPair = report.scoredPairs[0].pair;
+  const reportPair = report.allPairs()[0];
 
   if (pair.leftFile.semanticMap && pair.rightFile.semanticMap) {
     const [pairedMatches, unpairedMatches] = SemanticAnalyzer.pairMatches(
@@ -83,7 +82,7 @@ async function populateFragments(
     const kmer = kmers[kmerKey];
     kmersMap.set(kmer.hash, kmer);
   }
-  pair.fragments = parseFragments(reportPair.fragments(), kmersMap);
+  pair.fragments = parseFragments(reportPair.buildFragments(), kmersMap);
 
   // Check if a given selection is contained within another selection.
   const isContained = (selection: Selection, region: Region): boolean => {

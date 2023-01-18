@@ -1,7 +1,7 @@
 import { File } from "./file";
 import { Region } from "../util/region";
 import { Range } from "../util/range";
-import {SharedFingerprint} from "../analyze/sharedFingerprint";
+import { SharedFingerprint } from "../analyze/sharedFingerprint";
 
 export class TokenizedFile extends File {
 

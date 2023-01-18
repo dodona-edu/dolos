@@ -69,6 +69,7 @@ export class Index {
     hashFilter = this.hashFilter
   ): Promise<Report> {
     if (this.tokenizer) {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const tokenizedFiles = files.map(f => this.tokenizer!.tokenizeFile(f));
       return this.compareTokenizedFiles(tokenizedFiles, hashFilter);
     } else {

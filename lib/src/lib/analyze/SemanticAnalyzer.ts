@@ -185,7 +185,11 @@ export class SemanticAnalyzer {
     // This set contains all the occurrences (hashes) that are used as 'proof' of matching
     // Useful to later identify common groups
 
-    const occurrences = new Set(Array.from(childrenOccurrences.map(v => Array.from(v))).concat(currentOccurrences).flat());
+    const occurrences = new Set(
+      Array.from(childrenOccurrences.map(v => Array.from(v)))
+        .concat(currentOccurrences)
+        .flat()
+    );
 
     // This is the preliminary result of our analysis, grouping all relevant information together.
     // We will use this information to decide (per file) whether this node is part of a larger group or not.

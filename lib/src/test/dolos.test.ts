@@ -28,7 +28,6 @@ test("equal content should be a full match", async t => {
   t.is(pair.similarity, 1.0);
 
   const fragments = pair.buildFragments();
-  debugger;
   t.is(fragments.length, 1);
   const match = fragments[0];
 
