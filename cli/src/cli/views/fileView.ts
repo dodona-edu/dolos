@@ -4,7 +4,7 @@ import { Writable } from "stream";
 import { createWriteStream, promises as fs } from "fs";
 import {
   Report,
-  ScoredPairs,
+  Pair,
   SharedFingerprint,
   TokenizedFile
 } from "@dodona/dolos-lib";
@@ -47,20 +47,20 @@ export class FileView extends View {
   }
 
   public writePairs(out: Writable): void {
-    writeCSVto<ScoredPairs>(
+    writeCSVto<Pair>(
       out,
-      this.report.scoredPairs,
+      this.report.allPairs(),
       {
-        "id": s => s.pair.id,
-        "leftFileId": s => s.pair.leftFile.id,
-        "leftFilePath": s => s.pair.leftFile.path,
-        "rightFileId": s => s.pair.rightFile.id,
-        "rightFilePath": s => s.pair.rightFile.path,
-        "similarity": s => s.similarity,
-        "totalOverlap": s => s.overlap,
-        "longestFragment": s => s.longest,
-        "leftCovered": s => s.leftCovered,
-        "rightCovered": s => s.rightCovered
+        "id": p => p.id,
+        "leftFileId": p => p.leftFile.id,
+        "leftFilePath": p => p.leftFile.path,
+        "rightFileId": p => p.rightFile.id,
+        "rightFilePath": p => p.rightFile.path,
+        "similarity": p => p.similarity,
+        "totalOverlap": p => p.overlap,
+        "longestFragment": p => p.longest,
+        "leftCovered": p => p.leftCovered,
+        "rightCovered": p => p.rightCovered
       });
   }
 

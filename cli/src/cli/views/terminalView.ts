@@ -5,9 +5,7 @@ import UI from "cliui";
 import { Chalk, Instance as ChalkInstance, bold, red } from "chalk";
 import { Writable } from "stream";
 import { closestMatch } from "../util/utils";
-import { Report, ScoredPairs } from "@dodona/dolos-lib";
-import { Fragment } from "@dodona/dolos-lib";
-import { Region } from "@dodona/dolos-lib";
+import { Report, Fragment, Region, Pair } from "@dodona/dolos-lib";
 
 /**
  * This {@link View} will print the results of an analysis to the terminal.
@@ -46,9 +44,9 @@ export class TerminalView extends View {
   }
 
   public async show(): Promise<void> {
-    const pairs = this.report.scoredPairs;
+    const pairs = this.report.allPairs();
     if (this.compare || (this.compare == null && pairs.length == 1)) {
-      pairs.map(int => this.writePairWithComparison(int));
+      pairs.map(pair => this.writePairWithComparison(pair));
     } else {
       this.writePairs(pairs);
     }
@@ -56,7 +54,7 @@ export class TerminalView extends View {
     this.ui.resetOutput();
   }
 
-  private writePairs(pairs: Array<ScoredPairs>): void {
+  private writePairs(pairs: Array<Pair>): void {
     const maxOver = Math.max(...pairs.map(s => s.overlap));
     const overlapWidth = Math.max(15, Math.trunc(Math.log10(maxOver + 1)) + 2);
     const similarityWidth = 12;
@@ -90,7 +88,7 @@ export class TerminalView extends View {
     });
 
     for (
-      const { pair, overlap, similarity, longest }
+      const pair
       of pairs
     ) {
       this.ui.div({
@@ -104,17 +102,17 @@ export class TerminalView extends View {
         padding: [0, 1, 0, 1]
       },
       {
-        text: (Math.trunc(similarity * 1000000) / 1000000).toString(),
+        text: (Math.trunc(pair.similarity * 1000000) / 1000000).toString(),
         width: similarityWidth,
         padding: [0, 1, 0, 1]
       },
       {
-        text: longest.toString(),
+        text: pair.longest.toString(),
         width: overlapWidth,
         padding: [0, 1, 0, 1]
       },
       {
-        text: overlap.toString(),
+        text: pair.overlap.toString(),
         width: overlapWidth,
         padding: [0, 1, 0, 1]
       });
@@ -122,7 +120,7 @@ export class TerminalView extends View {
   }
 
   private writePairWithComparison(
-    { pair, overlap, similarity }: ScoredPairs
+    pair: Pair
   ): void {
     const leftLines = pair.leftFile.lines;
     const rightLines = pair.rightFile.lines;
@@ -136,11 +134,11 @@ export class TerminalView extends View {
       padding: [1, 1, 1, 1],
     });
     this.ui.div({
-      text: bold("Total overlap: ") + overlap.toString() + " kgrams",
+      text: bold("Total overlap: ") + pair.overlap.toString() + " kgrams",
       padding: [0, 1, 0, 1],
     });
     this.ui.div({
-      text: bold("Similarity score: ") + similarity.toString(),
+      text: bold("Similarity score: ") + pair.similarity.toString(),
       padding: [0, 1, 1, 1],
     });
 
@@ -152,7 +150,7 @@ export class TerminalView extends View {
     const nl = (i: number): string =>
       this.c.grey((i + 1).toString().padEnd(lineNrWidth));
 
-    const fragments = pair.fragments();
+    const fragments = pair.buildFragments();
 
     type FragmentSorter = (b1: Fragment, b2: Fragment) => number;
     const fragmentSorter = closestMatch<FragmentSorter | null>(
