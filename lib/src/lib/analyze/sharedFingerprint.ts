@@ -1,12 +1,11 @@
 import { Occurrence } from "./index";
-import { DefaultMap } from "../util/defaultMap";
 import { TokenizedFile } from "../file/tokenizedFile";
 import Identifiable from "../util/identifiable";
 
 export class SharedFingerprint extends Identifiable {
 
-  private partMap: DefaultMap<TokenizedFile, Set<Occurrence>>
-    = new DefaultMap(() => new Set());
+  public readonly files: Array<TokenizedFile> = [];
+  private partMap: Array<Array<Occurrence>> = [];
 
   constructor(
     public readonly hash: number,
@@ -14,28 +13,26 @@ export class SharedFingerprint extends Identifiable {
   ) { super(); }
 
   public add(part: Occurrence): void {
-    this.partMap.get(part.file).add(part);
+    if (this.partMap[part.file.id] === undefined) {
+      this.files.push(part.file);
+      this.partMap[part.file.id] = [];
+    }
+    this.partMap[part.file.id].push(part);
   }
 
   public addAll(parts: Array<Occurrence>): void {
     parts.forEach(p => this.add(p));
   }
 
-  public occurrencesOf(file: TokenizedFile): Set<Occurrence> {
-    return this.partMap.get(file);
+  public occurrencesOf(file: TokenizedFile): Array<Occurrence> {
+    return this.partMap[file.id];
   }
 
   public parts(): Array<Occurrence> {
-    return Array.from(this.partMap.values())
-      .map(set => Array.from(set))
-      .flat();
-  }
-
-  public files(): Array<TokenizedFile> {
-    return Array.from(this.partMap.keys());
+    return this.partMap.flat();
   }
 
   public fileCount(): number {
-    return this.partMap.size;
+    return this.files.length;
   }
 }
