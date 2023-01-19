@@ -6,7 +6,6 @@ import { SemanticData } from "./SemanticAnalyzer";
 import { Language } from "../util/language";
 import { closestMatch } from "../util/utils";
 
-type Hash = number;
 
 export interface Metadata extends DolosOptions {
   languageDetected: boolean;
@@ -26,7 +25,7 @@ export class Report {
     public readonly options: Options,
     public readonly language: Language | null,
     public readonly files: TokenizedFile[],
-    fingerprints: Map<Hash, SharedFingerprint>
+    fingerprints: Array<SharedFingerprint>
   ) {
 
     if (this.options.maxFingerprintCount != null) {
@@ -37,7 +36,7 @@ export class Report {
       this.kgramMaxFileOccurrences = this.files.length;
     }
 
-    this.fingerprints = Array.from(fingerprints.values())
+    this.fingerprints = Object.values(fingerprints)
       .filter((k: SharedFingerprint) => k.fileCount() <= this.kgramMaxFileOccurrences);
   }
 

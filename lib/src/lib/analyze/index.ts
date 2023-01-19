@@ -118,8 +118,8 @@ export class Index {
   public async createMatches(
     tokenizedFiles: TokenizedFile[],
     hashFilter = this.hashFilter
-  ): Promise<Map<Hash, SharedFingerprint>> {
-    const index = new Map();
+  ): Promise<Array<SharedFingerprint>> {
+    const index: Array<SharedFingerprint> = [];
 
     for (const f of tokenizedFiles) {
       if (f.kgrams.length > 0) {
@@ -166,13 +166,13 @@ export class Index {
         };
 
         // look if the index already contains the given hashing
-        let shared: SharedFingerprint | undefined = index.get(hash);
+        let shared: SharedFingerprint | undefined = index[hash];
 
 
         if (!shared) {
           // if the hashing does not yet exist in the index, add it
           shared = new SharedFingerprint(hash, data);
-          index.set(hash, shared);
+          index[hash] = shared;
         }
 
         shared.add(part);
