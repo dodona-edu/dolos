@@ -50,21 +50,18 @@ export class Pair extends Identifiable {
       }
     }
 
-    const left: Kgram[] = this.shared
-      .map(f =>
-        Array.from(f.occurrencesOf(this.leftFile))
-          .map(occ => { return { index: occ.side.index, hash: f.hash };})
-      )
-      .flat()
-      .sort((a, b) => a.index - b.index);
-
-    const right: Kgram[] = this.shared
-      .map(f =>
-        Array.from(f.occurrencesOf(this.rightFile))
-          .map(occ => { return { index: occ.side.index, hash: f.hash };})
-      )
-      .flat()
-      .sort((a, b) => a.index - b.index);
+    const left: Kgram[] = [];
+    const right: Kgram[] = [];
+    for (const fingerprint of this.shared) {
+      for (const occurrence of fingerprint.occurrencesOf(this.leftFile)) {
+        left.push({ hash: fingerprint.hash, index: occurrence.side.index });
+      }
+      for (const occurrence of fingerprint.occurrencesOf(this.rightFile)) {
+        right.push({ hash: fingerprint.hash, index: occurrence.side.index });
+      }
+    }
+    left.sort((a, b) => a.index - b.index);
+    right.sort((a, b) => a.index - b.index);
 
     this.longest = this.longestCommonSubstring(left, right);
 
