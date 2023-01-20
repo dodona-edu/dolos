@@ -40,7 +40,6 @@ import { storeToRefs } from "pinia";
 import { useElementSize, useVModel } from "@vueuse/core";
 import { Clustering, Cluster } from "@/util/clustering-algorithms/ClusterTypes";
 import { getClusterElements } from "@/util/clustering-algorithms/ClusterFunctions";
-import { DefaultMap } from "@dodona/dolos-lib";
 import * as d3 from "d3";
 
 interface Props {
@@ -129,16 +128,16 @@ const clusterColors = computed(() => {
     const elements = getClusterElements(cluster);
 
     // Count for each label the number of files in the cluster.
-    const counter = new DefaultMap(() => 0);
+    const counter = new Map();
     for (const element of elements) {
       const label = fileStore.getLabel(element).label;
-      counter.set(label, counter.get(label) + 1);
+      counter.set(label, (counter.get(label) || 0) + 1);
     }
 
     // Find the label with the most files in the cluster.
     let maxKey = 0;
     for (const [key, count] of counter.entries()) {
-      if (count > counter.get(maxKey)) maxKey = key as any;
+      if (count > (counter.get(maxKey) || 0)) maxKey = key as any;
     }
 
     clusterColorsMap.set(cluster, labels[maxKey]?.color ?? "grey");

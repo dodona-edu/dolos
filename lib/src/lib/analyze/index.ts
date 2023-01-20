@@ -8,7 +8,6 @@ import { WinnowFilter } from "../hashing/winnowFilter";
 import { File } from "../file/file";
 import { Report } from "./report";
 import { TokenizedFile } from "../file/tokenizedFile";
-import { SemanticAnalyzer } from "./SemanticAnalyzer";
 import { SharedFingerprint } from "./sharedFingerprint";
 import { ASTRegion } from "./pairedOccurrence";
 
@@ -98,21 +97,12 @@ export class Index {
 
     const fingerprints = await this.createMatches(tokenizedFiles, hashFilter);
 
-    const report = new Report(
+    return new Report(
       this.options,
       this.tokenizer?.language ?? null,
       tokenizedFiles,
       fingerprints
     );
-
-    if(this.options.semantic) {
-      const semanticAnalyzer = new SemanticAnalyzer(this.options);
-      report.setSemanticData(
-        await semanticAnalyzer.semanticAnalysis(fingerprints, tokenizedFiles)
-      );
-    }
-
-    return report;
   }
 
   public async createMatches(

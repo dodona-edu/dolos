@@ -2,7 +2,6 @@ import { Pair } from "./pair";
 import { TokenizedFile } from "../file/tokenizedFile";
 import { DolosOptions, Options } from "../util/options";
 import { SharedFingerprint } from "./sharedFingerprint";
-import { SemanticData } from "./SemanticAnalyzer";
 import { Language } from "../util/language";
 import { closestMatch } from "../util/utils";
 
@@ -15,8 +14,6 @@ export interface Metadata extends DolosOptions {
 export class Report {
   // maximum amount of files a kgram can occur in a file before it is ignored
   private readonly kgramMaxFileOccurrences: number;
-
-  public semanticData?: SemanticData;
 
   private fingerprints: Array<SharedFingerprint>;
 
@@ -68,12 +65,6 @@ export class Report {
       this.pairs.sort(sortfn);
     }
     return this.pairs;
-  }
-
-
-
-  public setSemanticData(data: SemanticData): void {
-    this.semanticData = data;
   }
 
   public sharedFingerprints(): Array<SharedFingerprint> {

@@ -21,7 +21,7 @@
 
 <script lang="ts" setup>
 import { shallowRef, withDefaults } from "vue";
-import { Pair, Metadata, Match } from "@/api/models";
+import { Pair, Metadata, Fragment } from "@/api/models";
 
 interface Props {
   pair: Pair;
@@ -31,7 +31,7 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {});
 
 // Selected match.
-const selectedMatch = shallowRef<Match | null>(null);
+const selectedMatch = shallowRef<Fragment | null>(null);
 // Hovering match.
-const hoveringMatch = shallowRef<Match | null>(null);
+const hoveringMatch = shallowRef<Fragment | null>(null);
 </script>

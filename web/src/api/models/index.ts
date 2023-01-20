@@ -7,8 +7,6 @@ export * from "./objmap";
 export * from "./metadata";
 export * from "./fragment";
 export * from "./paired-occurrence";
-export * from "./semantic";
 export * from "./legend";
 export * from "./label";
-export * from "./match";
 export * from "./coordinate";

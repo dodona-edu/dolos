@@ -9,7 +9,6 @@ import {
   useFileStore,
   useKgramStore,
   useMetadataStore,
-  useSemanticStore,
 } from "@/api/stores";
 import {
   Pair,
@@ -32,7 +31,6 @@ export const usePairStore = defineStore("pairs", () => {
   const fileStore = useFileStore();
   const kgramStore = useKgramStore();
   const metadataStore = useMetadataStore();
-  const semanticStore = useSemanticStore();
   const apiStore = useApiStore();
 
   // List of pairs to display (with active labels)
@@ -48,7 +46,7 @@ export const usePairStore = defineStore("pairs", () => {
       pairsActive.value = pairs.value;
       return;
     }
-    
+
     const pairsFiltered = { ...pairs.value };
 
     // Delete all the pairs that contain a file that shouldn't be displayed.
@@ -68,7 +66,7 @@ export const usePairStore = defineStore("pairs", () => {
   // Update the pairs to display when the pairs change.
   // The changing of files or legend is handled by the file store.
   watch(pairs, () => calculateActivePairs());
-  
+
 
   // If this store has been hydrated.
   const hydrated = shallowRef(false);
@@ -94,10 +92,7 @@ export const usePairStore = defineStore("pairs", () => {
           totalOverlap,
           leftFile: files[parseInt(assertType(row.leftFileId))],
           rightFile: files[parseInt(assertType(row.rightFileId))],
-          matches: [],
           fragments: null,
-          pairedMatches: [],
-          unpairedMatches: [],
           leftCovered,
           rightCovered,
         };
@@ -128,20 +123,10 @@ export const usePairStore = defineStore("pairs", () => {
   async function populateFragments(pair: Pair): Promise<Pair> {
     const customOptions = metadataStore.metadata;
     const kmers = kgramStore.kgrams;
-    const occurrences = semanticStore.occurrences;
 
-    const pairWithFragments = await dataWorker.populateFragments(pair, customOptions, kmers, occurrences);
+    const pairWithFragments = await dataWorker.populateFragments(pair, customOptions, kmers);
     pairs.value[pair.id] = pairWithFragments;
     return pairWithFragments;
-  }
-
-  // Populate the semantic matches for a given pair.
-  async function populateSemantic(pair: Pair): Promise<Pair> {
-    const occurrences = semanticStore.occurrences;
-
-    const pairWithSemantic = await dataWorker.populateSemantic(pair, occurrences);
-    pairs.value[pair.id] = pairWithSemantic;
-    return pairWithSemantic;
   }
 
   // Get a pair by its ID.
@@ -194,7 +179,6 @@ export const usePairStore = defineStore("pairs", () => {
     hydrated,
     hydrate,
     populateFragments,
-    populateSemantic,
     getPair,
     getPairs,
     clustering,
