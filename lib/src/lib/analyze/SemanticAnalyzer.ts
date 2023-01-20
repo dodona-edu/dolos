@@ -4,7 +4,7 @@ import { Region } from "../util/region";
 import { countByKey, intersect, mapValues, sumByKey } from "../util/utils";
 import { SharedFingerprint } from "./sharedFingerprint";
 import { DolosOptions } from "../util/options";
-import { Occurrence } from "./index";
+import { Hash, Occurrence } from "./index";
 
 // The AST needs to be annotated with the matching information gotten from @link{Index} to produce information on
 // which nodes in the AST are matched.
@@ -83,7 +83,7 @@ export class SemanticAnalyzer {
   constructor(private options: DolosOptions) {}
 
   public async semanticAnalysis(
-    fingerprints: Array<SharedFingerprint>,
+    fingerprints: Map<Hash, SharedFingerprint>,
     tokenizedFiles: TokenizedFile[],
   ): Promise<SemanticData> {
     const results = new Map();
@@ -285,9 +285,9 @@ export class SemanticAnalyzer {
 
 
   private async astWithMatches(
-    fingerprints: Array<SharedFingerprint>,
+    fingerprints: Map<Hash, SharedFingerprint>,
   ): Promise<DefaultMap<TokenizedFile, AstWithMatches>> {
-    const groupedOccurrences = Object.values(fingerprints).map((f: SharedFingerprint) => f.parts());
+    const groupedOccurrences = Array.from(fingerprints.values()).map((f: SharedFingerprint) => f.parts());
     const getDefault = (): AstWithMatches => ({ tokenToGroup: new Map(), groups: groupedOccurrences });
     const astMap = new DefaultMap<TokenizedFile, AstWithMatches>(getDefault);
 

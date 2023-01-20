@@ -4,8 +4,7 @@ import Identifiable from "../util/identifiable";
 
 export class SharedFingerprint extends Identifiable {
 
-  public readonly files: Array<TokenizedFile> = [];
-  private partMap: Array<Array<Occurrence>> = [];
+  private partMap: Map<TokenizedFile, Array<Occurrence>> = new Map();
 
   constructor(
     public readonly hash: number,
@@ -13,11 +12,11 @@ export class SharedFingerprint extends Identifiable {
   ) { super(); }
 
   public add(part: Occurrence): void {
-    if (this.partMap[part.file.id] === undefined) {
-      this.files.push(part.file);
-      this.partMap[part.file.id] = [];
+    const parts = this.partMap.get(part.file) || [];
+    if (parts.length === 0) {
+      this.partMap.set(part.file, parts);
     }
-    this.partMap[part.file.id].push(part);
+    parts.push(part);
   }
 
   public addAll(parts: Array<Occurrence>): void {
@@ -25,14 +24,20 @@ export class SharedFingerprint extends Identifiable {
   }
 
   public occurrencesOf(file: TokenizedFile): Array<Occurrence> {
-    return this.partMap[file.id];
+    return this.partMap.get(file) || [];
   }
 
   public parts(): Array<Occurrence> {
-    return this.partMap.flat();
+    return Array.from(this.partMap.values())
+      .map(set => Array.from(set))
+      .flat();
+  }
+
+  public files(): Array<TokenizedFile> {
+    return Array.from(this.partMap.keys());
   }
 
   public fileCount(): number {
-    return this.files.length;
+    return this.partMap.size;
   }
 }

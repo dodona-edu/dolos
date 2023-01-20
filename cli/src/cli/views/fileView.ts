@@ -72,7 +72,7 @@ export class FileView extends View {
         "id": s => s.id,
         "hash": s => s.hash,
         "data": s => s.kgram?.join(" ") || null,
-        "files": s => JSON.stringify(s.files.map(f => f.id))
+        "files": s => JSON.stringify(s.files().map(f => f.id))
       });
   }
 
