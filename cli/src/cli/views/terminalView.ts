@@ -55,7 +55,7 @@ export class TerminalView extends View {
   }
 
   private writePairs(pairs: Array<Pair>): void {
-    const maxOver = Math.max(...pairs.map(s => s.overlap));
+    const maxOver = pairs.reduce((curMax: number, pair: Pair) => Math.max(pair.overlap, curMax), 0);
     const overlapWidth = Math.max(15, Math.trunc(Math.log10(maxOver + 1)) + 2);
     const similarityWidth = 12;
     const pathWidth = (this.width - similarityWidth - 2*overlapWidth) / 2;
