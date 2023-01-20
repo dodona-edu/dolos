@@ -3,9 +3,10 @@ import { File } from "../lib/file/file";
 import { TokenizedFile } from "../lib/file/tokenizedFile";
 import { Pair } from "../lib/analyze/pair";
 import { Region } from "../lib/util/region";
+import { Range } from "../lib/util/range";
 import { SharedFingerprint } from "../lib/analyze/sharedFingerprint";
-import { PairedOccurrence } from "../lib/analyze/pairedOccurrence";
 import { Dolos } from "../dolos";
+import { Occurrence } from "../lib/analyze";
 
 function createFakeFile(name: string): TokenizedFile {
   return new TokenizedFile(
@@ -15,10 +16,17 @@ function createFakeFile(name: string): TokenizedFile {
   );
 }
 
-function createPair(): Pair {
-  const f1 = createFakeFile("file1");
-  const f2 = createFakeFile("file2");
-  return new Pair(f1, f2);
+function createOccurrence(file: TokenizedFile, index: number): Occurrence {
+  return {
+    file,
+    side: {
+      index,
+      start: -1,
+      stop: -1,
+      location: new Region(0, 0, 0, 0),
+      data: null,
+    }
+  };
 }
 
 test("paired occurrence merging & squashing", t => {
@@ -26,282 +34,90 @@ test("paired occurrence merging & squashing", t => {
    * where the first column is the kgram index in the left and right files and
    * the other columns show the hash (number) of the fragment matching.
    *
-   * idx| Left   | Right
+   * idx| Left    | Right
    * ---------------------
-   * 0  | 1      | 4
-   *    | 1      | 4
-   * 5  | 1 2 6  | 4 5 6
-   *    | 1      | 4
-   * 10 | -      | -
-   *    | 3      |
-   *    | 3      |
-   *    | 3      |
-   * 20 | -      | -
-   *    | 4      | 1   3
-   *    | 4      | 1   3
-   * 25 | 4 5    | 1 2 3
-   *    | 4      | 1   3
-   *    | 4      | 1   3
-   * 30 | 4      | 1   3
-   *
-   * For example: a fragment with hash 1 can be found from index 0 to 10 in the
-   * left file, and from index 20 to 30 in the right file, this fragment
-   * contains another fragment with hash 2 which can be found on index 5 resp.
-   * 25 of the left resp. right file.
+   * 0  | A 1     | E 3 5
+   * 1  | B 1 2   | F 3 5
+   * 2  | C   2   | -
+   * 3  | D   2 8 | A 1 4
+   * 4  | B   2   | B 1 4
+   * 5  | C   2   | -
+   * 6  | E 3     | B 2 6
+   * 7  | F 3     | C 2
+   * 8  | -       | D 2
+   * 9  | A 4     | B 2 7
+   * 10 | B 4 6 7 | C 2
+   * 11 | E 5     | D 8
+   * 12 | F 5     |
    */
-  const int = createPair();
+  const left = createFakeFile("file1.js");
+  const right = createFakeFile("file2.js");
 
-  let kgram = new SharedFingerprint(1, "kgram 1".split(" "));
-  const biggerTopLeft = [];
-  // bigger match (1)
-  for(let i = 0; i < 10; i++) {
-    const pair = new PairedOccurrence(
-      {
-        index: i,
-        start: i,
-        stop: i + 1,
-        location: new Region(i, 0, i + 1, 0),
-        data: "lines 0 - 10".split(" "),
-      },
-      {
-        index: 20 + i,
-        start: 20 + i,
-        stop: 20 + i + 1,
-        location: new Region(20 + i, 0, 20 + i + 1, 0),
-        data: "lines 20 - 30".split(" "),
-      },
-      kgram
-    );
-    int.addPair(pair);
-    t.is(1, int.fragments().length);
-    biggerTopLeft.push(pair);
+  const shared = {
+    a: new SharedFingerprint(1, null),
+    b: new SharedFingerprint(2, null),
+    c: new SharedFingerprint(3, null),
+    d: new SharedFingerprint(4, null),
+    e: new SharedFingerprint(5, null),
+    f: new SharedFingerprint(6, null)
+  };
+
+  left.kgrams.push(...new Array<Range>(13).fill(new Range(0, 1)));
+  right.kgrams.push(...new Array<Range>(12).fill(new Range(0, 1)));
+
+  for (const fingerprint of Object.values(shared)) {
+    left.shared.add(fingerprint);
+    right.shared.add(fingerprint);
   }
 
-  // contained match (2)
-  kgram = new SharedFingerprint(2, "kgram 2".split(" "));
-  const topLeftContained = new PairedOccurrence(
-    {
-      index: 5,
-      start: 5 + 1,
-      stop: 5 + 2,
-      location: new Region(5, 0, 6, 0),
-      data: "small match line 5".split(" "),
-    },
-    {
-      index: 25,
-      start: 25 + 1,
-      stop: 25 + 2,
-      location: new Region(25, 0, 26, 0),
-      data: "small match line 25".split(" "),
-    },
-    kgram
-  );
-  int.addPair(topLeftContained);
-  t.is(2, int.fragments().length);
+  shared.a.addAll([
+    createOccurrence(left, 0),
+    createOccurrence(left, 9),
+    createOccurrence(right, 3),
+  ]);
+  shared.b.addAll([
+    createOccurrence(left, 1),
+    createOccurrence(left, 4),
+    createOccurrence(left, 10),
+    createOccurrence(right, 4),
+    createOccurrence(right, 6),
+    createOccurrence(right, 9),
+  ]);
+  shared.c.addAll([
+    createOccurrence(left, 2),
+    createOccurrence(left, 5),
+    createOccurrence(right, 7),
+    createOccurrence(right, 10),
+  ]);
+  shared.d.addAll([
+    createOccurrence(left, 3),
+    createOccurrence(right, 8),
+    createOccurrence(right, 11),
+  ]);
+  shared.e.addAll([
+    createOccurrence(left, 6),
+    createOccurrence(left, 11),
+    createOccurrence(right, 0),
+  ]);
+  shared.f.addAll([
+    createOccurrence(left, 7),
+    createOccurrence(left, 12),
+    createOccurrence(right, 1),
+  ]);
 
-  // bigger match, same location (3)
-  const biggerMiddle = [];
-  kgram = new SharedFingerprint(3, "kgram 3".split(" "));
-  for(let i = 0; i < 10; i++) {
-    const match = new PairedOccurrence(
-      {
-        index: 10 + i,
-        start: 10 + i + 1,
-        stop: 10 + i + 2,
-        location: new Region(10 + i, 0, 10 + i + 1, 0),
-        data: "lines 10 - 20".split(" "),
-      },
-      {
-        index: 20 + i,
-        start: 20 + i + 1,
-        stop: 20 + i + 2,
-        location: new Region(10 + i, 0, 10 + i + 1, 0),
-        data: "lines 10 - 20".split(" "),
-      },
-      kgram
-    );
-    biggerMiddle.push(match);
-    int.addPair(match);
-    t.is(3, int.fragments().length);
-  }
+  const pair = new Pair(left, right);
 
-  // bigger match (4)
-  const  biggerBottomLeft = [];
-  kgram = new SharedFingerprint(4, "kgram 4".split(" "));
-  for(let i = 0; i < 10; i++) {
-    const match = new PairedOccurrence(
-      {
-        index: 20 + i,
-        start: 20 + i + 1,
-        stop: 20 + i + 2,
-        location: new Region(20 + i, 0, 20 + i + 1, 0),
-        data: "lines 20 - 30".split(" "),
-      },
-      {
-        index: i,
-        start: i + 1,
-        stop: i + 2,
-        location: new Region(i, 0, i + 1, 0),
-        data: "lines 0 - 10".split(" "),
-      },
-      kgram
-    );
-    biggerBottomLeft.push(match);
-    int.addPair(match);
-    t.is(4, int.fragments().length);
-  }
+  t.is(pair.leftCovered, 12);
+  t.is(pair.rightCovered, 10);
+  t.is(pair.leftTotal, 13);
+  t.is(pair.rightTotal, 12);
+  t.is(pair.overlap, 22);
+  t.is(pair.similarity, .88);
+  t.is(pair.longest, 5);
 
-  // contained match (5)
-  kgram = new SharedFingerprint(5, "kgram 5".split(" "));
-  const bottomLeftContained = new PairedOccurrence(
-    {
-      index: 25,
-      start: 25 + 1,
-      stop: 25 + 2,
-      location: new Region(25, 0, 26, 0),
-      data: "small match line 25".split(" "),
-    },
-    {
-      index: 5,
-      start: 5 + 1,
-      stop: 5 + 2,
-      location: new Region(5, 0, 6, 0),
-      data: "small match line 5".split(" "),
-    },
-    kgram
-  );
-  int.addPair(bottomLeftContained);
-  t.is(5, int.fragments().length);
 
-  // match not contained (6)
-  kgram = new SharedFingerprint(6, "kgram 6".split(" "));
-  const notContained = new PairedOccurrence(
-    {
-      index: 5,
-      start: 5 + 1,
-      stop: 5 + 2,
-      location: new Region(5, 0, 6, 0),
-      data: "not contained match line 5".split(" "),
-    },
-    {
-      index: 5,
-      start: 5 + 1,
-      stop: 5 + 2,
-      location: new Region(5, 0, 6, 0),
-      data: "not contained match line 5".split(" "),
-    },
-    kgram
-  );
-  int.addPair(notContained);
-
-  let fragments = int.fragments();
-  t.is(6, fragments.length);
-
-  t.deepEqual(biggerTopLeft, fragments[0].pairs);
-  t.deepEqual([topLeftContained], fragments[1].pairs);
-  t.deepEqual([notContained], fragments[2].pairs);
-  t.deepEqual(biggerMiddle, fragments[3].pairs);
-  t.deepEqual(biggerBottomLeft, fragments[4].pairs);
-  t.deepEqual([bottomLeftContained], fragments[5].pairs);
-
-  int.squash();
-
-  fragments = int.fragments();
-
-  t.deepEqual([1, 6, 3, 4], fragments.map(f => f.pairs[0].fingerprint.hash));
-
-  t.deepEqual(biggerTopLeft, fragments[0].pairs);
-  t.deepEqual([notContained], fragments[1].pairs);
-  t.deepEqual(biggerMiddle, fragments[2].pairs);
-  t.deepEqual(biggerBottomLeft, fragments[3].pairs);
-  t.is(4, fragments.length, "squashed too many");
 });
 
-test("squash multiple overlapping fragments", t => {
-  const int = createPair();
-
-  // outer fragment
-  let kgram = new SharedFingerprint(1, "outer match".split(" "));
-  const outer = [];
-  for(let i = 0; i < 10; i++) {
-    const pair = new PairedOccurrence(
-      {
-        index: i,
-        start: i,
-        stop: i + 1,
-        location: new Region(i, 0, i + 1, 0),
-        data: "lines 0 - 10".split(" "),
-      },
-      {
-        index: 20 + i,
-        start: 20 + i,
-        stop: 20 + i + 1,
-        location: new Region(20 + i, 0, 20 + i + 1, 0),
-        data: "lines 20 - 30".split(" "),
-      },
-      kgram
-    );
-    int.addPair(pair);
-    t.is(1, int.fragments().length);
-    outer.push(pair);
-  }
-
-  // middle fragment
-  kgram = new SharedFingerprint(2, "middle match".split(" "));
-  const middle = [];
-  for(let i = 1; i < 9; i++) {
-    const pair = new PairedOccurrence(
-      {
-        index: i,
-        start: i,
-        stop: i + 1,
-        location: new Region(i, 0, i + 1, 0),
-        data: "lines 0 - 10".split(" "),
-      },
-      {
-        index: 20 + i,
-        start: 20 + i,
-        stop: 20 + i + 1,
-        location: new Region(20 + i, 0, 20 + i + 1, 0),
-        data: "lines 20 - 30".split(" "),
-      },
-      kgram
-    );
-    int.addPair(pair);
-    t.is(2, int.fragments().length);
-    middle.push(pair);
-  }
-
-  // inner fragment
-  kgram = new SharedFingerprint(3, "inner match".split(" "));
-  const inner = [];
-  for(let i = 2; i < 8; i++) {
-    const pair = new PairedOccurrence(
-      {
-        index: i,
-        start: i,
-        stop: i + 1,
-        location: new Region(i, 0, i + 1, 0),
-        data: "lines 0 - 10".split(" "),
-      },
-      {
-        index: 20 + i,
-        start: 20 + i,
-        stop: 20 + i + 1,
-        location: new Region(20 + i, 0, 20 + i + 1, 0),
-        data: "lines 20 - 30".split(" "),
-      },
-      kgram
-    );
-    int.addPair(pair);
-    t.is(3, int.fragments().length);
-    inner.push(pair);
-  }
-
-  int.squash();
-  const fragments = int.fragments();
-  t.is(1, fragments.length, "incorrect squash of overlapping fragments");
-});
 
 test.failing("repeating sequences should not cause too many fragments", async t => {
   const dolos = new Dolos();
@@ -349,9 +165,9 @@ test.failing("repeating sequences should not cause too many fragments", async t 
   );
 
 
-  t.is(1, report.scoredPairs.length);
-  const { pair } = report.scoredPairs[0];
+  const pairs = report.allPairs();
+  t.is(1, pairs.length);
 
-  const fragments = pair.fragments();
+  const fragments = pairs[0].buildFragments();
   t.is(fragments.length, 2);
 });

@@ -75,8 +75,13 @@ export class CodeTokenizer extends Tokenizer {
     );
 
     const getChildrenRegion =
-    (node: SyntaxNode): Region[] =>
-      node.children.reduce<Region[]>((list, child) => [...list, ...getChildrenRegion(child), nodeToRegion(node)], []);
+      (node: SyntaxNode): Region[] =>
+        node.children.reduce<Region[]>(
+          (list, child) =>
+            list.concat(getChildrenRegion(child))
+              .concat(nodeToRegion(node)),
+          []
+        );
 
     return node.children.map(getChildrenRegion).flat();
   }
