@@ -15,7 +15,7 @@ import {
   watch,
   computed,
 } from "vue";
-import { Pair, Metadata, Match } from "@/api/models";
+import { Pair, Metadata, Fragment } from "@/api/models";
 import * as monaco from "monaco-editor";
 import { useVModel } from "@vueuse/core";
 
@@ -23,12 +23,12 @@ interface Props {
   side: "left" | "right";
   pair: Pair;
   metadata: Metadata;
-  selectedMatch: Match | null;
-  hoveringMatch: Match | null;
+  selectedMatch: Fragment | null;
+  hoveringMatch: Fragment | null;
 }
 
 interface Selection {
-  match: Match | null;
+  match: Fragment | null;
   range: monaco.IRange | null;
   isWholeLine: boolean;
 }
@@ -49,7 +49,7 @@ const file = computed(() => props.side === "left" ? props.pair.leftFile : props.
 
 // List of matches, sorted on the start line & column.
 const matches = computed(() => {
-  const matches = [...props.pair.matches];
+  const matches = props.pair.fragments;
   if (!matches) return [];
 
   return matches.sort(
@@ -74,8 +74,8 @@ const decorations = shallowRef([]);
 
 // Get the match at a given editor position.
 // Will use the smallest match at the given position.
-const getMatchAtPosition = (row: number, col: number): Match | null => {
-  let smallestMatch = null;
+const getMatchAtPosition = (row: number, col: number): Fragment | null => {
+  let smallestMatch: Fragment | null = null;
   let smallestMatchLength = Number.MAX_SAFE_INTEGER;
 
   for (const match of matches.value) {
@@ -108,7 +108,7 @@ const getMatchAtPosition = (row: number, col: number): Match | null => {
 };
 
 // Scroll to a given match.
-const scrollToMatch = (match: Match): void => {
+const scrollToMatch = (match: Fragment): void => {
   editor.value?.revealPositionInCenter(
     {
       lineNumber: match[props.side].startRow,

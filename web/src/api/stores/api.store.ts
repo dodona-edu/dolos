@@ -6,7 +6,6 @@ import {
   useKgramStore,
   useMetadataStore,
   usePairStore,
-  useSemanticStore,
 } from "@/api/stores";
 import { refDebounced } from "@vueuse/shared";
 
@@ -19,7 +18,6 @@ export const useApiStore = defineStore("api", () => {
   const kgramStore = useKgramStore();
   const metadataStore = useMetadataStore();
   const pairStore = usePairStore();
-  const semanticStore = useSemanticStore();
 
   // If the data is loaded.
   const isLoaded = shallowRef(false);
@@ -47,8 +45,6 @@ export const useApiStore = defineStore("api", () => {
     await metadataStore.hydrate();
     loadingText.value = "Fetching & parsing pairs...";
     await pairStore.hydrate();
-    loadingText.value = "Fetching & parsing semantics...";
-    await semanticStore.hydrate();
 
     // Calculate the initial cut-off value.
     loadingText.value = "Calculating initial cut-off...";

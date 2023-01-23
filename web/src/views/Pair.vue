@@ -1,7 +1,7 @@
 <template>
   <v-container fluid fill-height>
     <breadcrumbs
-      :previous-fallback="{ name: 'View by pairs', path: '/pairs' }"
+      :previous-fallback="{ name: 'View by pair', path: '/pairs' }"
     />
 
     <v-row justify="center">

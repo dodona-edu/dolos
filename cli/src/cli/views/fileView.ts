@@ -103,16 +103,6 @@ export class FileView extends View {
       });
   }
 
-  public writeSemantic(out: Writable): void {
-
-    out.write(
-      JSON.stringify({
-        semanticMapResults: this.report.semanticData?.results,
-        occurrences: this.report.semanticData?.occurrences.map(o => o.map(f => f.file.id)),
-      })
-    );
-  }
-
   async writeToDirectory(): Promise<string> {
     const dirName = this.outputDestination;
     await fs.mkdir(dirName, { recursive: true });
@@ -123,10 +113,6 @@ export class FileView extends View {
     this.writePairs(createWriteStream(`${dirName}/pairs.csv`));
 
     console.log("Pairs written.");
-    if(this.report.options.semantic) {
-      this.writeSemantic(createWriteStream(`${dirName}/semantic.json`));
-      console.log("Semantic output written.");
-    }
 
     this.writekgrams(createWriteStream(`${dirName}/kgrams.csv`));
     console.log("Kgrams written.");

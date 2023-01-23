@@ -148,11 +148,6 @@ const activePair = computed<Pair>(() => {
           })),
         }))
         : null,
-      pairedMatches: props.pair.pairedMatches.map((u) => ({
-        leftMatch: u.rightMatch,
-        rightMatch: u.leftMatch,
-      })),
-      unpairedMatches: props.pair.unpairedMatches,
     };
   }
 

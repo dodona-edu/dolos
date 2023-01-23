@@ -75,7 +75,7 @@ const draw = (): void => {
   groups
     .append("text")
     .text((file) => {
-      const name = file.extrafullName ?? file.shortPath;
+      const name = file?.extra?.fullName ?? file.shortPath;
       const splitName = name.split(" ");
       if (splitName.length === 2) {
         return (splitName[0][0] + splitName[1][0]).toUpperCase();
