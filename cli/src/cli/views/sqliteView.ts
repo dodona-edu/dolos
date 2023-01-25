@@ -102,6 +102,8 @@ export class SqliteView extends View {
         file.kgrams.length,
         JSON.stringify(file.extra || {})
       );
+    }
+    for (const file of this.report.files) {
       for (let i = 0; i < file.ast.length; i++) {
         const region = file.mapping[i];
         insertAST.run(file.id, i, file.ast[i], region.startRow, region.startCol, region.endRow, region.endCol);

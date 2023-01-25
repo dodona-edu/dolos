@@ -1,5 +1,5 @@
 import { View } from "./view";
-import { Database, Connection, DuckDbError, Callback } from "duckdb";
+import { Database, Connection  } from "duckdb-async";
 import { Options } from "./fileView";
 import { Report } from "@dodona/dolos-lib";
 import { pkg } from "../../cli";
@@ -7,43 +7,35 @@ import { pkg } from "../../cli";
 export class DuckdbView extends View {
 
   protected outputDestination: string;
-  private db: Database;
-  private conn: Connection;
-
-  private callback: Callback<void> = (err: DuckDbError | null, _res: void) => {
-    if (err !== null) {
-      console.error(err);
-    }
-  };
 
   constructor(protected report: Report, options: Options) {
     super();
     this.outputDestination =
       options.outputDestination || `dolos-report-${ new Date().toISOString().replace(/[.:-]/g, "") }.duckdb`;
-    this.db = new Database(this.outputDestination);
-    this.conn = this.db.connect();
   }
 
-  public show(): Promise<void> {
+  public async show(): Promise<void> {
+    const db = await Database.create(this.outputDestination);
+    const conn = await db.connect();
     console.log(`Writing results to DuckDB database: ${this.outputDestination}`);
     console.log("Creating tables");
-    this.createTables();
+    await this.createTables(conn);
     console.log("Inserting files");
-    this.insertFiles();
+    await this.insertFiles(conn);
     console.log("Inserting pairs");
-    this.insertPairs();
+    await this.insertPairs(conn);
     console.log("Inserting kgrams");
-    this.insertKgrams();
+    await this.insertKgrams(conn);
     console.log("Inserting metadata");
-    this.insertMetadata();
-    this.db.close(this.callback);
+    await this.insertMetadata(conn);
+    await db.close();
     console.log("Completed");
     return Promise.resolve();
 
   }
 
-  private createTables() {
-    this.conn.exec(`
+  private createTables(conn: Connection): Promise<void> {
+    return conn.exec(`
       CREATE TABLE files (
         id INTEGER PRIMARY KEY,
         path TEXT NOT NULL,
@@ -85,38 +77,37 @@ export class DuckdbView extends View {
         language TEXT NOT NULL,
         language_detected INTEGER NOT NULL
       );
-    `, [], this.callback);
+    `);
   }
 
-  private insertFiles() {
-    const insertFile = this.conn.prepare(`
+  private async insertFiles(conn: Connection): Promise<void> {
+    const insertFile = await conn.prepare(`
       INSERT INTO files (id, path, content, kgram_count, extra) VALUES (?, ?, ?, ?, ?);
     `);
-    const insertAST = this.conn.prepare(`
+    const insertAST = await conn.prepare(`
       INSERT INTO ast (file, idx, token, start_row, start_col, end_row, end_col) VALUES (?, ?, ?, ?, ?, ?, ?);
     `);
     for (const file of this.report.files) {
-      insertFile.run(
+      await insertFile.run(
         file.id,
         file.path,
         file.content,
         file.kgrams.length,
         JSON.stringify(file.extra || {}),
-        this.callback
       );
       for (let i = 0; i < file.ast.length; i++) {
         const region = file.mapping[i];
-        insertAST.run(file.id, i, file.ast[i], region.startRow, region.startCol, region.endRow, region.endCol, this.callback);
+        await insertAST.run(file.id, i, file.ast[i], region.startRow, region.startCol, region.endRow, region.endCol);
       }
     }
   }
 
-  private insertPairs() {
-    const insertPair = this.conn.prepare(`
+  private async insertPairs(conn: Connection) {
+    const insertPair = await conn.prepare(`
       INSERT INTO pairs (id, left_file, right_file, similarity, total_overlap, longest_overlap, left_covered, right_covered) VALUES (?, ?, ?, ?, ?, ?, ?, ?);
     `);
     for (const pair of this.report.allPairs()) {
-      insertPair.run(
+      await insertPair.run(
         pair.id,
         pair.leftFile.id,
         pair.rightFile.id,
@@ -125,37 +116,33 @@ export class DuckdbView extends View {
         pair.longest,
         pair.leftCovered,
         pair.rightCovered,
-        this.callback
       );
     }
   }
 
-  private insertKgrams() {
-    const insertFileKgram = this.conn.prepare(`
+  private async insertKgrams(conn: Connection) {
+    const insertFileKgram = await conn.prepare(`
       INSERT INTO file_kgrams (file, kgram_hash) VALUES (?, ?);
     `);
     for (const kgram of this.report.sharedFingerprints()) {
       for (const file of kgram.files()) {
-        insertFileKgram.run(
+        await insertFileKgram.run(
           file.id,
           kgram.hash,
-          this.callback
         );
       }
     }
   }
 
-  private insertMetadata() {
+  private async insertMetadata(conn: Connection) {
     const metadata = this.report.metadata();
-    this.conn.prepare(`
-      INSERT INTO metadata (version, kgram_length, window_length, language, language_detected) VALUES (?, ?, ?, ?, ?);`
-    ).run(
+    await conn.exec(`
+      INSERT INTO metadata (version, kgram_length, window_length, language, language_detected) VALUES (?, ?, ?, ?, ?);`,
       pkg.version,
       metadata.kgramLength,
       metadata.kgramsInWindow,
       metadata.language,
       metadata.languageDetected ? 1 : 0,
-      this.callback
     );
   }
 

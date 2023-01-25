@@ -5,7 +5,7 @@ import { createWriteStream, promises as fs } from "fs";
 import {
   Report,
   Pair,
-  SharedFingerprint,
+  Region,
   TokenizedFile
 } from "@dodona/dolos-lib";
 
@@ -64,18 +64,6 @@ export class FileView extends View {
       });
   }
 
-  public writekgrams(out: Writable): void {
-    writeCSVto<SharedFingerprint>(
-      out,
-      this.report.sharedFingerprints(),
-      {
-        "id": s => s.id,
-        "hash": s => s.hash,
-        "data": s => s.kgram?.join(" ") || null,
-        "files": s => JSON.stringify(s.files().map(f => f.id))
-      });
-  }
-
   public writeFiles(out: Writable): void {
     writeCSVto<TokenizedFile>(
       out,
@@ -85,9 +73,31 @@ export class FileView extends View {
         "path": f => f.path,
         "content": f => f.content,
         "amountOfKgrams": f => f.kgrams.length,
-        "ast": f => JSON.stringify(f.ast),
-        "mapping": f => JSON.stringify(f.mapping),
         "extra": f => JSON.stringify(f.extra)
+      });
+  }
+
+  public writeAST(out: Writable): void {
+    writeCSVto<[string, Region, number]>(
+      out,
+      this.report.files.flatMap(file => file.ast.map((token, i): [string, Region, number] => [token, file.mapping[i], file.id])),
+      {
+        "file": a => a[2],
+        "token": a => a[0],
+        "start_row": a => a[1].startRow,
+        "start_col": a => a[1].startCol,
+        "end_row": a => a[1].endRow,
+        "end_col": a => a[1].endCol,
+      });
+  }
+
+
+  public writeKgrams(out: Writable): void {
+    writeCSVto<Array<number>>(out,
+      this.report.sharedFingerprints().flatMap(fingerprint => fingerprint.files().map(file => [fingerprint.hash, file.id])),
+      {
+        "kgram_hash": a => a[0],
+        "file": a => a[1],
       });
   }
 
@@ -114,10 +124,12 @@ export class FileView extends View {
 
     console.log("Pairs written.");
 
-    this.writekgrams(createWriteStream(`${dirName}/kgrams.csv`));
+    this.writeKgrams(createWriteStream(`${dirName}/kgrams.csv`));
     console.log("Kgrams written.");
     this.writeFiles(createWriteStream(`${dirName}/files.csv`));
     console.log("Files written.");
+    this.writeAST(createWriteStream(`${dirName}/ast.csv`));
+    console.log("AST written.");
     console.log("Completed");
     return dirName;
   }
