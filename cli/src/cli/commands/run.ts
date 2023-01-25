@@ -12,6 +12,8 @@ import { WebView } from "../views/webView";
 import { Command } from "commander";
 import * as Utils from "../util/utils";
 import { Dolos, Options } from "@dodona/dolos-lib";
+import { SqliteView } from "../views/sqliteView";
+import {DuckdbView} from "../views/duckdbView";
 
 export function runCommand(program: Command): Command {
   return new Command("run")
@@ -201,6 +203,8 @@ export async function run(locations: string[], options: RunOptions): Promise<voi
       "csv": () => new FileView(report, options),
       "html": () => new WebView(report, options),
       "web": () => new WebView(report, options),
+      "sqlite": () => new SqliteView(report, options),
+      "duckdb": () => new DuckdbView(report, options),
     });
 
     if (view == null) {
