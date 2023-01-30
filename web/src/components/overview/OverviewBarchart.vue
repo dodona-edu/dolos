@@ -10,7 +10,7 @@ import {
   onMounted,
 } from "vue";
 import { storeToRefs } from "pinia";
-import { useApiStore, useFileStore } from "@/api/stores";
+import { useApiStore, useFileStore, usePairStore } from "@/api/stores";
 import { useElementSize } from "@vueuse/core";
 import { useD3Tooltip, useRouter } from "@/composables";
 import * as d3 from "d3";
@@ -31,6 +31,11 @@ const { cutoff } = storeToRefs(useApiStore());
 const { similaritiesList } = storeToRefs(useFileStore());
 const maxFileData = computed(() =>
   similaritiesList.value.map(f => f?.similarity || 0)
+);
+
+const { pairsList } = storeToRefs(usePairStore());
+const pairData = computed(() =>
+  pairsList.value.map(p => p?.similarity || 0)
 );
 
 // Barchart template ref.
@@ -108,12 +113,13 @@ const draw = (): void => {
     .thresholds(xTicksAjusted);
   // Bins
   const bins = histogram(maxFileData.value);
-  
+  const pairBins = histogram(pairData.value);
+
   // Y-axis
   const y = d3
-    .scaleLinear()
+    .scaleLog()
     .range([height.value, 0])
-    .domain([0, d3.max<any, any>(bins, d => d.length)]);
+    .domain([1, d3.max<any, any>(pairBins, d => d.length)]).clamp(true);
   const yAxis = barchartContent
     .append("g")
     .call(d3.axisLeft(y))
@@ -128,10 +134,30 @@ const draw = (): void => {
   // Only add the data if there are any files available.
   if (maxFileData.value.length > 0) {
     barchartContent
-      .selectAll("rect")
+      .selectAll("rect.pair")
+      .data(pairBins)
+      .enter()
+      .append("rect")
+      .attr("class", "pair")
+      .attr("x", 1)
+      .attr("transform", (d) => "translate(" + (x(d.x0 ?? 0)) + "," + y(d.length) + ")")
+      .attr("width", (d) => x(d.x1 ?? 0) - x(d.x0 ?? 0) - 1)
+      .attr("height", (d) => height.value - y(d.length))
+      .style("fill", (d) => "rgba(25, 118, 210, 0.1)")
+      .on("mouseover", (e: MouseEvent, d) =>
+        tooltip.onMouseOver(e,
+          `There are <b>${d.length}</b> pairs that have a value between <b>${d.x0}</b> and <b>${d.x1}</b>`
+        )
+      )
+      .on("mousemove", (e: MouseEvent) => tooltip.onMouseMove(e))
+      .on("mouseleave", (e: MouseEvent) => tooltip.onMouseOut(e));
+
+    barchartContent
+      .selectAll("rect.file")
       .data(bins)
       .enter()
       .append("rect")
+      .attr("class", "file")
       .attr("x", 1)
       .attr("transform", (d) => "translate(" + (x(d.x0 ?? 0)) + "," + y(d.length) + ")")
       .attr("width", (d) => x(d.x1 ?? 0) - x(d.x0 ?? 0) - 1)
@@ -154,6 +180,8 @@ const draw = (): void => {
           },
         });
       });
+
+
   }
 
   // Add extra line, if specified.
@@ -166,9 +194,10 @@ const draw = (): void => {
       .attr("x2", x(props.extraLine))
       .attr("y2", height.value)
       .attr("stroke", "black")
-      .attr("stroke-width", 1.5);
+      .attr("stroke-width", 1.5)
+    ;
   }
-  
+
   // Store the axis scales.
   barchartXScale.value = x;
   barchartYScale.value = y;
@@ -195,7 +224,7 @@ watch(maxFileData, () => draw());
 watch(cutoff, () => {
   barchart
     .select("g")
-    .selectAll("rect")
+    .selectAll("rect.file")
     .style("fill", (d) => getBinColor(d));
 });
 

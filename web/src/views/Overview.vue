@@ -25,7 +25,7 @@
               <span>{{ language }}</span>
             </v-list-item>
           </v-list>
-          
+
           <template>
             <v-card-title class="info-card-subtitle pt-0 pb-0">
               {{ hasLabels ? legendCount : "No" }} labels detected
@@ -134,7 +134,7 @@
           </v-row>
 
           <overview-barchart
-            :ticks="20"
+            :ticks="40"
             :extra-line="apiStore.cutoff"
           />
         </v-card>
