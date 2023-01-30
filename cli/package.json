@@ -42,7 +42,7 @@
     "@elm-tooling/tree-sitter-elm": "^5.6.0",
     "chalk": "^4.1.1",
     "cliui": "^8.0.0",
-    "commander": "^9.0.0",
+    "commander": "^10.0.0",
     "csv-stringify": "^6.2.0",
     "express": "^4.17.1",
     "open": "^8.2.1",
