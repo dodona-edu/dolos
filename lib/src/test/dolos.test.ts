@@ -211,3 +211,12 @@ test("should read ZIP-files", async t => {
   t.is(6, pairs.length);
   t.true(pairs[0].similarity > 0.75);
 });
+
+test("empty files should match 0%", async t => {
+  const dolos = new Dolos();
+  const report = await dolos.analyze([new File("file1.js", ""), new File("file2.js", "")]);
+  const pairs = report.allPairs();
+  t.is(0, pairs[0].similarity);
+  t.is(0, pairs[0].overlap);
+  t.is(0, pairs[0].longest);
+});
