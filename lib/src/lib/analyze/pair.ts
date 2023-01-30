@@ -69,7 +69,11 @@ export class Pair extends Identifiable {
     this.rightCovered = right.length;
     this.leftTotal = leftFile.kgrams.length;
     this.rightTotal = rightFile.kgrams.length;
-    this.similarity = (this.leftCovered + this.rightCovered) / (this.leftTotal + this.rightTotal);
+    if (this.leftTotal + this.rightTotal > 0) {
+      this.similarity = (this.leftCovered + this.rightCovered) / (this.leftTotal + this.rightTotal);
+    } else {
+      this.similarity = 0;
+    }
   }
 
   private longestCommonSubstring(l: Kgram[], r: Kgram[]): number {
