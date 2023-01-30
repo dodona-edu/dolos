@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { shallowRef, watch } from "vue";
-import { getInterpolatedSimilarity } from "@/api/utils";
+import { guessSimilarityThreshold } from "@/api/utils";
 import {
   useFileStore,
   useKgramStore,
@@ -48,7 +48,7 @@ export const useApiStore = defineStore("api", () => {
 
     // Calculate the initial cut-off value.
     loadingText.value = "Calculating initial cut-off...";
-    cutoff.value = getInterpolatedSimilarity(pairStore.pairsActiveList);
+    cutoff.value = guessSimilarityThreshold(pairStore.pairsActiveList);
     cutoffDefault.value = cutoff.value;
 
     isLoaded.value = true;
