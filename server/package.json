@@ -27,7 +27,7 @@
     "@dodona/dolos": "2.0.2",
     "@dodona/dolos-web": "2.0.2",
     "@dodona/dolos-lib": "2.0.2",
-    "eta": "1.14.1",
+    "eta": "1.14.2",
     "express": "4.18.2",
     "express-fileupload": "1.4.0",
     "sanitize-filename": "1.6.3",
