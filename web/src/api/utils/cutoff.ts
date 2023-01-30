@@ -1,34 +1,23 @@
 import { Pair } from "@/api/models";
 
 /**
- * Get an array of which bins are local minima (essentially: which bins have a higher neighbour on both sides)
- * @param pairs
- * @param min
- * @param max
- */
-export function getCountByMinmax(
-  pairs: Pair[],
-  min: number,
-  max: number
-): number {
-  return pairs
-    .filter((p) => p.similarity >= min)
-    .filter((p) => p.similarity < max).length;
-}
-
-/**
  * Put the pairs in bins of similarity 'step'.
  * @param pairs
  * @param step
  */
 export function getBinnedCount(pairs: Pair[], step = 0.05): number[] {
   const results: number[] = [];
-  for (let i = 0; i <= 1; i += step) {
-    const min = i - step;
-    const max = i + step;
-    results.push(getCountByMinmax(pairs, min, max));
+  let current = 0;
+  let nextStep = step;
+  for (const pair of pairs) {
+    while (pair.similarity > nextStep) {
+      results.push(current);
+      nextStep += step;
+      current = 0;
+    }
+    current += 1;
   }
-
+  results.push(current);
   return results;
 }
 
@@ -77,10 +66,14 @@ export function getLocalMinima(array: number[]): number[] {
  * with a local minimum separating them).
  * 3. This local minimum should be relatively significant.
  * @param pairs
+ * @param fileSimilarities
  * @param step
  */
-export function getInterpolatedSimilarity(pairs: Pair[], step = 0.03): number {
+export function guessSimilarityThreshold(pairs: Pair[], step = 0.03): number {
   pairs.sort((p1, p2) => p1.similarity - p2.similarity);
+
+  const mean = pairs.reduce((sum, pair) => sum + pair.similarity, 0) / pairs.length;
+
   // Put the pairs in bins of similarity 'step'.
   const binnedCount = getBinnedCount(pairs, step);
 
@@ -100,5 +93,9 @@ export function getInterpolatedSimilarity(pairs: Pair[], step = 0.03): number {
   );
 
   // Convert the bin index with the lowest weight back to the similarity value this index represents
-  return localMinima[indexMin] * step;
+  const likelyMinimum = localMinima[indexMin] * step + (step / 2);
+
+  // Sometimes, there are very few local minima, which results in a very low threshold.
+  // To avoid this, the threshold should be at least the mean of the pairwise similarities.
+  return Math.max(mean, likelyMinimum);
 }
