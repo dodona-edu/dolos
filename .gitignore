@@ -3,5 +3,11 @@ node_modules/
 vetur.config.js
 **/package-lock.json
 **/yarn.lock
+*.log
+*.txt
+*.csv
+*.tgz
+*.zip
+dolos-report-*/
 !docs/yarn.lock
 .nvmrc
