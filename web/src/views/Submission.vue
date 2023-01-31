@@ -4,7 +4,7 @@
       <div v-if="file" :key="file.id">
         <breadcrumbs
           :current-override="{ name: file.extra.fullName ?? file.shortPath }"
-          :previous-fallback="{ name: 'View by submissions', path: '/submissions' }"
+          :previous-fallback="{ name: 'View by submission', path: '/submissions' }"
         />
 
         <div class="heading">

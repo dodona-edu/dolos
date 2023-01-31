@@ -115,8 +115,8 @@ const margin = {
 // Container size
 const size = useElementSize(histogramElement);
 // Width & height
-const width = computed(() => Math.max((props.width ?? size.width.value) - margin.left - margin.right, 0));
-const height = computed(() => (props.height ?? 400) - margin.top - margin.bottom);
+const width = computed<number>(() => Math.max((props.width ?? size.width.value) - margin.left - margin.right, 0));
+const height = computed<number>(() => Math.max((props.height ?? 400) - margin.top - margin.bottom, 0));
 
 // Histogram D3
 const histogramChart = d3
@@ -177,7 +177,7 @@ const draw = (): void => {
     .thresholds(xTicksAjusted);
   // Bins
   const bins = histogram(maxFileData.value);
-  
+
   // Y-axis
   const y = d3
     .scaleLinear()
@@ -203,7 +203,7 @@ const draw = (): void => {
       .append("rect")
       .attr("x", 1)
       .attr("transform", (d) => "translate(" + (x(d.x0 ?? 0)) + "," + y(d.length) + ")")
-      .attr("width", (d) => x(d.x1 ?? 0) - x(d.x0 ?? 0) - 1)
+      .attr("width", (d) => Math.max(0, x(d.x1 ?? 0) - x(d.x0 ?? 0) - 1))
       .attr("height", (d) => height.value - y(d.length))
       .style("fill", (d) => getBinColor(d))
       .style("cursor", "pointer")

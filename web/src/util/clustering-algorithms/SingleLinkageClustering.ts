@@ -1,19 +1,18 @@
-import { File, ObjMap, Pair } from "@/api/models";
+import { File, Pair } from "@/api/models";
 import { getClusterElements, getClusteringGraph } from "./ClusterFunctions";
 import { Cluster, Clustering, ClusteringGraph } from "./ClusterTypes";
 
 export function singleLinkageCluster(
-  pairs: ObjMap<Pair>,
-  files: ObjMap<File>,
+  pairs: Pair[],
+  files: File[],
   similarity: number
 ): Clustering {
-  const clusterGraph = getClusteringGraph(new Set(Object.values(pairs)), similarity);
+  const clusterGraph = getClusteringGraph(new Set(pairs), similarity);
   const alreadySeenFileSet = new Set<number>();
 
   const clusters: Cluster[] = [];
 
-  for (const fileIndex in files) {
-    const file = files[fileIndex];
+  for (const file of files) {
     // Don't find duplicate clusters
     if (!alreadySeenFileSet.has(file.id)) {
       // Get the cluster associated with this file

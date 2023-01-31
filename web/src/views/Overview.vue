@@ -25,7 +25,7 @@
               <span>{{ language }}</span>
             </v-list-item>
           </v-list>
-          
+
           <template>
             <v-card-title class="info-card-subtitle pt-0 pb-0">
               {{ hasLabels ? legendCount : "No" }} labels detected
@@ -150,7 +150,7 @@
           <v-card-actions>
             <v-spacer />
             <v-btn color="primary" text block to="/submissions">
-              <span v-if="submissionsCount > 1">View all {{ submissionsCount }} submissions</span>
+              <span v-if="filesCount > 1">View all {{ filesCount }} submissions</span>
               <span v-else>View all submissions</span>
               <v-icon right>mdi-chevron-right</v-icon>
             </v-btn>
@@ -201,7 +201,7 @@ const { clustering, sortedClustering } = storeToRefs(pairStore);
 const legendCount = computed(() => Object.keys(legend.value ?? {}).length);
 
 // Amount of files.
-const filesCount = computed(() => Object.keys(fileStore.filesActive).length);
+const filesCount = computed(() => fileStore.filesActiveList.length);
 
 // Highest similarity pair.
 const highestSimilarityPair = computed<Pair | null>(() => {
@@ -248,12 +248,9 @@ const language = computed(() => {
 // First x amount of submissions to display.
 // Sorted by highest similarity
 const submissionsOverview = computed(() => {
-  const submissions = Object.values(fileStore.filesActive);
+  const submissions = fileStore.filesActiveList;
   return submissions.sort((a, b) => b.similarity - a.similarity).slice(0, 10);
 });
-
-// Total amount of submissions
-const submissionsCount = computed(() => Object.keys(fileStore.filesActive).length);
 
 // First x amount of clusters to display.
 const clustersOverview = computed(() => {

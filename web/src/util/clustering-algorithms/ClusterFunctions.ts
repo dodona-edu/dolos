@@ -33,7 +33,6 @@ export function getClusteringGraph(
   similarity = 0
 ): ClusteringGraph {
   const map = new ListMap<number, Edge>();
-
   for (const pair of pairs) {
     if (pair.similarity >= similarity) {
       map.addValue(pair.leftFile.id, pair);

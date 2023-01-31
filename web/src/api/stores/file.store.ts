@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import { shallowRef, computed, nextTick, watch, ref } from "vue";
 import { DATA_URL } from "@/api";
-import { File, Label, Legend, ObjMap } from "@/api/models";
+import { File, Label, Legend } from "@/api/models";
 import { useApiStore, usePairStore } from "@/api/stores";
 import { names, uniqueNamesGenerator } from "unique-names-generator";
 import { commonFilenamePrefix, parseCsv } from "../utils";
@@ -13,8 +13,8 @@ import * as d3 from "d3";
  */
 export const useFileStore = defineStore("files", () => {
   // List of files.
-  const files = shallowRef<ObjMap<File>>({});
-  const filesList = computed<File[]>(() => Object.values(files.value));
+  const filesById = shallowRef<File[]>([]);
+  const filesList = computed<File[]>(() => Object.values(filesById.value));
 
   // Partial labels set.
   // Contains fixed values for the label such as color.
@@ -84,30 +84,30 @@ export const useFileStore = defineStore("files", () => {
   const labels = ref<Label[]>([]);
 
   // List of files to display (with active labels)
-  const filesActive = shallowRef<ObjMap<File>>({});
+  const filesActiveById = shallowRef<File[]>([]);
   const filesActiveList = computed(() => {
-    return Object.values(filesActive.value);
+    return Object.values(filesActiveById.value);
   });
 
   // Calculate the active files list.
   function calculateActiveFiles(): void {
     // Return all files if no labels are available.
     if (!hasLabels.value) {
-      filesActive.value = files.value;
+      filesActiveById.value = filesById.value;
       return;
     }
 
-    const filesFiltered = { ...files.value };
+    const filesFiltered: File[] = [];
 
     // Delete all files that don't have any active labels.
     for (const file of filesList.value) {
       const label = getLabel(file);
-      if (!label.selected) {
-        delete filesFiltered[file.id];
+      if (label.selected) {
+        filesFiltered[file.id] = file;
       }
     }
 
-    filesActive.value = filesFiltered;
+    filesActiveById.value = filesFiltered;
   }
 
   const pairStore = usePairStore();
@@ -117,7 +117,7 @@ export const useFileStore = defineStore("files", () => {
     calculateActiveFiles();
     pairStore.calculateActivePairs();
   }, { deep: true });
-  watch(files, () => {
+  watch(filesById, () => {
     calculateActiveFiles();
     pairStore.calculateActivePairs();
   });
@@ -130,8 +130,8 @@ export const useFileStore = defineStore("files", () => {
   );
 
   // Scored file map.
-  const scoredFiles = computed(() => {
-    const scores = new Map<File, FileScoring>();
+  const scoredFiles = computed<Map<File, FileScoring>>(() => {
+    const scores = new Map();
     for (const file of filesActiveList.value) {
       scores.set(file, scoringCalculator.value.calculateFileScoring(file));
     }
@@ -139,28 +139,25 @@ export const useFileStore = defineStore("files", () => {
   });
 
   // Scored file list
-  const scoredFilesList = computed(() => filesActiveList.value.map((file) =>
-    scoringCalculator.value.calculateFileScoring(file)
-  ));
+  const scoredFilesList = computed<FileScoring[]>(() => Array.from(scoredFiles.value.values()));
 
   // Similarities map for every file
   // Contains the max similarity for each file.
-  const similarities = computed(() => {
+  const similarities = computed<Map<File, SimilarityScore| null>>(() => {
     // Create a map for storing the highest similarity for each file.
-    const similarities = new Map<File, SimilarityScore | null>();
-    for (const file of filesActiveList.value) {
-      similarities.set(file, scoringCalculator.value.calculateSimilarityScore(file));
+    const similarities = new Map();
+    for (const { file, similarityScore } of scoredFilesList.value) {
+      similarities.set(file, similarityScore);
     }
-
     return similarities;
   });
 
   // Similarities list for every file
   // Contains the highest similarity for each file.
-  const similaritiesList = computed(() => [...similarities.value.values()]);
+  const similaritiesList = computed(() => Array.from(similarities.value.values()));
 
   // Parse the files from a CSV string.
-  function parse(fileData: any[]): ObjMap<File> {
+  function parse(fileData: any[]): File[] {
     const randomNameGenerator = (): string => uniqueNamesGenerator({
       dictionaries: [names],
       length: 1
@@ -168,7 +165,10 @@ export const useFileStore = defineStore("files", () => {
 
     const timeOffset = Math.random() * 1000 * 60 * 60 * 24 * 20;
 
-    const filesMap = fileData.map((row: any) => {
+
+    const files: File[] = [];
+
+    for (const row of fileData) {
       const file = row as File;
       const filePathSplit = row.path.split(".");
       const filePathExtension = filePathSplit[filePathSplit.length - 1];
@@ -199,9 +199,8 @@ export const useFileStore = defineStore("files", () => {
         labels: extra.labels,
       };
 
-      return [row.id, row];
-    });
-    const files: File[] = Object.fromEntries(filesMap);
+      files[file.id] = file;
+    }
 
     // Find the common path in the files.
     const commonPath = commonFilenamePrefix(Object.values(files), (f) => f.path);
@@ -226,7 +225,7 @@ export const useFileStore = defineStore("files", () => {
 
   // Hydrate the store
   async function hydrate(): Promise<void> {
-    files.value = parse(await fetch());
+    filesById.value = parse(await fetch());
     hydrated.value = true;
   }
 
@@ -236,7 +235,7 @@ export const useFileStore = defineStore("files", () => {
     apiStore.loadingText = "Anonymizing files...";
 
     // Update the files.
-    for (const file of Object.values(files.value)) {
+    for (const file of Object.values(filesById.value)) {
       if (apiStore.isAnonymous) {
         file.path = file.pseudo.path;
         file.shortPath = file.pseudo.shortPath;
@@ -254,12 +253,12 @@ export const useFileStore = defineStore("files", () => {
 
     // Update the pairs.
     for (const pair of pairStore.pairsList) {
-      pair.leftFile = files.value[pair.leftFile.id];
-      pair.rightFile = files.value[pair.rightFile.id];
+      pair.leftFile = filesById.value[pair.leftFile.id];
+      pair.rightFile = filesById.value[pair.rightFile.id];
     }
 
     nextTick(() => {
-      files.value = { ...files.value };
+      filesById.value = { ...filesById.value };
       pairStore.pairs = { ...pairStore.pairs };
       apiStore.isLoaded = true;
     });
@@ -267,7 +266,7 @@ export const useFileStore = defineStore("files", () => {
 
   // Get a file by its ID.
   function getFile(id: number): File | undefined {
-    return files.value[id];
+    return filesById.value[id];
   }
 
   // Get the label for a file from the legend.
@@ -325,9 +324,9 @@ export const useFileStore = defineStore("files", () => {
   });
 
   return {
-    files,
+    filesById,
     filesList,
-    filesActive,
+    filesActiveById,
     filesActiveList,
     scoredFiles,
     scoredFilesList,

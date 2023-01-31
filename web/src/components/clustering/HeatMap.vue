@@ -30,7 +30,7 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {});
 const router = useRouter();
-const { filesActive } = storeToRefs(useFileStore());
+const { filesActiveById } = storeToRefs(useFileStore());
 const { cutoff, cutoffDebounced } = storeToRefs(useApiStore());
 const { pairsActiveList } = storeToRefs(usePairStore());
 const { clusterFiles } = useCluster(toRef(props, "cluster"));
@@ -54,7 +54,7 @@ const margin = {
 // Container size
 const size = useElementSize(heatmapElement);
 // Width & height
-const width = computed(() => (props.width ?? size.width.value) - margin.left - margin.right);
+const width = computed(() => Math.max(0, (props.width ?? size.width.value) - margin.left - margin.right));
 const height = computed(() => (props.height ?? 450) - margin.top - margin.bottom);
 
 // Heatmap D3
@@ -111,13 +111,13 @@ const draw = (): void => {
     .axisBottom(xBand)
     .tickFormat(
       (d) =>
-        `${filesActive.value[d].extra.fullName ?? filesActive.value[d].shortPath}`
+        `${filesActiveById.value[d].extra.fullName ?? filesActiveById.value[d].shortPath}`
     );
   const yAxis = d3
     .axisLeft(yBand)
     .tickFormat(
       (d) =>
-        `${filesActive.value[d].extra.fullName ?? filesActive.value[d].shortPath}`
+        `${filesActiveById.value[d].extra.fullName ?? filesActiveById.value[d].shortPath}`
     );
 
   // Append the axes to the heatmap.
@@ -274,7 +274,7 @@ const onMouseOut = (e: MouseEvent): void => {
   }
 
   // Hide the tooltip
-  heatmapTooltip.onMouseOut();
+  heatmapTooltip.onMouseOut(e);
 };
 
 // When the user clicks on a square in the heatmap.
