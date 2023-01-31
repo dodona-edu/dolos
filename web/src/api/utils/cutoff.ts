@@ -1,25 +1,33 @@
 import { Pair } from "@/api/models";
 
 /**
- * Put the pairs in bins of similarity 'step'.
+ * Count the pairs in (overlapping) bins of similarity 'step'.
+ *
+ * This will only return bins up to the highest similarity, so empty bins below 1.00 will not be present.
+ * This is not a problem in our situation since we only need the bins to search for local minima.
+ *
  * @param pairs
  * @param step
  */
-export function getBinnedCount(pairs: Pair[], step = 0.05): number[] {
+function getBinnedCount(pairs: Pair[], step = 0.05): number[] {
   const results: number[] = [];
-  let current = 0;
+  let upperCount = 0;
+  let lowerCount = 0;
   let nextStep = step;
   for (const pair of pairs) {
-    while (pair.similarity > nextStep) {
-      results.push(current);
+    while (pair.similarity >= nextStep) {
+      results.push(upperCount + lowerCount);
+      lowerCount = upperCount;
+      upperCount = 0;
       nextStep += step;
-      current = 0;
     }
-    current += 1;
+    upperCount += 1;
   }
-  results.push(current);
+
+  results.push(upperCount + lowerCount);
   return results;
 }
+
 
 /**
  * Calculate the weighted distribution index.
@@ -42,9 +50,7 @@ export function getLocalMinima(array: number[]): number[] {
   const results: number[] = [];
   let currentDirection = array[0] < array[1];
 
-  let i = 0;
-  while (i < array.length - 1) {
-    i++;
+  for (let i = 0; i < array.length - 1; i++) {
     const direction = array[i] < array[i + 1];
     if (direction !== currentDirection) {
       if (!currentDirection) {
@@ -72,7 +78,11 @@ export function getLocalMinima(array: number[]): number[] {
 export function guessSimilarityThreshold(pairs: Pair[], step = 0.03): number {
   pairs.sort((p1, p2) => p1.similarity - p2.similarity);
 
-  const mean = pairs.reduce((sum, pair) => sum + pair.similarity, 0) / pairs.length;
+  let mean = 0;
+  for (const pair of pairs) {
+    mean += pair.similarity;
+  }
+  mean /= pairs.length;
 
   // Put the pairs in bins of similarity 'step'.
   const binnedCount = getBinnedCount(pairs, step);
