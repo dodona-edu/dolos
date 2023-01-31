@@ -1,8 +1,8 @@
 import { defineStore } from "pinia";
 import { shallowRef } from "vue";
 import { DATA_URL } from "@/api";
-import { Kgram, File, ObjMap } from "@/api/models";
-import { assertType, parseCsv } from "@/api/utils";
+import { File, Kgram } from "@/api/models";
+import { parseCsv } from "@/api/utils";
 import { useFileStore } from "@/api/stores";
 
 /**
@@ -10,7 +10,7 @@ import { useFileStore } from "@/api/stores";
  */
 export const useKgramStore = defineStore("kgrams", () => {
   // List of k-grams.
-  const kgrams = shallowRef<ObjMap<Kgram>>({});
+  const kgrams = shallowRef<Kgram[]>([]);
 
   // If this store has been hydrated.
   const hydrated = shallowRef(false);
@@ -18,22 +18,21 @@ export const useKgramStore = defineStore("kgrams", () => {
   // Parse the k-grams from a CSV string.
   function parse(
     kgramData: any[],
-    fileMap: ObjMap<File>
-  ): ObjMap<Kgram> {
-    return Object.fromEntries(
-      kgramData.map((row) => {
-        const id = parseInt(assertType(row.id));
-        const fileIds: number[] = assertType(JSON.parse(assertType(row.files)));
-        const files: File[] = fileIds.map((id) => fileMap[id]);
-        const kgram = {
-          id,
-          hash: parseInt(assertType(row.hash)),
-          data: assertType(row.data),
-          files,
-        };
-        return [id, kgram];
-      })
-    );
+    filesById: File[]
+  ): Kgram[] {
+    const kgrams: Kgram[] = [];
+    for (const row of kgramData) {
+      const id = parseInt(row.id);
+      const fileIds: number[] = JSON.parse(row.files);
+      const files: File[] = fileIds.map((id) => filesById[id]);
+      kgrams[id] = {
+        id,
+        hash: parseInt(row.hash),
+        data: row.data,
+        files,
+      };
+    }
+    return kgrams;
   }
 
   // Fetch the k-grams from the CSV file.
@@ -55,7 +54,7 @@ export const useKgramStore = defineStore("kgrams", () => {
       );
     }
 
-    kgrams.value = parse(await fetch(), fileStore.filesActiveList);
+    kgrams.value = parse(await fetch(), fileStore.filesById);
     hydrated.value = true;
   }
 

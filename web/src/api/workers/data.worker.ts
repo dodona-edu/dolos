@@ -1,8 +1,7 @@
-import { assertType, fileToTokenizedFile } from "@/api/utils";
+import { fileToTokenizedFile } from "@/api/utils";
 import {
   Pair,
   Kgram,
-  ObjMap,
   Metadata,
   Fragment,
   PairedOccurrence,
@@ -28,8 +27,12 @@ function parseFragments(
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       data: dolosFragment.mergedData!,
       occurrences: dolosFragment.pairs.map((occurrence): PairedOccurrence => {
+        const kgram = kmersMap.get(occurrence.fingerprint.hash);
+        if (kgram === undefined) {
+          throw new Error(`Kgram hash not found: ${occurrence}`);
+        }
         return {
-          kgram: assertType(kmersMap.get(occurrence.fingerprint.hash)),
+          kgram,
           left: occurrence.left,
           right: occurrence.right,
         };
@@ -42,7 +45,7 @@ function parseFragments(
 async function populateFragments(
   pair: Pair,
   metadata: Metadata,
-  kgrams: ObjMap<Kgram>,
+  kgrams: Kgram[],
 ): Promise<Pair> {
   const customOptions = metadata;
   const kmers = kgrams;

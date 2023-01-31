@@ -1,21 +1,21 @@
 import { defineStore } from "pinia";
-import { shallowRef, computed, watch } from "vue";
+import { computed, shallowRef, watch } from "vue";
 import { DATA_URL } from "@/api";
-import { assertType, parseCsv } from "@/api/utils";
+import { parseCsv } from "@/api/utils";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
-import { singleLinkageCluster } from "@/util/clustering-algorithms/SingleLinkageClustering";
+import {
+  singleLinkageCluster
+} from "@/util/clustering-algorithms/SingleLinkageClustering";
 import {
   useApiStore,
   useFileStore,
   useKgramStore,
   useMetadataStore,
 } from "@/api/stores";
+import { File, Pair } from "@/api/models";
 import {
-  Pair,
-  ObjMap,
-  File,
-} from "@/api/models";
-import { getClusterElements } from "@/util/clustering-algorithms/ClusterFunctions";
+  getClusterElements
+} from "@/util/clustering-algorithms/ClusterFunctions";
 import * as Comlink from "comlink";
 import { DataWorker } from "@/api/workers/data.worker";
 
@@ -24,8 +24,8 @@ import { DataWorker } from "@/api/workers/data.worker";
  */
 export const usePairStore = defineStore("pairs", () => {
   // List of pairs.
-  const pairs = shallowRef<ObjMap<Pair>>({});
-  const pairsList = computed<Pair[]>(() => Object.values(pairs.value));
+  const pairsById = shallowRef<Pair[]>([]);
+  const pairsList = computed<Pair[]>(() => Object.values(pairsById.value));
 
   // Reference to the other stores.
   const fileStore = useFileStore();
@@ -34,38 +34,35 @@ export const usePairStore = defineStore("pairs", () => {
   const apiStore = useApiStore();
 
   // List of pairs to display (with active labels)
-  const pairsActive = shallowRef<ObjMap<Pair>>({});
+  const pairsActiveById = shallowRef<Pair[]>([]);
   const pairsActiveList = computed(() => {
-    return Object.values(pairsActive.value);
+    return Object.values(pairsActiveById.value).sort((a, b) => b.similarity - a.similarity);
   });
 
   // Calculate the active pairs list.
   function calculateActivePairs(): void {
     // Return all files if no labels are available.
     if (!fileStore.hasLabels) {
-      pairsActive.value = pairs.value;
+      pairsActiveById.value = pairsById.value;
       return;
     }
 
-    const pairsFiltered = { ...pairs.value };
-
-    // Delete all the pairs that contain a file that shouldn't be displayed.
-
+    const pairs: Pair[] = [];
+    // Add all pairs that have both files active
     for (const pair of pairsList.value) {
-      if (
-        !fileStore.filesActiveList.includes(pair.leftFile) ||
-        !fileStore.filesActiveList.includes(pair.rightFile)
+      if (fileStore.filesActiveById[pair.leftFile.id] &&
+          fileStore.filesActiveById[pair.rightFile.id]
       ) {
-        delete pairsFiltered[pair.id];
+        pairs[pair.id] = pair;
       }
     }
 
-    pairsActive.value = pairsFiltered;
+    pairsActiveById.value = pairs;
   }
 
   // Update the pairs to display when the pairs change.
   // The changing of files or legend is handled by the file store.
-  watch(pairs, () => calculateActivePairs());
+  watch(pairsById, () => calculateActivePairs());
 
 
   // If this store has been hydrated.
@@ -75,30 +72,28 @@ export const usePairStore = defineStore("pairs", () => {
   const dataWorker = Comlink.wrap<DataWorker>(new Worker(new URL("../workers/data.worker.ts", import.meta.url)));
 
   // Parse the pairs from a CSV string.
-  function parse(pairData: any[], files: ObjMap<File>): ObjMap<Pair> {
-    return Object.fromEntries(
-      pairData.map((row) => {
-        const id = parseInt(assertType(row.id));
-        const similarity = parseFloat(assertType(row.similarity));
-        const longestFragment = parseFloat(assertType(row.longestFragment));
-        const totalOverlap = parseFloat(assertType(row.totalOverlap));
-        const leftCovered = parseFloat(assertType(row.leftCovered));
-        const rightCovered = parseFloat(assertType(row.rightCovered));
-
-        const diff = {
-          id,
-          similarity,
-          longestFragment,
-          totalOverlap,
-          leftFile: files[parseInt(assertType(row.leftFileId))],
-          rightFile: files[parseInt(assertType(row.rightFileId))],
-          fragments: null,
-          leftCovered,
-          rightCovered,
-        };
-        return [id, diff];
-      })
-    );
+  function parse(pairData: any[], files: File[]): Pair[] {
+    const pairs: Pair[] = [];
+    for (const row of pairData) {
+      const id = parseInt(row.id);
+      const similarity = parseFloat(row.similarity);
+      const longestFragment = parseFloat(row.longestFragment);
+      const totalOverlap = parseFloat(row.totalOverlap);
+      const leftCovered = parseFloat(row.leftCovered);
+      const rightCovered = parseFloat(row.rightCovered);
+      pairs[id] = {
+        id,
+        similarity,
+        longestFragment,
+        totalOverlap,
+        leftFile: files[parseInt(row.leftFileId)],
+        rightFile: files[parseInt(row.rightFileId)],
+        fragments: null,
+        leftCovered,
+        rightCovered,
+      };
+    }
+    return pairs;
   }
 
   // Fetch the pairs from the CSV file.
@@ -115,7 +110,7 @@ export const usePairStore = defineStore("pairs", () => {
       throw new Error("The file store must be hydrated before the pair store.");
     }
 
-    pairs.value = parse(await fetch(), fileStore.filesActive);
+    pairsById.value = parse(await fetch(), fileStore.filesActiveById);
     hydrated.value = true;
   }
 
@@ -125,13 +120,13 @@ export const usePairStore = defineStore("pairs", () => {
     const kmers = kgramStore.kgrams;
 
     const pairWithFragments = await dataWorker.populateFragments(pair, customOptions, kmers);
-    pairs.value[pair.id] = pairWithFragments;
+    pairsById.value[pair.id] = pairWithFragments;
     return pairWithFragments;
   }
 
   // Get a pair by its ID.
   function getPair(id: number): Pair {
-    return pairsActive.value[id];
+    return pairsActiveById.value[id];
   }
 
   // Get a list of pairs for a given file.
@@ -141,7 +136,7 @@ export const usePairStore = defineStore("pairs", () => {
 
   // Clustering
   const clustering = computed(() =>
-    singleLinkageCluster(pairsActive.value, fileStore.filesActive, apiStore.cutoffDebounced)
+    singleLinkageCluster(pairsActiveList.value, fileStore.filesActiveList, apiStore.cutoffDebounced)
   );
 
   // Sorted Clustering
@@ -171,9 +166,9 @@ export const usePairStore = defineStore("pairs", () => {
   }
 
   return {
-    pairs,
+    pairs: pairsById,
     pairsList,
-    pairsActive,
+    pairsActive: pairsActiveById,
     pairsActiveList,
     calculateActivePairs,
     hydrated,
