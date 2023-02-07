@@ -22,6 +22,7 @@ declare module 'vue' {
     LabelText: typeof import('./../components/LabelText.vue')['default']
     Loading: typeof import('./../components/Loading.vue')['default']
     Navbar: typeof import('./../components/layout/Navbar.vue')['default']
+    OldGraph: typeof import('./../components/graph/OldGraph.vue')['default']
     OverviewBarchart: typeof import('./../components/overview/OverviewBarchart.vue')['default']
     PairCodeDiff: typeof import('./../components/pair/PairCodeDiff.vue')['default']
     PairCodeFileInfo: typeof import('./../components/pair/PairCodeFileInfo.vue')['default']
