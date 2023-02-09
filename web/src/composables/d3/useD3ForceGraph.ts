@@ -1,21 +1,35 @@
 import { onMounted, onUnmounted, ShallowRef, shallowRef, watch, ComputedRef, Ref } from "vue";
 import * as d3 from "d3";
-import { Label, Pair, File } from "@/api/models";
+import { Label } from "@/api/models";
 import { useD3Tooltip } from "@/composables";
 
-type SVG = d3.Selection<SVGSVGElement, undefined, null, undefined>;
-type NodeSelection = d3.Selection<SVGCircleElement, Node, SVGGElement, undefined>;
-type EdgeSelection = d3.Selection<SVGLineElement, Edge, SVGGElement, undefined>;
 
-interface Context {
-  edges: EdgeSelection,
-  nodes: NodeSelection,
+class Data {
+  private nodesById: Map<number, D3Node> = new Map();
+  private edgesById: Map<number, D3Edge> = new Map();
+
+  public nodes: D3Node[] = [];
+  public edges: D3Edge[] = [];
+
+  public update(nodes: Node[], edges: Edge[]): void {
+    const oldNodesById = this.nodesById;
+    const oldEdgesById = this.edgesById;
+    this.nodesById = new Map(nodes.map(node => [node.id, oldNodesById.get(node.id) || new D3Node(node)]));
+    this.edgesById = new Map(edges.map(edge => [
+      edge.id,
+      oldEdgesById.get(edge.id) ||
+          new D3Edge(edge, this.nodesById.get(edge.sourceId)!, this.nodesById.get(edge.targetId)!)
+    ]));
+    this.nodes = Array.from(this.nodesById.values());
+    this.edges = Array.from(this.edgesById.values());
+  }
 }
 
 
-interface Simulation extends d3.Simulation<Node, Edge> {
+interface Simulation extends d3.Simulation<D3Node, D3Edge> {
   paused: ShallowRef<boolean>,
-  links: (links: Edge[]) => void,
+  links: (links: D3Edge[]) => void,
+  findTranslated(x: number, y: number, radius?: number): D3Node | undefined,
   reheat(): void;
 
 }
@@ -23,97 +37,142 @@ interface Simulation extends d3.Simulation<Node, Edge> {
 
 export interface D3ForceGraphOptions {
   nodeSize: number,
-  maxEdges: number,
-
   container: ShallowRef<HTMLElement | undefined>;
-  threshold: Ref<number>,
   width: Ref<number>,
   height: Ref<number>,
 }
 
 export interface D3ForceGraph {
-  update(files: File[], pairs: Pair[]): void;
+  update(nodes: Node[], edges: Edge[]): void;
   paused: ShallowRef<boolean>;
 }
 
-interface Node {
-  id: number,
-  file: File,
-  x: number,
-  y: number,
-  vx: number,
-  vy: number,
-  neighbors: Node[],
-  edges: Edge[],
-  label?: Label
+export interface Node {
+  id: number;
+  name: string;
+  label?: Label;
+  timestamp?: Date;
 }
 
-interface Edge {
-  id: number,
-  directed: boolean,
-  source: Node,
-  target: Node,
-  similarity: number,
-  width: number
+export interface Edge {
+  id: number;
+  sourceId: number;
+  targetId: number;
+  similarity: number;
 }
 
-function createGraphSVG(): { svg: SVG, context: Context } {
-  const svg = d3.create("svg");
+class D3Node implements Node {
+  id: number;
+  name: string;
+  x = NaN;
+  y = NaN;
+  vx = NaN;
+  vy = NaN;
+  neighbors: D3Node[] = [];
+  edges: D3Edge[]= [];
+  label?: Label;
+  timestamp?: Date;
 
-  // Create the selection for Nodes and Edges, currently empty
-  const context: Context = {
-    edges: svg.append("g").selectAll<SVGLineElement, Edge>("line").data([] as Edge[]),
-    nodes: svg.append("g").selectAll<SVGCircleElement, Node>("circle").data([] as Node[]),
-  };
-
-  // Add a marker to the graph for showing the direction of the edges.
-  svg.append("svg:defs")
-    .append("svg:marker")
-    .attr("id", "arrow-marker")
-    .attr("viewBox", "0 -6 10 12")
-    .attr("refX", "5")
-    .attr("markerWidth", 2)
-    .attr("markerHeight", 2)
-    .attr("orient", "auto")
-    .append("svg:path")
-    .attr("d", "M5,-5L10,0L5,5M10,0L0,0");
-
-  return {
-    svg,
-    context
-  };
+  constructor(node: Node) {
+    this.id = node.id;
+    this.name = node.name;
+    this.label = node.label;
+    this.timestamp = node.timestamp;
+  }
 }
 
 
-function createSimulation(context: Context, width: number, height: number): Simulation {
+
+class D3Edge implements Edge {
+  id: number;
+  sourceId: number;
+  targetId: number;
+  directed: boolean;
+  source: D3Node;
+  target: D3Node;
+  similarity: number;
+  width: number;
+
+  constructor(edge: Edge, one: D3Node, other: D3Node) {
+    this.id = edge.id;
+    this.sourceId = edge.sourceId;
+    this.targetId = edge.targetId;
+    this.directed = !!(one.timestamp && other.timestamp);
+
+    if (this.directed && one.timestamp! < other.timestamp!) {
+      this.source = one;
+      this.target = other;
+    } else {
+      this.source = other;
+      this.target = one;
+    }
+
+    this.similarity = edge.similarity;
+    this.width = 4 * Math.pow(Math.max(0.4, (edge.similarity - 0.75) / 0.2), 2);
+  }
+
+}
+
+function draw(context: CanvasRenderingContext2D, data: Data): void {
+  context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+  context.save();
+  context.translate(context.canvas.width / 2, context.canvas.height / 2);
+
+  for (const edge of data.edges) {
+    context.beginPath();
+    context.moveTo(edge.source.x, edge.source.y);
+    context.lineTo(edge.target.x, edge.target.y);
+    context.lineWidth = edge.width;
+    context.strokeStyle = "#999";
+    context.stroke();
+  }
+
+  for (const node of data.nodes) {
+    context.beginPath();
+    context.arc(node.x, node.y, 10, 0, 2 * Math.PI);
+    context.fillStyle = "#000";
+    context.fill();
+    context.lineWidth = 2;
+    context.strokeStyle = "#fff";
+    context.stroke();
+  }
+
+  context.restore();
+}
+
+function createSimulation(context: CanvasRenderingContext2D, data: Data): Simulation {
   const forceLink = d3
-    .forceLink<Node, Edge>(context.edges.data())
+    .forceLink<D3Node, D3Edge>(data.edges)
     .id(d => d.id)
     .distance(20);
 
   const simulation = d3
-    .forceSimulation<Node, Edge>(context.nodes.data())
+    .forceSimulation<D3Node, D3Edge>(data.nodes)
     .force("link", forceLink)
     .force("charge", d3.forceManyBody().strength(-50))
-    .force("collide", d3.forceCollide())
+    .force("collide", d3.forceCollide().radius(10))
     .force("center", d3.forceCenter())
     .force("compact_x", d3.forceX().strength(.25))
     .force("compact_y", d3.forceY().strength(.25));
 
   simulation.on("tick", () => {
-    context.edges
-      .attr("x1", (edge: Edge) => edge.source.x)
-      .attr("y1", (edge: Edge) => edge.source.y)
-      .attr("x2", (edge: Edge) => edge.target.x)
-      .attr("y2", (edge: Edge) => edge.target.y);
-    context.nodes
-      .attr("cx", (node: Node) => node.x)
-      .attr("cy", (node: Node) => node.y);
+    draw(context, data);
   });
 
-  const links = (links: Edge[]): void => { forceLink.links(links); };
+  // While drawing, we've translated the canvas so that the center of the
+  // canvas is the origin. We need to undo that translation when finding
+  // the nodes under the mouse.
+  function findTranslated(x: number, y: number, radius?: number): D3Node | undefined {
+    return simulation.find(x - context.canvas.width / 2, y - context.canvas.height / 2, radius);
+  }
 
-  const reheat = (): void => { simulation.alpha(.5).restart(); };
+  function links(links: D3Edge[]): void {
+    forceLink.links(links.filter(e => e.similarity > .5));
+  }
+
+  function reheat(): void {
+    simulation.alpha(.5).restart();
+  }
 
   const paused = shallowRef(false);
   watch(paused, () => {
@@ -126,13 +185,36 @@ function createSimulation(context: Context, width: number, height: number): Simu
 
   return Object.assign(simulation, {
     paused,
+    findTranslated,
     reheat,
     links
   });
 }
 
-function createDrag(simulation: Simulation): d3.DragBehavior<SVGCircleElement, Node, unknown> {
-  return d3.drag<SVGCircleElement, Node>()
+function createTooltips(simulation: Simulation): (s: d3.Selection<HTMLCanvasElement, D3Node, null, undefined>) => void {
+  const tooltip = useD3Tooltip();
+  return (selection: d3.Selection<HTMLCanvasElement, D3Node, null, undefined>) => {
+    selection
+      .on("mouseover", (event) => {
+        const node = simulation.findTranslated(event.offsetX, event.offsetY);
+        if (!node) return;
+        tooltip.show(node.name);
+        tooltip.moveTo(node.x, node.y);
+      })
+      .on("mousemove", (event) => {
+        const node = simulation.findTranslated(event.offsetX, event.offsetY);
+        if (!node) return;
+        tooltip.show(node.name);
+        tooltip.moveTo(node.x, node.y);
+      }).on("mouseout", () => {
+        tooltip.hide();
+      });
+  };
+}
+
+function createDrag(simulation: Simulation): d3.DragBehavior<HTMLCanvasElement, D3Node, unknown> {
+  return d3.drag<HTMLCanvasElement, D3Node>()
+    .subject((event) => simulation.findTranslated(event.sourceEvent.offsetX, event.sourceEvent.offsetY)!)
     .on("start", (event) => {
       if (!event.active && !simulation.paused.value) simulation.reheat();
       event.subject.fx = event.subject.x;
@@ -149,51 +231,25 @@ function createDrag(simulation: Simulation): d3.DragBehavior<SVGCircleElement, N
 }
 
 
-
 export function useD3ForceGraph(options: D3ForceGraphOptions): D3ForceGraph {
-
-  const threshold = options.threshold;
-  const { svg, context } = createGraphSVG();
-  const simulation = createSimulation(context, options.width.value, options.height.value);
+  const data = new Data();
+  const context: CanvasRenderingContext2D = document.createElement("canvas").getContext("2d")!;
+  const simulation = createSimulation(context, data);
   const drag = createDrag(simulation);
-  const tooltip = useD3Tooltip({ relativeToMouse: true });
+  const tooltip = createTooltips(simulation);
+
+  const canvas = d3.select<HTMLCanvasElement, D3Node>(context.canvas)
+    .call(drag)
+    .call(tooltip)
+    .node()!;
 
   // This function will update the (initially empty) selection of nodes and edges to represent
   // the given files and pairs.
-  const update = (files: File[], pairs: Pair[]): void => {
-    // Make a shallow copy to protect against mutation, while
-    // recycling old nodes to preserve position and velocity
-    const oldNodes = new Map(context.nodes.data().map(n => [n.id, n]));
-    const oldEdges = new Map(context.edges.data().map(e => [e.id, e]));
-    const newNodes: Node[] = files.map(file => oldNodes.get(file.id)
-      || { id: file.id, file, neighbors: [], edges: [], x: NaN, y: NaN, vx: 0, vy: 0 });
-    const nodeMap = new Map(newNodes.map(n => [n.id, n]));
-    const newEdges: Edge[] = pairs.slice(0, options.maxEdges).map(pair => oldEdges.get(pair.id)
-      || { id: pair.id, directed: false, source: nodeMap.get(pair.leftFile.id)!,
-        target: nodeMap.get(pair.rightFile.id)!,
-        similarity: pair.similarity,
-        width: 4 * Math.pow(Math.max(0.4, (pair.similarity - 0.75) / 0.2), 2) });
-
-    // Update the nodes and edges
-    context.edges = context.edges.data(newEdges, d => d.id)
-      .join(enter => enter.append("line"))
-      .classed("edge", true)
-      .attr("stroke", "#000")
-      .attr("stroke-width", edge => edge.width);
-
-    context.nodes = context.nodes.data(newNodes, d => d.id)
-      .join(enter => enter.append("circle"))
-      .call(drag)
-      .on("click" , (event, node) => { console.log(node.file); })
-      .classed("node", true)
-      .attr("r", options.nodeSize)
-      .attr("stroke", "#fff")
-      .attr("stroke-width", 1.5)
-      .attr("id", d => `circle-${d.id}`);
-
-    // Update the simulation
-    simulation.nodes(newNodes);
-    simulation.links(newEdges);
+  const update = (nodes: Node[], edges: Edge[]): void => {
+    data.update(nodes, edges);
+    simulation.nodes(data.nodes);
+    simulation.links(data.edges);
+    simulation.reheat();
   };
 
 
@@ -201,11 +257,12 @@ export function useD3ForceGraph(options: D3ForceGraphOptions): D3ForceGraph {
     if (!options.container.value) return;
     const w = options.container.value.clientWidth;
     const h = options.container.value.clientHeight;
-    svg.attr("viewBox", [-w / 2, -h / 2, w, h]);
+    context.canvas.width = w;
+    context.canvas.height = h;
   });
 
   // Add the graph to the container.
-  onMounted(() => options.container.value?.prepend(svg.node()!));
+  onMounted(() => options.container.value?.prepend(canvas));
 
   // Stop the simulation when the component is unmounted.
   onUnmounted(() => {

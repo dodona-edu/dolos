@@ -10,6 +10,9 @@ export interface UseD3TooltipOptions {
 
 export interface UseD3TooltipReturn {
   tooltip: d3.Selection<HTMLDivElement, unknown, HTMLElement, any>;
+  show: (value: string) => void;
+  hide: () => void;
+  moveTo: (x: number, y: number) => void;
   onMouseOver: (event: MouseEvent, value: string) => void;
   onMouseOut: (event: MouseEvent) => void;
   onMouseMove: (event: MouseEvent) => void;
@@ -26,6 +29,12 @@ export function useD3Tooltip(options: UseD3TooltipOptions = {}): UseD3TooltipRet
     .style("z-index", 5)
     .style("transform", "translateY(-100%)")
     .style("pointer-events", "none");
+
+  const moveTo = (x: number, y: number): void => {
+    tooltip
+      .style("left", x + "px")
+      .style("top", y + "px");
+  };
 
   // Move the tooltip to the desired coordinates.
   const move = (e: MouseEvent): void => {
@@ -49,18 +58,23 @@ export function useD3Tooltip(options: UseD3TooltipOptions = {}): UseD3TooltipRet
       y = e.pageY;
     }
 
+    moveTo(x, y);
+  };
+
+  const show = (value: string): void => {
     tooltip
-      .style("left", x + "px")
-      .style("top", y + "px");
+      .style("opacity", 0.9)
+      .html(value);
+  };
+
+  const hide = (): void => {
+    tooltip.style("opacity", 0);
   };
 
   // When the user starts hovering over an element.
   const onMouseOver = (e: MouseEvent, value: string): void => {
     move(e);
-
-    tooltip
-      .style("opacity", 0.9)
-      .html(value);
+    show(value);
   };
 
   // When the user moves the mouse.
@@ -70,10 +84,8 @@ export function useD3Tooltip(options: UseD3TooltipOptions = {}): UseD3TooltipRet
 
   // When the user stops hovering over an element.
   const onMouseOut = (): void => {
-    tooltip
-      .style("opacity", 0)
-      .style("left", 0)
-      .style("top", 0);
+    hide();
+    moveTo(0, 0);
   };
 
   // Hide the tooltip on unmount.
@@ -81,6 +93,9 @@ export function useD3Tooltip(options: UseD3TooltipOptions = {}): UseD3TooltipRet
 
   return {
     tooltip,
+    show,
+    hide,
+    moveTo,
     onMouseOver,
     onMouseMove,
     onMouseOut

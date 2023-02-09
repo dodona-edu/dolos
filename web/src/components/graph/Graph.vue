@@ -29,18 +29,19 @@
 import {
   shallowRef,
   computed,
+  watchEffect,
 } from "vue";
 import { useElementSize } from "@vueuse/core";
 import { storeToRefs } from "pinia";
 import { File, Legend, Pair } from "@/api/models";
 import { Cluster, Clustering } from "@/util/clustering-algorithms/ClusterTypes";
-import { useD3ForceGraph } from "@/composables/d3/useD3ForceGraph";
+import { useD3ForceGraph, Node, Edge } from "@/composables/d3/useD3ForceGraph";
 import { useApiStore, useFileStore } from "@/api/stores";
 
 interface Props {
-  showSingletons?: boolean;
-  polygon?: boolean;
+  showSingletons: boolean;
   legend: Legend;
+  polygon?: boolean;
   clustering: Clustering;
   files: File[];
   pairs: Pair[];
@@ -77,13 +78,45 @@ const { cutoff, cutoffDebounced } = storeToRefs(useApiStore());
 const graph = useD3ForceGraph({
   container: container,
   width: width,
-  threshold: cutoffDebounced,
   height: height,
   nodeSize: props.nodeSize,
   maxEdges: props.maxEdges,
 });
 
-graph.update(props.files, props.pairs);
+
+
+// Updates the nodes and edges shown in the graph.
+
+// The watchEffect will track which inputs are used when first calculated and will
+// recalculate when any of those inputs change.
+watchEffect(() => {
+  const cutoff = cutoffDebounced.value;
+  const showSingletons = props.showSingletons;
+  const pairs = props.pairs;
+  const files = props.files;
+
+  const edges: Edge[] = pairs.filter((pair) => pair.similarity >= cutoff).map((pair) => ({
+    id: pair.id,
+    sourceId: pair.rightFile.id,
+    targetId: pair.leftFile.id,
+    similarity: pair.similarity,
+  }));
+
+  let nodes: Node[] = files.map(file => ({
+    id: file.id,
+    name: file.extra.fullName ?? file.shortPath,
+    timestamp: file.extra.timestamp,
+  }));
+
+  if (!showSingletons) {
+    const singletons = new Set(edges.flatMap((edge) => [edge.sourceId, edge.targetId]));
+    nodes = nodes.filter((file) => singletons.has(file.id));
+  }
+
+  console.log(nodes.length, edges.length, cutoff, showSingletons);
+
+  graph.update(nodes, edges);
+});
 
 // Pause the simulation
 const onPauseClick = (): void => {
