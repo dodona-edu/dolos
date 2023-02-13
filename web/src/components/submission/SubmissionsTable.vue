@@ -34,8 +34,8 @@
 
     <template #item.label="{ item }">
       <div class="submission-label">
-        <label-dot :label="item.label.label" :color="item.label.color" />
-        <label-text :label="item.label.label" colored />
+        <label-dot :label="item.label.name" :color="item.label.color" />
+        <label-text :label="item.label.name" colored />
       </div>
     </template>
 
@@ -66,7 +66,7 @@
 
           <span>This is the #{{ item.order }} submission in the cluster</span>
         </v-tooltip>
-        
+
         <file-timestamp
           :class="props.order && item.order === 1 ? 'primary--text' : ''"
           :timestamp="item.timestamp"
@@ -103,7 +103,7 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits(["update:search"]);
 const router = useRouter();
 const fileStore = useFileStore();
-const { similarities, hasTimestamp, hasLabels } = storeToRefs(fileStore);
+const { similarities, hasTimestamps, hasLabels } = storeToRefs(fileStore);
 
 // Search value.
 const searchValue = useVModel(props, "search", emit);
@@ -122,12 +122,12 @@ const headers = computed<DataTableHeader[]>(() => {
     h.push({
       text: "Label",
       value: "label",
-      sortable: props.disableSorting ? false : true,
+      sortable: false,
     });
   }
 
   // Only add timestamp header when present.
-  if (hasTimestamp.value && !props.concise) {
+  if (hasTimestamps.value && !props.concise) {
     h.push({
       text: "Timestamp",
       value: "timestamp",
@@ -177,7 +177,7 @@ const items = computed(() => {
       id: file.id,
       name: file.extra.fullName ?? file.shortPath,
       path: file.path,
-      label: fileStore.getLabel(file),
+      label: file.label,
       similarity: similarities.value.get(file)?.similarity ?? 0,
       timestamp: file.extra.timestamp,
       lines: file.content.split("\n").length ?? 0,

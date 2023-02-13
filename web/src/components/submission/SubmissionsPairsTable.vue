@@ -19,8 +19,8 @@
 
     <template #item.label="{ item }">
       <span class="submission-label">
-        <label-dot :label="item.label.label" :color="item.label.color" />
-        <label-text :label="item.label.label" />
+        <label-dot :label="item.label.name" :color="item.label.color" />
+        <label-text :label="item.label.name" />
       </span>
     </template>
 
@@ -87,7 +87,7 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {});
 const fileStore = useFileStore();
 const pairStore = usePairStore();
-const { hasTimestamp, hasLabels } = storeToRefs(fileStore);
+const { hasTimestamps, hasLabels } = storeToRefs(fileStore);
 
 // List with pairs for the file.
 const pairs = computed(() => {
@@ -110,7 +110,7 @@ const headers = computed<DataTableHeader[]>(() => {
   }
 
   // Only add timestamp header when present.
-  if (hasTimestamp.value) {
+  if (hasTimestamps.value) {
     h.push({ text: "Timestamp", value: "timestamp", sortable: true, filterable: false });
   }
 
@@ -160,7 +160,7 @@ const items = computed(() => {
         name: otherFile.extra.fullName ?? otherFile.shortPath,
         timestamp: otherFile.extra.timestamp,
         similarity: pair.similarity,
-        label: fileStore.getLabel(otherFile),
+        label: otherFile.label,
         cluster: relation,
         clusterIndex: pairStore.getClusterIndex(otherCluster),
       };

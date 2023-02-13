@@ -128,6 +128,7 @@ watch(
   { immediate: true }
 );
 
+
 // Active pair of files.
 // Used to make the switch between left and right file easier.
 const activePair = computed<Pair>(() => {

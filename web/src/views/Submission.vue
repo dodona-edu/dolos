@@ -37,7 +37,7 @@
                 Submission is not part of any cluster.
               </v-card-text>
 
-              <v-card-text v-else-if="!hasTimestamp">
+              <v-card-text v-else-if="!hasTimestamps">
                 <div class="d-flex align-center info-text">
                   <v-icon color="info">mdi-information</v-icon>
 
@@ -78,7 +78,7 @@
               <v-card-text>
                 <div class="info-item" v-if="hasLabels">
                   <v-icon :color="label.color">mdi-label-outline</v-icon>
-                  <label-text :label="label.label" :color="label.color" colored />
+                  <label-text :label="label.name" :color="label.color" colored />
                 </div>
 
                 <div class="info-item">
@@ -86,7 +86,7 @@
                   <span>{{ file.shortPath }}</span>
                 </div>
 
-                <div class="info-item" v-if="hasTimestamp">
+                <div class="info-item" v-if="hasTimestamps">
                   <v-icon>mdi-clock-outline</v-icon>
                   <file-timestamp :file="file" long />
                 </div>
@@ -183,14 +183,14 @@ const props = withDefaults(defineProps<Props>(), {});
 const router = useRouter();
 const fileStore = useFileStore();
 const pairStore = usePairStore();
-const { legend, hasTimestamp, hasLabels } = storeToRefs(fileStore);
+const { legend, hasTimestamps, hasLabels, filesById } = storeToRefs(fileStore);
 const { clustering } = storeToRefs(pairStore);
 
 // Get the file by id.
-const file = computed(() => fileStore.getFile(+props.fileId));
+const file = computed(() => filesById.value[+props.fileId]);
 
 // Get the label of the file.
-const label = computed(() => fileStore.getLabel(file.value));
+const label = computed(() => file.value.label);
 
 // Get the cluster of the file.
 const cluster = computed(() => pairStore.getCluster(file.value));

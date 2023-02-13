@@ -16,11 +16,11 @@
             <v-list-item class="selected-info-list-item">
               <div class="selected-info-list-dot">
                 <label-dot
-                  :label="selectedNodeLegend?.label || 'unknown'"
+                  :label="selectedNodeLegend?.name || 'unknown'"
                   :color="selectedNodeLegend?.color || 'grey'"
                 />
               </div>
-              <span>{{ selectedNode.extra.labels || "unknown" }}</span>
+              <span>{{ selectedNodeLegend?.name || "unknown" }}</span>
             </v-list-item>
 
             <v-list-item v-if="selectedNodeTimestamp" class="selected-info-list-item">
@@ -109,10 +109,7 @@ const selectedNodeTimestamp = computed(() => {
 
 // Legend entry of the selected node.
 const selectedNodeLegend = computed(() => {
-  if (props.selectedNode?.extra.labels) {
-    return props.legend[props.selectedNode.extra.labels];
-  }
-  return null;
+  return props.selectedNode?.label;
 });
 
 // index of the selected cluster.

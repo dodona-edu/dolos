@@ -3,7 +3,7 @@
     <thead>
       <tr>
         <th>Submission</th>
-        <th v-if="hasTimestamp">Timestamp</th>
+        <th v-if="hasTimestamps">Timestamp</th>
       </tr>
     </thead>
 
@@ -25,7 +25,7 @@
           <span class="ml-2">{{ file.extra.fullName ?? file.shortPath }}</span>
         </td>
 
-        <td v-if="hasTimestamp">
+        <td v-if="hasTimestamps">
           <file-timestamp :file="file" />
         </td>
       </router-link>
@@ -53,7 +53,7 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {});
 const vuetify = useVuetify();
-const { hasTimestamp } = storeToRefs(useFileStore());
+const { hasTimestamps } = storeToRefs(useFileStore());
 
 // List of files in the cluster.
 // Sorted by timestamp.

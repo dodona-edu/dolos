@@ -1,5 +1,5 @@
 export interface Label {
-  label: string;
+  name: string;
   selected: boolean;
   color: string;
   // Pseudo label.

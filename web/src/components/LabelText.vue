@@ -6,7 +6,6 @@
 
 <script lang="ts" setup>
 import { File, Legend } from "@/api/models";
-import { useFileStore } from "@/api/stores";
 import { computed } from "vue";
 
 interface Props {
@@ -18,19 +17,18 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {});
-const fileStore = useFileStore();
 
 // Get the color from either the props or the file label in the legend.
 const color = computed(() => {
   if (props.color) return props.color;
-  if (props.file) return fileStore.getLabel(props.file).color;
+  if (props.file) return props.file.label.color;
   return "";
 });
 
 // Get the label from either the props or the file label in the legend.
 const label = computed(() => {
   if (props.label) return props.label;
-  if (props.file) return fileStore.getLabel(props.file).label;
+  if (props.file) return props.file.label.name;
   return "No label";
 });
 

@@ -194,11 +194,11 @@ const apiStore = useApiStore();
 const fileStore = useFileStore();
 const pairStore = usePairStore();
 const metadataStore = useMetadataStore();
-const { legend, similaritiesList, hasLabels } = storeToRefs(fileStore);
+const { labels, similaritiesList, hasLabels } = storeToRefs(fileStore);
 const { clustering, sortedClustering } = storeToRefs(pairStore);
 
 // File legend.
-const legendCount = computed(() => Object.keys(legend.value ?? {}).length);
+const legendCount = computed(() => labels.value.length);
 
 // Amount of files.
 const filesCount = computed(() => fileStore.filesActiveList.length);
