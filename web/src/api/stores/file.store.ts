@@ -3,7 +3,7 @@ import { shallowRef, computed, nextTick, watch, ref, ComputedRef } from "vue";
 import { DATA_URL } from "@/api";
 import { File, Label, Legend } from "@/api/models";
 import { useApiStore, usePairStore } from "@/api/stores";
-import { names, adjectives, uniqueNamesGenerator } from "unique-names-generator";
+import { names, animals, uniqueNamesGenerator } from "unique-names-generator";
 import { commonFilenamePrefix, parseCsv } from "../utils";
 import { FileInterestingnessCalculator, FileScoring, SimilarityScore } from "@/util/FileInterestingness";
 
@@ -96,7 +96,8 @@ export const useFileStore = defineStore("file", () => {
     });
 
     const randomLabelGenerator = (): string => uniqueNamesGenerator({
-      dictionaries: [adjectives],
+      dictionaries: [animals],
+      style: "capital",
       length: 1
     });
 
