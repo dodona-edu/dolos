@@ -10,22 +10,22 @@
 
     <tbody>
       <template v-if="hasLabels">
-        <tr v-for="label, index of labels" :key="index">
+        <tr v-for="( label, index ) of labels" :key="index">
           <td class="d-flex align-center">
             <label-dot
-              :label="label.label"
+              :label="label.name"
               :color="label.color"
             />
 
-            <span class="ml-2">{{ label.label }}</span>
+            <span class="ml-2">{{ label.name }}</span>
           </td>
 
           <td v-if="props.showSubmissions">
-            {{ labelFilesCount[label.label] }}
+            {{ labelFilesCount.get(label) }}
           </td>
 
           <td class="text-end">
-            <v-switch 
+            <v-switch
               v-model="label.selected"
               class="labels-switch"
               inset
@@ -34,11 +34,11 @@
           </td>
         </tr>
       </template>
-      
+
       <template v-else>
         <tr>
           <td colspan="3" class="py-4">
-            The dataset you analyzed did not contain labels.  
+            The dataset you analyzed did not contain labels.
             Learn how to add metadata
             <a href="https://dolos.ugent.be/guide/dodona.html" target="_blank">here</a>.
           </td>

@@ -40,7 +40,7 @@
               Visual representation of which submission was submitted first.
             </v-card-subtitle>
 
-            <v-card-text v-if="!hasTimestamp">
+            <v-card-text v-if="!hasTimestamps">
               <div class="d-flex align-center info-text">
                 <v-icon color="info">mdi-information</v-icon>
 
@@ -54,7 +54,7 @@
             </v-card-text>
 
             <v-card-text v-else>
-              <time-series 
+              <time-series
                 :cluster="cluster"
                 :node-size="8"
                 node-tooltip
@@ -89,7 +89,7 @@
               </graph>
             </v-card-text>
           </v-card>
-          
+
           <v-card class="mt-4">
             <v-card-title>Cluster Heatmap</v-card-title>
             <v-card-subtitle>
@@ -135,7 +135,7 @@ const router = useRouter();
 const fileStore = useFileStore();
 const pairStore = usePairStore();
 const cluster = computed(() => pairStore.getClusterById(+props.clusterId));
-const { hasTimestamp } = storeToRefs(fileStore);
+const { hasTimestamps } = storeToRefs(fileStore);
 const { clustering } = storeToRefs(pairStore);
 const { clusterFiles, clusterPairs } = useCluster(cluster);
 const legend = usePartialLegend(clusterFiles);

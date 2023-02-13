@@ -10,7 +10,6 @@ import {
   onMounted,
 } from "vue";
 import { useElementSize } from "@vueuse/core";
-import { useFileStore } from "@/api/stores";
 import { File } from "@/api/models";
 import { useD3Tooltip } from "@/composables";
 import * as d3 from "d3";
@@ -20,7 +19,6 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {});
-const fileStore = useFileStore();
 
 // List template ref.
 const listElement = shallowRef();
@@ -71,7 +69,7 @@ const draw = (): void => {
   groups
     .append("circle")
     .attr("r", 16)
-    .attr("fill", (file) => fileStore.getLabel(file).color);
+    .attr("fill", (file) => file.label.color);
   groups
     .append("text")
     .text((file) => {

@@ -52,7 +52,6 @@ const pair = shallowRef(pairStore.getPair(parseInt(props.pairId)));
 watch(
   () => filesStore,
   () => {
-    alert("CHANGED");
     pair.value = pairStore.getPair(parseInt(props.pairId));
   },
   { deep: true }

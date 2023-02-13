@@ -25,7 +25,7 @@ export type FileScoring = {
   file: File;
   similarityScore: SimilarityScore | null;
   totalOverlapScore: TotalOverlapScore | null;
-  longestFragmentScore: LongestFragmentScore | null;
+  longestFragmentScore: LongestFragmentScore | null
   finalScore: number;
 };
 

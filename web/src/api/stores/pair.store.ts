@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { computed, shallowRef, watch } from "vue";
+import { computed, shallowRef } from "vue";
 import { DATA_URL } from "@/api";
 import { parseCsv } from "@/api/utils";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
@@ -34,35 +34,23 @@ export const usePairStore = defineStore("pairs", () => {
   const apiStore = useApiStore();
 
   // List of pairs to display (with active labels)
-  const pairsActiveById = shallowRef<Pair[]>([]);
-  const pairsActiveList = computed(() => {
-    return Object.values(pairsActiveById.value).sort((a, b) => b.similarity - a.similarity);
-  });
-
-  // Calculate the active pairs list.
-  function calculateActivePairs(): void {
-    // Return all files if no labels are available.
+  const pairsActiveById = computed<Pair[]>(() => {
     if (!fileStore.hasLabels) {
-      pairsActiveById.value = pairsById.value;
-      return;
+      return pairsById.value;
     }
-
+    const activeFiles = fileStore.filesActiveList;
     const pairs: Pair[] = [];
     // Add all pairs that have both files active
     for (const pair of pairsList.value) {
-      if (fileStore.filesActiveById[pair.leftFile.id] &&
-          fileStore.filesActiveById[pair.rightFile.id]
-      ) {
+      if (activeFiles[pair.leftFile.id] && activeFiles[pair.rightFile.id]) {
         pairs[pair.id] = pair;
       }
     }
-
-    pairsActiveById.value = pairs;
-  }
-
-  // Update the pairs to display when the pairs change.
-  // The changing of files or legend is handled by the file store.
-  watch(pairsById, () => calculateActivePairs());
+    return pairs;
+  });
+  const pairsActiveList = computed<Pair[]>(() => {
+    return Object.values(pairsActiveById.value).sort((a, b) => b.similarity - a.similarity);
+  });
 
 
   // If this store has been hydrated.
@@ -170,7 +158,6 @@ export const usePairStore = defineStore("pairs", () => {
     pairsList,
     pairsActive: pairsActiveById,
     pairsActiveList,
-    calculateActivePairs,
     hydrated,
     hydrate,
     populateFragments,

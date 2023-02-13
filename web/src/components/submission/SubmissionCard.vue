@@ -9,7 +9,7 @@
         <v-card-subtitle>
           <div class="submission-card-info" v-if="hasLabels">
             <v-icon :color="label.color" small>mdi-label-outline</v-icon>
-            <label-text :label="label.label" :color="label.color" colored />
+            <label-text :label="label.name" :color="label.color" colored />
           </div>
 
           <div class="submission-card-info">
@@ -41,7 +41,7 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {});
 const fileStore = useFileStore();
 const { hasLabels } = storeToRefs(fileStore);
-const label = computed(() => fileStore.getLabel(props.file));
+const label = computed(() => props.file.label);
 const similarity = computed(() => fileStore.similarities.get(props.file));
 </script>
 

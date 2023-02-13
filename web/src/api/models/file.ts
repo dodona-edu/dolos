@@ -1,4 +1,4 @@
-import { Selection } from "@/api/models";
+import { Label, Selection } from "@/api/models";
 
 export interface FileIndeterminate {
   id: number;
@@ -9,6 +9,7 @@ export interface FileIndeterminate {
   ast: string[] | string;
   mapping: Selection[] | string;
   amountOfKgrams: number;
+  label: Label;
   extra: {
     timestamp?: Date;
     fullName?: string;

@@ -16,12 +16,12 @@ export function usePartialLegend(files: MaybeRef<File[]>): WritableComputedRef<L
       const value = unref(files);
       if (!value) return {};
 
-      const partialLegend = { ...legend.value };
+      const partialLegend: Legend = { ...legend.value };
 
       // Remove keys that do not have a label in the filesset.
-      for (const key of Object.keys(partialLegend)) {
-        if (!value.some(f => f.extra.labels === key)) {
-          delete partialLegend[key];
+      for (const label of Object.values(partialLegend)) {
+        if (!value.some(f => f.label === label)) {
+          delete partialLegend[label.name];
         }
       }
 

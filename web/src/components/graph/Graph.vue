@@ -33,7 +33,7 @@ import {
   onMounted,
   onUnmounted,
 } from "vue";
-import { useApiStore, useFileStore } from "@/api/stores";
+import { useApiStore } from "@/api/stores";
 import { Pair, File, Legend } from "@/api/models";
 import { useCluster, useD3HullTool, useD3Tooltip } from "@/composables";
 import { storeToRefs } from "pinia";
@@ -44,8 +44,8 @@ import * as d3 from "d3";
 
 interface Props {
   showSingletons?: boolean;
-  legend: Legend;
   polygon?: boolean;
+  legend: Legend;
   clustering: Clustering;
   files: File[];
   pairs: Pair[];
@@ -64,7 +64,6 @@ const props = withDefaults(defineProps<Props>(), {
 });
 const emit = defineEmits(["update:selectedNode", "update:selectedCluster", "click:node"]);
 
-const fileStore = useFileStore();
 const { cutoff, cutoffDebounced } = storeToRefs(useApiStore());
 
 // Reference to the container element.
@@ -89,7 +88,7 @@ const selectedClusterMeta = useCluster(selectedClusterValue);
 const nodesMap = computed(() => {
   const nodesMap = new Map<number, any>();
   for (const file of props.files) {
-    const label = fileStore.getLabel(file).label;
+    const label = file.label;
 
     nodesMap.set(file.id, {
       id: file.id,
@@ -109,8 +108,10 @@ const nodesMap = computed(() => {
 
 // Get if a node is visible or not.
 const isVisible = (node: any): boolean => {
-  const labels = props.legend ?? {};
-  return labels[node.label] ? labels[node.label].selected : true;
+  if (node) {
+    return node.label?.selected ?? true;
+  }
+  return false;
 };
 
 // List of edges to display in the graph.
@@ -130,7 +131,7 @@ const clusterColors = computed(() => {
     // Count for each label the number of files in the cluster.
     const counter = new Map();
     for (const element of elements) {
-      const label = fileStore.getLabel(element).label;
+      const label = element.label.name;
       counter.set(label, (counter.get(label) || 0) + 1);
     }
 
@@ -287,7 +288,6 @@ const calculateEdges = (): any[] => {
 
 // Calculate the nodes of the graph.
 const calculateNodes = (): any[] => {
-  const labels = props.legend;
   const nodesList = Array.from(nodesMap.value.values())
     // Only display the nodes that are visible.
     .filter(node => isVisible(node))
@@ -313,7 +313,7 @@ const calculateNodes = (): any[] => {
     node.source = outgoing > 0 && incoming === 0;
 
     // Determine the color of the node.
-    const defaultColor = labels[node.label] ? labels[node.label].color : d3.schemeCategory10[0];
+    const defaultColor = node.label?.color || d3.schemeCategory10[0];
     // When a cluster is selected
     // Make all other nodes gray, except for the nodes in the cluster.
     if (selectedClusterValue.value) {

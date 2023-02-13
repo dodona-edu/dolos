@@ -2,7 +2,7 @@
   <ul v-if="Object.values(legend).length > 0" class="legend">
     <li
       v-for="legendDatum of Object.values(legendValue).sort()"
-      :key="legendDatum.label"
+      :key="legendDatum.name"
     >
       <label>
         <input
@@ -18,7 +18,7 @@
               'background-color': legendDatum.color,
             }"
           />
-          {{ legendDatum.label }}
+          {{ legendDatum.name }}
         </span>
       </label>
     </li>
