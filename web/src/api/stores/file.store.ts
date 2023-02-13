@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import { shallowRef, computed, nextTick, watch, ref, ComputedRef } from "vue";
 import { DATA_URL } from "@/api";
-import { File, Label, Legend } from "@/api/models";
+import { File, Label, Legend, Pair } from "@/api/models";
 import { useApiStore, usePairStore } from "@/api/stores";
 import { names, animals, uniqueNamesGenerator } from "unique-names-generator";
 import { commonFilenamePrefix, parseCsv } from "../utils";
@@ -212,9 +212,8 @@ export const useFileStore = defineStore("file", () => {
       label.name = isAnonymous ? label.pseudoLabel : label.originalLabel;
     }
 
-
     // Update the pairs.
-    for (const pair of pairStore.pairsList) {
+    for (const pair of Object.values<Pair>(pairStore.pairs)) {
       pair.leftFile = filesById.value[pair.leftFile.id];
       pair.rightFile = filesById.value[pair.rightFile.id];
     }
