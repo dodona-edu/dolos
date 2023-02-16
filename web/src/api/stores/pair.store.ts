@@ -1,7 +1,6 @@
 import { defineStore } from "pinia";
-
 import { parseCsv } from "@/api/utils";
-import { shallowRef, computed, watch } from "vue";
+import { shallowRef, computed } from "vue";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
 import {
   singleLinkageCluster

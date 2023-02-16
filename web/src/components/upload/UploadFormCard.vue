@@ -149,11 +149,7 @@
 
 <script lang="ts" setup>
 import { shallowRef, computed, watch, onMounted, onUnmounted } from "vue";
-import { useRouter } from "@/composables";
 import { default as axios } from "axios";
-
-const router = useRouter();
-
 
 const pollInterval = 1000;
 const maxPolls = 60;
@@ -354,8 +350,6 @@ const startPolling = (): void => {
       stopPolling();
       return;
     }
-
-    console.log("Poll " + pollsSinceUpdate + " of " + maxPolls);
 
     try {
       const response = await axios.get(reportStatusURL.value);
