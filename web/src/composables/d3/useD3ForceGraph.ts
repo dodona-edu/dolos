@@ -29,7 +29,8 @@ class Data {
 interface Simulation extends d3.Simulation<D3Node, D3Edge> {
   paused: ShallowRef<boolean>,
   links: (links: D3Edge[]) => void,
-  findTranslated(x: number, y: number, radius?: number): D3Node | undefined,
+  translation(): [number, number],
+  findNode(x: number, y: number, radius?: number): D3Node | undefined,
   reheat(): void;
 
 }
@@ -159,11 +160,17 @@ function createSimulation(context: CanvasRenderingContext2D, data: Data): Simula
     draw(context, data);
   });
 
+
+  function translation(): [number, number] {
+    return [context.canvas.width / 2, context.canvas.height / 2];
+  }
+
   // While drawing, we've translated the canvas so that the center of the
   // canvas is the origin. We need to undo that translation when finding
   // the nodes under the mouse.
-  function findTranslated(x: number, y: number, radius?: number): D3Node | undefined {
-    return simulation.find(x - context.canvas.width / 2, y - context.canvas.height / 2, radius);
+  function findNode(x: number, y: number, radius?: number): D3Node | undefined {
+    const [tx, ty] = translation();
+    return simulation.find(x - tx, y - ty, radius);
   }
 
   function links(links: D3Edge[]): void {
@@ -185,28 +192,31 @@ function createSimulation(context: CanvasRenderingContext2D, data: Data): Simula
 
   return Object.assign(simulation, {
     paused,
-    findTranslated,
+    translation,
+    findNode,
     reheat,
     links
   });
 }
 
 function createTooltips(simulation: Simulation): (s: d3.Selection<HTMLCanvasElement, D3Node, null, undefined>) => void {
-  const tooltip = useD3Tooltip();
+  const tooltip = useD3Tooltip({ relativeToTarget: true });
+  const showTooltip = (event: MouseEvent): void => {
+
+    const node = simulation.findNode(event.offsetX, event.offsetY, 10);
+    if (node) {
+      const [tx, ty] = simulation.translation();
+      tooltip.show(node.name);
+      tooltip.moveTo(node.x + tx, node.y + ty);
+    } else {
+      tooltip.hide();
+    }
+  };
   return (selection: d3.Selection<HTMLCanvasElement, D3Node, null, undefined>) => {
     selection
-      .on("mouseover", (event) => {
-        const node = simulation.findTranslated(event.offsetX, event.offsetY);
-        if (!node) return;
-        tooltip.show(node.name);
-        tooltip.moveTo(node.x, node.y);
-      })
-      .on("mousemove", (event) => {
-        const node = simulation.findTranslated(event.offsetX, event.offsetY);
-        if (!node) return;
-        tooltip.show(node.name);
-        tooltip.moveTo(node.x, node.y);
-      }).on("mouseout", () => {
+      .on("mouseover", showTooltip)
+      .on("mousemove", showTooltip)
+      .on("mouseout", () => {
         tooltip.hide();
       });
   };
@@ -214,7 +224,7 @@ function createTooltips(simulation: Simulation): (s: d3.Selection<HTMLCanvasElem
 
 function createDrag(simulation: Simulation): d3.DragBehavior<HTMLCanvasElement, D3Node, unknown> {
   return d3.drag<HTMLCanvasElement, D3Node>()
-    .subject((event) => simulation.findTranslated(event.sourceEvent.offsetX, event.sourceEvent.offsetY)!)
+    .subject((event) => simulation.findNode(event.sourceEvent.offsetX, event.sourceEvent.offsetY)!)
     .on("start", (event) => {
       if (!event.active && !simulation.paused.value) simulation.reheat();
       event.subject.fx = event.subject.x;
