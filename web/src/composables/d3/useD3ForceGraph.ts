@@ -50,7 +50,7 @@ export interface D3ForceGraph {
 export interface Node {
   id: number;
   name: string;
-  label?: Label;
+  color: string;
   timestamp?: Date;
 }
 
@@ -70,13 +70,13 @@ class D3Node implements Node {
   vy = NaN;
   neighbors: D3Node[] = [];
   edges: D3Edge[]= [];
-  label?: Label;
+  color: string;
   timestamp?: Date;
 
   constructor(node: Node) {
     this.id = node.id;
     this.name = node.name;
-    this.label = node.label;
+    this.color = node.color;
     this.timestamp = node.timestamp;
   }
 }
@@ -130,7 +130,7 @@ function draw(context: CanvasRenderingContext2D, data: Data): void {
   for (const node of data.nodes) {
     context.beginPath();
     context.arc(node.x, node.y, 10, 0, 2 * Math.PI);
-    context.fillStyle = "#000";
+    context.fillStyle = node.color;
     context.fill();
     context.lineWidth = 2;
     context.strokeStyle = "#fff";

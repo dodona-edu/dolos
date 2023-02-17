@@ -53,12 +53,10 @@ interface Props {
   nodeTooltip?: boolean;
   nodeClickable?: boolean;
   nodeSize?: number;
-  maxEdges?: number;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   nodeSize: 7,
-  maxEdges: 5000,
 });
 
 const emit = defineEmits(["update:selectedNode", "update:selectedCluster", "click:node"]);
@@ -79,8 +77,7 @@ const graph = useD3ForceGraph({
   container: container,
   width: width,
   height: height,
-  nodeSize: props.nodeSize,
-  maxEdges: props.maxEdges,
+  nodeSize: props.nodeSize
 });
 
 
@@ -106,14 +103,13 @@ watchEffect(() => {
     id: file.id,
     name: file.extra.fullName ?? file.shortPath,
     timestamp: file.extra.timestamp,
+    color: file.label.color,
   }));
 
   if (!showSingletons) {
     const singletons = new Set(edges.flatMap((edge) => [edge.sourceId, edge.targetId]));
     nodes = nodes.filter((file) => singletons.has(file.id));
   }
-
-  console.log(nodes.length, edges.length, cutoff, showSingletons);
 
   graph.update(nodes, edges);
 });
