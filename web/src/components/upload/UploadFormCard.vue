@@ -281,7 +281,7 @@ const reportRoute = computed(() => {
     return {
       name: "Overview",
       params: {
-        reportId: reportActive.value,
+        reportId: reportActive.value.id,
       },
     };
   } else {

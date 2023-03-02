@@ -97,6 +97,7 @@
           <!-- Close -->
           <v-btn
             :disabled="dialogReport.status !== 'finished'"
+            :to="dialogReportRoute"
             color="primary"
             text
           >
@@ -156,6 +157,12 @@ const dialogReportDate = computed(() =>
     DateTime.DATETIME_FULL
   )
 );
+const dialogReportRoute = computed(() => ({
+  name: "Overview",
+  params: {
+    reportId: dialogReportId.value,
+  },
+}));
 
 // Open the dialog for a specific report.
 const openDialog = (item: any): void => {
