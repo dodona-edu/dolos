@@ -42,5 +42,6 @@ declare module 'vue' {
     UploadFormCard: typeof import('./../components/upload/UploadFormCard.vue')['default']
     UploadInput: typeof import('./../components/upload/UploadInput.vue')['default']
     UploadsTable: typeof import('./../components/upload/UploadsTable.vue')['default']
+    UploadStatus: typeof import('./../components/upload/UploadStatus.vue')['default']
   }
 }

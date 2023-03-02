@@ -1,3 +1,13 @@
+<script lang="ts" setup>
+import { ref } from "vue";
+import { useLocalStorage } from "@vueuse/core";
+import { UploadReport } from "@/types/uploads/UploadReport";
+import UploadFormCard from "@/components/upload/UploadFormCard.vue";
+
+const search = ref("");
+const reports = useLocalStorage<UploadReport[]>("reports", []);
+</script>
+
 <template>
   <div>
     <div class="hero">
@@ -8,18 +18,15 @@
     </div>
 
     <v-row>
-      <v-col cols="12" md="6" offset-md="3">
-        <upload-form-card />
+      <v-col cols="12" md="6">
+        <upload-form-card :reports.sync="reports" />
       </v-col>
 
-      <!--
-      <v-col cols="12">
+      <v-col cols="12" md="6">
         <v-card>
           <v-row align="center" no-gutters>
             <v-col cols="12" md="6">
-              <v-card-title>
-                Previous analysis results
-              </v-card-title>
+              <v-card-title> Previous analysis results </v-card-title>
               <v-card-subtitle>
                 View the analysis results of previous uploads on this computer.
               </v-card-subtitle>
@@ -37,17 +44,12 @@
               />
             </v-col>
           </v-row>
-          <uploads-table :uploads="[]" :search.sync="search" />
+          <uploads-table :reports="reports" :search.sync="search" />
         </v-card>
       </v-col>
-      -->
     </v-row>
   </div>
 </template>
-
-<script lang="ts" setup>
-import UploadFormCard from "@/components/upload/UploadFormCard.vue";
-</script>
 
 <style lang="scss" scoped>
 .hero {

@@ -118,16 +118,20 @@
             the results of the analysis.
           </v-alert>
 
-          <span v-if="reportStatus === 'queued'">
-            Waiting for analysis to start...
+          <span v-if="reportActive?.status === 'queued'">
+            Waiting for analysis is to start...
           </span>
-          <span v-if="reportStatus === 'running'">Running analysis...</span>
+
+          <span v-if="reportActive?.status === 'running'">
+            Running analysis...
+          </span>
+
           <v-progress-linear
-            :color="reportStatus === 'queued' ? 'warning' : 'primary'"
-            :stream="reportStatus === 'queued'"
-            :buffer-value="reportStatus === 'queued' ? 0 : undefined"
-            :value="reportStatus === 'queued' ? 0 : undefined"
-            :indeterminate="reportStatus === 'running'"
+            :color="reportActive?.status === 'queued' ? 'warning' : 'primary'"
+            :stream="reportActive?.status === 'queued'"
+            :buffer-value="reportActive?.status === 'queued' ? 0 : undefined"
+            :value="reportActive?.status === 'queued' ? 0 : undefined"
+            :indeterminate="reportActive?.status === 'running'"
             class="mt-2"
             height="25"
           />
@@ -166,11 +170,16 @@
 </template>
 
 <script lang="ts" setup>
-import { shallowRef, computed, watch, onMounted, onUnmounted } from "vue";
+import { shallowRef, ref, computed, watch, onMounted, onUnmounted } from "vue";
 import { default as axios } from "axios";
+import { useVModel } from "@vueuse/core";
+import { UploadReport } from "@/types/uploads/UploadReport";
 
-const pollInterval = 1000;
-const maxPolls = 60;
+type Props = {
+  reports: UploadReport[];
+};
+const props = defineProps<Props>();
+const reports = useVModel(props, "reports");
 
 // Step in the analysis process.
 const step = shallowRef(1);
@@ -261,21 +270,18 @@ const acceptRules = [
 
 // Upload progress
 const uploadProgress = shallowRef(25);
-// Analysis status URL.
-const reportStatusURL = shallowRef<string>();
-// Analysis status.
-const reportStatus = shallowRef<
-  "queued" | "running" | "failed" | "error" | "finished"
->("queued");
-// Analysis result URL.
-const reportID = shallowRef<string>();
 
+// Report
+const reportActiveId = shallowRef<string>();
+const reportActive = computed(() =>
+  reports.value.find((r) => r.id === reportActiveId.value)
+);
 const reportRoute = computed(() => {
-  if (reportID.value) {
+  if (reportActive.value) {
     return {
       name: "Overview",
       params: {
-        reportId: reportID.value,
+        reportId: reportActive.value,
       },
     };
   } else {
@@ -293,18 +299,13 @@ const clearForm = (): void => {
 // Cancel the analysis.
 const handleCancel = (): void => {
   step.value = 1;
-  reportStatusURL.value = undefined;
-  reportStatus.value = "queued";
-  stopPolling();
+  reportActiveId.value = undefined;
 };
 
 // Handle an error.
 const handleError = (message: string): void => {
-  error.value = message;
   step.value = 1;
-  reportStatusURL.value = undefined;
-  reportStatus.value = "queued";
-  stopPolling();
+  error.value = message;
 };
 
 // When the form is submitted.
@@ -336,16 +337,23 @@ const onSubmit = async (): Promise<void> => {
         }
       );
 
-      // Get the analysis status URL.
-      reportStatusURL.value = response.data["url"];
-      reportID.value = response.data["id"].toString();
+      // Create a new report object and store it in the reports list.
+      // This will be persisted in local storage.
+      reports.value.push({
+        id: response.data["id"],
+        name: name.value ?? "",
+        date: new Date().toISOString(),
+        status: response.data["status"],
+        statusUrl: response.data["url"],
+      });
+
+      // Set the report as active.
+      reportActiveId.value = response.data["id"];
 
       // Make sure a status url was provided.
-      if (!reportStatusURL.value) {
+      if (!reportActive.value?.statusUrl) {
         handleError("No analysis URL was provided by the API.");
       }
-
-      startPolling();
     } catch (e: any) {
       if (e.code == "ERR_NETWORK") {
         handleError("Could not connect to the API.");
@@ -358,76 +366,97 @@ const onSubmit = async (): Promise<void> => {
   }
 };
 
-// Poll for the analysis results every 5 seconds.
-const interval = shallowRef();
+// Poll configuration
+const pollingInterval = 1000;
+const pollingMax = 60;
 
-const startPolling = (): void => {
-  if (interval.value) {
-    stopPolling();
+// List containing the the ids of the reports that are currently polling.
+const pollingReports = ref<string[]>([]);
+
+// Start polling for a specific report.
+const startPolling = (reportId: string): void => {
+  // Do not start polling when the report is already polling.
+  if (pollingReports.value.includes(reportId)) {
+    return;
   }
-  let pollsSinceUpdate = 0;
-  interval.value = setInterval(async () => {
-    // Do not poll when no analysis is running
-    if (
-      !reportStatusURL.value ||
-      (reportStatus.value != "queued" && reportStatus.value != "running")
-    ) {
-      stopPolling();
+
+  // Create the interval for polling.
+  const interval = setInterval(async () => {
+    // Stop the interval when the report is not in the list of polling reports.
+    if (!pollingReports.value.includes(reportId)) {
+      clearInterval(interval);
+      return;
+    }
+
+    // Get the report from the reports list.
+    const report = reports.value.find((r) => r.id === reportId);
+
+    // Stop the polling if the report no longer exists.
+    if (!report) {
+      clearInterval(interval);
       return;
     }
 
     try {
-      const response = await axios.get(reportStatusURL.value);
+      const response = await axios.get(report.statusUrl);
 
-      if (response.data.status !== reportStatus.value) {
-        pollsSinceUpdate = 0;
-        reportStatus.value = response.data.status;
-      }
+      // Update the report status.
+      report.status = response.data.status;
+      // Update the report response.
+      report.response = response.data;
 
+      // Stop the polling when the report status is final.
       if (
-        response.data.status === "error" ||
-        response.data.status === "failed"
+        report.status === "finished" ||
+        report.status === "error" ||
+        report.status === "failed"
       ) {
-        handleError(response.data.error);
+        delete pollingReports[report.id];
+        clearInterval(interval);
       }
 
-      if (pollsSinceUpdate >= maxPolls) {
-        handleError("The analysis took too long to complete.");
-      }
+      // If the report is the active report
+      // apply some changes to the form UI.
+      if (report === reportActive.value) {
+        if (report.status === "finished") {
+          // Go to the results page.
+          step.value = 4;
+          // Clear the form.
+          clearForm();
+        }
 
-      if (response.data.status === "finished") {
-        // Go to the results page.
-        step.value = 4;
-        stopPolling();
-        // Clear the form.
-        clearForm();
+        if (report.status === "error" || report.status === "failed") {
+          handleError(response.data.error);
+        }
       }
     } catch (e: any) {
-      // If the error cause was on the serve side,
-      // cancel the analysis.
-      if (e.response) {
-        handleError(e.message);
-      }
-    } finally {
-      pollsSinceUpdate += 1;
+      //
     }
-  }, pollInterval);
+  }, pollingInterval);
+
+  // Add the report.
+  pollingReports.value.push(reportId);
 };
 
-const stopPolling = (): void => {
-  if (interval.value) {
-    clearInterval(interval.value);
+// Start polling for any report in the list of reports
+// of which the status is not final yet.
+watch(
+  reports,
+  (reports) => {
+    for (const report of reports) {
+      if (
+        report.status !== "finished" &&
+        report.status !== "error" &&
+        report.status !== "failed"
+      ) {
+        startPolling(report.id);
+      }
+    }
+  },
+  {
+    immediate: true,
   }
-  interval.value = undefined;
-};
-
-onMounted(() => {
-  startPolling();
-});
-
-onUnmounted(() => {
-  stopPolling();
-});
+);
 </script>
 
 <style lang="scss" scoped>
