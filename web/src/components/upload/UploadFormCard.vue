@@ -12,39 +12,40 @@
                 {{ error }}
               </v-alert>
             </transition>
+
             <v-form v-model="valid" class="pt-2" @submit="onSubmit">
               <v-row>
                 <v-col cols="12">
                   <v-file-input
-                      v-model="file"
-                      :rules="fileRules"
-                      :truncate-length="80"
-                      :show-size="1000"
-                      prepend-icon=""
-                      prepend-inner-icon="$file"
-                      accept="zip, application/zip"
-                      label="Upload a file (*.zip)"
-                      outlined
-                      dense
+                    v-model="file"
+                    :rules="fileRules"
+                    :truncate-length="80"
+                    :show-size="1000"
+                    prepend-icon=""
+                    prepend-inner-icon="$file"
+                    accept="zip, application/zip"
+                    label="Upload a file (*.zip)"
+                    outlined
+                    dense
                   />
 
                   <v-text-field
-                      v-model="name"
-                      :rules="nameRules"
-                      label="File name"
-                      outlined
-                      dense
+                    v-model="name"
+                    :rules="nameRules"
+                    label="File name"
+                    outlined
+                    dense
                   />
 
                   <v-autocomplete
-                      v-model="language"
-                      :rules="languageRules"
-                      :items="languages"
-                      label="Programming language"
-                      item-text="name"
-                      item-value="value"
-                      outlined
-                      dense
+                    v-model="language"
+                    :rules="languageRules"
+                    :items="languages"
+                    label="Programming language"
+                    item-text="name"
+                    item-value="value"
+                    outlined
+                    dense
                   />
                 </v-col>
 
@@ -56,36 +57,46 @@
                     not share the link with anyone you do not trust.
                   </p>
                   <p>
-                    The dataset
-                    and the resulting report will be deleted after 30 days.
+                    The dataset and the resulting report will be deleted after
+                    30 days.
                   </p>
                   <v-checkbox
-                      v-model="accept"
-                      :rules="acceptRules"
-                      label="I accept the above conditions."
-                      outlined>
-
+                    v-model="accept"
+                    :rules="acceptRules"
+                    label="I accept the above conditions."
+                    outlined
+                  >
                   </v-checkbox>
                 </v-col>
               </v-row>
             </v-form>
             <div class="d-flex">
               <v-spacer />
-              <v-btn color="primary" depressed :disabled="!valid" @click="onSubmit">
+              <v-btn
+                color="primary"
+                depressed
+                :disabled="!valid"
+                @click="onSubmit"
+              >
                 Analyze
                 <v-icon right>mdi-folder-search-outline</v-icon>
               </v-btn>
             </div>
-
           </v-stepper-content>
 
           <v-stepper-content step="2">
+            <v-alert type="info" text>
+              <b>Note:</b> the dataset and the resulting report will be deleted
+              after 30 days. Anyone with the resulting link will be able to view
+              the results of the analysis.
+            </v-alert>
+
             <span>Uploading file...</span>
 
             <v-progress-linear
-                class="mt-2"
-                v-model="uploadProgress"
-                height="25"
+              class="mt-2"
+              v-model="uploadProgress"
+              height="25"
             >
               <strong>{{ uploadProgress }}%</strong>
             </v-progress-linear>
@@ -101,16 +112,24 @@
         </v-stepper-items>
 
         <v-stepper-content step="3">
-          <span v-if="reportStatus === 'queued'">Waiting for analysis to start...</span>
+          <v-alert type="info" text>
+            <b>Note:</b> the dataset and the resulting report will be deleted
+            after 30 days. Anyone with the resulting link will be able to view
+            the results of the analysis.
+          </v-alert>
+
+          <span v-if="reportStatus === 'queued'">
+            Waiting for analysis to start...
+          </span>
           <span v-if="reportStatus === 'running'">Running analysis...</span>
           <v-progress-linear
-              :color="reportStatus === 'queued' ? 'warning' : 'primary'"
-              :stream="reportStatus === 'queued'"
-              :buffer-value="reportStatus === 'queued' ? 0 : undefined"
-              :value="reportStatus === 'queued' ? 0 : undefined"
-              :indeterminate="reportStatus === 'running'"
-              class="mt-2"
-              height="25"
+            :color="reportStatus === 'queued' ? 'warning' : 'primary'"
+            :stream="reportStatus === 'queued'"
+            :buffer-value="reportStatus === 'queued' ? 0 : undefined"
+            :value="reportStatus === 'queued' ? 0 : undefined"
+            :indeterminate="reportStatus === 'running'"
+            class="mt-2"
+            height="25"
           />
 
           <div class="d-flex">
@@ -121,19 +140,18 @@
             </v-btn>
           </div>
         </v-stepper-content>
+
         <v-stepper-content step="4">
-          <v-alert
-              type="success"
-              border="left"
-              class="flex-grow-1"
-              text>
+          <v-alert type="success" border="left" class="flex-grow-1" text>
             Your dataset has been analysed.
           </v-alert>
-          <v-alert type="info">
-            <b>Note</b> that anyone with the link to the results will be able
-            to view them. The dataset and the resulting report will be deleted
-            after 30 days.
+
+          <v-alert type="info" text>
+            <b>Note:</b> the dataset and the resulting report will be deleted
+            after 30 days. Anyone with the resulting link will be able to view
+            the results of the analysis.
           </v-alert>
+
           <div class="d-flex">
             <v-spacer />
             <v-btn color="success" primary :to="reportRoute">
@@ -164,9 +182,7 @@ const error = shallowRef();
 
 // Selected file.
 const file = shallowRef<File>();
-const fileRules = [
-  (v: File) => !!v || "File is required"
-];
+const fileRules = [(v: File) => !!v || "File is required"];
 
 // Selected file name.
 const name = shallowRef<string>();
@@ -240,7 +256,7 @@ const languages = [
 
 const accept = shallowRef<boolean>(false);
 const acceptRules = [
-  (v: boolean) => v || "Please accept the conditions if you want to continue."
+  (v: boolean) => v || "Please accept the conditions if you want to continue.",
 ];
 
 // Upload progress
@@ -248,7 +264,9 @@ const uploadProgress = shallowRef(25);
 // Analysis status URL.
 const reportStatusURL = shallowRef<string>();
 // Analysis status.
-const reportStatus = shallowRef<"queued" | "running" | "failed" | "error" | "finished">("queued");
+const reportStatus = shallowRef<
+  "queued" | "running" | "failed" | "error" | "finished"
+>("queued");
 // Analysis result URL.
 const reportID = shallowRef<string>();
 
@@ -303,16 +321,20 @@ const onSubmit = async (): Promise<void> => {
 
     // Upload the file.
     try {
-      const response = await axios.post(`${process.env.VUE_APP_API_URL}/reports`, data, {
-        onUploadProgress: (e) => {
-          uploadProgress.value = Math.ceil((e.loaded / e.total) * 100);
+      const response = await axios.post(
+        `${process.env.VUE_APP_API_URL}/reports`,
+        data,
+        {
+          onUploadProgress: (e) => {
+            uploadProgress.value = Math.ceil((e.loaded / e.total) * 100);
 
-          // Go to the next step when the upload is complete.
-          if (e.loaded === e.total) {
-            step.value = 3;
-          }
+            // Go to the next step when the upload is complete.
+            if (e.loaded === e.total) {
+              step.value = 3;
+            }
+          },
         }
-      });
+      );
 
       // Get the analysis status URL.
       reportStatusURL.value = response.data["url"];
@@ -346,7 +368,10 @@ const startPolling = (): void => {
   let pollsSinceUpdate = 0;
   interval.value = setInterval(async () => {
     // Do not poll when no analysis is running
-    if (!reportStatusURL.value || (reportStatus.value != "queued" && reportStatus.value != "running")) {
+    if (
+      !reportStatusURL.value ||
+      (reportStatus.value != "queued" && reportStatus.value != "running")
+    ) {
       stopPolling();
       return;
     }
@@ -359,7 +384,10 @@ const startPolling = (): void => {
         reportStatus.value = response.data.status;
       }
 
-      if (response.data.status === "error" || response.data.status === "failed") {
+      if (
+        response.data.status === "error" ||
+        response.data.status === "failed"
+      ) {
         handleError(response.data.error);
       }
 
@@ -374,7 +402,6 @@ const startPolling = (): void => {
         // Clear the form.
         clearForm();
       }
-
     } catch (e: any) {
       // If the error cause was on the serve side,
       // cancel the analysis.
@@ -401,11 +428,9 @@ onMounted(() => {
 onUnmounted(() => {
   stopPolling();
 });
-
 </script>
 
 <style lang="scss" scoped>
-
 .upload {
   &-stepper {
     :deep(.v-stepper__content) {

@@ -47,7 +47,6 @@
 
 <script lang="ts" setup>
 import UploadFormCard from "@/components/upload/UploadFormCard.vue";
-
 </script>
 
 <style lang="scss" scoped>
