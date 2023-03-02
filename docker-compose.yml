@@ -13,6 +13,7 @@ services:
     command: bash -c "rm -f tmp/pids/server.pid && bundle exec rails db:prepare && bundle exec rails s -p 3000 -b '0.0.0.0'"
     volumes:
       - dolos-api-storage:/dolos/storage
+      - /tmp:/tmp
       #- .:/dolos
     ports:
       - "3000:3000"
@@ -30,6 +31,7 @@ services:
     volumes:
       - dolos-api-storage:/dolos/storage
       - /var/run/docker.sock:/var/run/docker.sock
+      - /tmp:/tmp
       #- .:/dolos
     environment:
       DOLOS_API_DATABASE_USERNAME: root
