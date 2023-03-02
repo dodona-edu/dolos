@@ -6,6 +6,8 @@ services:
       - dolos-db-data:/var/lib/mysql
     environment:
       MYSQL_ROOT_PASSWORD: dolos
+    networks:
+      - dolos
   web:
     build: .
     command: bash -c "rm -f tmp/pids/server.pid && bundle exec rails db:prepare && bundle exec rails s -p 3000 -b '0.0.0.0'"
@@ -20,6 +22,8 @@ services:
       DOLOS_API_DATABASE_HOST: db
     depends_on:
       - worker
+    networks:
+      - dolos
   worker:
     build: .
     command: bash -c "bundle exec rails jobs:work"
@@ -33,6 +37,11 @@ services:
       DOLOS_API_DATABASE_HOST: db
     depends_on:
       - db
+    networks:
+      - dolos
 volumes:
   dolos-db-data:
   dolos-api-storage:
+
+networks:
+  dolos:
