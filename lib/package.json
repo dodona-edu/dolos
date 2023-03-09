@@ -30,7 +30,7 @@
     "@types/node": "18.14.6",
     "@typescript-eslint/eslint-plugin": "5.52.0",
     "@typescript-eslint/parser": "5.52.0",
-    "ava": "5.1.1",
+    "ava": "5.2.0",
     "benchmark": "2.1.4",
     "eslint": "8.33.0",
     "np": "7.6.3",
