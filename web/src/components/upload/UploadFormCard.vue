@@ -70,7 +70,8 @@
                 </v-col>
               </v-row>
             </v-form>
-            <div class="d-flex">
+
+            <v-card-actions class="pa-0">
               <v-spacer />
               <v-btn
                 color="primary"
@@ -81,7 +82,7 @@
                 Analyze
                 <v-icon right>mdi-folder-search-outline</v-icon>
               </v-btn>
-            </div>
+            </v-card-actions>
           </v-stepper-content>
 
           <v-stepper-content step="2">
@@ -101,13 +102,14 @@
               <strong>{{ uploadProgress }}%</strong>
             </v-progress-linear>
 
-            <div class="d-flex">
+            <v-card-actions class="pa-0">
               <v-spacer />
-              <v-btn color="error" text depressed @click="handleCancel">
+
+              <v-btn color="error" depressed @click="handleCancel">
                 Cancel analysis
                 <v-icon right>mdi-close</v-icon>
               </v-btn>
-            </div>
+            </v-card-actions>
           </v-stepper-content>
         </v-stepper-items>
 
@@ -136,13 +138,14 @@
             height="25"
           />
 
-          <div class="d-flex">
+          <v-card-actions class="pa-0">
             <v-spacer />
+
             <v-btn color="error" text depressed @click="handleCancel">
               Cancel analysis
               <v-icon right>mdi-close</v-icon>
             </v-btn>
-          </div>
+          </v-card-actions>
         </v-stepper-content>
 
         <v-stepper-content step="4">
@@ -156,13 +159,19 @@
             the results of the analysis.
           </v-alert>
 
-          <div class="d-flex">
+          <v-card-actions class="pa-0">
             <v-spacer />
-            <v-btn color="success" primary :to="reportRoute">
+
+            <v-btn color="primary" primary text @click="handleReset">
+              Analyze another dataset
+              <v-icon right>mdi-reload</v-icon>
+            </v-btn>
+
+            <v-btn color="success" primary depressed :to="reportRoute">
               View results
               <v-icon right>mdi-arrow-right</v-icon>
             </v-btn>
-          </div>
+          </v-card-actions>
         </v-stepper-content>
       </v-stepper>
     </v-card-text>
@@ -300,6 +309,13 @@ const clearForm = (): void => {
 const handleCancel = (): void => {
   step.value = 1;
   reportActiveId.value = undefined;
+};
+
+// Handle reset.
+const handleReset = (): void => {
+  step.value = 1;
+  reportActiveId.value = undefined;
+  clearForm();
 };
 
 // Handle an error.
