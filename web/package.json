@@ -56,7 +56,7 @@
     "roboto-fontface": "*",
     "vue": "^2.7.13",
     "vue-router": "^3.5.1",
-    "vuetify": "^2.6.10"
+    "vuetify": "^3.0.0"
   },
   "license": "MIT",
   "publishConfig": {
