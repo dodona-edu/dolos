@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { useRouter } from "@/composables";
 import { UploadReport } from "@/types/uploads/UploadReport";
 import { useVModel } from "@vueuse/core";
 import { computed } from "vue";
@@ -12,14 +13,22 @@ const props = withDefaults(defineProps<Props>(), {
   open: false,
 });
 const emit = defineEmits(["update:open", "update:reports"]);
+const router = useRouter();
 
 const open = useVModel(props, "open", emit);
 const snackbar = useSnackbar();
 
 // Share URL
-const shareUrl = computed(
-  () => `${window.location.origin}/share/${props.report.id}`
-);
+const shareUrl = computed(() => {
+  const route = router.resolve({
+    name: "Report",
+    params: {
+      reportId: props.report.id,
+    },
+  });
+  const url = new URL(route.href, window.location.origin);
+  return url.toString();
+});
 
 // Copy the share URL to the clipboard.
 const copyShareUrl = (): void => {

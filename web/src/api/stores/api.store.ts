@@ -10,6 +10,8 @@ import {
 } from "@/api/stores";
 import { refDebounced } from "@vueuse/shared";
 import { guessSimilarityThreshold } from "../utils";
+import { useLocalStorage } from "@vueuse/core";
+import { UploadReport } from "@/types/uploads/UploadReport";
 
 /**
  * Store managing the API.
@@ -21,13 +23,13 @@ export const useApiStore = defineStore("api", () => {
   const metadataStore = useMetadataStore();
   const pairStore = usePairStore();
 
-  // Current route.
-  const route = useRoute();
+  // Get the current report from local storage.
+  const reportId = useLocalStorage<UploadReport>("report", null);
 
   // URL to the data.
   const url = computed(() => {
     if (process.env.VUE_APP_MODE === "server") {
-      return `${process.env.VUE_APP_API_URL}/reports/${route.value.params.reportId}/data`;
+      return `${process.env.VUE_APP_API_URL}/reports/${reportId.value}/data`;
     } else {
       return DATA_URL;
     }
