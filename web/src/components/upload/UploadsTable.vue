@@ -36,6 +36,10 @@ const items = computed(() =>
     date: DateTime.fromISO(report.date).toLocaleString(DateTime.DATETIME_MED),
     status: report.status,
     report: report,
+    done:
+      report.status === "error" ||
+      report.status === "failed" ||
+      report.status === "finished",
   }))
 );
 
@@ -79,12 +83,17 @@ const openDeleteDialog = (item: any): void => {
       <!-- Actions -->
       <template #item.actions="{ item }">
         <!-- Delete -->
-        <v-btn icon color="error" @click.stop="openDeleteDialog(item)">
+        <v-btn
+          icon
+          color="error"
+          @click.stop="openDeleteDialog(item)"
+          :disabled="!item.done"
+        >
           <v-icon>mdi-delete</v-icon>
         </v-btn>
 
         <!-- Share-->
-        <v-btn icon color="primary">
+        <v-btn icon color="primary" :disabled="!item.done">
           <v-icon>mdi-share-variant</v-icon>
         </v-btn>
       </template>
