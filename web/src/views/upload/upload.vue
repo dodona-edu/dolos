@@ -45,7 +45,7 @@ const reports = useLocalStorage<UploadReport[]>("reports", []);
             </v-col>
           </v-row>
 
-          <uploads-table :reports="reports" :search.sync="search" />
+          <uploads-table :reports.sync="reports" :search.sync="search" />
         </v-card>
       </v-col>
     </v-row>

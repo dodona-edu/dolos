@@ -30,15 +30,15 @@ const reportRoute = computed(() => ({
 <template>
   <v-dialog v-model="open" max-width="700px">
     <v-card v-if="props.report">
-      <v-toolbar color="transparent" flat>
-        <v-toolbar-title> {{ props.report.name }} </v-toolbar-title>
+      <v-card-title color="transparent" flat>
+        <span> {{ props.report.name }} </span>
 
         <v-spacer />
 
         <v-btn icon @click="open = false">
           <v-icon>mdi-close</v-icon>
         </v-btn>
-      </v-toolbar>
+      </v-card-title>
 
       <v-list class="info-list" dense>
         <v-list-item class="info-list-item">

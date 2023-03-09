@@ -5,16 +5,19 @@ import { useVModel } from "@vueuse/core";
 import { UploadReport } from "@/types/uploads/UploadReport";
 import UploadStatus from "./UploadStatus.vue";
 import UploadsTableInfoDialog from "./UploadsTableInfoDialog.vue";
+import UploadsTableDeleteDialog from "./UploadsTableDeleteDialog.vue";
 
 interface Props {
   reports: UploadReport[];
   search?: string;
 }
 const props = withDefaults(defineProps<Props>(), {});
-const emit = defineEmits(["update:search"]);
+const emit = defineEmits(["update:search", "update:reports"]);
 
 // Table search value.
-const searchValue = useVModel(props, "search", emit);
+const search = useVModel(props, "search", emit);
+// Reports value.
+const reports = useVModel(props, "reports", emit);
 
 // Table headers
 const headers = computed(() => [
@@ -35,16 +38,24 @@ const items = computed(() =>
   }))
 );
 
-const infoDialog = ref(false);
-const infoDialogReportId = ref<string>();
-const infoDialogReport = computed(() =>
-  props.reports.find((report) => report.id === infoDialogReportId.value)
+const selectedReportId = ref<string>();
+const selectedReport = computed(() =>
+  props.reports.find((report) => report.id === selectedReportId.value)
 );
+
+const infoDialog = ref(false);
+const deleteDialog = ref(false);
 
 // Open the dialog for a specific report.
 const openInfoDialog = (item: any): void => {
+  selectedReportId.value = item.report.id;
   infoDialog.value = true;
-  infoDialogReportId.value = item.report.id;
+};
+
+// Open the dialog for deleting a specific report.
+const openDeleteDialog = (item: any): void => {
+  selectedReportId.value = item.report.id;
+  deleteDialog.value = true;
 };
 </script>
 
@@ -54,7 +65,7 @@ const openInfoDialog = (item: any): void => {
       class="row-pointer"
       :headers="headers"
       :items="items"
-      :search.sync="searchValue"
+      :search.sync="search"
       sort-by="date"
       sort-desc
       @click:row="openInfoDialog"
@@ -65,9 +76,9 @@ const openInfoDialog = (item: any): void => {
       </template>
 
       <!-- Actions -->
-      <template #item.actions="{}">
+      <template #item.actions="{ item }">
         <!-- Delete -->
-        <v-btn icon color="error">
+        <v-btn icon color="error" @click.stop="openDeleteDialog(item)">
           <v-icon>mdi-delete</v-icon>
         </v-btn>
 
@@ -79,9 +90,16 @@ const openInfoDialog = (item: any): void => {
     </v-data-table>
 
     <uploads-table-info-dialog
-      v-if="infoDialogReport"
+      v-if="selectedReport"
       :open.sync="infoDialog"
-      :report="infoDialogReport"
+      :report="selectedReport"
+    />
+
+    <uploads-table-delete-dialog
+      v-if="selectedReport"
+      :open.sync="deleteDialog"
+      :report="selectedReport"
+      :reports.sync="reports"
     />
   </div>
 </template>
