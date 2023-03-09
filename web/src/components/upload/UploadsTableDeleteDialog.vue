@@ -104,13 +104,3 @@ const confirm = async (): Promise<void> => {
     </v-card>
   </v-dialog>
 </template>
-
-<style lang="scss" scoped>
-.info-list {
-  &-item {
-    display: flex;
-    gap: 0.5rem;
-    width: 100%;
-  }
-}
-</style>

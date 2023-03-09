@@ -1,12 +1,11 @@
 <script lang="ts" setup>
 import { computed, ref } from "vue";
 import { DateTime } from "luxon";
-import { useEventBus, useVModel } from "@vueuse/core";
+import { useVModel } from "@vueuse/core";
 import { UploadReport } from "@/types/uploads/UploadReport";
 import UploadStatus from "./UploadStatus.vue";
 import UploadsTableInfoDialog from "./UploadsTableInfoDialog.vue";
 import UploadsTableDeleteDialog from "./UploadsTableDeleteDialog.vue";
-import { useSnackbar } from "../util/snackbar/useSnackbar";
 
 interface Props {
   reports: UploadReport[];
@@ -50,6 +49,7 @@ const selectedReport = computed(() =>
 
 const infoDialog = ref(false);
 const deleteDialog = ref(false);
+const shareDialog = ref(false);
 
 // Open the dialog for a specific report.
 const openInfoDialog = (item: any): void => {
@@ -61,6 +61,12 @@ const openInfoDialog = (item: any): void => {
 const openDeleteDialog = (item: any): void => {
   selectedReportId.value = item.report.id;
   deleteDialog.value = true;
+};
+
+// Open the dialog for sharing a specific report.
+const openShareDialog = (item: any): void => {
+  selectedReportId.value = item.report.id;
+  shareDialog.value = true;
 };
 </script>
 
@@ -86,14 +92,19 @@ const openDeleteDialog = (item: any): void => {
         <v-btn
           icon
           color="error"
-          @click.stop="openDeleteDialog(item)"
           :disabled="!item.done"
+          @click.stop="openDeleteDialog(item)"
         >
           <v-icon>mdi-delete</v-icon>
         </v-btn>
 
         <!-- Share-->
-        <v-btn icon color="primary" :disabled="!item.done">
+        <v-btn
+          icon
+          color="primary"
+          :disabled="!item.done"
+          @click.stop="openShareDialog(item)"
+        >
           <v-icon>mdi-share-variant</v-icon>
         </v-btn>
       </template>
@@ -110,6 +121,12 @@ const openDeleteDialog = (item: any): void => {
       :open.sync="deleteDialog"
       :report="selectedReport"
       :reports.sync="reports"
+    />
+
+    <uploads-table-share-dialog
+      v-if="selectedReport"
+      :open.sync="shareDialog"
+      :report="selectedReport"
     />
   </div>
 </template>

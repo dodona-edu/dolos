@@ -45,6 +45,7 @@ declare module 'vue' {
     UploadsTable: typeof import('./../components/upload/UploadsTable.vue')['default']
     UploadsTableDeleteDialog: typeof import('./../components/upload/UploadsTableDeleteDialog.vue')['default']
     UploadsTableInfoDialog: typeof import('./../components/upload/UploadsTableInfoDialog.vue')['default']
+    UploadsTableShareDialog: typeof import('./../components/upload/UploadsTableShareDialog.vue')['default']
     UploadStatus: typeof import('./../components/upload/UploadStatus.vue')['default']
   }
 }
