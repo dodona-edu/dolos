@@ -1,11 +1,12 @@
 <script lang="ts" setup>
 import { computed, ref } from "vue";
 import { DateTime } from "luxon";
-import { useVModel } from "@vueuse/core";
+import { useEventBus, useVModel } from "@vueuse/core";
 import { UploadReport } from "@/types/uploads/UploadReport";
 import UploadStatus from "./UploadStatus.vue";
 import UploadsTableInfoDialog from "./UploadsTableInfoDialog.vue";
 import UploadsTableDeleteDialog from "./UploadsTableDeleteDialog.vue";
+import { useSnackbar } from "../util/snackbar/useSnackbar";
 
 interface Props {
   reports: UploadReport[];

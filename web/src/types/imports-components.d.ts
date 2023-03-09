@@ -34,6 +34,7 @@ declare module 'vue' {
     Sidebar: typeof import('./../components/layout/Sidebar.vue')['default']
     SimilarityDisplay: typeof import('./../components/SimilarityDisplay.vue')['default']
     SimilaritySetting: typeof import('./../components/settings/SimilaritySetting.vue')['default']
+    Snackbar: typeof import('./../components/util/snackbar/Snackbar.vue')['default']
     SubmissionCard: typeof import('./../components/submission/SubmissionCard.vue')['default']
     SubmissionCode: typeof import('./../components/submission/SubmissionCode.vue')['default']
     SubmissionsPairsTable: typeof import('./../components/submission/SubmissionsPairsTable.vue')['default']

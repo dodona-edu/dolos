@@ -1,6 +1,7 @@
 <template>
   <component :is="layout">
     <router-view />
+    <snackbar />
   </component>
 </template>
 
@@ -10,6 +11,7 @@ import { uploadPathPrefix } from "@/router";
 import { useRoute } from "@/composables";
 import AnalysisLayout from "@/layouts/analysis.vue";
 import UploadLayout from "@/layouts/upload.vue";
+import Snackbar from "./components/util/snackbar/Snackbar.vue";
 
 const route = useRoute();
 
@@ -17,7 +19,10 @@ const route = useRoute();
 // Paths starting with /upload are handled by the UploadLayout.
 // All other paths are handled by the AnalysisLayout.
 const layout = computed(() => {
-  if (process.env.VUE_APP_MODE === "server" && route.value.path === uploadPathPrefix) {
+  if (
+    process.env.VUE_APP_MODE === "server" &&
+    route.value.path === uploadPathPrefix
+  ) {
     return UploadLayout;
   }
 

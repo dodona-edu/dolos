@@ -1,8 +1,9 @@
 <script lang="ts" setup>
 import { UploadReport } from "@/types/uploads/UploadReport";
 import { useVModel } from "@vueuse/core";
-import axios from "axios";
 import { ref } from "vue";
+import axios from "axios";
+import { useSnackbar } from "../util/snackbar/useSnackbar";
 
 type Props = {
   open: boolean;
@@ -17,6 +18,7 @@ const emit = defineEmits(["update:open", "update:reports"]);
 const open = useVModel(props, "open", emit);
 const reports = useVModel(props, "reports", emit);
 const loading = ref(false);
+const snackbar = useSnackbar();
 
 // Cancel the deletion.
 const cancel = (): void => {
@@ -40,8 +42,24 @@ const confirm = async (): Promise<void> => {
 
     // Close the dialog.
     open.value = false;
+
+    // Open success snackbar.
+    snackbar.open({
+      message: "Report deleted successfully.",
+      color: "success",
+      timeout: 5000,
+      top: true,
+      right: true,
+    });
   } catch (error) {
-    console.error(error);
+    // Open error snackbar.
+    snackbar.open({
+      message: "Failed to delete report.",
+      color: "error",
+      timeout: 5000,
+      top: true,
+      right: true,
+    });
   } finally {
     loading.value = false;
   }
@@ -73,8 +91,19 @@ const confirm = async (): Promise<void> => {
       <v-card-actions>
         <v-spacer />
 
-        <v-btn color="error" text @click="cancel"> Cancel </v-btn>
-        <v-btn color="primary" text @click="confirm"> Delete </v-btn>
+        <v-btn color="error" text @click="cancel" :disabled="loading">
+          Cancel
+        </v-btn>
+
+        <v-btn
+          color="primary"
+          text
+          @click="confirm"
+          :disabled="loading"
+          :loading="loading"
+        >
+          Delete
+        </v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>

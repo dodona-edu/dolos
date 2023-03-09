@@ -101,6 +101,7 @@ const reportRoute = computed(() => ({
         <v-btn
           :disabled="props.report.status !== 'finished'"
           :to="reportRoute"
+          target="_blank"
           color="primary"
           text
         >
