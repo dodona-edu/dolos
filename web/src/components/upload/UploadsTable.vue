@@ -102,7 +102,7 @@ const openShareDialog = (item: any): void => {
         <v-btn
           icon
           color="primary"
-          :disabled="!item.done"
+          :disabled="item.status !== 'finished'"
           @click.stop="openShareDialog(item)"
         >
           <v-icon>mdi-share-variant</v-icon>
@@ -114,6 +114,8 @@ const openShareDialog = (item: any): void => {
       v-if="selectedReport"
       :open.sync="infoDialog"
       :report="selectedReport"
+      @open:share="shareDialog = true"
+      @open:delete="deleteDialog = true"
     />
 
     <uploads-table-delete-dialog

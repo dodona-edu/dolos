@@ -63,7 +63,7 @@ const confirm = async (): Promise<void> => {
 </script>
 
 <template>
-  <v-dialog v-model="open" max-width="700px">
+  <v-dialog v-model="open" max-width="500px">
     <v-card v-if="props.report">
       <v-card-title color="transparent" flat>
         <span>Are you sure?</span>
@@ -76,12 +76,12 @@ const confirm = async (): Promise<void> => {
       </v-card-title>
 
       <v-card-text>
-        <p>Are you sure you want to delete "{{ props.report.name }}"?</p>
+        <div>Are you sure you want to delete "{{ props.report.name }}"?</div>
 
-        <p>
+        <div>
           This will delete the upload and all associated data. This action
           cannot be undone.
-        </p>
+        </div>
       </v-card-text>
 
       <v-card-actions>

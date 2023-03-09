@@ -11,9 +11,10 @@ type Props = {
 const props = withDefaults(defineProps<Props>(), {
   open: false,
 });
-const emit = defineEmits(["update:open"]);
+const emit = defineEmits(["update:open", "open:share", "open:delete"]);
 
 const open = useVModel(props, "open", emit);
+
 const reportDate = computed(() =>
   DateTime.fromISO(props.report.date ?? "").toLocaleString(
     DateTime.DATETIME_FULL
@@ -25,6 +26,14 @@ const reportRoute = computed(() => ({
     reportId: props.report.id,
   },
 }));
+
+// If the report is finished or errored.
+const isDone = computed(
+  () =>
+    props.report.status === "finished" ||
+    props.report.status === "error" ||
+    props.report.status === "failed"
+);
 </script>
 
 <template>
@@ -81,9 +90,11 @@ const reportRoute = computed(() => ({
         "
       >
         <v-card-text>
-          Unable to execute the analysis for the uploaded file.
+          <v-alert type="error" text class="mt-2 mb-0">
+            <p class="font-weight-bold">
+              Unable to execute the analysis for the uploaded file.
+            </p>
 
-          <v-alert type="error" text class="mt-2">
             {{ props.report.response?.stderr }}
           </v-alert>
         </v-card-text>
@@ -91,10 +102,36 @@ const reportRoute = computed(() => ({
 
       <!-- Status: Finished -->
       <template v-else-if="props.report.status === 'finished'">
-        <v-card-text> Analysis was completed successfully. </v-card-text>
+        <v-card-text>
+          <v-alert type="success" text class="mt-2 mb-0">
+            Analysis was completed successfully.
+          </v-alert>
+        </v-card-text>
       </template>
 
       <v-card-actions>
+        <!-- Delete -->
+        <v-btn
+          text
+          color="error"
+          :disabled="!isDone"
+          @click="$emit('open:delete')"
+        >
+          Delete
+          <v-icon right>mdi-delete</v-icon>
+        </v-btn>
+
+        <!-- Share-->
+        <v-btn
+          text
+          color="primary"
+          :disabled="props.report.status !== 'finished'"
+          @click="$emit('open:share')"
+        >
+          Share
+          <v-icon right>mdi-share-variant</v-icon>
+        </v-btn>
+
         <v-spacer />
 
         <!-- Close -->
@@ -102,11 +139,10 @@ const reportRoute = computed(() => ({
           :disabled="props.report.status !== 'finished'"
           :to="reportRoute"
           target="_blank"
-          color="primary"
+          color="success"
           text
         >
           View Results
-
           <v-icon right>mdi-arrow-right</v-icon>
         </v-btn>
       </v-card-actions>
@@ -116,6 +152,8 @@ const reportRoute = computed(() => ({
 
 <style lang="scss" scoped>
 .info-list {
+  padding-left: 0.5rem;
+
   &-item {
     display: flex;
     gap: 0.5rem;

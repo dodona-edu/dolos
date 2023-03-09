@@ -33,7 +33,7 @@ const copyShareUrl = (): void => {
 </script>
 
 <template>
-  <v-dialog v-model="open" max-width="700px">
+  <v-dialog v-model="open" max-width="500px">
     <v-card v-if="props.report">
       <v-card-title color="transparent" flat>
         <span>Share {{ report.name }}</span>
