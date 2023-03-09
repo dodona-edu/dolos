@@ -10,8 +10,9 @@ class Data {
 
   public nodes: D3Node[] = [];
   public edges: D3Edge[] = [];
+  public clusters: D3Cluster[] = [];
 
-  public update(nodes: Node[], edges: Edge[]): void {
+  public update(nodes: Node[], edges: Edge[], clusters: Cluster[]): void {
     const oldNodesById = this.nodesById;
     const oldEdgesById = this.edgesById;
     this.nodesById = new Map(nodes.map(node => [node.id, oldNodesById.get(node.id) || new D3Node(node)]));
@@ -22,6 +23,15 @@ class Data {
     ]));
     this.nodes = Array.from(this.nodesById.values());
     this.edges = Array.from(this.edgesById.values());
+
+    this.clusters = [];
+    for (const cluster of clusters) {
+      const nodes = cluster.nodeIds.map(id => this.nodesById.get(id)).filter(node => node !== undefined) as D3Node[];
+      const d3Cluster = new D3Cluster(cluster, nodes);
+      if (d3Cluster.nodes.length > 0) {
+        this.clusters.push(d3Cluster);
+      }
+    }
   }
 }
 
@@ -44,7 +54,7 @@ export interface D3ForceGraphOptions {
 }
 
 export interface D3ForceGraph {
-  update(nodes: Node[], edges: Edge[]): void;
+  update(nodes: Node[], edges: Edge[], clusters: Cluster[]): void;
   paused: ShallowRef<boolean>;
 }
 
@@ -60,6 +70,10 @@ export interface Edge {
   sourceId: number;
   targetId: number;
   similarity: number;
+}
+
+export interface Cluster {
+  nodeIds: number[];
 }
 
 class D3Node implements Node {
@@ -81,8 +95,6 @@ class D3Node implements Node {
     this.timestamp = node.timestamp;
   }
 }
-
-
 
 class D3Edge implements Edge {
   id: number;
@@ -111,13 +123,65 @@ class D3Edge implements Edge {
     this.similarity = edge.similarity;
     this.width = 4 * Math.pow(Math.max(0.4, (edge.similarity - 0.75) / 0.2), 2);
   }
+}
 
+class D3Cluster implements Cluster {
+  nodeIds: number[] = [];
+  nodes: D3Node[] = [];
+  hull: [number, number][] = [];
+  color: string;
+
+  constructor(cluster: Cluster, nodes: D3Node[]) {
+    this.nodeIds = cluster.nodeIds;
+    this.nodes = nodes;
+
+    const colors = new Map<string, number>();
+    let maxCount = 0;
+    this.color = nodes[0].color;
+    for (const node of nodes) {
+      const count = (colors.get(node.color) || 0) + 1;
+      colors.set(node.color, count);
+      if (count > maxCount) {
+        this.color = node.color;
+        maxCount = count;
+      }
+    }
+  }
+}
+
+function updateClusters(data: Data): void {
+  for (const cluster of data.clusters) {
+    if (cluster.nodes.length > 2) {
+      cluster.hull = d3.polygonHull(cluster.nodes.map(node => [node.x, node.y]))!;
+    } else {
+      cluster.hull = [];
+    }
+  }
 }
 
 function draw(context: CanvasRenderingContext2D, data: Data): void {
   context.clearRect(0, 0, context.canvas.width, context.canvas.height);
   context.save();
   context.translate(context.canvas.width / 2, context.canvas.height / 2);
+
+  context.globalAlpha = 0.2;
+  for (const cluster of data.clusters) {
+    if (cluster.hull.length > 0) {
+      context.beginPath();
+      context.moveTo(cluster.hull[0][0], cluster.hull[0][1]);
+      for (const point of cluster.hull) {
+        context.lineTo(point[0], point[1]);
+      }
+      context.closePath();
+      context.fillStyle = cluster.color;
+      context.fill();
+      context.lineWidth = 25;
+      context.lineJoin = "round";
+      context.strokeStyle = cluster.color;
+      context.stroke();
+    }
+  }
+  context.globalAlpha = 1;
 
   for (const edge of data.edges) {
     context.beginPath();
@@ -157,6 +221,7 @@ function createSimulation(context: CanvasRenderingContext2D, data: Data): Simula
     .force("compact_y", d3.forceY().strength(.25));
 
   simulation.on("tick", () => {
+    updateClusters(data);
     draw(context, data);
   });
 
@@ -199,8 +264,11 @@ function createSimulation(context: CanvasRenderingContext2D, data: Data): Simula
   });
 }
 
-function createTooltips(simulation: Simulation): (s: d3.Selection<HTMLCanvasElement, D3Node, null, undefined>) => void {
-  const tooltip = useD3Tooltip({ relativeToTarget: true });
+function createTooltips(
+  simulation: Simulation,
+  parent: HTMLElement
+): (s: d3.Selection<HTMLCanvasElement, D3Node, null, undefined>) => void {
+  const tooltip = useD3Tooltip({ relativeToTarget: true, parent });
   const showTooltip = (event: MouseEvent): void => {
 
     const node = simulation.findNode(event.offsetX, event.offsetY, 10);
@@ -245,23 +313,15 @@ export function useD3ForceGraph(options: D3ForceGraphOptions): D3ForceGraph {
   const data = new Data();
   const context: CanvasRenderingContext2D = document.createElement("canvas").getContext("2d")!;
   const simulation = createSimulation(context, data);
-  const drag = createDrag(simulation);
-  const tooltip = createTooltips(simulation);
-
-  const canvas = d3.select<HTMLCanvasElement, D3Node>(context.canvas)
-    .call(drag)
-    .call(tooltip)
-    .node()!;
 
   // This function will update the (initially empty) selection of nodes and edges to represent
   // the given files and pairs.
-  const update = (nodes: Node[], edges: Edge[]): void => {
-    data.update(nodes, edges);
+  const update = (nodes: Node[], edges: Edge[], clusters: Cluster[]): void => {
+    data.update(nodes, edges, clusters);
     simulation.nodes(data.nodes);
     simulation.links(data.edges);
     simulation.reheat();
   };
-
 
   watch(options.container, () => {
     if (!options.container.value) return;
@@ -272,7 +332,20 @@ export function useD3ForceGraph(options: D3ForceGraphOptions): D3ForceGraph {
   });
 
   // Add the graph to the container.
-  onMounted(() => options.container.value?.prepend(canvas));
+  onMounted(() => {
+    const container = options.container.value;
+    if (!container) throw new Error("Graph container was not ready yet.");
+
+    const tooltip = createTooltips(simulation, options.container.value!);
+    const drag = createDrag(simulation);
+
+    const canvas = d3.select<HTMLCanvasElement, D3Node>(context.canvas)
+      .call(drag)
+      .call(tooltip)
+      .node()!;
+
+    container.prepend(canvas);
+  });
 
   // Stop the simulation when the component is unmounted.
   onUnmounted(() => {

@@ -34,8 +34,8 @@ import {
 import { useElementSize } from "@vueuse/core";
 import { storeToRefs } from "pinia";
 import { File, Legend, Pair } from "@/api/models";
-import { Cluster, Clustering } from "@/util/clustering-algorithms/ClusterTypes";
-import { useD3ForceGraph, Node, Edge } from "@/composables/d3/useD3ForceGraph";
+import { Clustering } from "@/util/clustering-algorithms/ClusterTypes";
+import { useD3ForceGraph, Node, Edge, Cluster } from "@/composables/d3/useD3ForceGraph";
 import { useApiStore, useFileStore } from "@/api/stores";
 
 interface Props {
@@ -91,13 +91,18 @@ watchEffect(() => {
   const showSingletons = props.showSingletons;
   const pairs = props.pairs;
   const files = props.files;
+  const clustering = props.clustering;
 
-  const edges: Edge[] = pairs.filter((pair) => pair.similarity >= cutoff).map((pair) => ({
-    id: pair.id,
-    sourceId: pair.rightFile.id,
-    targetId: pair.leftFile.id,
-    similarity: pair.similarity,
-  }));
+  const fileIds = new Set(files.map((file) => file.id));
+
+  const edges: Edge[] = pairs
+    .filter((pair) => pair.similarity >= cutoff && fileIds.has(pair.rightFile.id) && fileIds.has(pair.leftFile.id))
+    .map((pair) => ({
+      id: pair.id,
+      sourceId: pair.rightFile.id,
+      targetId: pair.leftFile.id,
+      similarity: pair.similarity,
+    }));
 
   let nodes: Node[] = files.map(file => ({
     id: file.id,
@@ -106,12 +111,17 @@ watchEffect(() => {
     color: file.label.color,
   }));
 
+  const clusters: Cluster[] = clustering.map(cluster => {
+    const nodes = new Set(Array.from(cluster).flatMap(pair => [pair.rightFile.id, pair.leftFile.id]));
+    return { nodeIds: Array.from(nodes).filter((id) => fileIds.has(id)) };
+  });
+
   if (!showSingletons) {
     const singletons = new Set(edges.flatMap((edge) => [edge.sourceId, edge.targetId]));
     nodes = nodes.filter((file) => singletons.has(file.id));
   }
 
-  graph.update(nodes, edges);
+  graph.update(nodes, edges, clusters);
 });
 
 // Pause the simulation

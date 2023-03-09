@@ -6,6 +6,7 @@ export interface UseD3TooltipOptions {
   relativeToTarget?: boolean;
   // If the tooltip should be relative to the mouse.
   relativeToMouse?: boolean;
+  parent?: HTMLElement;
 }
 
 export interface UseD3TooltipReturn {
@@ -19,16 +20,23 @@ export interface UseD3TooltipReturn {
 }
 
 export function useD3Tooltip(options: UseD3TooltipOptions = {}): UseD3TooltipReturn {
-  const tooltip = d3
-    .select(".v-application--wrap")
-    .append("div")
-    .attr("class", "tooltip")
-    .attr("class", "v-tooltip__content")
-    .style("opacity", 0)
-    .style("position", "absolute")
-    .style("z-index", 5)
-    .style("transform", "translateY(-100%)")
-    .style("pointer-events", "none");
+  let parent: d3.Selection<HTMLDivElement, unknown, any, any>;
+  if (options.parent) {
+    parent = d3.select(options.parent).append("div");
+  } else {
+    parent = d3.select(".v-application--wrap").append("div");
+  }
+
+  const tooltip =
+    parent
+      .append("div")
+      .attr("class", "tooltip")
+      .attr("class", "v-tooltip__content")
+      .style("opacity", 0)
+      .style("position", "absolute")
+      .style("z-index", 5)
+      .style("transform", "translateY(-100%)")
+      .style("pointer-events", "none");
 
   const moveTo = (x: number, y: number): void => {
     tooltip
