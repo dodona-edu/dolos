@@ -48,8 +48,6 @@ const confirm = async (): Promise<void> => {
       message: "Report deleted successfully.",
       color: "success",
       timeout: 5000,
-      top: true,
-      right: true,
     });
   } catch (error) {
     // Open error snackbar.
@@ -57,8 +55,6 @@ const confirm = async (): Promise<void> => {
       message: "Failed to delete report.",
       color: "error",
       timeout: 5000,
-      top: true,
-      right: true,
     });
   } finally {
     loading.value = false;
