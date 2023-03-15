@@ -1,4 +1,5 @@
 export interface DolosOptions {
+  reportName?: string | undefined;
   kgramLength: number;
   kgramsInWindow: number;
   language: string | null;
@@ -78,6 +79,10 @@ export class Options implements DolosOptions {
     Object.freeze(this);
   }
 
+  get reportName(): string | undefined {
+    return this.custom.reportName;
+  }
+
   get kgramData(): boolean {
     return this.custom.kgramData == true;
   }
@@ -138,6 +143,7 @@ export class Options implements DolosOptions {
 
   public asObject(): DolosOptions {
     return {
+      reportName: this.reportName,
       kgramLength: this.kgramLength,
       kgramsInWindow: this.kgramsInWindow,
       language: this.language,

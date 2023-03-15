@@ -78,23 +78,32 @@ export class Dolos {
 
   public async analyzePaths(paths: string[]): Promise<Report> {
     let files = null;
+    let nameCandidate = undefined;
     if(paths.length == 1) {
       const inputFile = paths[0];
       if(inputFile.toLowerCase().endsWith(".zip")) {
         files = this.fromZIP(inputFile);
+        nameCandidate = path.basename(inputFile, ".zip");
       } else if(inputFile.toLowerCase().endsWith(".csv")) {
         files = this.fromCSV(inputFile);
+        if (inputFile.endsWith("info.csv")) {
+          nameCandidate = path.dirname(inputFile).split(path.sep).pop();
+        }
       } else {
         throw new Error("You gave one input file, but is not a CSV file or a ZIP archive.");
       }
     } else {
       files = Result.all(paths.map(location => File.fromPath(location)));
+      if (paths.length == 2) {
+        nameCandidate = path.basename(paths[0]) + " & " + path.basename(paths[1]);
+      }
     }
-    return this.analyze((await files).ok());
+    return this.analyze((await files).ok(), nameCandidate);
   }
 
   public async analyze(
-    files: Array<File>
+    files: Array<File>,
+    nameCandidate?: string
   ): Promise<Report> {
 
     if (files.length < 2) {
@@ -119,6 +128,6 @@ export class Dolos {
         this.language?.checkLanguage(file);
       }
     }
-    return this.index.compareFiles(files);
+    return this.index.compareFiles(files, nameCandidate);
   }
 }

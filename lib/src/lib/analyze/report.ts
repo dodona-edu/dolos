@@ -24,6 +24,7 @@ export class Report {
     public readonly language: Language | null,
     public readonly files: TokenizedFile[],
     fingerprints: Map<Hash, SharedFingerprint>,
+    public readonly name?: string,
   ) {
     if (this.options.maxFingerprintCount != null) {
       this.kgramMaxFileOccurrences = this.options.maxFingerprintCount;
@@ -31,6 +32,10 @@ export class Report {
       this.kgramMaxFileOccurrences = this.options.maxFingerprintPercentage * this.files.length;
     } else {
       this.kgramMaxFileOccurrences = this.files.length;
+    }
+
+    if (this.options.reportName) {
+      this.name = this.options.reportName;
     }
 
     this.fingerprints = Array.from(fingerprints.values()).filter(
@@ -72,6 +77,7 @@ export class Report {
 
   public metadata(): Metadata {
     return {
+      reportName: this.name,
       ...this.options.asObject(),
       language: this.language?.name ?? null,
       languageDetected: this.options.language == undefined,

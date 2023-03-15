@@ -58,6 +58,7 @@ export class Index {
    *
    * @param files: the file objects which need to be compared to the index
    * and each other. The file hashes will be added to the index.
+   * @param reportName: suggestion for the name of the report, will be overwritten by the reportName in Option
    * @param hashFilter: an optional HashFilter. By default the HashFilter of the
    * Index object will be used.
    * @return an Report object, which is a list of Pairs
@@ -65,12 +66,13 @@ export class Index {
    */
   public async compareFiles(
     files: File[],
-    hashFilter = this.hashFilter
+    reportName?: string,
+    hashFilter = this.hashFilter,
   ): Promise<Report> {
     if (this.tokenizer) {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const tokenizedFiles = files.map(f => this.tokenizer!.tokenizeFile(f));
-      return this.compareTokenizedFiles(tokenizedFiles, hashFilter);
+      return this.compareTokenizedFiles(tokenizedFiles, reportName, hashFilter);
     } else {
       throw new Error("Index#compareFiles was called, but the tokenizer is null");
     }
@@ -85,6 +87,7 @@ export class Index {
      *
      * @param tokenizedFiles: the tokenized file objects which need to be compared to the index
      * and each other. The file hashes will be added to the index.
+     * @param reportName: suggestion for the name of the report, will be overwritten by the reportName in Option
      * @param hashFilter: an optional HashFilter. By default the HashFilter of the
      * Index object will be used.
      * @return an Report object, which is a list of Pairs
@@ -92,7 +95,8 @@ export class Index {
      */
   public async compareTokenizedFiles(
     tokenizedFiles: TokenizedFile[],
-    hashFilter = this.hashFilter
+    reportName?: string,
+    hashFilter = this.hashFilter,
   ): Promise<Report> {
 
     const fingerprints = await this.createMatches(tokenizedFiles, hashFilter);
@@ -101,7 +105,8 @@ export class Index {
       this.options,
       this.tokenizer?.language ?? null,
       tokenizedFiles,
-      fingerprints
+      fingerprints,
+      reportName
     );
   }
 
@@ -180,6 +185,7 @@ export class Index {
    * two files.
    *
    * @param file The file to query
+   * @param reportName: suggestion for the name of the report, will be overwritten by the reportName in Option
    * @param hashFilter An optional HashFilter. By default the HashFilter of the
    * Index object will be used.
    * @return report with the results of the comparison
@@ -187,8 +193,9 @@ export class Index {
    */
   public async compareFile(
     file: File,
+    reportName?: string,
     hashFilter = this.hashFilter
   ): Promise<Report> {
-    return this.compareFiles([file], hashFilter);
+    return this.compareFiles([file], reportName, hashFilter);
   }
 }
