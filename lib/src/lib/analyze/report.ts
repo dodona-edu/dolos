@@ -80,8 +80,8 @@ export class Report {
 
   public metadata(): Metadata {
     return {
-      reportName: this.name,
       ...this.options.asObject(),
+      reportName: this.options.reportName ?? this.name,
       language: this.language?.name ?? null,
       languageDetected: this.options.language == undefined,
     };

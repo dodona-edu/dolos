@@ -227,6 +227,8 @@ test("should read CSV-files", async t => {
 
   t.is(4, report.files.length);
   t.is(report.name, "javascript");
+  t.is(report.metadata()["reportName"], "javascript");
+
 
   const pairs = report.allPairs();
   t.is(6, pairs.length);
@@ -240,6 +242,7 @@ test("should read ZIP-files", async t => {
 
   t.is(4, report.files.length);
   t.is(report.name, "simple-dataset");
+  t.is(report.metadata()["reportName"], "simple-dataset");
 
   const pairs = report.allPairs();
   t.is(6, pairs.length);
