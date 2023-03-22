@@ -43,7 +43,13 @@ export class FileView extends View {
   constructor(protected report: Report, options: Options) {
     super();
     this.outputDestination =
-      options.outputDestination || `dolos-report-${ new Date().toISOString().replace(/[.:-]/g, "") }`;
+      options.outputDestination || this.createName();
+  }
+
+  private createName(): string {
+    const dashedName = this.report.name.replace(/ /g, "-").replace(/[^a-zA-Z0-9-]/g, "");
+    const timestamp = new Date().toISOString().replace(/[.:-]/g, "");
+    return `dolos-report-${ timestamp }-${ dashedName }`;
   }
 
   public writePairs(out: Writable): void {
@@ -105,6 +111,9 @@ export class FileView extends View {
 
   async writeToDirectory(): Promise<string> {
     const dirName = this.outputDestination;
+    if (await fs.stat(dirName).catch(() => false)) {
+      throw new Error(`Directory ${dirName} already exists. Please specify a different output destination.`);
+    }
     await fs.mkdir(dirName, { recursive: true });
 
     console.log(`Writing results to directory: ${dirName}`);

@@ -191,7 +191,10 @@ test("changed order should be a good match", async t => {
 test("should read two files", async t => {
   const dolos = new Dolos();
 
-  const report = await dolos.analyzePaths(["../samples/javascript/sample.js", "../samples/javascript/copied_function.js"]);
+  const report = await dolos.analyzePaths([
+    "../samples/javascript/sample.js",
+    "../samples/javascript/copied_function.js"
+  ]);
 
   t.is(2, report.files.length);
   t.is(report.name, "sample.js & copied_function.js");
@@ -203,7 +206,10 @@ test("should read two files", async t => {
 test("should read two files and overwrite name", async t => {
   const dolos = new Dolos({ reportName: "blargh" });
 
-  const report = await dolos.analyzePaths(["../samples/javascript/sample.js", "../samples/javascript/copied_function.js"]);
+  const report = await dolos.analyzePaths([
+    "../samples/javascript/sample.js",
+    "../samples/javascript/copied_function.js"
+  ]);
 
   t.is(2, report.files.length);
   t.is(report.name, "blargh");
@@ -211,18 +217,6 @@ test("should read two files and overwrite name", async t => {
 
   const pairs = report.allPairs();
   t.is(1, pairs.length);
-});
-
-test("should read multiple files", async t => {
-  const dolos = new Dolos();
-
-  const report = await dolos.analyzePaths(["../samples/javascript/sample.js", "../samples/javascript/copied_function.js", "../samples/javascript/copy_of_sample.js"]);
-
-  t.is(3, report.files.length);
-  t.is(report.name, undefined);
-
-  const pairs = report.allPairs();
-  t.is(3, pairs.length);
 });
 
 

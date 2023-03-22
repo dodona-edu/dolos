@@ -94,7 +94,7 @@ export class Dolos {
       }
     } else {
       files = Result.all(paths.map(location => File.fromPath(location)));
-      if (paths.length == 2) {
+      if (paths.length === 2) {
         nameCandidate = path.basename(paths[0]) + " & " + path.basename(paths[1]);
       }
     }

@@ -18,13 +18,14 @@ export class Report {
   private fingerprints: Array<SharedFingerprint>;
 
   private pairs: Array<Pair> = [];
+  public readonly name: string;
 
   constructor(
     public readonly options: Options,
     public readonly language: Language | null,
     public readonly files: TokenizedFile[],
     fingerprints: Map<Hash, SharedFingerprint>,
-    public readonly name?: string,
+    name?: string,
   ) {
     if (this.options.maxFingerprintCount != null) {
       this.kgramMaxFileOccurrences = this.options.maxFingerprintCount;
@@ -36,6 +37,8 @@ export class Report {
 
     if (this.options.reportName) {
       this.name = this.options.reportName;
+    } else {
+      this.name = name || `${this.files.length} ${ this.language?.name } files`;
     }
 
     this.fingerprints = Array.from(fingerprints.values()).filter(
