@@ -1,9 +1,11 @@
 <template>
   <v-container fluid>
     <div class="hero">
-      <h2 class="hero-title">DOLOS</h2>
+      <h2 class="hero-title">
+        {{ reportName }}
+      </h2>
       <div class="hero-subtitle text--secondary">
-        Source code plagiarism detection
+        Source code plagiarism detection report
       </div>
     </div>
 
@@ -232,6 +234,9 @@ const { labels, similaritiesList, hasLabels } = storeToRefs(fileStore);
 const { clustering, sortedClustering } = storeToRefs(pairStore);
 const { currentReport } = storeToRefs(useReportsStore());
 
+
+const reportName = computed(() => metadataStore.metadata?.reportName ?? "Dolos report");
+
 // File legend.
 const legendCount = computed(() => labels.value.length);
 
@@ -301,6 +306,7 @@ const clustersCount = computed(() => sortedClustering.value.length);
   padding-bottom: 1rem;
 
   &-title {
+    text-transform: capitalize;
     font-size: 2.5rem;
   }
 
