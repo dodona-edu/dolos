@@ -31,13 +31,12 @@ export function createSimulation(context: CanvasRenderingContext2D, data: Data):
   const forceLink = d3
     .forceLink<D3Node, D3Edge>(data.edges)
     .id(d => d.id)
-    .distance(20);
+    .distance(link => Math.max(20, 100 * (1 - link.similarity)));
 
   const simulation = d3
     .forceSimulation<D3Node, D3Edge>(data.nodes)
     .force("link", forceLink)
-    .force("charge", d3.forceManyBody().strength(-50))
-    .force("collide", d3.forceCollide().radius(10))
+    .force("charge", d3.forceManyBody().strength(-100))
     .force("center", d3.forceCenter())
     .force("compact_x", d3.forceX().strength(.25))
     .force("compact_y", d3.forceY().strength(.25));
