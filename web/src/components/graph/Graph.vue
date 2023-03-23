@@ -29,13 +29,14 @@
 import {
   shallowRef,
   computed,
+  watch,
   watchEffect,
 } from "vue";
-import { useElementSize } from "@vueuse/core";
+import { useElementSize, useVModel } from "@vueuse/core";
 import { storeToRefs } from "pinia";
 import { File, Legend, Pair } from "@/api/models";
-import { Clustering } from "@/util/clustering-algorithms/ClusterTypes";
-import { useD3ForceGraph, Node, Edge, Cluster } from "@/composables/d3/useD3ForceGraph";
+import { Clustering, Cluster } from "@/util/clustering-algorithms/ClusterTypes";
+import { useD3ForceGraph, Node, Edge, Group } from "@/composables/d3/useD3ForceGraph";
 import { useApiStore, useFileStore } from "@/api/stores";
 
 interface Props {
@@ -45,7 +46,6 @@ interface Props {
   clustering: Clustering;
   files: File[];
   pairs: Pair[];
-  zoomTo?: string;
   selectedNode?: File | undefined;
   selectedCluster?: Cluster | undefined;
   width?: number;
@@ -56,11 +56,14 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
+  nodeTooltip: true,
   nodeSize: 7,
 });
 
 const emit = defineEmits(["update:selectedNode", "update:selectedCluster", "click:node"]);
 
+const selectedNode = useVModel(props, "selectedNode", emit);
+const selectedCluster = useVModel(props, "selectedCluster", emit);
 
 // Reference to the container element.
 const container = shallowRef<HTMLElement>();
@@ -70,16 +73,42 @@ const width = computed<number>(() => props.width ?? containerSize.width.value);
 const height = computed<number>(() => props.height ?? containerSize.height.value);
 
 const fileStore = useFileStore();
-const { cutoff, cutoffDebounced } = storeToRefs(useApiStore());
-
+const { cutoffDebounced } = storeToRefs(useApiStore());
 
 const graph = useD3ForceGraph({
   container: container,
   width: width,
   height: height,
-  nodeSize: props.nodeSize
+  nodeTooltip: props.nodeTooltip,
+  nodeSize: props.nodeSize,
+  onNodeClick: (node) => {
+    if (props.nodeClickable) {
+      const file = fileStore.filesById[node.id];
+      selectedNode.value = file;
+      emit("click:node", file);
+    }
+  },
 });
 
+watch(graph.selectedNode, (node) => {
+  if (node) {
+    selectedNode.value = fileStore.filesById[node.id];
+  } else {
+    selectedNode.value = undefined;
+  }
+});
+
+// List of all clusters, with their id corresponding to the index in this list.
+// Replace with global cluster ID once it is implemented.
+let clustersById: Cluster[] = [];
+
+watch(graph.selectedGroup, (group) => {
+  if (group) {
+    selectedCluster.value = clustersById[group.id];
+  } else {
+    selectedCluster.value = undefined;
+  }
+});
 
 
 // Updates the nodes and edges shown in the graph.
@@ -111,10 +140,13 @@ watchEffect(() => {
     color: file.label.color,
   }));
 
-  const clusters: Cluster[] = clustering.map(cluster => {
-    const nodes = new Set(Array.from(cluster).flatMap(pair => [pair.rightFile.id, pair.leftFile.id]));
-    return { nodeIds: Array.from(nodes).filter((id) => fileIds.has(id)) };
-  });
+  const clusters: Group[] = [];
+  clustersById = [];
+  for (let i = 0; i < clustering.length; i++) {
+    const nodes = new Set(Array.from(clustering[i]).flatMap(pair => [pair.rightFile.id, pair.leftFile.id]));
+    clusters.push({ id: i, nodeIds: Array.from(nodes).filter((id) => fileIds.has(id)) });
+    clustersById.push(clustering[i]);
+  }
 
   if (!showSingletons) {
     const singletons = new Set(edges.flatMap((edge) => [edge.sourceId, edge.targetId]));
