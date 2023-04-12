@@ -9,7 +9,7 @@ export interface Simulation extends d3.Simulation<D3Node, D3Edge> {
   translation(): [number, number],
   findNode(x: number, y: number, radius?: number): D3Node | undefined,
   reheat(): void;
-
+  redraw(): void;
 }
 
 function updateGroups(data: Data): void {
@@ -28,23 +28,27 @@ function updateGroups(data: Data): void {
 
 
 export function createSimulation(context: CanvasRenderingContext2D, data: Data): Simulation {
+  const distanceMin = 30;
+  const distanceMax = 300;
+
   const forceLink = d3
     .forceLink<D3Node, D3Edge>(data.edges)
     .id(d => d.id)
-    .distance(link => Math.max(20, 100 * (1 - link.similarity)));
+    .distance(link => distanceMin + (distanceMax * (1 - link.similarity)));
 
   const simulation = d3
     .forceSimulation<D3Node, D3Edge>(data.nodes)
     .force("link", forceLink)
     .force("charge", d3.forceManyBody().strength(-100))
-    .force("center", d3.forceCenter())
-    .force("compact_x", d3.forceX().strength(.25))
-    .force("compact_y", d3.forceY().strength(.25));
+    .force("compact_x", d3.forceX())
+    .force("compact_y", d3.forceY());
 
-  simulation.on("tick", () => {
+  simulation.on("tick", redraw);
+
+  function redraw(): void {
     updateGroups(data);
     draw(context, data);
-  });
+  }
 
 
   function translation(): [number, number] {
@@ -81,6 +85,7 @@ export function createSimulation(context: CanvasRenderingContext2D, data: Data):
     translation,
     findNode,
     reheat,
+    redraw,
     links
   });
 }

@@ -31,18 +31,24 @@ export function createTooltips(
 }
 
 export function createDrag(simulation: Simulation): d3.DragBehavior<HTMLCanvasElement, D3Node, unknown> {
+  let startX, startY;
   return d3.drag<HTMLCanvasElement, D3Node>()
     .subject((event) => simulation.findNode(event.sourceEvent.offsetX, event.sourceEvent.offsetY)!)
     .on("start", (event) => {
-      if (!event.active && !simulation.paused.value) simulation.reheat();
+      startX = event.subject.x;
+      startY = event.subject.y;
       event.subject.fx = event.subject.x;
       event.subject.fy = event.subject.y;
     })
     .on("drag", (event) => {
       event.subject.fx = event.x;
       event.subject.fy = event.y;
+      simulation.reheat();
     })
     .on("end", (event) => {
+      const dx = event.x - startX;
+      const dy = event.y - startY;
+      if (dx*dx + dy*dy > 1 && !event.active && !simulation.paused.value) simulation.reheat();
       event.subject.fx = null;
       event.subject.fy = null;
     });
@@ -58,7 +64,7 @@ export function createSelect(
   return (canvas: d3.Selection<HTMLCanvasElement, D3Node, null, undefined>) => {
     canvas
       .on("click", (event) => {
-        const node = simulation.findNode(event.offsetX, event.offsetY, 10);
+        const node = simulation.findNode(event.offsetX, event.offsetY, 100);
         if (node) {
           selectedNode.value = node;
           selectedCluster.value = node.group;
@@ -71,6 +77,7 @@ export function createSelect(
           selectedNode.value = undefined;
           selectedCluster.value = undefined;
         }
+        simulation.redraw();
       });
   };
 }
