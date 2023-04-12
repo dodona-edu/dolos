@@ -1,4 +1,5 @@
 import { onMounted, onUnmounted, ShallowRef, watch, Ref, shallowRef } from "vue";
+import { useDebounceFn } from "@vueuse/core";
 import * as d3 from "d3";
 import { Data, Edge, Node, D3Node, Group } from "@/composables/d3/graph/data";
 import { createSimulation } from "@/composables/d3/graph/simulation";
@@ -43,13 +44,16 @@ export function useD3ForceGraph(options: D3ForceGraphOptions): D3ForceGraph {
     simulation.reheat();
   };
 
-  watch(options.container, () => {
+  const resize = (): void => {
     if (!options.container.value) return;
-    const w = options.container.value.clientWidth;
-    const h = options.container.value.clientHeight;
+    const w = options.container.value!.clientWidth;
+    const h = options.container.value!.clientHeight;
     context.canvas.width = w;
     context.canvas.height = h;
-  });
+    simulation.redraw();
+  };
+
+  window.addEventListener("resize", useDebounceFn(resize, 200));
 
   // Add the graph to the container.
   onMounted(() => {
@@ -67,6 +71,7 @@ export function useD3ForceGraph(options: D3ForceGraphOptions): D3ForceGraph {
       canvas.call(tooltip);
     }
 
+    resize();
     container.prepend(canvas.node()!);
   });
 

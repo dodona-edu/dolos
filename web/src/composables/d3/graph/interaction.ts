@@ -64,7 +64,7 @@ export function createSelect(
   return (canvas: d3.Selection<HTMLCanvasElement, D3Node, null, undefined>) => {
     canvas
       .on("click", (event) => {
-        const node = simulation.findNode(event.offsetX, event.offsetY, 100);
+        const node = simulation.findNode(event.offsetX, event.offsetY, 30);
         if (node) {
           selectedNode.value = node;
           selectedCluster.value = node.group;
