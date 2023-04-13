@@ -14,7 +14,13 @@ export function formatShortDateTime(date: Date): string {
  * @param date Date object to convert
  */
 export function formatLongDateTime(date: Date): string {
-  return DateTime.fromJSDate(date).toLocaleString(DateTime.DATETIME_MED);
+  return DateTime.fromJSDate(date).toLocaleString({
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
 }
 
 /**
