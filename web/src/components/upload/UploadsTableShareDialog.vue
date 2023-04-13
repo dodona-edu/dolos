@@ -26,10 +26,9 @@ const snackbar = useSnackbar();
 
 // Share URL
 const shareUrl = computed(() => {
-  const url = new URL(
-    router.resolve(reportShareRoute.value).href,
-    window.location.origin
-  );
+  const sharePath = router.resolve(reportShareRoute.value).href;
+
+  const url = new URL(sharePath.replace(/\/\//g, "/"), window.location.origin);
   return url.toString();
 });
 
@@ -48,7 +47,7 @@ const copyShareUrl = (): void => {
   <v-dialog v-model="open" max-width="500px">
     <v-card v-if="props.report">
       <v-card-title color="transparent" flat>
-        <span>Share {{ report.name }}</span>
+        <span>Share: {{ report.name }}</span>
 
         <v-spacer />
 
@@ -78,7 +77,6 @@ const copyShareUrl = (): void => {
       <v-card-actions>
         <v-spacer />
 
-        <v-btn color="error" text @click="open = false"> Cancel </v-btn>
         <v-btn color="primary" text @click="copyShareUrl"> Copy URL </v-btn>
       </v-card-actions>
     </v-card>
