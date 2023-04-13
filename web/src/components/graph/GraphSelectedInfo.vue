@@ -3,14 +3,16 @@
     <transition name="scale-transition" mode="out-in">
       <div v-if="selectedNode">
         <v-card>
-          <v-card-title>
-            Selected node
-          </v-card-title>
+          <v-card-title> Selected node </v-card-title>
 
           <v-list class="selected-info-list" dense>
             <v-list-item class="selected-info-list-item">
               <v-icon>mdi-account-outline</v-icon>
-              <span>{{ selectedNode.extra.fullName || selectedNode.shortPath || "unknown" }}</span>
+              <span>{{
+                selectedNode.extra.fullName ||
+                selectedNode.shortPath ||
+                "unknown"
+              }}</span>
             </v-list-item>
 
             <v-list-item class="selected-info-list-item">
@@ -23,7 +25,10 @@
               <span>{{ selectedNodeLegend?.name || "unknown" }}</span>
             </v-list-item>
 
-            <v-list-item v-if="selectedNodeTimestamp" class="selected-info-list-item">
+            <v-list-item
+              v-if="selectedNodeTimestamp"
+              class="selected-info-list-item"
+            >
               <v-icon>mdi-clock-outline</v-icon>
               <span>{{ selectedNodeTimestamp }}</span>
             </v-list-item>
@@ -31,7 +36,11 @@
 
           <v-card-actions>
             <v-spacer />
-            <v-btn color="primary" text :to="{ name: 'Submission', params: { id: selectedNode.id } }">
+            <v-btn
+              color="primary"
+              text
+              :to="{ name: 'Submission', params: { fileId: selectedNode.id } }"
+            >
               View submission
               <v-icon right>mdi-chevron-right</v-icon>
             </v-btn>
@@ -43,9 +52,7 @@
     <transition name="scale-transition" mode="out-in">
       <div v-if="selectedCluster">
         <v-card>
-          <v-card-title>
-            Selected cluster
-          </v-card-title>
+          <v-card-title> Selected cluster </v-card-title>
 
           <v-list class="selected-info-list" dense>
             <v-list-item class="selected-info-list-item">
@@ -55,7 +62,10 @@
 
             <v-list-item class="selected-info-list-item">
               <v-icon>mdi-approximately-equal</v-icon>
-              <span>{{ clusterAverageSimilarity.toFixed(2) * 100 }}% average similarity</span>
+              <span
+                >{{ clusterAverageSimilarity.toFixed(2) * 100 }}% average
+                similarity</span
+              >
             </v-list-item>
           </v-list>
 
@@ -67,7 +77,14 @@
 
           <v-card-actions>
             <v-spacer />
-            <v-btn color="primary" text :to="{ name: 'Cluster', params: { id: selectedClusterIndex } }">
+            <v-btn
+              color="primary"
+              text
+              :to="{
+                name: 'Cluster',
+                params: { clusterId: selectedClusterIndex },
+              }"
+            >
               View cluster
               <v-icon right>mdi-chevron-right</v-icon>
             </v-btn>
@@ -95,7 +112,9 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {});
 
-const { clusterFilesSet, clusterAverageSimilarity } = useCluster(toRef(props, "selectedCluster"));
+const { clusterFilesSet, clusterAverageSimilarity } = useCluster(
+  toRef(props, "selectedCluster")
+);
 
 // Timestamp of the selected node.
 const selectedNodeTimestamp = computed(() => {
@@ -116,7 +135,8 @@ const selectedNodeLegend = computed(() => {
 const selectedClusterIndex = computed(() => {
   if (!props.selectedCluster) return 0;
 
-  const sortFn = (a: Cluster, b:Cluster): number => getClusterElements(b).size - getClusterElements(a).size;
+  const sortFn = (a: Cluster, b: Cluster): number =>
+    getClusterElements(b).size - getClusterElements(a).size;
   const sortedClustering = Array.from(props.currentClustering).sort(sortFn);
   return sortedClustering.indexOf(props.selectedCluster);
 });

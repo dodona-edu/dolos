@@ -1,6 +1,10 @@
 <template>
   <v-app>
-    <navbar :drawer.sync="drawer" :settings.sync="settings" :to="{ name: 'Overview' }"/>
+    <navbar
+      :drawer.sync="drawer"
+      :settings.sync="settings"
+      :to="{ name: 'Overview' }"
+    />
     <sidebar v-model="drawer" variant="analysis" />
 
     <v-main>
@@ -11,9 +15,7 @@
     </v-main>
 
     <v-navigation-drawer :value="settings" app clipped right>
-      <v-card-title>
-        Global settings
-      </v-card-title>
+      <v-card-title> Global settings </v-card-title>
       <v-card-subtitle>
         Configure global parameters of the analysis results.
       </v-card-subtitle>
@@ -21,7 +23,8 @@
         <div>
           <h4>Similarity Threshold</h4>
           <span class="text--secondary">
-            The similarity threshold is the minimum similarity a file pair must have to be considered plagiarised.
+            The similarity threshold is the minimum similarity a file pair must
+            have to be considered plagiarised.
           </span>
         </div>
         <similarity-setting v-if="isLoaded" compact />
@@ -32,7 +35,8 @@
         <div>
           <h4>Anonymize Dataset</h4>
           <span class="text--secondary">
-            Anonymize the dataset by removing the names of the authors and the files.
+            Anonymize the dataset by removing the names of the authors and the
+            files.
           </span>
         </div>
 
@@ -53,12 +57,18 @@
         </div>
       </v-card-text>
 
-      <v-skeleton-loader v-if="!isLoaded" class="px-4" type="table-row-divider@4" />
+      <v-skeleton-loader
+        v-if="!isLoaded"
+        class="px-4"
+        type="table-row-divider@4"
+      />
       <labels-table v-else-if="hasLabels" class="settings-labels" />
       <v-card-text v-else class="text--secondary">
-        The dataset you analyzed did not contain labels.
-        Learn how to add metadata
-        <a href="https://dolos.ugent.be/guide/dodona.html" target="_blank">here</a>.
+        The dataset you analyzed did not contain labels. Learn how to add
+        metadata
+        <a href="https://dolos.ugent.be/guide/dodona.html" target="_blank"
+          >here</a
+        >.
       </v-card-text>
     </v-navigation-drawer>
   </v-app>

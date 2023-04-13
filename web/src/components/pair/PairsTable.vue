@@ -13,7 +13,11 @@
     @click:row="rowClicked"
   >
     <template #item.similarity="{ item }">
-      <similarity-display :similarity="+item.similarity" progress :dense="props.dense" />
+      <similarity-display
+        :similarity="+item.similarity"
+        progress
+        :dense="props.dense"
+      />
     </template>
   </v-data-table>
 </template>
@@ -63,20 +67,21 @@ const items = shallowRef<any[]>([]);
 const calculateItems = (): void => {
   const str = route.value.query.showIds as string | null;
 
-  items.value = props.pairs
-    .map((pair) => ({
-      pair,
-      left: pair.leftFile.extra.fullName ?? pair.leftFile.shortPath,
-      right: pair.rightFile.extra.fullName ?? pair.rightFile.shortPath,
-      similarity: pair.similarity.toFixed(2),
-      longestFragment: pair.longestFragment,
-      totalOverlap: pair.totalOverlap,
-    }));
+  items.value = props.pairs.map((pair) => ({
+    pair,
+    left: pair.leftFile.extra.fullName ?? pair.leftFile.shortPath,
+    right: pair.rightFile.extra.fullName ?? pair.rightFile.shortPath,
+    similarity: pair.similarity.toFixed(2),
+    longestFragment: pair.longestFragment,
+    totalOverlap: pair.totalOverlap,
+  }));
 
   // Filter the items by param value.
   const params = (str?.split(",") || []).map((v: string) => +v);
   if (params) {
-    items.value.filter((pair) => (params.length > 0 ? params.includes(pair.id) : true));
+    items.value.filter((pair) =>
+      params.length > 0 ? params.includes(pair.id) : true
+    );
   }
 };
 
@@ -84,11 +89,14 @@ const calculateItems = (): void => {
 onMounted(() => calculateItems());
 
 // Calculate the items when the pairs change.
-watch(() => props.pairs, () => calculateItems());
+watch(
+  () => props.pairs,
+  () => calculateItems()
+);
 
 // When a row is clicked.
 const rowClicked = (item: { pair: Pair }): void => {
-  router.push({ name: "Pair", params: { id: item.pair.id } });
+  router.push({ name: "Pair", params: { pairId: String(item.pair.id) } });
 };
 </script>
 

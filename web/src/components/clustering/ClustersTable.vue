@@ -12,12 +12,13 @@
     @click:row="rowClicked"
   >
     <template #item.submissions="{ item }">
-      <cluster-tags class="clusters-submissions" :current-files="item.submissions" />
+      <cluster-tags
+        class="clusters-submissions"
+        :current-files="item.submissions"
+      />
     </template>
 
-    <template #item.size="{ item }">
-      {{ item.size }} submissions
-    </template>
+    <template #item.size="{ item }"> {{ item.size }} submissions </template>
 
     <template #item.similarity="{ item }">
       <span class="submission-similarity">
@@ -74,7 +75,6 @@ const headers = computed<DataTableHeader[]>(() => {
   return h;
 });
 
-
 // Table items
 // In the format for the Vuetify data-table.
 const items = computed(() => {
@@ -85,7 +85,9 @@ const items = computed(() => {
       id: pairStore.getClusterIndex(cluster),
       submissions: files,
       size: files.length,
-      similarity: [...cluster].reduce((acc, pair) => acc + pair.similarity, 0) / cluster.size,
+      similarity:
+        [...cluster].reduce((acc, pair) => acc + pair.similarity, 0) /
+        cluster.size,
       cluster,
     };
   });
@@ -102,7 +104,7 @@ const maxWidth = computed(() => {
 
 // When a row is clicked.
 const rowClicked = (item: { id: string }): void => {
-  router.push({ name: "Cluster", params: { id: item.id } });
+  router.push({ name: "Cluster", params: { clusterId: item.id } });
 };
 </script>
 

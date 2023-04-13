@@ -31,9 +31,8 @@ const routes: Array<RouteConfig> = [
     },
   },
   {
-    path: `${analysisPathPrefix}/pairs/:id`,
+    path: `${analysisPathPrefix}/pairs/:pairId`,
     name: "Pair",
-    props: (route) => ({ pairId: route.params.id }),
     components: {
       default: () => import("../views/analysis/pair.vue"),
       layout: AnalysisLayout,
@@ -48,9 +47,8 @@ const routes: Array<RouteConfig> = [
     },
   },
   {
-    path: `${analysisPathPrefix}/submissions/:id`,
+    path: `${analysisPathPrefix}/submissions/:fileId`,
     name: "Submission",
-    props: (route) => ({ fileId: route.params.id }),
     components: {
       default: () => import("../views/analysis/submission.vue"),
       layout: AnalysisLayout,
@@ -73,9 +71,8 @@ const routes: Array<RouteConfig> = [
     },
   },
   {
-    path: `${analysisPathPrefix}/clusters/:id`,
+    path: `${analysisPathPrefix}/clusters/:clusterId`,
     name: "Cluster",
-    props: (route) => ({ clusterId: route.params.id }),
     components: {
       default: () => import("../views/analysis/cluster.vue"),
       layout: AnalysisLayout,
@@ -94,7 +91,6 @@ const routes: Array<RouteConfig> = [
   {
     path: `${uploadPathPrefix}/share/:reportId`,
     name: "Share",
-    props: (route) => ({ reportId: route.params.reportId }),
     components: {
       default: () => import("../views/upload/share.vue"),
       layout: UploadLayout,

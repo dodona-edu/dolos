@@ -6,13 +6,7 @@
 </template>
 
 <script lang="ts" setup>
-import {
-  shallowRef,
-  computed,
-  watch,
-  onMounted,
-  toRef,
-} from "vue";
+import { shallowRef, computed, watch, onMounted, toRef } from "vue";
 import { storeToRefs } from "pinia";
 import { useFileStore, usePairStore, useApiStore } from "@/api/stores";
 import { useCluster, useRouter, useD3Tooltip } from "@/composables";
@@ -54,19 +48,23 @@ const margin = {
 // Container size
 const size = useElementSize(heatmapElement);
 // Width & height
-const width = computed(() => Math.max(0, (props.width ?? size.width.value) - margin.left - margin.right));
-const height = computed(() => (props.height ?? 450) - margin.top - margin.bottom);
+const width = computed(() =>
+  Math.max(0, (props.width ?? size.width.value) - margin.left - margin.right)
+);
+const height = computed(
+  () => (props.height ?? 450) - margin.top - margin.bottom
+);
 
 // Heatmap D3
-const heatmap = d3.create("svg").attr("width", width.value).attr("height", height.value);
+const heatmap = d3
+  .create("svg")
+  .attr("width", width.value)
+  .attr("height", height.value);
 const heatmapContent = heatmap.append("g");
 const heatmapTooltip = useD3Tooltip({ relativeToMouse: true });
 
 // Heatmap legend D3
-const heatmapLegend = d3
-  .create("svg")
-  .attr("width", 50)
-  .attr("height", 300);
+const heatmapLegend = d3.create("svg").attr("width", 50).attr("height", 300);
 const heatmapLegendContent = heatmapLegend
   .append("g")
   .attr("transform", "rotate(-90) translate(-205, 0)");
@@ -111,13 +109,19 @@ const draw = (): void => {
     .axisBottom(xBand)
     .tickFormat(
       (d) =>
-        `${filesActiveById.value[d].extra.fullName ?? filesActiveById.value[d].shortPath}`
+        `${
+          filesActiveById.value[d].extra.fullName ??
+          filesActiveById.value[d].shortPath
+        }`
     );
   const yAxis = d3
     .axisLeft(yBand)
     .tickFormat(
       (d) =>
-        `${filesActiveById.value[d].extra.fullName ?? filesActiveById.value[d].shortPath}`
+        `${
+          filesActiveById.value[d].extra.fullName ??
+          filesActiveById.value[d].shortPath
+        }`
     );
 
   // Append the axes to the heatmap.
@@ -174,9 +178,7 @@ const draw = (): void => {
     .domain([cutoff.value, 1])
     .range([0, 200]);
 
-  const legendAxis = d3
-    .axisBottom(legendScale)
-    .tickValues([cutoff.value, 1]);
+  const legendAxis = d3.axisBottom(legendScale).tickValues([cutoff.value, 1]);
 
   heatmapLegendContent
     .append("g")
@@ -238,8 +240,7 @@ watch(width, () => draw());
 // When the user hovers over a square in the heatmap.
 const onMouseOver = (e: MouseEvent, [first, second]: [File, File]): void => {
   if (e.target) {
-    d3.select(e.target as any)
-      .classed("heatmap-tile--hover", true);
+    d3.select(e.target as any).classed("heatmap-tile--hover", true);
   }
 
   const pair = getPair(first, second);
@@ -249,11 +250,14 @@ const onMouseOver = (e: MouseEvent, [first, second]: [File, File]): void => {
   hoveredPair.value = pair;
 
   // Show the tooltip
-  heatmapTooltip.onMouseOver(e, `
+  heatmapTooltip.onMouseOver(
+    e,
+    `
     <span>${first.extra.fullName ?? first.shortPath} &</span>
     <span>${second.extra.fullName ?? second.shortPath}</span>
     <span>(Similarity: ${(pair.similarity * 100).toFixed(0)}%)</span>
-  `);
+  `
+  );
 };
 
 // When the user moves the mouse.
@@ -268,9 +272,7 @@ const onMouseOut = (e: MouseEvent): void => {
   hoveredPair.value = null;
 
   if (e.target) {
-    d3
-      .select(e.target as any)
-      .classed("heatmap-tile--hover", false);
+    d3.select(e.target as any).classed("heatmap-tile--hover", false);
   }
 
   // Hide the tooltip
@@ -282,7 +284,7 @@ const onClick = (_: unknown, [first, second]: [File, File]): void => {
   const pair = getPair(first, second);
 
   if (pair) {
-    router.push({ name: "Pair", params: { id: pair.id } });
+    router.push({ name: "Pair", params: { pairId: String(pair.id) } });
   }
 };
 </script>

@@ -14,7 +14,6 @@ import { storeToRefs } from "pinia";
 import { computed } from "vue";
 import { Location } from "vue-router";
 
-
 interface Props {
   // Current page information (override)
   currentOverride?: {

@@ -6,19 +6,29 @@
         {{ props.file.shortPath }}
       </div>
 
-      <div v-if="props.file.extra.fullName" class="file-info-subtitle text--secondary">
+      <div
+        v-if="props.file.extra.fullName"
+        class="file-info-subtitle text--secondary"
+      >
         <v-icon small>mdi-account-outline</v-icon>
         <span>{{ props.file.extra.fullName }}</span>
       </div>
 
-      <div v-if="props.file.extra.timestamp" class="file-info-subtitle text--secondary">
+      <div
+        v-if="props.file.extra.timestamp"
+        class="file-info-subtitle text--secondary"
+      >
         <v-icon small>mdi-clock-outline</v-icon>
         <file-timestamp :file="props.file" />
       </div>
     </div>
 
     <div class="file-actions">
-      <v-btn text small :to="{ name: 'Submission', params: { id: file.id }}">
+      <v-btn
+        text
+        small
+        :to="{ name: 'Submission', params: { fileId: file.id } }"
+      >
         View submission
         <v-icon right>mdi-chevron-right</v-icon>
       </v-btn>

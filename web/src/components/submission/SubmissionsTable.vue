@@ -172,22 +172,21 @@ const items = computed(() => {
     return a.extra.timestamp - b.extra.timestamp;
   });
 
-  return props.files
-    .map((file) => ({
-      id: file.id,
-      name: file.extra.fullName ?? file.shortPath,
-      path: file.path,
-      label: file.label,
-      similarity: similarities.value.get(file)?.similarity ?? 0,
-      timestamp: file.extra.timestamp,
-      lines: file.content.split("\n").length ?? 0,
-      order: sortedFiles.indexOf(file) + 1,
-    }));
+  return props.files.map((file) => ({
+    id: file.id,
+    name: file.extra.fullName ?? file.shortPath,
+    path: file.path,
+    label: file.label,
+    similarity: similarities.value.get(file)?.similarity ?? 0,
+    timestamp: file.extra.timestamp,
+    lines: file.content.split("\n").length ?? 0,
+    order: sortedFiles.indexOf(file) + 1,
+  }));
 });
 
 // When a row is clicked.
 const rowClicked = (item: { id: string }): void => {
-  router.push({ name: "Submission", params: { id: item.id } });
+  router.push({ name: "Submission", params: { fileId: item.id } });
 };
 </script>
 
