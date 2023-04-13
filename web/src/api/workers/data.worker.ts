@@ -51,7 +51,7 @@ async function populateFragments(
   const leftFile = fileToTokenizedFile(pair.leftFile);
   const rightFile = fileToTokenizedFile(pair.rightFile);
   const report = await index.compareTokenizedFiles([leftFile, rightFile]);
-  const reportPair = (report as any).getPair(leftFile, rightFile);
+  const reportPair = report.getPair(leftFile, rightFile);
 
   const kmersMap: Map<Hash, Kgram> = new Map();
   for (const kmerKey in kmers) {

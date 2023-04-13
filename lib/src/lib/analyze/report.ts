@@ -23,9 +23,8 @@ export class Report {
     public readonly options: Options,
     public readonly language: Language | null,
     public readonly files: TokenizedFile[],
-    fingerprints: Map<Hash, SharedFingerprint>
+    fingerprints: Map<Hash, SharedFingerprint>,
   ) {
-
     if (this.options.maxFingerprintCount != null) {
       this.kgramMaxFileOccurrences = this.options.maxFingerprintCount;
     } else if (this.options.maxFingerprintPercentage != null) {
@@ -34,10 +33,10 @@ export class Report {
       this.kgramMaxFileOccurrences = this.files.length;
     }
 
-    this.fingerprints = Array.from(fingerprints.values())
-      .filter((k: SharedFingerprint) => k.fileCount() <= this.kgramMaxFileOccurrences);
+    this.fingerprints = Array.from(fingerprints.values()).filter(
+      (k: SharedFingerprint) => k.fileCount() <= this.kgramMaxFileOccurrences,
+    );
   }
-
 
   public getPair(file1: TokenizedFile, file2: TokenizedFile): Pair {
     return new Pair(file1, file2);
@@ -55,10 +54,10 @@ export class Report {
       const sortfn = closestMatch<SortFn>(this.options.sortBy, {
         "total overlap": (a, b) => b.overlap - a.overlap,
         "longest fragment": (a, b) => b.longest - a.longest,
-        "similarity": (a, b) => b.similarity - a.similarity,
+        similarity: (a, b) => b.similarity - a.similarity,
       });
 
-      if(sortfn === null) {
+      if (sortfn === null) {
         throw new Error(`${this.options.sortBy} is not a valid field to sort on`);
       }
 
