@@ -8,6 +8,15 @@
     left
   >
     <v-list v-if="props.variant === 'analysis'" nav dense>
+      <v-list-item v-if="isServer" :to="{ name: 'Upload' }" link exact>
+        <v-list-item-icon>
+          <v-icon>mdi-paperclip</v-icon>
+        </v-list-item-icon>
+        <v-list-item-content>
+          <v-list-item-title>Back to upload</v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
+
       <v-list-item :to="{ name: 'Overview' }" link exact>
         <v-list-item-icon>
           <v-icon>mdi-chart-bar</v-icon>
@@ -41,7 +50,7 @@
         <v-list-item-title>View by graph</v-list-item-title>
       </v-list-item>
 
-      <v-list-item :to="{ name: 'Pairs'}" link exact>
+      <v-list-item :to="{ name: 'Pairs' }" link exact>
         <v-list-item-icon>
           <v-icon>mdi-file-table-box-multiple-outline</v-icon>
         </v-list-item-icon>
@@ -111,7 +120,7 @@
 
 <script lang="ts" setup>
 import { computed } from "vue";
-import { useBreakpoints } from "@/composables";
+import { useAppMode, useBreakpoints } from "@/composables";
 import { useVModel } from "@vueuse/core";
 import packageJson from "@/../package.json";
 
@@ -123,6 +132,7 @@ const props = withDefaults(defineProps<Props>(), {});
 const emit = defineEmits(["update:value"]);
 const breakpoints = useBreakpoints();
 const drawer = useVModel(props, "value", emit);
+const { isServer } = useAppMode();
 
 // Current version of the application.
 const version = computed(() => packageJson.version);

@@ -1,6 +1,6 @@
 import { DATA_URL } from "@/api";
 import { defineStore } from "pinia";
-import { useRoute } from "@/composables";
+import { useAppMode, useRoute } from "@/composables";
 import { shallowRef, watch, computed } from "vue";
 import {
   useFileStore,
@@ -29,17 +29,6 @@ export const useApiStore = defineStore("api", () => {
     const reportId = route.value.params?.referenceId as string;
     return reports.getReportByReferenceId(reportId);
   });
-
-  // URL to the data.
-  const url = computed(() => {
-    if (process.env.VUE_APP_MODE === "server") {
-      return `${process.env.VUE_APP_API_URL}/reports/${report.value?.reportId}/data`;
-    } else {
-      return DATA_URL;
-    }
-  });
-
-  console.log(url);
 
   // If the data is loaded.
   const isLoaded = shallowRef(false);
@@ -76,13 +65,15 @@ export const useApiStore = defineStore("api", () => {
     isLoaded.value = true;
   };
 
+  const { dataUrl } = useAppMode();
+
   // Re-hydrate the API stores when the anonymous value changes.
   watch(isAnonymous, () => fileStore.anonymize());
   // Re-hydrate the API stores when the url value changes.
-  watch(url, () => hydrate());
+  watch(dataUrl, () => hydrate());
 
   return {
-    url,
+    url: dataUrl,
     isAnonymous,
     isLoaded,
     loadingText,

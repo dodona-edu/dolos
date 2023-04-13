@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted } from "vue";
-import { useRoute, useRouter } from "@/composables";
+import { useAppMode, useRoute, useRouter } from "@/composables";
 import { UploadReport } from "@/types/uploads/UploadReport";
 import axios from "axios";
 import { ref } from "vue";
@@ -10,6 +10,7 @@ const router = useRouter();
 const route = useRoute();
 const error = ref(null);
 const reports = useReportsStore();
+const appmode = useAppMode();
 
 // Fetch the report from the server and add it to the
 onMounted(async () => {
@@ -21,9 +22,7 @@ onMounted(async () => {
   if (!report) {
     try {
       // Fetch the report from the server.
-      const response = await axios.get(
-        `${process.env.VUE_APP_API_URL}/reports/${reportId}`
-      );
+      const response = await axios.get(appmode.dataUrl.value);
       const data = response.data;
 
       // Create the uploaded report.

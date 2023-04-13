@@ -5,6 +5,7 @@ import { ref } from "vue";
 import { useSnackbar } from "../util/snackbar/useSnackbar";
 import axios from "axios";
 import { useReportsStore } from "@/stores";
+import { useAppMode } from "@/composables";
 
 type Props = {
   open: boolean;
@@ -19,6 +20,7 @@ const reports = useReportsStore();
 const open = useVModel(props, "open", emit);
 const loading = ref(false);
 const snackbar = useSnackbar();
+const appmode = useAppMode();
 
 // Cancel the deletion.
 const cancel = (): void => {
@@ -31,9 +33,7 @@ const confirm = async (): Promise<void> => {
 
   try {
     // Attempt to delete the upload.
-    await axios.delete(
-      `${process.env.VUE_APP_API_URL}/reports/${props.report.reportId}`
-    );
+    await axios.delete(appmode.reportUrl.value);
 
     // Delete the upload from local storage.
     reports.deleteReportById(props.report.reportId);
