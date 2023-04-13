@@ -5,7 +5,7 @@ import { UploadReport } from "@/types/uploads/UploadReport";
 import UploadFormCard from "@/components/upload/UploadFormCard.vue";
 
 const search = ref("");
-const reports = useLocalStorage<UploadReport[]>("reports", []);
+const reports = useLocalStorage<UploadReport[]>("reports:upload", []);
 </script>
 
 <template>

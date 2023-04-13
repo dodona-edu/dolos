@@ -9,7 +9,7 @@ export const uploadPathPrefix =
 
 // Analysis path
 const analysisPathPrefix =
-  process.env.VUE_APP_MODE === "server" ? "/report" : "";
+  process.env.VUE_APP_MODE === "server" ? "/reports/:reportReferenceId" : "";
 
 const routes: Array<RouteConfig> = [
   {
@@ -78,7 +78,7 @@ const routes: Array<RouteConfig> = [
   },
 
   {
-    path: "/reports/:reportId",
+    path: "/reports/share/:reportId",
     name: "Report",
     props: (route) => ({ reportId: route.params.reportId }),
     component: () =>

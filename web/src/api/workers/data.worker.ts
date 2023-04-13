@@ -7,11 +7,7 @@ import {
   PairedOccurrence,
   Hash,
 } from "@/api/models";
-import {
-  Fragment as DolosFragment,
-  Options,
-  Index,
-} from "@dodona/dolos-lib";
+import { Fragment as DolosFragment, Options, Index } from "@dodona/dolos-lib";
 import * as Comlink from "comlink";
 
 // Parse a list of Dolos fragments into a list of fragment models.
@@ -45,7 +41,7 @@ function parseFragments(
 async function populateFragments(
   pair: Pair,
   metadata: Metadata,
-  kgrams: Kgram[],
+  kgrams: Kgram[]
 ): Promise<Pair> {
   const customOptions = metadata;
   const kmers = kgrams;
@@ -55,7 +51,7 @@ async function populateFragments(
   const leftFile = fileToTokenizedFile(pair.leftFile);
   const rightFile = fileToTokenizedFile(pair.rightFile);
   const report = await index.compareTokenizedFiles([leftFile, rightFile]);
-  const reportPair = report.getPair(leftFile, rightFile);
+  const reportPair = (report as any).getPair(leftFile, rightFile);
 
   const kmersMap: Map<Hash, Kgram> = new Map();
   for (const kmerKey in kmers) {
@@ -66,7 +62,6 @@ async function populateFragments(
 
   return pair;
 }
-
 
 const expose = {
   populateFragments,
