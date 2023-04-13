@@ -100,8 +100,8 @@ import { computed, toRef } from "vue";
 import { useCluster } from "@/composables";
 import { File, Legend } from "@/api/models";
 import { Cluster, Clustering } from "@/util/clustering-algorithms/ClusterTypes";
-import { DateTime } from "luxon";
 import { getClusterElements } from "@/util/clustering-algorithms/ClusterFunctions";
+import { formatLongDateTime } from "@/util/TimeFormatter";
 
 interface Props {
   currentClustering: Clustering;
@@ -119,9 +119,7 @@ const { clusterFilesSet, clusterAverageSimilarity } = useCluster(
 // Timestamp of the selected node.
 const selectedNodeTimestamp = computed(() => {
   if (props.selectedNode?.extra.timestamp) {
-    return DateTime.fromJSDate(
-      props.selectedNode.extra.timestamp
-    ).toLocaleString(DateTime.DATETIME_MED);
+    return formatLongDateTime(props.selectedNode.extra.timestamp);
   }
   return null;
 });
