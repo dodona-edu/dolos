@@ -2,21 +2,21 @@
 import { UploadReport } from "@/types/uploads/UploadReport";
 import { useVModel } from "@vueuse/core";
 import { ref } from "vue";
-import axios from "axios";
 import { useSnackbar } from "../util/snackbar/useSnackbar";
+import axios from "axios";
+import { useReportsStore } from "@/stores";
 
 type Props = {
   open: boolean;
   report: UploadReport;
-  reports: UploadReport[];
 };
 const props = withDefaults(defineProps<Props>(), {
   open: false,
 });
 const emit = defineEmits(["update:open", "update:reports"]);
 
+const reports = useReportsStore();
 const open = useVModel(props, "open", emit);
-const reports = useVModel(props, "reports", emit);
 const loading = ref(false);
 const snackbar = useSnackbar();
 
@@ -32,13 +32,11 @@ const confirm = async (): Promise<void> => {
   try {
     // Attempt to delete the upload.
     await axios.delete(
-      `${process.env.VUE_APP_API_URL}/reports/${props.report.id}`
+      `${process.env.VUE_APP_API_URL}/reports/${props.report.reportId}`
     );
 
     // Delete the upload from local storage.
-    reports.value = reports.value.filter(
-      (report) => report.id !== props.report.id
-    );
+    reports.deleteReportById(props.report.reportId);
 
     // Close the dialog.
     open.value = false;

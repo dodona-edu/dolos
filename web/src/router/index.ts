@@ -1,5 +1,7 @@
 import Vue from "vue";
 import VueRouter, { RouteConfig } from "vue-router";
+import AnalysisLayout from "@/layouts/analysis.vue";
+import UploadLayout from "@/layouts/upload.vue";
 
 Vue.use(VueRouter);
 
@@ -9,80 +11,94 @@ export const uploadPathPrefix =
 
 // Analysis path
 const analysisPathPrefix =
-  process.env.VUE_APP_MODE === "server" ? "/reports/:reportReferenceId" : "";
+  process.env.VUE_APP_MODE === "server" ? "/reports/:referenceId" : "";
 
 const routes: Array<RouteConfig> = [
   {
     path: `${analysisPathPrefix}/`,
     name: "Overview",
-    component: () =>
-      import(
-        /* webpackChunkName: "overview" */ "../views/analysis/overview.vue"
-      ),
+    components: {
+      default: () => import("../views/analysis/overview.vue"),
+      layout: AnalysisLayout,
+    },
   },
   {
     path: `${analysisPathPrefix}/pairs`,
     name: "Pairs",
-    component: () =>
-      import(/* webpackChunkName: "pairs" */ "../views/analysis/pairs.vue"),
+    components: {
+      default: () => import("../views/analysis/pairs.vue"),
+      layout: AnalysisLayout,
+    },
   },
   {
     path: `${analysisPathPrefix}/pairs/:id`,
     name: "Pair",
     props: (route) => ({ pairId: route.params.id }),
-    component: () =>
-      import(/* webpackChunkName: "compare" */ "../views/analysis/pair.vue"),
+    components: {
+      default: () => import("../views/analysis/pair.vue"),
+      layout: AnalysisLayout,
+    },
   },
   {
     path: `${analysisPathPrefix}/submissions/`,
     name: "Submissions",
-    component: () =>
-      import(
-        /* webpackChunkName: "submissions" */ "../views/analysis/submissions.vue"
-      ),
+    components: {
+      default: () => import("../views/analysis/submissions.vue"),
+      layout: AnalysisLayout,
+    },
   },
   {
     path: `${analysisPathPrefix}/submissions/:id`,
     name: "Submission",
     props: (route) => ({ fileId: route.params.id }),
-    component: () =>
-      import(
-        /* webpackChunkName: "submission" */ "../views/analysis/submission.vue"
-      ),
+    components: {
+      default: () => import("../views/analysis/submission.vue"),
+      layout: AnalysisLayout,
+    },
   },
   {
     path: `${analysisPathPrefix}/graph`,
     name: "Graph",
-    component: () =>
-      import(/* webpackChunkName: "graph" */ "../views/analysis/graph.vue"),
+    components: {
+      default: () => import("../views/analysis/graph.vue"),
+      layout: AnalysisLayout,
+    },
   },
   {
     path: `${analysisPathPrefix}/clusters`,
     name: "Clusters",
-    component: () =>
-      import(/* webpackChunkName: "graph" */ "../views/analysis/clusters.vue"),
+    components: {
+      default: () => import("../views/analysis/clusters.vue"),
+      layout: AnalysisLayout,
+    },
   },
   {
     path: `${analysisPathPrefix}/clusters/:id`,
     name: "Cluster",
     props: (route) => ({ clusterId: route.params.id }),
-    component: () =>
-      import(/* webpackChunkName: "compare" */ "../views/analysis/cluster.vue"),
+    components: {
+      default: () => import("../views/analysis/cluster.vue"),
+      layout: AnalysisLayout,
+    },
   },
 
   {
     path: `${uploadPathPrefix}/`,
     name: "Upload",
-    component: () =>
-      import(/* webpackChunkName: "upload" */ "../views/upload/upload.vue"),
+    components: {
+      default: () => import("../views/upload/upload.vue"),
+      layout: UploadLayout,
+    },
   },
 
   {
-    path: "/reports/share/:reportId",
-    name: "Report",
+    path: `${uploadPathPrefix}/share/:reportId`,
+    name: "Share",
     props: (route) => ({ reportId: route.params.reportId }),
-    component: () =>
-      import(/* webpackChunkName: "report" */ "../views/upload/report.vue"),
+    components: {
+      default: () => import("../views/upload/share.vue"),
+      layout: UploadLayout,
+    },
   },
 ];
 

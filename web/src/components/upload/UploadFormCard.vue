@@ -1,3 +1,288 @@
+<script lang="ts" setup>
+import { shallowRef, ref, computed, watch } from "vue";
+import { default as axios } from "axios";
+import { useReportsStore } from "@/stores";
+
+const reports = useReportsStore();
+
+// Step in the analysis process.
+const step = shallowRef(1);
+
+// If the upload form is valid.
+const valid = shallowRef(false);
+// Error message, in case of an error.
+const error = shallowRef();
+
+// Selected file.
+const file = shallowRef<File>();
+const fileRules = [(v: File) => !!v || "File is required"];
+
+// Selected file name.
+const name = shallowRef<string>();
+const nameRules = [];
+
+// Update the file name when the file changes.
+watch(file, (file) => {
+  if (file) {
+    name.value = file.name;
+    // Strip the extension.
+    name.value = name.value.replace(/\.[^/.]+$/, "");
+  } else {
+    name.value = "";
+  }
+});
+
+// Selected language.
+const language = shallowRef<string | null>(null);
+const languageRules = [];
+
+// List with available programming languages.
+const languages = [
+  {
+    name: "Automatic",
+    value: null,
+  },
+  {
+    divider: true,
+  },
+  {
+    name: "Bash",
+    value: "bash",
+  },
+  {
+    name: "C/C++",
+    value: "c",
+  },
+  {
+    name: "C#",
+    value: "c-sharp",
+  },
+  {
+    name: "Elm",
+    value: "elm",
+  },
+  {
+    name: "Java",
+    value: "java",
+  },
+  {
+    name: "JavaScript",
+    value: "javascript",
+  },
+  {
+    name: "Python",
+    value: "python",
+  },
+  {
+    name: "Text / Markdown",
+    value: "char",
+  },
+  {
+    name: "TypeScript",
+    value: "typescript",
+  },
+  {
+    name: "TSX",
+    value: "tsx",
+  },
+];
+
+const accept = shallowRef<boolean>(false);
+const acceptRules = [
+  (v: boolean) => v || "Please accept the conditions if you want to continue.",
+];
+
+// Upload progress
+const uploadProgress = shallowRef(25);
+
+// Report
+const reportActiveId = shallowRef<string>();
+const reportActive = computed(() =>
+  reports.getReportById(reportActiveId.value)
+);
+const reportRoute = computed(() =>
+  reports.getReportRouteById(reportActiveId.value)
+);
+
+// Clear the form.
+const clearForm = (): void => {
+  file.value = undefined;
+  name.value = "";
+  language.value = null;
+};
+
+// Cancel the analysis.
+const handleCancel = (): void => {
+  step.value = 1;
+  reportActiveId.value = undefined;
+};
+
+// Handle reset.
+const handleReset = (): void => {
+  step.value = 1;
+  reportActiveId.value = undefined;
+  clearForm();
+};
+
+// Handle an error.
+const handleError = (message: string): void => {
+  step.value = 1;
+  error.value = message;
+};
+
+// When the form is submitted.
+const onSubmit = async (): Promise<void> => {
+  // Make sure the form is valid.
+  if (valid.value) {
+    const data = new FormData();
+    data.append("dataset[zipfile]", file.value ?? new Blob());
+    data.append("dataset[name]", name.value ?? "");
+    data.append("dataset[programming_language]", language.value ?? "");
+
+    // Go to the next step.
+    step.value = 2;
+
+    // Upload the file.
+    try {
+      const response = await axios.post(
+        `${process.env.VUE_APP_API_URL}/reports`,
+        data,
+        {
+          onUploadProgress: (e) => {
+            uploadProgress.value = Math.ceil((e.loaded / e.total) * 100);
+
+            // Go to the next step when the upload is complete.
+            if (e.loaded === e.total) {
+              step.value = 3;
+            }
+          },
+        }
+      );
+
+      // Create a new report.
+      const report = {
+        reportId: response.data["id"] as string,
+        name: name.value ?? "",
+        date: new Date().toISOString(),
+        status: response.data["status"],
+        statusUrl: response.data["url"],
+        response: response.data,
+        visible: true,
+      };
+
+      // Add the report to the reports list in local storage.
+      reports.addReport(report);
+
+      // Set the report as active.
+      reportActiveId.value = response.data["id"];
+
+      // Make sure a status url was provided.
+      if (!report.statusUrl) {
+        handleError("No analysis URL was provided by the API.");
+      }
+    } catch (e: any) {
+      if (e.code == "ERR_NETWORK") {
+        handleError("Could not connect to the API.");
+      } else {
+        handleError("An error occurred while uploading the file: " + e.message);
+      }
+    } finally {
+      uploadProgress.value = 0;
+    }
+  }
+};
+
+// Poll configuration
+const pollingInterval = 1000;
+const pollingMax = 60;
+
+// List containing the the ids of the reports that are currently polling.
+const pollingReports = ref<string[]>([]);
+
+// Start polling for a specific report.
+const startPolling = (reportId: string): void => {
+  // Do not start polling when the report is already polling.
+  if (pollingReports.value.includes(reportId)) {
+    return;
+  }
+
+  // Create the interval for polling.
+  const interval = setInterval(async () => {
+    // Stop the interval when the report is not in the list of polling reports.
+    if (!pollingReports.value.includes(reportId)) {
+      clearInterval(interval);
+      return;
+    }
+
+    // Get the report from the reports list.
+    const report = reports.getReportById(reportId);
+
+    // Stop the polling if the report no longer exists.
+    if (!report) {
+      clearInterval(interval);
+      return;
+    }
+
+    try {
+      const response = await axios.get(report.statusUrl);
+
+      // Update the report status.
+      report.status = response.data.status;
+
+      // Stop the polling when the report status is final.
+      if (
+        report.status === "finished" ||
+        report.status === "error" ||
+        report.status === "failed"
+      ) {
+        delete pollingReports[report.reportId];
+        clearInterval(interval);
+      }
+
+      // If the report is the active report
+      // apply some changes to the form UI.
+      if (report === reportActive.value) {
+        if (report.status === "finished") {
+          // Go to the results page.
+          step.value = 4;
+          // Clear the form.
+          clearForm();
+        }
+
+        if (report.status === "error" || report.status === "failed") {
+          handleError(response.data.error);
+        }
+      }
+    } catch (e: any) {
+      //
+    }
+  }, pollingInterval);
+
+  // Add the report.
+  pollingReports.value.push(reportId);
+};
+
+// Start polling for any report in the list of reports
+// of which the status is not final yet.
+watch(
+  () => reports.reports,
+  (reports) => {
+    for (const report of reports) {
+      if (
+        report.status !== "finished" &&
+        report.status !== "error" &&
+        report.status !== "failed"
+      ) {
+        startPolling(report.reportId);
+      }
+    }
+  },
+  {
+    immediate: true,
+  }
+);
+</script>
+
 <template>
   <v-card>
     <v-card-title>Analyze a dataset.</v-card-title>
@@ -102,7 +387,7 @@
               <strong>{{ uploadProgress }}%</strong>
             </v-progress-linear>
 
-            <v-card-actions class="pa-0">
+            <v-card-actions class="mt-4 pa-0">
               <v-spacer />
 
               <v-btn color="error" depressed @click="handleCancel">
@@ -138,7 +423,7 @@
             height="25"
           />
 
-          <v-card-actions class="pa-0">
+          <v-card-actions class="mt-4 pa-0">
             <v-spacer />
 
             <v-btn color="error" text depressed @click="handleCancel">
@@ -159,7 +444,7 @@
             the results of the analysis.
           </v-alert>
 
-          <v-card-actions class="pa-0">
+          <v-card-actions class="mt-4 pa-0">
             <v-spacer />
 
             <v-btn color="primary" primary text @click="handleReset">
@@ -177,303 +462,6 @@
     </v-card-text>
   </v-card>
 </template>
-
-<script lang="ts" setup>
-import { shallowRef, ref, computed, watch, onMounted, onUnmounted } from "vue";
-import { default as axios } from "axios";
-import { useVModel } from "@vueuse/core";
-import { UploadReport } from "@/types/uploads/UploadReport";
-
-type Props = {
-  reports: UploadReport[];
-};
-const props = defineProps<Props>();
-const reports = useVModel(props, "reports");
-
-// Step in the analysis process.
-const step = shallowRef(1);
-
-// If the upload form is valid.
-const valid = shallowRef(false);
-// Error message, in case of an error.
-const error = shallowRef();
-
-// Selected file.
-const file = shallowRef<File>();
-const fileRules = [(v: File) => !!v || "File is required"];
-
-// Selected file name.
-const name = shallowRef<string>();
-const nameRules = [];
-
-// Update the file name when the file changes.
-watch(file, (file) => {
-  if (file) {
-    name.value = file.name;
-    // Strip the extension.
-    name.value = name.value.replace(/\.[^/.]+$/, "");
-  } else {
-    name.value = "";
-  }
-});
-
-// Selected language.
-const language = shallowRef<string | null>(null);
-const languageRules = [];
-
-// List with available programming languages.
-const languages = [
-  {
-    name: "Automatic",
-    value: null,
-  },
-  {
-    divider: true,
-  },
-  {
-    name: "Bash",
-    value: "bash",
-  },
-  {
-    name: "C/C++",
-    value: "c",
-  },
-  {
-    name: "C#",
-    value: "c-sharp",
-  },
-  {
-    name: "Elm",
-    value: "elm",
-  },
-  {
-    name: "Java",
-    value: "java",
-  },
-  {
-    name: "JavaScript",
-    value: "javascript",
-  },
-  {
-    name: "Python",
-    value: "python",
-  },
-  {
-    name: "Text / Markdown",
-    value: "char",
-  },
-  {
-    name: "TypeScript",
-    value: "typescript",
-  },
-  {
-    name: "TSX",
-    value: "tsx",
-  },
-];
-
-const accept = shallowRef<boolean>(false);
-const acceptRules = [
-  (v: boolean) => v || "Please accept the conditions if you want to continue.",
-];
-
-// Upload progress
-const uploadProgress = shallowRef(25);
-
-// Report
-const reportActiveId = shallowRef<string>();
-const reportActive = computed(() =>
-  reports.value.find((r) => r.id === reportActiveId.value)
-);
-const reportRoute = computed(() => {
-  if (reportActive.value) {
-    return {
-      name: "Overview",
-      params: {
-        reportId: reportActive.value.id,
-      },
-    };
-  } else {
-    return null;
-  }
-});
-
-// Clear the form.
-const clearForm = (): void => {
-  file.value = undefined;
-  name.value = "";
-  language.value = null;
-};
-
-// Cancel the analysis.
-const handleCancel = (): void => {
-  step.value = 1;
-  reportActiveId.value = undefined;
-};
-
-// Handle reset.
-const handleReset = (): void => {
-  step.value = 1;
-  reportActiveId.value = undefined;
-  clearForm();
-};
-
-// Handle an error.
-const handleError = (message: string): void => {
-  step.value = 1;
-  error.value = message;
-};
-
-// When the form is submitted.
-const onSubmit = async (): Promise<void> => {
-  // Make sure the form is valid.
-  if (valid.value) {
-    const data = new FormData();
-    data.append("dataset[zipfile]", file.value ?? new Blob());
-    data.append("dataset[name]", name.value ?? "");
-    data.append("dataset[programming_language]", language.value ?? "");
-
-    // Go to the next step.
-    step.value = 2;
-
-    // Upload the file.
-    try {
-      const response = await axios.post(
-        `${process.env.VUE_APP_API_URL}/reports`,
-        data,
-        {
-          onUploadProgress: (e) => {
-            uploadProgress.value = Math.ceil((e.loaded / e.total) * 100);
-
-            // Go to the next step when the upload is complete.
-            if (e.loaded === e.total) {
-              step.value = 3;
-            }
-          },
-        }
-      );
-
-      // Create a new report object and store it in the reports list.
-      // This will be persisted in local storage.
-      reports.value.push({
-        id: response.data["id"],
-        name: name.value ?? "",
-        date: new Date().toISOString(),
-        status: response.data["status"],
-        statusUrl: response.data["url"],
-      });
-
-      // Set the report as active.
-      reportActiveId.value = response.data["id"];
-
-      // Make sure a status url was provided.
-      if (!reportActive.value?.statusUrl) {
-        handleError("No analysis URL was provided by the API.");
-      }
-    } catch (e: any) {
-      if (e.code == "ERR_NETWORK") {
-        handleError("Could not connect to the API.");
-      } else {
-        handleError("An error occurred while uploading the file: " + e.message);
-      }
-    } finally {
-      uploadProgress.value = 0;
-    }
-  }
-};
-
-// Poll configuration
-const pollingInterval = 1000;
-const pollingMax = 60;
-
-// List containing the the ids of the reports that are currently polling.
-const pollingReports = ref<string[]>([]);
-
-// Start polling for a specific report.
-const startPolling = (reportId: string): void => {
-  // Do not start polling when the report is already polling.
-  if (pollingReports.value.includes(reportId)) {
-    return;
-  }
-
-  // Create the interval for polling.
-  const interval = setInterval(async () => {
-    // Stop the interval when the report is not in the list of polling reports.
-    if (!pollingReports.value.includes(reportId)) {
-      clearInterval(interval);
-      return;
-    }
-
-    // Get the report from the reports list.
-    const report = reports.value.find((r) => r.id === reportId);
-
-    // Stop the polling if the report no longer exists.
-    if (!report) {
-      clearInterval(interval);
-      return;
-    }
-
-    try {
-      const response = await axios.get(report.statusUrl);
-
-      // Update the report status.
-      report.status = response.data.status;
-      // Update the report response.
-      report.response = response.data;
-
-      // Stop the polling when the report status is final.
-      if (
-        report.status === "finished" ||
-        report.status === "error" ||
-        report.status === "failed"
-      ) {
-        delete pollingReports[report.id];
-        clearInterval(interval);
-      }
-
-      // If the report is the active report
-      // apply some changes to the form UI.
-      if (report === reportActive.value) {
-        if (report.status === "finished") {
-          // Go to the results page.
-          step.value = 4;
-          // Clear the form.
-          clearForm();
-        }
-
-        if (report.status === "error" || report.status === "failed") {
-          handleError(response.data.error);
-        }
-      }
-    } catch (e: any) {
-      //
-    }
-  }, pollingInterval);
-
-  // Add the report.
-  pollingReports.value.push(reportId);
-};
-
-// Start polling for any report in the list of reports
-// of which the status is not final yet.
-watch(
-  reports,
-  (reports) => {
-    for (const report of reports) {
-      if (
-        report.status !== "finished" &&
-        report.status !== "error" &&
-        report.status !== "failed"
-      ) {
-        startPolling(report.id);
-      }
-    }
-  },
-  {
-    immediate: true,
-  }
-);
-</script>
 
 <style lang="scss" scoped>
 .upload {

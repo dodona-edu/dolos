@@ -1,33 +1,17 @@
 <template>
-  <component :is="layout">
-    <router-view />
+  <div>
+    <router-view name="layout">
+      <router-view />
+    </router-view>
     <snackbar />
-  </component>
+  </div>
 </template>
 
 <script lang="ts" setup>
-import { computed } from "vue";
-import { uploadPathPrefix } from "@/router";
 import { useRoute } from "@/composables";
-import AnalysisLayout from "@/layouts/analysis.vue";
-import UploadLayout from "@/layouts/upload.vue";
 import Snackbar from "./components/util/snackbar/Snackbar.vue";
 
 const route = useRoute();
-
-// Which layout to use, depending on the current route.
-// Paths starting with /upload are handled by the UploadLayout.
-// All other paths are handled by the AnalysisLayout.
-const layout = computed(() => {
-  if (
-    process.env.VUE_APP_MODE === "server" &&
-    route.value.path === uploadPathPrefix
-  ) {
-    return UploadLayout;
-  }
-
-  return AnalysisLayout;
-});
 </script>
 
 <style lang="scss">

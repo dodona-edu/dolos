@@ -10,9 +10,7 @@ import {
 } from "@/api/stores";
 import { refDebounced } from "@vueuse/shared";
 import { guessSimilarityThreshold } from "../utils";
-import { useLocalStorage } from "@vueuse/core";
-import { UploadReport } from "@/types/uploads/UploadReport";
-import { ReferenceReport } from "@/types/uploads/ReferenceReport";
+import { useReportsStore } from "@/stores";
 
 /**
  * Store managing the API.
@@ -24,21 +22,18 @@ export const useApiStore = defineStore("api", () => {
   const metadataStore = useMetadataStore();
   const pairStore = usePairStore();
 
-  // Get the report references.
-  const references = useLocalStorage<ReferenceReport[]>(
-    "reports:reference",
-    []
-  );
-  const reference = computed(() => {
-    const route = useRoute();
-    const reportId = route.value.params?.reportReferenceId as string;
-    return references.value.find((r) => r.referenceId === reportId);
+  // Get the report id.
+  const reports = useReportsStore();
+  const route = useRoute();
+  const report = computed(() => {
+    const reportId = route.value.params?.referenceId as string;
+    return reports.getReportByReferenceId(reportId);
   });
 
   // URL to the data.
   const url = computed(() => {
     if (process.env.VUE_APP_MODE === "server") {
-      return `${process.env.VUE_APP_API_URL}/reports/${reference.value?.publicId}/data`;
+      return `${process.env.VUE_APP_API_URL}/reports/${report.value?.reportId}/data`;
     } else {
       return DATA_URL;
     }

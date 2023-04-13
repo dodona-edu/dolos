@@ -3,21 +3,20 @@ import { computed, ref } from "vue";
 import { DateTime } from "luxon";
 import { useVModel } from "@vueuse/core";
 import { UploadReport } from "@/types/uploads/UploadReport";
+import { useReportsStore } from "@/stores";
 import UploadStatus from "./UploadStatus.vue";
 import UploadsTableInfoDialog from "./UploadsTableInfoDialog.vue";
 import UploadsTableDeleteDialog from "./UploadsTableDeleteDialog.vue";
 
 interface Props {
-  reports: UploadReport[];
   search?: string;
 }
 const props = withDefaults(defineProps<Props>(), {});
 const emit = defineEmits(["update:search", "update:reports"]);
+const reports = useReportsStore();
 
 // Table search value.
 const search = useVModel(props, "search", emit);
-// Reports value.
-const reports = useVModel(props, "reports", emit);
 
 // Table headers
 const headers = computed(() => [
@@ -30,21 +29,23 @@ const headers = computed(() => [
 // Table items
 // In the format for the Vuetify data-table.
 const items = computed(() =>
-  props.reports.map((report) => ({
-    name: report.name,
-    date: DateTime.fromISO(report.date).toLocaleString(DateTime.DATETIME_MED),
-    status: report.status,
-    report: report,
-    done:
-      report.status === "error" ||
-      report.status === "failed" ||
-      report.status === "finished",
-  }))
+  reports.reports
+    .filter((report) => report.visible)
+    .map((report) => ({
+      name: report.name,
+      date: DateTime.fromISO(report.date).toLocaleString(DateTime.DATETIME_MED),
+      status: report.status,
+      report: report,
+      done:
+        report.status === "error" ||
+        report.status === "failed" ||
+        report.status === "finished",
+    }))
 );
 
 const selectedReportId = ref<string>();
 const selectedReport = computed(() =>
-  props.reports.find((report) => report.id === selectedReportId.value)
+  reports.getReportById(selectedReportId.value)
 );
 
 const infoDialog = ref(false);
@@ -52,20 +53,20 @@ const deleteDialog = ref(false);
 const shareDialog = ref(false);
 
 // Open the dialog for a specific report.
-const openInfoDialog = (item: any): void => {
-  selectedReportId.value = item.report.id;
+const openInfoDialog = (item: { report: UploadReport }): void => {
+  selectedReportId.value = item.report.reportId;
   infoDialog.value = true;
 };
 
 // Open the dialog for deleting a specific report.
 const openDeleteDialog = (item: any): void => {
-  selectedReportId.value = item.report.id;
+  selectedReportId.value = item.report.reportId;
   deleteDialog.value = true;
 };
 
 // Open the dialog for sharing a specific report.
 const openShareDialog = (item: any): void => {
-  selectedReportId.value = item.report.id;
+  selectedReportId.value = item.report.reportId;
   shareDialog.value = true;
 };
 </script>
@@ -122,7 +123,6 @@ const openShareDialog = (item: any): void => {
       v-if="selectedReport"
       :open.sync="deleteDialog"
       :report="selectedReport"
-      :reports.sync="reports"
     />
 
     <uploads-table-share-dialog

@@ -4,6 +4,7 @@ import { UploadReport } from "@/types/uploads/UploadReport";
 import { useVModel } from "@vueuse/core";
 import { computed } from "vue";
 import { useSnackbar } from "../util/snackbar/useSnackbar";
+import { useReportsStore } from "@/stores";
 
 type Props = {
   open: boolean;
@@ -14,19 +15,21 @@ const props = withDefaults(defineProps<Props>(), {
 });
 const emit = defineEmits(["update:open", "update:reports"]);
 const router = useRouter();
+const reports = useReportsStore();
+
+const reportShareRoute = computed(() =>
+  reports.getReportShareRouteById(props.report.reportId)
+);
 
 const open = useVModel(props, "open", emit);
 const snackbar = useSnackbar();
 
 // Share URL
 const shareUrl = computed(() => {
-  const route = router.resolve({
-    name: "Report",
-    params: {
-      reportId: props.report.id,
-    },
-  });
-  const url = new URL(route.href, window.location.origin);
+  const url = new URL(
+    router.resolve(reportShareRoute.value).href,
+    window.location.origin
+  );
   return url.toString();
 });
 

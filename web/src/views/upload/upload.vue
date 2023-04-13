@@ -1,11 +1,8 @@
 <script lang="ts" setup>
 import { ref } from "vue";
-import { useLocalStorage } from "@vueuse/core";
-import { UploadReport } from "@/types/uploads/UploadReport";
 import UploadFormCard from "@/components/upload/UploadFormCard.vue";
 
 const search = ref("");
-const reports = useLocalStorage<UploadReport[]>("reports:upload", []);
 </script>
 
 <template>
@@ -19,7 +16,7 @@ const reports = useLocalStorage<UploadReport[]>("reports:upload", []);
 
     <v-row>
       <v-col cols="12" md="6">
-        <upload-form-card :reports.sync="reports" />
+        <upload-form-card />
       </v-col>
 
       <v-col cols="12" md="6">
@@ -45,7 +42,7 @@ const reports = useLocalStorage<UploadReport[]>("reports:upload", []);
             </v-col>
           </v-row>
 
-          <uploads-table :reports.sync="reports" :search.sync="search" />
+          <uploads-table :search.sync="search" />
         </v-card>
       </v-col>
     </v-row>
