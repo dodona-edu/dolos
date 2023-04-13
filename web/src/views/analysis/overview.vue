@@ -1,9 +1,7 @@
 <template>
   <v-container fluid>
     <div class="hero">
-      <h2 class="hero-title">
-        DOLOS
-      </h2>
+      <h2 class="hero-title">DOLOS</h2>
       <div class="hero-subtitle text--secondary">
         Source code plagiarism detection
       </div>
@@ -15,6 +13,22 @@
           <v-card-title class="pb-0">Submissions</v-card-title>
 
           <v-list class="info-list" dense>
+            <v-list-item v-if="currentReport" class="info-list-item">
+              <v-icon>mdi-file-chart</v-icon>
+              <span>{{ currentReport.name }}</span>
+            </v-list-item>
+
+            <v-list-item v-if="currentReport" class="info-list-item">
+              <v-icon>mdi-clock-outline</v-icon>
+              <span>
+                {{
+                  DateTime.fromISO(currentReport.date).toLocaleString(
+                    DateTime.DATETIME_FULL
+                  )
+                }}
+              </span>
+            </v-list-item>
+
             <v-list-item class="info-list-item">
               <v-icon>mdi-file-outline</v-icon>
               <span>{{ filesCount }} submissions</span>
@@ -99,12 +113,15 @@
 
               <info-dot>
                 Submissions are grouped into clusters based on their similarity.
-                If a submission pair has a similarity above the threshold, they will belong to the same cluster.
+                If a submission pair has a similarity above the threshold, they
+                will belong to the same cluster.
               </info-dot>
             </h3>
             <div class="stat-card-value">{{ clustering.length }}</div>
             <div class="stat-card-subtitle text--secondary">
-              Based on the current threshold ({{ (apiStore.cutoff * 100).toFixed(0) }}%)
+              Based on the current threshold ({{
+                (apiStore.cutoff * 100).toFixed(0)
+              }}%)
             </div>
           </div>
         </v-card>
@@ -133,24 +150,30 @@
             </v-col>
           </v-row>
 
-          <overview-barchart
-            :ticks="20"
-            :extra-line="apiStore.cutoff"
-          />
+          <overview-barchart :ticks="20" :extra-line="apiStore.cutoff" />
         </v-card>
       </v-col>
 
       <v-col cols="12" md="6">
         <v-card>
           <v-card-title>Submissions</v-card-title>
-          <v-card-subtitle>Highlights the most suspicious individual submissions, useful for exams.</v-card-subtitle>
+          <v-card-subtitle
+            >Highlights the most suspicious individual submissions, useful for
+            exams.</v-card-subtitle
+          >
 
-          <submissions-table :files="submissionsOverview" concise disable-sorting />
+          <submissions-table
+            :files="submissionsOverview"
+            concise
+            disable-sorting
+          />
 
           <v-card-actions>
             <v-spacer />
             <v-btn color="primary" text block :to="{ name: 'Submissions' }">
-              <span v-if="submissionsCount > 1">View all {{ filesCount }} submissions</span>
+              <span v-if="submissionsCount > 1"
+                >View all {{ filesCount }} submissions</span
+              >
               <span v-else>View all submissions</span>
               <v-icon right>mdi-chevron-right</v-icon>
             </v-btn>
@@ -161,14 +184,23 @@
       <v-col cols="12" md="6">
         <v-card>
           <v-card-title>Clusters</v-card-title>
-          <v-card-subtitle>Aggregates submissions in groups, useful for exercises.</v-card-subtitle>
+          <v-card-subtitle
+            >Aggregates submissions in groups, useful for
+            exercises.</v-card-subtitle
+          >
 
-          <clusters-table :clusters="clustersOverview" concise disable-sorting />
+          <clusters-table
+            :clusters="clustersOverview"
+            concise
+            disable-sorting
+          />
 
           <v-card-actions>
             <v-spacer />
             <v-btn color="primary" text block :to="{ name: 'Clusters' }">
-              <span v-if="clustersCount > 1">View all {{ clustersCount }} clusters</span>
+              <span v-if="clustersCount > 1"
+                >View all {{ clustersCount }} clusters</span
+              >
               <span v-else>View all clusters</span>
               <v-icon right>mdi-chevron-right</v-icon>
             </v-btn>
@@ -183,12 +215,14 @@
 import { computed } from "vue";
 import { storeToRefs } from "pinia";
 import { Pair } from "@/api/models";
+import { DateTime } from "luxon";
 import {
   useApiStore,
   useFileStore,
   usePairStore,
   useMetadataStore,
 } from "@/api/stores";
+import { useReportsStore } from "@/stores";
 
 const apiStore = useApiStore();
 const fileStore = useFileStore();
@@ -196,6 +230,7 @@ const pairStore = usePairStore();
 const metadataStore = useMetadataStore();
 const { labels, similaritiesList, hasLabels } = storeToRefs(fileStore);
 const { clustering, sortedClustering } = storeToRefs(pairStore);
+const { currentReport } = storeToRefs(useReportsStore());
 
 // File legend.
 const legendCount = computed(() => labels.value.length);
@@ -207,8 +242,7 @@ const filesCount = computed(() => fileStore.filesActiveList.length);
 const highestSimilarityPair = computed<Pair | null>(() => {
   const pairs = Object.values(pairStore.pairsActive);
   return pairs.reduce(
-    (a: Pair | null, b: Pair) =>
-      (a?.similarity ?? 0) > b.similarity ? a : b,
+    (a: Pair | null, b: Pair) => ((a?.similarity ?? 0) > b.similarity ? a : b),
     null
   );
 });
@@ -222,12 +256,14 @@ const highestSimilarity = computed(() => {
 // Similarities map for every file
 // Contains the max similarity for each file.
 const similarities = computed(() =>
-  similaritiesList.value.map(f => f?.similarity || 0)
+  similaritiesList.value.map((f) => f?.similarity || 0)
 );
 
 // Average maximum similarity.
 const averageSimilarity = computed(() => {
-  const mean = similarities.value.reduce((a, b) => a + b, 0) / similarities.value.length ?? 0;
+  const mean =
+    similarities.value.reduce((a, b) => a + b, 0) / similarities.value.length ??
+    0;
   return isNaN(mean) ? 0 : mean;
 });
 

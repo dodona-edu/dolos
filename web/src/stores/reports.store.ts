@@ -3,6 +3,8 @@ import { useLocalStorage } from "@vueuse/core";
 import { defineStore } from "pinia";
 import { RawLocation } from "vue-router";
 import slugify from "slugify";
+import { computed } from "vue";
+import { useRoute } from "@/composables";
 
 export const useReportsStore = defineStore("reports", () => {
   // List of uploaded reports in localstorage.
@@ -76,6 +78,14 @@ export const useReportsStore = defineStore("reports", () => {
     reports.value = reports.value.filter((r) => r.reportId !== reportId);
   }
 
+  // Attempt to get the current report from the route.
+  const route = useRoute();
+  const currentReport = computed(() => {
+    const reportId = route.value.params.reportId as string | undefined;
+    const referenceId = route.value.params.referenceId as string | undefined;
+    return getReportById(reportId) ?? getReportByReferenceId(referenceId);
+  });
+
   return {
     reports,
     addReport,
@@ -84,5 +94,6 @@ export const useReportsStore = defineStore("reports", () => {
     getReportRouteById,
     getReportShareRouteById,
     deleteReportById,
+    currentReport,
   };
 });
