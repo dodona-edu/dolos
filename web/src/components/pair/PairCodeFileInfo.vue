@@ -2,7 +2,7 @@
   <div class="file">
     <div class="file-info">
       <div class="file-info-title">
-        <v-icon color="primary">mdi-file-outline</v-icon>
+        <v-icon color="primary" small>mdi-file-outline</v-icon>
         {{ props.file.shortPath }}
       </div>
 
@@ -12,6 +12,15 @@
       >
         <v-icon small>mdi-account-outline</v-icon>
         <span>{{ props.file.extra.fullName }}</span>
+      </div>
+
+      <div
+        v-if="props.file.extra.labels"
+        class="file-info-subtitle"
+        :style="{ color: labelColor }"
+      >
+        <v-icon :color="labelColor" small>mdi-tag-outline</v-icon>
+        {{ props.file.extra.labels }}
       </div>
 
       <div
@@ -38,12 +47,19 @@
 
 <script lang="ts" setup>
 import { File } from "@/api/models";
+import { useFileStore } from "@/api/stores";
+import { storeToRefs } from "pinia";
+import { computed } from "vue";
 
 interface Props {
   file: File;
 }
 
 const props = withDefaults(defineProps<Props>(), {});
+const { legend } = storeToRefs(useFileStore());
+const labelColor = computed(
+  () => legend.value[props.file?.extra?.labels ?? ""].color ?? ""
+);
 </script>
 
 <style lang="scss" scoped>
@@ -57,12 +73,12 @@ const props = withDefaults(defineProps<Props>(), {});
   &-info {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
+    gap: 1rem;
 
     &-title,
     &-subtitle {
       display: flex;
-      gap: 0.5rem;
+      gap: 0.25rem;
       align-items: center;
     }
 
