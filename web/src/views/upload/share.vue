@@ -33,7 +33,7 @@ onMounted(async () => {
         status: data["status"],
         statusUrl: data["url"],
         response: data["response"],
-        visible: false,
+        isFromSharing: true,
       };
 
       // Add the report to the store.

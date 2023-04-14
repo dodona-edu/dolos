@@ -29,18 +29,17 @@ const headers = computed(() => [
 // Table items
 // In the format for the Vuetify data-table.
 const items = computed(() =>
-  reports.reports
-    .filter((report) => report.visible)
-    .map((report) => ({
-      name: report.name,
-      date: DateTime.fromISO(report.date).toLocaleString(DateTime.DATETIME_MED),
-      status: report.status,
-      report: report,
-      done:
-        report.status === "error" ||
-        report.status === "failed" ||
-        report.status === "finished",
-    }))
+  reports.reports.map((report) => ({
+    name: report.name,
+    date: DateTime.fromISO(report.date).toLocaleString(DateTime.DATETIME_MED),
+    status: report.status,
+    report: report,
+    isFromSharing: report.isFromSharing,
+    done:
+      report.status === "error" ||
+      report.status === "failed" ||
+      report.status === "finished",
+  }))
 );
 
 const selectedReportId = ref<string>();

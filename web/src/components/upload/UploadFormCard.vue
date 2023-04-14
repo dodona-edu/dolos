@@ -167,7 +167,6 @@ const onSubmit = async (): Promise<void> => {
         status: response.data["status"],
         statusUrl: response.data["url"],
         response: response.data,
-        visible: true,
       };
 
       // Add the report to the reports list in local storage.
