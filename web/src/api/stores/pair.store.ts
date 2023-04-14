@@ -116,7 +116,7 @@ export const usePairStore = defineStore("pairs", () => {
     return pairsActiveById.value[id];
   }
 
-  // Get a list of pairs for a given file.
+  // Get a list of pairs for a given list of files.
   function getPairs(file: File): Pair[] {
     return pairsActiveList.value.filter((pair) => pair.leftFile === file || pair.rightFile === file) ?? [];
   }
