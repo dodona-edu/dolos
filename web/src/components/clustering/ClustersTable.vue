@@ -43,6 +43,7 @@ interface Props {
   clusters: Cluster[];
   concise?: boolean;
   disableSorting?: boolean;
+  limit?: number;
 }
 
 const props = withDefaults(defineProps<Props>(), {});
@@ -78,7 +79,7 @@ const headers = computed<DataTableHeader[]>(() => {
 // Table items
 // In the format for the Vuetify data-table.
 const items = computed(() => {
-  return props.clusters.map((cluster) => {
+  const clusters = props.clusters.map((cluster) => {
     const files = getClusterElementsArray(cluster);
 
     return {
@@ -89,6 +90,12 @@ const items = computed(() => {
       cluster,
     };
   });
+
+  // Sort clusters by size by default.
+  // This is necessary for the 'limit' prop to work properly.
+  clusters.sort((a, b) => b.size - a.size);
+
+  return props.limit ? clusters.slice(0, props.limit) : clusters;
 });
 
 // Max width of the submissions

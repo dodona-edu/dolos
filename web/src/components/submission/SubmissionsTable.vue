@@ -95,6 +95,7 @@ interface Props {
   order?: boolean;
   concise?: boolean;
   disableSorting?: boolean;
+  limit?: number;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -166,13 +167,14 @@ const footerProps = {
 // In the format for the Vuetify data-table.
 const items = computed(() => {
   // Sort files on submission date.
+  // This is used to determin the order number in the table.
   const sortedFiles = [...props.files].sort((a, b) => {
     if (!a.extra.timestamp) return 1;
     if (!b.extra.timestamp) return -1;
-    return a.extra.timestamp - b.extra.timestamp;
+    return a.extra.timestamp.getTime() - b.extra.timestamp.getTime();
   });
 
-  return props.files
+  const items = props.files
     .map((file) => ({
       id: file.id,
       name: file.extra.fullName ?? file.shortPath,
@@ -183,6 +185,12 @@ const items = computed(() => {
       lines: file.content.split("\n").length ?? 0,
       order: sortedFiles.indexOf(file) + 1,
     }));
+
+  // Sort the files by similarity, by default.
+  // This is necessary for the 'limit' prop to work properly.
+  items.sort((a, b) => b.similarity - a.similarity);
+
+  return props.limit ? items.slice(0, props.limit) : items;
 });
 
 // When a row is clicked.
