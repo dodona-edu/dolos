@@ -12,10 +12,25 @@
 
       <v-spacer />
 
-      <v-tooltip bottom>
+      <v-tooltip v-if="currentReport && downloadDatasetUrl" bottom>
         <template #activator="{ on, attrs }">
           <v-btn
             v-if="currentReport"
+            icon
+            :href="downloadDatasetUrl"
+            v-bind="attrs"
+            v-on="on"
+          >
+            <v-icon>mdi-download</v-icon>
+          </v-btn>
+        </template>
+
+        <span>Download this dataset</span>
+      </v-tooltip>
+
+      <v-tooltip v-if="currentReport" bottom>
+        <template #activator="{ on, attrs }">
+          <v-btn
             icon
             @click="shareDialog = true"
             v-bind="attrs"
@@ -60,6 +75,7 @@ import { useBreakpoints } from "@/composables";
 import { storeToRefs } from "pinia";
 import { useReportsStore } from "@/stores";
 import { ref } from "vue";
+import { computed } from "vue";
 
 interface Props {
   drawer?: boolean;
@@ -79,4 +95,5 @@ const drawerValue = useVModel(props, "drawer", emit);
 const settingsValue = useVModel(props, "settings", emit);
 const { currentReport } = storeToRefs(useReportsStore());
 const shareDialog = ref(false);
+const downloadDatasetUrl = computed(() => currentReport.value?.response?.dataset?.zipfile);
 </script>

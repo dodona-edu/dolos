@@ -5,7 +5,7 @@ export type UploadReport = {
   date: string;
   status: UploadReportStatus;
   statusUrl: string;
-  response?: { [key: string]: string };
+  response?: Record<string, any>;
 
   // Report ID is the ID of the report, as received from the server.
   // This is used to identify the report in the server.
