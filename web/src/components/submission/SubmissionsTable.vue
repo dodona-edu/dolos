@@ -187,6 +187,7 @@ const items = computed(() => {
     }));
 
   // Sort the files by similarity, by default.
+  // This is necessary for the 'limit' prop to work properly.
   items.sort((a, b) => b.similarity - a.similarity);
 
   return props.limit ? items.slice(0, props.limit) : items;

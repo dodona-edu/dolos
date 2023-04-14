@@ -163,7 +163,7 @@
           <v-card-title>Clusters</v-card-title>
           <v-card-subtitle>Aggregates submissions in groups, useful for exercises.</v-card-subtitle>
 
-          <clusters-table :clusters="clustersOverview" concise disable-sorting />
+          <clusters-table :clusters="clustersOverview" :limit="10" concise disable-sorting />
 
           <v-card-actions>
             <v-spacer />
