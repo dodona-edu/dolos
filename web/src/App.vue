@@ -11,7 +11,6 @@
 import { useRoute } from "@/composables";
 import Snackbar from "./components/util/snackbar/Snackbar.vue";
 
-const route = useRoute();
 </script>
 
 <style lang="scss">
