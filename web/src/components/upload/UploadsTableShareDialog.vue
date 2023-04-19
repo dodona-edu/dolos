@@ -57,6 +57,11 @@ const copyShareUrl = (): void => {
       </v-card-title>
 
       <v-card-text>
+        <v-alert type="info" text>
+          Anyone with the resulting link will be able to view the results of the
+          analysis.
+        </v-alert>
+
         <p>Share this report with others by sending them the following link:</p>
 
         <v-text-field
@@ -68,17 +73,11 @@ const copyShareUrl = (): void => {
           @focus="$event.target.select()"
         />
 
-        <v-alert type="info" text>
-          Anyone with the resulting link will be able to view the results of the
-          analysis.
-        </v-alert>
+        <div class="d-flex mt-4">
+          <v-spacer />
+          <v-btn color="primary" text @click="copyShareUrl"> Copy URL </v-btn>
+        </div>
       </v-card-text>
-
-      <v-card-actions>
-        <v-spacer />
-
-        <v-btn color="primary" text @click="copyShareUrl"> Copy URL </v-btn>
-      </v-card-actions>
     </v-card>
   </v-dialog>
 </template>
