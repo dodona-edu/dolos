@@ -28,7 +28,20 @@
       app
       left
     >
-      <v-list nav dense>
+      <!-- Navigation when only one pair is available -->
+      <v-list v-if="pairs.hasOnlyOnePair" nav dense>
+        <v-list-item to="/" link>
+          <v-list-item-icon>
+            <v-icon>mdi-chart-bar</v-icon>
+          </v-list-item-icon>
+          <v-list-item-content>
+            <v-list-item-title>Overview</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+      </v-list>
+
+      <!-- Navifation when multiple pairs are available -->
+      <v-list v-if="!pairs.hasOnlyOnePair" nav dense>
         <v-list-item to="/" link>
           <v-list-item-icon>
             <v-icon>mdi-chart-bar</v-icon>
@@ -183,13 +196,14 @@
 import { shallowRef, computed } from "vue";
 import { storeToRefs } from "pinia";
 import { useBreakpoints } from "@/composables";
-import { useApiStore, useFileStore } from "@/api/stores";
+import { useApiStore, useFileStore, usePairStore } from "@/api/stores";
 import { useBreadcrumbStore } from "@/stores";
 import packageJson from "../package.json";
 
 const breakpoints = useBreakpoints();
 const api = useApiStore();
 const files = useFileStore();
+const pairs = usePairStore();
 const { isLoaded, isAnonymous, loadingText } = storeToRefs(api);
 const { hasLabels } = storeToRefs(files);
 

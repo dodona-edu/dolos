@@ -6,13 +6,13 @@ Vue.use(VueRouter);
 const routes: Array<RouteConfig> = [
   {
     path: "/",
-    name: "Overview",
-    component: () => import(/* webpackChunkName: "overview" */ "../views/Overview.vue")
+    name: "Index",
+    component: () => import(/* webpackChunkName: "index" */ "../views/Index.vue")
   },
   {
     path: "/pairs",
     name: "View by pair",
-    component: () => import(/* webpackChunkName: "overview" */ "../views/Pairs.vue")
+    component: () => import(/* webpackChunkName: "pairs" */ "../views/Pairs.vue")
   },
   {
     path: "/pairs/:id",

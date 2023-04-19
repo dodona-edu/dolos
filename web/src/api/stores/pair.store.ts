@@ -27,6 +27,16 @@ export const usePairStore = defineStore("pairs", () => {
   const pairsById = shallowRef<Pair[]>([]);
   const pairsList = computed<Pair[]>(() => Object.values(pairsById.value));
 
+  // If only one pair is available.
+  const hasOnlyOnePair = computed<boolean>(() => pairsList.value.length === 1);
+  // Get the only pair.
+  const onlyPair = computed<Pair | null>(() => {
+    if (hasOnlyOnePair.value) {
+      return pairsList.value[0];
+    }
+    return null;
+  });
+
   // Reference to the other stores.
   const fileStore = useFileStore();
   const kgramStore = useKgramStore();
@@ -158,6 +168,8 @@ export const usePairStore = defineStore("pairs", () => {
     pairsList,
     pairsActive: pairsActiveById,
     pairsActiveList,
+    hasOnlyOnePair,
+    onlyPair,
     hydrated,
     hydrate,
     populateFragments,

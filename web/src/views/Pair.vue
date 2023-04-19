@@ -1,6 +1,7 @@
 <template>
   <v-container fluid fill-height>
     <breadcrumbs
+      v-if="!pairStore.hasOnlyOnePair"
       :previous-fallback="{ name: 'View by pair', path: '/pairs' }"
     />
 
