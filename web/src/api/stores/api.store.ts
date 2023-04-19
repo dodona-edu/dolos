@@ -9,7 +9,6 @@ import {
 } from "@/api/stores";
 import { refDebounced } from "@vueuse/shared";
 import { guessSimilarityThreshold } from "../utils";
-import { useReportsStore } from "@/stores";
 
 /**
  * Store managing the API.
@@ -20,14 +19,6 @@ export const useApiStore = defineStore("api", () => {
   const kgramStore = useKgramStore();
   const metadataStore = useMetadataStore();
   const pairStore = usePairStore();
-
-  // Get the report id.
-  const reports = useReportsStore();
-  const route = useRoute();
-  const report = computed(() => {
-    const reportId = route.value.params?.referenceId as string;
-    return reports.getReportByReferenceId(reportId);
-  });
 
   // If the data is loaded.
   const isLoaded = shallowRef(false);
