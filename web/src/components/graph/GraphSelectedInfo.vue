@@ -62,10 +62,7 @@
 
             <v-list-item class="selected-info-list-item">
               <v-icon>mdi-approximately-equal</v-icon>
-              <span
-                >{{ clusterAverageSimilarity.toFixed(2) * 100 }}% average
-                similarity</span
-              >
+              <span>{{ (clusterAverageSimilarity * 100).toFixed(2) }}% average similarity</span>
             </v-list-item>
           </v-list>
 
@@ -77,14 +74,21 @@
 
           <v-card-actions>
             <v-spacer />
-            <v-btn
-              color="primary"
-              text
-              :to="{
-                name: 'Cluster',
-                params: { clusterId: selectedClusterIndex },
-              }"
-            >
+            <v-btn v-if="selectedClusterPair"
+                   text
+                   :to="{
+                      name: 'Pair',
+                      params: { pairId: selectedClusterPair.id }
+                   }">
+              View pair
+              <v-icon right>mdi-chevron-right</v-icon>
+            </v-btn>
+            <v-btn color="primary"
+                   text
+                   :to="{
+                     name: 'Cluster',
+                     params: { clusterId: selectedClusterIndex },
+            }">
               View cluster
               <v-icon right>mdi-chevron-right</v-icon>
             </v-btn>
@@ -137,6 +141,15 @@ const selectedClusterIndex = computed(() => {
     getClusterElements(b).size - getClusterElements(a).size;
   const sortedClustering = Array.from(props.currentClustering).sort(sortFn);
   return sortedClustering.indexOf(props.selectedCluster);
+});
+
+// If the cluster contains exactly 1 pair.
+const selectedClusterPair = computed(() => {
+  if (!props.selectedCluster) return null;
+  if (props.selectedCluster.size !== 1) return null;
+
+  const [pair] = props.selectedCluster;
+  return pair;
 });
 </script>
 
