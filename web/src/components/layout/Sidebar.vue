@@ -8,8 +8,8 @@
     left
   >
     <template v-if="props.variant === 'analysis'">
-      <v-list nav dense>
-        <v-list-item v-if="isServer" :to="{ name: 'Upload' }" link exact>
+      <v-list v-if="isServer" nav dense>
+        <v-list-item  :to="{ name: 'Upload' }" link exact>
           <v-list-item-icon>
             <v-icon>mdi-chevron-left</v-icon>
           </v-list-item-icon>
@@ -19,9 +19,22 @@
         </v-list-item>
       </v-list>
 
-      <v-divider />
+      <v-divider v-if="isServer" />
 
-      <v-list nav dense>
+      <!-- Navigation when only one pair is available -->
+      <v-list v-if="pairs.hasOnlyOnePair" nav dense>
+        <v-list-item to="/" link>
+          <v-list-item-icon>
+            <v-icon>mdi-chart-bar</v-icon>
+          </v-list-item-icon>
+          <v-list-item-content>
+            <v-list-item-title>Overview</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+      </v-list>
+
+      <!-- Navifation when multiple pairs are available -->
+      <v-list v-if="!pairs.hasOnlyOnePair" nav dense>
         <v-list-item :to="{ name: 'Overview' }" link exact>
           <v-list-item-icon>
             <v-icon>mdi-chart-bar</v-icon>
@@ -55,7 +68,7 @@
           <v-list-item-title>View by graph</v-list-item-title>
         </v-list-item>
 
-        <v-list-item :to="{ name: 'Pairs' }" link exact>
+        <v-list-item :to="{ name: 'View by pair' }" link exact>
           <v-list-item-icon>
             <v-icon>mdi-file-table-box-multiple-outline</v-icon>
           </v-list-item-icon>
@@ -130,6 +143,7 @@
 import { computed } from "vue";
 import { useAppMode, useBreakpoints } from "@/composables";
 import { useVModel } from "@vueuse/core";
+import { usePairStore } from "@/api/stores";
 import packageJson from "@/../package.json";
 
 interface Props {
@@ -141,6 +155,7 @@ const emit = defineEmits(["update:value"]);
 const breakpoints = useBreakpoints();
 const drawer = useVModel(props, "value", emit);
 const { isServer } = useAppMode();
+const pairs = usePairStore();
 
 // Current version of the application.
 const version = computed(() => packageJson.version);

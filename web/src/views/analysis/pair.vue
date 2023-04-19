@@ -1,7 +1,8 @@
 <template>
   <v-container fluid fill-height>
     <breadcrumbs
-      :previous-fallback="{ text: 'View by pairs', to: { name: 'Pairs' } }"
+      v-if="!pairStore.hasOnlyOnePair"
+      :previous-fallback="{ text: 'View by pairs', to: { name: 'View by pair' } }"
     />
 
     <v-row justify="center">
@@ -32,8 +33,13 @@ import { usePairStore, useMetadataStore } from "@/api/stores";
 import { Pair } from "@/api/models";
 import { useRoute } from "@/composables";
 
+type Props = {
+  pairId?: string;
+}
+const props = defineProps<Props>();
+
 const route = useRoute();
-const pairId = computed(() => route.value.params?.pairId);
+const pairId = computed(() => props.pairId ?? route.value.params?.pairId);
 
 const pairStore = usePairStore();
 const metadataStore = useMetadataStore();

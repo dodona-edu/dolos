@@ -15,20 +15,20 @@ const analysisPathPrefix =
 
 const routes: Array<RouteConfig> = [
   {
-    path: `${analysisPathPrefix}/`,
+    path: "/",
     name: "Overview",
     components: {
-      default: () => import("../views/analysis/overview.vue"),
+      default: () => import("../views/analysis/index.vue"),
       layout: AnalysisLayout,
-    },
+    }
   },
   {
-    path: `${analysisPathPrefix}/pairs`,
-    name: "Pairs",
+    path: "/pairs",
+    name: "View by pair",
     components: {
       default: () => import("../views/analysis/pairs.vue"),
       layout: AnalysisLayout,
-    },
+    }
   },
   {
     path: `${analysisPathPrefix}/pairs/:pairId`,
