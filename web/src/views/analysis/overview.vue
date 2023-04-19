@@ -157,13 +157,14 @@
       <v-col cols="12" md="6">
         <v-card>
           <v-card-title>Submissions</v-card-title>
-          <v-card-subtitle
-            >Highlights the most suspicious individual submissions, useful for
-            exams.</v-card-subtitle
-          >
+          <v-card-subtitle>
+            Highlights the most suspicious individual submissions, useful for
+            exams.
+          </v-card-subtitle>
 
           <submissions-table
             :files="submissionsOverview"
+            :limit="10"
             concise
             disable-sorting
           />
@@ -184,13 +185,12 @@
       <v-col cols="12" md="6">
         <v-card>
           <v-card-title>Clusters</v-card-title>
-          <v-card-subtitle
-            >Aggregates submissions in groups, useful for
-            exercises.</v-card-subtitle
-          >
-
+          <v-card-subtitle>
+            Aggregates submissions in groups, useful for exercises.
+          </v-card-subtitle>
           <clusters-table
             :clusters="clustersOverview"
+            :limit="10"
             concise
             disable-sorting
           />
@@ -240,7 +240,7 @@ const filesCount = computed(() => fileStore.filesActiveList.length);
 
 // Highest similarity pair.
 const highestSimilarityPair = computed<Pair | null>(() => {
-  const pairs = Object.values(pairStore.pairsActive);
+  const pairs = Object.values(pairStore.pairsActive as Pair[]);
   return pairs.reduce(
     (a: Pair | null, b: Pair) => ((a?.similarity ?? 0) > b.similarity ? a : b),
     null
@@ -284,13 +284,12 @@ const language = computed(() => {
 // First x amount of submissions to display.
 // Sorted by highest similarity
 const submissionsOverview = computed(() => {
-  const submissions = fileStore.filesActiveList;
-  return submissions.sort((a, b) => b.similarity - a.similarity).slice(0, 10);
+  return fileStore.filesActiveList;
 });
 
 // First x amount of clusters to display.
 const clustersOverview = computed(() => {
-  return sortedClustering.value.slice(0, 10);
+  return sortedClustering.value;
 });
 
 // Total amount of clusters
