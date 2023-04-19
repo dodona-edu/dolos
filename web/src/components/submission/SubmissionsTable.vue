@@ -174,17 +174,16 @@ const items = computed(() => {
     return a.extra.timestamp.getTime() - b.extra.timestamp.getTime();
   });
 
-  const items = props.files
-    .map((file) => ({
-      id: file.id,
-      name: file.extra.fullName ?? file.shortPath,
-      path: file.path,
-      label: file.label,
-      similarity: similarities.value.get(file)?.similarity ?? 0,
-      timestamp: file.extra.timestamp,
-      lines: file.content.split("\n").length ?? 0,
-      order: sortedFiles.indexOf(file) + 1,
-    }));
+  const items = props.files.map((file) => ({
+    id: file.id,
+    name: file.extra.fullName ?? file.shortPath,
+    path: file.path,
+    label: file.label,
+    similarity: similarities.value.get(file)?.similarity ?? 0,
+    timestamp: file.extra.timestamp,
+    lines: file.content.split("\n").length ?? 0,
+    order: sortedFiles.indexOf(file) + 1,
+  }));
 
   // Sort the files by similarity, by default.
   // This is necessary for the 'limit' prop to work properly.
@@ -195,7 +194,7 @@ const items = computed(() => {
 
 // When a row is clicked.
 const rowClicked = (item: { id: string }): void => {
-  router.push(`/submissions/${item.id}`);
+  router.push({ name: "Submission", params: { fileId: item.id } });
 };
 </script>
 

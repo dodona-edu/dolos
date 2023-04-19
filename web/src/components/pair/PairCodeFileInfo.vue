@@ -33,7 +33,11 @@
     </div>
 
     <div class="file-actions">
-      <v-btn text small :to="`/submissions/${file.id}`">
+      <v-btn
+        text
+        small
+        :to="{ name: 'Submission', params: { fileId: file.id } }"
+      >
         View submission
         <v-icon right>mdi-chevron-right</v-icon>
       </v-btn>

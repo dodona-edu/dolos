@@ -108,7 +108,7 @@ const draw = (): void => {
     .thresholds(xTicksAjusted);
   // Bins
   const bins = histogram(maxFileData.value);
-  
+
   // Y-axis
   const y = d3
     .scaleLinear()
@@ -147,7 +147,7 @@ const draw = (): void => {
 
         // Go to the submissions page.
         router.push({
-          path: "/submissions",
+          name: "Submissions",
           query: {
             startSimilarity: x0.toString(),
             endSimilarity: x1.toString(),
@@ -168,7 +168,7 @@ const draw = (): void => {
       .attr("stroke", "black")
       .attr("stroke-width", 1.5);
   }
-  
+
   // Store the axis scales.
   barchartXScale.value = x;
   barchartYScale.value = y;

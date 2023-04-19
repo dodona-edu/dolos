@@ -3,8 +3,11 @@
     <transition name="slide-y-transition" mode="out-in">
       <div v-if="file" :key="file.id">
         <breadcrumbs
-          :current-override="{ name: file.extra.fullName ?? file.shortPath }"
-          :previous-fallback="{ name: 'View by submission', path: '/submissions' }"
+          :current-override="{ text: file.extra.fullName ?? file.shortPath }"
+          :previous-fallback="{
+            text: 'View by submission',
+            to: { name: 'Submissions' },
+          }"
         />
 
         <div class="heading">
@@ -42,10 +45,14 @@
                   <v-icon color="info">mdi-information</v-icon>
 
                   <span class="ml-2">
-                    The dataset you analyzed did not contain timestamps,
-                    so some visualizations will not be available.
-                    Learn how to add metadata
-                    <a href="https://dolos.ugent.be/guide/dodona.html" target="_blank">here</a>.
+                    The dataset you analyzed did not contain timestamps, so some
+                    visualizations will not be available. Learn how to add
+                    metadata
+                    <a
+                      href="https://dolos.ugent.be/guide/dodona.html"
+                      target="_blank"
+                      >here</a
+                    >.
                   </span>
                 </div>
               </v-card-text>
@@ -78,7 +85,11 @@
               <v-card-text>
                 <div class="info-item" v-if="hasLabels">
                   <v-icon :color="label.color">mdi-label-outline</v-icon>
-                  <label-text :label="label.name" :color="label.color" colored />
+                  <label-text
+                    :label="label.name"
+                    :color="label.color"
+                    colored
+                  />
                 </div>
 
                 <div class="info-item">
@@ -114,9 +125,7 @@
                   node-clickable
                   @click:node="onNodeClick"
                 >
-                  <graph-legend
-                    :legend.sync="legend"
-                  />
+                  <graph-legend :legend.sync="legend" />
                 </graph>
               </v-card-text>
             </v-card>
@@ -124,7 +133,8 @@
             <v-card class="mt-4">
               <v-card-title>Similarity histogram</v-card-title>
               <v-card-subtitle>
-                Highest similarity of this submission (red) compared to the highest similarity of other submissions.
+                Highest similarity of this submission (red) compared to the
+                highest similarity of other submissions.
               </v-card-subtitle>
               <v-card-text>
                 <pair-stat-histogram
@@ -139,7 +149,8 @@
             <v-card class="mt-4">
               <v-card-title>Longest fragment histogram</v-card-title>
               <v-card-subtitle>
-                Longest fragment of this submission (red) compared to the longest fragment of other submissions.
+                Longest fragment of this submission (red) compared to the
+                longest fragment of other submissions.
               </v-card-subtitle>
               <v-card-text>
                 <pair-stat-histogram
@@ -172,14 +183,12 @@
 import { computed } from "vue";
 import { File } from "@/api/models";
 import { useFileStore, usePairStore } from "@/api/stores";
-import { useCluster, useRouter } from "@/composables";
+import { useCluster, useRoute, useRouter } from "@/composables";
 import { storeToRefs } from "pinia";
 
-interface Props {
-  fileId: string;
-}
+const route = useRoute();
+const fileId = computed(() => route.value.params?.fileId);
 
-const props = withDefaults(defineProps<Props>(), {});
 const router = useRouter();
 const fileStore = useFileStore();
 const pairStore = usePairStore();
@@ -187,7 +196,7 @@ const { legend, hasTimestamps, hasLabels, filesById } = storeToRefs(fileStore);
 const { clustering } = storeToRefs(pairStore);
 
 // Get the file by id.
-const file = computed(() => filesById.value[+props.fileId]);
+const file = computed(() => filesById.value[+fileId.value]);
 
 // Get the label of the file.
 const label = computed(() => file.value.label);
@@ -199,7 +208,7 @@ const cluster = computed(() => pairStore.getCluster(file.value));
 const { clusterPairs, clusterFiles } = useCluster(cluster);
 // Go to the submission when a node is clicked.
 const onNodeClick = (file: File): void => {
-  router.push(`/submissions/${file.id}`);
+  router.push({ name: "Submissions", params: { fileId: String(file.id) } });
 };
 </script>
 

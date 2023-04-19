@@ -10,14 +10,13 @@
 
     <tbody>
       <template v-if="hasLabels">
-        <tr v-for="( label, index ) of labels" :key="index">
-          <td class="d-flex align-center">
-            <label-dot
-              :label="label.name"
-              :color="label.color"
-            />
+        <tr v-for="(label, index) of labels" :key="index">
+          <td>
+            <div class="d-flex align-center">
+              <label-dot :label="label.name" :color="label.color" />
 
-            <span class="ml-2">{{ label.name }}</span>
+              <span class="ml-2">{{ label.name }}</span>
+            </div>
           </td>
 
           <td v-if="props.showSubmissions">
@@ -30,6 +29,7 @@
               class="labels-switch"
               inset
               small
+              hide-details
             />
           </td>
         </tr>
@@ -38,9 +38,11 @@
       <template v-else>
         <tr>
           <td colspan="3" class="py-4">
-            The dataset you analyzed did not contain labels.
-            Learn how to add metadata
-            <a href="https://dolos.ugent.be/guide/dodona.html" target="_blank">here</a>.
+            The dataset you analyzed did not contain labels. Learn how to add
+            metadata
+            <a href="https://dolos.ugent.be/guide/dodona.html" target="_blank"
+              >here</a
+            >.
           </td>
         </tr>
       </template>

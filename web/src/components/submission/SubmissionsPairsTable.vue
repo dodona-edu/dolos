@@ -9,7 +9,9 @@
     must-sort
     fixed-header
     dense
-    @click:row="(i) => $router.push(`/submissions/${i.fileId}`)"
+    @click:row="
+      (i) => $router.push({ name: 'Submission', params: { fileId: i.fileId } })
+    "
   >
     <template #item.name="{ item }">
       <div class="submission-name">
@@ -32,7 +34,12 @@
 
     <template #item.similarity="{ item }">
       <span class="submission-similarity">
-        <similarity-display :similarity="item.similarity" progress dense dim-below-cutoff />
+        <similarity-display
+          :similarity="item.similarity"
+          progress
+          dense
+          dim-below-cutoff
+        />
       </span>
     </template>
 
@@ -43,14 +50,18 @@
             v-if="item.cluster !== ClusterRelation.NONE"
             v-bind="attrs"
             v-on="on"
-            :to="`/clusters/${item.clusterIndex}`"
+            :to="{ name: 'Cluster', params: { clusterId: item.clusterIndex } }"
             :color="item.cluster === ClusterRelation.SAME ? 'primary' : ''"
             icon
             small
             @click.stop=""
           >
-            <v-icon v-if="item.cluster === ClusterRelation.SAME">mdi-circle-multiple</v-icon>
-            <v-icon v-if="item.cluster === ClusterRelation.DIFFERENT">mdi-circle-multiple-outline</v-icon>
+            <v-icon v-if="item.cluster === ClusterRelation.SAME"
+              >mdi-circle-multiple</v-icon
+            >
+            <v-icon v-if="item.cluster === ClusterRelation.DIFFERENT"
+              >mdi-circle-multiple-outline</v-icon
+            >
           </v-btn>
         </template>
 
@@ -65,7 +76,14 @@
     </template>
 
     <template #item.actions="{ item }">
-      <v-btn class="ml-2" color="primary" text small :to="`/pairs/${item.id}`" @click.stop="">
+      <v-btn
+        class="ml-2"
+        color="primary"
+        text
+        small
+        :to="{ name: 'Pair', params: { pairId: item.id } }"
+        @click.stop=""
+      >
         Compare
         <v-icon right>mdi-chevron-right</v-icon>
       </v-btn>
@@ -111,12 +129,33 @@ const headers = computed<DataTableHeader[]>(() => {
 
   // Only add timestamp header when present.
   if (hasTimestamps.value) {
-    h.push({ text: "Timestamp", value: "timestamp", sortable: true, filterable: false });
+    h.push({
+      text: "Timestamp",
+      value: "timestamp",
+      sortable: true,
+      filterable: false,
+    });
   }
 
-  h.push({ text: "Similarity", value: "similarity", sortable: true, filterable: false });
-  h.push({ text: "Cluster", value: "cluster", sortable: true, filterable: false });
-  h.push({ text: "", value: "actions", sortable: false, filterable: false, align: "end" });
+  h.push({
+    text: "Similarity",
+    value: "similarity",
+    sortable: true,
+    filterable: false,
+  });
+  h.push({
+    text: "Cluster",
+    value: "cluster",
+    sortable: true,
+    filterable: false,
+  });
+  h.push({
+    text: "",
+    value: "actions",
+    sortable: false,
+    filterable: false,
+    align: "end",
+  });
 
   return h;
 });
@@ -138,33 +177,33 @@ enum ClusterRelation {
 // Table items
 // In the format for the Vuetify data-table.
 const items = computed(() => {
-  return pairs.value
-    .map((pair) => {
-      // Get the other file.
-      const otherFile = pair.leftFile === props.file ? pair.rightFile : pair.leftFile;
-      // Cluster of the other file.
-      const otherCluster = pairStore.getCluster(otherFile);
-      // If the other file is part of the cluster of the current file.
-      const inSameCluster = cluster.value && otherCluster === cluster.value;
+  return pairs.value.map((pair) => {
+    // Get the other file.
+    const otherFile =
+      pair.leftFile === props.file ? pair.rightFile : pair.leftFile;
+    // Cluster of the other file.
+    const otherCluster = pairStore.getCluster(otherFile);
+    // If the other file is part of the cluster of the current file.
+    const inSameCluster = cluster.value && otherCluster === cluster.value;
 
-      // Determin the clustering relation.
-      const relation = inSameCluster
-        ? ClusterRelation.SAME
-        : otherCluster
-          ? ClusterRelation.DIFFERENT
-          : ClusterRelation.NONE;
+    // Determin the clustering relation.
+    const relation = inSameCluster
+      ? ClusterRelation.SAME
+      : otherCluster
+        ? ClusterRelation.DIFFERENT
+        : ClusterRelation.NONE;
 
-      return {
-        id: pair.id,
-        fileId: otherFile.id,
-        name: otherFile.extra.fullName ?? otherFile.shortPath,
-        timestamp: otherFile.extra.timestamp,
-        similarity: pair.similarity,
-        label: otherFile.label,
-        cluster: relation,
-        clusterIndex: pairStore.getClusterIndex(otherCluster),
-      };
-    });
+    return {
+      id: pair.id,
+      fileId: otherFile.id,
+      name: otherFile.extra.fullName ?? otherFile.shortPath,
+      timestamp: otherFile.extra.timestamp,
+      similarity: pair.similarity,
+      label: otherFile.label,
+      cluster: relation,
+      clusterIndex: pairStore.getClusterIndex(otherCluster),
+    };
+  });
 });
 </script>
 

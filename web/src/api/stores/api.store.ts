@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
-import { shallowRef, watch } from "vue";
-import { guessSimilarityThreshold } from "@/api/utils";
+import { useAppMode, useRoute } from "@/composables";
+import { shallowRef, watch, computed } from "vue";
 import {
   useFileStore,
   useKgramStore,
@@ -8,6 +8,7 @@ import {
   usePairStore,
 } from "@/api/stores";
 import { refDebounced } from "@vueuse/shared";
+import { guessSimilarityThreshold } from "../utils";
 
 /**
  * Store managing the API.
@@ -54,15 +55,15 @@ export const useApiStore = defineStore("api", () => {
     isLoaded.value = true;
   };
 
+  const { dataUrl } = useAppMode();
+
   // Re-hydrate the API stores when the anonymous value changes.
-  watch(
-    isAnonymous,
-    () => {
-      fileStore.anonymize();
-    }
-  );
+  watch(isAnonymous, () => fileStore.anonymize());
+  // Re-hydrate the API stores when the url value changes.
+  watch(dataUrl, () => hydrate());
 
   return {
+    url: dataUrl,
     isAnonymous,
     isLoaded,
     loadingText,

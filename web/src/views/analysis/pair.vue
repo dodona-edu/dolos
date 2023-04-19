@@ -1,7 +1,7 @@
 <template>
   <v-container fluid fill-height>
     <breadcrumbs
-      :previous-fallback="{ name: 'View by pair', path: '/pairs' }"
+      :previous-fallback="{ text: 'View by pairs', to: { name: 'Pairs' } }"
     />
 
     <v-row justify="center">
@@ -19,9 +19,7 @@
         />
 
         <v-card v-else>
-          <v-card-subtitle>
-            This pair does not exist.
-          </v-card-subtitle>
+          <v-card-subtitle> This pair does not exist. </v-card-subtitle>
         </v-card>
       </v-col>
     </v-row>
@@ -29,15 +27,13 @@
 </template>
 
 <script lang="ts" setup>
-import { shallowRef, onMounted, watchEffect } from "vue";
+import { shallowRef, onMounted, watchEffect, computed } from "vue";
 import { usePairStore, useMetadataStore } from "@/api/stores";
 import { Pair } from "@/api/models";
+import { useRoute } from "@/composables";
 
-interface Props {
-  pairId: string;
-}
-
-const props = withDefaults(defineProps<Props>(), {});
+const route = useRoute();
+const pairId = computed(() => route.value.params?.pairId);
 
 const pairStore = usePairStore();
 const metadataStore = useMetadataStore();
@@ -50,7 +46,7 @@ const pair = shallowRef<Pair>();
 
 // Update the pair when the pairs change.
 watchEffect(() => {
-  pair.value = pairStore.pairs[parseInt(props.pairId)];
+  pair.value = pairStore.pairs[+pairId.value];
 });
 
 // Fetch the pair's fragments.
