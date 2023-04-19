@@ -96,6 +96,11 @@ const routes: Array<RouteConfig> = [
       layout: UploadLayout,
     },
   },
+
+  {
+    path: "*",
+    redirect: "/",
+  },
 ];
 
 const router = new VueRouter({

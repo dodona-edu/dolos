@@ -8,9 +8,7 @@
 </template>
 
 <script lang="ts" setup>
-import { useRoute } from "@/composables";
 import Snackbar from "./components/util/snackbar/Snackbar.vue";
-
 </script>
 
 <style lang="scss">
