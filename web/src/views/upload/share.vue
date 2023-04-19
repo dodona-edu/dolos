@@ -10,7 +10,6 @@ const router = useRouter();
 const route = useRoute();
 const error = ref(null);
 const reports = useReportsStore();
-const appmode = useAppMode();
 
 // Fetch the report from the server and add it to the
 onMounted(async () => {
@@ -22,7 +21,7 @@ onMounted(async () => {
   if (!report) {
     try {
       // Fetch the report from the server.
-      const response = await axios.get(appmode.dataUrl.value);
+      const response = await axios.get(reports.getReportUrlById(reportId));
       const data = response.data;
 
       // Create the uploaded report.
