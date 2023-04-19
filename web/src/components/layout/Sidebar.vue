@@ -8,8 +8,8 @@
     left
   >
     <template v-if="props.variant === 'analysis'">
-      <v-list nav dense>
-        <v-list-item v-if="isServer" :to="{ name: 'Upload' }" link exact>
+      <v-list v-if="isServer" nav dense>
+        <v-list-item  :to="{ name: 'Upload' }" link exact>
           <v-list-item-icon>
             <v-icon>mdi-chevron-left</v-icon>
           </v-list-item-icon>
@@ -19,7 +19,7 @@
         </v-list-item>
       </v-list>
 
-      <v-divider />
+      <v-divider v-if="isServer" />
 
       <!-- Navigation when only one pair is available -->
       <v-list v-if="pairs.hasOnlyOnePair" nav dense>
@@ -68,7 +68,7 @@
           <v-list-item-title>View by graph</v-list-item-title>
         </v-list-item>
 
-        <v-list-item :to="{ name: 'Pairs' }" link exact>
+        <v-list-item :to="{ name: 'View by pair' }" link exact>
           <v-list-item-icon>
             <v-icon>mdi-file-table-box-multiple-outline</v-icon>
           </v-list-item-icon>

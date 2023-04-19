@@ -17,12 +17,18 @@ const routes: Array<RouteConfig> = [
   {
     path: "/",
     name: "Overview",
-    component: () => import(/* webpackChunkName: "index" */ "../views/Index.vue")
+    components: {
+      default: () => import("../views/analysis/index.vue"),
+      layout: AnalysisLayout,
+    }
   },
   {
     path: "/pairs",
     name: "View by pair",
-    component: () => import(/* webpackChunkName: "pairs" */ "../views/Pairs.vue")
+    components: {
+      default: () => import("../views/analysis/pairs.vue"),
+      layout: AnalysisLayout,
+    }
   },
   {
     path: `${analysisPathPrefix}/pairs/:pairId`,
