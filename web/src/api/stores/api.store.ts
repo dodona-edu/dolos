@@ -1,4 +1,3 @@
-import { DATA_URL } from "@/api";
 import { defineStore } from "pinia";
 import { useAppMode, useRoute } from "@/composables";
 import { shallowRef, watch, computed } from "vue";
