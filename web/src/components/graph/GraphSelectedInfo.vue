@@ -116,7 +116,6 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {});
-const pairStore = usePairStore();
 
 const { clusterFilesSet, clusterAverageSimilarity } = useCluster(
   toRef(props, "selectedCluster")
