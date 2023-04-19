@@ -15,8 +15,8 @@ export function formatShortDateTime(date: Date): string {
  */
 export function formatLongDateTime(date: Date): string {
   return DateTime.fromJSDate(date).toLocaleString({
-    weekday: "long",
-    month: "long",
+    weekday: "short",
+    month: "short",
     day: "numeric",
     hour: "numeric",
     minute: "2-digit",
