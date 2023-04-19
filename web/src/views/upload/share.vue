@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { onMounted } from "vue";
-import { useAppMode, useRoute, useRouter } from "@/composables";
+import { useRoute, useRouter } from "@/composables";
 import { UploadReport } from "@/types/uploads/UploadReport";
-import axios from "axios";
 import { ref } from "vue";
 import { useReportsStore } from "@/stores";
+import axios from "axios";
 
 const router = useRouter();
 const route = useRoute();
