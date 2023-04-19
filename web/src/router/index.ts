@@ -7,7 +7,7 @@ Vue.use(VueRouter);
 
 // Upload path
 export const uploadPathPrefix =
-  process.env.VUE_APP_MODE === "server" ? "/" : "/upload";
+  process.env.VUE_APP_MODE === "server" ? "" : "/upload";
 
 // Analysis path
 const analysisPathPrefix =
