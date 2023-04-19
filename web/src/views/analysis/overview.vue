@@ -171,9 +171,9 @@
           <v-card-actions>
             <v-spacer />
             <v-btn color="primary" text block :to="{ name: 'Submissions' }">
-              <span v-if="submissionsCount > 1"
-                >View all {{ filesCount }} submissions</span
-              >
+              <span v-if="filesCount > 1">
+                View all {{ filesCount }} submissions
+              </span>
               <span v-else>View all submissions</span>
               <v-icon right>mdi-chevron-right</v-icon>
             </v-btn>
