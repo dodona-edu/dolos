@@ -15,12 +15,10 @@
         tag="tr"
         class="graph-list-row"
         :class="{ selected: selectedFiles?.includes(file) }"
-        :to="`/submissions/${file.id}`"
+        :to="{ name: 'Submission', params: { fileId: String(file.id) } }"
       >
         <td class="d-flex align-center">
-          <label-dot
-            :file="file"
-          />
+          <label-dot :file="file" />
 
           <span class="ml-2">{{ file.extra.fullName ?? file.shortPath }}</span>
         </td>
@@ -58,9 +56,9 @@ const { hasTimestamps } = storeToRefs(useFileStore());
 // List of files in the cluster.
 // Sorted by timestamp.
 const files = computed(() => {
-  return getClusterElementsArray(props.cluster).sort(timestampSort<File>(
-    (f) => f.extra.timestamp || new Date()
-  ));
+  return getClusterElementsArray(props.cluster).sort(
+    timestampSort<File>((f) => f.extra.timestamp || new Date())
+  );
 });
 
 // Row cursor

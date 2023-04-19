@@ -1,5 +1,8 @@
 <template>
-  <v-card class="submission-card" :to="`/submissions/${file.id}`">
+  <v-card
+    class="submission-card"
+    :to="{ name: 'submissions', params: { fileId: file.id } }"
+  >
     <v-row align="center" justify="space-between">
       <v-col>
         <v-card-title>

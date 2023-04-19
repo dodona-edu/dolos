@@ -1,6 +1,5 @@
 import { defineStore } from "pinia";
 import { shallowRef, computed, nextTick, watch, ref, ComputedRef } from "vue";
-import { DATA_URL } from "@/api";
 import { File, Label, Legend, Pair } from "@/api/models";
 import { useApiStore, usePairStore } from "@/api/stores";
 import { names, animals, uniqueNamesGenerator } from "unique-names-generator";
@@ -116,7 +115,9 @@ export const useFileStore = defineStore("file", () => {
     hydrated.value = true;
   }
 
-  async function fetch(url: string = DATA_URL + "files.csv"): Promise<any[]> {
+  async function fetch(
+    url: string = apiStore.url + "/files.csv"
+  ): Promise<any[]> {
     return await parseCsv(url);
   }
 
@@ -309,3 +310,4 @@ export const useFileStore = defineStore("file", () => {
     labelFilesCount,
   };
 });
+

@@ -216,7 +216,7 @@ const draw = (): void => {
 
         // Go to the submissions page.
         router.push({
-          path: "/submissions",
+          name: "Submissions",
           query: {
             startSimilarity: x0.toString(),
             endSimilarity: x1.toString(),

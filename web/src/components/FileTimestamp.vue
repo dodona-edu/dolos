@@ -18,7 +18,7 @@
 
 <script lang="ts" setup>
 import { File } from "@/api/models";
-import { DateTime } from "luxon";
+import { formatLongDateTime, formatShortDateTime } from "@/util/TimeFormatter";
 import { computed } from "vue";
 
 interface Props {
@@ -29,15 +29,11 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {});
 
-const timestamp = computed(() =>
-  props.file?.extra?.timestamp ?? props.timestamp
+const timestamp = computed(
+  () => props.file?.extra?.timestamp ?? props.timestamp ?? new Date()
 );
-const timeShort = computed(() =>
-  DateTime.fromJSDate(timestamp.value).toLocaleString(DateTime.DATETIME_SHORT)
-);
-const timeLong = computed(() =>
-  DateTime.fromJSDate(timestamp.value).toLocaleString(DateTime.DATETIME_MED)
-);
+const timeShort = computed(() => formatShortDateTime(timestamp.value));
+const timeLong = computed(() => formatLongDateTime(timestamp.value));
 </script>
 
 <style lang="scss" scoped>

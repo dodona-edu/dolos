@@ -1,12 +1,22 @@
 import Vue from "vue";
 import VueRouter, { RouteConfig } from "vue-router";
+import AnalysisLayout from "@/layouts/analysis.vue";
+import UploadLayout from "@/layouts/upload.vue";
 
 Vue.use(VueRouter);
+
+// Upload path
+export const uploadPathPrefix =
+  process.env.VUE_APP_MODE === "server" ? "" : "/upload";
+
+// Analysis path
+const analysisPathPrefix =
+  process.env.VUE_APP_MODE === "server" ? "/reports/:referenceId" : "";
 
 const routes: Array<RouteConfig> = [
   {
     path: "/",
-    name: "Index",
+    name: "Overview",
     component: () => import(/* webpackChunkName: "index" */ "../views/Index.vue")
   },
   {
@@ -15,37 +25,75 @@ const routes: Array<RouteConfig> = [
     component: () => import(/* webpackChunkName: "pairs" */ "../views/Pairs.vue")
   },
   {
-    path: "/pairs/:id",
-    name: "Compare",
-    props: route => ({ pairId: route.params.id }),
-    component: () => import(/* webpackChunkName: "compare" */ "../views/Pair.vue")
+    path: `${analysisPathPrefix}/pairs/:pairId`,
+    name: "Pair",
+    components: {
+      default: () => import("../views/analysis/pair.vue"),
+      layout: AnalysisLayout,
+    },
   },
   {
-    path: "/submissions",
-    name: "View by submission",
-    component: () => import(/* webpackChunkName: "submissions" */ "../views/Submissions.vue")
+    path: `${analysisPathPrefix}/submissions/`,
+    name: "Submissions",
+    components: {
+      default: () => import("../views/analysis/submissions.vue"),
+      layout: AnalysisLayout,
+    },
   },
   {
-    path: "/submissions/:id",
+    path: `${analysisPathPrefix}/submissions/:fileId`,
     name: "Submission",
-    props: route => ({ fileId: route.params.id }),
-    component: () => import(/* webpackChunkName: "submission" */ "../views/Submission.vue")
+    components: {
+      default: () => import("../views/analysis/submission.vue"),
+      layout: AnalysisLayout,
+    },
   },
   {
-    path: "/graph",
-    name: "View by cluster graph",
-    component: () => import(/* webpackChunkName: "graph" */ "../views/Graph.vue")
+    path: `${analysisPathPrefix}/graph`,
+    name: "Graph",
+    components: {
+      default: () => import("../views/analysis/graph.vue"),
+      layout: AnalysisLayout,
+    },
   },
   {
-    path: "/clusters",
-    name: "View by clusters",
-    component: () => import(/* webpackChunkName: "graph" */ "../views/Clusters.vue")
+    path: `${analysisPathPrefix}/clusters`,
+    name: "Clusters",
+    components: {
+      default: () => import("../views/analysis/clusters.vue"),
+      layout: AnalysisLayout,
+    },
   },
   {
-    path: "/clusters/:id",
+    path: `${analysisPathPrefix}/clusters/:clusterId`,
     name: "Cluster",
-    props: route => ({ clusterId: route.params.id }),
-    component: () => import(/* webpackChunkName: "compare" */ "../views/Cluster.vue")
+    components: {
+      default: () => import("../views/analysis/cluster.vue"),
+      layout: AnalysisLayout,
+    },
+  },
+
+  {
+    path: `${uploadPathPrefix}/`,
+    name: "Upload",
+    components: {
+      default: () => import("../views/upload/upload.vue"),
+      layout: UploadLayout,
+    },
+  },
+
+  {
+    path: `${uploadPathPrefix}/share/:reportId`,
+    name: "Share",
+    components: {
+      default: () => import("../views/upload/share.vue"),
+      layout: UploadLayout,
+    },
+  },
+
+  {
+    path: "*",
+    redirect: "/",
   },
 ];
 
@@ -56,7 +104,7 @@ const router = new VueRouter({
   scrollBehavior: () => {
     return {
       x: 0,
-      y: 0
+      y: 0,
     };
   },
 });

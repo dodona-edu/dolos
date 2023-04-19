@@ -7,11 +7,7 @@ import {
   PairedOccurrence,
   Hash,
 } from "@/api/models";
-import {
-  Fragment as DolosFragment,
-  Options,
-  Index,
-} from "@dodona/dolos-lib";
+import { Fragment as DolosFragment, Options, Index } from "@dodona/dolos-lib";
 import * as Comlink from "comlink";
 
 // Parse a list of Dolos fragments into a list of fragment models.
@@ -45,7 +41,7 @@ function parseFragments(
 async function populateFragments(
   pair: Pair,
   metadata: Metadata,
-  kgrams: Kgram[],
+  kgrams: Kgram[]
 ): Promise<Pair> {
   const customOptions = metadata;
   const kmers = kgrams;
@@ -66,7 +62,6 @@ async function populateFragments(
 
   return pair;
 }
-
 
 const expose = {
   populateFragments,

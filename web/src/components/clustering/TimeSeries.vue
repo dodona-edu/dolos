@@ -21,10 +21,11 @@ import { useCluster, useD3Tooltip, usePartialLegend } from "@/composables";
 import { SelectionTool, xCoord } from "@/util/SelectionTool";
 import { useElementSize } from "@vueuse/core";
 import * as d3 from "d3";
+import { multiformat } from "@/util/TimeFormatter";
 
 interface TimeDataType extends xCoord {
-  file: File,
-  y?: number
+  file: File;
+  y?: number;
 }
 
 interface Props {
@@ -60,20 +61,23 @@ const margin = {
 // Container size
 const size = useElementSize(timeseriesElement);
 // Width & height
-const width = computed(() => (props.width ?? size.width.value) - margin.left - margin.right);
-const height = computed(() => (props.height ?? 300) - margin.top - margin.bottom);
+const width = computed(
+  () => (props.width ?? size.width.value) - margin.left - margin.right
+);
+const height = computed(
+  () => (props.height ?? 300) - margin.top - margin.bottom
+);
 
 // Timeseries D3
-const timeseries = d3
-  .create("svg")
-  .attr("width", 900)
-  .attr("height", 200);
+const timeseries = d3.create("svg").attr("width", 900).attr("height", 200);
 const timeseriesContent = timeseries.append("g");
 
 // Selected outline
 
 // Node cursor
-const nodeCursor = computed(() => props.nodeClickable ? "pointer" : "default");
+const nodeCursor = computed(() =>
+  props.nodeClickable ? "pointer" : "default"
+);
 
 // Node tooltip
 const nodeTooltip = useD3Tooltip({ relativeToMouse: true });
@@ -94,17 +98,16 @@ const getVisibility = (f: File): string => {
 // Draw the timeseries
 const draw = (): void => {
   const elements = clusterFiles.value;
-  const files = elements.map(file => ({ file }));
+  const files = elements.map((file) => ({ file }));
 
   // Resize the timeseries.
   timeseries
     .attr("width", width.value + margin.left + margin.right)
     .attr("height", height.value + margin.top + margin.bottom);
-  timeseriesContent
-    .attr(
-      "transform",
-      "translate(" + margin.left + "," + margin.top + ")"
-    );
+  timeseriesContent.attr(
+    "transform",
+    "translate(" + margin.left + "," + margin.top + ")"
+  );
 
   // Clear the timeseries.
   timeseriesContent.selectAll("*").remove();
@@ -112,13 +115,18 @@ const draw = (): void => {
   // Add the x-axis.
   const xScale = d3
     .scaleTime<number, number>()
-    .domain(d3.extent(files.map(f => f.file.extra.timestamp ?? new Date())) as [Date, Date])
+    .domain(
+      d3.extent(files.map((f) => f.file.extra.timestamp ?? new Date())) as [
+        Date,
+        Date
+      ]
+    )
     .range([0, width.value]);
   const xAxis = timeseriesContent
     .append("g")
     .attr("transform", `translate(0, ${height.value})`)
     .classed("d3-ticks", true)
-    .call(d3.axisBottom(xScale));
+    .call(d3.axisBottom(xScale).tickFormat((date) => multiformat(date)));
   xAxis
     .append("text")
     .text("Submission date")
@@ -134,13 +142,16 @@ const draw = (): void => {
     .attr("id", (node: any) => `circle-${node.file.id}`)
     .classed("timeseries-node", true)
     .attr("r", props.nodeSize)
-    .attr("cx", d => xScale(d.file.extra.timestamp ?? new Date()))
+    .attr("cx", (d) => xScale(d.file.extra.timestamp ?? new Date()))
     .attr("cy", height.value / 2)
-    .attr("fill", d => getColor((d.file)))
-    .attr("visibility", d => getVisibility(d.file))
+    .attr("fill", (d) => getColor(d.file))
+    .attr("visibility", (d) => getVisibility(d.file))
     .on("mouseover", (e: MouseEvent, node: any) => {
       if (!props.nodeTooltip) return;
-      nodeTooltip.onMouseOver(e, node.file.extra.fullName ?? node.file.shortPath);
+      nodeTooltip.onMouseOver(
+        e,
+        node.file.extra.fullName ?? node.file.shortPath
+      );
     })
     .on("mousemove", (e: MouseEvent) => {
       if (!props.nodeTooltip) return;
@@ -150,7 +161,7 @@ const draw = (): void => {
       if (!props.nodeTooltip) return;
       nodeTooltip.onMouseOut(e);
     })
-    .on("click", (e : MouseEvent, node: any) => {
+    .on("click", (e: MouseEvent, node: any) => {
       if (!props.nodeClickable) return;
       emit("click:node", node.file);
     });
@@ -162,21 +173,31 @@ const draw = (): void => {
       timeseries as any,
       files,
       () => ({ height: height.value, width: width.value, margin }),
-      (d: TimeDataType[]) => emit("filedata", d.map(f => f.file)),
+      (d: TimeDataType[]) =>
+        emit(
+          "filedata",
+          d.map((f) => f.file)
+        )
     );
   }
 
   // Add simulation
   simulation.value = d3
     .forceSimulation<TimeDataType>(files)
-    .force("x", d3.forceX<TimeDataType>(d => xScale(d?.file?.extra?.timestamp || new Date())).strength(1))
+    .force(
+      "x",
+      d3
+        .forceX<TimeDataType>((d) =>
+          xScale(d?.file?.extra?.timestamp || new Date())
+        )
+        .strength(1)
+    )
     .force("y", d3.forceY(height.value / 2))
     .force("collision", d3.forceCollide().radius(5).strength(0.1))
     .alpha(1)
     .alphaMin(0.1)
     .on("tick", () => {
-      d3
-        .selectAll<d3.BaseType, TimeDataType>("circle")
+      d3.selectAll<d3.BaseType, TimeDataType>("circle")
         .attr("cx", (d: TimeDataType) => d?.x || 0)
         .attr("cy", (d: TimeDataType) => d?.y || 0);
     });
@@ -187,17 +208,13 @@ const draw = (): void => {
 // Draw the selected files.
 const drawSelected = (): void => {
   // Deselect all nodes.
-  timeseriesContent
-    .select(".selected")
-    .classed("selected", false);
+  timeseriesContent.select(".selected").classed("selected", false);
 
   if (!props.selectedFiles) return;
 
   // Select the selected nodes.
   for (const file of props.selectedFiles) {
-    timeseriesContent
-      .select(`#circle-${file.id}`)
-      .classed("selected", true);
+    timeseriesContent.select(`#circle-${file.id}`).classed("selected", true);
   }
 };
 
@@ -210,20 +227,14 @@ watch(
 );
 
 // Update the internal legend object when the legend changes.
-watch(
-  () => legend.value,
-  (legend) => {
-    legend.value = legend;
-  }
-);
+watch(legend, (legend) => {
+  legend.value = legend;
+});
 
 // Watch width changes & update the size.
-watch(
-  width,
-  () => {
-    draw();
-  }
-);
+watch(width, () => {
+  draw();
+});
 
 // Draw red circles around the selected files.
 watch(

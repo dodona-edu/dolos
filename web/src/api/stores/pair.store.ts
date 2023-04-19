@@ -1,7 +1,6 @@
 import { defineStore } from "pinia";
-import { computed, shallowRef } from "vue";
-import { DATA_URL } from "@/api";
 import { parseCsv } from "@/api/utils";
+import { shallowRef, computed } from "vue";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
 import {
   singleLinkageCluster
@@ -51,6 +50,7 @@ export const usePairStore = defineStore("pairs", () => {
     const activeFiles = fileStore.filesActiveList;
     const pairs: Pair[] = [];
     // Add all pairs that have both files active
+
     for (const pair of pairsList.value) {
       if (activeFiles[pair.leftFile.id] && activeFiles[pair.rightFile.id]) {
         pairs[pair.id] = pair;
@@ -95,9 +95,8 @@ export const usePairStore = defineStore("pairs", () => {
   }
 
   // Fetch the pairs from the CSV file.
-  async function fetch(
-    url: string = DATA_URL + "pairs.csv"
-  ): Promise<any[]> {
+  async function fetch(): Promise<any[]> {
+    const url = apiStore.url + "/pairs.csv";
     return await parseCsv(url);
   }
 
@@ -159,8 +158,12 @@ export const usePairStore = defineStore("pairs", () => {
   }
 
   // Get a cluster by its id.
-  function getClusterById(id: number): Cluster | undefined {
-    return sortedClustering.value[id];
+  function getClusterById(id: number | string): Cluster | undefined {
+    if (typeof id === "string") {
+      return sortedClustering.value[parseInt(id)];
+    } else {
+      return sortedClustering.value[id];
+    }
   }
 
   return {
