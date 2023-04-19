@@ -13,7 +13,7 @@ export function useAppMode() {
   // URL to the report.
   const reportUrl = computed(() => {
     if (process.env.VUE_APP_MODE === "server") {
-      return `${process.env.VUE_APP_API_URL}/reports/${reports.currentReport?.reportId}`;
+      return reports.getReportUrlById(reports.currentReport?.reportId);
     } else {
       return DATA_URL;
     }

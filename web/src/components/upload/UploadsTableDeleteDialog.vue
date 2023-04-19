@@ -33,7 +33,10 @@ const confirm = async (): Promise<void> => {
 
   try {
     // Attempt to delete the upload.
-    await axios.delete(appmode.reportUrl.value);
+    // Only delete the upload if a report id is present.
+    if (props.report.reportId) {
+      await axios.delete(reports.getReportUrlById(props.report.reportId));
+    }
 
     // Delete the upload from local storage.
     reports.deleteReportById(props.report.reportId);

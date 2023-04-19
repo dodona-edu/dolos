@@ -78,6 +78,11 @@ export const useReportsStore = defineStore("reports", () => {
     reports.value = reports.value.filter((r) => r.reportId !== reportId);
   }
 
+  // Get the URL for a given report id.
+  const getReportUrlById = (reportId: string | undefined) => {
+    return `${process.env.VUE_APP_API_URL}/reports/${reportId}`;
+  };
+
   // Attempt to get the current report from the route.
   const route = useRoute();
   const currentReport = computed(() => {
@@ -94,6 +99,7 @@ export const useReportsStore = defineStore("reports", () => {
     getReportRouteById,
     getReportShareRouteById,
     deleteReportById,
+    getReportUrlById,
     currentReport,
   };
 });
