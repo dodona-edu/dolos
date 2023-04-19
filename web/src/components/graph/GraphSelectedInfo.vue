@@ -106,7 +106,6 @@ import { File, Legend } from "@/api/models";
 import { Cluster, Clustering } from "@/util/clustering-algorithms/ClusterTypes";
 import { getClusterElements } from "@/util/clustering-algorithms/ClusterFunctions";
 import { formatLongDateTime } from "@/util/TimeFormatter";
-import { usePairStore } from "@/api/stores";
 
 interface Props {
   currentClustering: Clustering;
