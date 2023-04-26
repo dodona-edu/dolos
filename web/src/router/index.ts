@@ -15,7 +15,7 @@ const analysisPathPrefix =
 
 const routes: Array<RouteConfig> = [
   {
-    path: "/",
+    path: `${analysisPathPrefix}/`,
     name: "Overview",
     components: {
       default: () => import("../views/analysis/index.vue"),
@@ -23,7 +23,7 @@ const routes: Array<RouteConfig> = [
     }
   },
   {
-    path: "/pairs",
+    path: `${analysisPathPrefix}/pairs`,
     name: "View by pair",
     components: {
       default: () => import("../views/analysis/pairs.vue"),
