@@ -68,7 +68,9 @@ export function createSimulation(context: CanvasRenderingContext2D, data: Data):
   }
 
   function reheat(): void {
-    simulation.alpha(.5).restart();
+    if (!paused.value) {
+      simulation.alpha(.5).restart();
+    }
   }
 
   const paused = shallowRef(false);
