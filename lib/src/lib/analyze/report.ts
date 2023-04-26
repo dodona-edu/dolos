@@ -9,6 +9,7 @@ type Hash = number;
 
 export interface Metadata extends DolosOptions {
   languageDetected: boolean;
+  createdAt: string;
 }
 
 export class Report {
@@ -19,6 +20,7 @@ export class Report {
 
   private pairs: Array<Pair> = [];
   public readonly name: string;
+  public readonly createdAt: string = new Date().toISOString();
 
   constructor(
     public readonly options: Options,
@@ -82,6 +84,7 @@ export class Report {
     return {
       ...this.options.asObject(),
       reportName: this.options.reportName ?? this.name,
+      createdAt: this.createdAt,
       language: this.language?.name ?? null,
       languageDetected: this.options.language == undefined,
     };
