@@ -15,9 +15,9 @@
           <v-card-title class="pb-0">Submissions</v-card-title>
 
           <v-list class="info-list" dense>
-            <v-list-item v-if="currentReport" class="info-list-item">
+            <v-list-item class="info-list-item">
               <v-icon>mdi-file-chart</v-icon>
-              <span>{{ currentReport.name }}</span>
+              <span>{{ reportName }}</span>
             </v-list-item>
 
             <v-list-item v-if="currentReport" class="info-list-item">
@@ -233,7 +233,6 @@ const metadataStore = useMetadataStore();
 const { labels, similaritiesList, hasLabels } = storeToRefs(fileStore);
 const { clustering, sortedClustering } = storeToRefs(pairStore);
 const { currentReport } = storeToRefs(useReportsStore());
-
 
 const reportName = computed(() => metadataStore.metadata?.reportName ?? "Dolos report");
 
