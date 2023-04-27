@@ -8,6 +8,7 @@
 </template>
 
 <script lang="ts" setup>
+
 import Snackbar from "./components/util/snackbar/Snackbar.vue";
 import { watchEffect } from "vue";
 import { storeToRefs } from "pinia";
@@ -17,7 +18,11 @@ const { metadata } = storeToRefs(useMetadataStore());
 
 watchEffect(() => {
   const meta = metadata.value;
-  document.title = meta.reportName || "Dolos - Source code plagiarism detection";
+  if (meta?.reportName) {
+    document.title = `Dolos - ${meta.reportName}`;
+  } else {
+    document.title = "Dolos - Source code plagiarism detection";
+  }
 });
 
 </script>

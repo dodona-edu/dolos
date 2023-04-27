@@ -7,7 +7,8 @@
       />
 
       <v-toolbar-title>
-        <router-link :to="to"> DOLOS </router-link>
+        <router-link v-if="reportName" :to="to"> DOLOS - {{ reportName }} </router-link>
+        <router-link v-else :to="to"> DOLOS </router-link>
       </v-toolbar-title>
 
       <v-spacer />
@@ -74,6 +75,7 @@ import { useVModel } from "@vueuse/core";
 import { useBreakpoints } from "@/composables";
 import { storeToRefs } from "pinia";
 import { useReportsStore } from "@/stores";
+import { useMetadataStore } from "@/api/stores";
 import { ref } from "vue";
 import { computed } from "vue";
 
@@ -87,6 +89,12 @@ const props = withDefaults(defineProps<Props>(), {
     return { name: "Overview" };
   },
   settings: undefined,
+});
+
+const { metadata } = storeToRefs(useMetadataStore());
+
+const reportName = computed(() => {
+  return metadata.value.reportName;
 });
 
 const emit = defineEmits(["update:settings", "update:drawer"]);
