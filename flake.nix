@@ -5,7 +5,7 @@
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
     devshell = {
-      url = "github:numtide/devshell";
+      url = "github:chvp/devshell";
       inputs = {
         flake-utils.follows = "flake-utils";
         nixpkgs.follows = "nixpkgs";
@@ -16,10 +16,11 @@
   outputs = { self, nixpkgs, devshell, flake-utils }:
     flake-utils.lib.eachDefaultSystem (system:
       let
-        pkgs = import nixpkgs { inherit system; overlays = [ devshell.overlay ]; };
+        pkgs = import nixpkgs { inherit system; overlays = [ devshell.overlays.default ]; };
+        ruby = pkgs.ruby_3_2;
         gems = pkgs.bundlerEnv rec {
+          inherit ruby;
           name = "dolos-api-env";
-          ruby = pkgs.ruby_3_1;
           gemfile = ./Gemfile;
           lockfile = ./Gemfile.lock;
           gemset = ./gemset.nix;
@@ -48,14 +49,22 @@
           default = dolos-api;
           dolos-api = pkgs.devshell.mkShell {
             name = "Dolos API";
-            packages = [
-              gems
-              (pkgs.lowPrio gems.wrappedRuby)
-              pkgs.nixpkgs-fmt
-              pkgs.mariadb_108
-              pkgs.docker-compose
-              pkgs.docker
+            imports = [
+              "${devshell}/extra/language/ruby.nix"
+              "${devshell}/extra/git/hooks.nix"
             ];
+            git.hooks = {
+              enable = true;
+            };
+            packages = with pkgs; [
+              nixpkgs-fmt
+              docker-compose
+              docker
+            ];
+            language.ruby = {
+              package = (pkgs.lowPrio ruby);
+              nativeDeps = with pkgs; [ libmysqlclient ];
+            };
             env = [
               {
                 name = "DATABASE_ROOT_PASSWORD";
@@ -70,9 +79,14 @@
                 eval = "mysql2://root:dolos@127.0.0.1:3306/dolos";
               }
             ];
+            serviceGroups.server.services = {
+              rails.command = "rails db:prepare && rails s -p 3000";
+              worker.command = "rails jobs:work";
+              mysql.command = "mysql";
+            };
             commands = [
               {
-                name = "db:start";
+                name = "mysql";
                 category = "database";
                 help = "Start database docker";
                 command = ''
@@ -82,7 +96,7 @@
                 '';
               }
               {
-                name = "db:console";
+                name = "mysql-console";
                 category = "database";
                 help = "Open database console";
                 command = ''
@@ -94,7 +108,8 @@
                 category = "dependencies";
                 help = "Update the `Gemfile.lock` and `gemset.nix` files";
                 command = ''
-                  ${pkgs.ruby_3_1}/bin/bundle lock
+                  bundle install
+                  bundle pristine
                   ${pkgs.bundix}/bin/bundix
                 '';
               }
