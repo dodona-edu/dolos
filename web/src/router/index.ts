@@ -24,7 +24,7 @@ const routes: Array<RouteConfig> = [
   },
   {
     path: `${analysisPathPrefix}/pairs`,
-    name: "View by pair",
+    name: "Pairs",
     components: {
       default: () => import("../views/analysis/pairs.vue"),
       layout: AnalysisLayout,
