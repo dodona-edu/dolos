@@ -1,9 +1,10 @@
 <template>
   <v-container fluid>
     <div class="hero">
-      <h2 class="hero-title">
+      <h2 v-if="reportName" class="hero-title">
         {{ reportName }}
       </h2>
+      <h2 v-else class="hero-title">Dolos</h2>
       <div class="hero-subtitle text--secondary">
         Source code plagiarism detection report
       </div>
@@ -233,7 +234,6 @@ import {
   usePairStore,
   useMetadataStore,
 } from "@/api/stores";
-import { useReportsStore } from "@/stores";
 
 const apiStore = useApiStore();
 const fileStore = useFileStore();
@@ -241,11 +241,9 @@ const pairStore = usePairStore();
 const metadataStore = useMetadataStore();
 const { labels, similaritiesList, hasLabels } = storeToRefs(fileStore);
 const { clustering, sortedClustering } = storeToRefs(pairStore);
-const { currentReport } = storeToRefs(useReportsStore());
 
-const reportName = computed(() => metadataStore.metadata?.reportName ?? "Dolos report");
+const reportName = computed(() => metadataStore.metadata?.reportName);
 const createdAt = computed(() => metadataStore.metadata?.createdAt);
-
 
 // File legend.
 const legendCount = computed(() => labels.value.length);
