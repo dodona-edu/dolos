@@ -1170,7 +1170,7 @@
   dependencies:
     nan "^2.17.0"
 
-"@eslint-community/eslint-utils@^4.2.0":
+"@eslint-community/eslint-utils@^4.2.0", "@eslint-community/eslint-utils@^4.3.0":
   version "4.4.0"
   resolved "https://registry.yarnpkg.com/@eslint-community/eslint-utils/-/eslint-utils-4.4.0.tgz#a23514e8fb9af1269d5f7788aa556798d61c6b59"
   integrity sha512-1/sA4dwrzBAyeUoQ6oxahHKmrZvsnLCg4RfxW3ZFGGmQkSNQPFNLV9CUEFQP1x9EYXHTo5p6xdhZM1Ne9p/AfA==
@@ -5707,12 +5707,12 @@ eslint-plugin-standard@5.0.0:
   resolved "https://registry.yarnpkg.com/eslint-plugin-standard/-/eslint-plugin-standard-5.0.0.tgz#c43f6925d669f177db46f095ea30be95476b1ee4"
   integrity sha512-eSIXPc9wBM4BrniMzJRBm2uoVuXz2EPa+NXPk2+itrVt+r5SbKFERx/IgrK/HmfjddyKVz2f+j+7gBRvu19xLg==
 
-eslint-plugin-vue@9.9.0:
-  version "9.9.0"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-vue/-/eslint-plugin-vue-9.9.0.tgz#ac788ebccd2eb94d846a507df55da50693b80c91"
-  integrity sha512-YbubS7eK0J7DCf0U2LxvVP7LMfs6rC6UltihIgval3azO3gyDwEGVgsCMe1TmDiEkl6GdMKfRpaME6QxIYtzDQ==
+eslint-plugin-vue@9.11.0:
+  version "9.11.0"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-vue/-/eslint-plugin-vue-9.11.0.tgz#99a247455c02181f24d9240d422380fd16dd630c"
+  integrity sha512-bBCJAZnkBV7ATH4Z1E7CvN3nmtS4H7QUU3UBxPdo8WohRU+yHjnQRALpTbxMVcz0e4Mx3IyxIdP5HYODMxK9cQ==
   dependencies:
-    eslint-utils "^3.0.0"
+    "@eslint-community/eslint-utils" "^4.3.0"
     natural-compare "^1.4.0"
     nth-check "^2.0.1"
     postcss-selector-parser "^6.0.9"
