@@ -13,10 +13,10 @@
 
 <script lang="ts" setup>
 import { shallowRef } from "vue";
-import { useBreakpoints } from "@/composables";
+import { useDisplay } from "vuetify";
 
-const breakpoints = useBreakpoints();
+const display = useDisplay();
 
 // If the drawer is open/closed.
-const drawer = shallowRef(breakpoints.value.desktop);
+const drawer = shallowRef(display.lgAndUp.value);
 </script>

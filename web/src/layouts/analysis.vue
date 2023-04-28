@@ -71,18 +71,18 @@
 <script lang="ts" setup>
 import { shallowRef } from "vue";
 import { storeToRefs } from "pinia";
-import { useBreakpoints } from "@/composables";
 import { useApiStore, useFileStore } from "@/api/stores";
 import { useBreadcrumbStore } from "@/stores";
+import { useDisplay } from "vuetify";
 
-const breakpoints = useBreakpoints();
+const display = useDisplay();
 const api = useApiStore();
 const files = useFileStore();
 const { loading, error, isAnonymous, loadingText } = storeToRefs(api);
 const { hasLabels } = storeToRefs(files);
 
 // If the drawer is open/closed.
-const drawer = shallowRef(breakpoints.value.desktop);
+const drawer = shallowRef(display.lgAndUp.value);
 // If the global settings dialog is open/closed.
 const settings = shallowRef(false);
 

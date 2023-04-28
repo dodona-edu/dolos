@@ -2,7 +2,7 @@
   <div>
     <v-app-bar clipped-left clipped-right app color="primary" dark dense>
       <v-app-bar-nav-icon
-        v-if="!breakpoints.desktop"
+        v-if="!display.lgAndUp.value"
         @click="drawerValue = !drawerValue"
       />
 
@@ -72,12 +72,12 @@
 
 <script lang="ts" setup>
 import { useVModel } from "@vueuse/core";
-import { useBreakpoints } from "@/composables";
 import { storeToRefs } from "pinia";
 import { useReportsStore } from "@/stores";
 import { useMetadataStore } from "@/api/stores";
 import { ref } from "vue";
 import { computed } from "vue";
+import { useDisplay } from "vuetify";
 
 interface Props {
   drawer?: boolean;
@@ -98,10 +98,10 @@ const reportName = computed(() => {
 });
 
 const emit = defineEmits(["update:settings", "update:drawer"]);
-const breakpoints = useBreakpoints();
+const display = useDisplay();
 const drawerValue = useVModel(props, "drawer", emit);
 const settingsValue = useVModel(props, "settings", emit);
-const { currentReport } = storeToRefs(useReportsStore());
 const shareDialog = ref(false);
 const downloadDatasetUrl = computed(() => currentReport.value?.response?.dataset?.zipfile);
+const { currentReport } = storeToRefs(useReportsStore());
 </script>

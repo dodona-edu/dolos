@@ -1,8 +1,8 @@
 <template>
   <v-navigation-drawer
     v-model="drawer"
-    :mini-variant="breakpoints.desktop"
-    :expand-on-hover="breakpoints.desktop"
+    :mini-variant="display.lgAndUp.value"
+    :expand-on-hover="display.lgAndUp.value"
     clipped
     app
     left
@@ -141,10 +141,11 @@
 
 <script lang="ts" setup>
 import { computed } from "vue";
-import { useAppMode, useBreakpoints } from "@/composables";
+import { useAppMode } from "@/composables";
 import { useVModel } from "@vueuse/core";
 import { usePairStore } from "@/api/stores";
-import packageJson from "@/../package.json";
+import { useDisplay } from "vuetify";
+import packageJson from "../../../package.json";
 
 interface Props {
   value: boolean;
@@ -152,7 +153,7 @@ interface Props {
 }
 const props = withDefaults(defineProps<Props>(), {});
 const emit = defineEmits(["update:value"]);
-const breakpoints = useBreakpoints();
+const display = useDisplay();
 const drawer = useVModel(props, "value", emit);
 const { isServer } = useAppMode();
 const pairs = usePairStore();
