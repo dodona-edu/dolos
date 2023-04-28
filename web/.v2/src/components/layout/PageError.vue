@@ -1,0 +1,41 @@
+<template>
+  <div class="page-error">
+    <h2>Oops! Something went wrong.</h2>
+    <p>{{ message }}</p>
+  </div>
+</template>
+
+<script lang="ts" setup>
+import { computed } from "vue";
+
+interface Props {
+  error: Error | string;
+}
+
+const props = withDefaults(defineProps<Props>(), {});
+const message = computed(() => {
+  if (typeof props.error === "string") {
+    return props.error;
+  }
+  return props.error.message;
+});
+</script>
+
+<style lang="scss" scoped>
+.page-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  margin-top: 4rem;
+
+  h2 {
+    margin-top: 2rem;
+  }
+
+  p {
+    font-size: 1.2rem;
+  }
+}
+</style>

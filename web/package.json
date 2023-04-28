@@ -9,8 +9,11 @@
     "lint": "eslint . --fix --ignore-path .gitignore"
   },
   "dependencies": {
+    "@dodona/dolos-lib": "2.1.0",
     "@mdi/font": "7.0.96",
+    "comlink": "^4.4.1",
     "core-js": "^3.29.0",
+    "d3": "^7.8.4",
     "pinia": "^2.0.0",
     "roboto-fontface": "*",
     "vue": "^3.2.0",

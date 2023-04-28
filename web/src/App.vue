@@ -5,4 +5,5 @@
 </template>
 
 <script lang="ts" setup>
+import { useApiStore } from "./api/stores";
 </script>
