@@ -107,6 +107,16 @@ const isDone = computed(
         </v-card-text>
       </template>
 
+      <!-- Status: archived -->
+      <template v-else-if="props.report.status === 'archived'">
+        <v-card-text>
+          <v-alert type="warning" text class="mt-2 mb-0">
+            This report has been archived.
+            This means the report has been deleted on the server and is no longer available.
+          </v-alert>
+        </v-card-text>
+      </template>
+
       <v-card-actions>
         <!-- Delete -->
         <v-btn

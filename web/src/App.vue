@@ -1,8 +1,8 @@
 <template>
-  <div>
+  <v-app>
     <router-view />
     <snackbar />
-  </div>
+  </v-app>
 </template>
 
 <script lang="ts" setup>
