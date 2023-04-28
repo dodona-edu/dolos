@@ -5,7 +5,7 @@
 
     <v-main>
       <v-container class="container">
-        <slot />
+        <router-view />
       </v-container>
     </v-main>
   </v-app>
