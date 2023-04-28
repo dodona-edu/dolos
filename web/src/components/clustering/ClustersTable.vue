@@ -34,11 +34,10 @@
 
 <script lang="ts" setup>
 import { computed } from "vue";
-import { DataTableHeader } from "vuetify";
 import { usePairStore } from "@/api/stores";
-import { useRouter } from "@/composables";
 import { getClusterElementsArray } from "@/util/clustering-algorithms/ClusterFunctions";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
+import { useRouter } from "vue-router";
 
 interface Props {
   clusters: Cluster[];
@@ -52,8 +51,8 @@ const router = useRouter();
 const pairStore = usePairStore();
 
 // Table headers
-const headers = computed<DataTableHeader[]>(() => {
-  const h = [] as DataTableHeader[];
+const headers = computed(() => {
+  const h = [];
   h.push({
     text: "Submissions",
     value: "submissions",

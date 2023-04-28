@@ -9,12 +9,13 @@
 import { shallowRef, computed, watch, onMounted, toRef } from "vue";
 import { storeToRefs } from "pinia";
 import { useFileStore, usePairStore, useApiStore } from "@/api/stores";
-import { useCluster, useRouter, useD3Tooltip } from "@/composables";
+import { useCluster, useD3Tooltip } from "@/composables";
 import { Pair, File } from "@/api/models";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
 import { pairsAsNestedMap } from "@/util/PairAsNestedMap";
 import * as d3 from "d3";
 import { useElementSize } from "@vueuse/core";
+import { useRouter } from "vue-router";
 
 interface Props {
   cluster: Cluster;

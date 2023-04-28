@@ -8,11 +8,10 @@
 </template>
 
 <script lang="ts" setup>
-import { useRoute } from "@/composables";
 import { useBreadcrumbStore } from "@/stores";
 import { storeToRefs } from "pinia";
 import { computed } from "vue";
-import { Location } from "vue-router";
+import { useRoute } from "vue-router";
 
 interface Props {
   // Current page information (override)
@@ -55,10 +54,10 @@ const items = computed(() => {
     });
   }
 
-  if (route.value) {
+  if (route) {
     items.push({
-      text: props.currentOverride?.text ?? route.value.name ?? "#",
-      to: props.currentOverride?.location ?? route.value.path,
+      text: props.currentOverride?.text ?? route.name?.toString() ?? "#",
+      to: props.currentOverride?.to ?? route.path.toString() ?? "#",
       disabled: true,
     });
   }
@@ -68,7 +67,7 @@ const items = computed(() => {
 
 // Back navigation
 const backItem = computed(() => {
-  return items.value[items.value.length - 2].location;
+  return items.value[items.value.length - 2].to ?? "/";
 });
 </script>
 

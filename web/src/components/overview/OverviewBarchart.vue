@@ -12,8 +12,9 @@ import {
 import { storeToRefs } from "pinia";
 import { useApiStore, useFileStore } from "@/api/stores";
 import { useElementSize } from "@vueuse/core";
-import { useD3Tooltip, useRouter } from "@/composables";
+import { useD3Tooltip } from "@/composables";
 import * as d3 from "d3";
+import { useRouter } from "vue-router";
 
 interface Props {
   ticks?: number;

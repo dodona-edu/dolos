@@ -3,6 +3,7 @@ import router from "./router";
 import { createApp } from "vue";
 import { createVuetify } from "vuetify";
 import { createPinia } from "pinia";
+import { VDataTable } from "vuetify/labs/VDataTable";
 
 // Styles
 import "@mdi/font/css/materialdesignicons.css";
@@ -13,6 +14,9 @@ const app = createApp(App);
 
 // Create the plugins
 const vuetify = createVuetify({
+  components: {
+    VDataTable,
+  },
   theme: {
     themes: {
       light: {
@@ -32,10 +36,10 @@ app.use(pinia);
 app.use(router);
 
 // Load the fonts.
-const webFontLoader = await import('webfontloader');
+const webFontLoader = await import("webfontloader");
 webFontLoader.load({
   google: {
-    families: ['Roboto:100,300,400,500,700,900&display=swap'],
+    families: ["Roboto:100,300,400,500,700,900&display=swap"],
   },
 });
 

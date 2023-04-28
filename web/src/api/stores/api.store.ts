@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { useAppMode, useRoute } from "@/composables";
+import { useAppMode } from "@/composables";
 import { shallowRef, watch, computed } from "vue";
 import {
   useFileStore,
