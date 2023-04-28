@@ -162,7 +162,15 @@
             </v-col>
           </v-row>
 
-          <overview-barchart :ticks="20" :extra-line="apiStore.cutoff" />
+          <v-card-text>
+            <similarity-histogram
+              field="similarity"
+              :ticks="20"
+              :calculate-bin-color="calculateBinColor"
+              :line-value="apiStore.cutoff"
+              line-text="Threshold"
+            />
+          </v-card-text>
         </v-card>
       </v-col>
 
@@ -307,6 +315,13 @@ const clustersOverview = computed(() => {
 
 // Total amount of clusters
 const clustersCount = computed(() => sortedClustering.value.length);
+
+// Calculate the bin color for the histogram.
+const calculateBinColor = (x0: number, x1: number): string => {
+  // If the x1 coordinate is below the threshold return an greyed out color.
+  // x1 represents the end value of the bin.
+  return x1 <= apiStore.cutoff ? "rgba(25, 118, 210, 0.25)" : "#1976D2";
+};
 </script>
 
 <style lang="scss" scoped>
