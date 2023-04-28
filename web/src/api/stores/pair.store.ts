@@ -47,12 +47,12 @@ export const usePairStore = defineStore("pairs", () => {
     if (!fileStore.hasLabels) {
       return pairsById.value;
     }
-    const activeFiles = fileStore.filesActiveList;
+    const activeFilesById = fileStore.filesActiveById;
     const pairs: Pair[] = [];
     // Add all pairs that have both files active
 
     for (const pair of pairsList.value) {
-      if (activeFiles[pair.leftFile.id] && activeFiles[pair.rightFile.id]) {
+      if (activeFilesById[pair.leftFile.id] && activeFilesById[pair.rightFile.id]) {
         pairs[pair.id] = pair;
       }
     }

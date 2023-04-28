@@ -121,6 +121,7 @@
                   :height="350"
                   :selected-node="file"
                   :node-size="8"
+                  :show-singletons="false"
                   node-tooltip
                   node-clickable
                   @click:node="onNodeClick"

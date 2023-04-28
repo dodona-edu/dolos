@@ -8,7 +8,6 @@
           :clustering="clustering"
           :files="filesActiveList"
           :pairs="pairsActiveList"
-          :zoomTo="'#clustering-table'"
           :selected-node.sync="selectedNode"
           :selected-cluster.sync="selectedCluster"
           polygon

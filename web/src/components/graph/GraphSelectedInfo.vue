@@ -1,7 +1,7 @@
 <template>
   <div class="selected-info">
-    <transition name="scale-transition" mode="out-in">
-      <div v-if="selectedNode">
+    <transition name="scroll-y-transition" mode="out-in">
+      <div v-if="selectedNode" key="">
         <v-card>
           <v-card-title> Selected node </v-card-title>
 
@@ -49,7 +49,7 @@
       </div>
     </transition>
 
-    <transition name="scale-transition" mode="out-in">
+    <transition name="scroll-y-transition" mode="out-in">
       <div v-if="selectedCluster">
         <v-card>
           <v-card-title> Selected cluster </v-card-title>
