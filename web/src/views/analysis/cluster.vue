@@ -86,13 +86,12 @@
             <v-card-subtitle>
               Visual representation of submissions in the same cluster.
             </v-card-subtitle>
-            <v-card-text>
+            <v-card-text class="cluster-graph">
               <graph
                 :pairs="clusterPairs"
                 :files="clusterFiles"
                 :legend="legend"
                 :clustering="clustering"
-                :height="350"
                 :node-size="8"
                 :show-singletons="false"
                 node-tooltip
@@ -169,3 +168,11 @@ const showHeatmap = computed(() => {
   return length >= 4 && length <= 20;
 });
 </script>
+
+<style lang="scss" scoped>
+.cluster {
+  &-graph {
+    height: 350px;
+  }
+}
+</style>
