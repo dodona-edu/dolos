@@ -1,30 +1,30 @@
 <template>
-  <div ref="histogramElement" class="svg-container"></div>
+  <div ref="histogramElement"></div>
 </template>
 
 <script lang="ts" setup>
-import { shallowRef, computed, watch, onMounted } from "vue";
+import { useFileStore } from "@/api/stores";
 import { useD3Tooltip, useRouter } from "@/composables";
 import { useElementSize } from "@vueuse/core";
-import { useFileStore } from "@/api/stores";
-import { File } from "@/api/models";
 import { storeToRefs } from "pinia";
+import { computed, onMounted, shallowRef, watch } from "vue";
 import * as d3 from "d3";
-import { getLargestFieldOfScore } from "@/util/FileInterestingness";
 
 interface Props {
   field: "similarity" | "longestFragment" | "totalOverlap";
-  file: File;
   ticks: number;
   height?: number;
   width?: number;
+  lineValue?: number;
+  lineText?: string;
+  calculateBinColor?: (x1: number, x2: number) => string;
 }
-
 const props = withDefaults(defineProps<Props>(), {});
 const router = useRouter();
-const { scoredFiles, scoredFilesList } = storeToRefs(useFileStore());
+const { scoredFilesList } = storeToRefs(useFileStore());
 
-const maxFileData = computed(() =>
+// Data source for the bins of the histogram.
+const binsData = computed(() =>
   scoredFilesList.value.map((score) => {
     if (props.field === "similarity") {
       return score.similarityScore?.similarity || 0;
@@ -39,7 +39,7 @@ const maxFileData = computed(() =>
   })
 );
 
-// Field name
+// Name of the field.
 const fieldName = computed(() => {
   if (props.field === "similarity") {
     return "Similarity";
@@ -52,55 +52,6 @@ const fieldName = computed(() => {
   }
   return "";
 });
-
-// Line for the file
-const lineValue = computed(() => {
-  const score = scoredFiles.value.get(props.file);
-  if (!score) return null;
-
-  const field = getLargestFieldOfScore(score);
-  if (!field) return null;
-
-  const pair = field === "similarity"
-    ? score.similarityScore?.pair
-    : field === "totalOverlap"
-      ? score.totalOverlapScore?.pair
-      : score.longestFragmentScore?.pair;
-
-  if (!pair) return null;
-
-  if (props.field === "totalOverlap") {
-    const covered =
-      props.file.id === pair?.leftFile.id
-        ? pair.leftCovered
-        : pair?.rightCovered;
-    return (covered ?? 0) / props.file.amountOfKgrams;
-  }
-
-  if (props.field === "longestFragment") {
-    return (pair?.longestFragment ?? 0) / props.file.amountOfKgrams;
-  }
-  if (props.field === "similarity") {
-    return pair?.similarity ?? 0;
-  }
-
-  return null;
-});
-
-const getBinColor = (d: d3.Bin<number, number>): string => {
-  const defaultColor = "#1976D2";
-  const warningColor = "#ff5252";
-
-  if (
-    lineValue.value &&
-    (d.x0 || 0) < lineValue.value &&
-    (d.x1 || 0) >= lineValue.value
-  ) {
-    return warningColor;
-  }
-
-  return defaultColor;
-};
 
 // Histogram template ref.
 const histogramElement = shallowRef();
@@ -119,10 +70,7 @@ const width = computed<number>(() => Math.max((props.width ?? size.width.value) 
 const height = computed<number>(() => Math.max((props.height ?? 400) - margin.top - margin.bottom, 0));
 
 // Histogram D3
-const histogramChart = d3
-  .create("svg")
-  .attr("width", 900)
-  .attr("height", 200);
+const histogramChart = d3.create("svg").attr("width", 900).attr("height", 200);
 const histogramContent = histogramChart
   .append("g")
   .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
@@ -150,16 +98,12 @@ const draw = (): void => {
   histogramContent.selectAll("*").remove();
 
   // X-axis
-  const x = d3
-    .scaleLinear()
-    .domain([0, 1])
-    .range([0, width.value]);
-  const xAxis = histogramContent
+  const x = d3.scaleLinear().domain([0, 1]).range([0, width.value]);
+  histogramContent
     .append("g")
     .attr("transform", "translate(0," + height.value + ")")
     .call(d3.axisBottom(x).tickFormat(d3.format(".0%")))
-    .classed("d3-ticks", true);
-  xAxis
+    .classed("d3-ticks", true)
     .append("text")
     .text(fieldName.value)
     .classed("d3-label", true)
@@ -171,23 +115,19 @@ const draw = (): void => {
   const xTicksAjusted = xTicks[xTicks.length - 1] === xDomain[1] ? xTicks.slice(0, -1) : xTicks;
 
   // Histogram
-  const histogram = d3
-    .bin()
-    .domain([0, 1])
-    .thresholds(xTicksAjusted);
+  const histogram = d3.bin().domain([0, 1]).thresholds(xTicksAjusted);
   // Bins
-  const bins = histogram(maxFileData.value);
+  const bins = histogram(binsData.value);
 
   // Y-axis
   const y = d3
     .scaleLinear()
     .range([height.value, 0])
-    .domain([0, d3.max<any, any>(bins, d => d.length)]);
-  const yAxis = histogramContent
+    .domain([0, d3.max<any, any>(bins, (d) => d.length)]);
+  histogramContent
     .append("g")
     .call(d3.axisLeft(y))
-    .classed("d3-ticks", true);
-  yAxis
+    .classed("d3-ticks", true)
     .append("text")
     .text("Amount of files")
     .classed("d3-label", true)
@@ -195,19 +135,24 @@ const draw = (): void => {
 
   // Add the data.
   // Only add the data if there are any files available.
-  if (maxFileData.value.length > 0) {
+  if (binsData.value.length > 0) {
     histogramContent
       .selectAll("rect")
       .data(bins)
       .enter()
       .append("rect")
       .attr("x", 1)
-      .attr("transform", (d) => "translate(" + (x(d.x0 ?? 0)) + "," + y(d.length) + ")")
+      .attr(
+        "transform",
+        (d) => "translate(" + x(d.x0 ?? 0) + "," + y(d.length) + ")"
+      )
       .attr("width", (d) => Math.max(0, x(d.x1 ?? 0) - x(d.x0 ?? 0) - 1))
       .attr("height", (d) => height.value - y(d.length))
-      .style("fill", (d) => getBinColor(d))
+      .style("fill", (d) => props.calculateBinColor?.(d.x0 ?? 0, d.x1 ?? 1) ?? "#1976D2")
       .style("cursor", "pointer")
-      .on("mouseover", (e: MouseEvent, d) => tooltip.onMouseOver(e, tooltipMessage(d)))
+      .on("mouseover", (e: MouseEvent, d) =>
+        tooltip.onMouseOver(e, tooltipMessage(d))
+      )
       .on("mousemove", (e: MouseEvent) => tooltip.onMouseMove(e))
       .on("mouseleave", (e: MouseEvent) => tooltip.onMouseOut(e))
       .on("click", (_: MouseEvent, d) => {
@@ -225,17 +170,6 @@ const draw = (): void => {
       });
   }
 
-  // Add extra line, if specified.
-  if (lineValue.value) {
-    histogramContent
-      .append("line")
-      .attr("x1", x(lineValue.value))
-      .attr("y1", 0)
-      .attr("x2", x(lineValue.value))
-      .attr("y2", height.value)
-      .attr("stroke", "black");
-  }
-
   // Add hover line.
   const line = histogramChart
     .select("g")
@@ -250,7 +184,8 @@ const draw = (): void => {
     .attr("pointer-events", "none")
     .attr("z-index", 2)
     .attr("visibility", "hidden");
-  const number = histogramChart.select("g")
+  const lineNumber = histogramChart
+    .select("g")
     .append("text")
     .classed("d3-ticks", true)
     .attr("x", x(0.5))
@@ -260,59 +195,77 @@ const draw = (): void => {
 
   histogramChart.on("mouseenter", () => {
     line.attr("visibility", "visible");
-    number.attr("visibility", "visible");
+    lineNumber.attr("visibility", "visible");
   });
-  histogramChart.on("mousemove", o => {
+
+  histogramChart.on("mousemove", (o) => {
     const xCoord = d3.pointer(o)[0] - margin.left;
     line.attr("x1", xCoord);
     line.attr("x2", xCoord);
-    number.attr("x", xCoord + 8);
-    number.text(`${(x.invert(xCoord) * 100).toFixed(0)}%`);
+    lineNumber.attr("x", xCoord + 8);
+    lineNumber.text(`${(x.invert(xCoord) * 100).toFixed(0)}%`);
 
     // Hide if the x-coordinate is not between 0 and width.
     if (xCoord < 0 || xCoord > width.value) {
       line.attr("visibility", "hidden");
-      number.attr("visibility", "hidden");
+      lineNumber.attr("visibility", "hidden");
     } else {
       line.attr("visibility", "visible");
-      number.attr("visibility", "visible");
+      lineNumber.attr("visibility", "visible");
     }
   });
   histogramChart.on("mouseleave", () => {
     line.attr("visibility", "hidden");
-    number.attr("visibility", "hidden");
+    lineNumber.attr("visibility", "hidden");
   });
+
+  // Add line, if specified.
+  if (props.lineValue) {
+    // Line
+    histogramChart
+      .select("g")
+      .append("line")
+      .attr("class", "line")
+      .attr("x1", x(props.lineValue))
+      .attr("y1", 0)
+      .attr("x2", x(props.lineValue))
+      .attr("y2", height.value)
+      .attr("stroke", "black")
+      .attr("stroke-width", 1)
+      .attr("pointer-events", "none")
+      .attr("z-index", 2);
+    
+    // Line text
+    if (props.lineText) {
+      histogramChart
+        .select("g")
+        .append("text")
+        .attr("class", "line-text")
+        .classed("d3-ticks", true)
+        .attr("x", x(props.lineValue))
+        .attr("y", 0)
+        .attr("dy", "0.71em")
+        .attr("dx", 8)
+        .text(props.lineText);
+    }
+  }
 
   // Store the axis scales.
   histogramXScale.value = x;
   histogramYScale.value = y;
 };
 
-// Update the extra line when the value changes.
-watch(
-  () => lineValue.value,
-  (extraLine) => {
-    histogramContent
-      .select(".extra-line")
-      .attr("y1", histogramXScale.value(extraLine))
-      .attr("y2", histogramXScale.value(extraLine));
-  }
-);
-
 // Update the histogram when the width changes.
 watch(width, () => draw());
 
 // Update the histogram when the file data changes.
-watch(maxFileData, () => draw());
+watch(binsData, () => draw());
+
+// Update the histogram when the line value changes.
+watch(() => props.lineValue, () => draw());
 
 onMounted(() => {
   histogramElement.value?.prepend(histogramChart.node() ?? "");
   draw();
 });
 </script>
-
-<style scoped>
-.svg-container {
-  max-height: 500px;
-}
-</style>

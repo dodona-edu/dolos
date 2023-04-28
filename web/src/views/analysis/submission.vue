@@ -58,7 +58,7 @@
               </v-card-text>
 
               <v-card-text v-else>
-                <time-series
+                <cluster-time-series
                   :cluster="cluster"
                   :node-size="8"
                   :selected-files="[file]"
@@ -113,21 +113,22 @@
                 Submission is not part of any cluster.
               </v-card-text>
               <v-card-text v-else>
-                <graph
-                  :pairs="clusterPairs"
-                  :files="clusterFiles"
-                  :legend="legend"
-                  :clustering="clustering"
-                  :height="350"
-                  :selected-node="file"
-                  :node-size="8"
-                  :show-singletons="false"
-                  node-tooltip
-                  node-clickable
-                  @click:node="onNodeClick"
-                >
-                  <graph-legend :legend.sync="legend" />
-                </graph>
+                <div class="submission-graph">
+                  <graph
+                    :pairs="clusterPairs"
+                    :files="clusterFiles"
+                    :legend="legend"
+                    :clustering="clustering"
+                    :selected-node="file"
+                    :node-size="8"
+                    :show-singletons="false"
+                    node-tooltip
+                    node-clickable
+                    @click:node="onNodeClick"
+                  >
+                    <graph-legend :legend.sync="legend" />
+                  </graph>
+                </div>
               </v-card-text>
             </v-card>
 
@@ -138,11 +139,9 @@
                 highest similarity of other submissions.
               </v-card-subtitle>
               <v-card-text>
-                <pair-stat-histogram
+                <submission-histogram
                   field="similarity"
                   :file="file"
-                  :ticks="25"
-                  :height="315"
                 />
               </v-card-text>
             </v-card>
@@ -154,11 +153,9 @@
                 longest fragment of other submissions.
               </v-card-subtitle>
               <v-card-text>
-                <pair-stat-histogram
+                <submission-histogram
                   field="longestFragment"
                   :file="file"
-                  :ticks="25"
-                  :height="315"
                 />
               </v-card-text>
             </v-card>
@@ -225,6 +222,10 @@ const onNodeClick = (file: File): void => {
 .submission {
   &-code {
     height: 500px;
+  }
+
+  &-graph {
+    height: 350px;
   }
 }
 </style>

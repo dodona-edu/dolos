@@ -69,7 +69,7 @@
             </v-card-text>
 
             <v-card-text v-else>
-              <time-series
+              <cluster-time-series
                 :cluster="cluster"
                 :node-size="8"
                 node-tooltip
@@ -86,13 +86,12 @@
             <v-card-subtitle>
               Visual representation of submissions in the same cluster.
             </v-card-subtitle>
-            <v-card-text>
+            <v-card-text class="cluster-graph">
               <graph
                 :pairs="clusterPairs"
                 :files="clusterFiles"
                 :legend="legend"
                 :clustering="clustering"
-                :height="350"
                 :node-size="8"
                 :show-singletons="false"
                 node-tooltip
@@ -104,14 +103,14 @@
             </v-card-text>
           </v-card>
 
-          <v-card class="mt-4">
+          <v-card v-if="showHeatmap" class="mt-4">
             <v-card-title>Cluster Heatmap</v-card-title>
             <v-card-subtitle>
               Visualization of the pairs within this cluster, darker is more
               similar.
             </v-card-subtitle>
             <v-card-text>
-              <heat-map :cluster="cluster" :height="500" />
+              <cluster-heat-map :cluster="cluster" :height="500" />
             </v-card-text>
           </v-card>
         </v-col>
@@ -161,4 +160,19 @@ const activeTab = shallowRef(0);
 const onNodeClick = (file: File): void => {
   router.push({ name: "Submission", params: { fileId: file.id } });
 };
+
+// Should the heatmap be shown.
+// The heatmap is hidden when the submissions in the cluster are below 4 and bigger than 30.
+const showHeatmap = computed(() => {
+  const length = clusterFiles.value.length;
+  return length >= 4 && length <= 20;
+});
 </script>
+
+<style lang="scss" scoped>
+.cluster {
+  &-graph {
+    height: 350px;
+  }
+}
+</style>
