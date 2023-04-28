@@ -58,7 +58,7 @@
               </v-card-text>
 
               <v-card-text v-else>
-                <time-series
+                <cluster-time-series
                   :cluster="cluster"
                   :node-size="8"
                   :selected-files="[file]"

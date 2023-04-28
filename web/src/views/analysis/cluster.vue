@@ -69,7 +69,7 @@
             </v-card-text>
 
             <v-card-text v-else>
-              <time-series
+              <cluster-time-series
                 :cluster="cluster"
                 :node-size="8"
                 node-tooltip
@@ -110,7 +110,7 @@
               similar.
             </v-card-subtitle>
             <v-card-text>
-              <heat-map :cluster="cluster" :height="500" />
+              <cluster-heat-map :cluster="cluster" :height="500" />
             </v-card-text>
           </v-card>
         </v-col>

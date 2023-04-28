@@ -6,8 +6,10 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     Breadcrumbs: typeof import('./../components/Breadcrumbs.vue')['default']
+    ClusterHeatMap: typeof import('./../components/clustering/ClusterHeatMap.vue')['default']
     ClustersTable: typeof import('./../components/clustering/ClustersTable.vue')['default']
     ClusterTags: typeof import('./../components/clustering/ClusterTags.vue')['default']
+    ClusterTimeSeries: typeof import('./../components/clustering/ClusterTimeSeries.vue')['default']
     CompareCard: typeof import('./../components/CompareCard.vue')['default']
     FileTimestamp: typeof import('./../components/FileTimestamp.vue')['default']
     Graph: typeof import('./../components/graph/Graph.vue')['default']
@@ -15,7 +17,6 @@ declare module 'vue' {
     GraphElementListCard: typeof import('./../components/graph/GraphElementListCard.vue')['default']
     GraphLegend: typeof import('./../components/graph/GraphLegend.vue')['default']
     GraphSelectedInfo: typeof import('./../components/graph/GraphSelectedInfo.vue')['default']
-    HeatMap: typeof import('./../components/clustering/HeatMap.vue')['default']
     InfoDot: typeof import('./../components/InfoDot.vue')['default']
     LabelDot: typeof import('./../components/LabelDot.vue')['default']
     LabelsTable: typeof import('./../components/LabelsTable.vue')['default']
@@ -39,7 +40,6 @@ declare module 'vue' {
     SubmissionHistogram: typeof import('./../components/submission/SubmissionHistogram.vue')['default']
     SubmissionsPairsTable: typeof import('./../components/submission/SubmissionsPairsTable.vue')['default']
     SubmissionsTable: typeof import('./../components/submission/SubmissionsTable.vue')['default']
-    TimeSeries: typeof import('./../components/clustering/TimeSeries.vue')['default']
     UploadFormCard: typeof import('./../components/upload/UploadFormCard.vue')['default']
     UploadInput: typeof import('./../components/upload/UploadInput.vue')['default']
     UploadsTable: typeof import('./../components/upload/UploadsTable.vue')['default']
