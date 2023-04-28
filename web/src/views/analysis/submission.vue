@@ -139,11 +139,9 @@
                 highest similarity of other submissions.
               </v-card-subtitle>
               <v-card-text>
-                <pair-stat-histogram
+                <submission-histogram
                   field="similarity"
                   :file="file"
-                  :ticks="25"
-                  :height="315"
                 />
               </v-card-text>
             </v-card>
@@ -155,11 +153,9 @@
                 longest fragment of other submissions.
               </v-card-subtitle>
               <v-card-text>
-                <pair-stat-histogram
+                <submission-histogram
                   field="longestFragment"
                   :file="file"
-                  :ticks="25"
-                  :height="315"
                 />
               </v-card-text>
             </v-card>
