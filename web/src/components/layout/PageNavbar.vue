@@ -1,12 +1,12 @@
 <template>
   <div>
-    <v-app-bar clipped-left clipped-right app color="primary" dark dense>
+    <v-app-bar color="primary" density="compact">
       <v-app-bar-nav-icon
         v-if="!display.lgAndUp.value"
         @click="drawerValue = !drawerValue"
       />
 
-      <v-toolbar-title>
+      <v-toolbar-title class="navbar-title">
         <router-link v-if="reportName" :to="to"> DOLOS - {{ reportName }} </router-link>
         <router-link v-else :to="to"> DOLOS </router-link>
       </v-toolbar-title>
@@ -105,3 +105,14 @@ const shareDialog = ref(false);
 const downloadDatasetUrl = computed(() => currentReport.value?.response?.dataset?.zipfile);
 const { currentReport } = storeToRefs(useReportsStore());
 </script>
+
+<style lang="scss" scoped>
+.navbar {
+  &-title {
+    a {
+      text-decoration: none;
+      color: currentColor;
+    }
+  }
+}
+</style>

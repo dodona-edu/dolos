@@ -1,5 +1,5 @@
 <template>
-  <v-container class="submissions" fluid>
+  <div class="submissions">
     <template v-if="cluster">
       <breadcrumbs
         :current-override="{
@@ -127,7 +127,7 @@
         </v-col>
       </v-row>
     </template>
-  </v-container>
+  </div>
 </template>
 
 <script lang="ts" setup>

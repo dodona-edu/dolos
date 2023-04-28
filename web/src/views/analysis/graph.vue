@@ -1,5 +1,5 @@
 <template>
-  <v-container fluid fill-height>
+  <div>
     <v-row class="graph-container">
       <v-col cols="12" class="no-y-padding">
         <graph
@@ -37,7 +37,7 @@
         </graph>
       </v-col>
     </v-row>
-  </v-container>
+  </div>
 </template>
 
 <script lang="ts" setup>

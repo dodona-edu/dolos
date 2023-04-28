@@ -8,14 +8,14 @@
     <page-sidebar v-model="drawer" variant="analysis" />
 
     <v-main>
-      <v-container class="container">
+      <v-container fluid>
         <page-loading v-if="loading" :text="loadingText" />
         <page-error v-else-if="error" :error="error" />
         <router-view v-else />
       </v-container>
     </v-main>
 
-    <v-navigation-drawer :value="settings" app clipped right>
+    <v-navigation-drawer v-model="settings" location="right">
       <v-card-title> Global settings </v-card-title>
       <v-card-subtitle>
         Configure global parameters of the analysis results.
@@ -74,6 +74,7 @@ import { storeToRefs } from "pinia";
 import { useApiStore, useFileStore } from "@/api/stores";
 import { useBreadcrumbStore } from "@/stores";
 import { useDisplay } from "vuetify";
+import Overview from "@/views/analysis/overview.vue";
 
 const display = useDisplay();
 const api = useApiStore();

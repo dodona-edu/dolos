@@ -3,9 +3,7 @@
     v-model="drawer"
     :mini-variant="display.lgAndUp.value"
     :expand-on-hover="display.lgAndUp.value"
-    clipped
-    app
-    left
+    rail
   >
     <template v-if="props.variant === 'analysis'">
       <v-list v-if="isServer" nav density="compact">
@@ -33,7 +31,7 @@
         </v-list-item>
       </v-list>
 
-      <!-- Navifation when multiple pairs are available -->
+      <!-- Navigation when multiple pairs are available -->
       <v-list v-if="!pairs.hasOnlyOnePair" nav density="compact">
         <v-list-item :to="{ name: 'Overview' }" link exact>
           <template #prepend>
@@ -148,13 +146,12 @@ import { useDisplay } from "vuetify";
 import packageJson from "../../../package.json";
 
 interface Props {
-  value: boolean;
+  modelValue: boolean;
   variant: "analysis" | "upload";
 }
 const props = withDefaults(defineProps<Props>(), {});
-const emit = defineEmits(["update:value"]);
 const display = useDisplay();
-const drawer = useVModel(props, "value", emit);
+const drawer = useVModel(props, "modelValue");
 const { isServer } = useAppMode();
 const pairs = usePairStore();
 

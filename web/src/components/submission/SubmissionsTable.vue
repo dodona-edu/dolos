@@ -8,7 +8,7 @@
     :hide-default-footer="!props.pagination"
     :disable-pagination="!props.pagination"
     :footer-props="footerProps"
-    sort-by="similarity"
+    x-sort-by="similarity"
     sort-desc
     must-sort
     fixed-header

@@ -19,7 +19,6 @@ export const useFileStore = defineStore("file", () => {
   const pairStore = usePairStore();
 
   // State
-
   const hydrated = shallowRef(false);
 
   const filesById = shallowRef<File[]>([]);
@@ -73,7 +72,7 @@ export const useFileStore = defineStore("file", () => {
     return count;
   });
 
-  const scoringCalculator = computed<FileInterestingnessCalculator>(
+  const scoringCalculator: any = computed(
     () => new FileInterestingnessCalculator(pairStore.pairsActiveList)
   );
   const scoredFiles = computed<Map<File, FileScoring>>(() => {

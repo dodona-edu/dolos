@@ -4,7 +4,7 @@
     :headers="headers"
     :items="items"
     :footer-props="footerProps"
-    sort-by="similarity"
+    x-sort-by="similarity"
     sort-desc
     must-sort
     fixed-header

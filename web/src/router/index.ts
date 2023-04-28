@@ -17,7 +17,7 @@ const routes = [
     component: AnalysisLayout,
     children: [
       {
-        path: "/",
+        path: "",
         name: "Overview",
         component: () => import("@/views/analysis/overview.vue"),
       },

@@ -78,7 +78,7 @@ const openShareDialog = (item: any): void => {
       :headers="headers"
       :items="items"
       :search.sync="search"
-      sort-by="date"
+      x-sort-by="date"
       sort-desc
       @click:row="openInfoDialog"
     >

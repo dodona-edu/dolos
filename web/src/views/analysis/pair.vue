@@ -1,5 +1,5 @@
 <template>
-  <v-container fluid fill-height>
+  <div>
     <breadcrumbs
       v-if="!pairStore.hasOnlyOnePair"
       :previous-fallback="{ text: 'View by pairs', to: { name: 'Pairs' } }"
@@ -24,7 +24,7 @@
         </v-card>
       </v-col>
     </v-row>
-  </v-container>
+  </div>
 </template>
 
 <script lang="ts" setup>

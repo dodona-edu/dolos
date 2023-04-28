@@ -1,5 +1,5 @@
 <template>
-  <v-container fluid>
+  <div>
     <div class="hero">
       <h2 v-if="reportName" class="hero-title">
         {{ reportName }}
@@ -191,7 +191,7 @@
 
           <v-card-actions>
             <v-spacer />
-            <v-btn color="primary" text block :to="{ name: 'Submissions' }">
+            <v-btn color="primary" variant="text" block :to="{ name: 'Submissions' }">
               <span v-if="filesCount > 1">
                 View all {{ filesCount }} submissions
               </span>
@@ -217,10 +217,10 @@
 
           <v-card-actions>
             <v-spacer />
-            <v-btn color="primary" text block :to="{ name: 'Clusters' }">
-              <span v-if="clustersCount > 1"
-                >View all {{ clustersCount }} clusters</span
-              >
+            <v-btn color="primary" variant="text" block :to="{ name: 'Clusters' }">
+              <span v-if="clustersCount > 1">
+                View all {{ clustersCount }} clusters
+              </span>
               <span v-else>View all clusters</span>
               <v-icon right>mdi-chevron-right</v-icon>
             </v-btn>
@@ -228,7 +228,7 @@
         </v-card>
       </v-col>
     </v-row>
-  </v-container>
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -299,7 +299,7 @@ const medianSimilarity = computed(() => {
 // Programming language, capitalized.
 const language = computed(() => {
   const lang = metadataStore.metadata.language;
-  return lang.charAt(0).toUpperCase() + lang.slice(1);
+  return lang?.charAt(0)?.toUpperCase() + lang?.slice(1);
 });
 
 // First x amount of submissions to display.

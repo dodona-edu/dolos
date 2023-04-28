@@ -4,10 +4,11 @@
 
 <script lang="ts" setup>
 import { useFileStore } from "@/api/stores";
-import { useD3Tooltip, useRouter } from "@/composables";
+import { useD3Tooltip } from "@/composables";
 import { useElementSize } from "@vueuse/core";
 import { storeToRefs } from "pinia";
 import { computed, onMounted, shallowRef, watch } from "vue";
+import { useRouter } from "vue-router";
 import * as d3 from "d3";
 
 interface Props {

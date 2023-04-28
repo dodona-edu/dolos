@@ -1,5 +1,5 @@
 <template>
-  <v-container class="submissions" fluid>
+  <div class="submissions">
     <v-row class="heading" align="center">
       <v-col cols="12" md="6">
         <h2 class="heading-title">
@@ -39,7 +39,7 @@
         :search.sync="search"
       />
     </v-card>
-  </v-container>
+  </div>
 </template>
 
 <script lang="ts" setup>

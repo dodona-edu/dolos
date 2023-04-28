@@ -1,5 +1,5 @@
 <template>
-  <v-container fluid>
+  <div>
     <v-row class="heading" align="center">
       <v-col cols="12" md="6">
         <h2 class="heading-title">
@@ -26,7 +26,7 @@
     <v-card>
       <pairs-table :search.sync="search" :pairs="pairStore.pairsActiveList" />
     </v-card>
-  </v-container>
+  </div>
 </template>
 
 <script lang="ts" setup>

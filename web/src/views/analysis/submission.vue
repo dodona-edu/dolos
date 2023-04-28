@@ -1,5 +1,5 @@
 <template>
-  <v-container fluid>
+  <div>
     <transition name="slide-y-transition" mode="out-in">
       <div v-if="file" :key="file.id">
         <breadcrumbs
@@ -174,7 +174,7 @@
         </v-row>
       </template>
     </transition>
-  </v-container>
+  </div>
 </template>
 
 <script lang="ts" setup>

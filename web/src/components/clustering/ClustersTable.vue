@@ -3,7 +3,7 @@
     class="row-pointer"
     :headers="headers"
     :items="items"
-    sort-by="size"
+    x-sort-by="size"
     sort-desc
     hide-default-footer
     disable-pagination

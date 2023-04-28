@@ -4,7 +4,7 @@
     :headers="headers"
     :items="items"
     :must-sort="true"
-    :sort-by="'similarity'"
+    x-sort-by="'similarity'"
     :sort-desc="true"
     :items-per-page="15"
     :search.sync="searchValue"
