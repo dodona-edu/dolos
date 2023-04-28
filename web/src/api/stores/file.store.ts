@@ -191,7 +191,7 @@ export const useFileStore = defineStore("file", () => {
         shortPath: pseudoPath,
         fullName: pseudoName,
         timestamp: extra.timestamp
-          ? new Date(extra.timestamp.getTime() + timeOffset)
+          ? new Date(extra.timestamp.getTime() - timeOffset)
           : undefined,
       };
 
@@ -310,4 +310,3 @@ export const useFileStore = defineStore("file", () => {
     labelFilesCount,
   };
 });
-
