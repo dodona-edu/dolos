@@ -1,10 +1,10 @@
 <script lang="ts" setup>
-import { useRouter } from "@/composables";
 import { UploadReport } from "@/types/uploads/UploadReport";
 import { useVModel } from "@vueuse/core";
 import { computed } from "vue";
 import { useSnackbar } from "../util/snackbar/useSnackbar";
 import { useReportsStore } from "@/stores";
+import { useRouter } from "vue-router";
 
 type Props = {
   open: boolean;

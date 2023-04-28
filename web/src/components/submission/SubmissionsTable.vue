@@ -80,11 +80,10 @@
 <script lang="ts" setup>
 import { storeToRefs } from "pinia";
 import { computed } from "vue";
-import { DataTableHeader } from "vuetify";
 import { useFileStore } from "@/api/stores";
 import { File } from "@/api/models";
-import { useRouter } from "@/composables";
 import { useVModel } from "@vueuse/core";
+import { useRouter } from "vue-router";
 
 interface Props {
   files: File[];
@@ -110,8 +109,8 @@ const { similarities, hasTimestamps, hasLabels } = storeToRefs(fileStore);
 const searchValue = useVModel(props, "search", emit);
 
 // Table headers
-const headers = computed<DataTableHeader[]>(() => {
-  const h = [] as DataTableHeader[];
+const headers = computed(() => {
+  const h = [];
   h.push({
     text: "Submission",
     value: "name",

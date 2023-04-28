@@ -1,5 +1,5 @@
 import { computed, WritableComputedRef } from "vue";
-import { useRoute, useRouter } from "@/composables";
+import { useRouter, useRoute } from "vue-router";
 
 /**
  * Composable for getting/setting a value using a router query.
@@ -10,14 +10,14 @@ export function useRouteQuery<T>(key: string, defaultValue: T, converter?: (v: s
 
   return computed<any>({
     get() {
-      const value = route.value.query[key] as string;
+      const value = route.query[key] as string;
       return (value ? (converter  ? converter(value) : value) : defaultValue) ?? defaultValue;
     },
 
     set(value: string) {
       const newRoute = {
         query: {
-          ...route.value.query,
+          ...route.query,
           [key]: String(value ?? defaultValue),
         }
       } as any;

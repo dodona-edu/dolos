@@ -181,11 +181,12 @@
 import { computed } from "vue";
 import { File } from "@/api/models";
 import { useFileStore, usePairStore } from "@/api/stores";
-import { useCluster, useRoute, useRouter } from "@/composables";
+import { useCluster } from "@/composables";
 import { storeToRefs } from "pinia";
+import { useRoute, useRouter } from "vue-router";
 
 const route = useRoute();
-const fileId = computed(() => route.value.params?.fileId);
+const fileId = computed(() => route.params?.fileId);
 
 const router = useRouter();
 const fileStore = useFileStore();

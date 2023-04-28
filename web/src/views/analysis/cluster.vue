@@ -133,18 +133,14 @@
 <script lang="ts" setup>
 import { useFileStore, usePairStore } from "@/api/stores";
 import { File } from "@/api/models";
-import {
-  useCluster,
-  usePartialLegend,
-  useRoute,
-  useRouter,
-} from "@/composables";
+import { useCluster, usePartialLegend } from "@/composables";
 import { storeToRefs } from "pinia";
 import { computed, shallowRef } from "vue";
+import { useRoute, useRouter } from "vue-router";
 
 const router = useRouter();
 const route = useRoute();
-const clusterId = computed(() => route.value.params?.clusterId);
+const clusterId = computed(() => route.params?.clusterId);
 
 const fileStore = useFileStore();
 const pairStore = usePairStore();

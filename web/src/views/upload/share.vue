@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { onMounted } from "vue";
-import { useRoute, useRouter } from "@/composables";
 import { UploadReport } from "@/types/uploads/UploadReport";
 import { ref } from "vue";
 import { useReportsStore } from "@/stores";
+import { useRoute, useRouter } from "vue-router";
 import axios from "axios";
 
 const router = useRouter();
@@ -13,7 +13,7 @@ const reports = useReportsStore();
 
 // Fetch the report from the server and add it to the
 onMounted(async () => {
-  const reportId = route.value.params.reportId as string;
+  const reportId = route.params.reportId as string;
   // Check if the report id is already present.
   const report = reports.getReportById(reportId);
 

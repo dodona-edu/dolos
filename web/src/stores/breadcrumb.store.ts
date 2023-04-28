@@ -1,6 +1,6 @@
 import { shallowRef } from "vue";
 import { defineStore } from "pinia";
-import { useRouter } from "@/composables";
+import { useRouter } from "vue-router";
 
 /**
  * Store managing breadcrumbs.

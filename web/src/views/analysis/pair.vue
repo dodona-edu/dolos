@@ -31,7 +31,7 @@
 import { shallowRef, onMounted, watchEffect, computed } from "vue";
 import { usePairStore, useMetadataStore } from "@/api/stores";
 import { Pair } from "@/api/models";
-import { useRoute } from "@/composables";
+import { useRoute } from "vue-router";
 
 type Props = {
   pairId?: string;
@@ -39,7 +39,7 @@ type Props = {
 const props = defineProps<Props>();
 
 const route = useRoute();
-const pairId = computed(() => props.pairId ?? route.value.params?.pairId);
+const pairId = computed(() => props.pairId ?? route.params?.pairId);
 
 const pairStore = usePairStore();
 const metadataStore = useMetadataStore();

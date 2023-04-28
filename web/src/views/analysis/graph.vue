@@ -46,7 +46,7 @@ import { storeToRefs } from "pinia";
 import { File } from "@/api/models";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
 import { useFileStore, usePairStore } from "@/api/stores";
-import { useRoute } from "@/composables";
+import { useRoute } from "vue-router";
 
 const route = useRoute();
 const { filesActiveList, legend } = storeToRefs(useFileStore());
@@ -63,7 +63,7 @@ const selectedCluster = shallowRef<Cluster>();
 
 // Should the legend be displayed.
 const showLegend = computed(() => {
-  const { ...colors } = route.value.query;
+  const { ...colors } = route.query;
   return Array.from(Object.values(colors)).length === 0;
 });
 </script>

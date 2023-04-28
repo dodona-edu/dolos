@@ -24,10 +24,9 @@
 
 <script lang="ts" setup>
 import { shallowRef, onMounted, watch } from "vue";
-import { useRouter, useRoute } from "@/composables";
 import { useVModel } from "@vueuse/core";
 import { Pair } from "@/api/models";
-import { DataTableHeader } from "vuetify";
+import { useRoute, useRouter } from "vue-router";
 
 interface Props {
   pairs: Pair[];
@@ -45,7 +44,7 @@ const route = useRoute();
 const searchValue = useVModel(props, "search", emit);
 
 // Table headers
-const headers: DataTableHeader[] = [
+const headers = [
   { text: "Left file", value: "left", sortable: true },
   { text: "Right file", value: "right", sortable: true },
   { text: "Similarity", value: "similarity", filterable: false },
@@ -65,7 +64,7 @@ const items = shallowRef<any[]>([]);
 
 // Calculate the items for the table.
 const calculateItems = (): void => {
-  const str = route.value.query.showIds as string | null;
+  const str = route.query.showIds as string | null;
 
   items.value = props.pairs.map((pair) => ({
     pair,
