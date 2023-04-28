@@ -32,6 +32,7 @@
     "eslint-plugin-vue": "^9.3.0",
     "sass": "^1.60.0",
     "typescript": "^5.0.0",
+    "unplugin-vue-components": "^0.24.1",
     "vite": "^4.2.0",
     "vite-plugin-vuetify": "^1.0.0",
     "vue-tsc": "^1.2.0"

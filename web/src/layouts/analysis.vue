@@ -1,11 +1,11 @@
 <template>
   <div>
-    <navbar
+    <page-navbar
       :drawer.sync="drawer"
       :settings.sync="settings"
       :to="{ name: 'Overview' }"
     />
-    <sidebar v-model="drawer" variant="analysis" />
+    <page-sidebar v-model="drawer" variant="analysis" />
 
     <v-main>
       <v-container class="container">
