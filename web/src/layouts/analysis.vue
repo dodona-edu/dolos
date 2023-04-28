@@ -9,7 +9,7 @@
 
     <v-main>
       <v-container class="container">
-        <slot v-if="isLoaded" />
+        <router-view v-if="isLoaded" />
         <loading v-else :text="loadingText" />
       </v-container>
     </v-main>
@@ -66,9 +66,9 @@
       <v-card-text v-else class="text--secondary">
         The dataset you analyzed did not contain labels. Learn how to add
         metadata
-        <a href="https://dolos.ugent.be/guide/dodona.html" target="_blank"
-          >here</a
-        >.
+        <a href="https://dolos.ugent.be/guide/dodona.html" target="_blank">
+          here
+        </a>.
       </v-card-text>
     </v-navigation-drawer>
   </v-app>
