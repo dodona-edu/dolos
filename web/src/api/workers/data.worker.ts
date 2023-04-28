@@ -8,10 +8,9 @@ import {
   Hash,
 } from "@/api/models";
 import { Fragment as DolosFragment, Options, Index } from "@dodona/dolos-lib";
-import * as Comlink from "comlink";
 
 // Parse a list of Dolos fragments into a list of fragment models.
-function parseFragments(
+export function parseFragments(
   dolosFragments: DolosFragment[],
   kmersMap: Map<Hash, Kgram>
 ): Fragment[] {
@@ -38,7 +37,7 @@ function parseFragments(
 }
 
 // Populate the fragments for a given pair.
-async function populateFragments(
+export async function populateFragments(
   pair: Pair,
   metadata: Metadata,
   kgrams: Kgram[]
@@ -62,11 +61,3 @@ async function populateFragments(
 
   return pair;
 }
-
-const expose = {
-  populateFragments,
-};
-
-Comlink.expose(expose);
-
-export type DataWorker = typeof expose;

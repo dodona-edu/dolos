@@ -2,6 +2,7 @@
 import Vue from "@vitejs/plugin-vue";
 import Vuetify, { transformAssetUrls } from "vite-plugin-vuetify";
 import VueComponents from "unplugin-vue-components/vite";
+import { comlink } from "vite-plugin-comlink";
 
 // Utilities
 import { defineConfig } from "vite";
@@ -10,6 +11,8 @@ import { fileURLToPath, URL } from "node:url";
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
+    // Comlink Plugin.
+    comlink(),
     // Vue Plugin.
     Vue({
       template: { transformAssetUrls },
@@ -28,6 +31,12 @@ export default defineConfig({
       },
     }),
   ],
+  worker: {
+    plugins: [
+      // Comlink Plugin.
+      comlink()
+    ],
+  },
   define: { "process.env": {} },
   resolve: {
     alias: {
