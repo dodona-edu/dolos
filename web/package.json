@@ -12,7 +12,7 @@
   },
   "devDependencies": {
     "@types/d3": "7.4.0",
-    "@types/luxon": "3.2.0",
+    "@types/luxon": "3.3.0",
     "@types/papaparse": "5.3.7",
     "@types/prismjs": "1.26.0",
     "@typescript-eslint/eslint-plugin": "5.58.0",
