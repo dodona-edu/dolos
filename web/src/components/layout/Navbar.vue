@@ -7,7 +7,7 @@
       />
 
       <v-toolbar-title>
-        <router-link v-if="reportName" :to="to"> DOLOS - {{ reportName }} </router-link>
+        <router-link v-if="reportName" :to="to"> DOLOS – {{ reportName }} </router-link>
         <router-link v-else :to="to"> DOLOS </router-link>
       </v-toolbar-title>
 
