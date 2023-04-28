@@ -428,7 +428,7 @@ jobs:
         with:
           token: ${{ secrets.NPM_AUTH_TOKEN }}
           package: ./lib/package.json
-          check-version: true
+          strategy: all
           access: public
 
       - name: Publish @dodona/dolos-web to NPM
@@ -436,7 +436,7 @@ jobs:
         with:
           token: ${{ secrets.NPM_AUTH_TOKEN }}
           package: ./web/package.json
-          check-version: true
+          strategy: all
           access: public
 
       - name: Publish @dodona/dolos to NPM
@@ -444,7 +444,7 @@ jobs:
         with:
           token: ${{ secrets.NPM_AUTH_TOKEN }}
           package: ./cli/package.json
-          check-version: true
+          strategy: all
           access: public
 
   demo:
