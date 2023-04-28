@@ -2,9 +2,10 @@ import { UploadReport } from "@/types/uploads/UploadReport";
 import { useLocalStorage } from "@vueuse/core";
 import { defineStore } from "pinia";
 import { RawLocation } from "vue-router";
-import slugify from "slugify";
-import { computed } from "vue";
+import { computed, onMounted } from "vue";
 import { useRoute } from "@/composables";
+import slugify from "slugify";
+import axios, { AxiosError } from "axios";
 
 export const useReportsStore = defineStore("reports", () => {
   // List of uploaded reports in localstorage.
@@ -32,6 +33,12 @@ export const useReportsStore = defineStore("reports", () => {
 
     // Add the report to the list.
     reports.value.push(report as UploadReport);
+  }
+
+  // Get the status for a given report.
+  async function getReportStatus(report: UploadReport) {
+    const response = await axios.get(report.statusUrl);
+    return response.data;
   }
 
   // Get a report in the list by reportId.
@@ -83,6 +90,26 @@ export const useReportsStore = defineStore("reports", () => {
     return `${process.env.VUE_APP_API_URL}/reports/${reportId}`;
   };
 
+  // Update all report statusses for the succeeded reports.
+  // This is to detect if a report has been archived/deleted.
+  onMounted(async () => {
+    for (const report of reports.value) {
+      if (report.status === "finished") {
+        try {
+          const status = await getReportStatus(report);
+          // Update the report status.
+          report.status = status.status;
+        } catch (error) {
+          const axiosError = error as AxiosError;
+          if (axiosError?.response?.status === 404 || axiosError?.response?.status === 500) {
+            // Set the report status to archived.
+            report.status = "archived";
+          }
+        }
+      }
+    }
+  });
+
   // Attempt to get the current report from the route.
   const route = useRoute();
   const currentReport = computed(() => {
@@ -94,6 +121,7 @@ export const useReportsStore = defineStore("reports", () => {
   return {
     reports,
     addReport,
+    getReportStatus,
     getReportById,
     getReportByReferenceId,
     getReportRouteById,

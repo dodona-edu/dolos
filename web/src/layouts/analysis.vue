@@ -1,5 +1,5 @@
 <template>
-  <v-app>
+  <div>
     <navbar
       :drawer.sync="drawer"
       :settings.sync="settings"
@@ -65,7 +65,7 @@
         </a>.
       </v-card-text>
     </v-navigation-drawer>
-  </v-app>
+  </div>
 </template>
 
 <script lang="ts" setup>

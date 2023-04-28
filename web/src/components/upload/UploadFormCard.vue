@@ -223,10 +223,10 @@ const startPolling = (reportId: string): void => {
     }
 
     try {
-      const response = await axios.get(report.statusUrl);
+      const status = await reports.getReportStatus(report);
 
       // Update the report status.
-      report.status = response.data.status;
+      report.status = status.status;
 
       // Stop the polling when the report status is final.
       if (
@@ -249,7 +249,7 @@ const startPolling = (reportId: string): void => {
         }
 
         if (report.status === "error" || report.status === "failed") {
-          handleError(response.data.error);
+          handleError(status.error);
         }
       }
     } catch (e: any) {
