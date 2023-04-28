@@ -424,27 +424,27 @@ jobs:
           yarn build
 
       - name: Publish @dodona/dolos-lib to NPM
-        uses: JS-DevTools/npm-publish@v1
+        uses: JS-DevTools/npm-publish@v2
         with:
           token: ${{ secrets.NPM_AUTH_TOKEN }}
           package: ./lib/package.json
-          check-version: true
+          strategy: all
           access: public
 
       - name: Publish @dodona/dolos-web to NPM
-        uses: JS-DevTools/npm-publish@v1
+        uses: JS-DevTools/npm-publish@v2
         with:
           token: ${{ secrets.NPM_AUTH_TOKEN }}
           package: ./web/package.json
-          check-version: true
+          strategy: all
           access: public
 
       - name: Publish @dodona/dolos to NPM
-        uses: JS-DevTools/npm-publish@v1
+        uses: JS-DevTools/npm-publish@v2
         with:
           token: ${{ secrets.NPM_AUTH_TOKEN }}
           package: ./cli/package.json
-          check-version: true
+          strategy: all
           access: public
 
   demo:
