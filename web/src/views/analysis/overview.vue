@@ -1,42 +1,54 @@
 <template>
   <v-container fluid>
     <div class="hero">
-      <h2 class="hero-title">DOLOS</h2>
+      <h2 v-if="reportName" class="hero-title">
+        {{ reportName }}
+      </h2>
+      <h2 v-else class="hero-title">Dolos</h2>
       <div class="hero-subtitle text--secondary">
-        Source code plagiarism detection
+        Source code plagiarism detection report
       </div>
     </div>
 
     <v-row>
       <v-col cols="12" md="6" lg="3" class="info-cards">
         <v-card class="info-card">
-          <v-card-title class="pb-0">Submissions</v-card-title>
+          <v-card-title class="pb-0">Report info</v-card-title>
 
           <v-list class="info-list" dense>
-            <v-list-item v-if="currentReport" class="info-list-item">
-              <v-icon>mdi-file-chart</v-icon>
-              <span>{{ currentReport.name }}</span>
-            </v-list-item>
 
-            <v-list-item v-if="currentReport" class="info-list-item">
-              <v-icon>mdi-clock-outline</v-icon>
-              <span>
-                {{
-                  DateTime.fromISO(currentReport.date).toLocaleString(
-                    DateTime.DATETIME_FULL
-                  )
-                }}
-              </span>
-            </v-list-item>
-
-            <v-list-item class="info-list-item">
-              <v-icon>mdi-file-outline</v-icon>
-              <span>{{ filesCount }} submissions</span>
+            <v-list-item v-if="createdAt" class="info-list-item">
+              <v-tooltip top>
+                <template #activator="{ on }">
+                    <v-icon v-on="on">mdi-clock-outline</v-icon>
+                    <span>
+                    {{ DateTime.fromISO(createdAt).toLocaleString(
+                      DateTime.DATETIME_FULL
+                    ) }}
+                  </span>
+                </template>
+                <span>Report creation date</span>
+              </v-tooltip>
             </v-list-item>
 
             <v-list-item class="info-list-item">
-              <v-icon>mdi-xml</v-icon>
-              <span>{{ language }}</span>
+              <v-tooltip top>
+                <template #activator="{ on }">
+                    <v-icon v-on="on">mdi-file-outline</v-icon>
+                    <span>{{ filesCount }} submissions</span>
+                </template>
+                <span>Total count of analyzed submissions</span>
+              </v-tooltip>
+            </v-list-item>
+
+            <v-list-item class="info-list-item">
+                <v-tooltip top>
+                    <template #activator="{ on }">
+                      <v-icon v-on="on">mdi-xml</v-icon>
+                      <span>{{ language }}</span>
+                    </template>
+                    <span>Programming language</span>
+                </v-tooltip>
             </v-list-item>
           </v-list>
 
@@ -230,7 +242,6 @@ import {
   usePairStore,
   useMetadataStore,
 } from "@/api/stores";
-import { useReportsStore } from "@/stores";
 
 const apiStore = useApiStore();
 const fileStore = useFileStore();
@@ -238,7 +249,9 @@ const pairStore = usePairStore();
 const metadataStore = useMetadataStore();
 const { labels, similaritiesList, hasLabels } = storeToRefs(fileStore);
 const { clustering, sortedClustering } = storeToRefs(pairStore);
-const { currentReport } = storeToRefs(useReportsStore());
+
+const reportName = computed(() => metadataStore.metadata?.reportName);
+const createdAt = computed(() => metadataStore.metadata?.createdAt);
 
 // File legend.
 const legendCount = computed(() => labels.value.length);
@@ -316,6 +329,7 @@ const calculateBinColor = (x0: number, x1: number): string => {
   padding-bottom: 1rem;
 
   &-title {
+    text-transform: capitalize;
     font-size: 2.5rem;
   }
 

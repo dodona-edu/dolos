@@ -22,6 +22,10 @@ export function runCommand(program: Command): Command {
     )
     .description("Run an analysis and show the results.")
     .option(
+      "-n, --name <name>",
+      "Resulting name of the report. Dolos tries to pick a sensible name if not given."
+    )
+    .option(
       "-l, --language <language>",
       Utils.indent(
         "Programming language used in the submitted files. Or 'chars' to do " +
@@ -159,6 +163,7 @@ export function runCommand(program: Command): Command {
 }
 
 interface RunOptions extends Options {
+  name: string,
   verbose: boolean
   compare: boolean;
   open: boolean;
@@ -181,6 +186,7 @@ export async function run(locations: string[], options: RunOptions): Promise<voi
 
   await tryCatch(options.verbose, async () => {
     const dolos = new Dolos({
+      reportName: options.name,
       kgramData: options.compare,
       kgramLength: options.kgramLength,
       kgramsInWindow: options.kgramsInWindow,

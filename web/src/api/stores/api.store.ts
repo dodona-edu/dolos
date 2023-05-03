@@ -38,12 +38,14 @@ export const useApiStore = defineStore("api", () => {
     isLoaded.value = false;
 
     // Hydrate all stores (fetch data)
+    loadingText.value = "Fetching & parsing metadata...";
+    await metadataStore.hydrate();
+
     loadingText.value = "Fetching & parsing files...";
     await fileStore.hydrate();
     loadingText.value = "Fetching & parsing k-grams...";
     await kgramStore.hydrate();
-    loadingText.value = "Fetching & parsing metadata...";
-    await metadataStore.hydrate();
+
     loadingText.value = "Fetching & parsing pairs...";
     await pairStore.hydrate();
 

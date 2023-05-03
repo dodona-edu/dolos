@@ -68,7 +68,7 @@
           <v-list-item-title>View by graph</v-list-item-title>
         </v-list-item>
 
-        <v-list-item :to="{ name: 'View by pair' }" link exact>
+        <v-list-item :to="{ name: 'Pairs' }" link exact>
           <v-list-item-icon>
             <v-icon>mdi-file-table-box-multiple-outline</v-icon>
           </v-list-item-icon>

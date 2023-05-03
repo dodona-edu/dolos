@@ -2,7 +2,7 @@
   <v-container fluid fill-height>
     <breadcrumbs
       v-if="!pairStore.hasOnlyOnePair"
-      :previous-fallback="{ text: 'View by pairs', to: { name: 'View by pair' } }"
+      :previous-fallback="{ text: 'View by pairs', to: { name: 'Pairs' } }"
     />
 
     <v-row justify="center">
