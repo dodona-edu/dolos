@@ -91,7 +91,8 @@ export const useReportsStore = defineStore("reports", () => {
   };
 
   async function checkReports() {
-    for (const report of reports.value) {
+    const toCheck = reports.value;
+    for (const report of toCheck) {
       if (report.status === "finished") {
         try {
           const status = await getReportStatus(report);
@@ -106,6 +107,7 @@ export const useReportsStore = defineStore("reports", () => {
         }
       }
     }
+    reports.value = toCheck;
   }
 
   // Update all report statuses for the succeeded reports.
