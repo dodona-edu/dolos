@@ -287,8 +287,8 @@ watch(
 
         <v-alert type="info" text>
             <b>Note:</b> the dataset and the resulting report will be deleted
-            after 30 days. Anyone with the resulting link will be able to view
-            the results of the analysis.
+            after 30 days. Only you and everyone you share the report with will
+            be able to view the results.
         </v-alert>
 
       <v-stepper class="upload-stepper" v-model="step" flat>
