@@ -22,7 +22,6 @@ declare module 'vue' {
     LabelsTable: typeof import('./../components/LabelsTable.vue')['default']
     LabelText: typeof import('./../components/LabelText.vue')['default']
     Navbar: typeof import('./../components/layout/Navbar.vue')['default']
-    OverviewBarchart: typeof import('./../components/overview/OverviewBarchart.vue')['default']
     PageError: typeof import('./../components/layout/PageError.vue')['default']
     PageLoading: typeof import('./../components/layout/PageLoading.vue')['default']
     PairCodeDiff: typeof import('./../components/pair/PairCodeDiff.vue')['default']
