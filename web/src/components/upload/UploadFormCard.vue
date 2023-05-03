@@ -267,11 +267,7 @@ watch(
   () => reports.reports,
   (reports) => {
     for (const report of reports) {
-      if (
-        report.status !== "finished" &&
-        report.status !== "error" &&
-        report.status !== "failed"
-      ) {
+      if (report.status === "queued" || report.status === "running") {
         startPolling(report.reportId);
       }
     }
@@ -288,6 +284,13 @@ watch(
     <v-card-subtitle>Upload a dataset to analyze.</v-card-subtitle>
 
     <v-card-text>
+
+        <v-alert type="info" text>
+            <b>Note:</b> the dataset and the resulting report will be deleted
+            after 30 days. Anyone with the resulting link will be able to view
+            the results of the analysis.
+        </v-alert>
+
       <v-stepper class="upload-stepper" v-model="step" flat>
         <v-stepper-items>
           <v-stepper-content step="1">
@@ -335,11 +338,8 @@ watch(
 
                 <v-col cols="12">
                   <p>
-                    When you upload a dataset, it will be analyzed and you you
-                    will be able to view the results with a secret link. Anyone
-                    with the link to the results will be able to view them, do
-                    not share the link with anyone you do not trust.
-                  </p>
+                    When you upload a dataset, it will be analyzed on our server.
+                    Only you and the people you share the report with will be able to view the analysis results.
                   <p>
                     The dataset and the resulting report will be deleted after
                     30 days.
@@ -370,11 +370,6 @@ watch(
           </v-stepper-content>
 
           <v-stepper-content step="2">
-            <v-alert type="info" text>
-              <b>Note:</b> the dataset and the resulting report will be deleted
-              after 30 days. Anyone with the resulting link will be able to view
-              the results of the analysis.
-            </v-alert>
 
             <span>Uploading file...</span>
 
@@ -398,11 +393,6 @@ watch(
         </v-stepper-items>
 
         <v-stepper-content step="3">
-          <v-alert type="info" text>
-            <b>Note:</b> the dataset and the resulting report will be deleted
-            after 30 days. Anyone with the resulting link will be able to view
-            the results of the analysis.
-          </v-alert>
 
           <span v-if="reportActive?.status === 'queued'">
             Waiting for analysis is to start...
@@ -435,12 +425,6 @@ watch(
         <v-stepper-content step="4">
           <v-alert type="success" border="left" class="flex-grow-1" text>
             Your dataset has been analysed.
-          </v-alert>
-
-          <v-alert type="info" text>
-            <b>Note:</b> the dataset and the resulting report will be deleted
-            after 30 days. Anyone with the resulting link will be able to view
-            the results of the analysis.
           </v-alert>
 
           <v-card-actions class="mt-4 pa-0">

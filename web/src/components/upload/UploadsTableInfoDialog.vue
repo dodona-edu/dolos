@@ -30,7 +30,8 @@ const isDone = computed(
   () =>
     props.report.status === "finished" ||
     props.report.status === "error" ||
-    props.report.status === "failed"
+    props.report.status === "failed" ||
+    props.report.status === "deleted"
 );
 </script>
 
@@ -142,7 +143,7 @@ const isDone = computed(
 
         <v-spacer />
 
-        <!-- Close -->
+        <!-- View results -->
         <v-btn
           :disabled="props.report.status !== 'finished'"
           :to="reportRoute"

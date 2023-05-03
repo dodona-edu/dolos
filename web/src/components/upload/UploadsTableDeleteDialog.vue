@@ -33,13 +33,10 @@ const confirm = async (): Promise<void> => {
 
   try {
     // Attempt to delete the upload.
-    // Only delete the upload if a report id is present.
-    if (props.report.reportId) {
+    // Only delete the upload if a report id is present and the report is not already deleted.
+    if (props.report.reportId && props.report.status !== "deleted") {
       await axios.delete(reports.getReportUrlById(props.report.reportId));
     }
-
-    // Delete the upload from local storage.
-    reports.deleteReportById(props.report.reportId);
 
     // Close the dialog.
     open.value = false;
@@ -50,15 +47,19 @@ const confirm = async (): Promise<void> => {
       color: "success",
       timeout: 5000,
     });
-  } catch (error) {
+  } catch (error: any) {
     // Open error snackbar.
     snackbar.open({
-      message: "Failed to delete report.",
+      message: "Failed to delete report: " + error.message,
       color: "error",
       timeout: 5000,
     });
+    console.log(error);
   } finally {
     loading.value = false;
+
+    // Delete the upload from local storage.
+    reports.deleteReportById(props.report.reportId);
   }
 };
 </script>
@@ -76,7 +77,15 @@ const confirm = async (): Promise<void> => {
         </v-btn>
       </v-card-title>
 
-      <v-card-text>
+      <v-card-text v-if="props.report.status == 'deleted'">
+          <div>Are you sure you want to delete "{{ props.report.name }}" from the list?</div>
+
+          <div>
+            This report has already been deleted from the server. This action cannot be undone.
+          </div>
+      </v-card-text>
+
+      <v-card-text v-else>
         <div>Are you sure you want to delete "{{ props.report.name }}"?</div>
 
         <div>
@@ -84,6 +93,7 @@ const confirm = async (): Promise<void> => {
           cannot be undone.
         </div>
       </v-card-text>
+
 
       <v-card-actions>
         <v-spacer />
