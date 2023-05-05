@@ -37,7 +37,6 @@ import { File } from "@/api/models";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
 import { getClusterElementsArray } from "@/util/clustering-algorithms/ClusterFunctions";
 import { timestampSort } from "@/util/SortingFunctions";
-import { useVuetify } from "@/composables";
 import { useFileStore } from "@/api/stores";
 import { storeToRefs } from "pinia";
 
@@ -50,7 +49,6 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {});
-const vuetify = useVuetify();
 const { hasTimestamps } = storeToRefs(useFileStore());
 
 // List of files in the cluster.
@@ -71,9 +69,10 @@ watch(
   () => {
     if (props.selectedFiles && props.selectedFiles.length > 0 && props.scroll) {
       const file = props.selectedFiles[0];
-      vuetify.goTo(`#file-${file.id}`, {
-        container: ".graph-list-body",
-      });
+      // TODO: find a suitable replacement
+      // vuetify.goTo(`#file-${file.id}`, {
+      //   container: ".graph-list-body",
+      // });
     }
   }
 );

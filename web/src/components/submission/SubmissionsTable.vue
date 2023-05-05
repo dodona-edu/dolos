@@ -4,7 +4,7 @@
     :headers="headers"
     :items="items"
     :search="searchValue"
-    :dense="props.dense"
+    :density="props.dense ? 'compact' : 'comfortable'"
     :hide-default-footer="!props.pagination"
     :disable-pagination="!props.pagination"
     :footer-props="footerProps"
@@ -34,15 +34,15 @@
 
     <template #item.label="{ item }">
       <div class="submission-label">
-        <label-dot :label="item.label.name" :color="item.label.color" />
-        <label-text :label="item.label.name" colored />
+        <label-dot :label="item.raw.label.name" :color="item.raw.label.color" />
+        <label-text :label="item.raw.label.name" colored />
       </div>
     </template>
 
     <template #item.similarity="{ item }">
       <span class="submission-similarity">
         <similarity-display
-          :similarity="item.similarity"
+          :similarity="item.raw.similarity"
           :dense="props.dense"
           progress
           dim-below-cutoff
@@ -58,9 +58,9 @@
               v-if="props.order"
               v-on="on"
               v-bind="attrs"
-              :class="item.order === 1 ? 'primary--text' : 'text--secondary'"
+              :class="item.raw.order === 1 ? 'primary--text' : 'text--secondary'"
             >
-              #{{ item.order }}
+              #{{ item.raw.order }}
             </span>
           </template>
 
@@ -112,16 +112,16 @@ const searchValue = useVModel(props, "search", emit);
 const headers = computed(() => {
   const h = [];
   h.push({
-    text: "Submission",
-    value: "name",
+    title: "Submission",
+    key: "name",
     sortable: props.disableSorting ? false : true,
   });
 
   // Only add the label header if there are labels.
   if (hasLabels.value) {
     h.push({
-      text: "Label",
-      value: "label",
+      title: "Label",
+      key: "label",
       sortable: false,
     });
   }
@@ -129,24 +129,24 @@ const headers = computed(() => {
   // Only add timestamp header when present.
   if (hasTimestamps.value && !props.concise) {
     h.push({
-      text: "Timestamp",
-      value: "timestamp",
+      title: "Timestamp",
+      key: "timestamp",
       sortable: props.disableSorting ? false : true,
       filterable: false,
     });
   }
 
   h.push({
-    text: "Highest similarity",
-    value: "similarity",
+    title: "Highest similarity",
+    key: "similarity",
     sortable: props.disableSorting ? false : true,
     filterable: false,
   });
 
   if (!props.concise) {
     h.push({
-      text: "Lines",
-      value: "lines",
+      title: "Lines",
+      key: "lines",
       sortable: props.disableSorting ? false : true,
       filterable: false,
     });
