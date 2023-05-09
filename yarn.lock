@@ -4662,9 +4662,9 @@ csstype@^3.1.0:
   integrity sha512-I7K1Uu0MBPzaFKg4nI5Q7Vs2t+3gWWW648spaF+Rg7pI9ds18Ugn+lvg4SHczUdKlHI5LWBXyqfS8+DufyBsgQ==
 
 csv-stringify@^6.2.0:
-  version "6.3.2"
-  resolved "https://registry.yarnpkg.com/csv-stringify/-/csv-stringify-6.3.2.tgz#0d5105dcf6f5a6605262d1a008883120684db164"
-  integrity sha512-dD9gfbxNKa5v90NHiE2Qd6F9I52GtJjGTfowwzqiNDZD/+NPW3h19d2Nvv311a8QUW11rYRobco27nvVAnCrLw==
+  version "6.4.0"
+  resolved "https://registry.yarnpkg.com/csv-stringify/-/csv-stringify-6.4.0.tgz#6d006dca9194700e44f9fbc541bee8bbbd4f459c"
+  integrity sha512-HQsw0QXiN5fdlO+R8/JzCZnR3Fqp8E87YVnhHlaPtNGJjt6ffbV0LpOkieIb1x6V1+xt878IYq77SpXHWAqKkA==
 
 currently-unhandled@^0.4.1:
   version "0.4.1"
