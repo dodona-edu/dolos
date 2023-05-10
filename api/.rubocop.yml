@@ -1,0 +1,15 @@
+require: rubocop-rails
+
+AllCops:
+  Exclude:
+    - "db/schema.rb"
+    - "config/**/*"
+    - "bin/**/*"
+    - "data/**/*"
+    - "lib/**/*"
+    - "log/**/*"
+    - "tmp/**/*"
+    - "db/**/*"
+    - "vendor/**/*"
+    - "node_modules/**/*"
+  NewCops: enable
