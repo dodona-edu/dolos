@@ -24,7 +24,7 @@ class ReportsController < ApplicationController
 
   # GET /reports/:id/data/:file
   def data
-    attachment = @report.attachment_by_filename(params[:file] + '.' + params[:format])
+    attachment = @report.attachment_by_filename("#{params[:file]}.#{params[:format]}")
     redirect_to rails_blob_path(attachment, disposition: 'attachment')
   rescue ActiveRecord::RecordNotFound
     render status: :not_found
