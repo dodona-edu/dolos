@@ -31,8 +31,8 @@ class Dataset < ApplicationRecord
   before_create :generate_token
 
   def purge_files!
-    if self.zipfile.attached?
-      self.zipfile.purge
-    end
+    return unless zipfile.attached?
+
+    zipfile.purge
   end
 end

@@ -25,36 +25,36 @@ FactoryBot.define do
     status { :finished }
     dataset
 
-    metadata {
+    metadata do
       {
         io: File.open(Rails.root.join('test', 'files', 'simple-dataset-results', 'metadata.csv')),
-        filename: "metadata.csv",
-        content_type: 'text/csv',
+        filename: 'metadata.csv',
+        content_type: 'text/csv'
       }
-    }
+    end
 
-    pairs {
+    pairs do
       {
         io: File.open(Rails.root.join('test', 'files', 'simple-dataset-results', 'pairs.csv')),
-        filename: "pairs.csv",
-        content_type: 'text/csv',
+        filename: 'pairs.csv',
+        content_type: 'text/csv'
       }
-    }
+    end
 
-    files {
+    files do
       {
         io: File.open(Rails.root.join('test', 'files', 'simple-dataset-results', 'files.csv')),
-        filename: "files.csv",
-        content_type: 'text/csv',
+        filename: 'files.csv',
+        content_type: 'text/csv'
       }
-    }
+    end
 
-    kgrams {
+    kgrams do
       {
         io: File.open(Rails.root.join('test', 'files', 'simple-dataset-results', 'kgrams.csv')),
-        filename: "kgrams.csv",
-        content_type: 'text/csv',
+        filename: 'kgrams.csv',
+        content_type: 'text/csv'
       }
-    }
+    end
   end
 end

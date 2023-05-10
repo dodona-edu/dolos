@@ -32,10 +32,10 @@ class Report < ApplicationRecord
   AUTOMATICALLY_DELETE_AFTER = 30.days
 
   RESULT_FILES = {
-    "metadata.csv" => :metadata,
-    "files.csv" => :files,
-    "kgrams.csv" => :kgrams,
-    "pairs.csv" => :pairs
+    'metadata.csv' => :metadata,
+    'files.csv' => :files,
+    'kgrams.csv' => :kgrams,
+    'pairs.csv' => :pairs
   }.freeze
 
   has_one_attached :metadata
@@ -51,38 +51,36 @@ class Report < ApplicationRecord
   def queue_analysis
     return if finished?
 
-    self.update(status: :queued)
+    update(status: :queued)
     AnalyzeDatasetJob.perform_later(self)
 
     delay(run_at: AUTOMATICALLY_DELETE_AFTER.from_now).purge_files!
   end
 
   def all_files_present?
-    RESULT_FILES.values.all?{ |attachment| self.send(attachment).attached? }
+    RESULT_FILES.values.all? { |attachment| send(attachment).attached? }
   end
 
   def attachment_by_filename(file)
     name = RESULT_FILES[file]
-    if name.nil? || !self.send(name).attached?
-      raise ActiveRecord::RecordNotFound.new('Result file not found')
-    else
-      self.send(name)
-    end
+    raise ActiveRecord::RecordNotFound, 'Result file not found' if name.nil? || !send(name).attached?
+
+    send(name)
   end
 
   def collect_files_from(result_dir)
-    read_programming_language = self.dataset.programming_language.nil?
+    read_programming_language = dataset.programming_language.nil?
 
     RESULT_FILES.map do |file, name|
       path = result_dir.join(file)
-      next if !File.readable?(path)
+      next unless File.readable?(path)
 
       if name == :metadata && read_programming_language
-        lang = CSV.read(path).filter_map{ |k, v, _| v if k == 'language' }.first
-        self.dataset.update(programming_language: lang)
+        lang = CSV.read(path).filter_map { |k, v, _| v if k == 'language' }.first
+        dataset.update(programming_language: lang)
       end
 
-      self.send(name).attach(
+      send(name).attach(
         io: File.open(path),
         filename: file,
         content_type: 'text/csv',
@@ -92,17 +90,15 @@ class Report < ApplicationRecord
   end
 
   def purge_files!
-    return if self.purged?
+    return if purged?
 
     RESULT_FILES.each do |_file, name|
-      attachment = self.send(name)
-      if attachment.attached?
-        attachment.purge
-      end
+      attachment = send(name)
+      attachment.purge if attachment.attached?
     end
 
-    self.dataset.purge_files!
+    dataset.purge_files!
 
-    self.update(status: :purged)
+    update(status: :purged)
   end
 end

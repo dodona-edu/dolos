@@ -1,5 +1,5 @@
 class DatasetsController < ApplicationController
-  before_action :set_dataset, only: %i[ show analyze destroy ]
+  before_action :set_dataset, only: %i[show analyze destroy]
 
   # GET /datasets/1
   def show
@@ -23,13 +23,14 @@ class DatasetsController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_dataset
-      @dataset = Dataset.find(params[:id])
-    end
 
-    # Only allow a list of trusted parameters through.
-    def dataset_params
-      params.require(:dataset).permit(:zipfile, :name, :programming_language)
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_dataset
+    @dataset = Dataset.find(params[:id])
+  end
+
+  # Only allow a list of trusted parameters through.
+  def dataset_params
+    params.require(:dataset).permit(:zipfile, :name, :programming_language)
+  end
 end

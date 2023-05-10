@@ -20,7 +20,7 @@
 #  index_reports_on_dataset_id  (dataset_id)
 #  index_reports_on_token       (token)
 #
-require "test_helper"
+require 'test_helper'
 
 class ReportTest < ActiveSupport::TestCase
   setup do
@@ -28,13 +28,13 @@ class ReportTest < ActiveSupport::TestCase
     @dataset = @report.dataset
   end
 
-  test "purge_files should remove all attached files, but keep records" do
+  test 'purge_files should remove all attached files, but keep records' do
     @report.purge_files!
 
     @report.reload
     @dataset.reload
 
-    assert_equal @report.status, "purged"
+    assert_equal @report.status, 'purged'
 
     assert_not @report.all_files_present?
 
@@ -47,16 +47,16 @@ class ReportTest < ActiveSupport::TestCase
     assert_not @dataset.zipfile.attached?
   end
 
-  test "calling purge_files multiple times should not crash" do
+  test 'calling purge_files multiple times should not crash' do
     @report.purge_files!
 
     @report.reload
     @dataset.reload
 
-    assert_equal @report.status, "purged"
+    assert_equal @report.status, 'purged'
 
     @report.purge_files!
 
-    assert_equal @report.status, "purged"
+    assert_equal @report.status, 'purged'
   end
 end

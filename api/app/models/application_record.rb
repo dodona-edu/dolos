@@ -5,12 +5,12 @@ class ApplicationRecord < ActiveRecord::Base
   before_create :generate_id
 
   # since id's are generated randomly, we need this to make `.last` work again
-  self.implicit_order_column = "created_at"
+  self.implicit_order_column = 'created_at'
 
   def generate_id
     begin
       # Rails uses BigInt by default for id's
-      new = SecureRandom.random_number((2**32)..(2**63 - 1))
+      new = SecureRandom.random_number((2**32)..((2**63) - 1))
     end until !self.class.exists?(id: new)
     self.id = new
   end

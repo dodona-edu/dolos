@@ -6,9 +6,9 @@ require 'docker'
 class AnalyzeDatasetJob < ApplicationJob
   queue_as :default
 
-  TMPDIR_PATH = "/tmp".freeze
-  OUTPUT_DIRNAME = "result".freeze
-  DOLOS_IMAGE = "ghcr.io/dodona-edu/dolos:latest".freeze
+  TMPDIR_PATH = '/tmp'.freeze
+  OUTPUT_DIRNAME = 'result'.freeze
+  DOLOS_IMAGE = 'ghcr.io/dodona-edu/dolos:latest'.freeze
   TIMEOUT = 60.seconds
   MEMORY_LIMIT = 2_000_000_000
   OUTPUT_LIMIT = 65_000
@@ -45,16 +45,16 @@ class AnalyzeDatasetJob < ApplicationJob
 
   def execute(zipfile_path)
     cmd = [
-        '-V', # enable verbose errors
-        '-f', 'csv',
-        '-o', OUTPUT_DIRNAME,
-        '/input.zip'
+      '-V', # enable verbose errors
+      '-f', 'csv',
+      '-o', OUTPUT_DIRNAME,
+      '/input.zip'
     ]
-    cmd += [ '-l', @dataset.programming_language ] if @dataset.programming_language.present?
+    cmd += ['-l', @dataset.programming_language] if @dataset.programming_language.present?
     docker_options = {
       Cmd: cmd,
       Image: DOLOS_IMAGE,
-      name: "dolos-#{ @report.id }",
+      name: "dolos-#{@report.id}",
       NetworkDisabled: true,
       HostConfig: {
         Memory: MEMORY_LIMIT,
@@ -93,7 +93,7 @@ class AnalyzeDatasetJob < ApplicationJob
       end
       # rubocop:enable Lint/SuppressedException
       # We also still change the name, because the removal can fail as well.
-      docker_options[:name] = "dolos-#{ @report.id }-retry"
+      docker_options[:name] = "dolos-#{@report.id}-retry"
       retry
     end
 
@@ -139,11 +139,11 @@ class AnalyzeDatasetJob < ApplicationJob
     container.delete
 
     @report.update(
-      stdout:,
-      stderr:,
-      exit_status:,
-      memory:,
-      run_time: (after_time - before_time),
+      stdout: stdout,
+      stderr: stderr,
+      exit_status: exit_status,
+      memory: memory,
+      run_time: (after_time - before_time)
     )
 
     @report.collect_files_from(@output_dir)

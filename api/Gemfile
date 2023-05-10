@@ -1,53 +1,53 @@
-source "https://rubygems.org"
+source 'https://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
-ruby "3.2.2"
+ruby '3.2.2'
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
-gem "rails", "~> 7.0.4"
+gem 'rails', '~> 7.0.4'
 
 # Use mysql as the database for Active Record
-gem "mysql2", "~> 0.5"
+gem 'mysql2', '~> 0.5'
 
 # Use the Puma web server [https://github.com/puma/puma]
-gem "puma", "~> 5.0"
+gem 'puma', '~> 5.0'
 
 # Process ZIP archives
-gem "rubyzip", "~> 2.3"
+gem 'rubyzip', '~> 2.3'
 
 # Validate ActiveStorage attachments
-gem "active_storage_validations", "~> 0.9"
+gem 'active_storage_validations', '~> 0.9'
 
 # interfacing with docker
 gem 'docker-api', '~> 2.2.0'
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
-gem "tzinfo-data", platforms: %i[ mingw mswin x64_mingw jruby ]
+gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
 
 # Reduces boot times through caching; required in config/boot.rb
-gem "bootsnap", require: false
+gem 'bootsnap', require: false
 
 # Use Delayed Job for background jobs
-gem "delayed_job_active_record"
+gem 'delayed_job_active_record'
 
 # CORS middleware
-gem "rack-cors"
+gem 'rack-cors'
 
 # Use ActiveModelSerializer for serializing to JSON
-gem "active_model_serializers", "~> 0.10"
+gem 'active_model_serializers', '~> 0.10'
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
-  gem "debug", platforms: %i[ mri mingw x64_mingw ]
+  gem 'debug', platforms: %i[mri mingw x64_mingw]
 
   # Factory bot for testing factories
-  gem "factory_bot_rails", "~> 6.2.0"
+  gem 'factory_bot_rails', '~> 6.2.0'
 
   # Faker for generating test data
-  gem "faker", "~> 2.22.0"
+  gem 'faker', '~> 2.22.0'
 
   # Stubbing and mocking
-  gem "mocha", "~> 1.14.0"
+  gem 'mocha', '~> 1.14.0'
 end
 
 group :development do
