@@ -27,7 +27,7 @@ FactoryBot.define do
 
     metadata do
       {
-        io: Rails.root.join('test', 'files', 'simple-dataset-results', 'metadata.csv').open,
+        io: Rails.root.join('test/files/simple-dataset-results/metadata.csv').open,
         filename: 'metadata.csv',
         content_type: 'text/csv'
       }
@@ -35,7 +35,7 @@ FactoryBot.define do
 
     pairs do
       {
-        io: Rails.root.join('test', 'files', 'simple-dataset-results', 'pairs.csv').open,
+        io: Rails.root.join('test/files/simple-dataset-results/pairs.csv').open,
         filename: 'pairs.csv',
         content_type: 'text/csv'
       }
@@ -43,7 +43,7 @@ FactoryBot.define do
 
     files do
       {
-        io: Rails.root.join('test', 'files', 'simple-dataset-results', 'files.csv').open,
+        io: Rails.root.join('test/files/simple-dataset-results/files.csv').open,
         filename: 'files.csv',
         content_type: 'text/csv'
       }
@@ -51,7 +51,7 @@ FactoryBot.define do
 
     kgrams do
       {
-        io: Rails.root.join('test', 'files', 'simple-dataset-results', 'kgrams.csv').open,
+        io: Rails.root.join('test/files/simple-dataset-results/kgrams.csv').open,
         filename: 'kgrams.csv',
         content_type: 'text/csv'
       }

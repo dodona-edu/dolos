@@ -19,7 +19,7 @@ FactoryBot.define do
     name { Faker::Lorem.words(number: 3).join(' ') }
     zipfile do
       {
-        io: Rails.root.join('test', 'files', 'simple-dataset.zip').open,
+        io: Rails.root.join('test/files/simple-dataset.zip').open,
         filename: 'simple-dataset.zip',
         content_type: 'application/zip'
       }

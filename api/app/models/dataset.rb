@@ -21,7 +21,7 @@ class Dataset < ApplicationRecord
   token_generator :token
 
   has_one_attached :zipfile
-  has_many :reports
+  has_many :reports, dependent: :destroy
 
   validates :zipfile,
             attached: true,
