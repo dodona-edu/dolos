@@ -54,7 +54,8 @@ class Report < ApplicationRecord
     update(status: :queued)
     AnalyzeDatasetJob.perform_later(self)
 
-    delay(run_at: AUTOMATICALLY_DELETE_AFTER.from_now).purge_files!
+    # Automatic cleanup is currently disabled
+    # delay(run_at: AUTOMATICALLY_DELETE_AFTER.from_now).purge_files!
   end
 
   def all_files_present?
