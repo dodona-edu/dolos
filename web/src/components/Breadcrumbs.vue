@@ -43,10 +43,13 @@ const { previousPage } = storeToRefs(breadcrumbs);
 const items = computed(() => {
   const items: BreadcrumbItem[] = [];
 
-  if (previousPage.value) {
+  const prev = previousPage.value?.name;
+
+  if (prev) {
     items.push({
       exact: true,
-      ...previousPage.value,
+      text: prev,
+      to: { name: prev },
     });
   } else if (props.previousFallback) {
     items.push({
@@ -58,11 +61,11 @@ const items = computed(() => {
   if (route.value) {
     items.push({
       text: props.currentOverride?.text ?? route.value.name ?? "#",
-      to: props.currentOverride?.to ?? route.value.path,
+      to: props.currentOverride?.to,
       disabled: true,
     });
   }
-
+  
   return items;
 });
 
