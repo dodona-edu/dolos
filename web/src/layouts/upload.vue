@@ -1,14 +1,14 @@
 <template>
-  <v-app>
+  <div>
     <navbar :drawer.sync="drawer" :to="{ name: 'Upload' }" />
     <sidebar v-model="drawer" variant="upload" />
 
     <v-main>
       <v-container class="container">
-        <slot />
+        <router-view />
       </v-container>
     </v-main>
-  </v-app>
+  </div>
 </template>
 
 <script lang="ts" setup>

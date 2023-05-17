@@ -1,5 +1,5 @@
 <template>
-  <v-app>
+  <div>
     <navbar
       :drawer.sync="drawer"
       :settings.sync="settings"
@@ -9,8 +9,9 @@
 
     <v-main>
       <v-container class="container">
-        <slot v-if="isLoaded" />
-        <loading v-else :text="loadingText" />
+        <page-loading v-if="loading" :text="loadingText" />
+        <page-error v-else-if="error" :error="error" />
+        <router-view v-else />
       </v-container>
     </v-main>
 
@@ -27,8 +28,7 @@
             have to be considered plagiarised.
           </span>
         </div>
-        <similarity-setting v-if="isLoaded" compact />
-        <v-skeleton-loader v-else type="heading" />
+        <similarity-setting compact />
       </v-card-text>
 
       <v-card-text>
@@ -42,7 +42,6 @@
 
         <v-switch
           v-model="isAnonymous"
-          :disabled="!isLoaded"
           :label="isAnonymous ? 'Enabled' : 'Disabled'"
           inset
         />
@@ -57,21 +56,16 @@
         </div>
       </v-card-text>
 
-      <v-skeleton-loader
-        v-if="!isLoaded"
-        class="px-4"
-        type="table-row-divider@4"
-      />
-      <labels-table v-else-if="hasLabels" class="settings-labels" />
+      <labels-table v-if="hasLabels" class="settings-labels" />
       <v-card-text v-else class="text--secondary">
         The dataset you analyzed did not contain labels. Learn how to add
         metadata
-        <a href="https://dolos.ugent.be/guide/dodona.html" target="_blank"
-          >here</a
-        >.
+        <a href="https://dolos.ugent.be/guide/dodona.html" target="_blank">
+          here
+        </a>.
       </v-card-text>
     </v-navigation-drawer>
-  </v-app>
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -84,7 +78,7 @@ import { useBreadcrumbStore } from "@/stores";
 const breakpoints = useBreakpoints();
 const api = useApiStore();
 const files = useFileStore();
-const { isLoaded, isAnonymous, loadingText } = storeToRefs(api);
+const { loading, error, isAnonymous, loadingText } = storeToRefs(api);
 const { hasLabels } = storeToRefs(files);
 
 // If the drawer is open/closed.

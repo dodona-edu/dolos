@@ -15,86 +15,69 @@ const analysisPathPrefix =
 
 const routes: Array<RouteConfig> = [
   {
-    path: `${analysisPathPrefix}/`,
-    name: "Overview",
-    components: {
-      default: () => import("../views/analysis/index.vue"),
-      layout: AnalysisLayout,
-    }
-  },
-  {
-    path: `${analysisPathPrefix}/pairs`,
-    name: "Pairs",
-    components: {
-      default: () => import("../views/analysis/pairs.vue"),
-      layout: AnalysisLayout,
-    }
-  },
-  {
-    path: `${analysisPathPrefix}/pairs/:pairId`,
-    name: "Pair",
-    components: {
-      default: () => import("../views/analysis/pair.vue"),
-      layout: AnalysisLayout,
-    },
-  },
-  {
-    path: `${analysisPathPrefix}/submissions/`,
-    name: "Submissions",
-    components: {
-      default: () => import("../views/analysis/submissions.vue"),
-      layout: AnalysisLayout,
-    },
-  },
-  {
-    path: `${analysisPathPrefix}/submissions/:fileId`,
-    name: "Submission",
-    components: {
-      default: () => import("../views/analysis/submission.vue"),
-      layout: AnalysisLayout,
-    },
-  },
-  {
-    path: `${analysisPathPrefix}/graph`,
-    name: "Graph",
-    components: {
-      default: () => import("../views/analysis/graph.vue"),
-      layout: AnalysisLayout,
-    },
-  },
-  {
-    path: `${analysisPathPrefix}/clusters`,
-    name: "Clusters",
-    components: {
-      default: () => import("../views/analysis/clusters.vue"),
-      layout: AnalysisLayout,
-    },
-  },
-  {
-    path: `${analysisPathPrefix}/clusters/:clusterId`,
-    name: "Cluster",
-    components: {
-      default: () => import("../views/analysis/cluster.vue"),
-      layout: AnalysisLayout,
-    },
+    path: analysisPathPrefix,
+    name: "AnalysisMode",
+    component: AnalysisLayout,
+    children: [
+      {
+        path: "/",
+        name: "Overview",
+        component: () => import("../views/analysis/overview.vue"),
+      },
+      {
+        path: "/pairs",
+        name: "Pairs",
+        component: () => import("../views/analysis/pairs.vue"),
+      },
+      {
+        path: "/pairs/:pairId",
+        name: "Pair",
+        component: () => import("../views/analysis/pair.vue"),
+      },
+      {
+        path: "/submissions",
+        name: "Submissions",
+        component: () => import("../views/analysis/submissions.vue"),
+      },
+      {
+        path: "/submissions/:fileId",
+        name: "Submission",
+        component: () => import("../views/analysis/submission.vue"),
+      },
+      {
+        path: "/graph",
+        name: "Graph",
+        component: () => import("../views/analysis/graph.vue"),
+      },
+      {
+        path: "/clusters",
+        name: "Clusters",
+        component: () => import("../views/analysis/clusters.vue"),
+      },
+      {
+        path: "/clusters/:clusterId",
+        name: "Cluster",
+        component: () => import("../views/analysis/cluster.vue"),
+      },
+    ],
   },
 
   {
-    path: `${uploadPathPrefix}/`,
-    name: "Upload",
-    components: {
-      default: () => import("../views/upload/upload.vue"),
-      layout: UploadLayout,
-    },
-  },
-
-  {
-    path: `${uploadPathPrefix}/share/:reportId`,
-    name: "Share",
-    components: {
-      default: () => import("../views/upload/share.vue"),
-      layout: UploadLayout,
-    },
+    path: uploadPathPrefix,
+    name: "UploadMode",
+    component: UploadLayout,
+    children: [
+      {
+        path: "/",
+        name: "Upload",
+        component: () => import("../views/upload/upload.vue"),
+      },
+      {
+        path: "/share/:reportId",
+        name: "Share",
+        component: () => import("../views/upload/share.vue"),
+      },
+    ],
   },
 
   {

@@ -50,26 +50,7 @@ onMounted(async () => {
 
 <template>
   <div>
-    <div v-if="error" class="share-error">
-      <h2>Oops! Something went wrong.</h2>
-      <p>{{ error }}</p>
-    </div>
-    <Loading v-else text="Fetching report..." />
+    <page-error v-if="error" :error="error" />
+    <page-loading v-else text="Fetching report..." />
   </div>
 </template>
-
-<style lang="scss" scoped>
-.share-error {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  width: 100%;
-  margin-top: 4rem;
-
-  h2 {
-    margin-top: 2rem;
-  }
-}
-</style>

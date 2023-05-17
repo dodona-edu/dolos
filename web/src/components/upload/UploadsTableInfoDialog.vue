@@ -30,7 +30,8 @@ const isDone = computed(
   () =>
     props.report.status === "finished" ||
     props.report.status === "error" ||
-    props.report.status === "failed"
+    props.report.status === "failed" ||
+    props.report.status === "deleted"
 );
 </script>
 
@@ -107,6 +108,16 @@ const isDone = computed(
         </v-card-text>
       </template>
 
+      <!-- Status: Deleted -->
+      <template v-else-if="props.report.status === 'deleted'">
+        <v-card-text>
+          <v-alert type="warning" text class="mt-2 mb-0">
+            This report has been deleted on the server and is no longer available.<br />
+            Old reports are automatically deleted after 30 days to save storage space.
+          </v-alert>
+        </v-card-text>
+      </template>
+
       <v-card-actions>
         <!-- Delete -->
         <v-btn
@@ -132,7 +143,7 @@ const isDone = computed(
 
         <v-spacer />
 
-        <!-- Close -->
+        <!-- View results -->
         <v-btn
           :disabled="props.report.status !== 'finished'"
           :to="reportRoute"

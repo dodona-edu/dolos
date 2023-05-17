@@ -1,5 +1,5 @@
 <template>
-  <div class="loading">
+  <div class="page-loading">
     <v-progress-circular indeterminate color="primary" size="130" width="6" />
     <h2>{{ props.text }}</h2>
   </div>
@@ -16,7 +16,7 @@ const props = withDefaults(defineProps<Props>(), {
 </script>
 
 <style lang="scss" scoped>
-.loading {
+.page-loading {
   display: flex;
   flex-direction: column;
   align-items: center;
