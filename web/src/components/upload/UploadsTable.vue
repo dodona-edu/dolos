@@ -38,7 +38,8 @@ const items = computed(() =>
     done:
       report.status === "error" ||
       report.status === "failed" ||
-      report.status === "finished",
+      report.status === "finished" ||
+      report.status === "deleted",
   }))
 );
 

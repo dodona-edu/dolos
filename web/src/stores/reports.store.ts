@@ -2,9 +2,10 @@ import { UploadReport } from "@/types/uploads/UploadReport";
 import { useLocalStorage } from "@vueuse/core";
 import { defineStore } from "pinia";
 import { RawLocation } from "vue-router";
-import slugify from "slugify";
-import { computed } from "vue";
+import { computed, onMounted } from "vue";
 import { useRoute } from "@/composables";
+import slugify from "slugify";
+import axios, { AxiosError } from "axios";
 
 export const useReportsStore = defineStore("reports", () => {
   // List of uploaded reports in localstorage.
@@ -32,6 +33,12 @@ export const useReportsStore = defineStore("reports", () => {
 
     // Add the report to the list.
     reports.value.push(report as UploadReport);
+  }
+
+  // Get the status for a given report.
+  async function getReportStatus(report: UploadReport) {
+    const response = await axios.get(report.statusUrl);
+    return response.data;
   }
 
   // Get a report in the list by reportId.
@@ -83,6 +90,30 @@ export const useReportsStore = defineStore("reports", () => {
     return `${process.env.VUE_APP_API_URL}/reports/${reportId}`;
   };
 
+  async function checkReports() {
+    const toCheck = reports.value;
+    for (const report of toCheck) {
+      if (report.status === "finished") {
+        try {
+          const status = await getReportStatus(report);
+          // Update the report status.
+          report.status = status.status;
+        } catch (error) {
+          const axiosError = error as AxiosError;
+          if (axiosError?.response?.status === 404 || axiosError?.response?.status === 500) {
+            // Set the report status to deleted.
+            report.status = "deleted";
+          }
+        }
+      }
+    }
+    reports.value = toCheck;
+  }
+
+  // Update all report statuses for the succeeded reports.
+  // This is to detect if a report has been deleted.
+  onMounted(async () => await checkReports());
+
   // Attempt to get the current report from the route.
   const route = useRoute();
   const currentReport = computed(() => {
@@ -94,8 +125,8 @@ export const useReportsStore = defineStore("reports", () => {
   return {
     reports,
     addReport,
+    getReportStatus,
     getReportById,
-    getReportByReferenceId,
     getReportRouteById,
     getReportShareRouteById,
     deleteReportById,
