@@ -286,9 +286,8 @@ watch(
     <v-card-text>
 
         <v-alert type="info" text>
-            <b>Note:</b> the dataset and the resulting report will be deleted
-            after 30 days. Only you and everyone you share the report with will
-            be able to view the results.
+            Datasets and reports older than 30 days may be deleted from our server to save space.
+            You can always delete the data yourself.
         </v-alert>
 
       <v-stepper class="upload-stepper" v-model="step" flat>
@@ -308,6 +307,9 @@ watch(
                     :rules="fileRules"
                     :truncate-length="80"
                     :show-size="1000"
+                    persistent-hint
+                    hint="We currently only support a ZIP-file with a mandatory
+                    info.csv file listing the files to analyze."
                     prepend-icon=""
                     prepend-inner-icon="$file"
                     accept="zip, application/zip"
@@ -340,9 +342,6 @@ watch(
                   <p>
                     When you upload a dataset, it will be analyzed on our server.
                     Only you and the people you share the report with will be able to view the analysis results.
-                  <p>
-                    The dataset and the resulting report will be deleted after
-                    30 days.
                   </p>
                   <v-checkbox
                     v-model="accept"
