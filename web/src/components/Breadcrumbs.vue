@@ -58,7 +58,7 @@ const items = computed(() => {
   if (route.value) {
     items.push({
       text: props.currentOverride?.text ?? route.value.name ?? "#",
-      to: props.currentOverride?.location ?? route.value.path,
+      to: props.currentOverride?.to ?? route.value.path,
       disabled: true,
     });
   }
@@ -68,7 +68,7 @@ const items = computed(() => {
 
 // Back navigation
 const backItem = computed(() => {
-  return items.value[items.value.length - 2].location;
+  return items.value[items.value.length - 2].to;
 });
 </script>
 
