@@ -1,0 +1,7 @@
+log/
+storage/
+tmp/
+.git
+.direnv
+.idea
+

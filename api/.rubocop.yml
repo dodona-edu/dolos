@@ -1,0 +1,83 @@
+require: rubocop-rails
+
+AllCops:
+  Exclude:
+    - "db/schema.rb"
+    - "config/**/*"
+    - "bin/**/*"
+    - "data/**/*"
+    - "lib/**/*"
+    - "log/**/*"
+    - "tmp/**/*"
+    - "db/**/*"
+    - "vendor/**/*"
+    - "node_modules/**/*"
+  NewCops: enable
+
+Layout/FirstArrayElementIndentation:
+  EnforcedStyle: consistent
+Layout/FirstHashElementIndentation:
+  EnforcedStyle: consistent
+Layout/LineLength:
+  Enabled: false
+
+Lint/DuplicateBranch:
+  Enabled: false
+Lint/EmptyBlock:
+  Enabled: false
+Lint/Loop:
+  Enabled: false
+
+Metrics/AbcSize:
+  Enabled: false
+Metrics/BlockLength:
+  Enabled: false
+Metrics/BlockNesting:
+  Max: 4
+Metrics/ClassLength:
+  Enabled: false
+Metrics/CyclomaticComplexity:
+  Enabled: false
+Metrics/MethodLength:
+  Enabled: false
+Metrics/ModuleLength:
+  Enabled: false
+Metrics/PerceivedComplexity:
+  Enabled: false
+
+Naming/HeredocDelimiterNaming:
+  Enabled: false
+Naming/MethodParameterName:
+  Enabled: false
+
+Rails/Date:
+  Enabled: false
+Rails/HelperInstanceVariable:
+  Enabled: false
+Rails/OutputSafety:
+  Enabled: false
+Rails/SkipsModelValidations:
+  AllowedMethods:
+    - touch
+Rails/UnknownEnv:
+  Environments:
+    - development
+    - test
+    - production
+
+Style/ClassAndModuleChildren:
+  Enabled: false
+Style/Documentation:
+  Enabled: false
+Style/FormatStringToken:
+  EnforcedStyle: annotated
+Style/FrozenStringLiteralComment:
+  Enabled: false
+Style/MultilineBlockChain:
+  Enabled: false
+Style/NumericPredicate:
+  Enabled: false
+Style/OptionalBooleanParameter:
+  Enabled: false
+Style/HashSyntax:
+  EnforcedShorthandSyntax: never
