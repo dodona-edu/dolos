@@ -24,7 +24,7 @@
     "@vue/cli-plugin-typescript": "5.0.8",
     "@vue/cli-service": "5.0.8",
     "@vue/eslint-config-standard": "8.0.1",
-    "@vue/eslint-config-typescript": "11.0.2",
+    "@vue/eslint-config-typescript": "11.0.3",
     "assert": "2.0.0",
     "core-js": "3.30.1",
     "eslint": "8.39.0",
