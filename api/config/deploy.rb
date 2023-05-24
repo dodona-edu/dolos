@@ -2,7 +2,8 @@
 lock "~> 3.17.1"
 
 set :application, "dolos"
-set :repo_url, "git@github.com:dodona-edu/dolos-api.git"
+set :repo_url, "git@github.com:dodona-edu/dolos.git"
+set :repo_tree, "api"
 
 # Default branch is :master
 # ask :branch, `git rev-parse --abbrev-ref HEAD`.chomp
