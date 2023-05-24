@@ -40,7 +40,6 @@ class AnalyzeDatasetJob < ApplicationJob
 
     @mount = Pathname.new Dir.mktmpdir(nil, @mac ? TMPDIR_PATH : nil)
     @output_dir = @mount.join(OUTPUT_DIRNAME)
-    @output_dir.mkdir
   end
 
   def execute(zipfile_path)
