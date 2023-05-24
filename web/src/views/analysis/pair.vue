@@ -2,6 +2,7 @@
   <v-container fluid fill-height>
     <breadcrumbs
       v-if="!pairStore.hasOnlyOnePair"
+      :current-override="{ text: `${pair.leftFile.shortPath} & ${pair.rightFile.shortPath}` }"
       :previous-fallback="{ text: 'View by pairs', to: { name: 'Pairs' } }"
     />
 
