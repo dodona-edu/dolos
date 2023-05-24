@@ -7,6 +7,7 @@ class AnalyzeDatasetJobTest < ActiveJob::TestCase
 
   test 'run analyze dataset job' do
     AnalyzeDatasetJob.perform_now(@report)
+    assert_empty @report.stderr
     assert_nil @report.error
     assert_equal 'finished', @report.status
     assert @report.all_files_present?
