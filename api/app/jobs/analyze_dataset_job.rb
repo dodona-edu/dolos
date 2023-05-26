@@ -47,6 +47,7 @@ class AnalyzeDatasetJob < ApplicationJob
       '-V', # enable verbose errors
       '-f', 'csv',
       '-o', OUTPUT_DIRNAME,
+      '-n', @dataset.name,
       '/input.zip'
     ]
     cmd += ['-l', @dataset.programming_language] if @dataset.programming_language.present?
