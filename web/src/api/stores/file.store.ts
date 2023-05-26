@@ -236,7 +236,7 @@ export const useFileStore = defineStore("file", () => {
 
   // Anonymize the data.
   function anonymize(): void {
-    apiStore.loading = false;
+    apiStore.loading = true;
     apiStore.loadingText = "Anonymizing files...";
     const isAnonymous = apiStore.isAnonymous;
 
@@ -269,7 +269,7 @@ export const useFileStore = defineStore("file", () => {
       filesById.value = { ...filesById.value };
       pairStore.pairs = { ...pairStore.pairs };
       legend.value = { ...legend.value };
-      apiStore.loading = true;
+      apiStore.loading = false;
     });
   }
 
