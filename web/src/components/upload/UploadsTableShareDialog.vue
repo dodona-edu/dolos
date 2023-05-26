@@ -28,7 +28,7 @@ const snackbar = useSnackbar();
 const shareUrl = computed(() => {
   const sharePath = router.resolve(reportShareRoute.value).href;
 
-  const url = new URL(sharePath, window.location.origin);
+  const url = new URL(sharePath, window.location.href);
   return url.toString();
 });
 
