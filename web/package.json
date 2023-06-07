@@ -4,6 +4,7 @@
   "version": "2.2.2",
   "main": "dist/index.html",
   "scripts": {
+    "dev": "vue-cli-service serve",
     "serve": "vue-cli-service serve",
     "serve:server": "VUE_APP_MODE=server vue-cli-service serve",
     "build": "vue-cli-service build",
