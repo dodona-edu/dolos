@@ -12,7 +12,7 @@ This analysis was performed on submissions for the same exercise: once as a grad
 <div class="row">
 <div class="column center">
 
-## Test assignment
+### Test assignment
 
 [![Plagiarism graph of the submissions for a programming exercise on a test](/images/demo-evaluation-graph.png)](https://dolos.ugent.be/demo/pyramidal-constants/evaluation/)
 
@@ -26,7 +26,7 @@ Analysis performed on all 169 submissions for a test assignment where no communi
 </div>
 <div class="column">
 
-## Mandatory assignment
+### Mandatory assignment
 
 [![Plagiarism graph of submissions for a mandatory programming exercise where collaboration is allowed](/images/demo-exercise-graph.png)](https://dolos.ugent.be/demo/pyramidal-constants/exercise/)
 
@@ -51,7 +51,7 @@ Note that these labels were added manually by experts, but they might not be ful
 <div class="row">
 <div class="column center">
 
-## Java
+### Java
 
 [![Plagiarism graph of the Java files in the SOCO dataset](/images/soco-java-graph.png)](https://dolos.ugent.be/demo/soco/java/#/graph)
 
@@ -64,7 +64,7 @@ A set of 259 Java files, of which 115 files are labeled as plagiarism.
 </div>
 <div class="column">
 
-## C
+### C
 
 [![Plagiarism graph of the C files in the SOCO dataset](/images/soco-c-graph.png)](https://dolos.ugent.be/demo/soco/c/#/graph)
 
