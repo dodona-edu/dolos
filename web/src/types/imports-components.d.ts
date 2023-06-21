@@ -28,6 +28,7 @@ declare module 'vue' {
     PageError: typeof import('./../components/layout/PageError.vue')['default']
     PageLoading: typeof import('./../components/layout/PageLoading.vue')['default']
     PageNavbar: typeof import('./../components/layout/PageNavbar.vue')['default']
+    PageSettings: typeof import('./../components/layout/PageSettings.vue')['default']
     PageSidebar: typeof import('./../components/layout/PageSidebar.vue')['default']
     PairCodeDiff: typeof import('./../components/pair/PairCodeDiff.vue')['default']
     PairCodeFileInfo: typeof import('./../components/pair/PairCodeFileInfo.vue')['default']

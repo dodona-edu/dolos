@@ -42,7 +42,7 @@
         <span>Share this report</span>
       </v-tooltip>
 
-      <v-tooltip location="botton">
+      <v-tooltip location="bottom">
         <template #activator="{ props }">
           <v-btn
             v-if="settings !== undefined"
