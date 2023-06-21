@@ -84,7 +84,7 @@ const labelColor = computed(
 
     &-title {
       font-weight: bold;
-      color: var(--v-primary-base);
+      color: rgb(var(--v-theme-primary));
     }
 
     &-subtitle {

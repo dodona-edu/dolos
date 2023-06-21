@@ -65,8 +65,8 @@
       <v-col cols="12" md="6" lg="3" class="stat-cards">
         <v-card class="stat-card">
           <div class="stat-card-icon">
-            <div class="stat-card-icon-background primary"></div>
-            <v-icon color="primary" x-large>mdi-chart-bell-curve</v-icon>
+            <div class="stat-card-icon-background"></div>
+            <v-icon color="primary" size="48">mdi-chart-bell-curve</v-icon>
           </div>
 
           <div class="stat-card-content">
@@ -92,7 +92,7 @@
 
         <v-card class="stat-card">
           <div class="stat-card-icon">
-            <div class="stat-card-icon-background primary"></div>
+            <div class="stat-card-icon-background"></div>
             <v-icon color="primary" size="64">mdi-approximately-equal</v-icon>
           </div>
 
@@ -115,8 +115,8 @@
 
         <v-card class="stat-card">
           <div class="stat-card-icon">
-            <div class="stat-card-icon-background primary"></div>
-            <v-icon color="primary" x-large>mdi-account-group-outline</v-icon>
+            <div class="stat-card-icon-background"></div>
+            <v-icon color="primary" size="48">mdi-account-group-outline</v-icon>
           </div>
 
           <div class="stat-card-content">
@@ -354,7 +354,9 @@ const calculateBinColor = (x0: number, x1: number): string => {
 
   &-icon {
     height: 110px;
+    min-height: 110px;
     width: 110px;
+    min-width: 110px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -371,7 +373,7 @@ const calculateBinColor = (x0: number, x1: number): string => {
       height: 100%;
       inset: 0;
       z-index: -1;
-      background-color: var(--v-primary-base);
+      background-color: rgb(var(--v-theme-primary));
       opacity: 0.15;
     }
   }

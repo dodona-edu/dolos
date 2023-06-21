@@ -1,6 +1,6 @@
 <template>
   <span>
-    <span v-if="text" class="similarity-value" :class="`${color}--text`">
+    <span v-if="text" class="similarity-value" :class="`text-${color}`">
       {{ value }}%
     </span>
 
