@@ -25,11 +25,11 @@ const listElement = shallowRef();
 
 // List element size.
 const listElementSize = useElementSize(listElement);
-const width = computed(() => listElementSize.width.value ?? 50);
-const height = computed(() => 40);
+const width = computed(() => listElementSize.width.value ?? 40);
+const height = computed(() => 35);
 
 // Ideal width for each element.
-const elementIdealWidth = 38;
+const elementIdealWidth = 35;
 
 // List D3
 const list = d3.create("svg");
