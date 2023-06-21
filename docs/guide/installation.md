@@ -1,7 +1,7 @@
 # Installation
 
-By following the steps on this page, you can install Dolos directly on your
-system. You can also use Dolos by using the [docker container](./docker.html) we
+By following the steps on this page, you can install Dolos CLI directly on your
+system. You can also use Dolos CLI by using the [docker container](./docker) we
 have provided.
 
 ## Install Node.js

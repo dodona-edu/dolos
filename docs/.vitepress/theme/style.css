@@ -111,3 +111,16 @@
     align-content: center;
     display: flex;
 }
+
+.image-row {
+    background: white;
+    padding: 1rem;
+}
+
+.image-row img {
+    display: inline;
+    max-width: 33%;
+    vertical-align: middle;
+}
+
+

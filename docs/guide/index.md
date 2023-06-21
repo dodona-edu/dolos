@@ -1,13 +1,12 @@
 # Introduction
 
-Dolos is a command-line application for source code plagiarism detection. It 
-uses [tree-sitter](https://tree-sitter.github.io/tree-sitter/), an incremental
-parser library, to support a broad range of programming languages. 
+Dolos is a source code plagiarism detection tool, [supporting a broad range of programming languages](/guide/languages.html).
+It is available as a [free online service](/guide/server), as a [command-line tool](/guide/installation) or as a [JavaScript library](/guide/library) for advanced users. Dolos is open-source and licensed under the MIT license.
 
 
-- [Try Dolos](/try/)
-- [Install Dolos](/guide/installation.html)
-- [How to use Dolos](/guide/running.html)
+- [See Dolos in action on our examples](/try/)
+- [Use Dolos on your own data](/guide/server)
+- [Install Dolos CLI](/guide/installation)
 
 By using powerful visualizations, you can see in a glance how similar the analyzed files are. Based on our experience with teaching programming courses, Dolos focuses on two main use cases:
 

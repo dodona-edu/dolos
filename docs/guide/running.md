@@ -1,4 +1,4 @@
-# Running Dolos
+# Running Dolos CLI
 
 If you want to follow along, we have provided a [ZIP with sample files](/simple-dataset.zip).
 Download and extract this in your terminal.
@@ -14,7 +14,7 @@ ls
 
 ## Simple start
 
-The simplest way to run Dolos is to set the language using the `-l` or `--language`
+The simplest way to run Dolos CLI is to set the language using the `-l` or `--language`
 flag and pass it a list of all the files you want to analyze:
 
 ```shell

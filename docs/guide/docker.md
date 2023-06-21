@@ -7,9 +7,9 @@ following command:
 docker pull ghcr.io/dodona-edu/dolos:latest
 ```
 
-## Running Dolos in Docker
+## Running Dolos CLI in Docker
 
-The Docker container contains the Dolos program installed with `npm`, it has
+The Docker container contains the Dolos CLI installed with `npm`, it has
 the same CLI arguments shown in the section [Running Dolos](./running.html).
 
 You do have to pass some extra arguments to Docker to work with the container:

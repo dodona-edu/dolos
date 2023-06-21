@@ -10,20 +10,33 @@ export default defineConfig({
 
     nav: [
       { text: 'Guide', link: '/guide/' },
-      { text: 'Try Dolos', link: '/try/' }
+      { text: 'Examples', link: '/try/' },
+      { text: 'Use Dolos', link: 'https://dolos.ugent.be/server' },
     ],
 
     sidebar: [
+      { text: "Introduction", link: "/guide/" },
       {
-        text: 'Guide',
+        text: 'Server',
         items: [
-          { text: 'Introduction', link: '/guide/' },
+          { text: 'Using Dolos server', link: '/guide/server' },
+          { text: 'Use case: Dodona', link: '/guide/dodona' },
+        ]
+      },
+      {
+        text: 'CLI & Library',
+        items: [
           { text: 'Installation', link: '/guide/installation' },
-          { text: 'Running Dolos', link: '/guide/running' },
-          { text: 'Supported programming languages', link: '/guide/languages' },
-          { text: 'How Dolos works', link: '/guide/algorithm' },
-          { text: 'Install Dolos using docker', link: '/guide/docker' },
-          { text: 'Use case: Dodona', link: '/guide/dodona' }
+          { text: 'Running the Dolos CLI', link: '/guide/running' },
+          { text: 'Run Dolos using docker', link: '/guide/docker' },
+          { text: 'Adding new languages', link: '/guide/adding-languages' },
+        ]
+      },
+      {
+        text: 'About Dolos',
+        items: [
+          { text: 'How Dolos works', link: '/about/algorithm' },
+          { text: 'Supported programming languages', link: '/about/languages' },
         ]
       }
     ],

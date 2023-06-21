@@ -1,9 +1,13 @@
 ---
 sidebar: false
 ---
-# Try Dolos
+# Examples
 
 On this page you can find the results of a plagiarism analysis for a few different cases.
+
+## Try on your own data!
+
+If you want to run Dolos yourself, you can follow our [quick start guide](/guide/server.md).
 
 ## Classroom dataset
 
@@ -76,7 +80,3 @@ A set of 79 C files, of which 37 files are labeled as plagiarism.
 
 </div>
 </div>
-
-## Try on your own data!
-
-If you want to run Dolos yourself, you can follow our [quick start guide](/guide/installation.html)
