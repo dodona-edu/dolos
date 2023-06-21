@@ -87,7 +87,7 @@
               Visual representation of submissions in the same cluster.
             </v-card-subtitle>
             <v-card-text class="cluster-graph">
-              <graph
+              <graph-canvas
                 :pairs="clusterPairs"
                 :files="clusterFiles"
                 :legend="legend"
@@ -99,7 +99,7 @@
                 @click:node="onNodeClick"
               >
                 <graph-legend :legend.sync="legend" />
-              </graph>
+              </graph-canvas>
             </v-card-text>
           </v-card>
 

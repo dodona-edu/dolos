@@ -2,7 +2,7 @@
   <div>
     <v-row class="graph-container">
       <v-col cols="12" class="no-y-padding">
-        <graph
+        <graph-canvas
           :showSingletons="showSingletons"
           :legend="legend"
           :clustering="clustering"
@@ -34,7 +34,7 @@
             :selected-cluster="selectedCluster"
             :legend="legend"
           />
-        </graph>
+        </graph-canvas>
       </v-col>
     </v-row>
   </div>

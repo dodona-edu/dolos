@@ -1,7 +1,8 @@
+import type {  Edge, Node, D3Node, Group } from "@/composables/d3/graph/data";
 import { onMounted, onUnmounted, ShallowRef, watch, Ref, shallowRef } from "vue";
 import { useDebounceFn } from "@vueuse/core";
 import * as d3 from "d3";
-import { Data, Edge, Node, D3Node, Group } from "@/composables/d3/graph/data";
+import { Data } from "@/composables/d3/graph/data";
 import { createSimulation } from "@/composables/d3/graph/simulation";
 import {
   createDrag,

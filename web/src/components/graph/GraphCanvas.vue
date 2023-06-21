@@ -6,10 +6,10 @@
     <!-- Options -->
     <div class="graph-options">
       <v-btn
-          :color="graph.paused.value ? 'success' : 'warning'"
-          text
-          rounded
-          @click="onPauseClick"
+        :color="graph.paused.value ? 'success' : 'warning'"
+        variant="text"
+        rounded
+        @click="onPauseClick"
       >
         <template v-if="graph.paused.value">
           <v-icon start>mdi-play-outline</v-icon>
@@ -183,17 +183,9 @@ const onPauseClick = (): void => {
     .node {
       stroke-linecap: round;
 
-      &.source {
-        // TODO:
-      }
-
       &.selected {
         stroke: black;
         stroke-width: 3;
-      }
-
-      &:hover {
-        cursor: v-bind("graphNodeCursor");
       }
     }
 

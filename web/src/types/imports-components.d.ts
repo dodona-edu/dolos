@@ -15,6 +15,7 @@ declare module 'vue' {
     CompareCard: typeof import('./../components/CompareCard.vue')['default']
     FileTimestamp: typeof import('./../components/FileTimestamp.vue')['default']
     Graph: typeof import('./../components/graph/Graph.vue')['default']
+    GraphCanvas: typeof import('./../components/graph/GraphCanvas.vue')['default']
     GraphElementList: typeof import('./../components/graph/GraphElementList.vue')['default']
     GraphElementListCard: typeof import('./../components/graph/GraphElementListCard.vue')['default']
     GraphLegend: typeof import('./../components/graph/GraphLegend.vue')['default']

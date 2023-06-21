@@ -114,7 +114,7 @@
               </v-card-text>
               <v-card-text v-else>
                 <div class="submission-graph">
-                  <graph
+                  <graph-canvas
                     :pairs="clusterPairs"
                     :files="clusterFiles"
                     :legend="legend"
@@ -127,7 +127,7 @@
                     @click:node="onNodeClick"
                   >
                     <graph-legend :legend.sync="legend" />
-                  </graph>
+                  </graph-canvas>
                 </div>
               </v-card-text>
             </v-card>
