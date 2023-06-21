@@ -63,7 +63,7 @@ The format of the CSV-file and the ZIP-archive that Dolos is able to analyse, is
 
 The analysis parameters can be altered by passing the relevant program
 arguments. For more information about the impact of these parameters you can
-read the section describing [how Dolos works](./algorithm.html).
+read the section describing [how Dolos works](/about/algorithm.html).
 
 If a Dolos analysis is taking too long or consuming too much memory, it can
 help to alter these parameters. It is recommended to increase the Window length

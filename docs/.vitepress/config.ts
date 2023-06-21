@@ -4,6 +4,11 @@ import { defineConfig } from 'vitepress'
 export default defineConfig({
   title: "Dolos",
   description: "Source Code Plagiarism Detection",
+  base: '/beta',
+
+  ignoreDeadLinks: [
+    /^https?:\/\/localhost/
+  ],
 
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
@@ -30,6 +35,7 @@ export default defineConfig({
           { text: 'Running the Dolos CLI', link: '/guide/running' },
           { text: 'Run Dolos using docker', link: '/guide/docker' },
           { text: 'Adding new languages', link: '/guide/adding-languages' },
+          { text: 'Using the Dolos library', link: '/guide/library' },
         ]
       },
       {

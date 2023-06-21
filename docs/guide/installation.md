@@ -72,7 +72,7 @@ dolos --version
 
 Dolos already supports most common programming languages out-of-the box.
 However, if the language you want to use is not supported, you can easily
-[add a new language](/guide/languages.html#adding-a-new-language).
+[add a new language](/guide/adding-languages#adding-a-new-language).
 
 ## Troubleshooting
 
