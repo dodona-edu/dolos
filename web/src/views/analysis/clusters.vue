@@ -5,7 +5,7 @@
         <h2 class="heading-title">
           Clusters
         </h2>
-        <div class="heading-subtitle text--secondary">
+        <div class="heading-subtitle text-medium-emphasis">
           All clusters, formed by the similarity threshold.
         </div>
       </v-col>

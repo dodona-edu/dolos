@@ -8,7 +8,7 @@
 
       <div
         v-if="props.file.extra.fullName"
-        class="file-info-subtitle text--secondary"
+        class="file-info-subtitle text-medium-emphasis"
       >
         <v-icon small>mdi-account-outline</v-icon>
         <span>{{ props.file.extra.fullName }}</span>
@@ -25,7 +25,7 @@
 
       <div
         v-if="props.file.extra.timestamp"
-        class="file-info-subtitle text--secondary"
+        class="file-info-subtitle text-medium-emphasis"
       >
         <v-icon small>mdi-clock-outline</v-icon>
         <file-timestamp :file="props.file" />

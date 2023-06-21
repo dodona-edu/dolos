@@ -5,7 +5,7 @@
         <h2 class="heading-title">
           File pairs
         </h2>
-        <div class="heading-subtitle text--secondary">
+        <div class="heading-subtitle text-medium-emphasis">
           A pair is a set of 2 files that are compared for similarity and matching code fragments.
         </div>
       </v-col>

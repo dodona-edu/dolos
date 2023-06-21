@@ -15,7 +15,7 @@
 
       <div class="heading">
         <h2 class="heading-title">Cluster {{ clusterId }}</h2>
-        <div class="heading-subtitle text--secondary">
+        <div class="heading-subtitle text-medium-emphasis">
           Relevant information about the current cluster.
         </div>
       </div>

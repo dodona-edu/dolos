@@ -9,7 +9,7 @@ const search = ref("");
   <div>
     <div class="hero">
       <h2 class="hero-title">DOLOS</h2>
-      <div class="hero-subtitle text--secondary">
+      <div class="hero-subtitle text-medium-emphasis">
         Source code plagiarism detection
       </div>
     </div>

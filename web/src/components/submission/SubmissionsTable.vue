@@ -58,7 +58,7 @@
               v-if="props.order"
               v-on="on"
               v-bind="attrs"
-              :class="item.raw.order === 1 ? 'primary--text' : 'text--secondary'"
+              :class="item.raw.order === 1 ? 'primary--text' : 'text-medium-emphasis'"
             >
               #{{ item.raw.order }}
             </span>

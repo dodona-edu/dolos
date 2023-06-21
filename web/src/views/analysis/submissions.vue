@@ -5,7 +5,7 @@
         <h2 class="heading-title">
           Submissions
         </h2>
-        <div class="heading-subtitle text--secondary">
+        <div class="heading-subtitle text-medium-emphasis">
           All analyzed submissions with their highest similarity.
         </div>
       </v-col>

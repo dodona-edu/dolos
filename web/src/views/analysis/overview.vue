@@ -5,7 +5,7 @@
         {{ reportName }}
       </h2>
       <h2 v-else class="hero-title">Dolos</h2>
-      <div class="hero-subtitle text--secondary">
+      <div class="hero-subtitle text-medium-emphasis">
         Source code plagiarism detection report
       </div>
     </div>
@@ -82,7 +82,7 @@
               <similarity-display :similarity="highestSimilarity" text />
             </div>
             <router-link
-              class="stat-card-subtitle text--secondary"
+              class="stat-card-subtitle text-medium-emphasis"
               :to="{ name: 'Submissions' }"
             >
               View submissions
@@ -107,7 +107,7 @@
             <div class="stat-card-value">
               <similarity-display :similarity="averageSimilarity" text />
             </div>
-            <div class="stat-card-subtitle text--secondary">
+            <div class="stat-card-subtitle text-medium-emphasis">
               Median similarity: {{ (medianSimilarity * 100).toFixed(0) }}%
             </div>
           </div>
@@ -130,7 +130,7 @@
               </info-dot>
             </h3>
             <div class="stat-card-value">{{ clustering.length }}</div>
-            <div class="stat-card-subtitle text--secondary">
+            <div class="stat-card-subtitle text-medium-emphasis">
               Based on the current threshold ({{
                 (apiStore.cutoff * 100).toFixed(0)
               }}%)
@@ -145,7 +145,7 @@
           <v-row justify="space-between" align="center" no-wrap no-gutters>
             <v-col cols="auto">
               <v-card-title>
-                Similarity distribution &nbsp;
+                Similarity distribution
 
                 <info-dot>
                   This plot shows the distribution of the similarity for the

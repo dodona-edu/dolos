@@ -4,7 +4,7 @@
       <h2 class="heading-title">
         Comparing {{ activePair.leftFile.shortPath }} with {{ activePair.rightFile.shortPath }}
       </h2>
-      <div class="heading-subtitle text--secondary">
+      <div class="heading-subtitle text-medium-emphasis">
         The compare view matches code fragments & differences between 2 files.
       </div>
     </div>

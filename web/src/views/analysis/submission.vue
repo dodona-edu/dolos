@@ -14,7 +14,7 @@
           <h2 class="heading-title">
             Submission by {{ file.extra.fullName ?? file.shortPath }}
           </h2>
-          <div class="heading-subtitle text--secondary">
+          <div class="heading-subtitle text-medium-emphasis">
             Relevant information about the current submission.
           </div>
         </div>
