@@ -1,5 +1,5 @@
 <template>
-  <v-simple-table class="graph-list" fixed-header>
+  <v-table class="graph-list" fixed-header>
     <thead>
       <tr>
         <th>Submission</th>
@@ -28,7 +28,7 @@
         </td>
       </router-link>
     </tbody>
-  </v-simple-table>
+  </v-table>
 </template>
 
 <script lang="ts" setup>

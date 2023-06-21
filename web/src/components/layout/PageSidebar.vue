@@ -11,9 +11,8 @@
           <template #prepend>
             <v-icon>mdi-chevron-left</v-icon>
           </template>
-          <v-list-item-content>
-            <v-list-item-title>Back to upload</v-list-item-title>
-          </v-list-item-content>
+
+          <v-list-item-title>Back to upload</v-list-item-title>
         </v-list-item>
       </v-list>
 
@@ -25,9 +24,8 @@
           <template #prepend>
             <v-icon>mdi-chart-bar</v-icon>
           </template>
-          <v-list-item-content>
-            <v-list-item-title>Overview</v-list-item-title>
-          </v-list-item-content>
+
+          <v-list-item-title>Overview</v-list-item-title>
         </v-list-item>
       </v-list>
 
@@ -37,9 +35,8 @@
           <template #prepend>
             <v-icon>mdi-chart-bar</v-icon>
           </template>
-          <v-list-item-content>
-            <v-list-item-title>Overview</v-list-item-title>
-          </v-list-item-content>
+
+          <v-list-item-title>Overview</v-list-item-title>
         </v-list-item>
 
         <v-list-item :to="{ name: 'Submissions' }" link exact>
@@ -82,9 +79,8 @@
           <template #prepend>
             <v-icon>mdi-paperclip</v-icon>
           </template>
-          <v-list-item-content>
-            <v-list-item-title>Upload</v-list-item-title>
-          </v-list-item-content>
+
+          <v-list-item-title>Upload</v-list-item-title>
         </v-list-item>
       </v-list>
     </template>

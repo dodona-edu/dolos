@@ -1,5 +1,5 @@
 <template>
-  <v-simple-table class="labels" fixed-header dense>
+  <v-table class="labels" fixed-header dense>
     <thead>
       <tr>
         <th>Label</th>
@@ -47,7 +47,7 @@
         </tr>
       </template>
     </tbody>
-  </v-simple-table>
+  </v-table>
 </template>
 
 <script lang="ts" setup>
