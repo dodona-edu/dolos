@@ -18,13 +18,11 @@
           <v-list class="info-list" dense>
 
             <v-list-item v-if="createdAt" class="info-list-item">
-              <v-tooltip top>
-                <template #activator="{ on }">
-                    <v-icon v-on="on" start>mdi-clock-outline</v-icon>
-                    <span>
-                    {{ DateTime.fromISO(createdAt).toLocaleString(
-                      DateTime.DATETIME_FULL
-                    ) }}
+              <v-tooltip location="top">
+                <template #activator="{ props }">
+                  <v-icon v-bind="props" start>mdi-clock-outline</v-icon>
+                  <span>
+                    {{ DateTime.fromISO(createdAt).toLocaleString(DateTime.DATETIME_FULL) }}
                   </span>
                 </template>
                 <span>Report creation date</span>
@@ -32,23 +30,23 @@
             </v-list-item>
 
             <v-list-item class="info-list-item">
-              <v-tooltip top>
-                <template #activator="{ on }">
-                    <v-icon v-on="on" start>mdi-file-outline</v-icon>
-                    <span>{{ filesCount }} submissions</span>
+              <v-tooltip location="top">
+                <template #activator="{ props }">
+                  <v-icon v-bind="props" start>mdi-file-outline</v-icon>
+                  <span>{{ filesCount }} submissions</span>
                 </template>
                 <span>Total count of analyzed submissions</span>
               </v-tooltip>
             </v-list-item>
 
             <v-list-item class="info-list-item">
-                <v-tooltip top>
-                    <template #activator="{ on }">
-                      <v-icon v-on="on" start>mdi-xml</v-icon>
-                      <span>{{ language }}</span>
-                    </template>
-                    <span>Programming language</span>
-                </v-tooltip>
+              <v-tooltip location="top">
+                <template #activator="{ props }">
+                  <v-icon v-bind="props" start>mdi-xml</v-icon>
+                  <span>{{ language }}</span>
+                </template>
+                <span>Programming language</span>
+              </v-tooltip>
             </v-list-item>
           </v-list>
 
@@ -208,6 +206,7 @@
           <v-card-subtitle>
             Aggregates submissions in groups, useful for exercises.
           </v-card-subtitle>
+
           <clusters-table
             :clusters="clustersOverview"
             :limit="10"

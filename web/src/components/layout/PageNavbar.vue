@@ -13,14 +13,13 @@
 
       <v-spacer />
 
-      <v-tooltip v-if="currentReport && downloadDatasetUrl" bottom>
-        <template #activator="{ on, attrs }">
+      <v-tooltip v-if="currentReport && downloadDatasetUrl" location="bottom">
+        <template #activator="{ props }">
           <v-btn
             v-if="currentReport"
             icon
             :href="downloadDatasetUrl"
-            v-bind="attrs"
-            v-on="on"
+            v-bind="props"
           >
             <v-icon>mdi-download</v-icon>
           </v-btn>
@@ -29,13 +28,12 @@
         <span>Download this dataset</span>
       </v-tooltip>
 
-      <v-tooltip v-if="currentReport" bottom>
-        <template #activator="{ on, attrs }">
+      <v-tooltip v-if="currentReport" location="bottom">
+        <template #activator="{ props }">
           <v-btn
             icon
             @click="shareDialog = true"
-            v-bind="attrs"
-            v-on="on"
+            v-bind="props"
           >
             <v-icon>mdi-share-variant</v-icon>
           </v-btn>
@@ -44,14 +42,13 @@
         <span>Share this report</span>
       </v-tooltip>
 
-      <v-tooltip bottom>
-        <template #activator="{ on, attrs }">
+      <v-tooltip location="botton">
+        <template #activator="{ props }">
           <v-btn
             v-if="settings !== undefined"
+            v-bind="props"
             icon
             @click="settingsValue = !settingsValue"
-            v-bind="attrs"
-            v-on="on"
           >
             <v-icon v-if="!settings">mdi-cog</v-icon>
             <v-icon v-else>mdi-close</v-icon>

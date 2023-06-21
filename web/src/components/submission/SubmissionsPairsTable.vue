@@ -44,12 +44,11 @@
     </template>
 
     <template #item.cluster="{ item }">
-      <v-tooltip top>
-        <template #activator="{ on, attrs }">
+      <v-tooltip location="top">
+        <template #activator="{ props }">
           <v-btn
             v-if="item.cluster !== ClusterRelation.NONE"
-            v-bind="attrs"
-            v-on="on"
+            v-bind="props"
             :to="{ name: 'Cluster', params: { clusterId: item.clusterIndex } }"
             :color="item.cluster === ClusterRelation.SAME ? 'primary' : ''"
             icon

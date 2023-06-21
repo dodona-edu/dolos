@@ -5,11 +5,7 @@
     :items="items"
     :search="searchValue"
     :density="props.dense ? 'compact' : 'comfortable'"
-    :hide-default-footer="!props.pagination"
-    :disable-pagination="!props.pagination"
-    :footer-props="footerProps"
-    x-sort-by="similarity"
-    sort-desc
+    :sort-by="sortBy"
     must-sort
     fixed-header
     @click:row="rowClicked"
@@ -17,15 +13,15 @@
     <template #item.name="{ item }">
       <div class="submission-info">
         <div class="submission-name">
-          <v-tooltip top>
-            <template v-slot:activator="{ on, attrs }">
-              <span v-on="on" v-bind="attrs">
-                {{ item.name }}
+          <v-tooltip location="top">
+            <template #activator="{ props }">
+              <span v-bind="props">
+                {{ item.raw.name }}
               </span>
             </template>
 
             <div class="submission-path">
-              <span>{{ item.path }}</span>
+              <span>{{ item.raw.path }}</span>
             </div>
           </v-tooltip>
         </div>
@@ -52,12 +48,11 @@
 
     <template #item.timestamp="{ item }">
       <span class="submission-timestamp">
-        <v-tooltip top>
-          <template v-slot:activator="{ on, attrs }">
+        <v-tooltip location="top">
+          <template #activator="{ props }">
             <span
               v-if="props.order"
-              v-on="on"
-              v-bind="attrs"
+              v-bind="props"
               :class="item.raw.order === 1 ? 'primary--text' : 'text-medium-emphasis'"
             >
               #{{ item.raw.order }}
@@ -108,6 +103,15 @@ const { similarities, hasTimestamps, hasLabels } = storeToRefs(fileStore);
 // Search value.
 const searchValue = useVModel(props, "search", emit);
 
+// Table sort
+const sortBy = computed(() => {
+  if (props.disableSorting) return [];
+  return [{
+    key: "similarity",
+    order: "desc",
+  }]
+});
+
 // Table headers
 const headers = computed(() => {
   const h = [];
@@ -154,13 +158,6 @@ const headers = computed(() => {
 
   return h;
 });
-
-// Footer props
-const footerProps = {
-  itemsPerPageOptions: [props.itemsPerPage, 25, 50, 100, -1],
-  showCurrentPage: true,
-  showFirstLastPage: true,
-};
 
 // Table items
 // In the format for the Vuetify data-table.

@@ -1,12 +1,10 @@
 <template>
   <v-data-table
     class="row-pointer"
+    :density="props.dense ? 'compact' : 'comfortable'"
     :headers="headers"
     :items="items"
-    x-sort-by="size"
-    sort-desc
-    hide-default-footer
-    disable-pagination
+    :sort-by="sortBy"
     must-sort
     fixed-header
     @click:row="rowClicked"
@@ -14,16 +12,16 @@
     <template #item.submissions="{ item }">
       <cluster-tags
         class="clusters-submissions"
-        :current-files="item.submissions"
+        :current-files="item.raw.submissions"
       />
     </template>
 
-    <template #item.size="{ item }"> {{ item.size }} submissions </template>
+    <template #item.size="{ item }"> {{ item.raw.size }} submissions </template>
 
     <template #item.similarity="{ item }">
       <span class="submission-similarity">
         <similarity-display
-          :similarity="item.similarity"
+          :similarity="item.raw.similarity"
           progress
           dim-below-cutoff
         />
@@ -33,7 +31,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { usePairStore } from "@/api/stores";
 import { getClusterElementsArray } from "@/util/clustering-algorithms/ClusterFunctions";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
@@ -44,30 +42,37 @@ interface Props {
   concise?: boolean;
   disableSorting?: boolean;
   limit?: number;
+  dense?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {});
 const router = useRouter();
 const pairStore = usePairStore();
 
+// Table sort
+const sortBy = computed(() => [{
+  key: 'size',
+  order: 'desc'
+}]);
+
 // Table headers
 const headers = computed(() => {
   const h = [];
   h.push({
-    text: "Submissions",
-    value: "submissions",
+    title: "Submissions",
+    key: "submissions",
     sortable: false,
   });
 
   if (!props.concise) {
     h.push({
-      text: "Average similarity",
-      value: "similarity",
+      title: "Average similarity",
+      key: "similarity",
       sortable: props.disableSorting ? false : true,
     });
     h.push({
-      text: "Size",
-      value: "size",
+      title: "Size",
+      key: "size",
       sortable: props.disableSorting ? false : true,
     });
   }
