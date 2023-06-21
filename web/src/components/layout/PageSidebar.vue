@@ -1,9 +1,8 @@
 <template>
   <v-navigation-drawer
     v-model="drawer"
-    :mini-variant="display.lgAndUp.value"
+    :rail="display.lgAndUp.value"
     :expand-on-hover="display.lgAndUp.value"
-    rail
   >
     <template v-if="props.variant === 'analysis'">
       <v-list v-if="isServer" nav density="compact">
