@@ -4,7 +4,7 @@
     <sidebar v-model="drawer" variant="upload" />
 
     <v-main>
-      <v-container class="container">
+      <v-container fluid>
         <router-view />
       </v-container>
     </v-main>
