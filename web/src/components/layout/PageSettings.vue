@@ -44,6 +44,7 @@ const { hasLabels } = storeToRefs(files);
 
       <v-switch
         v-model="isAnonymous"
+        color="primary"
         :label="isAnonymous ? 'Enabled' : 'Disabled'"
         inset
       />

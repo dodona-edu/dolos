@@ -26,9 +26,10 @@
           <td class="text-end">
             <v-switch
               v-model="label.selected"
+              color="primary"
               class="labels-switch"
+              density="compact"
               inset
-              small
               hide-details
             />
           </td>
