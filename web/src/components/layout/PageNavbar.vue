@@ -61,7 +61,7 @@
 
     <uploads-table-share-dialog
       v-if="currentReport"
-      :open.sync="shareDialog"
+      v-model:open="shareDialog"
       :report="currentReport"
     />
   </div>
