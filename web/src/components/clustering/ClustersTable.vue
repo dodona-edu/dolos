@@ -4,6 +4,7 @@
     :headers="headers"
     :items="items"
     :sort-by="sortBy"
+    :items-per-page="15"
     must-sort
     fixed-header
     @click:row="rowClicked"

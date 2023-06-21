@@ -5,6 +5,7 @@
     :search="searchValue"
     :density="props.dense ? 'compact' : 'comfortable'"
     :sort-by="sortBy"
+    :items-per-page="15"
     must-sort
     fixed-header
     @click:row="rowClicked"

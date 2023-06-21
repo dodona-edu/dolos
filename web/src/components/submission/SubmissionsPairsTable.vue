@@ -3,6 +3,7 @@
     :headers="headers"
     :items="items"
     :sort-by="sortBy"
+    :items-per-page="15"
     density="compact"
     must-sort
     fixed-header

@@ -84,6 +84,7 @@ const openShareDialog = (item: any): void => {
       :headers="headers"
       :items="items"
       :sort-by="sortBy"
+      :items-per-page="15"
       @click:row="openInfoDialog"
     >
       <!-- Status -->
