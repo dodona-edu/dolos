@@ -1,7 +1,6 @@
 <template>
   <v-data-table
     v-model:search="searchValue"
-    class="row-pointer"
     :headers="headers"
     :items="items"
     :items-per-page="15"

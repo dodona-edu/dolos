@@ -81,7 +81,6 @@ const openShareDialog = (item: any): void => {
   <div>
     <v-data-table
       v-model:search="search"
-      class="row-pointer"
       :headers="headers"
       :items="items"
       :sort-by="sortBy"

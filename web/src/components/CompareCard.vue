@@ -9,7 +9,7 @@
       </div>
     </div>
 
-    <v-card class="mt-4">
+    <v-card>
       <v-card-text>
         <v-row justify="space-between" align="center">
           <v-col cols="5">

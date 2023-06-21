@@ -1,6 +1,5 @@
 <template>
   <v-data-table
-    class="row-pointer"
     :density="props.dense ? 'compact' : 'comfortable'"
     :headers="headers"
     :items="items"
@@ -29,6 +28,11 @@
         />
       </span>
     </template>
+
+    <!-- Temporary hack to hide pagination when disabled -->
+    <template v-if="!pagination" #bottom>
+      <div />
+    </template>
   </v-data-table>
 </template>
 
@@ -45,6 +49,7 @@ interface Props {
   disableSorting?: boolean;
   limit?: number;
   dense?: boolean;
+  pagination?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {});

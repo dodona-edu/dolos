@@ -21,25 +21,21 @@
       </v-col>
     </v-row>
 
-    <v-row>
-      <v-col cols="12">
-        <v-alert type="info" variant="text" dense v-if="isSimilarityFilterApplied">
-          Showing submissions with highest similarity between
-          {{ (startSimilarity * 100).toFixed(0) }}% and
-          {{ (endSimilarity * 100).toFixed(0) }}%.
+    <v-alert type="info" variant="text" dense v-if="isSimilarityFilterApplied">
+      Showing submissions with highest similarity between
+      {{ (startSimilarity * 100).toFixed(0) }}% and
+      {{ (endSimilarity * 100).toFixed(0) }}%.
 
-          <a href="#" @click.prevent="clearSimilarityFilter"> Clear filter </a>
-        </v-alert>
+      <a href="#" @click.prevent="clearSimilarityFilter"> Clear filter </a>
+    </v-alert>
 
-        <v-card>
-          <submissions-table
-            v-model:search="search"
-            class="submissions-table"
-            :files="filesActiveListFiltered"
-          />
-        </v-card>
-      </v-col>
-    </v-row>
+    <v-card>
+      <submissions-table
+        v-model:search="search"
+        class="submissions-table"
+        :files="filesActiveListFiltered"
+      />
+    </v-card>
   </div>
 </template>
 

@@ -1,6 +1,5 @@
 <template>
   <v-data-table
-    class="row-pointer"
     :headers="headers"
     :items="items"
     :search="searchValue"
@@ -68,6 +67,11 @@
           long
         />
       </span>
+    </template>
+
+    <!-- Temporary hack to hide pagination when disabled -->
+    <template v-if="!pagination" #bottom>
+      <div />
     </template>
   </v-data-table>
 </template>

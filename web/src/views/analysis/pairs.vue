@@ -23,13 +23,9 @@
       </v-col>
     </v-row>
 
-    <v-row>
-      <v-col cols="12">
-        <v-card>
-          <pairs-table v-model:search="search" :pairs="pairStore.pairsActiveList" />
-        </v-card>
-      </v-col>
-    </v-row>
+    <v-card>
+      <pairs-table v-model:search="search" :pairs="pairStore.pairsActiveList" />
+    </v-card>
   </div>
 </template>
 
