@@ -38,7 +38,7 @@
             <v-spacer />
             <v-btn
               color="primary"
-              text
+              variant="text"
               :to="{ name: 'Submission', params: { fileId: selectedNode.id } }"
             >
               View submission
@@ -79,7 +79,7 @@
             <v-spacer />
             <v-btn
               v-if="selectedClusterPair"
-              text
+              variant="text"
               :to="{
                 name: 'Pair',
                 params: { pairId: selectedClusterPair.id },
@@ -90,7 +90,7 @@
             </v-btn>
             <v-btn
               color="primary"
-              text
+              variant="text"
               :to="{
                 name: 'Cluster',
                 params: { clusterId: selectedClusterIndex },

@@ -80,10 +80,10 @@ const openShareDialog = (item: any): void => {
 <template>
   <div>
     <v-data-table
+      v-model:search="search"
       class="row-pointer"
       :headers="headers"
       :items="items"
-      :search.sync="search"
       :sort-by="sortBy"
       @click:row="openInfoDialog"
     >
@@ -118,7 +118,7 @@ const openShareDialog = (item: any): void => {
 
     <uploads-table-info-dialog
       v-if="selectedReport"
-      :open.sync="infoDialog"
+      v-model:open="infoDialog"
       :report="selectedReport"
       @open:share="shareDialog = true"
       @open:delete="deleteDialog = true"
@@ -126,13 +126,13 @@ const openShareDialog = (item: any): void => {
 
     <uploads-table-delete-dialog
       v-if="selectedReport"
-      :open.sync="deleteDialog"
+      v-model:open="deleteDialog"
       :report="selectedReport"
     />
 
     <uploads-table-share-dialog
       v-if="selectedReport"
-      :open.sync="shareDialog"
+      v-model:open="shareDialog"
       :report="selectedReport"
     />
   </div>

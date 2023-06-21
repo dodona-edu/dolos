@@ -1,6 +1,6 @@
 <template>
   <div>
-    <navbar :drawer.sync="drawer" :to="{ name: 'Upload' }" />
+    <navbar v-model:drawer="drawer" :to="{ name: 'Upload' }" />
     <sidebar v-model="drawer" variant="upload" />
 
     <v-main>

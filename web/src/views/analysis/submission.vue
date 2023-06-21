@@ -126,7 +126,7 @@
                     node-clickable
                     @click:node="onNodeClick"
                   >
-                    <graph-legend :legend.sync="legend" />
+                    <graph-legend v-model:legend="legend" />
                   </graph-canvas>
                 </div>
               </v-card-text>

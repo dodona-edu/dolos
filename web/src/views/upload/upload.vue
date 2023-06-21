@@ -42,7 +42,7 @@ const search = ref("");
             </v-col>
           </v-row>
 
-          <uploads-table :search.sync="search" />
+          <uploads-table v-model:search="search" />
         </v-card>
       </v-col>
     </v-row>

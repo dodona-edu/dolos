@@ -9,7 +9,7 @@
       </div>
     </div>
 
-    <v-card>
+    <v-card class="mt-4">
       <v-card-text>
         <v-row justify="space-between" align="center">
           <v-col cols="5">
@@ -26,7 +26,7 @@
           </v-col>
 
           <v-col cols="auto">
-            <v-btn color="primary" depressed @click="swapFiles">
+            <v-btn color="primary" elevation="0" @click="swapFiles">
               <v-icon>mdi-swap-horizontal-bold</v-icon>
             </v-btn>
           </v-col>

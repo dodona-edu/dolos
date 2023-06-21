@@ -1,11 +1,11 @@
 <template>
   <v-data-table
+    v-model:search="searchValue"
     class="row-pointer"
     :headers="headers"
     :items="items"
     :items-per-page="15"
     :sort-by="sortBy"
-    :search.sync="searchValue"
     :footer-props="footerProps"
     :density="props.dense ? 'compact' : 'default'"
     must-sort

@@ -26,7 +26,7 @@
     <v-row>
       <v-col cols="12">
         <v-card>
-          <pairs-table :search.sync="search" :pairs="pairStore.pairsActiveList" />
+          <pairs-table v-model:search="search" :pairs="pairStore.pairsActiveList" />
         </v-card>
       </v-col>
     </v-row>

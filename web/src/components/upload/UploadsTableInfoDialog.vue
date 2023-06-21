@@ -121,7 +121,7 @@ const isDone = computed(
       <v-card-actions>
         <!-- Delete -->
         <v-btn
-          text
+          variant="text"
           color="error"
           :disabled="!isDone"
           @click="$emit('open:delete')"
@@ -132,7 +132,7 @@ const isDone = computed(
 
         <!-- Share-->
         <v-btn
-          text
+          variant="text"
           color="primary"
           :disabled="props.report.status !== 'finished'"
           @click="$emit('open:share')"
@@ -149,7 +149,7 @@ const isDone = computed(
           :to="reportRoute"
           target="_blank"
           color="success"
-          text
+          variant="text"
         >
           View Results
           <v-icon end>mdi-arrow-right</v-icon>

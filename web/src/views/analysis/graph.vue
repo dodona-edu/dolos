@@ -3,13 +3,13 @@
     <v-row class="graph-container">
       <v-col cols="12" class="no-y-padding">
         <graph-canvas
+          v-model:selected-node="selectedNode"
+          v-model:selected-cluster="selectedCluster"
           :showSingletons="showSingletons"
           :legend="legend"
           :clustering="clustering"
           :files="filesActiveList"
           :pairs="pairsActiveList"
-          :selected-node.sync="selectedNode"
-          :selected-cluster.sync="selectedCluster"
           polygon
         >
           <!-- Extra UI elements to be added as overlay over the graph -->
@@ -25,7 +25,7 @@
 
           <graph-legend
             v-if="showLegend"
-            :legend.sync="legend"
+            v-model:legend="legend"
           />
 
           <graph-selected-info

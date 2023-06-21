@@ -26,7 +26,7 @@ bus.on((event, payload) => {
   <v-snackbar v-model="open" v-bind="options" content-class="snackbar">
     <span>{{ options?.message }}</span>
     <v-spacer />
-    <v-btn text @click="open = false" icon small>
+    <v-btn variant="text" @click="open = false" icon small>
       <v-icon>mdi-close</v-icon>
     </v-btn>
   </v-snackbar>

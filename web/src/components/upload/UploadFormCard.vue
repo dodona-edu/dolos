@@ -284,17 +284,16 @@ watch(
     <v-card-subtitle>Upload a dataset to analyze.</v-card-subtitle>
 
     <v-card-text>
-
-        <v-alert type="info" text>
-            Datasets and reports older than 30 days may be deleted from our server to save space.
-            You can always delete the data yourself.
-        </v-alert>
+      <v-alert type="info" variant="text">
+          Datasets and reports older than 30 days may be deleted from our server to save space.
+          You can always delete the data yourself.
+      </v-alert>
 
       <v-stepper class="upload-stepper" v-model="step" flat>
         <v-stepper-items>
           <v-stepper-content step="1">
             <transition name="slide-y-transition">
-              <v-alert v-if="error" text type="error">
+              <v-alert v-if="error" variant="text" type="error">
                 {{ error }}
               </v-alert>
             </transition>
@@ -358,7 +357,7 @@ watch(
               <v-spacer />
               <v-btn
                 color="primary"
-                depressed
+                elevation="0"
                 :disabled="!valid"
                 @click="onSubmit"
               >
@@ -383,7 +382,7 @@ watch(
             <v-card-actions class="mt-4 pa-0">
               <v-spacer />
 
-              <v-btn color="error" depressed @click="handleCancel">
+              <v-btn color="error" elevation="0" @click="handleCancel">
                 Cancel analysis
                 <v-icon end>mdi-close</v-icon>
               </v-btn>
@@ -414,7 +413,7 @@ watch(
           <v-card-actions class="mt-4 pa-0">
             <v-spacer />
 
-            <v-btn color="error" text depressed @click="handleCancel">
+            <v-btn color="error" variant="text" elevation="0" @click="handleCancel">
               Cancel analysis
               <v-icon end>mdi-close</v-icon>
             </v-btn>
@@ -422,19 +421,19 @@ watch(
         </v-stepper-content>
 
         <v-stepper-content step="4">
-          <v-alert type="success" border="left" class="flex-grow-1" text>
+          <v-alert type="success" border="start" class="flex-grow-1" variant="text">
             Your dataset has been analysed.
           </v-alert>
 
           <v-card-actions class="mt-4 pa-0">
             <v-spacer />
 
-            <v-btn color="primary" primary text @click="handleReset">
+            <v-btn color="primary" variant="text" @click="handleReset">
               Analyze another dataset
               <v-icon end>mdi-reload</v-icon>
             </v-btn>
 
-            <v-btn color="success" primary depressed :to="reportRoute">
+            <v-btn color="success" elevation="0" :to="reportRoute">
               View results
               <v-icon end>mdi-arrow-right</v-icon>
             </v-btn>

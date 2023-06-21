@@ -57,7 +57,7 @@ const copyShareUrl = (): void => {
       </v-card-title>
 
       <v-card-text>
-        <v-alert type="info" text>
+        <v-alert type="info" variant="text">
           Anyone with this link will be able to view the results of the analysis.
         </v-alert>
 
@@ -74,7 +74,7 @@ const copyShareUrl = (): void => {
 
         <div class="d-flex mt-4">
           <v-spacer />
-          <v-btn color="primary" text @click="copyShareUrl"> Copy URL </v-btn>
+          <v-btn color="primary" variant="text" @click="copyShareUrl"> Copy URL </v-btn>
         </div>
       </v-card-text>
     </v-card>

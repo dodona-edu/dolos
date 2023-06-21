@@ -23,7 +23,7 @@
 
     <v-row>
       <v-col cols="12">
-        <v-alert type="info" text dense v-if="isSimilarityFilterApplied">
+        <v-alert type="info" variant="text" dense v-if="isSimilarityFilterApplied">
           Showing submissions with highest similarity between
           {{ (startSimilarity * 100).toFixed(0) }}% and
           {{ (endSimilarity * 100).toFixed(0) }}%.
@@ -33,9 +33,9 @@
 
         <v-card>
           <submissions-table
+            v-model:search="search"
             class="submissions-table"
             :files="filesActiveListFiltered"
-            :search.sync="search"
           />
         </v-card>
       </v-col>

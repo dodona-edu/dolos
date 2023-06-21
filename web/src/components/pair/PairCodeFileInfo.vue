@@ -34,8 +34,8 @@
 
     <div class="file-actions">
       <v-btn
-        text
-        small
+        variant="text"
+        size="small"
         :to="{ name: 'Submission', params: { fileId: file.id } }"
       >
         View submission

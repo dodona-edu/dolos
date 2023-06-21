@@ -98,13 +98,13 @@ const confirm = async (): Promise<void> => {
       <v-card-actions>
         <v-spacer />
 
-        <v-btn color="error" text @click="cancel" :disabled="loading">
+        <v-btn color="error" variant="text" @click="cancel" :disabled="loading">
           Cancel
         </v-btn>
 
         <v-btn
           color="primary"
-          text
+          variant="text"
           @click="confirm"
           :disabled="loading"
           :loading="loading"

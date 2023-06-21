@@ -1,6 +1,6 @@
 <template>
   <div class="timeseries" ref="timeseriesElement">
-    <graph-legend :legend.sync="legend" />
+    <graph-legend v-model:legend="legend" />
   </div>
 </template>
 
