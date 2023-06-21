@@ -8,6 +8,7 @@ import { VDataTable } from "vuetify/labs/VDataTable";
 // Styles
 import "@mdi/font/css/materialdesignicons.css";
 import "vuetify/styles";
+import "@/assets/scss/main.scss";
 
 // Create the app
 const app = createApp(App);

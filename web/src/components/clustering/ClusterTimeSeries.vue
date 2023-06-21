@@ -226,10 +226,11 @@ watch(
   }
 );
 
-// Update the internal legend object when the legend changes.
-watch(legend, (l) => {
-  legend.value = l;
-});
+// TODO: fix this, as it causes max call stack errors.
+// // Update the internal legend object when the legend changes.
+// watch(legend, (l) => {
+//   legend.value = l;
+// });
 
 // Watch width changes & update the size.
 watch(width, () => {

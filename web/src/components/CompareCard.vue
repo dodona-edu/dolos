@@ -13,7 +13,7 @@
       <v-card-text>
         <v-row justify="space-between" align="center">
           <v-col cols="5">
-            <v-tabs v-model="activeTab">
+            <v-tabs v-model="activeTab" color="primary">
               <v-tab>
                 <v-icon start>mdi-set-center</v-icon>
                 Matches
@@ -49,8 +49,8 @@
           </v-col>
         </v-row>
 
-        <v-tabs-items v-model="activeTab" class="mt-4">
-          <v-tab-item class="compare-tab">
+        <v-window v-model="activeTab" class="mt-4">
+          <v-window-item class="compare-tab">
             <template v-if="showMatchView">
               <pair-code-match
                 class="compare-editor"
@@ -58,16 +58,16 @@
                 :metadata="props.metadata"
               />
             </template>
-          </v-tab-item>
+          </v-window-item>
 
-          <v-tab-item class="compare-tab">
+          <v-window-item class="compare-tab">
             <template v-if="showDiffView">
               <!-- Show a warning why the diff view is selected automatically -->
               <v-alert
                 v-if="props.pair.similarity >= 0.8"
                 type="info"
                 icon="mdi-information"
-                text
+                variant="text"
                 dismissible
               >
                 The diff view has been automatically selected, as the files have
@@ -80,15 +80,15 @@
                 :metadata="props.metadata"
               />
             </template>
-          </v-tab-item>
-        </v-tabs-items>
+          </v-window-item>
+        </v-window>
       </v-card-text>
     </v-card>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { computed, shallowRef, watch, withDefaults } from "vue";
+import { computed, shallowRef, watch } from "vue";
 import { Pair, Metadata } from "@/api/models";
 
 interface Props {

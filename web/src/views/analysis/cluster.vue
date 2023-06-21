@@ -20,16 +20,16 @@
         </div>
       </div>
 
-      <v-row>
+      <v-row class="mt-2">
         <v-col cols="12" md="8">
           <v-card>
-            <v-tabs v-model="activeTab">
+            <v-tabs v-model="activeTab" color="primary">
               <v-tab>Submissions</v-tab>
               <v-tab>Pairs</v-tab>
             </v-tabs>
 
-            <v-tabs-items v-model="activeTab" class="mt-2">
-              <v-tab-item>
+            <v-window v-model="activeTab" class="mt-2">
+              <v-window-item>
                 <submissions-table
                   :files="clusterFiles"
                   :items-per-page="15"
@@ -37,12 +37,12 @@
                   pagination
                   order
                 />
-              </v-tab-item>
+              </v-window-item>
 
-              <v-tab-item>
+              <v-window-item>
                 <pairs-table :pairs="clusterPairs" :items-per-page="15" dense />
-              </v-tab-item>
-            </v-tabs-items>
+              </v-window-item>
+            </v-window>
           </v-card>
 
           <v-card class="mt-4">
@@ -59,11 +59,9 @@
                   The dataset you analyzed did not contain timestamps, so some
                   visualizations will not be available. Learn how to add
                   metadata
-                  <a
-                    href="https://dolos.ugent.be/guide/dodona.html"
-                    target="_blank"
-                    >here</a
-                  >.
+                  <a href="https://dolos.ugent.be/guide/dodona.html" target="_blank">
+                    here
+                  </a>.
                 </span>
               </div>
             </v-card-text>

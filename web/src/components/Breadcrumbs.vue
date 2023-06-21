@@ -1,8 +1,6 @@
 <template>
   <div class="breadcrumbs">
-    <v-btn icon color="primary" small exact :to="backItem">
-      <v-icon>mdi-chevron-left</v-icon>
-    </v-btn>
+    <v-btn color="primary" variant="text" icon="mdi-chevron-left" size="x-small" exact :to="backItem" />
     <v-breadcrumbs class="breadcrumbs-items" :items="items" />
   </div>
 </template>
@@ -11,26 +9,21 @@
 import { useBreadcrumbStore } from "@/stores";
 import { storeToRefs } from "pinia";
 import { computed } from "vue";
-import { useRoute } from "vue-router";
+import { RouteLocationRaw, useRoute } from "vue-router";
 
 interface Props {
   // Current page information (override)
   currentOverride?: {
     text: string;
-    to?: Location;
+    to?: RouteLocationRaw;
+    params?: Record<string, string| string[]>;
   };
   // Previous page information (fallback)
   previousFallback?: {
     text: string;
-    to: Location;
+    to: RouteLocationRaw;
+    params?: Record<string, string| string[]>;
   };
-}
-
-interface BreadcrumbItem {
-  text: string;
-  to?: Location;
-  disabled?: boolean;
-  exact?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {});
@@ -39,8 +32,8 @@ const breadcrumbs = useBreadcrumbStore();
 const { previousPage } = storeToRefs(breadcrumbs);
 
 // Breadcrumb items
-const items = computed(() => {
-  const items: BreadcrumbItem[] = [];
+const items = computed<any>(() => {
+  const items = [];
 
   const prev = previousPage.value?.name ?? "";
 
@@ -57,10 +50,12 @@ const items = computed(() => {
     });
   }
 
+
   if (route) {
     items.push({
       text: props.currentOverride?.text ?? route.name?.toString() ?? "#",
       to: props.currentOverride?.to,
+      params: props.currentOverride?.params,
       disabled: true,
     });
   }
@@ -79,6 +74,10 @@ const backItem = computed(() => {
   display: flex;
   align-items: center;
   gap: 0.25rem;
+
+  :deep(a) {
+    color: rgb(var(--v-theme-primary));
+  }
 
   &-items {
     padding: 0;
