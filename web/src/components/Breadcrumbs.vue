@@ -1,72 +1,72 @@
 <template>
-  <div class="breadcrumbs">
+  <!-- <div class="breadcrumbs">
     <v-btn color="primary" variant="text" icon="mdi-chevron-left" size="x-small" exact :to="backItem" />
     <v-breadcrumbs class="breadcrumbs-items" :items="items" />
-  </div>
+  </div> -->
 </template>
 
 <script lang="ts" setup>
-import { useBreadcrumbStore } from "@/stores";
-import { storeToRefs } from "pinia";
-import { computed } from "vue";
-import { RouteLocationRaw, useRoute } from "vue-router";
+// import { useBreadcrumbStore } from "@/stores";
+// import { storeToRefs } from "pinia";
+// import { computed } from "vue";
+// import { RouteLocationRaw, useRoute } from "vue-router";
 
-interface Props {
-  // Current page information (override)
-  currentOverride?: {
-    text: string;
-    to?: RouteLocationRaw;
-    params?: Record<string, string| string[]>;
-  };
-  // Previous page information (fallback)
-  previousFallback?: {
-    text: string;
-    to: RouteLocationRaw;
-    params?: Record<string, string| string[]>;
-  };
-}
+// interface Props {
+//   // Current page information (override)
+//   currentOverride?: {
+//     text: string;
+//     to?: RouteLocationRaw;
+//     params?: Record<string, string| string[]>;
+//   };
+//   // Previous page information (fallback)
+//   previousFallback?: {
+//     text: string;
+//     to: RouteLocationRaw;
+//     params?: Record<string, string| string[]>;
+//   };
+// }
 
-const props = withDefaults(defineProps<Props>(), {});
-const route = useRoute();
-const breadcrumbs = useBreadcrumbStore();
-const { previousPage } = storeToRefs(breadcrumbs);
+// const props = withDefaults(defineProps<Props>(), {});
+// const route = useRoute();
+// const breadcrumbs = useBreadcrumbStore();
+// const { previousPage } = storeToRefs(breadcrumbs);
 
-// Breadcrumb items
-const items = computed<any>(() => {
-  const items = [];
+// // Breadcrumb items
+// const items = computed<any>(() => {
+//   const items = [];
 
-  const prev = previousPage.value?.name ?? "";
+//   const prev = previousPage.value?.name ?? "";
 
-  if (prev) {
-    items.push({
-      exact: true,
-      text: prev,
-      to: { name: prev },
-    });
-  } else if (props.previousFallback) {
-    items.push({
-      exact: true,
-      ...props.previousFallback,
-    });
-  }
+//   if (prev) {
+//     items.push({
+//       exact: true,
+//       text: prev,
+//       to: { name: prev },
+//     });
+//   } else if (props.previousFallback) {
+//     items.push({
+//       exact: true,
+//       ...props.previousFallback,
+//     });
+//   }
 
 
-  if (route) {
-    items.push({
-      text: props.currentOverride?.text ?? route.name?.toString() ?? "#",
-      to: props.currentOverride?.to,
-      params: props.currentOverride?.params,
-      disabled: true,
-    });
-  }
+//   if (route) {
+//     items.push({
+//       text: props.currentOverride?.text ?? route.name?.toString() ?? "#",
+//       to: props.currentOverride?.to,
+//       params: props.currentOverride?.params,
+//       disabled: true,
+//     });
+//   }
   
-  return items;
-});
+//   return items;
+// });
 
-// Back navigation
-const backItem = computed(() => {
-  return items.value[items.value.length - 2].to;
-});
+// // Back navigation
+// const backItem = computed(() => {
+//   return items.value[items.value.length - 2].to;
+// });
 </script>
 
 <style lang="scss" scoped>
