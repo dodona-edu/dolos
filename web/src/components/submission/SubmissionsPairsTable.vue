@@ -47,8 +47,9 @@
             v-bind="props"
             :to="{ name: 'Cluster', params: { clusterId: item.raw.clusterIndex } }"
             :color="item.raw.cluster === ClusterRelation.SAME ? 'primary' : ''"
+            size="small"
+            variant="text"
             icon
-            small
             @click.stop=""
           >
             <v-icon v-if="item.raw.cluster === ClusterRelation.SAME">
