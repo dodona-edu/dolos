@@ -364,7 +364,7 @@ watch(
                 @click="onSubmit"
               >
                 Analyze
-                <v-icon right>mdi-folder-search-outline</v-icon>
+                <v-icon end>mdi-folder-search-outline</v-icon>
               </v-btn>
             </v-card-actions>
           </v-stepper-content>
@@ -391,7 +391,7 @@ watch(
 
               <v-btn color="error" depressed @click="handleCancel">
                 Cancel analysis
-                <v-icon right>mdi-close</v-icon>
+                <v-icon end>mdi-close</v-icon>
               </v-btn>
             </v-card-actions>
           </v-stepper-content>
@@ -427,7 +427,7 @@ watch(
 
             <v-btn color="error" text depressed @click="handleCancel">
               Cancel analysis
-              <v-icon right>mdi-close</v-icon>
+              <v-icon end>mdi-close</v-icon>
             </v-btn>
           </v-card-actions>
         </v-stepper-content>
@@ -448,12 +448,12 @@ watch(
 
             <v-btn color="primary" primary text @click="handleReset">
               Analyze another dataset
-              <v-icon right>mdi-reload</v-icon>
+              <v-icon end>mdi-reload</v-icon>
             </v-btn>
 
             <v-btn color="success" primary depressed :to="reportRoute">
               View results
-              <v-icon right>mdi-arrow-right</v-icon>
+              <v-icon end>mdi-arrow-right</v-icon>
             </v-btn>
           </v-card-actions>
         </v-stepper-content>

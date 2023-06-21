@@ -42,7 +42,7 @@
               :to="{ name: 'Submission', params: { fileId: selectedNode.id } }"
             >
               View submission
-              <v-icon right>mdi-chevron-right</v-icon>
+              <v-icon end>mdi-chevron-right</v-icon>
             </v-btn>
           </v-card-actions>
         </v-card>
@@ -62,7 +62,10 @@
 
             <v-list-item class="selected-info-list-item">
               <v-icon>mdi-approximately-equal</v-icon>
-              <span>{{ (clusterAverageSimilarity * 100).toFixed(2) }}% average similarity</span>
+              <span
+                >{{ (clusterAverageSimilarity * 100).toFixed(2) }}% average
+                similarity</span
+              >
             </v-list-item>
           </v-list>
 
@@ -74,23 +77,27 @@
 
           <v-card-actions>
             <v-spacer />
-            <v-btn v-if="selectedClusterPair"
-                   text
-                   :to="{
-                      name: 'Pair',
-                      params: { pairId: selectedClusterPair.id }
-                   }">
+            <v-btn
+              v-if="selectedClusterPair"
+              text
+              :to="{
+                name: 'Pair',
+                params: { pairId: selectedClusterPair.id },
+              }"
+            >
               View pair
-              <v-icon right>mdi-chevron-right</v-icon>
+              <v-icon end>mdi-chevron-right</v-icon>
             </v-btn>
-            <v-btn color="primary"
-                   text
-                   :to="{
-                     name: 'Cluster',
-                     params: { clusterId: selectedClusterIndex },
-            }">
+            <v-btn
+              color="primary"
+              text
+              :to="{
+                name: 'Cluster',
+                params: { clusterId: selectedClusterIndex },
+              }"
+            >
               View cluster
-              <v-icon right>mdi-chevron-right</v-icon>
+              <v-icon end>mdi-chevron-right</v-icon>
             </v-btn>
           </v-card-actions>
         </v-card>

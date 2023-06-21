@@ -39,7 +39,7 @@
         :to="{ name: 'Submission', params: { fileId: file.id } }"
       >
         View submission
-        <v-icon right>mdi-chevron-right</v-icon>
+        <v-icon end>mdi-chevron-right</v-icon>
       </v-btn>
     </div>
   </div>

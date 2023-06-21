@@ -12,12 +12,12 @@
           @click="onPauseClick"
       >
         <template v-if="graph.paused.value">
-          <v-icon left>mdi-play-outline</v-icon>
+          <v-icon start>mdi-play-outline</v-icon>
           Resume
         </template>
 
         <template v-else>
-          <v-icon left>mdi-pause</v-icon>
+          <v-icon start>mdi-pause</v-icon>
           Pause
         </template>
       </v-btn>

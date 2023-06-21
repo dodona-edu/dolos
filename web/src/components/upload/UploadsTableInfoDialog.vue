@@ -126,7 +126,7 @@ const isDone = computed(
           @click="$emit('open:delete')"
         >
           Delete
-          <v-icon right>mdi-delete</v-icon>
+          <v-icon end>mdi-delete</v-icon>
         </v-btn>
 
         <!-- Share-->
@@ -137,7 +137,7 @@ const isDone = computed(
           @click="$emit('open:share')"
         >
           Share
-          <v-icon right>mdi-share-variant</v-icon>
+          <v-icon end>mdi-share-variant</v-icon>
         </v-btn>
 
         <v-spacer />
@@ -151,7 +151,7 @@ const isDone = computed(
           text
         >
           View Results
-          <v-icon right>mdi-arrow-right</v-icon>
+          <v-icon end>mdi-arrow-right</v-icon>
         </v-btn>
       </v-card-actions>
     </v-card>

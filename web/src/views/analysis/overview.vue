@@ -20,7 +20,7 @@
             <v-list-item v-if="createdAt" class="info-list-item">
               <v-tooltip top>
                 <template #activator="{ on }">
-                    <v-icon v-on="on">mdi-clock-outline</v-icon>
+                    <v-icon v-on="on" start>mdi-clock-outline</v-icon>
                     <span>
                     {{ DateTime.fromISO(createdAt).toLocaleString(
                       DateTime.DATETIME_FULL
@@ -34,7 +34,7 @@
             <v-list-item class="info-list-item">
               <v-tooltip top>
                 <template #activator="{ on }">
-                    <v-icon v-on="on">mdi-file-outline</v-icon>
+                    <v-icon v-on="on" start>mdi-file-outline</v-icon>
                     <span>{{ filesCount }} submissions</span>
                 </template>
                 <span>Total count of analyzed submissions</span>
@@ -44,7 +44,7 @@
             <v-list-item class="info-list-item">
                 <v-tooltip top>
                     <template #activator="{ on }">
-                      <v-icon v-on="on">mdi-xml</v-icon>
+                      <v-icon v-on="on" start>mdi-xml</v-icon>
                       <span>{{ language }}</span>
                     </template>
                     <span>Programming language</span>
@@ -196,7 +196,7 @@
                 View all {{ filesCount }} submissions
               </span>
               <span v-else>View all submissions</span>
-              <v-icon right>mdi-chevron-right</v-icon>
+              <v-icon end>mdi-chevron-right</v-icon>
             </v-btn>
           </v-card-actions>
         </v-card>
@@ -222,7 +222,7 @@
                 View all {{ clustersCount }} clusters
               </span>
               <span v-else>View all clusters</span>
-              <v-icon right>mdi-chevron-right</v-icon>
+              <v-icon end>mdi-chevron-right</v-icon>
             </v-btn>
           </v-card-actions>
         </v-card>
@@ -421,8 +421,6 @@ const calculateBinColor = (x0: number, x1: number): string => {
 
 .info-list {
   &-item {
-    display: flex;
-    gap: 0.5rem;
     width: 100%;
   }
 }

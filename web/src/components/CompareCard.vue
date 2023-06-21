@@ -15,11 +15,11 @@
           <v-col cols="5">
             <v-tabs v-model="activeTab">
               <v-tab>
-                <v-icon left>mdi-set-center</v-icon>
+                <v-icon start>mdi-set-center</v-icon>
                 Matches
               </v-tab>
               <v-tab>
-                <v-icon left>mdi-file-compare</v-icon>
+                <v-icon start>mdi-file-compare</v-icon>
                 Diff
               </v-tab>
             </v-tabs>
@@ -33,17 +33,17 @@
 
           <v-col cols="5" class="compare-header-info">
             <span>
-              <v-icon left>mdi-approximately-equal</v-icon>
+              <v-icon start>mdi-approximately-equal</v-icon>
               Similarity: <similarity-display :similarity="activePair.similarity" text />
             </span>
 
             <span>
-              <v-icon left>mdi-file-document-multiple</v-icon>
+              <v-icon start>mdi-file-document-multiple</v-icon>
               Longest fragment: {{ activePair.longestFragment }}
             </span>
 
             <span>
-              <v-icon left>mdi-file-document-multiple-outline</v-icon>
+              <v-icon start>mdi-file-document-multiple-outline</v-icon>
               Total overlap: {{ activePair.totalOverlap }}
             </span>
           </v-col>
