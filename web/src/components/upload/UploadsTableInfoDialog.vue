@@ -89,7 +89,7 @@ const isDone = computed(
         "
       >
         <v-card-text>
-          <v-alert type="error" text class="mt-2 mb-0">
+          <v-alert type="error" variant="tonal" class="mt-2 mb-0">
             <p class="font-weight-bold">
               Unable to execute the analysis for the uploaded file.
             </p>
@@ -102,7 +102,7 @@ const isDone = computed(
       <!-- Status: Finished -->
       <template v-else-if="props.report.status === 'finished'">
         <v-card-text>
-          <v-alert type="success" text class="mt-2 mb-0">
+          <v-alert type="success" variant="tonal" class="mt-2 mb-0">
             Analysis was completed successfully.
           </v-alert>
         </v-card-text>
@@ -111,7 +111,7 @@ const isDone = computed(
       <!-- Status: Deleted -->
       <template v-else-if="props.report.status === 'deleted'">
         <v-card-text>
-          <v-alert type="warning" text class="mt-2 mb-0">
+          <v-alert type="warning" variant="tonal" class="mt-2 mb-0">
             This report has been deleted on the server and is no longer available.<br />
             Old reports are automatically deleted after 30 days to save storage space.
           </v-alert>

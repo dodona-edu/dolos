@@ -57,7 +57,7 @@ const copyShareUrl = (): void => {
       </v-card-title>
 
       <v-card-text>
-        <v-alert type="info" variant="text">
+        <v-alert type="info" variant="tonal">
           Anyone with this link will be able to view the results of the analysis.
         </v-alert>
 

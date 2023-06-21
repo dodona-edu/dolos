@@ -21,7 +21,7 @@
       </v-col>
     </v-row>
 
-    <v-alert type="info" variant="text" dense v-if="isSimilarityFilterApplied">
+    <v-alert type="info" variant="tonal" dense v-if="isSimilarityFilterApplied">
       Showing submissions with highest similarity between
       {{ (startSimilarity * 100).toFixed(0) }}% and
       {{ (endSimilarity * 100).toFixed(0) }}%.

@@ -65,9 +65,10 @@
               <!-- Show a warning why the diff view is selected automatically -->
               <v-alert
                 v-if="props.pair.similarity >= 0.8"
+                class="mb-4"
                 type="info"
                 icon="mdi-information"
-                variant="text"
+                variant="tonal"
                 dismissible
               >
                 The diff view has been automatically selected, as the files have

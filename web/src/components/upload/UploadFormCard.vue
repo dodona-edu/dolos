@@ -284,7 +284,7 @@ watch(
     <v-card-subtitle>Upload a dataset to analyze.</v-card-subtitle>
 
     <v-card-text>
-      <v-alert type="info" variant="text">
+      <v-alert type="info" variant="tonal">
           Datasets and reports older than 30 days may be deleted from our server to save space.
           You can always delete the data yourself.
       </v-alert>
@@ -293,7 +293,7 @@ watch(
         <v-stepper-items>
           <v-stepper-content step="1">
             <transition name="slide-y-transition">
-              <v-alert v-if="error" variant="text" type="error">
+              <v-alert v-if="error" variant="tonal" type="error">
                 {{ error }}
               </v-alert>
             </transition>
@@ -421,7 +421,7 @@ watch(
         </v-stepper-content>
 
         <v-stepper-content step="4">
-          <v-alert type="success" border="start" class="flex-grow-1" variant="text">
+          <v-alert type="success" border="start" class="flex-grow-1" variant="tonal">
             Your dataset has been analysed.
           </v-alert>
 
