@@ -23,6 +23,7 @@ declare module 'vue' {
     LabelDot: typeof import('./../components/LabelDot.vue')['default']
     LabelsTable: typeof import('./../components/LabelsTable.vue')['default']
     LabelText: typeof import('./../components/LabelText.vue')['default']
+    Navbar: typeof import('./../components/layout/Navbar.vue')['default']
     PageError: typeof import('./../components/layout/PageError.vue')['default']
     PageLoading: typeof import('./../components/layout/PageLoading.vue')['default']
     PageNavbar: typeof import('./../components/layout/PageNavbar.vue')['default']

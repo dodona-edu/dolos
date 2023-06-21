@@ -29,7 +29,7 @@ function updateGroups(data: Data): void {
 
 export function createSimulation(context: CanvasRenderingContext2D, data: Data): Simulation {
   const distanceMin = 30;
-  const distanceMax = 300;
+  const distanceMax = 30;
 
   const forceLink = d3
     .forceLink<D3Node, D3Edge>(data.edges)
@@ -64,7 +64,7 @@ export function createSimulation(context: CanvasRenderingContext2D, data: Data):
   }
 
   function links(links: D3Edge[]): void {
-    forceLink.links(links.filter(e => e.similarity > .5));
+    forceLink.links(links);
   }
 
   function reheat(): void {

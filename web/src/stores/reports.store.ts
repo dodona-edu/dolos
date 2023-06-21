@@ -89,10 +89,9 @@ export const useReportsStore = defineStore("reports", () => {
     return `${process.env.VUE_APP_API_URL}/reports/${reportId}`;
   };
 
-  // Update all report statusses for the succeeded reports.
-  // This is to detect if a report has been archived/deleted.
-  onMounted(async () => {
-    for (const report of reports.value) {
+  async function checkReports() {
+    const toCheck = reports.value;
+    for (const report of toCheck) {
       if (report.status === "finished") {
         try {
           const status = await getReportStatus(report);
@@ -101,13 +100,18 @@ export const useReportsStore = defineStore("reports", () => {
         } catch (error) {
           const axiosError = error as AxiosError;
           if (axiosError?.response?.status === 404 || axiosError?.response?.status === 500) {
-            // Set the report status to archived.
-            report.status = "archived";
+            // Set the report status to deleted.
+            report.status = "deleted";
           }
         }
       }
     }
-  });
+    reports.value = toCheck;
+  }
+
+  // Update all report statuses for the succeeded reports.
+  // This is to detect if a report has been deleted.
+  onMounted(async () => await checkReports());
 
   // Attempt to get the current report from the route.
   const route = useRoute();
@@ -122,7 +126,6 @@ export const useReportsStore = defineStore("reports", () => {
     addReport,
     getReportStatus,
     getReportById,
-    getReportByReferenceId,
     getReportRouteById,
     getReportShareRouteById,
     deleteReportById,

@@ -28,7 +28,7 @@ const snackbar = useSnackbar();
 const shareUrl = computed(() => {
   const sharePath = router.resolve(reportShareRoute.value).href;
 
-  const url = new URL(sharePath, window.location.origin);
+  const url = new URL(sharePath, window.location.href);
   return url.toString();
 });
 
@@ -58,8 +58,7 @@ const copyShareUrl = (): void => {
 
       <v-card-text>
         <v-alert type="info" text>
-          Anyone with the resulting link will be able to view the results of the
-          analysis.
+          Anyone with this link will be able to view the results of the analysis.
         </v-alert>
 
         <p>Share this report with others by sending them the following link:</p>

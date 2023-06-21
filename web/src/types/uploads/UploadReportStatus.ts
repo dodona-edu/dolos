@@ -4,4 +4,4 @@ export type UploadReportStatus =
   | "failed"
   | "error"
   | "finished"
-  | "archived";
+  | "deleted";

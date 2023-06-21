@@ -23,8 +23,8 @@ const props = defineProps<Props>();
   <v-chip v-else-if="props.status === 'error'" color="error" small>
     Error
   </v-chip>
-  <v-chip v-else-if="props.status === 'archived'" color="grey" small>
-    Archived
+  <v-chip v-else-if="props.status === 'deleted'" color="grey" small>
+    Deleted
   </v-chip>
   <v-chip v-else color="grey" small> Unknown </v-chip>
 </template>

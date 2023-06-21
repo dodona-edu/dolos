@@ -1,6 +1,6 @@
 <template>
   <div>
-    <page-navbar
+    <navbar
       :drawer.sync="drawer"
       :settings.sync="settings"
       :to="{ name: 'Overview' }"
@@ -8,7 +8,7 @@
     <page-sidebar v-model="drawer" variant="analysis" />
 
     <v-main>
-      <v-container fluid>
+      <v-container class="container">
         <page-loading v-if="loading" :text="loadingText" />
         <page-error v-else-if="error" :error="error" />
         <router-view v-else />
@@ -74,7 +74,6 @@ import { storeToRefs } from "pinia";
 import { useApiStore, useFileStore } from "@/api/stores";
 import { useBreadcrumbStore } from "@/stores";
 import { useDisplay } from "vuetify";
-import Overview from "@/views/analysis/overview.vue";
 
 const display = useDisplay();
 const api = useApiStore();
