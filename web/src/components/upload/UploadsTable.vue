@@ -18,12 +18,18 @@ const reports = useReportsStore();
 // Table search value.
 const search = useVModel(props, "search", emit);
 
+// Table sort.
+const sortBy = computed<any>(() => [{
+  key: "date",
+  order: "desc"
+}]);
+
 // Table headers
-const headers = computed(() => [
-  { text: "Name", value: "name", sortable: true },
-  { text: "Upload date", value: "date", sortable: true },
-  { text: "Status", value: "status", sortable: true },
-  { text: "", value: "actions", sortable: false, align: "right" },
+const headers = computed<any>(() => [
+  { title: "Name", key: "name", sortable: true },
+  { title: "Upload date", key: "date", sortable: true },
+  { title: "Status", key: "status", sortable: true },
+  { title: "", key: "actions", sortable: false, align: "right" },
 ]);
 
 // Table items
@@ -53,8 +59,8 @@ const deleteDialog = ref(false);
 const shareDialog = ref(false);
 
 // Open the dialog for a specific report.
-const openInfoDialog = (item: { report: UploadReport }): void => {
-  selectedReportId.value = item.report.reportId;
+const openInfoDialog = (e: Event, value: any): void => {
+  selectedReportId.value = value.item.raw.report.reportId;
   infoDialog.value = true;
 };
 
@@ -78,13 +84,12 @@ const openShareDialog = (item: any): void => {
       :headers="headers"
       :items="items"
       :search.sync="search"
-      x-sort-by="date"
-      sort-desc
+      :sort-by="sortBy"
       @click:row="openInfoDialog"
     >
       <!-- Status -->
       <template #item.status="{ item }">
-        <upload-status :status="item.status" />
+        <upload-status :status="item.raw.status" />
       </template>
 
       <!-- Actions -->
@@ -93,7 +98,7 @@ const openShareDialog = (item: any): void => {
         <v-btn
           icon
           color="error"
-          :disabled="!item.done"
+          :disabled="!item.raw.done"
           @click.stop="openDeleteDialog(item)"
         >
           <v-icon>mdi-delete</v-icon>
@@ -103,7 +108,7 @@ const openShareDialog = (item: any): void => {
         <v-btn
           icon
           color="primary"
-          :disabled="item.status !== 'finished'"
+          :disabled="item.raw.status !== 'finished'"
           @click.stop="openShareDialog(item)"
         >
           <v-icon>mdi-share-variant</v-icon>

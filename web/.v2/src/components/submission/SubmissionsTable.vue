@@ -8,8 +8,7 @@
     :hide-default-footer="!props.pagination"
     :disable-pagination="!props.pagination"
     :footer-props="footerProps"
-    sort-by="similarity"
-    sort-desc
+    :sort-by="sortBy"
     must-sort
     fixed-header
     @click:row="rowClicked"
@@ -80,7 +79,7 @@
 <script lang="ts" setup>
 import { storeToRefs } from "pinia";
 import { computed } from "vue";
-import { DataTableHeader } from "vuetify";
+import { DataTableHeader } from "vuetify/types";
 import { useFileStore } from "@/api/stores";
 import { File } from "@/api/models";
 import { useRouter } from "@/composables";
@@ -108,6 +107,12 @@ const { similarities, hasTimestamps, hasLabels } = storeToRefs(fileStore);
 
 // Search value.
 const searchValue = useVModel(props, "search", emit);
+
+// Table sort
+const sortBy = computed<any>(() => [{
+  key: "similarity",
+  order: "desc",
+}]);
 
 // Table headers
 const headers = computed<DataTableHeader[]>(() => {
@@ -193,8 +198,8 @@ const items = computed(() => {
 });
 
 // When a row is clicked.
-const rowClicked = (item: { id: string }): void => {
-  router.push({ name: "Submission", params: { fileId: item.id } });
+const rowClicked = (e: Event, value: any): void => {
+  router.push({ name: "Submission", params: { fileId: value.item.id } });
 };
 </script>
 

@@ -3,20 +3,19 @@
     class="row-pointer"
     :headers="headers"
     :items="items"
-    :must-sort="true"
-    x-sort-by="'similarity'"
-    :sort-desc="true"
     :items-per-page="15"
+    :sort-by="sortBy"
     :search.sync="searchValue"
     :footer-props="footerProps"
-    :dense="props.dense"
+    :density="props.dense ? 'compact' : 'default'"
+    must-sort
     @click:row="rowClicked"
   >
     <template #item.similarity="{ item }">
       <similarity-display
-        :similarity="+item.similarity"
-        progress
+        :similarity="+item.raw.similarity"
         :dense="props.dense"
+        progress
       />
     </template>
   </v-data-table>
@@ -27,6 +26,7 @@ import { shallowRef, onMounted, watch } from "vue";
 import { useVModel } from "@vueuse/core";
 import { Pair } from "@/api/models";
 import { useRoute, useRouter } from "vue-router";
+import { computed } from "vue";
 
 interface Props {
   pairs: Pair[];
@@ -43,14 +43,20 @@ const router = useRouter();
 const route = useRoute();
 const searchValue = useVModel(props, "search", emit);
 
+// Table sort
+const sortBy = computed<any>(() => [{
+  key: "similarity",
+  order: "desc",
+}]);
+
 // Table headers
-const headers = [
-  { text: "Left file", value: "left", sortable: true },
-  { text: "Right file", value: "right", sortable: true },
-  { text: "Similarity", value: "similarity", filterable: false },
-  { text: "Longest fragment", value: "longestFragment", filterable: false },
-  { text: "Total overlap", value: "totalOverlap", filterable: false },
-];
+const headers = computed<any[]>(() => [
+  { title: "Left file", key: "left", sortable: true },
+  { title: "Right file", key: "right", sortable: true },
+  { title: "Similarity", key: "similarity", filterable: false },
+  { title: "Longest fragment", key: "longestFragment", filterable: false },
+  { title: "Total overlap", key: "totalOverlap", filterable: false },
+]);
 
 // Footer props
 const footerProps = {
@@ -94,8 +100,8 @@ watch(
 );
 
 // When a row is clicked.
-const rowClicked = (item: { pair: Pair }): void => {
-  router.push({ name: "Pair", params: { pairId: String(item.pair.id) } });
+const rowClicked = (e: Event, value: any): void => {
+  router.push({ name: "Pair", params: { pairId: String(value.item.raw.pair.id) } });
 };
 </script>
 

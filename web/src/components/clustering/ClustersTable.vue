@@ -33,7 +33,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref } from "vue";
+import { computed } from "vue";
 import { usePairStore } from "@/api/stores";
 import { getClusterElementsArray } from "@/util/clustering-algorithms/ClusterFunctions";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
@@ -117,7 +117,7 @@ const maxWidth = computed(() => {
 
 // When a row is clicked.
 const rowClicked = (e: Event, value: any): void => {
-  router.push({ name: "Cluster", params: { clusterId: value.item.id } });
+  router.push({ name: "Cluster", params: { clusterId: value.item.raw.id } });
 };
 </script>
 

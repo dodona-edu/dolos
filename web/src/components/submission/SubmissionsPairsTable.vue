@@ -3,7 +3,6 @@
     class="row-pointer"
     :headers="headers"
     :items="items"
-    :footer-props="footerProps"
     :sort-by="sortBy"
     density="compact"
     must-sort
@@ -89,7 +88,6 @@
 
 <script lang="ts" setup>
 import { computed } from "vue";
-import { DataTableHeader } from "vuetify/types";
 import { useFileStore, usePairStore } from "@/api/stores";
 import { File } from "@/api/models";
 import { storeToRefs } from "pinia";
@@ -122,40 +120,40 @@ const sortBy = computed<any>(() => [{
 }]);
 
 // Table headers
-const headers = computed<DataTableHeader[]>(() => {
-  const h = [] as DataTableHeader[];
-  h.push({ text: "Submission", value: "name", sortable: true });
+const headers = computed<any[]>(() => {
+  const h = [];
+  h.push({ title: "Submission", key: "name", sortable: true });
 
   // Only add the label header if there are labels.
   if (hasLabels.value) {
-    h.push({ text: "Label", value: "label", sortable: true });
+    h.push({ title: "Label", key: "label", sortable: true });
   }
 
   // Only add timestamp header when present.
   if (hasTimestamps.value) {
     h.push({
-      text: "Timestamp",
-      value: "timestamp",
+      title: "Timestamp",
+      key: "timestamp",
       sortable: true,
       filterable: false,
     });
   }
 
   h.push({
-    text: "Similarity",
-    value: "similarity",
+    title: "Similarity",
+    key: "similarity",
     sortable: true,
     filterable: false,
   });
   h.push({
-    text: "Cluster",
-    value: "cluster",
+    title: "Cluster",
+    key: "cluster",
     sortable: true,
     filterable: false,
   });
   h.push({
-    text: "",
-    value: "actions",
+    title: "",
+    key: "actions",
     sortable: false,
     filterable: false,
     align: "end",
@@ -163,13 +161,6 @@ const headers = computed<DataTableHeader[]>(() => {
 
   return h;
 });
-
-// Table footer
-const footerProps = {
-  itemsPerPageOptions: [15, 25, 50, 100, -1],
-  showCurrentPage: true,
-  showFirstLastPage: true,
-};
 
 // Clustering type.
 enum ClusterRelation {
@@ -213,7 +204,7 @@ const items = computed(() => {
 // When a row is clicked.
 const rowClicked = (e: Event, value: any) => {
   // Go to the pair page.
-  router.push({ name: "Submission", params: { pairId: value.item.id } });
+  router.push({ name: "Submission", params: { pairId: value.item.raw.id } });
 };
 </script>
 

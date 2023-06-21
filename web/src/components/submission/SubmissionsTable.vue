@@ -53,18 +53,18 @@
             <span
               v-if="props.order"
               v-bind="props"
-              :class="item.raw.order === 1 ? 'primary--text' : 'text-medium-emphasis'"
+              :class="item.raw.order === 1 ? 'text-primary' : 'text-medium-emphasis'"
             >
               #{{ item.raw.order }}
             </span>
           </template>
 
-          <span>This is the #{{ item.order }} submission in the cluster</span>
+          <span>This is the #{{ item.raw.order }} submission in the cluster</span>
         </v-tooltip>
 
         <file-timestamp
-          :class="props.order && item.order === 1 ? 'primary--text' : ''"
-          :timestamp="item.timestamp"
+          :class="props.order && item.raw.order === 1 ? 'text-primary' : ''"
+          :timestamp="item.raw.timestamp"
           long
         />
       </span>
@@ -104,7 +104,7 @@ const { similarities, hasTimestamps, hasLabels } = storeToRefs(fileStore);
 const searchValue = useVModel(props, "search", emit);
 
 // Table sort
-const sortBy = computed(() => {
+const sortBy = computed<any>(() => {
   if (props.disableSorting) return [];
   return [{
     key: "similarity",
@@ -189,8 +189,8 @@ const items = computed(() => {
 });
 
 // When a row is clicked.
-const rowClicked = (item: { id: string }): void => {
-  router.push({ name: "Submission", params: { fileId: item.id } });
+const rowClicked = (e: Event, value: any): void => {
+  router.push({ name: "Submission", params: { fileId: value.item.raw.id } });
 };
 </script>
 
