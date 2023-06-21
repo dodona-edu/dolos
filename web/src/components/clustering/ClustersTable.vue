@@ -16,7 +16,9 @@
       />
     </template>
 
-    <template #item.size="{ item }"> {{ item.raw.size }} submissions </template>
+    <template #item.size="{ item }">
+      {{ item.raw.size }} submissions
+    </template>
 
     <template #item.similarity="{ item }">
       <span class="submission-similarity">
@@ -50,7 +52,7 @@ const router = useRouter();
 const pairStore = usePairStore();
 
 // Table sort
-const sortBy = computed(() => [{
+const sortBy = computed<any>(() => [{
   key: 'size',
   order: 'desc'
 }]);
@@ -114,8 +116,8 @@ const maxWidth = computed(() => {
 });
 
 // When a row is clicked.
-const rowClicked = (item: { id: string }): void => {
-  router.push({ name: "Cluster", params: { clusterId: item.id } });
+const rowClicked = (e: Event, value: any): void => {
+  router.push({ name: "Cluster", params: { clusterId: value.item.id } });
 };
 </script>
 
