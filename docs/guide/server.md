@@ -1,6 +1,6 @@
-# Using Dolos Server
+# Using Dolos Online
 
-We provide a free online service to run Dolos directly in our browser.
+We provide a free online service to run Dolos directly from your browser.
 You can use this service at [dolos.ugent.be/server](https://dolos.ugent.be/server).
 
 If you want to follow along, you can download a [ZIP with sample files](/simple-dataset.zip) which you can analyze on our server.
@@ -20,8 +20,16 @@ Click "Analyze" to upload your files and start the analysis.
 
 ### Upload format
 
-Currently, we only support uploading a single ZIP-file containing all the files you want to analyze with an required `info.csv` file.
-This is the format in which [Dodona](./dodona.md) exports submissions.
+Currently, we only support uploading a single ZIP-file containing all the files you want to analyze with a required `info.csv` file.
+
+::: info
+
+This is the format in which [Dodona](./dodona.md) exports submissions. 
+If you're exporting from Dodona, you don't need to do anything.
+
+We plan to support more formats in the future.
+
+:::
 
 A column **filename** is required and should contain the path of the file relative to the root of the ZIP-file.
 
@@ -33,24 +41,24 @@ Additional columns will be ignored.
 
 #### Example
 
-An example of the `info.csv` for our sample submissions:
+An example of a valid `info.csv`:
 
 ::: code-group
 
 ```csv [Only required column]
 filename
-sample.js
-copy_of_sample.js
-copied_function.js
-another_copied_function.js
+alice.js
+bob.js
+carol.js
+zoe.js
 ```
 
 ```csv [With optional columns]
 filename,labels,created_at
-sample.js,original,2019-07-23 17:12:33 +0200
-copy_of_sample.js,copy,2019-07-25 11:02:57 +0200
-copied_function.js,copy,2019-07-25 14:43:20 +0200
-another_copied_function.js,copy,2019-07-27 19:22:39 +0200
+alice.js,teacher,2019-07-23 17:12:33 +0200
+bob.js,,2019-07-25 11:02:57 +0200
+carol.js,group1,2019-07-25 14:43:20 +0200
+zoe.js,group1,2019-07-27 19:22:39 +0200
 ```
 :::
 

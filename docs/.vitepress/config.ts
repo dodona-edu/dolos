@@ -22,9 +22,9 @@ export default defineConfig({
     sidebar: [
       { text: "Introduction", link: "/guide/" },
       {
-        text: 'Server',
+        text: 'Dolos Online',
         items: [
-          { text: 'Using Dolos server', link: '/guide/server' },
+          { text: 'Using Dolos Online', link: '/guide/server' },
           { text: 'Use case: Dodona', link: '/guide/dodona' },
         ]
       },

@@ -5,8 +5,7 @@ titleTemplate: Source Code Plagiarism Detection
 
 hero:
   name: "Dolos"
-  tagline: Open-source source code plagiarism detection
-      supporting a wide range of programming languages.
+  tagline: Quick and easy plagiarism detection for a wide range of programming languages.
   text: Source code plagiarism detection
 
   image:
@@ -31,14 +30,20 @@ features:
   - title: Free online service
     details: No installation required. Secure, private and fast. Just upload your files and get a report. 
     link: https://dolos.ugent.be/server/
-    linkText: Run Dolos online
+    linkText: Try Dolos online
     icon: 🌩️
     
-  - title: Programming languages
+  - title: Multilingual
     details: Dolos supports many programming languages by leveraging the <b>tree-sitter</b> parser library.
     link: /about/languages.html
     linkText: Supported languages
     icon: 🌳
+    
+  - title: CLI & Library
+    details: Run Dolos from the command line or use it as a library in your own project. For advanced users.
+    link: /guide/installation
+    linkText: Installation instructions
+    icon: 💻
         
     
   - title: Open source
@@ -47,19 +52,13 @@ features:
     linkText: View source
     icon: 📖
     
-  - title: Active research
+  - title: Fueled by research
     details: Dolos is the result of active research in the field of source code plagiarism detection.
     link: /publications/
     linkText: Publications
     icon: 🔬
     
-  - title: CLI & Library
-    details: Run Dolos from the command line or use it as a library in your own project. For advanced users.
-    link: /guide/installation
-    linkText: Installation instructions
-    icon: 💻
-    
-  - title: State-of-the-art algorithm
+  - title: Advanced algorithms
     details: Using state-of-the-art algorithms, Dolos helps you discover plagiarism.
     link: /about/algorithm
     linkText: How it works

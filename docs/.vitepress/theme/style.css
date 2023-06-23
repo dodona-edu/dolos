@@ -123,4 +123,8 @@
     vertical-align: middle;
 }
 
+.tagline {
+    text-wrap: balance;
+}
+
 

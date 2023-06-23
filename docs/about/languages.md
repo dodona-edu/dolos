@@ -35,7 +35,7 @@ Dolos CLI and the online service have out-of-the-box support for the most common
 
 ## Requesting support for a new language
 
-If you're using the Dolos Server and the language you want to use is not in the list above, you can request support
+If you're using the Dolos Online and the language you want to use is not in the list above, you can request support
 on our [issue tracker on GitHub](https://github.com/dodona-edu/dolos/issues/1029) or [by sending us an email](mailto:dodona@ugent.be).
 
 ## Adding a language locally
