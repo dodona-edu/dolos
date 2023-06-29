@@ -21,12 +21,16 @@
       </v-col>
     </v-row>
 
-    <v-alert type="info" variant="tonal" dense v-if="isSimilarityFilterApplied">
-      Showing submissions with highest similarity between
-      {{ (startSimilarity * 100).toFixed(0) }}% and
-      {{ (endSimilarity * 100).toFixed(0) }}%.
+    <v-alert v-if="isSimilarityFilterApplied" class="mb-4" type="info" variant="tonal" density="compact">
+      <div class="d-flex justify-space-between align-center">
+        <div>
+          Showing submissions with highest similarity between
+          {{ (startSimilarity * 100).toFixed(0) }}% and
+          {{ (endSimilarity * 100).toFixed(0) }}%.
+        </div>
 
-      <a href="#" @click.prevent="clearSimilarityFilter"> Clear filter </a>
+        <v-btn variant="text" @click.prevent="clearSimilarityFilter" append-icon="mdi-close"> Clear filter </v-btn>
+      </div>
     </v-alert>
 
     <v-card>

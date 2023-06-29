@@ -3,12 +3,9 @@ import AnalysisLayout from "@/layouts/analysis.vue";
 import UploadLayout from "@/layouts/upload.vue";
 
 // Upload path
-export const uploadPathPrefix =
-  process.env.VUE_APP_MODE === "server" ? "" : "/upload";
-
+export const uploadPathPrefix = import.meta.env.VITE_MODE === "server" ? "" : "/upload";
 // Analysis path
-const analysisPathPrefix =
-  process.env.VUE_APP_MODE === "server" ? "/reports/:referenceId" : "";
+const analysisPathPrefix = import.meta.env.VITE_MODE === "server" ? "/reports/:referenceId" : "";
 
 const routes = [
   {
@@ -84,7 +81,7 @@ const routes = [
 ];
 
 const router = createRouter({
-  history: createWebHashHistory(process.env.BASE_URL),
+  history: createWebHashHistory(import.meta.env.BASE_URL),
   routes,
 });
 

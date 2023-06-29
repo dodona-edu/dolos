@@ -86,7 +86,7 @@ export const useReportsStore = defineStore("reports", () => {
 
   // Get the URL for a given report id.
   const getReportUrlById = (reportId: string | undefined) => {
-    return `${process.env.VUE_APP_API_URL}/reports/${reportId}`;
+    return `${import.meta.env.VITE_API_URL}/reports/${reportId}`;
   };
 
   async function checkReports() {

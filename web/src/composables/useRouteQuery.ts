@@ -16,7 +16,7 @@ export function useRouteQuery<T>(key: string, defaultValue: T, converter?: (v: s
 
     set(value: string) {
       const newRoute = {
-        query: {
+        params: {
           ...route.query,
           [key]: String(value ?? defaultValue),
         }
@@ -24,10 +24,10 @@ export function useRouteQuery<T>(key: string, defaultValue: T, converter?: (v: s
 
       // Remove the key from the query if there is no value.
       if (value === null || value === undefined || value === "") {
-        delete newRoute.query[key];
+        delete newRoute.params[key];
       }
 
-      router.replace(newRoute).catch(() => { return false; });
+      router.push(newRoute).catch(() => { return false; });
     }
   });
 }

@@ -145,7 +145,7 @@ const onSubmit = async (): Promise<void> => {
     // Upload the file.
     try {
       const response = await axios.post(
-        `${process.env.VUE_APP_API_URL}/reports`,
+        `${import.meta.env.VITE_API_URL}/reports`,
         data,
         {
           onUploadProgress: (e) => {
