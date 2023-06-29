@@ -126,7 +126,7 @@
                     node-clickable
                     @click:node="onNodeClick"
                   >
-                    <graph-legend v-model:legend="legend" />
+                    <graph-legend v-model:legend="legend" readonly />
                   </graph-canvas>
                 </div>
               </v-card-text>
@@ -139,10 +139,7 @@
                 highest similarity of other submissions.
               </v-card-subtitle>
               <v-card-text>
-                <submission-histogram
-                  field="similarity"
-                  :file="file"
-                />
+                <submission-histogram field="similarity" :file="file" />
               </v-card-text>
             </v-card>
 
@@ -153,10 +150,7 @@
                 longest fragment of other submissions.
               </v-card-subtitle>
               <v-card-text>
-                <submission-histogram
-                  field="longestFragment"
-                  :file="file"
-                />
+                <submission-histogram field="longestFragment" :file="file" />
               </v-card-text>
             </v-card>
           </v-col>

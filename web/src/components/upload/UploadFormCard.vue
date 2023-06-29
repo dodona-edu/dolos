@@ -320,7 +320,7 @@ watch(
                   <v-text-field
                     v-model="name"
                     :rules="nameRules"
-                    label="File name"
+                    label="Analysis name"
                     outlined
                     dense
                   />

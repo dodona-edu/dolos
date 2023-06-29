@@ -59,9 +59,12 @@
                   The dataset you analyzed did not contain timestamps, so some
                   visualizations will not be available. Learn how to add
                   metadata
-                  <a href="https://dolos.ugent.be/guide/dodona.html" target="_blank">
-                    here
-                  </a>.
+                  <a
+                    href="https://dolos.ugent.be/guide/dodona.html"
+                    target="_blank"
+                  >
+                    here </a
+                  >.
                 </span>
               </div>
             </v-card-text>
@@ -96,7 +99,7 @@
                 node-clickable
                 @click:node="onNodeClick"
               >
-                <graph-legend v-model:legend="legend" />
+                <graph-legend v-model:legend="legend" readonly />
               </graph-canvas>
             </v-card-text>
           </v-card>

@@ -1,6 +1,6 @@
 <template>
   <div class="timeseries" ref="timeseriesElement">
-    <graph-legend v-model:legend="legend" />
+    <graph-legend v-model:legend="legend" readonly />
   </div>
 </template>
 
@@ -225,12 +225,6 @@ watch(
     draw();
   }
 );
-
-// TODO: fix this, as it causes max call stack errors.
-// // Update the internal legend object when the legend changes.
-// watch(legend, (l) => {
-//   legend.value = l;
-// });
 
 // Watch width changes & update the size.
 watch(width, () => {

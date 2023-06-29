@@ -12,12 +12,14 @@ jobs:
       mysql:
         image: mariadb
         env:
-          MYSQL_ROOT_PASSWORD: dolos
-          MYSQL_DATABASE: dolos_test
-          MYSQL_HOST: localhost
+          MARIADB_ROOT_PASSWORD: dolos
+          MARIADB_DATABASE: dolos_test
+          MARIADB_HOST: localhost
+          MARIADB_MYSQL_LOCALHOST_USER: 1
+          MARIADB_MYSQL_LOCALHOST_GRANTS: USAGE
         ports:
           - 3306:3306
-        options: --health-cmd="mysqladmin ping -h localhost" --health-interval=10s --health-timeout=5s --health-retries=5
+        options: --health-cmd="healthcheck.sh --su-mysql --connect --innodb_initialized" --health-interval=10s --health-timeout=5s --health-retries=5
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v3
