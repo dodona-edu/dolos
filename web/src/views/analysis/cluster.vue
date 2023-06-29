@@ -98,7 +98,7 @@
                 node-clickable
                 @click:node="onNodeClick"
               >
-                <graph-legend :legend.sync="legend" />
+                <graph-legend :legend="legend" readonly />
               </graph>
             </v-card-text>
           </v-card>
