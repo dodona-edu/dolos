@@ -6,6 +6,7 @@
     >
       <label>
         <input
+          :disabled="readonly"
           type="checkbox"
           v-model="legendDatum.selected"
           class="legend-checkbox"
@@ -31,9 +32,10 @@ import { useVModel } from "@vueuse/core";
 
 interface Props {
   legend: Legend;
+  readonly?: boolean;
 }
 
-const props = withDefaults(defineProps<Props>(), {});
+const props = withDefaults(defineProps<Props>(), { readonly: false });
 const emit = defineEmits(["update:legend"]);
 const legendValue = useVModel(props, "legend", emit);
 

@@ -1,6 +1,6 @@
 <template>
   <div class="timeseries" ref="timeseriesElement">
-    <graph-legend :legend.sync="legend" />
+    <graph-legend :legend="legend" readonly />
   </div>
 </template>
 
@@ -225,11 +225,6 @@ watch(
     draw();
   }
 );
-
-// Update the internal legend object when the legend changes.
-watch(legend, (l) => {
-  legend.value = l;
-});
 
 // Watch width changes & update the size.
 watch(width, () => {
