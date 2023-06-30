@@ -68,27 +68,6 @@ const { labels, labelFilesCount, hasLabels } = storeToRefs(fileStore);
 .labels {
   &-switch {
     margin-top: 0;
-
-    :deep(.v-input--switch__track) {
-      height: 22px;
-    }
-
-    :deep(.v-input--switch__thumb),
-    :deep(.v-input--selection-controls__ripple) {
-      height: 14px;
-      width: 14px;
-    }
-
-    :deep(.v-input--selection-controls__ripple) {
-      height: 24px;
-      width: 24px;
-      left: -12px;
-      top: -10px;
-    }
-
-    :deep(.v-input__slot) {
-      margin-bottom: 0;
-    }
   }
 }
 </style>
