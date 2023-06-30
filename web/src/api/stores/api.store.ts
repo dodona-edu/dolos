@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { useAppMode } from "@/composables";
-import { shallowRef, watch, computed } from "vue";
+import { shallowRef, watch } from "vue";
 import {
   useFileStore,
   useKgramStore,

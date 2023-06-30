@@ -5,7 +5,6 @@ import { ref } from "vue";
 import { useSnackbar } from "../util/snackbar/useSnackbar";
 import axios from "axios";
 import { useReportsStore } from "@/stores";
-import { useAppMode } from "@/composables";
 
 type Props = {
   open: boolean;
@@ -20,7 +19,6 @@ const reports = useReportsStore();
 const open = useVModel(props, "open", emit);
 const loading = ref(false);
 const snackbar = useSnackbar();
-const appmode = useAppMode();
 
 // Cancel the deletion.
 const cancel = (): void => {
@@ -54,7 +52,8 @@ const confirm = async (): Promise<void> => {
       color: "error",
       timeout: 5000,
     });
-    console.log(error);
+    // eslint-disable-next-line no-console
+    console.error(error);
   } finally {
     loading.value = false;
 

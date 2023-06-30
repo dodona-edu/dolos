@@ -120,7 +120,6 @@ const onChange = (): void => {
   const files = input.value?.files;
   const filesList = files ? Array.from(files) : [];
   file.value = filesList[0];
-  console.log(file.value);
 };
 </script>
 
