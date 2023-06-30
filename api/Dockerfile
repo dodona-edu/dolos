@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM ruby:3.1.2
+FROM ruby:3.2.2
 RUN apt-get update -qq && apt-get -y install mariadb-client
 WORKDIR /dolos
 
