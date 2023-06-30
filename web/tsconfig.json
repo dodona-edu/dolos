@@ -11,6 +11,7 @@
     "jsx": "preserve",
     "sourceMap": false,
     "resolveJsonModule": true,
+    "skipLibCheck": true,
     "lib": ["esnext", "dom"],
     "types": [
       "node",

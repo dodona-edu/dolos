@@ -15,7 +15,7 @@
 </template>
 
 <script lang="ts" setup>
-import { withDefaults, ref, shallowRef, onMounted, watch, onUnmounted } from "vue";
+import { ref, shallowRef, onMounted, watch, onUnmounted } from "vue";
 import { Pair, Metadata } from "@/api/models";
 import * as monaco from "monaco-editor";
 

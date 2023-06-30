@@ -7,6 +7,6 @@ const pair = usePairStore();
 </script>
 
 <template>
-  <Pair v-if="pair.hasOnlyOnePair" :pair-id="String(pair.onlyPair.id)" />
+  <Pair v-if="pair.hasOnlyOnePair" :pair-id="String(pair.onlyPair?.id)" />
   <Overview v-else />   
 </template>

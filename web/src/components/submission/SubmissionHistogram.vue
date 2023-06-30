@@ -4,7 +4,7 @@
     :ticks="25"
     :height="315"
     :calculate-bin-color="calculateBinColor"
-    :line-value="lineValue"
+    :line-value="lineValue ?? 0"
   />
 </template>
 

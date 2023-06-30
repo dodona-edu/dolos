@@ -31,7 +31,9 @@ export function createTooltips(
 }
 
 export function createDrag(simulation: Simulation): d3.DragBehavior<HTMLCanvasElement, D3Node, unknown> {
-  let startX, startY;
+  let startX: number;
+  let startY: number;
+
   return d3.drag<HTMLCanvasElement, D3Node>()
     .subject((event) => simulation.findNode(event.sourceEvent.offsetX, event.sourceEvent.offsetY)!)
     .on("start", (event) => {

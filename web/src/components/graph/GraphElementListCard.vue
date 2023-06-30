@@ -32,7 +32,7 @@ const props = withDefaults(defineProps<Props>(), {});
   max-height: v-bind("props.maxHeight");
 
   &-row {
-    cursor: v-bind("rowCursor");
+    cursor: pointer;
     transition: background-color 0.15s ease;
 
     &.selected {

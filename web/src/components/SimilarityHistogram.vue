@@ -78,7 +78,7 @@ const histogramContent = histogramChart
 
 // Tooltip
 const tooltip = useD3Tooltip({ relativeToMouse: true });
-const tooltipMessage = (d): string => {
+const tooltipMessage = (d: any): string => {
   return `
     There are <b>${d.length}</b> submissions that have a
     highest similarity between <b>${d.x0}</b> and <b>${d.x1}</b>

@@ -7,7 +7,6 @@
 
 <script lang="ts" setup>
 import {
-  withDefaults,
   ref,
   shallowRef,
   onMounted,
