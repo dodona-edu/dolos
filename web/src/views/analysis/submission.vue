@@ -19,7 +19,7 @@
           </div>
         </div>
 
-        <v-row class="mt-2">
+        <v-row>
           <v-col cols="12" md="8">
             <v-card>
               <v-card-title>Compare</v-card-title>
