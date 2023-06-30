@@ -71,6 +71,7 @@
                 type="info"
                 icon="mdi-information"
                 variant="tonal"
+                density="compact"
                 closable
               >
                 The diff view has been automatically selected, as the files have

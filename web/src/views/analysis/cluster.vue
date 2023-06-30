@@ -123,7 +123,7 @@
         <v-col>
           <v-card>
             <v-card-title>Not found</v-card-title>
-            <v-card-subtitle>This cluster was not found.</v-card-subtitle>
+            <v-card-text>This cluster was not found.</v-card-text>
           </v-card>
         </v-col>
       </v-row>
