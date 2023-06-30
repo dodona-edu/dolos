@@ -2,8 +2,9 @@
   <div>
     <breadcrumbs
       v-if="!pairStore.hasOnlyOnePair"
-      :current-override="{ text: `${pair?.leftFile?.shortPath} & ${pair?.rightFile?.shortPath}` }"
-      :previous-fallback="{ text: 'View by pairs', to: { name: 'Pairs' } }"
+      :current-text="`${pair?.leftFile?.shortPath} & ${pair?.rightFile?.shortPath}`"
+      :previous-fallback-text="`View by pairs`"
+      :previous-fallback-to="{ name: 'Pairs' }"
     />
 
     <v-row justify="center">

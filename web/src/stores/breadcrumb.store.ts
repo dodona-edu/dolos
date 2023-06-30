@@ -14,7 +14,6 @@ export const useBreadcrumbStore = defineStore("breadcrumbs", () => {
   // Guard each navigation change.
   router.beforeEach((to, from, next) => {
     previousPage.value = from;
-
     // Continue to the next page.
     next();
   });

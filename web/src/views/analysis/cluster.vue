@@ -2,15 +2,10 @@
   <div class="submissions">
     <template v-if="cluster">
       <breadcrumbs
-        :current-override="{
-          text: `Cluster ${clusterId}`,
-          to: { name: 'Cluster' },
-          params: { clusterId: clusterId },
-        }"
-        :previous-fallback="{
-          text: 'View by cluster',
-          to: { name: 'Clusters' },
-        }"
+        :current-text="`Cluster ${clusterId}`"
+        :current-to="{ name: 'Cluster', params: { clusterId: clusterId } }"
+        :previous-fallback-text="`View by cluster`"
+        :previous-fallback-to="{ name: 'Clusters' }"
       />
 
       <div class="heading">

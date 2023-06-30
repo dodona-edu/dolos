@@ -3,11 +3,9 @@
     <transition name="slide-y-transition" mode="out-in">
       <div v-if="file" :key="file.id">
         <breadcrumbs
-          :current-override="{ text: file.extra.fullName ?? file.shortPath }"
-          :previous-fallback="{
-            text: 'View by submission',
-            to: { name: 'Submissions' },
-          }"
+          :current-text="file.extra.fullName ?? file.shortPath"
+          :previous-fallback-text="`View by submission`"
+          :previous-fallback-to="{ name: 'Submissions' }"
         />
 
         <div class="heading">
