@@ -38,24 +38,24 @@ const isDone = computed(
 <template>
   <v-dialog v-model="open" max-width="700px">
     <v-card v-if="props.report">
-      <v-card-title color="transparent" flat>
+      <v-card-title class="d-flex align-center" color="transparent" flat>
         <span> {{ props.report.name }} </span>
-
         <v-spacer />
-
-        <v-btn icon @click="open = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
+        <v-btn icon="mdi-close" variant="text" @click="open = false" />
       </v-card-title>
 
-      <v-list class="info-list" dense>
+      <v-list class="info-list" density="compact">
         <v-list-item class="info-list-item">
-          <v-icon>mdi-clock-outline</v-icon>
-          <span>{{ reportDate }}</span>
+          <template #prepend>
+            <v-icon>mdi-clock-outline</v-icon>
+          </template>
+          <v-list-item-title>{{ reportDate }}</v-list-item-title>
         </v-list-item>
 
         <v-list-item class="info-list-item">
-          <v-icon>mdi-pulse</v-icon>
+          <template #prepend>
+            <v-icon>mdi-pulse</v-icon>
+          </template>
           <upload-status :status="props.report.status" />
         </v-list-item>
       </v-list>

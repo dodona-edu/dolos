@@ -46,14 +46,10 @@ const copyShareUrl = (): void => {
 <template>
   <v-dialog v-model="open" max-width="500px">
     <v-card v-if="props.report">
-      <v-card-title color="transparent" flat>
+      <v-card-title class="d-flex align-center" color="transparent" flat>
         <span>Share: {{ report.name }}</span>
-
         <v-spacer />
-
-        <v-btn icon @click="open = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
+        <v-btn icon="mdi-close" variant="text" @click="open = false" />
       </v-card-title>
 
       <v-card-text>

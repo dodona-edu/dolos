@@ -66,13 +66,13 @@ const openInfoDialog = (e: Event, value: any): void => {
 
 // Open the dialog for deleting a specific report.
 const openDeleteDialog = (item: any): void => {
-  selectedReportId.value = item.report.reportId;
+  selectedReportId.value = item.raw.report.reportId;
   deleteDialog.value = true;
 };
 
 // Open the dialog for sharing a specific report.
 const openShareDialog = (item: any): void => {
-  selectedReportId.value = item.report.reportId;
+  selectedReportId.value = item.raw.report.reportId;
   shareDialog.value = true;
 };
 </script>
@@ -85,6 +85,7 @@ const openShareDialog = (item: any): void => {
       :items="items"
       :sort-by="sortBy"
       :items-per-page="15"
+      density="comfortable"
       @click:row="openInfoDialog"
     >
       <!-- Status -->
@@ -96,23 +97,21 @@ const openShareDialog = (item: any): void => {
       <template #item.actions="{ item }">
         <!-- Delete -->
         <v-btn
-          icon
+          variant="text"
           color="error"
+          icon="mdi-delete"
           :disabled="!item.raw.done"
           @click.stop="openDeleteDialog(item)"
-        >
-          <v-icon>mdi-delete</v-icon>
-        </v-btn>
+        />
 
         <!-- Share-->
         <v-btn
-          icon
+          variant="text"
           color="primary"
+          icon="mdi-share-variant"
           :disabled="item.raw.status !== 'finished'"
           @click.stop="openShareDialog(item)"
-        >
-          <v-icon>mdi-share-variant</v-icon>
-        </v-btn>
+        />
       </template>
     </v-data-table>
 

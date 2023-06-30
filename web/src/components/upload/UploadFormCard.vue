@@ -19,6 +19,7 @@ const filesRules = [(v: File) => !!v || "File is required"];
 
 // Selected file name.
 const name = shallowRef<string>();
+const nameRules = [(v: string) => !!v || "Name is required"];
 
 // Update the file name when the file changes.
 watch(files, (files) => {
@@ -283,28 +284,25 @@ watch(
     <v-card-subtitle>Upload a dataset to analyze.</v-card-subtitle>
 
     <v-card-text>
-      <v-alert type="info" variant="tonal">
+      <v-alert class="mb-2" type="info" variant="tonal" closable>
         Datasets and reports older than 30 days may be deleted from our server
         to save space. You can always delete the data yourself.
       </v-alert>
 
       <v-window class="upload-stepper" v-model="step">
         <v-window-item :value="1">
-          <transition name="slide-y-transition">
-            <v-alert v-if="error" class="my-4" variant="tonal" type="error" density="compact">
-              {{ error }}
-            </v-alert>
-          </transition>
+          <v-alert v-if="error" class="mb-4" variant="tonal" type="error" density="compact">
+            {{ error }}
+          </v-alert>
 
-          <v-form v-model="valid" class="pt-2" @submit="onSubmit">
+          <v-form v-model="valid" class="mt-2" fast-fail @submit="onSubmit">
             <v-file-input
               v-model="files"
               :rules="filesRules"
               :truncate-length="80"
               :show-size="1000"
               persistent-hint
-              hint="We currently only support a ZIP-file with a mandatory
-                    info.csv file listing the files to analyze."
+              hint="We currently only support a ZIP-file with a mandatory info.csv file listing the files to analyze."
               prepend-icon=""
               prepend-inner-icon="$file"
               accept="zip, application/zip"
@@ -316,6 +314,7 @@ watch(
             <v-text-field
               class="mt-4"
               v-model="name"
+              :rules="nameRules"
               label="Analysis name"
               variant="outlined"
               density="compact"
@@ -349,6 +348,7 @@ watch(
 
           <v-card-actions class="pa-0">
             <v-spacer />
+
             <v-btn
               color="primary"
               elevation="0"
@@ -364,7 +364,7 @@ watch(
         <v-window-item :value="2">
           <span>Uploading file...</span>
 
-          <v-progress-linear class="mt-2" v-model="uploadProgress" height="25">
+          <v-progress-linear v-model="uploadProgress" class="mt-2" color="primary" height="25">
             <strong>{{ uploadProgress }}%</strong>
           </v-progress-linear>
 
