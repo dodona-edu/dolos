@@ -1,7 +1,7 @@
 <template>
   <div>
-    <navbar v-model:drawer="drawer" :to="{ name: 'Upload' }" />
-    <sidebar v-model="drawer" variant="upload" />
+    <page-navbar v-model:drawer="drawer" :to="{ name: 'Upload' }" />
+    <page-sidebar v-model="drawer" variant="upload" />
 
     <v-main>
       <v-container fluid>

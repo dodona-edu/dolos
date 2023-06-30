@@ -14,19 +14,20 @@ const valid = shallowRef(false);
 const error = shallowRef();
 
 // Selected file.
-const file = shallowRef<File>();
-const fileRules = [(v: File) => !!v || "File is required"];
+const files = shallowRef<File[]>();
+const filesRules = [(v: File) => !!v || "File is required"];
 
 // Selected file name.
 const name = shallowRef<string>();
-const nameRules = [];
 
 // Update the file name when the file changes.
-watch(file, (file) => {
-  if (file) {
+watch(files, (files) => {
+  if (files) {
+    const file = files[0];
+    if (!file) return;
+
     name.value = file.name;
-    // Strip the extension.
-    name.value = name.value.replace(/\.[^/.]+$/, "");
+    name.value = name.value.replace(/\.[^/.]+$/, ""); // strip extension
   } else {
     name.value = "";
   }
@@ -34,7 +35,6 @@ watch(file, (file) => {
 
 // Selected language.
 const language = shallowRef<string | null>(null);
-const languageRules = [];
 
 // List with available programming languages.
 const languages = [
@@ -106,7 +106,7 @@ const reportRoute = computed(() =>
 
 // Clear the form.
 const clearForm = (): void => {
-  file.value = undefined;
+  files.value = undefined;
   name.value = "";
   language.value = null;
 };
@@ -134,8 +134,9 @@ const handleError = (message: string): void => {
 const onSubmit = async (): Promise<void> => {
   // Make sure the form is valid.
   if (valid.value) {
+    const file = files.value?.[0];
     const data = new FormData();
-    data.append("dataset[zipfile]", file.value ?? new Blob());
+    data.append("dataset[zipfile]", file ?? new Blob());
     data.append("dataset[name]", name.value ?? "");
     data.append("dataset[programming_language]", language.value ?? "");
 
@@ -149,7 +150,7 @@ const onSubmit = async (): Promise<void> => {
         data,
         {
           onUploadProgress: (e) => {
-            uploadProgress.value = Math.ceil((e.loaded / e.total) * 100);
+            uploadProgress.value = Math.ceil((e.loaded / (e.total ?? 1)) * 100);
 
             // Go to the next step when the upload is complete.
             if (e.loaded === e.total) {
@@ -234,7 +235,7 @@ const startPolling = (reportId: string): void => {
         report.status === "error" ||
         report.status === "failed"
       ) {
-        delete pollingReports[report.reportId];
+        pollingReports.value = pollingReports.value.filter((id) => id !== reportId);
         clearInterval(interval);
       }
 
@@ -285,8 +286,8 @@ watch(
 
     <v-card-text>
       <v-alert type="info" variant="tonal">
-          Datasets and reports older than 30 days may be deleted from our server to save space.
-          You can always delete the data yourself.
+        Datasets and reports older than 30 days may be deleted from our server to save space.
+        You can always delete the data yourself.
       </v-alert>
 
       <v-stepper class="upload-stepper" v-model="step" flat>
@@ -302,8 +303,8 @@ watch(
               <v-row>
                 <v-col cols="12">
                   <v-file-input
-                    v-model="file"
-                    :rules="fileRules"
+                    v-model="files"
+                    :rules="filesRules"
                     :truncate-length="80"
                     :show-size="1000"
                     persistent-hint
@@ -313,27 +314,25 @@ watch(
                     prepend-inner-icon="$file"
                     accept="zip, application/zip"
                     label="Upload a file (*.zip)"
-                    outlined
-                    dense
+                    variant="outlined"
+                    density="compact"
                   />
 
                   <v-text-field
                     v-model="name"
-                    :rules="nameRules"
                     label="Analysis name"
-                    outlined
-                    dense
+                    variant="outlined"
+                    density="compact"
                   />
 
                   <v-autocomplete
                     v-model="language"
-                    :rules="languageRules"
                     :items="languages"
                     label="Programming language"
-                    item-text="name"
+                    item-title="name"
                     item-value="value"
-                    outlined
-                    dense
+                    variant="outlined"
+                    density="compact"
                   />
                 </v-col>
 
@@ -346,7 +345,7 @@ watch(
                     v-model="accept"
                     :rules="acceptRules"
                     label="I accept the above conditions."
-                    outlined
+                    color="primary"
                   >
                   </v-checkbox>
                 </v-col>
