@@ -1,5 +1,5 @@
 <template>
-  <v-table class="graph-list" fixed-header density="compact">
+  <v-table class="graph-list" fixed-header :height="props.maxHeight" density="compact">
     <thead>
       <tr>
         <th>Submission</th>
@@ -84,7 +84,6 @@ watch(
 <style lang="scss" scoped>
 .graph-list {
   max-height: v-bind("props.maxHeight");
-  overflow-y: auto;
 
   // No wrapping of columns
   td {

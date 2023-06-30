@@ -50,13 +50,11 @@
             </v-list-item>
           </v-list>
 
-          <template>
-            <v-card-title class="info-card-subtitle pt-0 pb-0">
-              {{ hasLabels ? legendCount : "No" }} labels detected
-            </v-card-title>
+          <v-card-title class="info-card-subtitle pt-0 pb-0">
+            {{ hasLabels ? legendCount : "No" }} labels detected
+          </v-card-title>
 
-            <labels-table class="info-card-labels" show-submissions />
-          </template>
+          <labels-table class="info-card-labels" show-submissions />
         </v-card>
       </v-col>
 

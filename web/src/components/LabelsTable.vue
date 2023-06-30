@@ -1,5 +1,5 @@
 <template>
-  <v-table class="labels" fixed-header dense>
+  <v-table class="labels" fixed-header height="100%" density="compact">
     <thead>
       <tr>
         <th>Label</th>
