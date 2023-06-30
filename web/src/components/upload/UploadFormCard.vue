@@ -193,7 +193,6 @@ const onSubmit = async (): Promise<void> => {
 
 // Poll configuration
 const pollingInterval = 1000;
-const pollingMax = 60;
 
 // List containing the the ids of the reports that are currently polling.
 const pollingReports = ref<string[]>([]);

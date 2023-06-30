@@ -80,7 +80,7 @@ const nodeCursor = computed(() =>
 );
 
 // Node tooltip
-const nodeTooltip = useD3Tooltip({ relativeToMouse: true });
+const tooltip = useD3Tooltip({ relativeToMouse: true });
 
 // Simulation
 const simulation = shallowRef();
@@ -148,18 +148,18 @@ const draw = (): void => {
     .attr("visibility", (d) => getVisibility(d.file))
     .on("mouseover", (e: MouseEvent, node: any) => {
       if (!props.nodeTooltip) return;
-      nodeTooltip.onMouseOver(
+      tooltip.onMouseOver(
         e,
         node.file.extra.fullName ?? node.file.shortPath
       );
     })
     .on("mousemove", (e: MouseEvent) => {
       if (!props.nodeTooltip) return;
-      nodeTooltip.onMouseMove(e);
+      tooltip.onMouseMove(e);
     })
     .on("mouseleave", (e: MouseEvent) => {
       if (!props.nodeTooltip) return;
-      nodeTooltip.onMouseOut(e);
+      tooltip.onMouseOut(e);
     })
     .on("click", (e: MouseEvent, node: any) => {
       if (!props.nodeClickable) return;

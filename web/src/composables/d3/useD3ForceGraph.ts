@@ -1,4 +1,4 @@
-import { onMounted, onUnmounted, ShallowRef, watch, Ref, shallowRef } from "vue";
+import { onMounted, onUnmounted, ShallowRef, Ref, shallowRef } from "vue";
 import { useDebounceFn } from "@vueuse/core";
 import * as d3 from "d3";
 import { Data, Edge, Node, D3Node, Group } from "@/composables/d3/graph/data";
