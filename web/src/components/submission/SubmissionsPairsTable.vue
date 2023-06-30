@@ -205,7 +205,7 @@ const items = computed(() => {
 // When a row is clicked.
 const rowClicked = (e: Event, value: any) => {
   // Go to the pair page.
-  router.push({ name: "Submission", params: { pairId: value.item.raw.id } });
+  router.push({ name: "Submission", params: { fileId: value.item.raw.fileId } });
 };
 </script>
 

@@ -11,6 +11,7 @@
 .v-data-table__tr--clickable {
   &:hover {
     td {
+      cursor: pointer;
       background-color: rgba(0, 0, 0, 0.03) !important;
     }
   }
