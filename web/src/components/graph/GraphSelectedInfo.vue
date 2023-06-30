@@ -7,29 +7,27 @@
 
           <v-list class="selected-info-list" dense>
             <v-list-item class="selected-info-list-item">
-              <v-icon>mdi-account-outline</v-icon>
-              <span>{{
-                selectedNode.extra.fullName ||
-                selectedNode.shortPath ||
-                "unknown"
-              }}</span>
+              <v-icon start>mdi-account-outline</v-icon>
+              <span>{{ selectedNode.extra.fullName || selectedNode.shortPath || "unknown" }}</span>
             </v-list-item>
 
             <v-list-item class="selected-info-list-item">
-              <div class="selected-info-list-dot">
-                <label-dot
-                  :label="selectedNodeLegend?.name || 'unknown'"
-                  :color="selectedNodeLegend?.color || 'grey'"
-                />
+              <div class="d-flex align-center">
+                <div class="ml-2">
+                  <label-dot
+                    :label="selectedNodeLegend?.name || 'unknown'"
+                    :color="selectedNodeLegend?.color || 'grey'"
+                  />
+                </div>
+                <span class="ml-4">{{ selectedNodeLegend?.name || "unknown" }}</span>
               </div>
-              <span>{{ selectedNodeLegend?.name || "unknown" }}</span>
             </v-list-item>
 
             <v-list-item
               v-if="selectedNodeTimestamp"
               class="selected-info-list-item"
             >
-              <v-icon>mdi-clock-outline</v-icon>
+              <v-icon start>mdi-clock-outline</v-icon>
               <span>{{ selectedNodeTimestamp }}</span>
             </v-list-item>
           </v-list>
@@ -54,18 +52,15 @@
         <v-card>
           <v-card-title> Selected cluster </v-card-title>
 
-          <v-list class="selected-info-list" dense>
+          <v-list class="selected-info-list" density="compact">
             <v-list-item class="selected-info-list-item">
-              <v-icon>mdi-account-group-outline</v-icon>
+              <v-icon start>mdi-account-group-outline</v-icon>
               <span>{{ clusterFilesSet.size }} submissions</span>
             </v-list-item>
 
             <v-list-item class="selected-info-list-item">
-              <v-icon>mdi-approximately-equal</v-icon>
-              <span
-                >{{ (clusterAverageSimilarity * 100).toFixed(2) }}% average
-                similarity</span
-              >
+              <v-icon start>mdi-approximately-equal</v-icon>
+              <span>{{ (clusterAverageSimilarity * 100).toFixed(2) }}% average similarity</span>
             </v-list-item>
           </v-list>
 
@@ -174,12 +169,6 @@ const selectedClusterPair = computed(() => {
 
   &-list {
     padding-top: 0;
-
-    &-item {
-      display: flex;
-      gap: 0.5rem;
-      width: 100%;
-    }
 
     &-dot {
       width: 24px;

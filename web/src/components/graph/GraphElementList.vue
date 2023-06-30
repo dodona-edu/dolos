@@ -1,5 +1,5 @@
 <template>
-  <v-table class="graph-list" fixed-header>
+  <v-table class="graph-list" fixed-header density="compact">
     <thead>
       <tr>
         <th>Submission</th>
@@ -12,20 +12,23 @@
         v-for="file in files"
         :key="file.id"
         :id="`file-${file.id}`"
-        tag="tr"
         class="graph-list-row"
         :class="{ selected: selectedFiles?.includes(file) }"
         :to="{ name: 'Submission', params: { fileId: String(file.id) } }"
+        custom
+        v-slot="{ navigate }"
       >
-        <td class="d-flex align-center">
-          <label-dot :file="file" />
+        <tr @click="navigate">
+          <td class="d-flex align-center">
+            <label-dot :file="file" />
 
-          <span class="ml-2">{{ file.extra.fullName ?? file.shortPath }}</span>
-        </td>
+            <span class="ml-2">{{ file.extra.fullName ?? file.shortPath }}</span>
+          </td>
 
-        <td v-if="hasTimestamps">
-          <file-timestamp :file="file" />
-        </td>
+          <td v-if="hasTimestamps">
+            <file-timestamp :file="file" />
+          </td>
+        </tr>
       </router-link>
     </tbody>
   </v-table>
@@ -81,6 +84,12 @@ watch(
 <style lang="scss" scoped>
 .graph-list {
   max-height: v-bind("props.maxHeight");
+  overflow-y: auto;
+
+  // No wrapping of columns
+  td {
+    white-space: nowrap;
+  }
 
   &-row {
     cursor: v-bind("rowCursor");
@@ -96,6 +105,15 @@ watch(
       height: 10px;
       display: block;
       border-radius: 50%;
+    }
+  }
+
+  &-body {
+    tr {
+      &:hover {
+        cursor: pointer;
+        background-color: rgba(0, 0, 0, 0.03) !important;
+      }
     }
   }
 }
