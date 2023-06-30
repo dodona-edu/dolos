@@ -19,32 +19,32 @@ const routes = [
         component: () => import("@/views/analysis/overview.vue"),
       },
       {
-        path: "/pairs",
+        path: "pairs",
         name: "Pairs",
         component: () => import("@/views/analysis/pairs.vue"),
       },
       {
-        path: "/pairs/:pairId",
+        path: "pairs/:pairId",
         name: "Pair",
         component: () => import("@/views/analysis/pair.vue"),
       },
       {
-        path: "/submissions",
+        path: "submissions",
         name: "Submissions",
         component: () => import("@/views/analysis/submissions.vue"),
       },
       {
-        path: "/submissions/:fileId",
+        path: "submissions/:fileId",
         name: "Submission",
         component: () => import("@/views/analysis/submission.vue"),
       },
       {
-        path: "/graph",
+        path: "graph",
         name: "Graph",
         component: () => import("@/views/analysis/graph.vue"),
       },
       {
-        path: "/clusters",
+        path: "clusters",
         name: "Clusters",
         component: () => import("@/views/analysis/clusters.vue"),
       },
@@ -62,12 +62,12 @@ const routes = [
     component: UploadLayout,
     children: [
       {
-        path: "/",
+        path: "",
         name: "Upload",
         component: () => import("@/views/upload/upload.vue"),
       },
       {
-        path: "/share/:reportId",
+        path: "share/:reportId",
         name: "Share",
         component: () => import("@/views/upload/share.vue"),
       },
