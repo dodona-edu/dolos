@@ -20,7 +20,7 @@
           </td>
 
           <td v-if="props.showSubmissions">
-            {{ labelFilesCount.get(label) }}
+            {{ labelFilesCount.get(label.name) }}
           </td>
 
           <td class="text-end">

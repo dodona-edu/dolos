@@ -63,11 +63,11 @@ export const useFileStore = defineStore("file", () => {
 
   const legend = ref<Legend>({});
   const labels = computed(() => Object.values(legend.value).reverse());
-  const labelFilesCount: ComputedRef<Map<Label, number>> = computed(() => {
+  const labelFilesCount: ComputedRef<Map<string, number>> = computed(() => {
     const files = filesActiveList.value;
-    const count = new Map<Label, number>();
+    const count = new Map<string, number>();
     for (const file of files) {
-      count.set(file.label, (count.get(file.label) || 0) + 1);
+      count.set(file.label.name, (count.get(file.label.name) || 0) + 1);
     }
     return count;
   });
