@@ -6,7 +6,7 @@ import { computed } from "vue";
  * If the app is running in server mode or analytics mode.
  */
 export function useAppMode() {
-  const appMode = computed(() => import.meta.env.VUE_APP_MODE);
+  const appMode = computed(() => import.meta.env.VITE_MODE);
   const isServer = computed(() => appMode.value === "server");
 
   const reports = useReportsStore();
