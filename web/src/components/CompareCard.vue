@@ -2,7 +2,8 @@
   <div>
     <div class="heading">
       <h2 class="heading-title">
-        Comparing {{ activePair.leftFile.shortPath }} with {{ activePair.rightFile.shortPath }}
+        Comparing {{ activePair.leftFile.shortPath }} with
+        {{ activePair.rightFile.shortPath }}
       </h2>
       <div class="heading-subtitle text-medium-emphasis">
         The compare view matches code fragments & differences between 2 files.
@@ -34,7 +35,8 @@
           <v-col cols="5" class="compare-header-info">
             <span>
               <v-icon start>mdi-approximately-equal</v-icon>
-              Similarity: <similarity-display :similarity="activePair.similarity" text />
+              Similarity:
+              <similarity-display :similarity="activePair.similarity" text />
             </span>
 
             <span>
@@ -69,7 +71,7 @@
                 type="info"
                 icon="mdi-information"
                 variant="tonal"
-                dismissible
+                closable
               >
                 The diff view has been automatically selected, as the files have
                 a similarity >= 80%.
@@ -129,7 +131,6 @@ watch(
   { immediate: true }
 );
 
-
 // Active pair of files.
 // Used to make the switch between left and right file easier.
 const activePair = computed<Pair>(() => {
@@ -140,15 +141,15 @@ const activePair = computed<Pair>(() => {
       rightFile: props.pair.leftFile,
       fragments: props.pair.fragments
         ? props.pair.fragments.map((fragment) => ({
-          ...fragment,
-          left: fragment.right,
-          right: fragment.left,
-          occurrences: fragment.occurrences.map((occurrence) => ({
-            ...occurrence,
-            left: occurrence.right,
-            right: occurrence.left,
-          })),
-        }))
+            ...fragment,
+            left: fragment.right,
+            right: fragment.left,
+            occurrences: fragment.occurrences.map((occurrence) => ({
+              ...occurrence,
+              left: occurrence.right,
+              right: occurrence.left,
+            })),
+          }))
         : null,
     };
   }
