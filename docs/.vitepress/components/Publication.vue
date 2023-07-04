@@ -1,5 +1,7 @@
 <script setup lang="ts">
 
+import {withBase} from "vitepress";
+
 const props = defineProps<{
   title: string;
   type: string;
@@ -31,7 +33,7 @@ const props = defineProps<{
           <slot />
         </div>
         <div class="publication-image">
-          <img :src="props.image" :alt="`Image of the first page of the article with title ${ props.title }`" />
+          <img :src="withBase(props.image)" :alt="`Image of the first page of the article with title ${ props.title }`" />
         </div>
       </div>
     </article>
