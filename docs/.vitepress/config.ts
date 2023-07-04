@@ -43,6 +43,7 @@ export default defineConfig({
         items: [
           { text: 'How Dolos works', link: '/about/algorithm' },
           { text: 'Supported programming languages', link: '/about/languages' },
+          { text: 'Research publications', link: '/about/publications' },
         ]
       }
     ],
@@ -57,6 +58,14 @@ export default defineConfig({
 
     footer: {
       message: "Made by Team Dodona with ❤️"
+    }
+  },
+
+  vite: {
+    resolve: {
+      alias: {
+        '@components': __dirname + '/components'
+      }
     }
   }
 })

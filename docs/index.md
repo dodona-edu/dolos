@@ -54,7 +54,7 @@ features:
     
   - title: Fueled by research
     details: Dolos is the result of active research in the field of source code plagiarism detection.
-    link: /publications/
+    link: /about/publications
     linkText: Publications
     icon: 🔬
     

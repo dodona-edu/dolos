@@ -9,7 +9,7 @@
   "repository": "https://github.com/dodona-edu/dolos",
   "license": "MIT",
   "devDependencies": {
-    "vitepress": "1.0.0-beta.1"
+    "vitepress": "1.0.0-beta.5"
   },
   "scripts": {
     "dev": "vitepress dev",
