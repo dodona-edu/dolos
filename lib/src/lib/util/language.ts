@@ -132,23 +132,31 @@ export class LanguagePicker {
   }
 
   /**
-   * Find the language to use for tokenization based on the extension of the
-   * first file. If the extension does not match any known language, then
-   * a LanguageError is thrown.
+   * Find the language to use for tokenization based on the most common
+   * extension of the files. If the extension does not match any known language,
+   * then a LanguageError is thrown.
    *
    * @param files the files to tokenize
    */
   public detectLanguage(files: File[]): Language {
-    const firstFile = files[0];
-    const language = this.byExtension.get(firstFile.extension);
-    if (language == null) {
+    const counts: Map<string, number> = new Map();
+    let maxCount = 0;
+    let language: Language | undefined = undefined;
+    for (const file of files) {
+      const count = (counts.get(file.extension) ?? 0) + 1;
+      if (count > maxCount) {
+        maxCount = count;
+        language = this.byExtension.get(file.extension);
+      }
+      counts.set(file.extension, count);
+    }
+
+    if (language == undefined) {
       throw new LanguageError(
-        `Could not detect language based on extension (${firstFile.extension}).`
+        `Could not detect language based on extension.`
       );
     }
-    for (const file of files) {
-      language.checkLanguage(file);
-    }
+
     return language;
   }
 
