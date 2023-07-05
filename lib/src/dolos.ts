@@ -141,7 +141,8 @@ export class Dolos {
       if (diff > 0) {
         warnings.push(
           `The language of the files was detected as ${this.language?.name} ` +
-          `but ${diff} files were ignored because they did not have a matching extension.`
+          `but ${diff} files were ignored because they did not have a matching extension.` +
+          `You can override this behavior by setting the language explicitly.`
         );
       }
     } else {

@@ -201,6 +201,10 @@ export async function run(locations: string[], options: RunOptions): Promise<voi
     });
     const report = await dolos.analyzePaths(locations);
 
+    if (report.warnings.length > 0) {
+      report.warnings.forEach(warn => warning(warn));
+    }
+
     const view = closestMatch(options.outputFormat, {
       "terminal": () => new TerminalView(report, options),
       "console": () => new TerminalView(report, options),
