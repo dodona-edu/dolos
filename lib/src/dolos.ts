@@ -6,13 +6,11 @@ import { Result } from "./lib/util/result";
 import { csvParse, DSVRowString } from "d3-dsv";
 import * as path from "path";
 import { Tokenizer } from "./lib/tokenizer/tokenizer";
-import { default as fsWithCallbacks, constants } from "fs";
+import { constants, default as fsWithCallbacks } from "fs";
 import { spawnSync as spawn } from "child_process";
 import { tmpdir } from "os";
-import {
-  Language,
-  LanguagePicker
-} from "./lib/util/language";
+import { Language, LanguagePicker } from "./lib/util/language";
+
 const fs = fsWithCallbacks.promises;
 
 
@@ -31,8 +29,22 @@ export class Dolos {
   }
 
   private async fromDirectory(dirPath: string): Promise<Result<File[]>> {
-    const entries = await fs.readdir(dirPath, { withFileTypes: true });
-    const files = entries.filter(ent => ent.isFile()).map(ent => File.fromPath(ent.name));
+    const dirs = [dirPath];
+    const files = [];
+
+    let i = 0;
+
+    while(i < dirs.length) {
+      for (const entry of await fs.readdir(dirs[i], { withFileTypes: true })) {
+        if (entry.isDirectory()) {
+          dirs.push(path.join(dirs[i], entry.name));
+        } else if (entry.isFile()) {
+          files.push(File.fromPath(path.join(dirs[i], entry.name)));
+        }
+      }
+      i += 1;
+    }
+
     return await Result.all(files);
   }
 
@@ -46,10 +58,10 @@ export class Dolos {
         throw new Error(`Unzipping failed with exit status ${ status }, stderr: \n${stderr}`);
       }
       const infoPath = path.join(tmpDir, "info.csv");
-      if (await fs.access(infoPath, constants.R_OK).catch(() => false)) {
-        return await this.fromDirectory(tmpDir);
-      } else {
+      if (await fs.access(infoPath, constants.R_OK).then(() => true).catch(() => false)) {
         return await this.fromCSV(infoPath);
+      } else {
+        return await this.fromDirectory(tmpDir);
       }
     } finally {
       await fs.rm(tmpDir, { recursive: true });
@@ -121,13 +133,19 @@ export class Dolos {
       this.index = new Index(this.tokenizer, this.options);
     }
 
+    const warnings = [];
+    let filteredFiles;
     if (this.languageDetected) {
-      const filteredFiles = files.filter(file => this.language?.extensionMatches(file.path));
+      filteredFiles = files.filter(file => this.language?.extensionMatches(file.path));
       const diff = files.length - filteredFiles.length;
       if (diff > 0) {
-        console.warn(`Ignoring ${diff} files because the file extension did not match the detected language ${this.language!.name}. Specify the language explicitly to avoid this.`);
+        warnings.push(
+          `The language of the files was detected as ${this.language?.name} ` +
+          `but ${diff} files were ignored because they did not have a matching extension.`
+        );
       }
-      files = filteredFiles;
+    } else {
+      filteredFiles = files;
     }
 
     if (files.length < 2) {
@@ -138,6 +156,18 @@ export class Dolos {
         "be present in 100% of the files. This option does only" +
         "make sense when comparing more than two files.");
     }
-    return this.index.compareFiles(files, nameCandidate);
+
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const tokenizedFiles = filteredFiles.map(f => this.tokenizer!.tokenizeFile(f));
+    const fingerprints = await this.index.createMatches(tokenizedFiles);
+
+    return new Report(
+      this.options,
+      this.language,
+      tokenizedFiles,
+      fingerprints,
+      nameCandidate,
+      warnings
+    );
   }
 }

@@ -153,7 +153,7 @@ export class LanguagePicker {
 
     if (language == undefined) {
       throw new LanguageError(
-        `Could not detect language based on extension.`
+        "Could not detect language based on extension."
       );
     }
 

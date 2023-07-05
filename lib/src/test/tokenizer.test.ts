@@ -53,6 +53,8 @@ test("language picker should throw an error for unknown extension", t => {
   t.throws(() => new LanguagePicker().detectLanguage([new File("unknown.extension", "")]));
 });
 
-test("language picker should throw an error for different languages", t => {
-  t.throws(() => new LanguagePicker().detectLanguage([new File("file.py", ""), new File("file.js", "")]));
+test("language picker should detect most common language", t => {
+  const files = [new File("file.py", ""), new File("otherfile.py", ""), new File("file.js", "")];
+  const detected = new LanguagePicker().detectLanguage(files);
+  t.deepEqual(detected.name, "python");
 });
