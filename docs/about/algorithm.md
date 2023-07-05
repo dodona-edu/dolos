@@ -1,21 +1,21 @@
 # How Dolos works
 
-Conceptually, the algorithm of Dolos can be split up in four steps:
+Conceptually, the plagiarism detection pipeline of Dolos can be split into four successive steps:
+
 1. Tokenization
 2. Fingerprinting
 3. Indexing
 4. Reporting
 
-
 ## Tokenization
 
-To be immune to plagiarism where variables and functions are renamed, Dolos
-doesn't run directly on the source code subjected to the test. First a
-tokenization step is performed using [Tree-sitter](http://tree-sitter.github.io/tree-sitter/).
-Tree-sitter can generate syntax trees for many languages and converts source code
-to a more structured form, free of naming variabilities.
+To be immune against masking plagiarism by techniques techniques such as renaming variables and functions, Dolos
+doesn't directly process the source code under investigation. It starts by performing a
+tokenization step using [Tree-sitter](http://tree-sitter.github.io/tree-sitter/).
+Tree-sitter can generate syntax trees for many programming languages, converts source code
+to a more structured form, and masks specific naming of variables and functions.
 
-For example, the code
+For example, the JavaScript code
 
 ```javascript
 function sum(a, b) {
@@ -39,19 +39,19 @@ program ([0, 0] - [3, 0])
           identifier ([1, 13] - [1, 14])
 ```
 
-Next, we can start looking for similarities in the submitted files.
+Based on this representation, Dolos starts looking for similarities among the submitted files.
 
 ## Fingerprinting
 
 To measure similarities between (converted) files, Dolos tries to find common
-substrings between them. We use substrings of a fixed length called _k_-grams.
+sequences of tokens. More specifically, it uses subsequences of fixed length called _k_-grams.
 To efficiently make these comparisons and reduce the memory usage, all _k_-grams
 are hashed using a rolling hash function (the one used by Rabin-Karp in their
 string matching algorithm). The length _k_ of _k_-grams can be with the `-k`
 option.
 
 To further reduce the memory usage, only a subset of all hashes are stored. The
-selection of which hashes to store is done by the Winnowing algorithm as
+selection of hashes is done by the Winnowing algorithm as
 described by [(Schleimer, Wilkerson and Aiken)](http://theory.stanford.edu/~aiken/publications/papers/sigmod03.pdf). In short: only the hash with the smallest numerical
 value is kept for each window. The window length (in _k_-grams) can be altered
 with the `-w` option.
@@ -61,21 +61,21 @@ these are stored as simple integers.
 
 ## Indexing
 
-Because we want to compare all files with each other, it is more efficient to
+Because Dolos needs to compare all files with each other, it is more efficient to
 first create an index containing the fingerprints of all files. For each of the
-fingerprints encountered in any of the files, we store the file and
+fingerprints encountered in any of the files, we store the file and the
 corresponding line number where we encountered that fingerprint.
 
-Once a fingerprint is stored twice in the index, we can record this as a match
+As soon as a fingerprint is stored in the index twice, this is recorded as a match
 between the two files because they share at least one k-gram.
 
 ## Reporting
 
-Finally, we collect all fingerprints that occur in more than one file and
-aggregate the results into a report.
+Dolos finally collects all fingerprints that occur in more than one file and
+aggregates the results into a report.
 
-This report will contain all file pairs that have at least one common fingerprint, together with some metrics:
-- **similarity**: which represents the fraction of shared fingerprints between the two files
-- **total overlap**: which is the absolute value of shared fingerprints, useful for larger projects
-- **longest fragment**: the length (in fingerprints) of the longest subsequent list of fingerprints matching between the two files, useful for when not the whole source code file is copied
+This report contains all file pairs that have at least one common fingerprint, together with some metrics:
 
+- **similarity**: the fraction of shared fingerprints between the two files
+- **total overlap**: the absolute value of shared fingerprints, useful for larger projects
+- **longest fragment**: the length (in fingerprints) of the longest subsequence of fingerprints matching between the two files, useful when not the whole source code is copied
