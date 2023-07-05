@@ -1,51 +1,57 @@
 # Using Dolos Online
 
-We provide a free online service to run Dolos directly from your browser.
-You can use this service at [dolos.ugent.be/server](https://dolos.ugent.be/server).
+Dolos Online is a [web app](https://dolos.ugent.be/server) for plagiarism detection in source code that is free to use.
 
-If you want to follow along, you can download a [ZIP with sample files](/simple-dataset.zip) which you can analyze on our server.
+All you need is a browser.
+No additional installations needed.
+We describe the steps for plagiarism detection within a set of source files.
+Download this [ZIP file](/simple-dataset.zip) containing some sample files if you want to perform the analysis yourself.
 
-## Upload and analyze files
+## Upload and inspect source files
+
+Start plagiarism detection by uploading a ZIP-file containing the source files you want to inspect.
 
 ![Screenshot of the upload form](/images/screenshots/dolos-upload.png)
 
-To start a plagiarism analysis, upload a ZIP-file containing the files you want to analyze.
-You can specify a name for your analysis, which will be used to identify it in the report history.
+Specify a name for the analysis or keep the default name.
+This name allows you to identify results in the backlog of analysis results that is kept in your browser history.
 
-Additionally, you can select the programming language of the files.
-Dolos will automatically detect the language based on the file extension, but you can override this if needed.
+Dolos automatically detects the programming language of the inspected source files based on their file extensions.
+If the ZIP-file contains source files from a mix of programming languages, Dolos will only inspect the files from the dominant programming language.
+Select a specific programming language if you want to override the automatic selection.
+
+Read the terms and conditions and check "I accept the above conditions".
 
 Click "Analyze" to upload your files and start the analysis.
 
-
 ### Upload format
 
-Currently, we only support uploading a single ZIP-file containing all the files you want to analyze with a required `info.csv` file.
+For now, you must upload a single ZIP-file containing all source files you want to inspect, together with a mandatory `info.csv` file.
 
 ::: info
 
-This is the format in which [Dodona](./dodona.md) exports submissions. 
-If you're exporting from Dodona, you don't need to do anything.
+If you export submissions from [Dodona](./dodona.md), you download a ZIP-file that has the expected format for Dolos. 
 
-We plan to support more formats in the future.
+We plan to relax the need for a mandatory `info.csv` file in a future release of Dolos.
 
 :::
 
-A column **filename** is required and should contain the path of the file relative to the root of the ZIP-file.
+The `info.csv` file must have a column `filename` that contains the paths of all inspected source files relative to the root of the ZIP-file.
 
-The following columns are optional, but will be used to improve the analysis:
-- **labels** single label, submissions with the same label will have the same colour in the report.
-- **created_at** with the timestamp of the submission, this will be used to construct a timeline of the submissions.
+These columns are optional, but will be used to improve the analysis:
 
-Additional columns will be ignored.
+- `labels`: a string label; the analysis report will use the same color for submissions with the same label
+- `created_at`: a timestamp of the submission; timestamps are used to construct a timeline of submissions
+
+Additional columns are allowed, but will be ignored by Dolos.
 
 #### Example
 
-An example of a valid `info.csv`:
+Here's an example of a valid `info.csv` file:
 
 ::: code-group
 
-```csv [Only required column]
+```csv [Required column only]
 filename
 alice.js
 bob.js
@@ -64,61 +70,62 @@ zoe.js,group1,2019-07-27 19:22:39 +0200
 
 ### Analysis results
 
-After submitting you dataset, Dolos will put your analysis in a queue.
-When the analysis is complete, you will see the following screen:
+Dolos schedules an analysis for your submitted dataset.
+The scheduler uses a queue to avoid overloading the server.
+You get informed as soon as the analysis is completed:
 
 ![Notification if the analysis is complete](/images/screenshots/dolos-finished.png)
 
-Clicking on the "View results" button will take you to the report page.
+Click "View results" to start exploring the analysis results.
 
 ![Screenshot of the report page](/images/screenshots/dolos-report-overview.png)
 
 ::: tip Sharing reports
 
-We keep the secret link hidden by default, so you don't accidentally share it with others.
+By default, the secret link to your analysis report is kept hidden, so you don't accidentally share it with others.
 
-To share the report, click the "Share" button in the top right corner and copy the secret link.
+To share a report, click the "Share" button in the top right corner and copy the secret link.
 
 :::
 
 ## Report history
 
+To the right side of the upload form, you'll see a list of previous analysis results.
+This list is stored in the _local storage_ of your browser, meaning that the list is removed whenever you clear your browser data.
+
 ![Screenshot of the report history list](/images/screenshots/dolos-history.png)
 
-On the right side of the upload form, you can find a list all your previous results.
-The form will remember the results in the _local storage_ of your browser.
-This means that the list will be cleared when you clear your browser data.
+If you want to keep track of a report or share it with someone else, click the "Share" button and copy the secret link.
 
-If you want to remember a report, or share it with someone else, you can click the "Share" button and copy the secret link.
-
-If you want to delete the dataset and the analysis report from our servers, you can click the "Delete" button.
+If you want to permanently delete a submitted dataset and its analysis report from our servers, click the "Delete" button.
 
 ::: info
 
-If you lose the secret link to a report (for example: by clearing your browser data), you will not be able to delete it.
-However, there is no way to access the report without the secret link and we will periodically delete old reports from our servers.
+If the secret link to a report gets lost (for example: by clearing your browser data), you can no longer delete the report from our servers yourself.
+However, the secret link is the only way to get access to the report and we periodically delete old reports from our servers.
 
-You can simply upload the same dataset again to get a new report for the same dataset.
+You can simply upload the same dataset again to generate a new report.
 
 :::
 
 ## How is this free?
 
-Dolos is developed and run by [Team Dodona](https://dodona.ugent.be/en/about/).
-We are researchers and teachers of programming courses at Ghent University.
+[Team Dodona](https://dodona.ugent.be/en/about/) develops Dolos and runs Dolos Online.
+We are researchers and teachers of programming courses at [Ghent University](https://www.ugent.be/en) (Belgium).
 
-We will never sell the analyzed data or use it for commercial purposes.
-At any point, you can delete your data from our servers.
-We will periodically delete data to free up space on our servers.
+Team Dodona never shares submitted files or analysis reports with others and never uses it for commercial purposes.
+You can delete your data from our servers at any point.
+We periodically delete older data to free up space on our servers.
 
-Just as with our online exercise platform [Dodona](https://dodona.ugent.be), we provide this service for free for schools and universities.
-Our servers are hosted by [Ghent University, Belgium](https://www.ugent.be/en).
+As with our [Dodona](https://dodona.ugent.be) platform for learning to code, we provide Dolos as a free service to schools and universities.
+Our servers are hosted by [Ghent University](https://www.ugent.be/en) (Belgium).
 
-You can also run Dolos locally or host your own server.
-The source code of Dolos is open-source and available on Github: [github.com/dodona-edu/dolos/](https://github.com/dodona-edu/dolos/).
+You can also [run Dolos locally](installation.html) or [host your own server](docker.html).
+The source code of Dolos is open and available on Github: [github.com/dodona-edu/dolos/](https://github.com/dodona-edu/dolos/).
 
 ### Supported by
 
+<br>
 <div class="image-row">
 <a href="https://www.ugent.be/en"><img src="/images/ugent.png" alt="Ghent University" /></a>
 <a href="https://www.ugent.be/we/en"><img src="/images/we.png" alt="Ghent University Faculty of Sciences" /></a>
@@ -126,5 +133,4 @@ The source code of Dolos is open-source and available on Github: [github.com/dod
 </div>
 
 Help us keep Dolos and Dodona free and [support us](https://dodona.ugent.be/en/support-us/).
-
 
