@@ -235,7 +235,7 @@ test("should read CSV-files", async t => {
   t.true(pairs[0].similarity > 0.75);
 });
 
-test("should read ZIP-files", async t => {
+test("should read ZIP-files with info.csv", async t => {
   const dolos = new Dolos();
 
   const report = await dolos.analyzePaths(["../samples/javascript/simple-dataset.zip"]);
@@ -249,6 +249,21 @@ test("should read ZIP-files", async t => {
   t.true(pairs[0].similarity > 0.75);
 });
 
+test("should read ZIP-files without info.csv", async t => {
+  const dolos = new Dolos();
+
+  const report = await dolos.analyzePaths(["../samples/javascript/simple-dataset-no-csv.zip"]);
+
+  t.is(4, report.files.length);
+  t.is(report.name, "simple-dataset-no-csv");
+  t.is(report.metadata()["reportName"], "simple-dataset-no-csv");
+  t.is(report.metadata()["warnings"].length, 1);
+
+  const pairs = report.allPairs();
+  t.is(6, pairs.length);
+  t.true(pairs[0].similarity > 0.75);
+});
+
 test("empty files should match 0%", async t => {
   const dolos = new Dolos();
   const report = await dolos.analyze([new File("file1.js", ""), new File("file2.js", "")]);
@@ -256,4 +271,20 @@ test("empty files should match 0%", async t => {
   t.is(0, pairs[0].similarity);
   t.is(0, pairs[0].overlap);
   t.is(0, pairs[0].longest);
+});
+
+test("should generate warning when not all files match detected language", async t => {
+  const dolos = new Dolos();
+
+  const report = await dolos.analyzePaths([
+    "../samples/javascript/sample.js",
+    "../samples/javascript/copied_function.js",
+    "../samples/java/Caesar.java"
+  ]);
+
+  t.is(report.metadata()["warnings"].length, 1);
+  t.is(2, report.files.length);
+
+  const pairs = report.allPairs();
+  t.is(1, pairs.length);
 });

@@ -10,6 +10,7 @@ type Hash = number;
 export interface Metadata extends DolosOptions {
   languageDetected: boolean;
   createdAt: string;
+  warnings: string[];
 }
 
 export class Report {
@@ -28,6 +29,7 @@ export class Report {
     public readonly files: TokenizedFile[],
     fingerprints: Map<Hash, SharedFingerprint>,
     name?: string,
+    public readonly warnings: string[] = [],
   ) {
     if (this.options.maxFingerprintCount != null) {
       this.kgramMaxFileOccurrences = this.options.maxFingerprintCount;
@@ -87,6 +89,7 @@ export class Report {
       createdAt: this.createdAt,
       language: this.language?.name ?? null,
       languageDetected: this.options.language == undefined,
+      warnings: this.warnings,
     };
   }
 }

@@ -6,13 +6,11 @@ import { Result } from "./lib/util/result";
 import { csvParse, DSVRowString } from "d3-dsv";
 import * as path from "path";
 import { Tokenizer } from "./lib/tokenizer/tokenizer";
-import { default as fsWithCallbacks, constants } from "fs";
+import { constants, default as fsWithCallbacks } from "fs";
 import { spawnSync as spawn } from "child_process";
 import { tmpdir } from "os";
-import {
-  Language,
-  LanguagePicker
-} from "./lib/util/language";
+import { Language, LanguagePicker } from "./lib/util/language";
+
 const fs = fsWithCallbacks.promises;
 
 
@@ -30,6 +28,25 @@ export class Dolos {
     this.options = new Options(customOptions);
   }
 
+  private async fromDirectory(dirPath: string): Promise<Result<File[]>> {
+    const dirs = [dirPath];
+    const files = [];
+
+    let i = 0;
+
+    while(i < dirs.length) {
+      for (const entry of await fs.readdir(dirs[i], { withFileTypes: true })) {
+        if (entry.isDirectory()) {
+          dirs.push(path.join(dirs[i], entry.name));
+        } else if (entry.isFile()) {
+          files.push(File.fromPath(path.join(dirs[i], entry.name)));
+        }
+      }
+      i += 1;
+    }
+
+    return await Result.all(files);
+  }
 
   private async fromZIP(zipPath: string): Promise<Result<File[]>> {
     const tmpDir = await fs.mkdtemp(path.join(tmpdir(), "dolos-unzip-"));
@@ -41,12 +58,11 @@ export class Dolos {
         throw new Error(`Unzipping failed with exit status ${ status }, stderr: \n${stderr}`);
       }
       const infoPath = path.join(tmpDir, "info.csv");
-      try {
-        await fs.access(infoPath, constants.R_OK);
-      } catch {
-        throw new Error("Zip does not contain a required 'info.csv' file");
+      if (await fs.access(infoPath, constants.R_OK).then(() => true).catch(() => false)) {
+        return await this.fromCSV(infoPath);
+      } else {
+        return await this.fromDirectory(tmpDir);
       }
-      return await this.fromCSV(infoPath);
     } finally {
       await fs.rm(tmpDir, { recursive: true });
     }
@@ -66,7 +82,7 @@ export class Dolos {
           nameNL: row.name_nl as string,
           exerciseID: row.exercise_id as string,
           createdAt: new Date(row.created_at as string),
-          labels: row.labels as string
+          labels: row.label as string || row.labels as string
         }))
         .map((row: ExtraInfo) => File.fromPath(path.join(dirname, row.filename), row));
       return await Result.all(files);
@@ -106,14 +122,7 @@ export class Dolos {
     nameCandidate?: string
   ): Promise<Report> {
 
-    if (files.length < 2) {
-      throw new Error("You need to supply at least two files");
-    } else if (files.length == 2 && this.options.maxFingerprintPercentage !== null) {
-      throw new Error("You have given a maximum hash percentage but your are " +
-        "comparing two files. Each matching hash will thus " +
-        "be present in 100% of the files. This option does only" +
-        "make sense when comparing more than two files.");
-    } else if (this.index == null) {
+    if (this.index == null) {
       if (this.options.language) {
         this.language = this.languagePicker.findLanguage(this.options.language);
       } else {
@@ -123,11 +132,43 @@ export class Dolos {
       this.tokenizer = this.language.createTokenizer();
       this.index = new Index(this.tokenizer, this.options);
     }
+
+    const warnings = [];
+    let filteredFiles;
     if (this.languageDetected) {
-      for (const file of files) {
-        this.language?.checkLanguage(file);
+      filteredFiles = files.filter(file => this.language?.extensionMatches(file.path));
+      const diff = files.length - filteredFiles.length;
+      if (diff > 0) {
+        warnings.push(
+          `The language of the files was detected as ${this.language?.name} ` +
+          `but ${diff} files were ignored because they did not have a matching extension.` +
+          "You can override this behavior by setting the language explicitly."
+        );
       }
+    } else {
+      filteredFiles = files;
     }
-    return this.index.compareFiles(files, nameCandidate);
+
+    if (files.length < 2) {
+      throw new Error("You need to supply at least two files");
+    } else if (files.length == 2 && this.options.maxFingerprintPercentage !== null) {
+      throw new Error("You have given a maximum hash percentage but your are " +
+        "comparing two files. Each matching hash will thus " +
+        "be present in 100% of the files. This option does only" +
+        "make sense when comparing more than two files.");
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const tokenizedFiles = filteredFiles.map(f => this.tokenizer!.tokenizeFile(f));
+    const fingerprints = await this.index.createMatches(tokenizedFiles);
+
+    return new Report(
+      this.options,
+      this.language,
+      tokenizedFiles,
+      fingerprints,
+      nameCandidate,
+      warnings
+    );
   }
 }
