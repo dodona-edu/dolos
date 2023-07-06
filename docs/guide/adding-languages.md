@@ -1,4 +1,4 @@
-# Adding a new language
+# Add a new language
 
 Dolos is designed to use a [generic parser model](/about/languages.md), which means that it it  relatively easy to add support for a new language if a parser is available.
 
