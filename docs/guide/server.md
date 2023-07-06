@@ -1,4 +1,4 @@
-# Using Dolos Online
+# Use Dolos Online
 
 Dolos Online is a [web app](https://dolos.ugent.be/server) for plagiarism detection in source code that is free to use.
 
