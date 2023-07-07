@@ -1,33 +1,34 @@
 # Add a new language
 
-Dolos is designed to use a [generic parser model](/about/languages.md), which means that it it  relatively easy to add support for a new language if a parser is available.
+Dolos is built on top of a [generic parser model](/about/languages.md) to achieve loose coupling with specific programming languages. 
+As a result, it is fairly easy to add support for additional programming languages if a suitable parser is available.
 
-Dolos discovers tree-sitter parsers at runtime. This means that in order to add
-support for a new language, you only need that parser to be available on your
-system in your `node_modules` (Dolos searches in the `NODE_PATH`).
+Dolos automatically discovers the available [Tree-sitter parsers](https://tree-sitter.github.io/tree-sitter/) on the local system at runtime.
+As such, adding support for a new language comes down to installing a Tree-sitter parser for that language in the `node_modules` on your system (Dolos searches `NODE_PATH`).
 
-We will demonstrate this by adding language support for the programming language **Rust**.
+As an example, we demonstrate how the **Rust** programming language can be supported.
 
 ## Check availability
 
-To make sure Dolos doesn't already support the desired language, you can simply start
-an analysis:
+To assure that Dolos does not yet support the target programming language, simply run:
 
 ```shell
 dolos -l rust *.rs
 ```
 
-If the parser is not installed, you will get an error message:
+If no parser is available for the target language, you'll get this error message:
+
 ```
 [error] Error: No tokenizer found for rust
 ```
 
 ## Find a parser
 
-If the parser is not installed, you can search for it [on the Tree-sitter website](https://tree-sitter.github.io/tree-sitter/#available-parsers)
+If no parser is available for the target programming language, 
+search an appropriate parser [on the Tree-sitter website](https://tree-sitter.github.io/tree-sitter/#available-parsers)
 or [on the Tree-sitter GitHub page](https://github.com/tree-sitter).
 
-A Rust parser [exists](https://github.com/tree-sitter/tree-sitter-rust) and the package is named, unsurprisingly, `tree-sitter-rust`.
+There exists a Rust parser named [`tree-sitter-rust`](https://github.com/tree-sitter/tree-sitter-rust).
 
 ::: tip
 If the language you are looking for is not listed on either the website or GitHub, it might be that there is no parser available.
@@ -38,8 +39,8 @@ It is possible to [create a new parser](https://tree-sitter.github.io/tree-sitte
 
 ## Install the parser
 
-First, you need to check which version of Tree-sitter Dolos is currently using,
-by running the command `dolos --version`. The output will look like this:
+First run the command `dolos --version` to check what version of Tree-sitter is currently used by Dolos.
+The output will look like this:
 
 ```
 Dolos v2.2.3
@@ -47,18 +48,20 @@ Node v18.16.0
 Tree-sitter v0.20.1
 ```
 
-Tree-sitter parsers need to have the same (major) version of the core library,
-so you will need to specify the version explicitly by suffixing the parser name
-with `@<version>`. In the example above, Dolos is using Tree-sitter v0.20.0, so
-you would need to install `tree-sitter-rust@0.20`. You may safely omit the minor
-version (the numbers after the last dot).
+Tree-sitter parsers must have the same (major) version as the core library,
+so the version must be specified explicitly by suffixing the parser name with `@<version>`.
+Dolos uses Tree-sitter v0.20.0 in the above example above,
+so we need to install `tree-sitter-rust@0.20` in that case.
+You may safely omit the minor version (the third number after the final dot).
 
-Install a Tree-sitter parser for a specific programming language using `npm` or `yarn`:
+Use `npm` or `yarn` to install a Tree-sitter parser for a specific programming language:
+
 ```shell
 npm install -g tree-sitter-rust@0.20
 ```
+
 ## Start Dolos with the new parser
 
-Once the parser is installed, Dolos will be able to detect the new parser, and you
-can run the analysis on your files. If you need help, you can always contact us
-[on GitHub](https://github.com/dodona-edu/dolos/issues/1029).
+Dolos automatically detects newly installed parsers as soon as a new analysis is run.
+
+Contact us on [GitHub](https://github.com/dodona-edu/dolos/issues/1029) if you need help with supporting additional programming languages.
