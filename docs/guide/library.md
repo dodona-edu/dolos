@@ -1,11 +1,13 @@
 # Dolos Javascript library
 
-Underlying Dolos CLI is the TypeScript/JavaScript library [@dodona/dolos-lib](https://www.npmjs.com/package/@dodona/dolos-lib).
-It includes the core algorithm behind Dolos and can be used in your own projects.
+The Dolos CLI is actually a wrapper around the core TypeScript/JavaScript library [@dodona/dolos-lib](https://www.npmjs.com/package/@dodona/dolos-lib).
+This library implements the [algorithms](/about/algorithm.html) of the Dolos plagiarism detection pipeline.
+Feel free to use or extend individual algorithms in your own projects.
+We're happy to [hear](https://dodona.ugent.be/nl/contact/) about any extensions you make.
 
 ## Installation
 
-Just like [installtion of the CLI](/guide/installation.html), you can install the library using `npm` or `yarn`:
+Using `npm` or `yarn` to install the library, similar to [installing the CLI](/guide/installation.html):
 
 ```shell
 npm install @dodona/dolos-lib
@@ -13,9 +15,10 @@ npm install @dodona/dolos-lib
 
 ## Usage
 
-We've provided a [simple example repository](https://github.com/rien/dolos-lib-example/blob/main/index.mjs) that shows how to use the library.
+Take a look at our [example repository](https://github.com/rien/dolos-lib-example/blob/main/index.mjs)
+for some simple use cases that demonstrate how the library can be used.
 
-The following code snippet will log all all matching fragments in the given files:
+For example, this JavaScript code snippet logs all matching fragments shared among a list of files:
 
 ```javascript
 import { Dolos } from "@dodona/dolos-lib";
@@ -39,5 +42,6 @@ for (const pair of report.allPairs()) {
 }
 ```
 
-Since our target audience is teachers, the documentation of the library is not as extensive as we would like.
-If you have any questions, feel free to [create an issue on GitHub](https://github.com/dodona-edu/dolos) or [send us an email](mailto:dodona@ugent.be).
+Since Dolos primarily targets teachers that will use Dolos as a [web app](/guide/server.html) or as a [command line tool](guide/running.html),
+the library is not documented as extensive as we would like.
+Feel free to [create an issue on GitHub](https://github.com/dodona-edu/dolos) or [send us an email](mailto:dodona@ugent.be) if you have any questions.
