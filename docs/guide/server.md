@@ -5,7 +5,7 @@ Dolos Online is a [web app](https://dolos.ugent.be/server) for plagiarism detect
 All you need is a browser.
 No additional installations needed.
 We describe the steps for plagiarism detection within a set of source files.
-Download this [ZIP file](/simple-dataset.zip) containing some sample files if you want to perform the analysis yourself.
+Download this [ZIP-file](/simple-dataset.zip) containing some sample files if you want to perform the analysis yourself.
 
 ## Upload and inspect source files
 
