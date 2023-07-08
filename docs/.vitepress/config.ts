@@ -4,7 +4,6 @@ import { defineConfig } from 'vitepress'
 export default defineConfig({
   title: "Dolos",
   description: "Source Code Plagiarism Detection",
-  base: '/beta',
 
   ignoreDeadLinks: [
     /^https?:\/\/localhost/
