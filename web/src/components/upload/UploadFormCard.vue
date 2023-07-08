@@ -12,6 +12,7 @@ const step = shallowRef(1);
 const valid = shallowRef(false);
 // Error message, in case of an error.
 const error = shallowRef();
+const stderr = shallowRef();
 
 // Selected file.
 const file = shallowRef<File>();
@@ -247,8 +248,9 @@ const startPolling = (reportId: string): void => {
           clearForm();
         }
 
-        if (report.status === "error" || report.status === "failed") {
-          handleError(status.error);
+        if (report.status === "failed" || report.status === "error") {
+          stderr.value = status.stderr.split("\n")[0].replace(/\[\d+m/g, "");
+          handleError(`An error occurred while analyzing the dataset (${status.error})`);
         }
       }
     } catch (e: any) {
@@ -294,7 +296,8 @@ watch(
           <v-stepper-content step="1">
             <transition name="slide-y-transition">
               <v-alert v-if="error" text type="error">
-                {{ error }}
+                {{ error }}<br />
+                {{ stderr }}
               </v-alert>
             </transition>
 
@@ -460,4 +463,5 @@ watch(
     width: 100%;
   }
 }
+
 </style>
