@@ -109,6 +109,11 @@ const openShareDialog = (item: any): void => {
           <v-icon>mdi-share-variant</v-icon>
         </v-btn>
       </template>
+
+      <template #no-data>
+        Your uploads will appear here.
+        See our <a href="https://dolos.ugent.be/try/">demo</a> page for an example of a report.
+      </template>
     </v-data-table>
 
     <uploads-table-info-dialog
