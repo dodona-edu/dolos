@@ -12,3 +12,6 @@ config.local.js
 basement_dist
 .vuepress/.temp
 .vuepress/.cache
+.vitepress/.temp
+.vitepress/cache
+.vitepress/dist
