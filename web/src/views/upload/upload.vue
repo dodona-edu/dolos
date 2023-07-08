@@ -52,9 +52,12 @@ const search = ref("");
         <v-col cols="12">
           <v-card>
             <v-card-title>Need help?</v-card-title>
-            <v-card-text>Reach out if you have any problems, suggestions or feedback.</v-card-text>
+            <v-card-text>
+              Reach out if you have any problems, suggestions or feedback.
+            </v-card-text>
             <v-card-actions>
-              <v-btn color="info" text href="https://dodona.ugent.be/en/contact">Contact us</v-btn>
+              <v-btn color="primary" text href="https://dodona.ugent.be/en/contact">Contact us</v-btn>
+              <v-btn text href="https://dolos.ugent.be">View documentation</v-btn>
             </v-card-actions>
           </v-card>
         </v-col>
