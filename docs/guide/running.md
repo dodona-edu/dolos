@@ -46,24 +46,8 @@ You can show all command line options by passing the `-h` or `--help` flag or by
 
 ## Adding metadata
 
-Improve the analysis results by providing a CSV-file instead of a list of files,
-as a CSV-file can contain extra metadata on each inspected file.
-
-Only the `filename` column containing the path to each inspected file is a required column of the CSV-file.
-In addition, you can add these optional columns to enhance the results:
-
-- `created_at`: timestamp when the file was submitted
-- `full_name`: full name of the submission author (student)
-- `labels`: label used to group submissions together (currently, only a single label is supported)
-
-```shell
-dolos run -l javascript info.csv
-```
-
-::: tip
-If you export submissions from [Dodona](./dodona.md), you download a ZIP-file that has the expected format for Dolos.
-Learn more about how you can analyse Dodona submissions with Dolos from the [Dodona use case](./dodona.html).
-:::
+You can improve the plagiarism detection report by adding metadata to your submissions (submission time, labels, author name, ...).
+See the page about [adding metadata](/guide/adding-metadata) to see how.
 
 ## Modifying plagiarism detection parameters
 

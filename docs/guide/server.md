@@ -24,48 +24,12 @@ Read the terms and conditions and check "I accept the above conditions".
 
 Click "Analyze" to upload your files and start the analysis.
 
-### Upload format
+::: tip
 
-For now, you must upload a single ZIP-file containing all source files you want to inspect, together with a mandatory `info.csv` file.
+You can enhance the analysis results by [adding metadata](/guide/adding-metadata) to your submissions.
 
-::: info
+Submissions exported from [Dodona](/guide/dodona) with the option `Include info csv` enabled already include metadata in a format Dolos recognizes.
 
-If you export submissions from [Dodona](./dodona.md), you download a ZIP-file that has the expected format for Dolos. 
-
-We plan to relax the need for a mandatory `info.csv` file in a future release of Dolos.
-
-:::
-
-The `info.csv` file must have a column `filename` that contains the paths of all inspected source files relative to the root of the ZIP-file.
-
-These columns are optional, but will be used to improve the analysis:
-
-- `labels`: a string label; the analysis report will use the same color for submissions with the same label
-- `created_at`: a timestamp of the submission; timestamps are used to construct a timeline of submissions
-
-Additional columns are allowed, but will be ignored by Dolos.
-
-#### Example
-
-Here's an example of a valid `info.csv` file:
-
-::: code-group
-
-```csv [Required column only]
-filename
-alice.js
-bob.js
-carol.js
-zoe.js
-```
-
-```csv [With optional columns]
-filename,labels,created_at
-alice.js,teacher,2019-07-23 17:12:33 +0200
-bob.js,,2019-07-25 11:02:57 +0200
-carol.js,group1,2019-07-25 14:43:20 +0200
-zoe.js,group1,2019-07-27 19:22:39 +0200
-```
 :::
 
 ### Analysis results

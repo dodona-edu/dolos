@@ -14,7 +14,7 @@ export default defineConfig({
     // https://vitepress.dev/reference/default-theme-config
 
     nav: [
-      { text: 'Guide', link: '/guide/' },
+      { text: 'Documentation', link: '/guide/' },
       { text: 'Examples', link: '/try/' },
       { text: 'Use Dolos', link: 'https://dolos.ugent.be/server' },
     ],
@@ -34,6 +34,7 @@ export default defineConfig({
           { text: 'Install the Dolos CLI', link: '/guide/installation' },
           { text: 'Use the Dolos CLI', link: '/guide/running' },
           { text: 'Run Dolos using docker', link: '/guide/docker' },
+          { text: 'Add metadata', link: '/guide/adding-metadata' },
           { text: 'Add new languages', link: '/guide/adding-languages' },
           { text: 'Use the Dolos library', link: '/guide/library' },
         ]
