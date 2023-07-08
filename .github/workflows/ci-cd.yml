@@ -372,7 +372,7 @@ jobs:
             rsync -glpPrtvz \
                   --delete  \
                   -e 'ssh -p 4840' \
-                  .vuepress/dist/ \
+                  .vitepress/dist/ \
                   dodona@dolos.ugent.be:docs
           else
             echo "Skipping deploy because secrets are not available"
