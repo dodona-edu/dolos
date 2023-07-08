@@ -309,9 +309,6 @@ watch(
                     :rules="fileRules"
                     :truncate-length="80"
                     :show-size="1000"
-                    persistent-hint
-                    hint="We currently only support a ZIP-file with a mandatory
-                    info.csv file listing the files to analyze."
                     prepend-icon=""
                     prepend-inner-icon="$file"
                     accept="zip, application/zip"
