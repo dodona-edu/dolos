@@ -5,7 +5,7 @@ As an alternative, you can also use the Dolos CLI from the [docker container](./
 
 ## Install Node.js
 
-Dolos needs the JavaScript runtime [Node.js](https://nodejs.org/en/) (version 14 or higher).
+Dolos needs the JavaScript runtime [Node.js](https://nodejs.org/en/) (we recommend the latest LTS version).
 Use this command to check if a suitable Node version is installed on your system:
 
 ```shell
@@ -13,7 +13,7 @@ node --version
 # v18.10.0
 ```
 
-If this command reports an error (`node: command not found`) or if the Node.js version is older than 14,
+If this command reports an error (`node: command not found`) or if the Node.js version is too old,
 you will need to install a recent version of Node.js using the instructions below.
 
 ### Windows

@@ -14,7 +14,7 @@ ls                                                # list extracted source files
 
 ## Simple start
 
-The easiest way to plagiarism detection by running the Dolos CLI is to
+The easiest way to detect plagiarism by running the Dolos CLI is to
 set the programming language using the `-l` or `--language` flag
 and pass it a list of all files you want to inspect:
 

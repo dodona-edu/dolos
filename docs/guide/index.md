@@ -18,7 +18,7 @@ The following example shows different trends among submissions for the same exer
 
 ## Why a new tool?
 
-We found that all existing tools were missing some important features. Some tools only came as a web app that wass down regularly or had an archaic user interface. Others tools did not support the programming languages we use in our courses or were simply too difficult to get up and running or too cumbersome to use in daily practice ...
+We found that all existing tools were missing some important features. Some tools only came as a web app that was down regularly or had an archaic user interface. Others tools did not support the programming languages we use in our courses or were simply too difficult to get up and running or too cumbersome to use in daily practice ...
 
 With Dolos, we want to provide an **open-source** tool that can easily be extended and integrated in your own workflow. It needs no installation (web app) or is **easy to install** (CLI) and has a **modern user interface**. As a result, we want teachers to be **as effective as possible** in detecting and preventing plagiarism, giving them more time do do what they do best: teaching.
 
@@ -31,6 +31,8 @@ Dolos is an active research project by [Team Dodona](https://dodona.ugent.be/en/
 > Maertens et. al. (2022) J. Computer Assisted Learning [doi:10.1111/jcal.12662](https://doi.org/10.1111/jcal.12662)
 
 [![Header of the article titled "Dolos: Language-agnostic plagiarism detection in source code"](/images/dolos-article.png)](https://doi.org/10.1111/jcal.12662)
+
+See our [publications page](/about/publications) for more articles published by Team Dodona.
 
 ## What's in a name?
 

@@ -9,7 +9,7 @@ Conceptually, the plagiarism detection pipeline of Dolos can be split into four 
 
 ## Tokenization
 
-To be immune against masking plagiarism by techniques techniques such as renaming variables and functions, Dolos
+To be immune against masking plagiarism by techniques such as renaming variables and functions, Dolos
 doesn't directly process the source code under investigation. It starts by performing a
 tokenization step using [Tree-sitter](http://tree-sitter.github.io/tree-sitter/).
 Tree-sitter can generate syntax trees for many programming languages, converts source code
