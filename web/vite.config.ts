@@ -47,7 +47,13 @@ export default defineConfig({
   server: {
     port: 8080,
   },
+  optimizeDeps: {
+    include: ["@dodona/dolos-lib"]
+  },
   build: {
     target: "esnext",
+    commonjsOptions: {
+      include: [/@dodona\/dolos-lib/, /node_modules/]
+    }
   }
 });
