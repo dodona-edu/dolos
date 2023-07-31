@@ -1,0 +1,15 @@
+property,value,type
+reportName,Pyramidal constants exercise,string
+kgramLength,23,number
+kgramsInWindow,17,number
+language,python,string
+maxFingerprintCount,null,object
+maxFingerprintPercentage,null,object
+minFragmentLength,0,number
+limitResults,null,object
+minSimilarity,0,number
+sortBy,total overlap,string
+fragmentSortBy,file order,string
+kgramData,false,boolean
+createdAt,2023-04-27T13:54:26.454Z,string
+languageDetected,true,boolean
