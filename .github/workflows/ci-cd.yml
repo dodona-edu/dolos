@@ -271,7 +271,7 @@ jobs:
       - name: Build web 🔧
         run: |
           cd web/
-          yarn build --skip-plugins eslint
+          yarn build
 
       - name: Deploy to staging 🚀
         if: ${{ matrix.node == '18' }}
