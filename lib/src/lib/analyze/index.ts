@@ -1,4 +1,4 @@
-import assert from "node:assert";
+import assert from "assert";
 import { HashFilter } from "../hashing/hashFilter.js";
 import { Options } from "../util/options.js";
 import { Range } from "../util/range.js";

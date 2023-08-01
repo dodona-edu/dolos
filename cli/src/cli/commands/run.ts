@@ -3,14 +3,14 @@ import {
   setLogging,
   tryCatch,
   warning
-} from "../util/utils";
+} from "../util/utils.js";
 
-import { DEFAULT_HOST, DEFAULT_PORT } from "../server";
-import { TerminalView } from "../views/terminalView";
-import { FileView } from "../views/fileView";
-import { WebView } from "../views/webView";
+import { DEFAULT_HOST, DEFAULT_PORT } from "../server.js";
+import { TerminalView } from "../views/terminalView.js";
+import { FileView } from "../views/fileView.js";
+import { WebView } from "../views/webView.js";
 import { Command } from "commander";
-import * as Utils from "../util/utils";
+import * as Utils from "../util/utils.js";
 import { Dolos, Options } from "@dodona/dolos-lib";
 
 export function runCommand(program: Command): Command {

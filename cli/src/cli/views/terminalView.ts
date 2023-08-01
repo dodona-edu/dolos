@@ -1,11 +1,12 @@
-import { View } from "./view";
+import { View } from "./view.js";
 
 /// <reference types="../../../typings/cliui" />
 import UI from "cliui";
-import { Chalk, Instance as ChalkInstance, bold, red } from "chalk";
 import { Writable } from "stream";
-import { closestMatch } from "../util/utils";
+import { closestMatch } from "../util/utils.js";
 import { Report, Fragment, Region, Pair } from "@dodona/dolos-lib";
+import chalk from "chalk";
+const { Instance: ChalkInstance, bold, red } = chalk;
 
 /**
  * This {@link View} will print the results of an analysis to the terminal.
@@ -17,7 +18,7 @@ export class TerminalView extends View {
   private readonly fragmentSortBy?: string;
   private readonly compare: boolean;
   private readonly width: number;
-  private readonly c: Chalk;
+  private readonly c: chalk.Chalk;
   private readonly context: number = 3;
 
   constructor(

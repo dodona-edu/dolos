@@ -1,5 +1,5 @@
-import { FileView, Options as FVOptions } from "./fileView";
-import runServer, { Options as ServerOptions } from "../server";
+import { FileView, Options as FVOptions } from "./fileView.js";
+import runServer, { Options as ServerOptions } from "../server.js";
 import { Report } from "@dodona/dolos-lib";
 
 /**

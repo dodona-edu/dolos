@@ -1,12 +1,16 @@
-import { error } from "./util/utils";
+import { error } from "./util/utils.js";
 import { default as express, Express } from "express";
 import http from "http";
 import path from "path";
 import open from "open";
+// @ts-ignore
+import * as web from "@dodona/dolos-web";
+
 
 function assets(): string {
   try {
-    return require.resolve("@dodona/dolos-web");
+    console.debug(web);
+    return web;
   } catch (e) {
     if (e.code === "MODULE_NOT_FOUND") {
       error("Module '@dodona/dolos-web' was not found on your system, " +

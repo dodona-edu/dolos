@@ -1,4 +1,4 @@
-import { View } from "./view";
+import { View } from "./view.js";
 import { stringify } from "csv-stringify";
 import { Writable } from "stream";
 import { createWriteStream, promises as fs } from "fs";

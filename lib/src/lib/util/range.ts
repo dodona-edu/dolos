@@ -1,4 +1,4 @@
-import assert from "node:assert";
+import assert from "assert";
 
 /**
  * A range of whole numbers starting at `from` (inclusive) and ending at `to`

@@ -1,9 +1,10 @@
 import { Command } from "commander";
-import { promises as fs, constants } from "fs";
-import * as path from "path";
-import runServer, { DEFAULT_HOST, DEFAULT_PORT } from "../server";
-import * as Utils from "../util/utils";
-import { tryCatch, error, setLogging } from "../util/utils";
+import { constants } from "node:fs";
+import fs from "node:fs/promises";
+import path from "node:path";
+import runServer, { DEFAULT_HOST, DEFAULT_PORT } from "../server.js";
+import * as Utils from "../util/utils.js";
+import { tryCatch, error, setLogging } from "../util/utils.js";
 
 export function serveCommand(program: Command): Command {
   return new Command("serve")

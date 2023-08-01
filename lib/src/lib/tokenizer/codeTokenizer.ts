@@ -2,7 +2,7 @@ import { default as Parser, SyntaxNode } from "tree-sitter";
 import { Region } from "../util/region.js";
 import { Token, Tokenizer } from "./tokenizer.js";
 import { ProgrammingLanguage } from "../util/language.js";
-import assert from "node:assert";
+import assert from "assert";
 
 export class CodeTokenizer extends Tokenizer {
 
