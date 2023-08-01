@@ -1,4 +1,4 @@
-import assert from "assert";
+import assert from "node:assert";
 
 /**
  * Defines a selection in a file.
