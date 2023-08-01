@@ -1,25 +1,9 @@
-import { error } from "./util/utils.js";
 import { default as express, Express } from "express";
 import http from "http";
-import path from "path";
 import open from "open";
 // @ts-ignore
-import * as web from "@dodona/dolos-web";
+import { webroot } from "@dodona/dolos-web";
 
-
-function assets(): string {
-  try {
-    console.debug(web);
-    return web;
-  } catch (e) {
-    if (e.code === "MODULE_NOT_FOUND") {
-      error("Module '@dodona/dolos-web' was not found on your system, " +
-        "but it is required to run the web server.\n" +
-        "Please install it to view the results in your browser.");
-    }
-    throw e;
-  }
-}
 
 export const DEFAULT_PORT = 3000;
 export const DEFAULT_HOST = "localhost";
@@ -40,7 +24,7 @@ export default async function runServer(
 
   const app: Express = express();
   app.use("/data", express.static(reportDir));
-  app.use(express.static(path.dirname(assets())));
+  app.use(express.static(webroot()));
 
   const server = http.createServer(app);
   const serverStarted: Promise<void> = new Promise((r, e) => {
