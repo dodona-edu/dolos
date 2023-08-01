@@ -1,15 +1,15 @@
 import assert from "assert";
-import { HashFilter } from "../hashing/hashFilter";
-import { Options } from "../util/options";
-import { Range } from "../util/range";
-import { Region } from "../util/region";
-import { Tokenizer } from "../tokenizer/tokenizer";
-import { WinnowFilter } from "../hashing/winnowFilter";
-import { File } from "../file/file";
-import { Report } from "./report";
-import { TokenizedFile } from "../file/tokenizedFile";
-import { SharedFingerprint } from "./sharedFingerprint";
-import { ASTRegion } from "./pairedOccurrence";
+import { HashFilter } from "../hashing/hashFilter.js";
+import { Options } from "../util/options.js";
+import { Range } from "../util/range.js";
+import { Region } from "../util/region.js";
+import { Tokenizer } from "../tokenizer/tokenizer.js";
+import { WinnowFilter } from "../hashing/winnowFilter.js";
+import { File } from "../file/file.js";
+import { Report } from "./report.js";
+import { TokenizedFile } from "../file/tokenizedFile.js";
+import { SharedFingerprint } from "./sharedFingerprint.js";
+import { ASTRegion } from "./pairedOccurrence.js";
 
 export type Hash = number;
 

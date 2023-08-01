@@ -1,15 +1,15 @@
-import { Index } from "./lib/analyze";
-import { Report } from "./lib/analyze/report";
-import { CustomOptions, Options } from "./lib/util/options";
-import { ExtraInfo, File } from "./lib/file/file";
-import { Result } from "./lib/util/result";
+import { Index } from "./lib/analyze/index.js";
+import { Report } from "./lib/analyze/report.js";
+import { CustomOptions, Options } from "./lib/util/options.js";
+import { ExtraInfo, File } from "./lib/file/file.js";
+import { Result } from "./lib/util/result.js";
 import { csvParse, DSVRowString } from "d3-dsv";
 import * as path from "path";
-import { Tokenizer } from "./lib/tokenizer/tokenizer";
+import { Tokenizer } from "./lib/tokenizer/tokenizer.js";
 import { constants, default as fsWithCallbacks } from "fs";
 import { spawnSync as spawn } from "child_process";
 import { tmpdir } from "os";
-import { Language, LanguagePicker } from "./lib/util/language";
+import { Language, LanguagePicker } from "./lib/util/language.js";
 
 const fs = fsWithCallbacks.promises;
 

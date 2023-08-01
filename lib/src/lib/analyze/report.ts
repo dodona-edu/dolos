@@ -1,9 +1,9 @@
-import { Pair } from "./pair";
-import { TokenizedFile } from "../file/tokenizedFile";
-import { DolosOptions, Options } from "../util/options";
-import { SharedFingerprint } from "./sharedFingerprint";
-import { Language } from "../util/language";
-import { closestMatch } from "../util/utils";
+import { Pair } from "./pair.js";
+import { TokenizedFile } from "../file/tokenizedFile.js";
+import { DolosOptions, Options } from "../util/options.js";
+import { SharedFingerprint } from "./sharedFingerprint.js";
+import { Language } from "../util/language.js";
+import { closestMatch } from "../util/utils.js";
 
 type Hash = number;
 

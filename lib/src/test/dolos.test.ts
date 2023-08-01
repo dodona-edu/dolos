@@ -1,7 +1,7 @@
 import test from "ava";
-import { Dolos } from "../dolos";
-import { File } from "../lib/file/file";
-import { Region } from "../lib/util/region";
+import { Dolos } from "../dolos.js";
+import { File } from "../lib/file/file.js";
+import { Region } from "../lib/util/region.js";
 
 test("equal content should be a full match", async t => {
   const dolos = new Dolos();

@@ -1,6 +1,6 @@
 import test from "ava";
-import { TokenHash } from "../lib/hashing/tokenHash";
-import { RollingHash } from "../lib/hashing/rollingHash";
+import { TokenHash } from "../lib/hashing/tokenHash.js";
+import { RollingHash } from "../lib/hashing/rollingHash.js";
 
 test("same tokens should result in the same hash", t => {
   const s1 = "abc";

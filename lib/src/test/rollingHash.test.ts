@@ -1,5 +1,5 @@
 import test from "ava";
-import { RollingHash } from "../lib/hashing/rollingHash";
+import { RollingHash } from "../lib/hashing/rollingHash.js";
 
 test("repeating sequence should have the same hashes", t => {
   const k = 3;

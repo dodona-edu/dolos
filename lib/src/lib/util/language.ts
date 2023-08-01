@@ -1,5 +1,5 @@
-import { Tokenizer } from "../tokenizer/tokenizer";
-import { File } from "../file/file";
+import { Tokenizer } from "../tokenizer/tokenizer.js";
+import { File } from "../file/file.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type TreeSitterLanguage = any;

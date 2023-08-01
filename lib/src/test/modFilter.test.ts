@@ -1,6 +1,6 @@
 import test from "ava";
-import { ModFilter } from "../lib/hashing/modFilter";
-import { NoFilter } from "../lib/hashing/noFilter";
+import { ModFilter } from "../lib/hashing/modFilter.js";
+import { NoFilter } from "../lib/hashing/noFilter.js";
 
 test("no hashes for text shorter than k", async t => {
   const text = "abcd".split("");

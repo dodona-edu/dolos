@@ -1,6 +1,6 @@
 import test from "ava";
-import { File } from "../lib/file/file";
-import { LanguagePicker } from "../lib/util/language";
+import { File } from "../lib/file/file.js";
+import { LanguagePicker } from "../lib/util/language.js";
 
 const languageFiles = {
   "bash": "../samples/bash/caesar.sh",

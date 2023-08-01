@@ -1,5 +1,5 @@
-import { Region } from "../util/region";
-import { Token, Tokenizer } from "./tokenizer";
+import { Region } from "../util/region.js";
+import { Token, Tokenizer } from "./tokenizer.js";
 
 export class CharTokenizer extends Tokenizer {
   /**

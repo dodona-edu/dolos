@@ -1,11 +1,12 @@
 {
   "name": "@dodona/dolos-lib",
   "version": "2.3.0",
-  "main": "dist/index.js",
+  "exports": "./dist/index.js",
+  "type": "module",
   "description": "Code similarity detection based on the Winnowing algorithm",
   "types": "dist/index.d.ts",
   "engines": {
-    "node": ">12"
+    "node": ">=16"
   },
   "scripts": {
     "test": "nyc ava",

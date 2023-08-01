@@ -1,6 +1,6 @@
-import { Result } from "../util/result";
+import { Result } from "../util/result.js";
 import { default as fsWithCallbacks } from "fs";
-import Identifiable from "../util/identifiable";
+import Identifiable from "../util/identifiable.js";
 import path from "path";
 const fs = fsWithCallbacks.promises;
 
