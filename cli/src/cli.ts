@@ -1,19 +1,16 @@
 #!/usr/bin/env node
-import * as Utils from "./cli/util/utils";
+import * as Utils from "./cli/util/utils.js";
 import { Command } from "commander";
-import { runCommand } from "./cli/commands/run";
-import { serveCommand } from "./cli/commands/serve";
-import * as path from "path";
+import { runCommand } from "./cli/commands/run.js";
+import { serveCommand } from "./cli/commands/serve.js";
+import { readFileSync } from "fs";
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const pkg = require("../package.json");
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const treeSitterPkg = require(path.dirname(require.resolve("tree-sitter")) + "/package.json");
+const pkg = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf-8"));
 
 const versions = [
   `Dolos v${pkg.version}`,
   `Node ${process.version}`,
-  `Tree-sitter v${treeSitterPkg.version}`
+  `Tree-sitter ${pkg.dependencies["tree-sitter"]}`
 ];
 
 const program = new Command();

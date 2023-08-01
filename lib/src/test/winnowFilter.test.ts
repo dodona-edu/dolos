@@ -1,6 +1,6 @@
 import test from "ava";
-import { NoFilter } from "../lib/hashing/noFilter";
-import { WinnowFilter } from "../lib/hashing/winnowFilter";
+import { NoFilter } from "../lib/hashing/noFilter.js";
+import { WinnowFilter } from "../lib/hashing/winnowFilter.js";
 
 test("Winnow on comparable files", async t => {
   const textA = "abcdefg".split("");

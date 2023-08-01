@@ -12,6 +12,7 @@ const step = shallowRef(1);
 const valid = shallowRef(false);
 // Error message, in case of an error.
 const error = shallowRef();
+const stderr = shallowRef();
 
 // Selected file.
 const files = shallowRef<File[]>();
@@ -248,8 +249,9 @@ const startPolling = (reportId: string): void => {
           clearForm();
         }
 
-        if (report.status === "error" || report.status === "failed") {
-          handleError(status.error);
+        if (report.status === "failed" || report.status === "error") {
+          stderr.value = status.stderr.split("\n")[0].replace(/\[\d+m/g, "");
+          handleError(`An error occurred while analyzing the dataset (${status.error})`);
         }
       }
     } catch (e: any) {
@@ -292,7 +294,8 @@ watch(
       <v-window class="upload-stepper" v-model="step">
         <v-window-item :value="1">
           <v-alert v-if="error" class="mb-4" variant="tonal" type="error" density="compact">
-            {{ error }}
+            {{ error }}<br />
+            {{ stderr }}
           </v-alert>
 
           <v-form v-model="valid" class="mt-2" fast-fail @submit="onSubmit">
@@ -302,7 +305,6 @@ watch(
               :truncate-length="80"
               :show-size="1000"
               persistent-hint
-              hint="We currently only support a ZIP-file with a mandatory info.csv file listing the files to analyze."
               prepend-icon=""
               prepend-inner-icon="$file"
               accept="zip, application/zip"
@@ -457,4 +459,5 @@ watch(
     width: 100%;
   }
 }
+
 </style>

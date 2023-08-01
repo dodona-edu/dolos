@@ -1,4 +1,4 @@
-import { TokenHash } from "./tokenHash";
+import { TokenHash } from "./tokenHash.js";
 
 export interface Fingerprint {
   data: Array<string> | null;

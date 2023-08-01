@@ -1,10 +1,11 @@
 {
   "name": "@dodona/dolos-web",
   "description": "Web UI for the Dolos plagiarism detection tool.",
-  "version": "2.2.4",
-  "main": "dist/index.html",
+  "version": "2.3.0",
   "homepage": "https://dolos.ugent.be",
   "license": "MIT",
+  "type": "module",
+  "exports": "./index.js",
   "scripts": {
     "dev": "vite",
     "dev:server": "VITE_MODE=server vite",
@@ -14,7 +15,7 @@
     "lint": "eslint . --fix --ignore-path .gitignore"
   },
   "dependencies": {
-    "@dodona/dolos-lib": "2.2.4",
+    "@dodona/dolos-lib": "2.3.0",
     "@mdi/font": "7.2.96",
     "@vueuse/core": "^10.2.1",
     "axios": "^1.4.0",
@@ -22,7 +23,7 @@
     "core-js": "^3.31.0",
     "d3": "^7.0.0",
     "luxon": "^3.3.0",
-    "monaco-editor": "^0.39.0",
+    "monaco-editor": "^0.40.0",
     "papaparse": "^5.4.1",
     "pinia": "^2.1.4",
     "prismjs": "^1.29.0",

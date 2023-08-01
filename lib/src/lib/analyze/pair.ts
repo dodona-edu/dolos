@@ -1,10 +1,10 @@
-import { Range } from "../util/range";
-import { PairedOccurrence } from "./pairedOccurrence";
-import { Fragment } from "./fragment";
-import { TokenizedFile } from "../file/tokenizedFile";
-import Identifiable from "../util/identifiable";
-import { SharedFingerprint } from "./sharedFingerprint";
-import { Occurrence } from "./index";
+import { Range } from "../util/range.js";
+import { PairedOccurrence } from "./pairedOccurrence.js";
+import { Fragment } from "./fragment.js";
+import { TokenizedFile } from "../file/tokenizedFile.js";
+import Identifiable from "../util/identifiable.js";
+import { SharedFingerprint } from "./sharedFingerprint.js";
+import { Occurrence } from "./index.js";
 
 type LeftRight = string;
 

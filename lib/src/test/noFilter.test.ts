@@ -1,5 +1,5 @@
 import test from "ava";
-import { NoFilter } from "../lib/hashing/noFilter";
+import { NoFilter } from "../lib/hashing/noFilter.js";
 
 test("no hashes for text shorter than k", async t => {
   const text = "abcd".split("");

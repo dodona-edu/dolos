@@ -1,5 +1,5 @@
-import { SharedFingerprint } from "./sharedFingerprint";
-import { Region } from "../util/region";
+import { SharedFingerprint } from "./sharedFingerprint.js";
+import { Region } from "../util/region.js";
 
 /**
  * The information that is needed for one side of a paired occurrence.

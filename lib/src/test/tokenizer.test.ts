@@ -1,6 +1,6 @@
 import test from "ava";
-import { File } from "../lib/file/file";
-import { LanguagePicker } from "../lib/util/language";
+import { File } from "../lib/file/file.js";
+import { LanguagePicker } from "../lib/util/language.js";
 
 const languageFiles = {
   "bash": "../samples/bash/caesar.sh",
@@ -19,7 +19,7 @@ const languageFiles = {
 
 for (const [languageName, languageFile] of Object.entries(languageFiles)) {
   test(`LanguagePicker can find ${languageName} correctly by name`, async t => {
-    const language = new LanguagePicker().findLanguage(languageName);
+    const language = await new LanguagePicker().findLanguage(languageName);
     t.truthy(language, `language detection failed for name: '${languageName}'`);
     t.deepEqual(language.name, languageName);
   });
@@ -36,23 +36,25 @@ for (const [languageName, languageFile] of Object.entries(languageFiles)) {
     const file = (await File.fromPath(languageFile)).ok();
     const language = new LanguagePicker().detectLanguage([file]);
 
-    const tokenizer = language.createTokenizer();
+    const tokenizer = await language.createTokenizer();
     t.truthy(tokenizer);
 
-    const tokens = (await tokenizer.tokenizeFile(file)).ast;
+    const tokens = tokenizer.tokenizeFile(file).ast;
     t.truthy(tokens);
     t.snapshot(tokens, "stable tokenization");
   });
 }
 
-test("language picker should trow an error for non-existing language", t => {
-  t.throws(() => new LanguagePicker().findLanguage("non-existing-language"));
+test("language picker should trow an error for non-existing language", async t => {
+  await t.throwsAsync(() => new LanguagePicker().findLanguage("non-existing-language"));
 });
 
 test("language picker should throw an error for unknown extension", t => {
   t.throws(() => new LanguagePicker().detectLanguage([new File("unknown.extension", "")]));
 });
 
-test("language picker should throw an error for different languages", t => {
-  t.throws(() => new LanguagePicker().detectLanguage([new File("file.py", ""), new File("file.js", "")]));
+test("language picker should detect most common language", t => {
+  const files = [new File("file.py", ""), new File("otherfile.py", ""), new File("file.js", "")];
+  const detected = new LanguagePicker().detectLanguage(files);
+  t.deepEqual(detected.name, "python");
 });

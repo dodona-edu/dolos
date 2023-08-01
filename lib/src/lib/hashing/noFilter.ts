@@ -1,5 +1,5 @@
-import { Fingerprint, HashFilter } from "./hashFilter";
-import { RollingHash } from "./rollingHash";
+import { Fingerprint, HashFilter } from "./hashFilter.js";
+import { RollingHash } from "./rollingHash.js";
 
 export class NoFilter extends HashFilter {
   private readonly k: number;

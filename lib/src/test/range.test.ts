@@ -1,5 +1,5 @@
 import test from "ava";
-import { Range } from "../lib/util/range";
+import { Range } from "../lib/util/range.js";
 
 test("illegal range", t => {
   t.throws(() => new Range(1337, 42));

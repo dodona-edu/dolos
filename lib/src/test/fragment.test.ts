@@ -1,16 +1,17 @@
 import test from "ava";
-import { File } from "../lib/file/file";
-import { Fingerprint } from "../lib/hashing/hashFilter";
-import { PairedOccurrence } from "../lib/analyze/pairedOccurrence";
-import { Fragment } from "../lib/analyze/fragment";
-import { Region } from "../lib/util/region";
-import { SharedFingerprint } from "../lib/analyze/sharedFingerprint";
-import { WinnowFilter } from "../lib/hashing/winnowFilter";
-import { LanguagePicker } from "../lib/util/language";
+import { File } from "../lib/file/file.js";
+import { Fingerprint } from "../lib/hashing/hashFilter.js";
+import { PairedOccurrence } from "../lib/analyze/pairedOccurrence.js";
+import { Fragment } from "../lib/analyze/fragment.js";
+import { Region } from "../lib/util/region.js";
+import { SharedFingerprint } from "../lib/analyze/sharedFingerprint.js";
+import { WinnowFilter } from "../lib/hashing/winnowFilter.js";
+import { LanguagePicker } from "../lib/util/language.js";
 
 
 test("fragment should fully reconstruct matched kgrams when k > w", async t => {
-  const tokenizer = new LanguagePicker().findLanguage("javascript").createTokenizer();
+  const javascript = await new LanguagePicker().findLanguage("javascript");
+  const tokenizer = await javascript.createTokenizer();
   const f1 = tokenizer.tokenizeFile(
     (await File.fromPath("../samples/javascript/sample.js")).ok()
   );
@@ -58,7 +59,8 @@ test("fragment should fully reconstruct matched kgrams when k > w", async t => {
 });
 
 test("fragment should partially reconstruct matched kgrams when k < w", async t => {
-  const tokenizer = new LanguagePicker().findLanguage("javascript").createTokenizer();
+  const javascript = await new LanguagePicker().findLanguage("javascript");
+  const tokenizer = await javascript.createTokenizer();
   const f1 = tokenizer.tokenizeFile(
     (await File.fromPath("../samples/javascript/sample.js")).ok()
   );

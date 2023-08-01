@@ -42,18 +42,12 @@ export default defineConfig({
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),
     },
-    extensions: [".js", ".json", ".jsx", ".mjs", ".ts", ".tsx", ".vue"],
+    extensions: [".js", ".json", ".jsx", ".mjs", ".ts", ".tsx", ".vue"]
   },
   server: {
-    port: 8080,
-  },
-  optimizeDeps: {
-    include: ["@dodona/dolos-lib"]
+    port: 8080
   },
   build: {
-    target: "esnext",
-    commonjsOptions: {
-      include: [/@dodona\/dolos-lib/, /node_modules/]
-    }
+    target: "esnext"
   }
 });

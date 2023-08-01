@@ -1,7 +1,7 @@
-import { File } from "../file/file";
-import { Region } from "../util/region";
-import { TokenizedFile } from "../file/tokenizedFile";
-import { Language } from "../util/language";
+import { File } from "../file/file.js";
+import { Region } from "../util/region.js";
+import { TokenizedFile } from "../file/tokenizedFile.js";
+import { Language } from "../util/language.js";
 
 export interface Token {
   token: string;

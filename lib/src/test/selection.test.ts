@@ -1,5 +1,5 @@
 import test from "ava";
-import { Region } from "../lib/util/region";
+import { Region } from "../lib/util/region.js";
 
 test("illegal selection", t => {
   t.throws(() => new Region(10, 10, 1, 1));

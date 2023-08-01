@@ -1,7 +1,7 @@
-import { File } from "./file";
-import { Region } from "../util/region";
-import { Range } from "../util/range";
-import { SharedFingerprint } from "../analyze/sharedFingerprint";
+import { File } from "./file.js";
+import { Region } from "../util/region.js";
+import { Range } from "../util/range.js";
+import { SharedFingerprint } from "../analyze/sharedFingerprint.js";
 
 export class TokenizedFile extends File {
 

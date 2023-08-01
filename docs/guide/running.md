@@ -1,32 +1,35 @@
-# Running Dolos
+# Running Dolos CLI
 
-If you want to follow along, we have provided a [ZIP with sample files](/simple-dataset.zip).
-Download and extract this in your terminal.
-
-On Unix, you can accomplish this using the following commands:
+This tutorial describes how you can perform source code plagiarism detection by running Dolos on your local system.
+It uses a sample set of source files contained in this [ZIP-file](/simple-dataset.zip).
+Download the ZIP-file and extract the source files if you want to run the analysis yourself.
+On Unix, this can be done by running the following commands in your terminal:
 
 ```shell
-wget https://dolos.ugent.be/simple-dataset.zip
-unzip simple-dataset.zip
-ls
+wget https://dolos.ugent.be/simple-dataset.zip    # download the ZIP archive
+unzip simple-dataset.zip                          # extract the ZIP archive
+ls                                                # list extracted source files 
 # another_copied_function.js  copied_function.js  copy_of_sample.js info.csv sample.js
 ```
 
 ## Simple start
 
-The simplest way to run Dolos is to set the language using the `-l` or `--language`
-flag and pass it a list of all the files you want to analyze:
+The easiest way to detect plagiarism by running the Dolos CLI is to
+set the programming language using the `-l` or `--language` flag
+and pass it a list of all files you want to inspect:
 
 ```shell
-dolos run -l javascript another_copied_function.js  copied_function.js  copy_of_sample.js  sample.js
+dolos run -l javascript another_copied_function.js copied_function.js copy_of_sample.js sample.js
 # or shorter using file globbing (does not work on Windows)
 dolos run -l javascript *.js
-# or by passing the info.csv
+# or by passing an info.csv file
 dolos run -l javascript info.csv
-# or by passing the ZIP-archive
+# or by passing a ZIP-archive
 dolos run -l javascript simple-dataset.zip
 ```
-The output in your terminal will should look like this:
+
+The output in your terminal should look like this:
+
 ```
 File path                    File path                    Similarity  Longest        Total overlap
                                                                       fragment
@@ -38,96 +41,77 @@ copied_function.js           sample.js                    0.153846    8         
 ```
 
 ::: tip
-You can show all the command-line options by passing the `-h` or `--help` flag
-or by running `dolos help run`.
+You can show all command line options by passing the `-h` or `--help` flag or by running `dolos help run`.
 :::
 
 ## Adding metadata
 
-You can improve your analysis results by giving a CSV-file instead of a list of file. This file can contain extra metadata for each submission. However, only the row `filename` with the path to each submission is required.
+You can improve the plagiarism detection report by adding metadata to your submissions (submission time, labels, author name, ...).
+See the page about [adding metadata](/guide/adding-metadata) to see how.
 
-In addition, you can add the following rows to enhance the results:
-- `created_at`: the timestamp at which the submission was handed in
-- `full_name`: the full name of the author of the submission
-- `labels`: label used to group submissions together (only one label is supported currently)
+## Modifying plagiarism detection parameters
 
-```shell
-dolos run -l javascript info.csv
-```
+The plagiarism detection parameters can be altered by passing the relevant arguments when running Dolos.
+See [how Dolos works](/about/algorithm.html) for more information about what influence these parameters have on an analysis.
 
-::: tip
-The format of the CSV-file and the ZIP-archive that Dolos is able to analyse, is the format in which [Dodona](https://dodona.ugent.be) exports its submissions. Go to [the Dodona use case](./dodona.html) to learn how you can analyse Dodona submissions with Dolos.
-:::
-
-## Modifying analysis parameters
-
-The analysis parameters can be altered by passing the relevant program
-arguments. For more information about the impact of these parameters you can
-read the section describing [how Dolos works](./algorithm.html).
-
-If a Dolos analysis is taking too long or consuming too much memory, it can
-help to alter these parameters. It is recommended to increase the Window length
-(`-w`) first before altering the _k_-gram length (`-k`).
-
-### _k_-gram length
-
-Short: `-k <integer>`, long: `--kgram-length <integer>`, default: `23`.
-
-This changes the number of of _tokens_ contained in a single _k_-gram. This is the
-minimum matchable unit: corresponding fragments in two files smaller than this
-value will not be found.
-
-Larger values decrease memory usage and decrease running time, but will result
-in fewer detections.
+If running Dolos takes too long or consumes too much memory, tweaking these parameters might help.
+We recommend to increase the **window length** (`-w`) first, before altering the **_k_-gram length** (`-k`).
 
 ### Window length
 
 Short: `-w <integer>`, long: `--kgrams-in-window <integer>`, default: `17`.
 
-This changes window length (in _k_-grams) used by the Winnowing algorithm. The
-algorithm will pick one out of every `w` subsequent _k_-grams. This will
-therefore reduce memory usage `w` times.
+Sets window length (in _k_-grams) used by the [winnowing algorithm](/about/algorithm.html).
+The winnowing algorithm selects one _k_-grams from each overlapping window of `w` subsequent _k_-grams.
+This may result in a `w`-fold reduction of the memory usage.
 
-Larger values decrease memory usage and decrease running time, but will result
-in fewer detections.
+Larger values decrease memory usage and runtime, but result in fewer detections and therefore also decrease the accuracy of plagiarism detection.
+
+### _k_-gram length
+
+Short: `-k <integer>`, long: `--kgram-length <integer>`, default: `23`.
+
+Sets the number of _tokens_ in a _k_-gram.
+This determines the shortest matchable unit:
+common fragments between two files that are shorter than $$k$$ tokens will not be found during plagiarism detection.
+
+Larger values decrease memory usage and runtime, but result in fewer detections and therefore also decrease the accuracy of plagiarism detection.
 
 ### Other parameters
 
-Dolos includes other parameters that can be used to finetune the analysis. A
-more detailed listing of these parameters and their function can be viewed by
-running `dolos --help`.
-
+Dolos has other parameters that influence a plagiarism detection analysis.
+Run `dolos --help` for a more detailed listing of these parameters and a description of their impact.
 
 ## Output format
 
-You can specify how Dolos reports its results by setting the `-f` or `--output-format` flag.
+Set the `-f` or `--output-format` flag to specify how Dolos reports its analysis results.
 Formatting options are:
- - **terminal**: outputs plain text output in your terminal (default)
- - **web**: starts a webserver where you can interactively view results
- - **csv**: writes the resulting CSV-files of the analysis to a directory 
 
-Often, you want to use the **web** option to use the interactive user interface
-provided by Dolos:
+ - **terminal**: outputs analysis results in your terminal in plain text format (default)
+ - **csv**: outputs results as a directory containing CSV-files
+ - **web**: opens an interactive web app in your browser that allows a visual exploration of the analysis results
+
+Use the **web** option to explore the plagiarism detection results in an interactive web app:
 
 ```shell
 dolos run -f web -l javascript *.js
 ```
 
-This will start a local webserver where you can interactively explore the
-analysis report in your browser. By default, the report is available on <http://localhost:3000>.
+This will display an analysis report in your browser,
+giving you the most interactive way to explore the results of plagiarism detection.
+By default, the report is available at <http://localhost:3000>.
 
 The report should look like [this](https://dolos.ugent.be/demo/sample/).
 
 ## Serving generated reports
 
-If you run Dolos with `-f web` or `-f csv`, it will create a directory with the
-analysis report in your current working directory.
+Running Dolos with `-f web` or `-f csv` creates a new directory in the current working directory containing the analysis report in CSV-format.
 
-You can view the results again in your browser without having to re-analyze the
-files by executing the command
+You can manually launch an interactive web app to explore to these analysis results,
+without having to re-analyze the source files, by running the following command:
+
 ```shell
 dolos serve dolos-report-20210831T141228596Z/
 ```
 
-This will launch the same web view as if you launched Dolos with the `-f web`
-option.
+This will open the same web app as if you launched Dolos with the `-f web` option.

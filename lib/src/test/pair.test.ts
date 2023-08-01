@@ -1,12 +1,12 @@
 import test from "ava";
-import { File } from "../lib/file/file";
-import { TokenizedFile } from "../lib/file/tokenizedFile";
-import { Pair } from "../lib/analyze/pair";
-import { Region } from "../lib/util/region";
-import { Range } from "../lib/util/range";
-import { SharedFingerprint } from "../lib/analyze/sharedFingerprint";
-import { Dolos } from "../dolos";
-import { Occurrence } from "../lib/analyze";
+import { File } from "../lib/file/file.js";
+import { TokenizedFile } from "../lib/file/tokenizedFile.js";
+import { Pair } from "../lib/analyze/pair.js";
+import { Region } from "../lib/util/region.js";
+import { Range } from "../lib/util/range.js";
+import { SharedFingerprint } from "../lib/analyze/sharedFingerprint.js";
+import { Dolos } from "../dolos.js";
+import { Occurrence } from "../lib/analyze/index.js";
 
 function createFakeFile(name: string): TokenizedFile {
   return new TokenizedFile(

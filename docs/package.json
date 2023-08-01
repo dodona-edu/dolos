@@ -1,20 +1,19 @@
 {
   "name": "dolos-docs",
-  "version": "2.2.4",
+  "version": "2.3.0",
   "description": "Dolos source code plagiarism detection: information & documentation",
-  "main": "index.js",
   "authors": {
     "name": "Team Dodona",
     "email": "dodona@ugent.be"
   },
   "repository": "https://github.com/dodona-edu/dolos",
-  "scripts": {
-    "dev": "vuepress dev .",
-    "build": "vuepress build ."
-  },
   "license": "MIT",
   "devDependencies": {
-    "@vuepress/plugin-search": "2.0.0-beta.53",
-    "vuepress": "2.0.0-beta.53"
+    "vitepress": "1.0.0-beta.5"
+  },
+  "scripts": {
+    "dev": "vitepress dev",
+    "build": "vitepress build",
+    "preview": "vitepress preview"
   }
 }

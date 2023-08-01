@@ -1,8 +1,7 @@
-import { Result } from "../util/result";
-import { default as fsWithCallbacks } from "fs";
-import Identifiable from "../util/identifiable";
+import { Result } from "../util/result.js";
+import Identifiable from "../util/identifiable.js";
+import fs from "fs/promises";
 import path from "path";
-const fs = fsWithCallbacks.promises;
 
 export interface ExtraInfo {
   filename: string;

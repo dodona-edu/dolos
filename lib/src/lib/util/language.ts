@@ -1,5 +1,5 @@
-import { Tokenizer } from "../tokenizer/tokenizer";
-import { File } from "../file/file";
+import { Tokenizer } from "../tokenizer/tokenizer.js";
+import { File } from "../file/file.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type TreeSitterLanguage = any;
@@ -24,7 +24,7 @@ export abstract class Language {
     }
   }
 
-  public abstract createTokenizer(): Tokenizer;
+  public abstract createTokenizer(): Promise<Tokenizer>;
 }
 
 export class ProgrammingLanguage extends Language {
@@ -32,9 +32,16 @@ export class ProgrammingLanguage extends Language {
   protected languageModule: TreeSitterLanguage | undefined;
 
   public getLanguageModule(): TreeSitterLanguage {
+    if (this.languageModule === undefined) {
+      throw new Error("Language module is not loaded yet.");
+    }
+    return this.languageModule;
+  }
+
+  public async loadLanguageModule(): Promise<TreeSitterLanguage> {
     try {
       if (this.languageModule === undefined) {
-        this.languageModule = require(`tree-sitter-${this.name}`);
+        this.languageModule = (await import(`tree-sitter-${this.name}`)).default;
       }
       return this.languageModule;
     } catch (error) {
@@ -45,9 +52,9 @@ export class ProgrammingLanguage extends Language {
     }
   }
 
-  createTokenizer(): Tokenizer {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { CodeTokenizer } = require("../tokenizer/codeTokenizer");
+  async createTokenizer(): Promise<Tokenizer> {
+    const { CodeTokenizer } = await import ("../tokenizer/codeTokenizer.js");
+    await this.loadLanguageModule();
     return new CodeTokenizer(this);
   }
 }
@@ -61,12 +68,12 @@ export class CustomTreeSitterLanguage extends ProgrammingLanguage {
     super(name, extensions);
   }
 
-  public getLanguageModule(): TreeSitterLanguage {
+  public async loadLanguageModule(): Promise<TreeSitterLanguage> {
     if (this.languageModule === undefined) {
       if (typeof this.customTreeSitterPackage === "string") {
-        this.languageModule = require(this.customTreeSitterPackage);
+        this.languageModule = (await import(this.customTreeSitterPackage)).default;
       } else {
-        this.languageModule = this.customTreeSitterPackage();
+        this.languageModule = await this.customTreeSitterPackage();
       }
     }
     return this.languageModule;
@@ -77,13 +84,13 @@ export class CustomTokenizerLanguage extends Language {
   constructor(
     readonly name: string,
     readonly extensions: string[],
-    readonly customTokenizer: ((self: Language) => Tokenizer)
+    readonly customTokenizer: ((self: Language) => Promise<Tokenizer>)
   ) {
     super(name, extensions);
   }
 
-  public createTokenizer(): Tokenizer {
-    return this.customTokenizer(this);
+  public async createTokenizer(): Promise<Tokenizer> {
+    return await this.customTokenizer(this);
   }
 }
 
@@ -108,13 +115,12 @@ export class LanguagePicker {
     new ProgrammingLanguage("java", [".java"]),
     new ProgrammingLanguage("javascript", [".js"]),
     new CustomTreeSitterLanguage("elm", [".elm"], "@elm-tooling/tree-sitter-elm"),
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    new CustomTreeSitterLanguage("typescript", [".ts"], () => require("tree-sitter-typescript").typescript),
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    new CustomTreeSitterLanguage("tsx", [".tsx"], () => require("tree-sitter-typescript").tsx),
-    new CustomTokenizerLanguage("char", [".txt", ".md"], self => {
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const { CharTokenizer } = require("../tokenizer/charTokenizer");
+    // @ts-ignore
+    new CustomTreeSitterLanguage("typescript", [".ts"], async () => (await import("tree-sitter-typescript")).default.typescript),
+    // @ts-ignore
+    new CustomTreeSitterLanguage("tsx", [".tsx"], async () => (await import("tree-sitter-typescript")).default.tsx),
+    new CustomTokenizerLanguage("char", [".txt", ".md"], async self => {
+      const { CharTokenizer } = await import("../tokenizer/charTokenizer.js");
       return new CharTokenizer(self);
     }),
   ];
@@ -132,23 +138,31 @@ export class LanguagePicker {
   }
 
   /**
-   * Find the language to use for tokenization based on the extension of the
-   * first file. If the extension does not match any known language, then
-   * a LanguageError is thrown.
+   * Find the language to use for tokenization based on the most common
+   * extension of the files. If the extension does not match any known language,
+   * then a LanguageError is thrown.
    *
    * @param files the files to tokenize
    */
   public detectLanguage(files: File[]): Language {
-    const firstFile = files[0];
-    const language = this.byExtension.get(firstFile.extension);
-    if (language == null) {
+    const counts: Map<string, number> = new Map();
+    let maxCount = 0;
+    let language: Language | undefined = undefined;
+    for (const file of files) {
+      const count = (counts.get(file.extension) ?? 0) + 1;
+      if (count > maxCount) {
+        maxCount = count;
+        language = this.byExtension.get(file.extension);
+      }
+      counts.set(file.extension, count);
+    }
+
+    if (language == undefined) {
       throw new LanguageError(
-        `Could not detect language based on extension (${firstFile.extension}).`
+        "Could not detect language based on extension."
       );
     }
-    for (const file of files) {
-      language.checkLanguage(file);
-    }
+
     return language;
   }
 
@@ -157,13 +171,13 @@ export class LanguagePicker {
    *
    * @param name
    */
-  public findLanguage(name: string): Language {
+  public async findLanguage(name: string): Promise<Language> {
     let language = this.byName.get(name);
     if (language == null) {
       const proglang = new ProgrammingLanguage(name, []);
       // Try to load the language module to see if it exists,
       // will throw an error if it does not exist.
-      proglang.getLanguageModule();
+      await proglang.loadLanguageModule();
       language = proglang;
     }
     return language;
