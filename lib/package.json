@@ -9,7 +9,7 @@
     "node": ">=16"
   },
   "scripts": {
-    "test": "nyc ava",
+    "test": "tsc --build && nyc ava",
     "test:watch": "ava --watch",
     "build": "tsc --build --verbose",
     "force-build": "tsc --build --verbose --force",

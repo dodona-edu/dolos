@@ -124,12 +124,12 @@ export class Dolos {
 
     if (this.index == null) {
       if (this.options.language) {
-        this.language = this.languagePicker.findLanguage(this.options.language);
+        this.language = await this.languagePicker.findLanguage(this.options.language);
       } else {
         this.language = this.languagePicker.detectLanguage(files);
         this.languageDetected = true;
       }
-      this.tokenizer = this.language.createTokenizer();
+      this.tokenizer = await this.language.createTokenizer();
       this.index = new Index(this.tokenizer, this.options);
     }
 

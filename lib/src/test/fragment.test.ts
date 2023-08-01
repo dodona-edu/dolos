@@ -10,7 +10,8 @@ import { LanguagePicker } from "../lib/util/language.js";
 
 
 test("fragment should fully reconstruct matched kgrams when k > w", async t => {
-  const tokenizer = new LanguagePicker().findLanguage("javascript").createTokenizer();
+  const javascript = await new LanguagePicker().findLanguage("javascript");
+  const tokenizer = await javascript.createTokenizer();
   const f1 = tokenizer.tokenizeFile(
     (await File.fromPath("../samples/javascript/sample.js")).ok()
   );
@@ -58,7 +59,8 @@ test("fragment should fully reconstruct matched kgrams when k > w", async t => {
 });
 
 test("fragment should partially reconstruct matched kgrams when k < w", async t => {
-  const tokenizer = new LanguagePicker().findLanguage("javascript").createTokenizer();
+  const javascript = await new LanguagePicker().findLanguage("javascript");
+  const tokenizer = await javascript.createTokenizer();
   const f1 = tokenizer.tokenizeFile(
     (await File.fromPath("../samples/javascript/sample.js")).ok()
   );
