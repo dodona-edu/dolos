@@ -1,4 +1,4 @@
-import assert from "assert";
+import { assert } from "../util/utils.js";
 import { PairedOccurrence } from "./pairedOccurrence.js";
 import { Region } from "../util/region.js";
 import { Range } from "../util/range.js";

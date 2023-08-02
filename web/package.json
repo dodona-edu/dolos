@@ -5,7 +5,10 @@
   "homepage": "https://dolos.ugent.be",
   "license": "MIT",
   "type": "module",
-  "exports": "./index.js",
+  "exports": {
+    "default": "./index.js",
+    "types": "./index.d.ts"
+  },
   "scripts": {
     "dev": "vite",
     "dev:server": "VITE_MODE=server vite",
@@ -15,7 +18,7 @@
     "lint": "eslint . --fix --ignore-path .gitignore"
   },
   "dependencies": {
-    "@dodona/dolos-lib": "2.3.0",
+    "@dodona/dolos-core": "1.0.0",
     "@mdi/font": "7.2.96",
     "@vueuse/core": "^10.2.1",
     "axios": "^1.4.0",
