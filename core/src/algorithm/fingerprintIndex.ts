@@ -117,6 +117,10 @@ export class FingerprintIndex {
     return Array.from(this.index.values());
   }
 
+  public entries(): Array<FileEntry> {
+    return Array.from(this.files.values());
+  }
+
   public getPair(file1: TokenizedFile, file2: TokenizedFile): Pair {
     const entry1 = this.files.get(file1.id);
     const entry2 = this.files.get(file2.id);

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { Tokenizer } from "./tokenizer/tokenizer.js";
 import { File } from "@dodona/dolos-core";
 
@@ -115,10 +116,14 @@ export class LanguagePicker {
     new ProgrammingLanguage("java", [".java"]),
     new ProgrammingLanguage("javascript", [".js"]),
     new CustomTreeSitterLanguage("elm", [".elm"], "@elm-tooling/tree-sitter-elm"),
-    // @ts-ignore
-    new CustomTreeSitterLanguage("typescript", [".ts"], async () => (await import("tree-sitter-typescript")).default.typescript),
-    // @ts-ignore
-    new CustomTreeSitterLanguage("tsx", [".tsx"], async () => (await import("tree-sitter-typescript")).default.tsx),
+    new CustomTreeSitterLanguage("typescript", [".ts"],
+      // @ts-ignore
+      async () => (await import("tree-sitter-typescript")).default.typescript
+    ),
+    new CustomTreeSitterLanguage("tsx", [".tsx"],
+      // @ts-ignore
+      async () => (await import("tree-sitter-typescript")).default.tsx
+    ),
     new CustomTokenizerLanguage("char", [".txt", ".md"], async self => {
       const { CharTokenizer } = await import("./tokenizer/charTokenizer.js");
       return new CharTokenizer(self);

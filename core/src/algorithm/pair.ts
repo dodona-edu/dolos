@@ -4,6 +4,7 @@ import { Fragment } from "./fragment.js";
 import { Identifiable } from "../util/identifiable.js";
 import { SharedFingerprint } from "./sharedFingerprint.js";
 import { FileEntry, Occurrence } from "./fingerprintIndex.js";
+import { TokenizedFile } from "../file/tokenizedFile.js";
 
 type LeftRight = string;
 
@@ -20,6 +21,9 @@ export class Pair extends Identifiable {
 
   private readonly shared: Array<SharedFingerprint>;
 
+  public readonly leftFile: TokenizedFile;
+  public readonly rightFile: TokenizedFile;
+
   public readonly leftCovered;
   public readonly rightCovered;
   public readonly leftTotal;
@@ -32,6 +36,8 @@ export class Pair extends Identifiable {
     public readonly rightEntry: FileEntry,
   ) {
     super();
+    this.leftFile = leftEntry.file;
+    this.rightFile = rightEntry.file;
     let small, large;
     this.shared = [];
     if (leftEntry.shared.size < rightEntry.shared.size) {
@@ -51,10 +57,10 @@ export class Pair extends Identifiable {
     const left: Kgram[] = [];
     const right: Kgram[] = [];
     for (const fingerprint of this.shared) {
-      for (const occurrence of fingerprint.occurrencesOf(this.leftEntry.file)) {
+      for (const occurrence of fingerprint.occurrencesOf(this.leftFile)) {
         left.push({ hash: fingerprint.hash, index: occurrence.side.index });
       }
-      for (const occurrence of fingerprint.occurrencesOf(this.rightEntry.file)) {
+      for (const occurrence of fingerprint.occurrencesOf(this.rightFile)) {
         right.push({ hash: fingerprint.hash, index: occurrence.side.index });
       }
     }
@@ -120,8 +126,8 @@ export class Pair extends Identifiable {
     const fragmentEnd: Map<LeftRight, Fragment> = new Map();
 
     for (const fingerprint of this.shared) {
-      const left = Array.from(fingerprint.occurrencesOf(this.leftEntry.file).values());
-      const right = Array.from(fingerprint.occurrencesOf(this.rightEntry.file).values());
+      const left = Array.from(fingerprint.occurrencesOf(this.leftFile).values());
+      const right = Array.from(fingerprint.occurrencesOf(this.rightFile).values());
       for (let i = 0; i < left.length; i++) {
         const leftOcc: Occurrence = left[i];
         for (let j = 0; j < right.length; j++) {

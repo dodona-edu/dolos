@@ -61,7 +61,7 @@ test("paired occurrence merging & squashing", t => {
     kgrams: new Array<Range>(),
     shared: new Set<SharedFingerprint>(),
     file: rightFile
-  }
+  };
 
 
   const shared = {

@@ -13,7 +13,7 @@ function createTokenizedSampleFile(): TokenizedFile {
   const json = JSON.parse(fs.readFileSync("./src/test/fixtures/sample.tokenized.json", "utf8"));
   const file = new File(json.path, json.content);
   return new TokenizedFile(file, json.tokens, json.mapping);
-};
+}
 
 
 test("fragment should fully reconstruct matched kgrams when k > w", async t => {

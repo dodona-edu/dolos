@@ -1,4 +1,4 @@
-import { TokenizedFile, FingerprintIndex, Pair, SharedFingerprint } from "@dodona/dolos-core";
+import { TokenizedFile, FingerprintIndex, Pair, SharedFingerprint, FileEntry } from "@dodona/dolos-core";
 import { DolosOptions, Options } from "./options.js";
 import { Language } from "./language.js";
 
@@ -58,6 +58,10 @@ export class Report {
 
   public sharedFingerprints(): Array<SharedFingerprint> {
     return Array.from(this.fingerprints.values());
+  }
+
+  public entries(): Array<FileEntry> {
+    return this.index.entries();
   }
 
   public metadata(): Metadata {
