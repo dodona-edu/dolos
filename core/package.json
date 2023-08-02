@@ -1,16 +1,15 @@
 {
-  "name": "@dodona/dolos-lib",
-  "version": "2.3.0",
+  "name": "@dodona/dolos-core",
+  "version": "1.0.0",
   "exports": "./dist/index.js",
   "type": "module",
-  "description": "Code similarity detection based on the Winnowing algorithm",
+  "description": "Core classes and algorithms for Dolos source code similarity checker",
   "types": "dist/index.d.ts",
   "engines": {
     "node": ">=16"
   },
   "scripts": {
-    "test": "tsc --build && nyc ava",
-    "test:watch": "ava --watch",
+    "test": "tsc --build && ava",
     "build": "tsc --build --verbose",
     "force-build": "tsc --build --verbose --force",
     "lint": "eslint --ext .ts src/"
@@ -27,34 +26,12 @@
   },
   "devDependencies": {
     "@ava/typescript": "4.1.0",
-    "@types/benchmark": "2.1.2",
-    "@types/d3-dsv": "2.0.3",
-    "@types/node": "18.16.19",
     "@typescript-eslint/eslint-plugin": "5.60.1",
     "@typescript-eslint/parser": "5.60.1",
     "ava": "5.3.1",
-    "benchmark": "2.1.4",
     "eslint": "8.44.0",
     "np": "7.7.0",
-    "nyc": "15.1.0",
     "typescript": "5.1.6"
-  },
-  "dependencies": {
-    "@dodona/dolos-core": "1.0.0",
-    "d3-dsv": "^2.0.0"
-  },
-  "optionalDependencies": {
-    "@elm-tooling/tree-sitter-elm": "5.6.4",
-    "tree-sitter": "^0.20.0",
-    "tree-sitter-bash": "^0.19.0",
-    "tree-sitter-c": "^0.20.1",
-    "tree-sitter-c-sharp": "^0.20.0",
-    "tree-sitter-cpp": "^0.20.0",
-    "tree-sitter-java": "^0.19.1",
-    "tree-sitter-javascript": "^0.19.0",
-    "tree-sitter-php": "^0.19.0",
-    "tree-sitter-python": "^0.20.1",
-    "tree-sitter-typescript": "^0.20.0"
   },
   "bugs": {
     "url": "https://github.com/dodona-edu/dolos/issues"

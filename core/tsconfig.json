@@ -5,6 +5,5 @@
         "rootDir": "src/",                       /* Specify the root directory of input files. Use to control the output directory structure with --outDir. */
         "composite": true,                        /* Enable project compilation */
   },
-  "exclude": [ "dist/" ],
-  "references": [{ "path": "../core" }]
+  "exclude": [ "dist/" ]
 }

@@ -1,4 +1,4 @@
-import { Region } from "../util/region.js";
+import { Region } from "@dodona/dolos-core";
 import { Token, Tokenizer } from "./tokenizer.js";
 
 export class CharTokenizer extends Tokenizer {
