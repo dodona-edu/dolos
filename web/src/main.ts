@@ -4,6 +4,7 @@ import { createApp } from "vue";
 import { createVuetify } from "vuetify";
 import { createPinia } from "pinia";
 import { VDataTable } from "vuetify/labs/VDataTable";
+import { VSkeletonLoader } from "vuetify/labs/VSkeletonLoader";
 
 // Styles
 import "@mdi/font/css/materialdesignicons.css";
@@ -16,7 +17,7 @@ const app = createApp(App);
 // Create the plugins
 const vuetify = createVuetify({
   components: {
-    VDataTable,
+    VDataTable, VSkeletonLoader
   },
   theme: {
     themes: {
