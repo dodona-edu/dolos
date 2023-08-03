@@ -30,13 +30,13 @@ const items = computed<any>(() => {
   if (previousPage.value) {
     items.push({
       exact: true,
-      text: previousPage.value.name,
+      title: previousPage.value.name,
       to: previousPage.value,
     });
   } else if (props.previousFallbackText && props.previousFallbackTo) {
     items.push({
       exact: true,
-      text: props.previousFallbackText,
+      title: props.previousFallbackText,
       to: props.previousFallbackTo,
     });
   }
@@ -45,12 +45,12 @@ const items = computed<any>(() => {
   if (route) {
     items.push({
       exact: true,
-      text: props.currentText ?? route.name?.toString() ?? "#",
+      title: props.currentText ?? route.name?.toString() ?? "#",
       to: props.currentTo ?? route,
       disabled: true,
     });
   }
-  
+
   return items;
 });
 
