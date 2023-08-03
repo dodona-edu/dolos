@@ -220,10 +220,17 @@
   dependencies:
     "@jridgewell/trace-mapping" "0.3.9"
 
-"@elm-tooling/tree-sitter-elm@5.6.6", "@elm-tooling/tree-sitter-elm@^5.6.0":
+"@elm-tooling/tree-sitter-elm@5.6.6":
   version "5.6.6"
   resolved "https://registry.yarnpkg.com/@elm-tooling/tree-sitter-elm/-/tree-sitter-elm-5.6.6.tgz#fd2096a9d49cf927c010122837545aecaaaa8708"
   integrity sha512-Qg7Q4DaGFV7crtNc3FmIQYgtXH1/s8LMDVl+btrJySEvglquNf8XiT5d+1N66SedCswpOy2uupUdrZ/mo+XChw==
+  dependencies:
+    nan "^2.17.0"
+
+"@elm-tooling/tree-sitter-elm@^5.6.0":
+  version "5.6.4"
+  resolved "https://registry.yarnpkg.com/@elm-tooling/tree-sitter-elm/-/tree-sitter-elm-5.6.4.tgz#bc3cfdc9f76b6cd8a82755bf666b4634c28fbd45"
+  integrity sha512-QyEMO9/JBKpyQxVykgoxn8p1HvIqazYDr1IhQ5ZhpYM4dr3fNusxHGoa93be67yOY8r7U/YZJ7FiZ2bUktf5gw==
   dependencies:
     nan "^2.17.0"
 
@@ -6017,7 +6024,14 @@ tree-sitter-c@^0.20.1, tree-sitter-c@^0.20.4:
   dependencies:
     nan "^2.14.0"
 
-tree-sitter-cpp@^0.20.0, tree-sitter-cpp@^0.20.2:
+tree-sitter-cpp@^0.20.0:
+  version "0.20.0"
+  resolved "https://registry.yarnpkg.com/tree-sitter-cpp/-/tree-sitter-cpp-0.20.0.tgz#42499b1f2d3f61f74703cc9f13fcaf65173c96a4"
+  integrity sha512-ka1KoFfmLX9dmus8S+NrXxEN+k2PWJOZi60vO3hnR2lnRIr4FYBSXZKmTgQnCd8/w0UM7sNtgETvW1SM1qJ9og==
+  dependencies:
+    nan "^2.14.0"
+
+tree-sitter-cpp@^0.20.2:
   version "0.20.2"
   resolved "https://registry.yarnpkg.com/tree-sitter-cpp/-/tree-sitter-cpp-0.20.2.tgz#af1479d13cac1d2200801a1743d005ef037706c2"
   integrity sha512-ZHroJaMEKMXx8zmx+Y91Cak9qSQT7faPtREnVWb7Te6+P9y9yPUkR4fG6YHpE0jfq+yWBgweRJVadJax3W92vg==
