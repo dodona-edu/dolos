@@ -2,6 +2,7 @@
 import Vue from "@vitejs/plugin-vue";
 import Vuetify, { transformAssetUrls } from "vite-plugin-vuetify";
 import VueComponents from "unplugin-vue-components/vite";
+import monacoEditorPlugin from "vite-plugin-monaco-editor";
 import { comlink } from "vite-plugin-comlink";
 
 // Utilities
@@ -29,6 +30,10 @@ export default defineConfig({
       styles: {
         configFile: "src/styles/settings.scss",
       },
+    }),
+    // Monaco editor
+    monacoEditorPlugin.default({
+      languageWorkers: ['editorWorkerService']
     }),
   ],
   worker: {
