@@ -11677,15 +11677,7 @@ tree-sitter-typescript@^0.20.0:
   dependencies:
     nan "^2.14.0"
 
-tree-sitter@^0.20.0:
-  version "0.20.4"
-  resolved "https://registry.yarnpkg.com/tree-sitter/-/tree-sitter-0.20.4.tgz#7d9d4f769fc05342ef43e5559f7ff34b0fc48327"
-  integrity sha512-rjfR5dc4knG3jnJNN/giJ9WOoN1zL/kZyrS0ILh+eqq8RNcIbiXA63JsMEgluug0aNvfQvK4BfCErN1vIzvKog==
-  dependencies:
-    nan "^2.17.0"
-    prebuild-install "^7.1.1"
-
-tree-sitter@^0.20.5:
+tree-sitter@^0.20.0, tree-sitter@^0.20.5:
   version "0.20.5"
   resolved "https://registry.yarnpkg.com/tree-sitter/-/tree-sitter-0.20.5.tgz#554741ee06b984824dd5082353aa2a28bcefa271"
   integrity sha512-xjxkKCKV7F2F5HWmyRE4bosoxkbxe9lYvFRc/nzmtHNqFNTwYwh0oWVVEt0VnbupZHMirEQW7vDx8ddJn72tjg==
