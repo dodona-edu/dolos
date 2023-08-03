@@ -13,9 +13,9 @@ import {
 export { Node, Edge, Group };
 
 export interface D3ForceGraphOptions {
-  nodeSize: number,
+  nodeSize: Ref<number>,
   container: ShallowRef<HTMLElement | undefined>;
-  nodeTooltip: boolean;
+  nodeTooltip: Ref<boolean>;
   onNodeClick?: (node: Node) => void;
   width: Ref<number>,
   height: Ref<number>,

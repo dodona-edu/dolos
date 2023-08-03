@@ -2,7 +2,6 @@
 import { computed, ref } from "vue";
 import { DateTime } from "luxon";
 import { useVModel } from "@vueuse/core";
-import { UploadReport } from "@/types/uploads/UploadReport";
 import { useReportsStore } from "@/stores";
 import UploadStatus from "./UploadStatus.vue";
 import UploadsTableInfoDialog from "./UploadsTableInfoDialog.vue";

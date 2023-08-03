@@ -58,11 +58,11 @@ const headers = computed<any[]>(() => [
 ]);
 
 // Footer props
-const footerProps = {
+const footerProps = computed<any>(() => { return {
   itemsPerPageOptions: [props.itemsPerPage, 25, 50, 100, -1],
   showCurrentPage: true,
   showFirstLastPage: true,
-};
+}});
 
 // Items in the format for the the data-table.
 const items = shallowRef<any[]>([]);

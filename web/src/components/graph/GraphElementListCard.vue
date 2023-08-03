@@ -1,5 +1,5 @@
 <template>
-  <v-card outlined>
+  <v-card variant="outlined">
     <v-card-title>Submissions in this cluster </v-card-title>
 
     <graph-element-list

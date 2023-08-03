@@ -5,7 +5,7 @@
         <v-card>
           <v-card-title> Selected node </v-card-title>
 
-          <v-list class="selected-info-list" dense>
+          <v-list class="selected-info-list" density="compact">
             <v-list-item class="selected-info-list-item">
               <v-icon start>mdi-account-outline</v-icon>
               <span>{{ selectedNode.extra.fullName || selectedNode.shortPath || "unknown" }}</span>

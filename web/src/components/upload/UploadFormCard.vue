@@ -393,7 +393,7 @@ watch(
             :color="reportActive?.status === 'queued' ? 'warning' : 'primary'"
             :stream="reportActive?.status === 'queued'"
             :buffer-value="reportActive?.status === 'queued' ? 0 : undefined"
-            :value="reportActive?.status === 'queued' ? 0 : undefined"
+            :model-value="reportActive?.status === 'queued' ? 0 : undefined"
             :indeterminate="reportActive?.status === 'running'"
             class="mt-2"
             height="25"

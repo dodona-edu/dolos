@@ -15,7 +15,7 @@
         <v-card class="info-card">
           <v-card-title class="pb-0">Report info</v-card-title>
 
-          <v-list class="info-list" dense>
+          <v-list class="info-list" density="compact">
 
             <v-list-item v-if="createdAt" class="info-list-item">
               <v-tooltip location="top">

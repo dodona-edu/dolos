@@ -67,7 +67,7 @@ const isDone = computed(
           <v-progress-linear
             color="warning"
             stream
-            value="0"
+            model-value="0"
             buffer-value="0"
             class="mt-2"
           />

@@ -62,8 +62,8 @@ const copyShareUrl = (): void => {
         <v-text-field
           v-model="shareUrl"
           label="Share URL"
-          outlined
-          dense
+          variant="outlined"
+          density="compact"
           readonly
           @focus="$event.target.select()"
         />
