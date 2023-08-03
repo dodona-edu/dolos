@@ -33,7 +33,7 @@ interface Selection {
 }
 
 const props = withDefaults(defineProps<Props>(), {});
-const emit = defineEmits(["update:selectedMatch"]);
+const emit = defineEmits(["update:selectedMatch", "update:hoveringMatch"]);
 
 // Colors for the different selections.
 const colors = {
