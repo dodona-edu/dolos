@@ -22,13 +22,12 @@
 <script lang="ts" setup>
 import { shallowRef } from "vue";
 import { storeToRefs } from "pinia";
-import { useApiStore, useFileStore } from "@/api/stores";
+import { useApiStore } from "@/api/stores";
 import { useBreadcrumbStore } from "@/stores";
 import { useDisplay } from "vuetify";
 
 const display = useDisplay();
 const api = useApiStore();
-const files = useFileStore();
 const { loading, error, loadingText } = storeToRefs(api);
 
 // If the drawer is open/closed.

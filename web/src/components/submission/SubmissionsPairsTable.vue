@@ -81,7 +81,7 @@
         @click.stop=""
       >
         Compare
-        <v-icon right>mdi-chevron-right</v-icon>
+        <v-icon end>mdi-chevron-right</v-icon>
       </v-btn>
     </template>
   </v-data-table>

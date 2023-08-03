@@ -18,7 +18,7 @@
       v-else
       :size="props.size"
       :width="3"
-      :value="value"
+      :model-value="value"
       :color="color"
     >
       <span class="similarity-value"> {{ value }}% </span>

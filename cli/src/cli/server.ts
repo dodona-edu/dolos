@@ -1,9 +1,7 @@
 import { default as express, Express } from "express";
 import http from "http";
 import open from "open";
-// @ts-ignore
 import { webroot } from "@dodona/dolos-web";
-
 
 export const DEFAULT_PORT = 3000;
 export const DEFAULT_HOST = "localhost";

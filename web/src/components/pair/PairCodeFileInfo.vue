@@ -2,7 +2,7 @@
   <div class="file">
     <div class="file-info">
       <div class="file-info-title">
-        <v-icon color="primary" small>mdi-file-outline</v-icon>
+        <v-icon color="primary" size="small">mdi-file-outline</v-icon>
         {{ props.file.shortPath }}
       </div>
 
@@ -10,7 +10,7 @@
         v-if="props.file.extra.fullName"
         class="file-info-subtitle text-medium-emphasis"
       >
-        <v-icon small>mdi-account-outline</v-icon>
+        <v-icon size="small">mdi-account-outline</v-icon>
         <span>{{ props.file.extra.fullName }}</span>
       </div>
 
@@ -19,7 +19,7 @@
         class="file-info-subtitle"
         :style="{ color: labelColor }"
       >
-        <v-icon :color="labelColor" small>mdi-tag-outline</v-icon>
+        <v-icon :color="labelColor" size="small">mdi-tag-outline</v-icon>
         {{ props.file.extra.labels }}
       </div>
 
@@ -27,7 +27,7 @@
         v-if="props.file.extra.timestamp"
         class="file-info-subtitle text-medium-emphasis"
       >
-        <v-icon small>mdi-clock-outline</v-icon>
+        <v-icon size="small">mdi-clock-outline</v-icon>
         <file-timestamp :file="props.file" />
       </div>
     </div>

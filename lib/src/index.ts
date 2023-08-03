@@ -1,13 +1,5 @@
-export { Report } from "./lib/analyze/report.js";
-export { Fragment } from "./lib/analyze/fragment.js";
-export { Region } from "./lib/util/region.js";
-export { Pair } from "./lib/analyze/pair.js";
-export { Options, CustomOptions } from "./lib/util/options.js";
-export { File } from "./lib/file/file.js";
-export { TokenizedFile } from "./lib/file/tokenizedFile.js";
-export { Index, Occurrence } from "./lib/analyze/index.js";
-export { Dolos } from "./dolos.js";
-export { SharedFingerprint } from "./lib/analyze/sharedFingerprint.js";
-export { PairedOccurrence } from "./lib/analyze/pairedOccurrence.js";
-export { Language, LanguagePicker, LanguageError } from "./lib/util/language.js";
-export * from "./lib/util/utils.js";
+export { Dolos } from "./lib/dolos.js";
+export { Report } from "./lib/report.js";
+export { Options, CustomOptions } from "./lib/options.js";
+export { Language, LanguagePicker, LanguageError } from "./lib/language.js";
+export * from "@dodona/dolos-core";

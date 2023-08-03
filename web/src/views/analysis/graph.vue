@@ -19,7 +19,6 @@
             <v-checkbox
               v-model="showSingletons"
               label="Display singletons"
-              dense
             />
           </v-form>
 

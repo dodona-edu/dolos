@@ -27,6 +27,7 @@
 
 <script lang="ts" setup>
 import {
+  toRef,
   shallowRef,
   computed,
   watch,
@@ -79,8 +80,8 @@ const graph = useD3ForceGraph({
   container: container,
   width: width,
   height: height,
-  nodeTooltip: props.nodeTooltip,
-  nodeSize: props.nodeSize,
+  nodeTooltip: toRef(() => props.nodeTooltip),
+  nodeSize: toRef(() => props.nodeSize),
   onNodeClick: (node) => {
     if (props.nodeClickable) {
       const file = fileStore.filesById[node.id];

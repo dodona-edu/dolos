@@ -5,7 +5,10 @@
   "homepage": "https://dolos.ugent.be",
   "license": "MIT",
   "type": "module",
-  "exports": "./index.js",
+  "exports": {
+    "default": "./index.js",
+    "types": "./index.d.ts"
+  },
   "scripts": {
     "dev": "vite",
     "dev:server": "VITE_MODE=server vite",
@@ -15,7 +18,7 @@
     "lint": "eslint . --fix --ignore-path .gitignore"
   },
   "dependencies": {
-    "@dodona/dolos-lib": "2.3.0",
+    "@dodona/dolos-core": "1.0.0",
     "@mdi/font": "7.2.96",
     "@vueuse/core": "^10.2.1",
     "axios": "^1.4.0",
@@ -44,9 +47,10 @@
     "@types/node": "^20.3.2",
     "@types/webfontloader": "^1.6.35",
     "@vitejs/plugin-vue": "^4.2.3",
-    "@vue/eslint-config-typescript": "^11.0.0",
-    "eslint": "^8.43.0",
-    "eslint-plugin-vue": "^9.15.1",
+    "@vue/eslint-config-typescript": "^11.0.3",
+    "eslint": "^8.46.0",
+    "eslint-plugin-vue": "^9.16.1",
+    "eslint-plugin-vuetify": "^2.0.5",
     "sass": "^1.63.6",
     "typescript": "^5.1.6",
     "unplugin-vue-components": "^0.25.1",

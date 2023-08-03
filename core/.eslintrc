@@ -1,0 +1,21 @@
+{
+    "parser": "@typescript-eslint/parser",
+        "plugins": ["@typescript-eslint"],
+        "parserOptions": {
+            "ecmaVersion": 2019,
+            "sourceType": "module"
+        },
+        "extends": [
+            "eslint:recommended",
+            "plugin:@typescript-eslint/eslint-recommended",
+            "plugin:@typescript-eslint/recommended",
+            "../.eslintrc"
+        ],
+        "env": {
+            "node": true,
+            "es6": true
+        },
+        "globals": {
+            "Promise": "true"
+        }
+}
