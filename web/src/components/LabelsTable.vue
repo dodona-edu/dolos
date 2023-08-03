@@ -1,6 +1,6 @@
 <template>
-  <v-table class="labels" fixed-header height="100%" density="compact">
-    <thead>
+  <v-table class="labels" height="300px" fixed-header density="compact">
+    <thead class="labels-table-header">
       <tr>
         <th>Label</th>
         <th v-if="props.showSubmissions">Submissions</th>
@@ -27,7 +27,6 @@
             <v-switch
               v-model="label.selected"
               color="primary"
-              class="labels-switch"
               density="compact"
               inset
               hide-details
@@ -65,9 +64,7 @@ const { labels, labelFilesCount, hasLabels } = storeToRefs(fileStore);
 </script>
 
 <style lang="scss" scoped>
-.labels {
-  &-switch {
-    margin-top: 0;
-  }
+.labels-table-header {
+  z-index: 2;
 }
 </style>

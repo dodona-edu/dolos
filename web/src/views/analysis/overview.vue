@@ -17,7 +17,7 @@
 
           <v-list class="info-list" density="compact">
 
-            <v-list-item v-if="createdAt" class="info-list-item">
+            <v-list-item v-if="createdAt">
               <v-tooltip location="top">
                 <template #activator="{ props }">
                   <v-icon v-bind="props" start>mdi-clock-outline</v-icon>
@@ -29,7 +29,7 @@
               </v-tooltip>
             </v-list-item>
 
-            <v-list-item class="info-list-item">
+            <v-list-item>
               <v-tooltip location="top">
                 <template #activator="{ props }">
                   <v-icon v-bind="props" start>mdi-file-outline</v-icon>
@@ -39,7 +39,7 @@
               </v-tooltip>
             </v-list-item>
 
-            <v-list-item class="info-list-item">
+            <v-list-item>
               <v-tooltip location="top">
                 <template #activator="{ props }">
                   <v-icon v-bind="props" start>mdi-xml</v-icon>
@@ -54,7 +54,9 @@
             {{ hasLabels ? legendCount : "No" }} labels detected
           </v-card-title>
 
-          <labels-table class="info-card-labels" show-submissions />
+          <div class="info-card-labels">
+            <labels-table show-submissions />
+          </div>
         </v-card>
       </v-col>
 
@@ -408,17 +410,6 @@ const calculateBinColor = (x0: number, x1: number): string => {
     display: flex;
     justify-content: flex-end;
     align-items: flex-end;
-  }
-
-  &-labels {
-    max-height: 300px;
-    margin-top: 0.5rem;
-  }
-}
-
-.info-list {
-  &-item {
-    width: 100%;
   }
 }
 
