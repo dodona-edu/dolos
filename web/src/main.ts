@@ -5,6 +5,7 @@ import { createVuetify } from "vuetify";
 import { createPinia } from "pinia";
 import { VDataTable } from "vuetify/labs/VDataTable";
 import { VSkeletonLoader } from "vuetify/labs/VSkeletonLoader";
+import webFontLoader from "webfontloader";
 
 // Styles
 import "@mdi/font/css/materialdesignicons.css";
@@ -38,7 +39,6 @@ app.use(pinia);
 app.use(router);
 
 // Load the fonts.
-const webFontLoader = await import("webfontloader");
 webFontLoader.load({
   google: {
     families: ["Roboto:100,300,400,500,700,900&display=swap"],

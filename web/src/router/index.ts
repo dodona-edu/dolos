@@ -5,7 +5,7 @@ import UploadLayout from "@/layouts/upload.vue";
 // Upload path
 export const uploadPathPrefix = import.meta.env.VITE_MODE === "server" ? "/" : "/upload";
 // Analysis path
-export const analysisPathPrefix = import.meta.env.VITE_MODE === "server" ? "/reports/:referenceId" : "";
+export const analysisPathPrefix = import.meta.env.VITE_MODE === "server" ? "/reports/:referenceId" : "/";
 
 const routes = [
   {
