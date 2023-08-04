@@ -56,7 +56,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: [ "16", "18" ]
+        node: [ "18" ]
       fail-fast: false
     steps:
       - name: Checkout 🛎️
@@ -87,7 +87,7 @@ jobs:
     needs: install-deps
     strategy:
       matrix:
-        node:  [ "16", "18" ]
+        node:  [ "18" ]
       fail-fast: false
     steps:
       - name: Checkout 🛎️
@@ -155,13 +155,88 @@ jobs:
           cd cli/
           yarn lint
 
+  core-build-test:
+    name: "Core ❤️ - build & test 🔧"
+    runs-on: ubuntu-latest
+    needs: install-deps
+    strategy:
+      matrix:
+        node: [ "18" ]
+      fail-fast: false
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v3
+
+      - name: Setup Node 📚
+        uses: actions/setup-node@v3.6.0
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Fetch Dependencies ⚡️
+        id: cache-dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ${{ github.workspace }}/node_modules
+            ${{ github.workspace }}/*/node_modules
+          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('**/yarn.lock') }}-${{ hashFiles('**/package.json') }}
+
+      - name: Check if cache was hit 🔎
+        if: steps.cache-dependencies.outputs.cache-hit != 'true'
+        run: |
+          echo "Should have hit cache"
+          false
+
+      - name: Build & test 🔧
+        run: |
+          cd core/
+          yarn build
+          yarn test -v --serial
+
+  core-lint:
+    name: "Core ❤️ - lint 📏"
+    runs-on: ubuntu-latest
+    needs: install-deps
+    strategy:
+      matrix:
+        node: [ "18" ]
+      fail-fast: false
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v3
+
+      - name: Setup Node 📚
+        uses: actions/setup-node@v3.6.0
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Fetch Dependencies ⚡️
+        id: cache-dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ${{ github.workspace }}/node_modules
+            ${{ github.workspace }}/*/node_modules
+          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('**/yarn.lock') }}-${{ hashFiles('**/package.json') }}
+
+      - name: Check if cache was hit 🔎
+        if: steps.cache-dependencies.outputs.cache-hit != 'true'
+        run: |
+          echo "Should have hit cache"
+          false
+
+      - name: Lint 📏
+        run: |
+          cd core/
+          yarn lint
+
   lib-build-test:
     name: "Lib 📚 - build & test 🔧"
     runs-on: ubuntu-latest
     needs: install-deps
     strategy:
       matrix:
-        node: [ "16", "18" ]
+        node: [ "18" ]
       fail-fast: false
     steps:
       - name: Checkout 🛎️
@@ -237,7 +312,7 @@ jobs:
     needs: install-deps
     strategy:
       matrix:
-        node: [ "16", "18" ]
+        node: [ "18" ]
       fail-fast: false
     steps:
       - name: Checkout 🛎️
@@ -263,15 +338,15 @@ jobs:
           echo "Should have hit cache"
           false
 
-      - name: Build lib 🔧
+      - name: Build core 🔧
         run: |
-          cd lib/
+          cd core/
           yarn build
 
       - name: Build web 🔧
         run: |
           cd web/
-          yarn build --skip-plugins eslint
+          yarn build
 
       - name: Deploy to staging 🚀
         if: ${{ matrix.node == '18' }}
@@ -394,35 +469,6 @@ jobs:
       - name: Checkout 🛎️
         uses: actions/checkout@v3
 
-      - name: Check version strings
-        run: |
-          # version strings should be only numbers and dots
-          # and not contain '-dev' for example
-          valid=true
-          if ! jq -e '.version| test("^[0-9.]+$")' cli/package.json >/dev/null; then
-              echo "CLI package has invalid version string"
-              valid=false
-          fi
-          if ! jq -e '.dependencies."@dodona/dolos-web" | test("^[0-9.]+$")' cli/package.json >/dev/null; then
-              echo "CLI dependency dolos-web has invalid version string"
-              valid=false
-          fi
-          if ! jq -e '.dependencies."@dodona/dolos-lib" | test("^[0-9.]+$")' cli/package.json >/dev/null; then
-              echo "CLI dependency dolos-lib has invalid version string"
-              valid=false
-          fi
-          if ! jq -e '.version | test("^[0-9.]+$")' web/package.json >/dev/null; then
-              echo "Web package has invalid version string"
-              valid=false
-          fi
-          if ! jq -e '.version | test("^[0-9.]+$")' lib/package.json >/dev/null; then
-              echo "Lib package has invalid version string"
-              valid=false
-          fi
-          if ! $valid; then
-              exit 1
-          fi
-
       - name: Setup Node 📚
         uses: actions/setup-node@v3.6.0
         with:
@@ -457,6 +503,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Build core 🔧
+        run: |
+          cd core/
+          yarn build
+
       - name: Build lib 🔧
         run: |
           cd lib/
@@ -471,6 +522,14 @@ jobs:
         run: |
           cd web/
           yarn build
+
+      - name: Publish @dodona/dolos-core to NPM
+        uses: JS-DevTools/npm-publish@v2
+        with:
+          token: ${{ secrets.NPM_AUTH_TOKEN }}
+          package: ./core/package.json
+          strategy: all
+          access: public
 
       - name: Publish @dodona/dolos-lib to NPM
         uses: JS-DevTools/npm-publish@v2

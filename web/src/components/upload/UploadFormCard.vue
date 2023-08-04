@@ -15,19 +15,21 @@ const error = shallowRef();
 const stderr = shallowRef();
 
 // Selected file.
-const file = shallowRef<File>();
-const fileRules = [(v: File) => !!v || "File is required"];
+const files = shallowRef<File[]>();
+const filesRules = [(v: File) => !!v || "File is required"];
 
 // Selected file name.
 const name = shallowRef<string>();
-const nameRules = [];
+const nameRules = [(v: string) => !!v || "Name is required"];
 
 // Update the file name when the file changes.
-watch(file, (file) => {
-  if (file) {
+watch(files, (files) => {
+  if (files) {
+    const file = files[0];
+    if (!file) return;
+
     name.value = file.name;
-    // Strip the extension.
-    name.value = name.value.replace(/\.[^/.]+$/, "");
+    name.value = name.value.replace(/\.[^/.]+$/, ""); // strip extension
   } else {
     name.value = "";
   }
@@ -35,16 +37,12 @@ watch(file, (file) => {
 
 // Selected language.
 const language = shallowRef<string | null>(null);
-const languageRules = [];
 
 // List with available programming languages.
 const languages = [
   {
     name: "Automatic",
     value: null,
-  },
-  {
-    divider: true,
   },
   {
     name: "Bash",
@@ -107,7 +105,7 @@ const reportRoute = computed(() =>
 
 // Clear the form.
 const clearForm = (): void => {
-  file.value = undefined;
+  files.value = undefined;
   name.value = "";
   language.value = null;
 };
@@ -135,8 +133,9 @@ const handleError = (message: string): void => {
 const onSubmit = async (): Promise<void> => {
   // Make sure the form is valid.
   if (valid.value) {
+    const file = files.value?.[0];
     const data = new FormData();
-    data.append("dataset[zipfile]", file.value ?? new Blob());
+    data.append("dataset[zipfile]", file ?? new Blob());
     data.append("dataset[name]", name.value ?? "");
     data.append("dataset[programming_language]", language.value ?? "");
 
@@ -146,11 +145,11 @@ const onSubmit = async (): Promise<void> => {
     // Upload the file.
     try {
       const response = await axios.post(
-        `${process.env.VUE_APP_API_URL}/reports`,
+        `${import.meta.env.VITE_API_URL}/reports`,
         data,
         {
           onUploadProgress: (e) => {
-            uploadProgress.value = Math.ceil((e.loaded / e.total) * 100);
+            uploadProgress.value = Math.ceil((e.loaded / (e.total ?? 1)) * 100);
 
             // Go to the next step when the upload is complete.
             if (e.loaded === e.total) {
@@ -234,7 +233,9 @@ const startPolling = (reportId: string): void => {
         report.status === "error" ||
         report.status === "failed"
       ) {
-        delete pollingReports[report.reportId];
+        pollingReports.value = pollingReports.value.filter(
+          (id) => id !== reportId
+        );
         clearInterval(interval);
       }
 
@@ -285,113 +286,101 @@ watch(
     <v-card-subtitle>Upload a dataset to analyze.</v-card-subtitle>
 
     <v-card-text>
+      <v-alert class="mb-2" type="info" variant="tonal" closable>
+        Datasets and reports older than 30 days may be deleted from our server
+        to save space. You can always delete the data yourself.
+      </v-alert>
 
-        <v-alert type="info" text>
-            Datasets and reports older than 30 days may be deleted from our server to save space.
-            You can always delete the data yourself.
-        </v-alert>
+      <v-window class="upload-stepper" v-model="step">
+        <v-window-item :value="1">
+          <v-alert v-if="error" class="mb-4" variant="tonal" type="error" density="compact">
+            {{ error }}<br />
+            {{ stderr }}
+          </v-alert>
 
-      <v-stepper class="upload-stepper" v-model="step" flat>
-        <v-stepper-items>
-          <v-stepper-content step="1">
-            <transition name="slide-y-transition">
-              <v-alert v-if="error" text type="error">
-                {{ error }}<br />
-                {{ stderr }}
-              </v-alert>
-            </transition>
+          <v-form v-model="valid" class="mt-2" fast-fail @submit="onSubmit">
+            <v-file-input
+              v-model="files"
+              :rules="filesRules"
+              :truncate-length="80"
+              :show-size="1000"
+              persistent-hint
+              prepend-icon=""
+              prepend-inner-icon="$file"
+              accept="zip, application/zip"
+              label="Upload a file (*.zip)"
+              variant="outlined"
+              density="compact"
+            />
 
-            <v-form v-model="valid" class="pt-2" @submit="onSubmit">
-              <v-row>
-                <v-col cols="12">
-                  <v-file-input
-                    v-model="file"
-                    :rules="fileRules"
-                    :truncate-length="80"
-                    :show-size="1000"
-                    prepend-icon=""
-                    prepend-inner-icon="$file"
-                    accept="zip, application/zip"
-                    label="Upload a file (*.zip)"
-                    outlined
-                    dense
-                  />
+            <v-text-field
+              class="mt-4"
+              v-model="name"
+              :rules="nameRules"
+              label="Analysis name"
+              variant="outlined"
+              density="compact"
+              hide-details
+            />
 
-                  <v-text-field
-                    v-model="name"
-                    :rules="nameRules"
-                    label="Analysis name"
-                    outlined
-                    dense
-                  />
+            <v-autocomplete
+              class="mt-4"
+              v-model="language"
+              :items="languages"
+              label="Programming language"
+              item-title="name"
+              item-value="value"
+              variant="outlined"
+              density="compact"
+              hide-details
+            />
 
-                  <v-autocomplete
-                    v-model="language"
-                    :rules="languageRules"
-                    :items="languages"
-                    label="Programming language"
-                    item-text="name"
-                    item-value="value"
-                    outlined
-                    dense
-                  />
-                </v-col>
+            <p class="mt-4">
+              When you upload a dataset, it will be analyzed on our server.
+              Only you and the people you share the report with will be able
+              to view the analysis results.
+            </p>
+            <v-checkbox
+              v-model="accept"
+              :rules="acceptRules"
+              label="I accept the above conditions."
+              color="primary"
+            />
+          </v-form>
 
-                <v-col cols="12">
-                  <p>
-                    When you upload a dataset, it will be analyzed on our server.
-                    Only you and the people you share the report with will be able to view the analysis results.
-                  </p>
-                  <v-checkbox
-                    v-model="accept"
-                    :rules="acceptRules"
-                    label="I accept the above conditions."
-                    outlined
-                  >
-                  </v-checkbox>
-                </v-col>
-              </v-row>
-            </v-form>
+          <v-card-actions class="pa-0">
+            <v-spacer />
 
-            <v-card-actions class="pa-0">
-              <v-spacer />
-              <v-btn
-                color="primary"
-                depressed
-                :disabled="!valid"
-                @click="onSubmit"
-              >
-                Analyze
-                <v-icon right>mdi-folder-search-outline</v-icon>
-              </v-btn>
-            </v-card-actions>
-          </v-stepper-content>
-
-          <v-stepper-content step="2">
-
-            <span>Uploading file...</span>
-
-            <v-progress-linear
-              class="mt-2"
-              v-model="uploadProgress"
-              height="25"
+            <v-btn
+              color="primary"
+              elevation="0"
+              :disabled="!valid"
+              @click="onSubmit"
             >
-              <strong>{{ uploadProgress }}%</strong>
-            </v-progress-linear>
+              Analyze
+              <v-icon end>mdi-folder-search-outline</v-icon>
+            </v-btn>
+          </v-card-actions>
+        </v-window-item>
 
-            <v-card-actions class="mt-4 pa-0">
-              <v-spacer />
+        <v-window-item :value="2">
+          <span>Uploading file...</span>
 
-              <v-btn color="error" depressed @click="handleCancel">
-                Cancel analysis
-                <v-icon right>mdi-close</v-icon>
-              </v-btn>
-            </v-card-actions>
-          </v-stepper-content>
-        </v-stepper-items>
+          <v-progress-linear v-model="uploadProgress" class="mt-2" color="primary" height="25">
+            <strong>{{ uploadProgress }}%</strong>
+          </v-progress-linear>
 
-        <v-stepper-content step="3">
+          <v-card-actions class="mt-4 pa-0">
+            <v-spacer />
 
+            <v-btn color="error" elevation="0" @click="handleCancel">
+              Cancel analysis
+              <v-icon end>mdi-close</v-icon>
+            </v-btn>
+          </v-card-actions>
+        </v-window-item>
+
+        <v-window-item :value="3">
           <span v-if="reportActive?.status === 'queued'">
             Waiting for analysis is to start...
           </span>
@@ -404,7 +393,7 @@ watch(
             :color="reportActive?.status === 'queued' ? 'warning' : 'primary'"
             :stream="reportActive?.status === 'queued'"
             :buffer-value="reportActive?.status === 'queued' ? 0 : undefined"
-            :value="reportActive?.status === 'queued' ? 0 : undefined"
+            :model-value="reportActive?.status === 'queued' ? 0 : undefined"
             :indeterminate="reportActive?.status === 'running'"
             class="mt-2"
             height="25"
@@ -413,33 +402,43 @@ watch(
           <v-card-actions class="mt-4 pa-0">
             <v-spacer />
 
-            <v-btn color="error" text depressed @click="handleCancel">
+            <v-btn
+              color="error"
+              variant="text"
+              elevation="0"
+              @click="handleCancel"
+            >
               Cancel analysis
-              <v-icon right>mdi-close</v-icon>
+              <v-icon end>mdi-close</v-icon>
             </v-btn>
           </v-card-actions>
-        </v-stepper-content>
+        </v-window-item>
 
-        <v-stepper-content step="4">
-          <v-alert type="success" border="left" class="flex-grow-1" text>
+        <v-window-item :value="4">
+          <v-alert
+            type="success"
+            border="start"
+            class="flex-grow-1"
+            variant="tonal"
+          >
             Your dataset has been analysed.
           </v-alert>
 
           <v-card-actions class="mt-4 pa-0">
             <v-spacer />
 
-            <v-btn color="primary" primary text @click="handleReset">
+            <v-btn color="primary" variant="text" @click="handleReset">
               Analyze another dataset
-              <v-icon right>mdi-reload</v-icon>
+              <v-icon end>mdi-reload</v-icon>
             </v-btn>
 
-            <v-btn color="success" primary depressed :to="reportRoute">
+            <v-btn color="success" elevation="0" :to="reportRoute">
               View results
-              <v-icon right>mdi-arrow-right</v-icon>
+              <v-icon end>mdi-arrow-right</v-icon>
             </v-btn>
           </v-card-actions>
-        </v-stepper-content>
-      </v-stepper>
+        </v-window-item>
+      </v-window>
     </v-card-text>
   </v-card>
 </template>

@@ -1,10 +1,9 @@
 <template>
-  <v-tooltip top>
-    <template #activator="{ on, attrs }">
+  <v-tooltip location="top">
+    <template #activator="{ props }">
       <span
         class="label-dot"
-        v-bind="attrs"
-        v-on="on"
+        v-bind="props"
         :style="style"
       />
     </template>

@@ -1,21 +1,16 @@
 <template>
-  <v-container class="submissions" fluid>
+  <div class="submissions">
     <template v-if="cluster">
       <breadcrumbs
-        :current-override="{
-          text: `Cluster ${clusterId}`,
-          to: { name: 'Cluster' },
-          params: { clusterId: clusterId },
-        }"
-        :previous-fallback="{
-          text: 'View by cluster',
-          to: { name: 'Clusters' },
-        }"
+        :current-text="`Cluster ${clusterId}`"
+        :current-to="{ name: 'Cluster', params: { clusterId: clusterId } }"
+        :previous-fallback-text="`View by cluster`"
+        :previous-fallback-to="{ name: 'Clusters' }"
       />
 
       <div class="heading">
         <h2 class="heading-title">Cluster {{ clusterId }}</h2>
-        <div class="heading-subtitle text--secondary">
+        <div class="heading-subtitle text-medium-emphasis">
           Relevant information about the current cluster.
         </div>
       </div>
@@ -23,13 +18,13 @@
       <v-row>
         <v-col cols="12" md="8">
           <v-card>
-            <v-tabs v-model="activeTab">
+            <v-tabs v-model="activeTab" color="primary">
               <v-tab>Submissions</v-tab>
               <v-tab>Pairs</v-tab>
             </v-tabs>
 
-            <v-tabs-items v-model="activeTab" class="mt-2">
-              <v-tab-item>
+            <v-window v-model="activeTab" class="mt-2">
+              <v-window-item>
                 <submissions-table
                   :files="clusterFiles"
                   :items-per-page="15"
@@ -37,12 +32,12 @@
                   pagination
                   order
                 />
-              </v-tab-item>
+              </v-window-item>
 
-              <v-tab-item>
+              <v-window-item>
                 <pairs-table :pairs="clusterPairs" :items-per-page="15" dense />
-              </v-tab-item>
-            </v-tabs-items>
+              </v-window-item>
+            </v-window>
           </v-card>
 
           <v-card class="mt-4">
@@ -62,7 +57,8 @@
                   <a
                     href="https://dolos.ugent.be/guide/dodona.html"
                     target="_blank"
-                    >here</a
+                  >
+                    here </a
                   >.
                 </span>
               </div>
@@ -87,7 +83,7 @@
               Visual representation of submissions in the same cluster.
             </v-card-subtitle>
             <v-card-text class="cluster-graph">
-              <graph
+              <graph-canvas
                 :pairs="clusterPairs"
                 :files="clusterFiles"
                 :legend="legend"
@@ -98,8 +94,8 @@
                 node-clickable
                 @click:node="onNodeClick"
               >
-                <graph-legend :legend="legend" readonly />
-              </graph>
+                <graph-legend v-model:legend="legend" readonly />
+              </graph-canvas>
             </v-card-text>
           </v-card>
 
@@ -122,29 +118,25 @@
         <v-col>
           <v-card>
             <v-card-title>Not found</v-card-title>
-            <v-card-subtitle>This cluster was not found.</v-card-subtitle>
+            <v-card-text>This cluster was not found.</v-card-text>
           </v-card>
         </v-col>
       </v-row>
     </template>
-  </v-container>
+  </div>
 </template>
 
 <script lang="ts" setup>
 import { useFileStore, usePairStore } from "@/api/stores";
 import { File } from "@/api/models";
-import {
-  useCluster,
-  usePartialLegend,
-  useRoute,
-  useRouter,
-} from "@/composables";
+import { useCluster, usePartialLegend } from "@/composables";
 import { storeToRefs } from "pinia";
 import { computed, shallowRef } from "vue";
+import { useRoute, useRouter } from "vue-router";
 
 const router = useRouter();
 const route = useRoute();
-const clusterId = computed(() => route.value.params?.clusterId);
+const clusterId = computed(() => route.params?.clusterId);
 
 const fileStore = useFileStore();
 const pairStore = usePairStore();

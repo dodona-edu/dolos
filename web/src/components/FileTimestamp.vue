@@ -4,9 +4,9 @@
       {{ timeLong }}
     </span>
 
-    <v-tooltip top v-else>
-      <template #activator="{ on, attrs }">
-        <span class="short-timestamp" v-bind="attrs" v-on="on">
+    <v-tooltip location="top" v-else>
+      <template #activator="{ props }">
+        <span class="short-timestamp" v-bind="props">
           {{ timeShort }}
         </span>
       </template>

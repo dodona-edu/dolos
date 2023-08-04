@@ -1,37 +1,21 @@
 <template>
   <div class="breadcrumbs">
-    <v-btn icon color="primary" small exact :to="backItem">
-      <v-icon>mdi-chevron-left</v-icon>
-    </v-btn>
+    <v-btn color="primary" variant="text" icon="mdi-chevron-left" size="x-small" exact :to="backItem" />
     <v-breadcrumbs class="breadcrumbs-items" :items="items" />
   </div>
 </template>
 
 <script lang="ts" setup>
-import { useRoute } from "@/composables";
 import { useBreadcrumbStore } from "@/stores";
 import { storeToRefs } from "pinia";
 import { computed } from "vue";
-import { Location } from "vue-router";
+import { RouteLocationRaw, useRoute } from "vue-router";
 
 interface Props {
-  // Current page information (override)
-  currentOverride?: {
-    text: string;
-    to?: Location;
-  };
-  // Previous page information (fallback)
-  previousFallback?: {
-    text: string;
-    to: Location;
-  };
-}
-
-interface BreadcrumbItem {
-  text: string;
-  to?: Location;
-  disabled?: boolean;
-  exact?: boolean;
+  currentText?: string;
+  currentTo?: RouteLocationRaw;
+  previousFallbackText?: string;
+  previousFallbackTo?: RouteLocationRaw;
 }
 
 const props = withDefaults(defineProps<Props>(), {});
@@ -40,38 +24,39 @@ const breadcrumbs = useBreadcrumbStore();
 const { previousPage } = storeToRefs(breadcrumbs);
 
 // Breadcrumb items
-const items = computed(() => {
-  const items: BreadcrumbItem[] = [];
+const items = computed<any>(() => {
+  const items = [];
 
-  const prev = previousPage.value?.name;
-
-  if (prev) {
+  if (previousPage.value) {
     items.push({
       exact: true,
-      text: prev,
-      to: { name: prev },
+      title: previousPage.value.name,
+      to: previousPage.value,
     });
-  } else if (props.previousFallback) {
+  } else if (props.previousFallbackText && props.previousFallbackTo) {
     items.push({
       exact: true,
-      ...props.previousFallback,
+      title: props.previousFallbackText,
+      to: props.previousFallbackTo,
     });
   }
 
-  if (route.value) {
+
+  if (route) {
     items.push({
-      text: props.currentOverride?.text ?? route.value.name ?? "#",
-      to: props.currentOverride?.to,
+      exact: true,
+      title: props.currentText ?? route.name?.toString() ?? "#",
+      to: props.currentTo ?? route,
       disabled: true,
     });
   }
-  
+
   return items;
 });
 
 // Back navigation
 const backItem = computed(() => {
-  return items.value[items.value.length - 2].to;
+  return items?.value?.[items.value.length - 2]?.to;
 });
 </script>
 
@@ -80,6 +65,10 @@ const backItem = computed(() => {
   display: flex;
   align-items: center;
   gap: 0.25rem;
+
+  :deep(a) {
+    color: rgb(var(--v-theme-primary));
+  }
 
   &-items {
     padding: 0;

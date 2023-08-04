@@ -2,7 +2,6 @@
 import { computed, ref } from "vue";
 import { DateTime } from "luxon";
 import { useVModel } from "@vueuse/core";
-import { UploadReport } from "@/types/uploads/UploadReport";
 import { useReportsStore } from "@/stores";
 import UploadStatus from "./UploadStatus.vue";
 import UploadsTableInfoDialog from "./UploadsTableInfoDialog.vue";
@@ -18,12 +17,18 @@ const reports = useReportsStore();
 // Table search value.
 const search = useVModel(props, "search", emit);
 
+// Table sort.
+const sortBy = computed<any>(() => [{
+  key: "date",
+  order: "desc"
+}]);
+
 // Table headers
-const headers = computed(() => [
-  { text: "Name", value: "name", sortable: true },
-  { text: "Upload date", value: "date", sortable: true },
-  { text: "Status", value: "status", sortable: true },
-  { text: "", value: "actions", sortable: false, align: "right" },
+const headers = computed<any>(() => [
+  { title: "Name", key: "name", sortable: true },
+  { title: "Upload date", key: "date", sortable: true },
+  { title: "Status", key: "status", sortable: true },
+  { title: "", key: "actions", sortable: false, align: "right" },
 ]);
 
 // Table items
@@ -53,20 +58,20 @@ const deleteDialog = ref(false);
 const shareDialog = ref(false);
 
 // Open the dialog for a specific report.
-const openInfoDialog = (item: { report: UploadReport }): void => {
-  selectedReportId.value = item.report.reportId;
+const openInfoDialog = (e: Event, value: any): void => {
+  selectedReportId.value = value.item.raw.report.reportId;
   infoDialog.value = true;
 };
 
 // Open the dialog for deleting a specific report.
 const openDeleteDialog = (item: any): void => {
-  selectedReportId.value = item.report.reportId;
+  selectedReportId.value = item.raw.report.reportId;
   deleteDialog.value = true;
 };
 
 // Open the dialog for sharing a specific report.
 const openShareDialog = (item: any): void => {
-  selectedReportId.value = item.report.reportId;
+  selectedReportId.value = item.raw.report.reportId;
   shareDialog.value = true;
 };
 </script>
@@ -74,40 +79,38 @@ const openShareDialog = (item: any): void => {
 <template>
   <div>
     <v-data-table
-      class="row-pointer"
+      v-model:search="search"
       :headers="headers"
       :items="items"
-      :search.sync="search"
-      sort-by="date"
-      sort-desc
+      :sort-by="sortBy"
+      :items-per-page="15"
+      density="comfortable"
       @click:row="openInfoDialog"
     >
       <!-- Status -->
       <template #item.status="{ item }">
-        <upload-status :status="item.status" />
+        <upload-status :status="item.raw.status" />
       </template>
 
       <!-- Actions -->
       <template #item.actions="{ item }">
         <!-- Delete -->
         <v-btn
-          icon
+          variant="text"
           color="error"
-          :disabled="!item.done"
+          icon="mdi-delete"
+          :disabled="!item.raw.done"
           @click.stop="openDeleteDialog(item)"
-        >
-          <v-icon>mdi-delete</v-icon>
-        </v-btn>
+        />
 
         <!-- Share-->
         <v-btn
-          icon
+          variant="text"
           color="primary"
-          :disabled="item.status !== 'finished'"
+          icon="mdi-share-variant"
+          :disabled="item.raw.status !== 'finished'"
           @click.stop="openShareDialog(item)"
-        >
-          <v-icon>mdi-share-variant</v-icon>
-        </v-btn>
+        />
       </template>
 
       <template #no-data>
@@ -118,7 +121,7 @@ const openShareDialog = (item: any): void => {
 
     <uploads-table-info-dialog
       v-if="selectedReport"
-      :open.sync="infoDialog"
+      v-model:open="infoDialog"
       :report="selectedReport"
       @open:share="shareDialog = true"
       @open:delete="deleteDialog = true"
@@ -126,13 +129,13 @@ const openShareDialog = (item: any): void => {
 
     <uploads-table-delete-dialog
       v-if="selectedReport"
-      :open.sync="deleteDialog"
+      v-model:open="deleteDialog"
       :report="selectedReport"
     />
 
     <uploads-table-share-dialog
       v-if="selectedReport"
-      :open.sync="shareDialog"
+      v-model:open="shareDialog"
       :report="selectedReport"
     />
   </div>

@@ -12,6 +12,6 @@ project as well).
 
 - Run `yarn install` in the **root directory**, this will link the `web` project
   with the `cli` project as well.
-- Run `yarn serve` to serve a development version which reloads and rebuilds as you make changes.
+- Run `yarn dev` to serve a development version which reloads and rebuilds as you make changes.
 - Build the project (for production) with `yarn build`
 

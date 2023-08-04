@@ -1,15 +1,15 @@
 <template>
-  <v-container fluid fill-height>
+  <div>
     <v-row class="graph-container">
       <v-col cols="12" class="no-y-padding">
-        <graph
+        <graph-canvas
+          v-model:selected-node="selectedNode"
+          v-model:selected-cluster="selectedCluster"
           :showSingletons="showSingletons"
           :legend="legend"
           :clustering="clustering"
           :files="filesActiveList"
           :pairs="pairsActiveList"
-          :selected-node.sync="selectedNode"
-          :selected-cluster.sync="selectedCluster"
           polygon
         >
           <!-- Extra UI elements to be added as overlay over the graph -->
@@ -19,13 +19,12 @@
             <v-checkbox
               v-model="showSingletons"
               label="Display singletons"
-              dense
             />
           </v-form>
 
           <graph-legend
             v-if="showLegend"
-            :legend.sync="legend"
+            v-model:legend="legend"
           />
 
           <graph-selected-info
@@ -34,10 +33,10 @@
             :selected-cluster="selectedCluster"
             :legend="legend"
           />
-        </graph>
+        </graph-canvas>
       </v-col>
     </v-row>
-  </v-container>
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -46,7 +45,7 @@ import { storeToRefs } from "pinia";
 import { File } from "@/api/models";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
 import { useFileStore, usePairStore } from "@/api/stores";
-import { useRoute } from "@/composables";
+import { useRoute } from "vue-router";
 
 const route = useRoute();
 const { filesActiveList, legend } = storeToRefs(useFileStore());
@@ -63,7 +62,7 @@ const selectedCluster = shallowRef<Cluster>();
 
 // Should the legend be displayed.
 const showLegend = computed(() => {
-  const { ...colors } = route.value.query;
+  const { ...colors } = route.query;
   return Array.from(Object.values(colors)).length === 0;
 });
 </script>

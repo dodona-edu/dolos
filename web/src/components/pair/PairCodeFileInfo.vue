@@ -2,15 +2,15 @@
   <div class="file">
     <div class="file-info">
       <div class="file-info-title">
-        <v-icon color="primary" small>mdi-file-outline</v-icon>
+        <v-icon color="primary" size="small">mdi-file-outline</v-icon>
         {{ props.file.shortPath }}
       </div>
 
       <div
         v-if="props.file.extra.fullName"
-        class="file-info-subtitle text--secondary"
+        class="file-info-subtitle text-medium-emphasis"
       >
-        <v-icon small>mdi-account-outline</v-icon>
+        <v-icon size="small">mdi-account-outline</v-icon>
         <span>{{ props.file.extra.fullName }}</span>
       </div>
 
@@ -19,27 +19,27 @@
         class="file-info-subtitle"
         :style="{ color: labelColor }"
       >
-        <v-icon :color="labelColor" small>mdi-tag-outline</v-icon>
+        <v-icon :color="labelColor" size="small">mdi-tag-outline</v-icon>
         {{ props.file.extra.labels }}
       </div>
 
       <div
         v-if="props.file.extra.timestamp"
-        class="file-info-subtitle text--secondary"
+        class="file-info-subtitle text-medium-emphasis"
       >
-        <v-icon small>mdi-clock-outline</v-icon>
+        <v-icon size="small">mdi-clock-outline</v-icon>
         <file-timestamp :file="props.file" />
       </div>
     </div>
 
     <div class="file-actions">
       <v-btn
-        text
-        small
+        variant="text"
+        size="small"
         :to="{ name: 'Submission', params: { fileId: file.id } }"
       >
         View submission
-        <v-icon right>mdi-chevron-right</v-icon>
+        <v-icon end>mdi-chevron-right</v-icon>
       </v-btn>
     </div>
   </div>
@@ -84,7 +84,7 @@ const labelColor = computed(
 
     &-title {
       font-weight: bold;
-      color: var(--v-primary-base);
+      color: rgb(var(--v-theme-primary));
     }
 
     &-subtitle {

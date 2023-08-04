@@ -7,7 +7,6 @@
 
 <script lang="ts" setup>
 import {
-  withDefaults,
   ref,
   shallowRef,
   onMounted,
@@ -16,8 +15,9 @@ import {
   computed,
 } from "vue";
 import { Pair, Metadata, Fragment } from "@/api/models";
-import * as monaco from "monaco-editor";
 import { useVModel } from "@vueuse/core";
+import * as monaco from "monaco-editor";
+import { useMonacoEditorWorkers } from "@/composables/useMonacoEditorWorkers";
 
 interface Props {
   side: "left" | "right";
@@ -33,8 +33,11 @@ interface Selection {
   isWholeLine: boolean;
 }
 
+
+useMonacoEditorWorkers();
+
 const props = withDefaults(defineProps<Props>(), {});
-const emit = defineEmits(["update:selectedMatch"]);
+const emit = defineEmits(["update:selectedMatch", "update:hoveringMatch"]);
 
 // Colors for the different selections.
 const colors = {

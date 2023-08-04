@@ -15,8 +15,6 @@ import { File, Pair } from "@/api/models";
 import {
   getClusterElements
 } from "@/util/clustering-algorithms/ClusterFunctions";
-import * as Comlink from "comlink";
-import { DataWorker } from "@/api/workers/data.worker";
 
 /**
  * Store containing the pair data & helper functions.
@@ -67,7 +65,8 @@ export const usePairStore = defineStore("pairs", () => {
   const hydrated = shallowRef(false);
 
   // Data worker
-  const dataWorker = Comlink.wrap<DataWorker>(new Worker(new URL("../workers/data.worker.ts", import.meta.url)));
+  type DataWorker = typeof import("../workers/data.worker");
+  const dataWorker = new ComlinkWorker<DataWorker>((new URL("../workers/data.worker.ts", import.meta.url)));
 
   // Parse the pairs from a CSV string.
   function parse(pairData: any[], files: File[]): Pair[] {

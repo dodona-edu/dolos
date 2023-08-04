@@ -1,7 +1,7 @@
 <template>
-  <v-tooltip top>
-    <template v-slot:activator="{ attrs, on }">
-      <v-icon v-bind="attrs" v-on="on">mdi-information</v-icon>
+  <v-tooltip location="top">
+    <template #activator="{ props }">
+      <v-icon v-bind="props" size="small" color="medium-emphasis">mdi-information</v-icon>
     </template>
 
     <span class="tooltip">

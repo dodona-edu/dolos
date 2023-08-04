@@ -1,0 +1,38 @@
+.fill-width {
+  width: 100%;
+}
+
+.heading {
+  padding-bottom: 1rem;
+}
+
+// Add background color to clickable table rows.
+// This will probably be added natively in Vuetify 3 in the future.
+.v-data-table__tr--clickable {
+  &:hover {
+    td {
+      cursor: pointer;
+      background-color: rgba(0, 0, 0, 0.03) !important;
+    }
+  }
+}
+
+// Fix padding of data table footer.
+// This will probably be fixed natively in Vuetify 3 in the future.
+.v-data-table-footer {
+  margin-bottom: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+// D3 re-usable graph styles.
+.d3 {
+  &-ticks {
+    font-size: 0.9rem;
+  }
+
+  &-label {
+    font-size: 1rem;
+    font-weight: 500;
+    fill: rgba(0, 0, 0, 0.87);
+  }
+}

@@ -1,4 +1,4 @@
-import { File as DolosFile, Region, TokenizedFile } from "@dodona/dolos-lib";
+import { File as DolosFile, Region, TokenizedFile } from "@dodona/dolos-core";
 import { File } from "@/api/models";
 
 export function fileToTokenizedFile(file: File): TokenizedFile {

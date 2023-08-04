@@ -7,11 +7,10 @@ import {
   PairedOccurrence,
   Hash,
 } from "@/api/models";
-import { Fragment as DolosFragment, Options, Index } from "@dodona/dolos-lib";
-import * as Comlink from "comlink";
+import { Fragment as DolosFragment, FingerprintIndex } from "@dodona/dolos-core";
 
 // Parse a list of Dolos fragments into a list of fragment models.
-function parseFragments(
+export function parseFragments(
   dolosFragments: DolosFragment[],
   kmersMap: Map<Hash, Kgram>
 ): Fragment[] {
@@ -38,7 +37,7 @@ function parseFragments(
 }
 
 // Populate the fragments for a given pair.
-async function populateFragments(
+export async function populateFragments(
   pair: Pair,
   metadata: Metadata,
   kgrams: Kgram[]
@@ -46,12 +45,11 @@ async function populateFragments(
   const customOptions = metadata;
   const kmers = kgrams;
 
-  const options = new Options(customOptions);
-  const index = new Index(null, options);
+  const index = new FingerprintIndex(customOptions.kgramLength, customOptions.kgramsInWindow);
   const leftFile = fileToTokenizedFile(pair.leftFile);
   const rightFile = fileToTokenizedFile(pair.rightFile);
-  const report = await index.compareTokenizedFiles([leftFile, rightFile]);
-  const reportPair = report.getPair(leftFile, rightFile);
+  await index.addFiles([leftFile, rightFile]);
+  const reportPair = index.getPair(leftFile, rightFile);
 
   const kmersMap: Map<Hash, Kgram> = new Map();
   for (const kmerKey in kmers) {
@@ -62,11 +60,3 @@ async function populateFragments(
 
   return pair;
 }
-
-const expose = {
-  populateFragments,
-};
-
-Comlink.expose(expose);
-
-export type DataWorker = typeof expose;

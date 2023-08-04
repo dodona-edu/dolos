@@ -1,22 +1,20 @@
 <template>
   <v-data-table
-    class="row-pointer"
+    v-model:search="searchValue"
     :headers="headers"
     :items="items"
-    :must-sort="true"
-    :sort-by="'similarity'"
-    :sort-desc="true"
     :items-per-page="15"
-    :search.sync="searchValue"
+    :sort-by="sortBy"
     :footer-props="footerProps"
-    :dense="props.dense"
+    :density="props.dense ? 'compact' : 'default'"
+    must-sort
     @click:row="rowClicked"
   >
     <template #item.similarity="{ item }">
       <similarity-display
-        :similarity="+item.similarity"
-        progress
+        :similarity="+item.raw.similarity"
         :dense="props.dense"
+        progress
       />
     </template>
   </v-data-table>
@@ -24,10 +22,10 @@
 
 <script lang="ts" setup>
 import { shallowRef, onMounted, watch } from "vue";
-import { useRouter, useRoute } from "@/composables";
 import { useVModel } from "@vueuse/core";
 import { Pair } from "@/api/models";
-import { DataTableHeader } from "vuetify";
+import { useRoute, useRouter } from "vue-router";
+import { computed } from "vue";
 
 interface Props {
   pairs: Pair[];
@@ -44,28 +42,34 @@ const router = useRouter();
 const route = useRoute();
 const searchValue = useVModel(props, "search", emit);
 
+// Table sort
+const sortBy = computed<any>(() => [{
+  key: "similarity",
+  order: "desc",
+}]);
+
 // Table headers
-const headers: DataTableHeader[] = [
-  { text: "Left file", value: "left", sortable: true },
-  { text: "Right file", value: "right", sortable: true },
-  { text: "Similarity", value: "similarity", filterable: false },
-  { text: "Longest fragment", value: "longestFragment", filterable: false },
-  { text: "Total overlap", value: "totalOverlap", filterable: false },
-];
+const headers = computed<any[]>(() => [
+  { title: "Left file", key: "left", sortable: true },
+  { title: "Right file", key: "right", sortable: true },
+  { title: "Similarity", key: "similarity", filterable: false },
+  { title: "Longest fragment", key: "longestFragment", filterable: false },
+  { title: "Total overlap", key: "totalOverlap", filterable: false },
+]);
 
 // Footer props
-const footerProps = {
+const footerProps = computed<any>(() => { return {
   itemsPerPageOptions: [props.itemsPerPage, 25, 50, 100, -1],
   showCurrentPage: true,
   showFirstLastPage: true,
-};
+}});
 
 // Items in the format for the the data-table.
 const items = shallowRef<any[]>([]);
 
 // Calculate the items for the table.
 const calculateItems = (): void => {
-  const str = route.value.query.showIds as string | null;
+  const str = route.query.showIds as string | null;
 
   items.value = props.pairs.map((pair) => ({
     pair,
@@ -95,8 +99,8 @@ watch(
 );
 
 // When a row is clicked.
-const rowClicked = (item: { pair: Pair }): void => {
-  router.push({ name: "Pair", params: { pairId: String(item.pair.id) } });
+const rowClicked = (e: Event, value: any): void => {
+  router.push({ name: "Pair", params: { pairId: String(value.item.raw.pair.id) } });
 };
 </script>
 

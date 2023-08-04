@@ -1,6 +1,6 @@
 <template>
   <div class="similarity-setting">
-    <label v-if="!compact" class="text--secondary">Threshold ≥ {{ (cutoff * 100).toFixed(0) }}%</label>
+    <label v-if="!compact" class="text-medium-emphasis">Threshold ≥ {{ (cutoff * 100).toFixed(0) }}%</label>
 
     <div class="similarity-setting-actions">
       <span v-if="props.compact">
@@ -12,11 +12,11 @@
         max="1"
         step="0.01"
         hide-details
-        dense
+        color="primary"
+        track-size="2"
+        thumb-size="16"
       />
-      <v-btn color="primary" icon small @click="resetCutoff">
-        <v-icon>mdi-restore</v-icon>
-      </v-btn>
+      <v-btn color="primary" density="comfortable" variant="text" icon="mdi-restore" @click="resetCutoff" />
     </div>
   </div>
 </template>

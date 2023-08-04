@@ -1,7 +1,8 @@
+import type {  Edge, Node, D3Node, Group } from "@/composables/d3/graph/data";
 import { onMounted, onUnmounted, ShallowRef, Ref, shallowRef } from "vue";
 import { useDebounceFn } from "@vueuse/core";
 import * as d3 from "d3";
-import { Data, Edge, Node, D3Node, Group } from "@/composables/d3/graph/data";
+import { Data } from "@/composables/d3/graph/data";
 import { createSimulation } from "@/composables/d3/graph/simulation";
 import {
   createDrag,
@@ -12,9 +13,9 @@ import {
 export { Node, Edge, Group };
 
 export interface D3ForceGraphOptions {
-  nodeSize: number,
+  nodeSize: Ref<number>,
   container: ShallowRef<HTMLElement | undefined>;
-  nodeTooltip: boolean;
+  nodeTooltip: Ref<boolean>;
   onNodeClick?: (node: Node) => void;
   width: Ref<number>,
   height: Ref<number>,

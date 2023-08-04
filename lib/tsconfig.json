@@ -3,7 +3,8 @@
   "compilerOptions": {
         "outDir": "dist",                        /* Redirect output structure to the directory. */
         "rootDir": "src/",                       /* Specify the root directory of input files. Use to control the output directory structure with --outDir. */
-        "composite": true                        /* Enable project compilation */
+        "composite": true,                        /* Enable project compilation */
   },
-  "exclude": [ "web/", "dist/" ]
+  "exclude": [ "dist/" ],
+  "references": [{ "path": "../core" }]
 }

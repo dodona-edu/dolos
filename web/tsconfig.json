@@ -1,37 +1,32 @@
 {
   "compilerOptions": {
+    "baseUrl": ".",
     "target": "esnext",
+    "useDefineForClassFields": true,
+    "allowSyntheticDefaultImports": true,
+    "composite": true,
     "module": "esnext",
+    "moduleResolution": "node",
     "strict": true,
     "jsx": "preserve",
-    "importHelpers": true,
-    "moduleResolution": "node",
-    "experimentalDecorators": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "sourceMap": true,
-    "baseUrl": ".",
+    "sourceMap": false,
     "resolveJsonModule": true,
-    "noImplicitAny": false,
-    "plugins": [
-      { "transform": "typescript-is/lib/transform-inline/transformer" }
+    "skipLibCheck": true,
+    "lib": ["esnext", "dom"],
+    "types": [
+      "node",
+      "vuetify"
     ],
-    "types": ["webpack-env", "vuetify"],
     "paths": {
       "@/*": ["src/*"]
     },
-    "lib": ["esnext", "dom", "dom.iterable", "scripthost", "webworker"],
-    "skipLibCheck": true,
   },
   "include": [
     "src/**/*.ts",
+    "src/**/*.d.ts",
     "src/**/*.tsx",
     "src/**/*.vue",
-    "tests/**/*.ts",
-    "tests/**/*.tsx"
-  ],
-  "exclude": ["node_modules"],
-  "vueCompilerOptions": {
-    "target": 2.7
-  }
+    "vite.config.ts",
+    "package.json"
+  ]
 }

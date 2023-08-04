@@ -1,0 +1,11 @@
+node_modules
+dist
+coverage
+yarn-error.log
+.vscode
+dolos-analysis-*
+dolos-report-*
+.nyc_output
+*.tgz
+*.tsbuildinfo
+../cli/data/testfiles

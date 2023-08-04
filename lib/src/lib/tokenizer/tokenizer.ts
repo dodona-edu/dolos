@@ -1,7 +1,5 @@
-import { File } from "../file/file";
-import { Region } from "../util/region";
-import { TokenizedFile } from "../file/tokenizedFile";
-import { Language } from "../util/language";
+import { File, TokenizedFile, Region } from "@dodona/dolos-core";
+import { Language } from "../language.js";
 
 export interface Token {
   token: string;

@@ -38,24 +38,24 @@ const isDone = computed(
 <template>
   <v-dialog v-model="open" max-width="700px">
     <v-card v-if="props.report">
-      <v-card-title color="transparent" flat>
+      <v-card-title class="d-flex align-center" color="transparent" flat>
         <span> {{ props.report.name }} </span>
-
         <v-spacer />
-
-        <v-btn icon @click="open = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
+        <v-btn icon="mdi-close" variant="text" @click="open = false" />
       </v-card-title>
 
-      <v-list class="info-list" dense>
+      <v-list class="info-list" density="compact">
         <v-list-item class="info-list-item">
-          <v-icon>mdi-clock-outline</v-icon>
-          <span>{{ reportDate }}</span>
+          <template #prepend>
+            <v-icon>mdi-clock-outline</v-icon>
+          </template>
+          <v-list-item-title>{{ reportDate }}</v-list-item-title>
         </v-list-item>
 
         <v-list-item class="info-list-item">
-          <v-icon>mdi-pulse</v-icon>
+          <template #prepend>
+            <v-icon>mdi-pulse</v-icon>
+          </template>
           <upload-status :status="props.report.status" />
         </v-list-item>
       </v-list>
@@ -67,7 +67,7 @@ const isDone = computed(
           <v-progress-linear
             color="warning"
             stream
-            value="0"
+            model-value="0"
             buffer-value="0"
             class="mt-2"
           />
@@ -89,7 +89,7 @@ const isDone = computed(
         "
       >
         <v-card-text>
-          <v-alert type="error" text class="mt-2 mb-0">
+          <v-alert type="error" variant="tonal" class="mt-2 mb-0">
             <p class="font-weight-bold">
               Unable to execute the analysis for the uploaded file.
             </p>
@@ -102,7 +102,7 @@ const isDone = computed(
       <!-- Status: Finished -->
       <template v-else-if="props.report.status === 'finished'">
         <v-card-text>
-          <v-alert type="success" text class="mt-2 mb-0">
+          <v-alert type="success" variant="tonal" class="mt-2 mb-0">
             Analysis was completed successfully.
           </v-alert>
         </v-card-text>
@@ -111,7 +111,7 @@ const isDone = computed(
       <!-- Status: Deleted -->
       <template v-else-if="props.report.status === 'deleted'">
         <v-card-text>
-          <v-alert type="warning" text class="mt-2 mb-0">
+          <v-alert type="warning" variant="tonal" class="mt-2 mb-0">
             This report has been deleted on the server and is no longer available.<br />
             Old reports are automatically deleted after 30 days to save storage space.
           </v-alert>
@@ -121,24 +121,24 @@ const isDone = computed(
       <v-card-actions>
         <!-- Delete -->
         <v-btn
-          text
+          variant="text"
           color="error"
           :disabled="!isDone"
           @click="$emit('open:delete')"
         >
           Delete
-          <v-icon right>mdi-delete</v-icon>
+          <v-icon end>mdi-delete</v-icon>
         </v-btn>
 
         <!-- Share-->
         <v-btn
-          text
+          variant="text"
           color="primary"
           :disabled="props.report.status !== 'finished'"
           @click="$emit('open:share')"
         >
           Share
-          <v-icon right>mdi-share-variant</v-icon>
+          <v-icon end>mdi-share-variant</v-icon>
         </v-btn>
 
         <v-spacer />
@@ -149,10 +149,10 @@ const isDone = computed(
           :to="reportRoute"
           target="_blank"
           color="success"
-          text
+          variant="text"
         >
           View Results
-          <v-icon right>mdi-arrow-right</v-icon>
+          <v-icon end>mdi-arrow-right</v-icon>
         </v-btn>
       </v-card-actions>
     </v-card>

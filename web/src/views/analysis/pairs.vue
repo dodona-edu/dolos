@@ -1,11 +1,11 @@
 <template>
-  <v-container fluid>
+  <div>
     <v-row class="heading" align="center">
       <v-col cols="12" md="6">
         <h2 class="heading-title">
           File pairs
         </h2>
-        <div class="heading-subtitle text--secondary">
+        <div class="heading-subtitle text-medium-emphasis">
           A pair is a set of 2 files that are compared for similarity and matching code fragments.
         </div>
       </v-col>
@@ -13,20 +13,20 @@
       <v-col cols="12" md="6">
         <v-text-field
           v-model="search"
-          append-icon="mdi-magnify"
+          prepend-inner-icon="mdi-magnify"
           label="Search"
           single-line
           hide-details
-          outlined
-          dense
+          variant="outlined"
+          density="compact"
         />
       </v-col>
     </v-row>
 
     <v-card>
-      <pairs-table :search.sync="search" :pairs="pairStore.pairsActiveList" />
+      <pairs-table v-model:search="search" :pairs="pairStore.pairsActiveList" />
     </v-card>
-  </v-container>
+  </div>
 </template>
 
 <script lang="ts" setup>

@@ -1,15 +1,11 @@
 <template>
   <v-data-table
-    class="row-pointer"
     :headers="headers"
     :items="items"
     :search="searchValue"
-    :dense="props.dense"
-    :hide-default-footer="!props.pagination"
-    :disable-pagination="!props.pagination"
-    :footer-props="footerProps"
-    sort-by="similarity"
-    sort-desc
+    :density="props.dense ? 'compact' : 'comfortable'"
+    :sort-by="sortBy"
+    :items-per-page="15"
     must-sort
     fixed-header
     @click:row="rowClicked"
@@ -17,15 +13,15 @@
     <template #item.name="{ item }">
       <div class="submission-info">
         <div class="submission-name">
-          <v-tooltip top>
-            <template v-slot:activator="{ on, attrs }">
-              <span v-on="on" v-bind="attrs">
-                {{ item.name }}
+          <v-tooltip location="top">
+            <template #activator="{ props }">
+              <span v-bind="props">
+                {{ item.raw.name }}
               </span>
             </template>
 
             <div class="submission-path">
-              <span>{{ item.path }}</span>
+              <span>{{ item.raw.path }}</span>
             </div>
           </v-tooltip>
         </div>
@@ -34,15 +30,15 @@
 
     <template #item.label="{ item }">
       <div class="submission-label">
-        <label-dot :label="item.label.name" :color="item.label.color" />
-        <label-text :label="item.label.name" colored />
+        <label-dot :label="item.raw.label.name" :color="item.raw.label.color" />
+        <label-text :label="item.raw.label.name" colored />
       </div>
     </template>
 
     <template #item.similarity="{ item }">
       <span class="submission-similarity">
         <similarity-display
-          :similarity="item.similarity"
+          :similarity="item.raw.similarity"
           :dense="props.dense"
           progress
           dim-below-cutoff
@@ -52,27 +48,31 @@
 
     <template #item.timestamp="{ item }">
       <span class="submission-timestamp">
-        <v-tooltip top>
-          <template v-slot:activator="{ on, attrs }">
+        <v-tooltip location="top">
+          <template #activator="{ props }">
             <span
               v-if="props.order"
-              v-on="on"
-              v-bind="attrs"
-              :class="item.order === 1 ? 'primary--text' : 'text--secondary'"
+              v-bind="props"
+              :class="item.raw.order === 1 ? 'text-primary' : 'text-medium-emphasis'"
             >
-              #{{ item.order }}
+              #{{ item.raw.order }}
             </span>
           </template>
 
-          <span>This is the #{{ item.order }} submission in the cluster</span>
+          <span>This is the #{{ item.raw.order }} submission in the cluster</span>
         </v-tooltip>
 
         <file-timestamp
-          :class="props.order && item.order === 1 ? 'primary--text' : ''"
-          :timestamp="item.timestamp"
+          :class="props.order && item.raw.order === 1 ? 'text-primary' : ''"
+          :timestamp="item.raw.timestamp"
           long
         />
       </span>
+    </template>
+
+    <!-- Temporary hack to hide pagination when disabled -->
+    <template v-if="!pagination" #bottom>
+      <div />
     </template>
   </v-data-table>
 </template>
@@ -80,11 +80,10 @@
 <script lang="ts" setup>
 import { storeToRefs } from "pinia";
 import { computed } from "vue";
-import { DataTableHeader } from "vuetify";
 import { useFileStore } from "@/api/stores";
 import { File } from "@/api/models";
-import { useRouter } from "@/composables";
 import { useVModel } from "@vueuse/core";
+import { useRouter } from "vue-router";
 
 interface Props {
   files: File[];
@@ -109,20 +108,29 @@ const { similarities, hasTimestamps, hasLabels } = storeToRefs(fileStore);
 // Search value.
 const searchValue = useVModel(props, "search", emit);
 
+// Table sort
+const sortBy = computed<any>(() => {
+  if (props.disableSorting) return [];
+  return [{
+    key: "similarity",
+    order: "desc",
+  }]
+});
+
 // Table headers
-const headers = computed<DataTableHeader[]>(() => {
-  const h = [] as DataTableHeader[];
+const headers = computed(() => {
+  const h = [];
   h.push({
-    text: "Submission",
-    value: "name",
+    title: "Submission",
+    key: "name",
     sortable: props.disableSorting ? false : true,
   });
 
   // Only add the label header if there are labels.
   if (hasLabels.value) {
     h.push({
-      text: "Label",
-      value: "label",
+      title: "Label",
+      key: "label",
       sortable: false,
     });
   }
@@ -130,24 +138,24 @@ const headers = computed<DataTableHeader[]>(() => {
   // Only add timestamp header when present.
   if (hasTimestamps.value && !props.concise) {
     h.push({
-      text: "Timestamp",
-      value: "timestamp",
+      title: "Timestamp",
+      key: "timestamp",
       sortable: props.disableSorting ? false : true,
       filterable: false,
     });
   }
 
   h.push({
-    text: "Highest similarity",
-    value: "similarity",
+    title: "Highest similarity",
+    key: "similarity",
     sortable: props.disableSorting ? false : true,
     filterable: false,
   });
 
   if (!props.concise) {
     h.push({
-      text: "Lines",
-      value: "lines",
+      title: "Lines",
+      key: "lines",
       sortable: props.disableSorting ? false : true,
       filterable: false,
     });
@@ -155,13 +163,6 @@ const headers = computed<DataTableHeader[]>(() => {
 
   return h;
 });
-
-// Footer props
-const footerProps = {
-  itemsPerPageOptions: [props.itemsPerPage, 25, 50, 100, -1],
-  showCurrentPage: true,
-  showFirstLastPage: true,
-};
 
 // Table items
 // In the format for the Vuetify data-table.
@@ -193,8 +194,8 @@ const items = computed(() => {
 });
 
 // When a row is clicked.
-const rowClicked = (item: { id: string }): void => {
-  router.push({ name: "Submission", params: { fileId: item.id } });
+const rowClicked = (e: Event, value: any): void => {
+  router.push({ name: "Submission", params: { fileId: value.item.raw.id } });
 };
 </script>
 

@@ -1,12 +1,10 @@
 <template>
   <v-data-table
-    class="row-pointer"
+    :density="props.dense ? 'compact' : 'comfortable'"
     :headers="headers"
     :items="items"
-    sort-by="size"
-    sort-desc
-    hide-default-footer
-    disable-pagination
+    :sort-by="sortBy"
+    :items-per-page="15"
     must-sort
     fixed-header
     @click:row="rowClicked"
@@ -14,61 +12,75 @@
     <template #item.submissions="{ item }">
       <cluster-tags
         class="clusters-submissions"
-        :current-files="item.submissions"
+        :current-files="item.raw.submissions"
       />
     </template>
 
-    <template #item.size="{ item }"> {{ item.size }} submissions </template>
+    <template #item.size="{ item }">
+      {{ item.raw.size }} submissions
+    </template>
 
     <template #item.similarity="{ item }">
       <span class="submission-similarity">
         <similarity-display
-          :similarity="item.similarity"
+          :similarity="item.raw.similarity"
           progress
           dim-below-cutoff
         />
       </span>
+    </template>
+
+    <!-- Temporary hack to hide pagination when disabled -->
+    <template v-if="!pagination" #bottom>
+      <div />
     </template>
   </v-data-table>
 </template>
 
 <script lang="ts" setup>
 import { computed } from "vue";
-import { DataTableHeader } from "vuetify";
 import { usePairStore } from "@/api/stores";
-import { useRouter } from "@/composables";
 import { getClusterElementsArray } from "@/util/clustering-algorithms/ClusterFunctions";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
+import { useRouter } from "vue-router";
 
 interface Props {
   clusters: Cluster[];
   concise?: boolean;
   disableSorting?: boolean;
   limit?: number;
+  dense?: boolean;
+  pagination?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {});
 const router = useRouter();
 const pairStore = usePairStore();
 
+// Table sort
+const sortBy = computed<any>(() => [{
+  key: 'size',
+  order: 'desc'
+}]);
+
 // Table headers
-const headers = computed<DataTableHeader[]>(() => {
-  const h = [] as DataTableHeader[];
+const headers = computed(() => {
+  const h = [];
   h.push({
-    text: "Submissions",
-    value: "submissions",
+    title: "Submissions",
+    key: "submissions",
     sortable: false,
   });
 
   if (!props.concise) {
     h.push({
-      text: "Average similarity",
-      value: "similarity",
+      title: "Average similarity",
+      key: "similarity",
       sortable: props.disableSorting ? false : true,
     });
     h.push({
-      text: "Size",
-      value: "size",
+      title: "Size",
+      key: "size",
       sortable: props.disableSorting ? false : true,
     });
   }
@@ -110,8 +122,8 @@ const maxWidth = computed(() => {
 });
 
 // When a row is clicked.
-const rowClicked = (item: { id: string }): void => {
-  router.push({ name: "Cluster", params: { clusterId: item.id } });
+const rowClicked = (e: Event, value: any): void => {
+  router.push({ name: "Cluster", params: { clusterId: value.item.raw.id } });
 };
 </script>
 

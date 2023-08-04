@@ -1,9 +1,10 @@
 <template>
-  <v-container fluid fill-height>
+  <div>
     <breadcrumbs
       v-if="!pairStore.hasOnlyOnePair"
-      :current-override="{ text: `${pair.leftFile.shortPath} & ${pair.rightFile.shortPath}` }"
-      :previous-fallback="{ text: 'View by pairs', to: { name: 'Pairs' } }"
+      :current-text="`${pair?.leftFile?.shortPath} & ${pair?.rightFile?.shortPath}`"
+      :previous-fallback-text="`View by pairs`"
+      :previous-fallback-to="{ name: 'Pairs' }"
     />
 
     <v-row justify="center">
@@ -25,14 +26,14 @@
         </v-card>
       </v-col>
     </v-row>
-  </v-container>
+  </div>
 </template>
 
 <script lang="ts" setup>
 import { shallowRef, onMounted, watchEffect, computed } from "vue";
 import { usePairStore, useMetadataStore } from "@/api/stores";
 import { Pair } from "@/api/models";
-import { useRoute } from "@/composables";
+import { useRoute } from "vue-router";
 
 type Props = {
   pairId?: string;
@@ -40,7 +41,7 @@ type Props = {
 const props = defineProps<Props>();
 
 const route = useRoute();
-const pairId = computed(() => props.pairId ?? route.value.params?.pairId);
+const pairId = computed(() => props.pairId ?? route.params?.pairId);
 
 const pairStore = usePairStore();
 const metadataStore = useMetadataStore();

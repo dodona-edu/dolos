@@ -1,10 +1,10 @@
 <script lang="ts" setup>
-import { useRouter } from "@/composables";
 import { UploadReport } from "@/types/uploads/UploadReport";
 import { useVModel } from "@vueuse/core";
 import { computed } from "vue";
 import { useSnackbar } from "../util/snackbar/useSnackbar";
 import { useReportsStore } from "@/stores";
+import { useRouter } from "vue-router";
 
 type Props = {
   open: boolean;
@@ -46,18 +46,14 @@ const copyShareUrl = (): void => {
 <template>
   <v-dialog v-model="open" max-width="500px">
     <v-card v-if="props.report">
-      <v-card-title color="transparent" flat>
+      <v-card-title class="d-flex align-center" color="transparent" flat>
         <span>Share: {{ report.name }}</span>
-
         <v-spacer />
-
-        <v-btn icon @click="open = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
+        <v-btn icon="mdi-close" variant="text" @click="open = false" />
       </v-card-title>
 
       <v-card-text>
-        <v-alert type="info" text>
+        <v-alert type="info" variant="tonal">
           Anyone with this link will be able to view the results of the analysis.
         </v-alert>
 
@@ -66,15 +62,15 @@ const copyShareUrl = (): void => {
         <v-text-field
           v-model="shareUrl"
           label="Share URL"
-          outlined
-          dense
+          variant="outlined"
+          density="compact"
           readonly
           @focus="$event.target.select()"
         />
 
         <div class="d-flex mt-4">
           <v-spacer />
-          <v-btn color="primary" text @click="copyShareUrl"> Copy URL </v-btn>
+          <v-btn color="primary" variant="text" @click="copyShareUrl"> Copy URL </v-btn>
         </div>
       </v-card-text>
     </v-card>

@@ -66,14 +66,10 @@ const confirm = async (): Promise<void> => {
 <template>
   <v-dialog v-model="open" max-width="500px">
     <v-card v-if="props.report">
-      <v-card-title color="transparent" flat>
+      <v-card-title class="d-flex align-center" color="transparent" flat>
         <span>Are you sure?</span>
-
         <v-spacer />
-
-        <v-btn icon @click="open = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
+        <v-btn variant="text" icon="mdi-close" @click="open = false" />
       </v-card-title>
 
       <v-card-text v-if="props.report.status == 'deleted'">
@@ -97,13 +93,13 @@ const confirm = async (): Promise<void> => {
       <v-card-actions>
         <v-spacer />
 
-        <v-btn color="error" text @click="cancel" :disabled="loading">
+        <v-btn color="error" variant="text" @click="cancel" :disabled="loading">
           Cancel
         </v-btn>
 
         <v-btn
           color="primary"
-          text
+          variant="text"
           @click="confirm"
           :disabled="loading"
           :loading="loading"

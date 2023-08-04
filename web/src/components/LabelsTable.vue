@@ -1,6 +1,6 @@
 <template>
-  <v-simple-table class="labels" fixed-header dense>
-    <thead>
+  <v-table class="labels" height="300px" fixed-header density="compact">
+    <thead class="labels-table-header">
       <tr>
         <th>Label</th>
         <th v-if="props.showSubmissions">Submissions</th>
@@ -20,15 +20,15 @@
           </td>
 
           <td v-if="props.showSubmissions">
-            {{ labelFilesCount.get(label) }}
+            {{ labelFilesCount.get(label.name) }}
           </td>
 
           <td class="text-end">
             <v-switch
               v-model="label.selected"
-              class="labels-switch"
+              color="primary"
+              density="compact"
               inset
-              small
               hide-details
             />
           </td>
@@ -47,7 +47,7 @@
         </tr>
       </template>
     </tbody>
-  </v-simple-table>
+  </v-table>
 </template>
 
 <script lang="ts" setup>
@@ -64,30 +64,7 @@ const { labels, labelFilesCount, hasLabels } = storeToRefs(fileStore);
 </script>
 
 <style lang="scss" scoped>
-.labels {
-  &-switch {
-    margin-top: 0;
-
-    :deep(.v-input--switch__track) {
-      height: 22px;
-    }
-
-    :deep(.v-input--switch__thumb),
-    :deep(.v-input--selection-controls__ripple) {
-      height: 14px;
-      width: 14px;
-    }
-
-    :deep(.v-input--selection-controls__ripple) {
-      height: 24px;
-      width: 24px;
-      left: -12px;
-      top: -10px;
-    }
-
-    :deep(.v-input__slot) {
-      margin-bottom: 0;
-    }
-  }
+.labels-table-header {
+  z-index: 2;
 }
 </style>

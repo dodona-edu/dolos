@@ -2,9 +2,10 @@
   <div>
     <div class="heading">
       <h2 class="heading-title">
-        Comparing {{ activePair.leftFile.shortPath }} with {{ activePair.rightFile.shortPath }}
+        Comparing {{ activePair.leftFile.shortPath }} with
+        {{ activePair.rightFile.shortPath }}
       </h2>
-      <div class="heading-subtitle text--secondary">
+      <div class="heading-subtitle text-medium-emphasis">
         The compare view matches code fragments & differences between 2 files.
       </div>
     </div>
@@ -13,44 +14,45 @@
       <v-card-text>
         <v-row justify="space-between" align="center">
           <v-col cols="5">
-            <v-tabs v-model="activeTab">
+            <v-tabs v-model="activeTab" color="primary">
               <v-tab>
-                <v-icon left>mdi-set-center</v-icon>
+                <v-icon start>mdi-set-center</v-icon>
                 Matches
               </v-tab>
               <v-tab>
-                <v-icon left>mdi-file-compare</v-icon>
+                <v-icon start>mdi-file-compare</v-icon>
                 Diff
               </v-tab>
             </v-tabs>
           </v-col>
 
           <v-col cols="auto">
-            <v-btn color="primary" depressed @click="swapFiles">
+            <v-btn color="primary" elevation="0" @click="swapFiles">
               <v-icon>mdi-swap-horizontal-bold</v-icon>
             </v-btn>
           </v-col>
 
           <v-col cols="5" class="compare-header-info">
             <span>
-              <v-icon left>mdi-approximately-equal</v-icon>
-              Similarity: <similarity-display :similarity="activePair.similarity" text />
+              <v-icon start>mdi-approximately-equal</v-icon>
+              Similarity:
+              <similarity-display :similarity="activePair.similarity" text />
             </span>
 
             <span>
-              <v-icon left>mdi-file-document-multiple</v-icon>
+              <v-icon start>mdi-file-document-multiple</v-icon>
               Longest fragment: {{ activePair.longestFragment }}
             </span>
 
             <span>
-              <v-icon left>mdi-file-document-multiple-outline</v-icon>
+              <v-icon start>mdi-file-document-multiple-outline</v-icon>
               Total overlap: {{ activePair.totalOverlap }}
             </span>
           </v-col>
         </v-row>
 
-        <v-tabs-items v-model="activeTab" class="mt-4">
-          <v-tab-item class="compare-tab">
+        <v-window v-model="activeTab" class="mt-4">
+          <v-window-item class="compare-tab">
             <template v-if="showMatchView">
               <pair-code-match
                 class="compare-editor"
@@ -58,17 +60,19 @@
                 :metadata="props.metadata"
               />
             </template>
-          </v-tab-item>
+          </v-window-item>
 
-          <v-tab-item class="compare-tab">
+          <v-window-item class="compare-tab">
             <template v-if="showDiffView">
               <!-- Show a warning why the diff view is selected automatically -->
               <v-alert
                 v-if="props.pair.similarity >= 0.8"
+                class="mb-4"
                 type="info"
                 icon="mdi-information"
-                text
-                dismissible
+                variant="tonal"
+                density="compact"
+                closable
               >
                 The diff view has been automatically selected, as the files have
                 a similarity >= 80%.
@@ -80,15 +84,15 @@
                 :metadata="props.metadata"
               />
             </template>
-          </v-tab-item>
-        </v-tabs-items>
+          </v-window-item>
+        </v-window>
       </v-card-text>
     </v-card>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { computed, shallowRef, watch, withDefaults } from "vue";
+import { computed, shallowRef, watch } from "vue";
 import { Pair, Metadata } from "@/api/models";
 
 interface Props {
@@ -128,7 +132,6 @@ watch(
   { immediate: true }
 );
 
-
 // Active pair of files.
 // Used to make the switch between left and right file easier.
 const activePair = computed<Pair>(() => {
@@ -139,15 +142,15 @@ const activePair = computed<Pair>(() => {
       rightFile: props.pair.leftFile,
       fragments: props.pair.fragments
         ? props.pair.fragments.map((fragment) => ({
-          ...fragment,
-          left: fragment.right,
-          right: fragment.left,
-          occurrences: fragment.occurrences.map((occurrence) => ({
-            ...occurrence,
-            left: occurrence.right,
-            right: occurrence.left,
-          })),
-        }))
+            ...fragment,
+            left: fragment.right,
+            right: fragment.left,
+            occurrences: fragment.occurrences.map((occurrence) => ({
+              ...occurrence,
+              left: occurrence.right,
+              right: occurrence.left,
+            })),
+          }))
         : null,
     };
   }

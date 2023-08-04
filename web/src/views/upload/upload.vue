@@ -9,7 +9,7 @@ const search = ref("");
   <div>
     <div class="hero">
       <h2 class="hero-title">DOLOS</h2>
-      <div class="hero-subtitle text--secondary">
+      <div class="hero-subtitle text-medium-emphasis">
         Source code plagiarism detection
       </div>
     </div>
@@ -35,17 +35,17 @@ const search = ref("");
                   <v-text-field
                       class="search-text-field"
                       v-model="search"
-                      append-icon="mdi-magnify"
+                      prepend-inner-icon="mdi-magnify"
                       label="Search"
                       single-line
                       hide-details
-                      outlined
-                      dense
+                      variant="outlined"
+                      density="compact"
                   />
                 </v-col>
               </v-row>
 
-              <uploads-table :search.sync="search" />
+              <uploads-table class="mt-4" v-model:search="search" />
             </v-card>
           </v-col>
 
@@ -56,8 +56,8 @@ const search = ref("");
               Reach out if you have any problems, suggestions or feedback.
             </v-card-text>
             <v-card-actions>
-              <v-btn color="primary" text href="https://dodona.ugent.be/en/contact">Contact us</v-btn>
-              <v-btn text href="https://dolos.ugent.be">View documentation</v-btn>
+              <v-btn color="primary" variant="text" href="https://dodona.ugent.be/en/contact">Contact us</v-btn>
+              <v-btn variant="text" href="https://dolos.ugent.be">View documentation</v-btn>
             </v-card-actions>
           </v-card>
         </v-col>

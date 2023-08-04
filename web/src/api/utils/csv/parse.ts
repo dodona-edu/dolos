@@ -13,7 +13,7 @@ export function parseCsv<T>(url: string, options?: ParseRemoteConfig<T>): Promis
       worker: true,
       skipEmptyLines: true,
       complete: (results) => {
-        resolve(results.data as T[]);
+        resolve(results?.data as T[]);
       },
       error: (error) => {
         reject(error);

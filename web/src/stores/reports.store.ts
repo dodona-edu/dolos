@@ -1,9 +1,8 @@
 import { UploadReport } from "@/types/uploads/UploadReport";
 import { useLocalStorage } from "@vueuse/core";
 import { defineStore } from "pinia";
-import { RawLocation } from "vue-router";
 import { computed, onMounted } from "vue";
-import { useRoute } from "@/composables";
+import { useRoute } from "vue-router";
 import slugify from "slugify";
 import axios, { AxiosError } from "axios";
 
@@ -52,7 +51,7 @@ export const useReportsStore = defineStore("reports", () => {
   }
 
   // Get the route for a given report id.
-  function getReportRouteById(reportId: string | undefined): RawLocation {
+  function getReportRouteById(reportId: string | undefined) {
     const report = getReportById(reportId);
 
     // If no report is found, return the home page.
@@ -71,7 +70,7 @@ export const useReportsStore = defineStore("reports", () => {
   }
 
   // Get the share route for a given report id.
-  function getReportShareRouteById(reportId: string | undefined): RawLocation {
+  function getReportShareRouteById(reportId: string | undefined) {
     return {
       name: "Share",
       params: {
@@ -87,7 +86,7 @@ export const useReportsStore = defineStore("reports", () => {
 
   // Get the URL for a given report id.
   const getReportUrlById = (reportId: string | undefined) => {
-    return `${process.env.VUE_APP_API_URL}/reports/${reportId}`;
+    return `${import.meta.env.VITE_API_URL}/reports/${reportId}`;
   };
 
   async function checkReports() {
@@ -117,8 +116,8 @@ export const useReportsStore = defineStore("reports", () => {
   // Attempt to get the current report from the route.
   const route = useRoute();
   const currentReport = computed(() => {
-    const reportId = route.value.params.reportId as string | undefined;
-    const referenceId = route.value.params.referenceId as string | undefined;
+    const reportId = route.params.reportId as string | undefined;
+    const referenceId = route.params.referenceId as string | undefined;
     return getReportById(reportId) ?? getReportByReferenceId(referenceId);
   });
 

@@ -1,4 +1,4 @@
-import { View } from "./view";
+import { View } from "./view.js";
 import { stringify } from "csv-stringify";
 import { Writable } from "stream";
 import { createWriteStream, promises as fs } from "fs";
@@ -6,7 +6,7 @@ import {
   Report,
   Pair,
   SharedFingerprint,
-  TokenizedFile
+  FileEntry
 } from "@dodona/dolos-lib";
 
 function writeCSVto<T>(
@@ -83,17 +83,17 @@ export class FileView extends View {
   }
 
   public writeFiles(out: Writable): void {
-    writeCSVto<TokenizedFile>(
+    writeCSVto<FileEntry>(
       out,
-      this.report.files,
+      this.report.entries(),
       {
-        "id": f => f.id,
-        "path": f => f.path,
-        "content": f => f.content,
+        "id": f => f.file.id,
+        "path": f => f.file.path,
+        "content": f => f.file.content,
         "amountOfKgrams": f => f.kgrams.length,
-        "ast": f => JSON.stringify(f.ast),
-        "mapping": f => JSON.stringify(f.mapping),
-        "extra": f => JSON.stringify(f.extra)
+        "ast": f => JSON.stringify(f.file.tokens),
+        "mapping": f => JSON.stringify(f.file.mapping),
+        "extra": f => JSON.stringify(f.file.extra)
       });
   }
 

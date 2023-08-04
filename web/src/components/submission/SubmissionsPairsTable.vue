@@ -1,41 +1,37 @@
 <template>
   <v-data-table
-    class="row-pointer"
     :headers="headers"
     :items="items"
-    :footer-props="footerProps"
-    sort-by="similarity"
-    sort-desc
+    :sort-by="sortBy"
+    :items-per-page="15"
+    density="compact"
     must-sort
     fixed-header
-    dense
-    @click:row="
-      (i) => $router.push({ name: 'Submission', params: { fileId: i.fileId } })
-    "
+    @click:row="rowClicked"
   >
     <template #item.name="{ item }">
       <div class="submission-name">
-        <span>{{ item.name }}</span>
+        <span>{{ item.raw.name }}</span>
       </div>
     </template>
 
     <template #item.label="{ item }">
       <span class="submission-label">
-        <label-dot :label="item.label.name" :color="item.label.color" />
-        <label-text :label="item.label.name" />
+        <label-dot :label="item.raw.label.name" :color="item.raw.label.color" />
+        <label-text :label="item.raw.label.name" />
       </span>
     </template>
 
     <template #item.timestamp="{ item }">
       <span class="submission-timestamp">
-        <file-timestamp :timestamp="item.timestamp" />
+        <file-timestamp :timestamp="item.raw.timestamp" />
       </span>
     </template>
 
     <template #item.similarity="{ item }">
       <span class="submission-similarity">
         <similarity-display
-          :similarity="item.similarity"
+          :similarity="item.raw.similarity"
           progress
           dense
           dim-below-cutoff
@@ -44,32 +40,32 @@
     </template>
 
     <template #item.cluster="{ item }">
-      <v-tooltip top>
-        <template #activator="{ on, attrs }">
+      <v-tooltip location="top">
+        <template #activator="{ props }">
           <v-btn
-            v-if="item.cluster !== ClusterRelation.NONE"
-            v-bind="attrs"
-            v-on="on"
-            :to="{ name: 'Cluster', params: { clusterId: item.clusterIndex } }"
-            :color="item.cluster === ClusterRelation.SAME ? 'primary' : ''"
+            v-if="item.raw.cluster !== ClusterRelation.NONE"
+            v-bind="props"
+            :to="{ name: 'Cluster', params: { clusterId: item.raw.clusterIndex } }"
+            :color="item.raw.cluster === ClusterRelation.SAME ? 'primary' : ''"
+            size="small"
+            variant="text"
             icon
-            small
             @click.stop=""
           >
-            <v-icon v-if="item.cluster === ClusterRelation.SAME"
-              >mdi-circle-multiple</v-icon
-            >
-            <v-icon v-if="item.cluster === ClusterRelation.DIFFERENT"
-              >mdi-circle-multiple-outline</v-icon
-            >
+            <v-icon v-if="item.raw.cluster === ClusterRelation.SAME">
+              mdi-circle-multiple
+            </v-icon>
+            <v-icon v-if="item.raw.cluster === ClusterRelation.DIFFERENT">
+              mdi-circle-multiple-outline
+            </v-icon>
           </v-btn>
         </template>
 
-        <span v-if="item.cluster === ClusterRelation.SAME">
+        <span v-if="item.raw.cluster === ClusterRelation.SAME">
           In same cluster as the current submission.
         </span>
 
-        <span v-else-if="item.cluster === ClusterRelation.DIFFERENT">
+        <span v-else-if="item.raw.cluster === ClusterRelation.DIFFERENT">
           In different cluster than the current submission.
         </span>
       </v-tooltip>
@@ -79,13 +75,13 @@
       <v-btn
         class="ml-2"
         color="primary"
-        text
-        small
-        :to="{ name: 'Pair', params: { pairId: item.id } }"
+        size="small"
+        variant="text"
+        :to="{ name: 'Pair', params: { pairId: item.raw.id } }"
         @click.stop=""
       >
         Compare
-        <v-icon right>mdi-chevron-right</v-icon>
+        <v-icon end>mdi-chevron-right</v-icon>
       </v-btn>
     </template>
   </v-data-table>
@@ -93,16 +89,17 @@
 
 <script lang="ts" setup>
 import { computed } from "vue";
-import { DataTableHeader } from "vuetify";
 import { useFileStore, usePairStore } from "@/api/stores";
 import { File } from "@/api/models";
 import { storeToRefs } from "pinia";
+import { useRouter } from "vue-router";
 
 interface Props {
   file: File;
 }
 
 const props = withDefaults(defineProps<Props>(), {});
+const router = useRouter();
 const fileStore = useFileStore();
 const pairStore = usePairStore();
 const { hasTimestamps, hasLabels } = storeToRefs(fileStore);
@@ -117,41 +114,47 @@ const cluster = computed(() => {
   return pairStore.getCluster(props.file);
 });
 
+// Table sort
+const sortBy = computed<any>(() => [{
+  key: "similarity",
+  order: "desc",
+}]);
+
 // Table headers
-const headers = computed<DataTableHeader[]>(() => {
-  const h = [] as DataTableHeader[];
-  h.push({ text: "Submission", value: "name", sortable: true });
+const headers = computed<any[]>(() => {
+  const h = [];
+  h.push({ title: "Submission", key: "name", sortable: true });
 
   // Only add the label header if there are labels.
   if (hasLabels.value) {
-    h.push({ text: "Label", value: "label", sortable: true });
+    h.push({ title: "Label", key: "label", sortable: true });
   }
 
   // Only add timestamp header when present.
   if (hasTimestamps.value) {
     h.push({
-      text: "Timestamp",
-      value: "timestamp",
+      title: "Timestamp",
+      key: "timestamp",
       sortable: true,
       filterable: false,
     });
   }
 
   h.push({
-    text: "Similarity",
-    value: "similarity",
+    title: "Similarity",
+    key: "similarity",
     sortable: true,
     filterable: false,
   });
   h.push({
-    text: "Cluster",
-    value: "cluster",
+    title: "Cluster",
+    key: "cluster",
     sortable: true,
     filterable: false,
   });
   h.push({
-    text: "",
-    value: "actions",
+    title: "",
+    key: "actions",
     sortable: false,
     filterable: false,
     align: "end",
@@ -159,13 +162,6 @@ const headers = computed<DataTableHeader[]>(() => {
 
   return h;
 });
-
-// Table footer
-const footerProps = {
-  itemsPerPageOptions: [15, 25, 50, 100, -1],
-  showCurrentPage: true,
-  showFirstLastPage: true,
-};
 
 // Clustering type.
 enum ClusterRelation {
@@ -205,6 +201,12 @@ const items = computed(() => {
     };
   });
 });
+
+// When a row is clicked.
+const rowClicked = (e: Event, value: any) => {
+  // Go to the pair page.
+  router.push({ name: "Submission", params: { fileId: value.item.raw.fileId } });
+};
 </script>
 
 <style lang="scss" scoped>

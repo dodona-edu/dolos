@@ -1,6 +1,6 @@
 <template>
   <span>
-    <span v-if="text" class="similarity-value" :class="`${color}--text`">
+    <span v-if="text" class="similarity-value" :class="`text-${color}`">
       {{ value }}%
     </span>
 
@@ -8,23 +8,20 @@
       v-else-if="progress"
       v-model="value"
       :color="color"
-      :dark="contrast"
       :height="props.dense ? 20 : 25"
       class="similarity-progress"
     >
-      <strong>{{ value }}%</strong>
+      <strong :class="textClasses"> {{ value }}% </strong>
     </v-progress-linear>
 
     <v-progress-circular
       v-else
       :size="props.size"
       :width="3"
-      :value="value"
+      :model-value="value"
       :color="color"
     >
-      <span class="similarity-value">
-        {{ value }}%
-      </span>
+      <span class="similarity-value"> {{ value }}% </span>
     </v-progress-circular>
   </span>
 </template>
@@ -52,7 +49,7 @@ const apiStore = useApiStore();
 
 // Convert the similarity value into a percentage.
 const value = computed(() => {
-  return (props.similarity.toFixed(2) * 100).toFixed(0);
+  return (props.similarity * 100).toFixed(0);
 });
 
 // Determine the color of the similarity value.
@@ -68,9 +65,11 @@ const color = computed(() => {
   }
 });
 
-// Determin the contrast.
-const contrast = computed(() => {
-  return color.value === "error";
+// Classes for the text
+const textClasses = computed(() => {
+  return {
+    "text-white": color.value === "error",
+  };
 });
 
 // Font size

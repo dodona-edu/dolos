@@ -1,1 +1,1 @@
-//export { FileView } from "./cli/views/fileView";
+//export { FileView } from "./cli/views/fileView.js";

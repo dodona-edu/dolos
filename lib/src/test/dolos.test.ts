@@ -1,7 +1,6 @@
 import test from "ava";
-import { Dolos } from "../dolos";
-import { File } from "../lib/file/file";
-import { Region } from "../lib/util/region";
+import { Dolos } from "../lib/dolos.js";
+import { File, Region } from "@dodona/dolos-core";
 
 test("equal content should be a full match", async t => {
   const dolos = new Dolos();
@@ -287,4 +286,57 @@ test("should generate warning when not all files match detected language", async
 
   const pairs = report.allPairs();
   t.is(1, pairs.length);
+});
+
+test.failing("repeating sequences should not cause too many fragments", async t => {
+  const dolos = new Dolos();
+
+  const report = await dolos.analyze(
+    [
+      new File("file1", `
+
+  private class ClassWithArray {
+      private int padding;
+      private char[] chars = {'A','B','C','D','E','F','G','H','I','J','K','L','M',
+                            'N','O','P','Q','R','S','T','U','V','W','X','Y','Z',
+                            'a','b','c','d','e','f','g','h','i','j','k','l','m',
+                            'n','o','p','q','r','s','t','u','v','w','x','y','z'};
+      private ClassWithArray() {
+        // padding
+      };
+  }
+  `),
+      new File("file2", `
+      private final class ClassWithMoreArrays {
+               private final static char pwdArray [] = {
+      \t        'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h',
+      \t        'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p',
+      \t        'q', 'r', 's', 't', 'u', 'v', 'w', 'x',
+      \t        'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F',
+      \t        'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N',
+      \t        'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V',
+      \t        'W', 'X', 'Y', 'Z', ' '
+        };
+      
+         private final static char base64Array [] = {
+             'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
+             'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
+             'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X',
+             'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f',
+             'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',
+             'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
+             'w', 'x', 'y', 'z', '0', '1', '2', '3',
+             '4', '5', '6', '7', '8', '9', '+', '/'
+        };
+      }
+      `),
+    ]
+  );
+
+
+  const pairs = report.allPairs();
+  t.is(1, pairs.length);
+
+  const fragments = pairs[0].buildFragments();
+  t.is(fragments.length, 2);
 });

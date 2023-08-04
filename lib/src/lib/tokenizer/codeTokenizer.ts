@@ -1,8 +1,7 @@
 import { default as Parser, SyntaxNode } from "tree-sitter";
-import { Region } from "../util/region";
-import { Token, Tokenizer } from "./tokenizer";
-import assert from "assert";
-import { ProgrammingLanguage } from "../util/language";
+import { Region, assert } from "@dodona/dolos-core";
+import { Token, Tokenizer } from "./tokenizer.js";
+import { ProgrammingLanguage } from "../language.js";
 
 export class CodeTokenizer extends Tokenizer {
 

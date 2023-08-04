@@ -1,10 +1,10 @@
 <template>
   <div>
-    <navbar :drawer.sync="drawer" :to="{ name: 'Upload' }" />
-    <sidebar v-model="drawer" variant="upload" />
+    <page-navbar v-model:drawer="drawer" :to="{ name: 'Upload' }" />
+    <page-sidebar v-model="drawer" variant="upload" />
 
     <v-main>
-      <v-container class="container">
+      <v-container fluid>
         <router-view />
       </v-container>
     </v-main>
@@ -13,10 +13,10 @@
 
 <script lang="ts" setup>
 import { shallowRef } from "vue";
-import { useBreakpoints } from "@/composables";
+import { useDisplay } from "vuetify";
 
-const breakpoints = useBreakpoints();
+const display = useDisplay();
 
 // If the drawer is open/closed.
-const drawer = shallowRef(breakpoints.value.desktop);
+const drawer = shallowRef(display.lgAndUp.value);
 </script>

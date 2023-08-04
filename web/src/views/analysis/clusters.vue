@@ -1,11 +1,11 @@
 <template>
-  <v-container class="submissions" fluid>
+  <div class="submissions">
     <v-row class="heading" align="center">
       <v-col cols="12" md="6">
         <h2 class="heading-title">
           Clusters
         </h2>
-        <div class="heading-subtitle text--secondary">
+        <div class="heading-subtitle text-medium-emphasis">
           All clusters, formed by the similarity threshold.
         </div>
       </v-col>
@@ -14,7 +14,7 @@
     <v-card>
       <clusters-table class="clusters-table" :clusters="sortedClustering" />
     </v-card>
-  </v-container>
+  </div>
 </template>
 
 <script lang="ts" setup>

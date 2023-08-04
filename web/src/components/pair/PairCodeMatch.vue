@@ -1,26 +1,26 @@
 <template>
   <div class="d-flex fill-height">
     <pair-code-match-editor
+      v-model:hoveringMatch="hoveringMatch"
+      v-model:selectedMatch="selectedMatch"
       class="fill-height fill-width"
       side="left"
       :pair="pair"
       :metadata="props.metadata"
-      :selectedMatch.sync="selectedMatch"
-      :hoveringMatch.sync="hoveringMatch"
     />
     <pair-code-match-editor
+      v-model:selectedMatch="selectedMatch"
+      v-model:hoveringMatch="hoveringMatch"
       class="fill-height fill-width"
       side="right"
       :pair="pair"
       :metadata="props.metadata"
-      :selectedMatch.sync="selectedMatch"
-      :hoveringMatch.sync="hoveringMatch"
     />
   </div>
 </template>
 
 <script lang="ts" setup>
-import { shallowRef, withDefaults } from "vue";
+import { shallowRef } from "vue";
 import { Pair, Metadata, Fragment } from "@/api/models";
 
 interface Props {

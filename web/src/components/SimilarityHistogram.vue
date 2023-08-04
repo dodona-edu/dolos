@@ -4,10 +4,11 @@
 
 <script lang="ts" setup>
 import { useFileStore } from "@/api/stores";
-import { useD3Tooltip, useRouter } from "@/composables";
+import { useD3Tooltip } from "@/composables";
 import { useElementSize } from "@vueuse/core";
 import { storeToRefs } from "pinia";
 import { computed, onMounted, shallowRef, watch } from "vue";
+import { useRouter } from "vue-router";
 import * as d3 from "d3";
 
 interface Props {
@@ -77,7 +78,7 @@ const histogramContent = histogramChart
 
 // Tooltip
 const tooltip = useD3Tooltip({ relativeToMouse: true });
-const tooltipMessage = (d): string => {
+const tooltipMessage = (d: any): string => {
   return `
     There are <b>${d.length}</b> submissions that have a
     highest similarity between <b>${d.x0}</b> and <b>${d.x1}</b>

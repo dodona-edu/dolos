@@ -15,9 +15,12 @@
 </template>
 
 <script lang="ts" setup>
-import { withDefaults, ref, shallowRef, onMounted, watch, onUnmounted } from "vue";
+import { ref, shallowRef, onMounted, watch, onUnmounted } from "vue";
 import { Pair, Metadata } from "@/api/models";
+import { useMonacoEditorWorkers } from "@/composables/useMonacoEditorWorkers";
 import * as monaco from "monaco-editor";
+
+
 
 interface Props {
   pair: Pair;
@@ -30,9 +33,11 @@ const props = withDefaults(defineProps<Props>(), {});
 const editorElem = ref();
 // Monaco editor
 const editor = shallowRef();
+useMonacoEditorWorkers();
 
 // Initialize the editor.
 const initialize = (): void => {
+
   // Monaco file models.
   const leftFileModel = monaco.editor.createModel(props.pair.leftFile.content, props.metadata.language);
   const rightFileModel = monaco.editor.createModel(props.pair.rightFile.content, props.metadata.language);

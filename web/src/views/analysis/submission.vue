@@ -1,20 +1,18 @@
 <template>
-  <v-container fluid>
+  <div>
     <transition name="slide-y-transition" mode="out-in">
       <div v-if="file" :key="file.id">
         <breadcrumbs
-          :current-override="{ text: file.extra.fullName ?? file.shortPath }"
-          :previous-fallback="{
-            text: 'View by submission',
-            to: { name: 'Submissions' },
-          }"
+          :current-text="file.extra.fullName ?? file.shortPath"
+          :previous-fallback-text="`View by submission`"
+          :previous-fallback-to="{ name: 'Submissions' }"
         />
 
         <div class="heading">
           <h2 class="heading-title">
             Submission by {{ file.extra.fullName ?? file.shortPath }}
           </h2>
-          <div class="heading-subtitle text--secondary">
+          <div class="heading-subtitle text-medium-emphasis">
             Relevant information about the current submission.
           </div>
         </div>
@@ -114,7 +112,7 @@
               </v-card-text>
               <v-card-text v-else>
                 <div class="submission-graph">
-                  <graph
+                  <graph-canvas
                     :pairs="clusterPairs"
                     :files="clusterFiles"
                     :legend="legend"
@@ -126,8 +124,8 @@
                     node-clickable
                     @click:node="onNodeClick"
                   >
-                    <graph-legend :legend="legend" readonly />
-                  </graph>
+                    <graph-legend v-model:legend="legend" readonly />
+                  </graph-canvas>
                 </div>
               </v-card-text>
             </v-card>
@@ -139,10 +137,7 @@
                 highest similarity of other submissions.
               </v-card-subtitle>
               <v-card-text>
-                <submission-histogram
-                  field="similarity"
-                  :file="file"
-                />
+                <submission-histogram field="similarity" :file="file" />
               </v-card-text>
             </v-card>
 
@@ -153,10 +148,7 @@
                 longest fragment of other submissions.
               </v-card-subtitle>
               <v-card-text>
-                <submission-histogram
-                  field="longestFragment"
-                  :file="file"
-                />
+                <submission-histogram field="longestFragment" :file="file" />
               </v-card-text>
             </v-card>
           </v-col>
@@ -168,24 +160,25 @@
           <v-col>
             <v-card>
               <v-card-title>Not found</v-card-title>
-              <v-card-subtitle>This file was not found.</v-card-subtitle>
+              <v-card-text>This file was not found.</v-card-text>
             </v-card>
           </v-col>
         </v-row>
       </template>
     </transition>
-  </v-container>
+  </div>
 </template>
 
 <script lang="ts" setup>
 import { computed } from "vue";
 import { File } from "@/api/models";
 import { useFileStore, usePairStore } from "@/api/stores";
-import { useCluster, useRoute, useRouter } from "@/composables";
+import { useCluster } from "@/composables";
 import { storeToRefs } from "pinia";
+import { useRoute, useRouter } from "vue-router";
 
 const route = useRoute();
-const fileId = computed(() => route.value.params?.fileId);
+const fileId = computed(() => route.params?.fileId);
 
 const router = useRouter();
 const fileStore = useFileStore();

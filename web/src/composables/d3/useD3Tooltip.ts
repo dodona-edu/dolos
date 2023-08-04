@@ -24,15 +24,19 @@ export function useD3Tooltip(options: UseD3TooltipOptions = {}): UseD3TooltipRet
   if (options.parent) {
     parent = d3.select(options.parent).append("div");
   } else {
-    parent = d3.select(".v-application--wrap").append("div");
+    parent = d3.select(".v-overlay-container").append("div");
   }
 
   const tooltip =
     parent
       .append("div")
       .attr("class", "tooltip")
-      .attr("class", "v-tooltip__content")
       .style("opacity", 0)
+      .style("background-color", "rgba(25, 25, 25, 0.8)")
+      .style("color", "white")
+      .style("border-radius", "5px")
+      .style("padding", "5px")
+      .style("font-size", "14px")
       .style("position", "absolute")
       .style("z-index", 5)
       .style("transform", "translateY(-100%)")
@@ -71,7 +75,7 @@ export function useD3Tooltip(options: UseD3TooltipOptions = {}): UseD3TooltipRet
 
   const show = (value: string): void => {
     tooltip
-      .style("opacity", 0.9)
+      .style("opacity", 1)
       .html(value);
   };
 
