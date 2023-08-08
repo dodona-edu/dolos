@@ -16,7 +16,7 @@ gem 'puma', '~> 5.0'
 gem 'rubyzip', '~> 2.3'
 
 # Validate ActiveStorage attachments
-gem 'active_storage_validations', '~> 0.9'
+gem 'active_storage_validations', '~> 1.0'
 
 # interfacing with docker
 gem 'docker-api', '~> 2.2.0'
