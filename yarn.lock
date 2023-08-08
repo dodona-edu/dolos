@@ -4249,14 +4249,7 @@ tree-sitter-c@^0.20.1, tree-sitter-c@^0.20.4:
   dependencies:
     nan "^2.14.0"
 
-tree-sitter-cpp@^0.20.0:
-  version "0.20.0"
-  resolved "https://registry.yarnpkg.com/tree-sitter-cpp/-/tree-sitter-cpp-0.20.0.tgz#42499b1f2d3f61f74703cc9f13fcaf65173c96a4"
-  integrity sha512-ka1KoFfmLX9dmus8S+NrXxEN+k2PWJOZi60vO3hnR2lnRIr4FYBSXZKmTgQnCd8/w0UM7sNtgETvW1SM1qJ9og==
-  dependencies:
-    nan "^2.14.0"
-
-tree-sitter-cpp@^0.20.2:
+tree-sitter-cpp@^0.20.0, tree-sitter-cpp@^0.20.2:
   version "0.20.2"
   resolved "https://registry.yarnpkg.com/tree-sitter-cpp/-/tree-sitter-cpp-0.20.2.tgz#af1479d13cac1d2200801a1743d005ef037706c2"
   integrity sha512-ZHroJaMEKMXx8zmx+Y91Cak9qSQT7faPtREnVWb7Te6+P9y9yPUkR4fG6YHpE0jfq+yWBgweRJVadJax3W92vg==
