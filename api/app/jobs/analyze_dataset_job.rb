@@ -108,7 +108,7 @@ class AnalyzeDatasetJob < ApplicationJob
         sleep 1
         next if Rails.env.test?
         # Check if container is still alive
-        next unless Docker::Container.all.select { |c| c.id.starts_with?(container.id) || container.id.starts_with?(container.id) }.any? && container.refresh!.info['State']['Running']
+        next unless Docker::Container.all.any? { |c| c.id.starts_with?(container.id) || container.id.starts_with?(container.id) } && container.refresh!.info['State']['Running']
 
         stats = container.stats
         # We check the maximum memory usage every second. This is obviously monotonic, but these stats aren't available after the container is/has stopped.
