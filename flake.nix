@@ -5,9 +5,8 @@
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
     devshell = {
-      url = "github:chvp/devshell";
+      url = "github:numtide/devshell";
       inputs = {
-        flake-utils.follows = "flake-utils";
         nixpkgs.follows = "nixpkgs";
       };
     };
@@ -21,7 +20,7 @@
           overlays = [
             devshell.overlays.default
             (self: super: {
-              nodejs = super.nodejs-18_x;
+              nodejs = super.nodejs_20;
             })
           ];
         };
