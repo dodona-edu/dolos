@@ -9,7 +9,7 @@
     "node": ">=16"
   },
   "scripts": {
-    "test": "tsc --build && nyc ava",
+    "test": "tsc --build && ava",
     "test:watch": "ava --watch",
     "build": "tsc --build --verbose",
     "force-build": "tsc --build --verbose --force",
@@ -35,8 +35,7 @@
     "ava": "5.3.1",
     "benchmark": "2.1.4",
     "eslint": "8.44.0",
-    "np": "7.7.0",
-    "nyc": "15.1.0",
+    "node-gyp": "^9.4.0",
     "typescript": "5.1.6"
   },
   "dependencies": {

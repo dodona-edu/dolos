@@ -7,8 +7,5 @@
     "core/",
     "lib/",
     "web/"
-  ],
-  "devDependencies": {
-    "node-gyp": "^9.4.0"
-  }
+  ]
 }
