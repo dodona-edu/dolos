@@ -1,5 +1,8 @@
 name: Continuous Integration & Deployment
 on: [push]
+concurrency:
+  group: ${{ github-workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   api-test:
