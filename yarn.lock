@@ -3330,7 +3330,7 @@ muggle-string@^0.3.1:
   resolved "https://registry.yarnpkg.com/muggle-string/-/muggle-string-0.3.1.tgz#e524312eb1728c63dd0b2ac49e3282e6ed85963a"
   integrity sha512-ckmWDJjphvd/FvZawgygcUeQCxzvohjFO5RxTjj4eq8kw359gFF3E1brjfI+viLMxss5JrHTDRHZvu2/tuy0Qg==
 
-nan@^2.12.1, nan@^2.14.0, nan@^2.14.1, nan@^2.15.0, nan@^2.17.0:
+nan@^2.14.0, nan@^2.14.1, nan@^2.15.0, nan@^2.17.0:
   version "2.17.0"
   resolved "https://registry.yarnpkg.com/nan/-/nan-2.17.0.tgz#c0150a2368a182f033e9aa5195ec76ea41a199cb"
   integrity sha512-2ZTgtl0nJsO0KQCjEpxcIr5D+Yv90plTitZt9JBfQvVJDS5seMl3FOvsh3+9CoYWXf/1l5OaZzzF6nDm4cagaQ==
@@ -4386,12 +4386,12 @@ tree-sitter-java@^0.19.1:
   dependencies:
     nan "^2.14.1"
 
-tree-sitter-javascript@^0.19.0:
-  version "0.19.0"
-  resolved "https://registry.yarnpkg.com/tree-sitter-javascript/-/tree-sitter-javascript-0.19.0.tgz#20fc0da277502dac2bb3bf9ff75372268e761558"
-  integrity sha512-SNykDdNgmlJZhX02ZIu0TQF9P7t847jV7769SxA9XrZ2QXjofQsVTMEi9+LpXZKsI0UoFYI25FnZm3fFm0z2yw==
+tree-sitter-javascript@^0.20.0:
+  version "0.20.1"
+  resolved "https://registry.yarnpkg.com/tree-sitter-javascript/-/tree-sitter-javascript-0.20.1.tgz#188c0f4c5ea5aa18be76b8f6b3668f5b5257eb9f"
+  integrity sha512-2LNRAw6vd6NDGf5DvAZTaIJDv0j7519bbDsQQ9jnT7uC91efvbn2BxOagNs7u41LSbmsuScjkM8VeN0mnya1iw==
   dependencies:
-    nan "^2.12.1"
+    nan "^2.17.0"
 
 tree-sitter-php@^0.19.0:
   version "0.19.0"
