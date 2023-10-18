@@ -2,17 +2,22 @@
   description = "Dolos - Source Code Plagiarism Detection";
 
   inputs = {
+    systems.url = "github:nix-systems/default";
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-    flake-utils.url = "github:numtide/flake-utils";
+    flake-utils = {
+      url = "github:numtide/flake-utils";
+      inputs.systems.follows = "systems";
+    };
     devshell = {
       url = "github:numtide/devshell";
       inputs = {
+        systems.follows = "systems";
         nixpkgs.follows = "nixpkgs";
       };
     };
   };
 
-  outputs = inputs@{ self, nixpkgs, devshell, flake-utils }:
+  outputs = inputs@{ self, nixpkgs, devshell, flake-utils, ... }:
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs {
