@@ -12,18 +12,18 @@
     <template #item.submissions="{ item }">
       <cluster-tags
         class="clusters-submissions"
-        :current-files="item.raw.submissions"
+        :current-files="item.submissions"
       />
     </template>
 
     <template #item.size="{ item }">
-      {{ item.raw.size }} submissions
+      {{ item.size }} submissions
     </template>
 
     <template #item.similarity="{ item }">
       <span class="submission-similarity">
         <similarity-display
-          :similarity="item.raw.similarity"
+          :similarity="item.similarity"
           progress
           dim-below-cutoff
         />
@@ -123,7 +123,7 @@ const maxWidth = computed(() => {
 
 // When a row is clicked.
 const rowClicked = (e: Event, value: any): void => {
-  router.push({ name: "Cluster", params: { clusterId: value.item.raw.id } });
+  router.push({ name: "Cluster", params: { clusterId: value.item.id } });
 };
 </script>
 

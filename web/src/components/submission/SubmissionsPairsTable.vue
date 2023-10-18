@@ -11,27 +11,27 @@
   >
     <template #item.name="{ item }">
       <div class="submission-name">
-        <span>{{ item.raw.name }}</span>
+        <span>{{ item.name }}</span>
       </div>
     </template>
 
     <template #item.label="{ item }">
       <span class="submission-label">
-        <label-dot :label="item.raw.label.name" :color="item.raw.label.color" />
-        <label-text :label="item.raw.label.name" />
+        <label-dot :label="item.label.name" :color="item.label.color" />
+        <label-text :label="item.label.name" />
       </span>
     </template>
 
     <template #item.timestamp="{ item }">
       <span class="submission-timestamp">
-        <file-timestamp :timestamp="item.raw.timestamp" />
+        <file-timestamp :timestamp="item.timestamp" />
       </span>
     </template>
 
     <template #item.similarity="{ item }">
       <span class="submission-similarity">
         <similarity-display
-          :similarity="item.raw.similarity"
+          :similarity="item.similarity"
           progress
           dense
           dim-below-cutoff
@@ -43,29 +43,29 @@
       <v-tooltip location="top">
         <template #activator="{ props }">
           <v-btn
-            v-if="item.raw.cluster !== ClusterRelation.NONE"
+            v-if="item.cluster !== ClusterRelation.NONE"
             v-bind="props"
-            :to="{ name: 'Cluster', params: { clusterId: item.raw.clusterIndex } }"
-            :color="item.raw.cluster === ClusterRelation.SAME ? 'primary' : ''"
+            :to="{ name: 'Cluster', params: { clusterId: item.clusterIndex } }"
+            :color="item.cluster === ClusterRelation.SAME ? 'primary' : ''"
             size="small"
             variant="text"
             icon
             @click.stop=""
           >
-            <v-icon v-if="item.raw.cluster === ClusterRelation.SAME">
+            <v-icon v-if="item.cluster === ClusterRelation.SAME">
               mdi-circle-multiple
             </v-icon>
-            <v-icon v-if="item.raw.cluster === ClusterRelation.DIFFERENT">
+            <v-icon v-if="item.cluster === ClusterRelation.DIFFERENT">
               mdi-circle-multiple-outline
             </v-icon>
           </v-btn>
         </template>
 
-        <span v-if="item.raw.cluster === ClusterRelation.SAME">
+        <span v-if="item.cluster === ClusterRelation.SAME">
           In same cluster as the current submission.
         </span>
 
-        <span v-else-if="item.raw.cluster === ClusterRelation.DIFFERENT">
+        <span v-else-if="item.cluster === ClusterRelation.DIFFERENT">
           In different cluster than the current submission.
         </span>
       </v-tooltip>
@@ -77,7 +77,7 @@
         color="primary"
         size="small"
         variant="text"
-        :to="{ name: 'Pair', params: { pairId: item.raw.id } }"
+        :to="{ name: 'Pair', params: { pairId: item.id } }"
         @click.stop=""
       >
         Compare
@@ -205,7 +205,7 @@ const items = computed(() => {
 // When a row is clicked.
 const rowClicked = (e: Event, value: any) => {
   // Go to the pair page.
-  router.push({ name: "Submission", params: { fileId: value.item.raw.fileId } });
+  router.push({ name: "Submission", params: { fileId: value.item.fileId } });
 };
 </script>
 

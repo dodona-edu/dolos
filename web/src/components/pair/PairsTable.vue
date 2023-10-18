@@ -12,7 +12,7 @@
   >
     <template #item.similarity="{ item }">
       <similarity-display
-        :similarity="+item.raw.similarity"
+        :similarity="+item.similarity"
         :dense="props.dense"
         progress
       />
@@ -100,7 +100,7 @@ watch(
 
 // When a row is clicked.
 const rowClicked = (e: Event, value: any): void => {
-  router.push({ name: "Pair", params: { pairId: String(value.item.raw.pair.id) } });
+  router.push({ name: "Pair", params: { pairId: String(value.item.pair.id) } });
 };
 </script>
 

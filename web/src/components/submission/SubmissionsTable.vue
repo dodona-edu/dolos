@@ -16,12 +16,12 @@
           <v-tooltip location="top">
             <template #activator="{ props }">
               <span v-bind="props">
-                {{ item.raw.name }}
+                {{ item.name }}
               </span>
             </template>
 
             <div class="submission-path">
-              <span>{{ item.raw.path }}</span>
+              <span>{{ item.path }}</span>
             </div>
           </v-tooltip>
         </div>
@@ -30,15 +30,15 @@
 
     <template #item.label="{ item }">
       <div class="submission-label">
-        <label-dot :label="item.raw.label.name" :color="item.raw.label.color" />
-        <label-text :label="item.raw.label.name" colored />
+        <label-dot :label="item.label.name" :color="item.label.color" />
+        <label-text :label="item.label.name" colored />
       </div>
     </template>
 
     <template #item.similarity="{ item }">
       <span class="submission-similarity">
         <similarity-display
-          :similarity="item.raw.similarity"
+          :similarity="item.similarity"
           :dense="props.dense"
           progress
           dim-below-cutoff
@@ -53,18 +53,18 @@
             <span
               v-if="props.order"
               v-bind="props"
-              :class="item.raw.order === 1 ? 'text-primary' : 'text-medium-emphasis'"
+              :class="item.order === 1 ? 'text-primary' : 'text-medium-emphasis'"
             >
-              #{{ item.raw.order }}
+              #{{ item.order }}
             </span>
           </template>
 
-          <span>This is the #{{ item.raw.order }} submission in the cluster</span>
+          <span>This is the #{{ item.order }} submission in the cluster</span>
         </v-tooltip>
 
         <file-timestamp
-          :class="props.order && item.raw.order === 1 ? 'text-primary' : ''"
-          :timestamp="item.raw.timestamp"
+          :class="props.order && item.order === 1 ? 'text-primary' : ''"
+          :timestamp="item.timestamp"
           long
         />
       </span>
@@ -195,7 +195,7 @@ const items = computed(() => {
 
 // When a row is clicked.
 const rowClicked = (e: Event, value: any): void => {
-  router.push({ name: "Submission", params: { fileId: value.item.raw.id } });
+  router.push({ name: "Submission", params: { fileId: value.item.id } });
 };
 </script>
 

@@ -59,19 +59,19 @@ const shareDialog = ref(false);
 
 // Open the dialog for a specific report.
 const openInfoDialog = (e: Event, value: any): void => {
-  selectedReportId.value = value.item.raw.report.reportId;
+  selectedReportId.value = value.item.report.reportId;
   infoDialog.value = true;
 };
 
 // Open the dialog for deleting a specific report.
 const openDeleteDialog = (item: any): void => {
-  selectedReportId.value = item.raw.report.reportId;
+  selectedReportId.value = item.report.reportId;
   deleteDialog.value = true;
 };
 
 // Open the dialog for sharing a specific report.
 const openShareDialog = (item: any): void => {
-  selectedReportId.value = item.raw.report.reportId;
+  selectedReportId.value = item.report.reportId;
   shareDialog.value = true;
 };
 </script>
@@ -89,7 +89,7 @@ const openShareDialog = (item: any): void => {
     >
       <!-- Status -->
       <template #item.status="{ item }">
-        <upload-status :status="item.raw.status" />
+        <upload-status :status="item.status" />
       </template>
 
       <!-- Actions -->
@@ -99,7 +99,7 @@ const openShareDialog = (item: any): void => {
           variant="text"
           color="error"
           icon="mdi-delete"
-          :disabled="!item.raw.done"
+          :disabled="!item.done"
           @click.stop="openDeleteDialog(item)"
         />
 
@@ -108,7 +108,7 @@ const openShareDialog = (item: any): void => {
           variant="text"
           color="primary"
           icon="mdi-share-variant"
-          :disabled="item.raw.status !== 'finished'"
+          :disabled="item.status !== 'finished'"
           @click.stop="openShareDialog(item)"
         />
       </template>
