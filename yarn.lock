@@ -394,10 +394,10 @@
   resolved "https://registry.yarnpkg.com/@types/d3-dsv/-/d3-dsv-3.0.1.tgz#c51a3505cee42653454b74a00f8713dc3548c362"
   integrity sha512-76pBHCMTvPLt44wFOieouXcGXWOF0AJCceUvaFkxSZEu4VDUdv93JfpMa6VGNFs01FHfuP4a5Ou68eRG1KBfTw==
 
-"@types/d3-dsv@2.0.3":
-  version "2.0.3"
-  resolved "https://registry.yarnpkg.com/@types/d3-dsv/-/d3-dsv-2.0.3.tgz#f3f503638613a8b7d87c093bceb433b58e066305"
-  integrity sha512-15sp4Z+ZVWuZuV0QEDu4cu/0C5vlD+JYXaUMDs8JTWpTJjcrAtjyR1vVwEfbgmU5kLNOOMRTlDCYyWWFx7eh/w==
+"@types/d3-dsv@2.0.7":
+  version "2.0.7"
+  resolved "https://registry.yarnpkg.com/@types/d3-dsv/-/d3-dsv-2.0.7.tgz#7ad3587c173f88bdda335c8626f8fc1e629c78d7"
+  integrity sha512-aTHAruonWJ5rg31f8gcJuYp0DkCfYqFl79GYDN33YmTW1V7n1wsWsdnS/hjTJBbDLBnvgerf8NsADId99obFNQ==
 
 "@types/d3-ease@*":
   version "3.0.0"

@@ -28,7 +28,7 @@
   "devDependencies": {
     "@ava/typescript": "4.1.0",
     "@types/benchmark": "2.1.2",
-    "@types/d3-dsv": "2.0.3",
+    "@types/d3-dsv": "2.0.7",
     "@types/node": "18.16.19",
     "@typescript-eslint/eslint-plugin": "5.62.0",
     "@typescript-eslint/parser": "5.62.0",
