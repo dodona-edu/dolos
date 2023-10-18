@@ -20,7 +20,7 @@ devshell.mkShell {
   ];
   language.ruby = {
     package = (pkgs.lowPrio ruby);
-    nativeDeps = with pkgs; [ libmysqlclient ];
+    nativeDeps = with pkgs; [ libmysqlclient libyaml ];
   };
   env = [
     {
