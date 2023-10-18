@@ -4373,11 +4373,11 @@ tree-sitter-c@^0.20.1, tree-sitter-c@^0.20.4:
     nan "^2.17.0"
 
 tree-sitter-cpp@^0.20.0, tree-sitter-cpp@^0.20.2:
-  version "0.20.2"
-  resolved "https://registry.yarnpkg.com/tree-sitter-cpp/-/tree-sitter-cpp-0.20.2.tgz#af1479d13cac1d2200801a1743d005ef037706c2"
-  integrity sha512-ZHroJaMEKMXx8zmx+Y91Cak9qSQT7faPtREnVWb7Te6+P9y9yPUkR4fG6YHpE0jfq+yWBgweRJVadJax3W92vg==
+  version "0.20.3"
+  resolved "https://registry.yarnpkg.com/tree-sitter-cpp/-/tree-sitter-cpp-0.20.3.tgz#0db42ee5272cc0652ca786aab3184fc8130454d0"
+  integrity sha512-rFyCvWdR1EtsmcOTeiyfPbHicJwcvO3WMavmjsL+Fo+ZqgbUphPVogYExfg4FEPZ+JbPKT0DZY14XRFPzf8/pQ==
   dependencies:
-    nan "^2.14.0"
+    nan "^2.17.0"
 
 tree-sitter-java@^0.19.1:
   version "0.19.1"
