@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "@dodona/dolos-core": "1.0.0",
-    "@mdi/font": "7.2.96",
+    "@mdi/font": "7.3.67",
     "@vueuse/core": "^10.2.1",
     "axios": "^1.4.0",
     "comlink": "^4.4.1",
