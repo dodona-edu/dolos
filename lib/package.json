@@ -36,7 +36,7 @@
     "benchmark": "2.1.4",
     "eslint": "8.51.0",
     "node-gyp": "^9.4.0",
-    "typescript": "5.1.6"
+    "typescript": "5.2.2"
   },
   "dependencies": {
     "@dodona/dolos-core": "1.0.0",
