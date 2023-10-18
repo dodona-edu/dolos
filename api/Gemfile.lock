@@ -117,7 +117,7 @@ GEM
       reline (>= 0.3.1)
     delayed_job (4.1.11)
       activesupport (>= 3.0, < 8.0)
-    delayed_job_active_record (4.1.7)
+    delayed_job_active_record (4.1.8)
       activerecord (>= 3.0, < 8.0)
       delayed_job (>= 3.0, < 5)
     docker-api (2.2.0)
