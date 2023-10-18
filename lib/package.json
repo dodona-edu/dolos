@@ -27,13 +27,11 @@
   },
   "devDependencies": {
     "@ava/typescript": "4.1.0",
-    "@types/benchmark": "2.1.2",
     "@types/d3-dsv": "3.0.5",
     "@types/node": "18.16.19",
     "@typescript-eslint/eslint-plugin": "5.62.0",
     "@typescript-eslint/parser": "5.62.0",
     "ava": "5.3.1",
-    "benchmark": "2.1.4",
     "eslint": "8.51.0",
     "node-gyp": "^9.4.0",
     "typescript": "5.2.2"
