@@ -1,4 +1,4 @@
-FROM node:20-alpine3.16
+FROM node:20-alpine3.17
 ARG dolos_version=2.3.0
 
 # node-gyp needs python3 and a compiler to build tree-sitter
