@@ -41,7 +41,7 @@ export class FingerprintIndex {
     this.index = new Map<Hash, SharedFingerprint>();
   }
 
-  public async addFiles(tokenizedFiles: TokenizedFile[]): Promise<Map<Hash, SharedFingerprint>> {
+  public addFiles(tokenizedFiles: TokenizedFile[]): Map<Hash, SharedFingerprint> {
 
     for (const f of tokenizedFiles) {
       assert(!this.files.has(f.id), `This file has already been analyzed: ${f.file.path}`);
@@ -58,7 +58,7 @@ export class FingerprintIndex {
 
       this.files.set(file.id, entry);
 
-      for await (
+      for (
         const { data, hash, start, stop  }
         of this.hashFilter.fingerprints(file.tokens)
       ) {

@@ -16,7 +16,7 @@ function createTokenizedSampleFile(): TokenizedFile {
 }
 
 
-test("fragment should fully reconstruct matched kgrams when k > w", async t => {
+test("fragment should fully reconstruct matched kgrams when k > w", t => {
 
   const f1 = createTokenizedSampleFile();
   const f2 = createTokenizedSampleFile();
@@ -24,11 +24,11 @@ test("fragment should fully reconstruct matched kgrams when k > w", async t => {
   const filter = new WinnowFilter(10, 5, true);
 
   const f1Hashes = [];
-  for await (const hash of filter.fingerprints(f1.tokens)) {
+  for (const hash of filter.fingerprints(f1.tokens)) {
     f1Hashes.push(hash);
   }
   const f2Hashes = [];
-  for await (const hash of filter.fingerprints(f2.tokens)) {
+  for (const hash of filter.fingerprints(f2.tokens)) {
     f2Hashes.push(hash);
   }
   t.is(f1Hashes.length, f2Hashes.length);
@@ -60,18 +60,18 @@ test("fragment should fully reconstruct matched kgrams when k > w", async t => {
   t.deepEqual(f1.tokens, fragment.mergedData);
 });
 
-test("fragment should partially reconstruct matched kgrams when k < w", async t => {
+test("fragment should partially reconstruct matched kgrams when k < w", t => {
   const f1 = createTokenizedSampleFile();
   const f2 = createTokenizedSampleFile();
 
   const filter = new WinnowFilter(5, 10, true);
 
   const f1Hashes = [];
-  for await (const hash of filter.fingerprints(f1.tokens)) {
+  for (const hash of filter.fingerprints(f1.tokens)) {
     f1Hashes.push(hash);
   }
   const f2Hashes = [];
-  for await (const hash of filter.fingerprints(f2.tokens)) {
+  for (const hash of filter.fingerprints(f2.tokens)) {
     f2Hashes.push(hash);
   }
   t.is(f1Hashes.length, f2Hashes.length);

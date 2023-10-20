@@ -37,18 +37,18 @@ export function parseFragments(
 }
 
 // Populate the fragments for a given pair.
-export async function populateFragments(
+export function populateFragments(
   pair: Pair,
   metadata: Metadata,
   kgrams: Kgram[]
-): Promise<Pair> {
+): Pair {
   const customOptions = metadata;
   const kmers = kgrams;
 
   const index = new FingerprintIndex(customOptions.kgramLength, customOptions.kgramsInWindow);
   const leftFile = fileToTokenizedFile(pair.leftFile);
   const rightFile = fileToTokenizedFile(pair.rightFile);
-  await index.addFiles([leftFile, rightFile]);
+  index.addFiles([leftFile, rightFile]);
   const reportPair = index.getPair(leftFile, rightFile);
 
   const kmersMap: Map<Hash, Kgram> = new Map();
