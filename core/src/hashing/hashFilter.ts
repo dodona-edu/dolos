@@ -17,11 +17,13 @@ export abstract class HashFilter {
   }
 
 
-  public async *hashTokens(tokens: string[]): AsyncGenerator<[number, string]> {
+  public hashTokens(tokens: string[]): Array<[number, string]> {
+    const hashes: Array<[number, string]> = [];
     for (const token of tokens) {
-      yield [this.hasher.hashToken(token), token];
+      hashes.push([this.hasher.hashToken(token), token]);
     }
+    return hashes;
   }
 
-  public abstract fingerprints(tokens: string[]): AsyncIterableIterator<Fingerprint>;
+  public abstract fingerprints(tokens: string[]): Array<Fingerprint>;
 }

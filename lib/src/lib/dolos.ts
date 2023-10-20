@@ -159,7 +159,7 @@ export class Dolos {
 
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const tokenizedFiles = filteredFiles.map(f => this.tokenizer!.tokenizeFile(f));
-    await this.index.addFiles(tokenizedFiles);
+    this.index.addFiles(tokenizedFiles);
 
     return new Report(
       this.options,
