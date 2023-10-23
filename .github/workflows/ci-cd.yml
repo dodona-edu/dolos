@@ -527,7 +527,7 @@ jobs:
           yarn build
 
       - name: Publish @dodona/dolos-core to NPM
-        uses: JS-DevTools/npm-publish@v2
+        uses: JS-DevTools/npm-publish@v3
         with:
           token: ${{ secrets.NPM_AUTH_TOKEN }}
           package: ./core/package.json
@@ -535,7 +535,7 @@ jobs:
           access: public
 
       - name: Publish @dodona/dolos-lib to NPM
-        uses: JS-DevTools/npm-publish@v2
+        uses: JS-DevTools/npm-publish@v3
         with:
           token: ${{ secrets.NPM_AUTH_TOKEN }}
           package: ./lib/package.json
@@ -543,7 +543,7 @@ jobs:
           access: public
 
       - name: Publish @dodona/dolos-web to NPM
-        uses: JS-DevTools/npm-publish@v2
+        uses: JS-DevTools/npm-publish@v3
         with:
           token: ${{ secrets.NPM_AUTH_TOKEN }}
           package: ./web/package.json
@@ -551,7 +551,7 @@ jobs:
           access: public
 
       - name: Publish @dodona/dolos to NPM
-        uses: JS-DevTools/npm-publish@v2
+        uses: JS-DevTools/npm-publish@v3
         with:
           token: ${{ secrets.NPM_AUTH_TOKEN }}
           package: ./cli/package.json
