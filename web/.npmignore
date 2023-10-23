@@ -1,3 +1,5 @@
 /*
 !dist/
 dist/data
+!index.js
+!index.d.ts
