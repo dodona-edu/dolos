@@ -10,7 +10,7 @@
   "rangeStrategy": "bump",
   "lockFileMaintenance": {
     "enabled": true,
-    "shedule": [
+    "schedule": [
       "before 8am on wednesday"
     ]
   },
