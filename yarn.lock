@@ -618,9 +618,9 @@
   integrity sha512-v/ZHEj9xh82usl8LMR3GarzFY1IrbXJw5L4QfQhokjRV91q+SelFqxQWSep1ucXEZ22+dSTwLFkXeur25sPIbw==
 
 "@types/webfontloader@^1.6.35":
-  version "1.6.35"
-  resolved "https://registry.yarnpkg.com/@types/webfontloader/-/webfontloader-1.6.35.tgz#c9cedff2995c61ee9b2064714e7f7d7763ac50bd"
-  integrity sha512-IJlrsiDWq6KghQ7tPlL5tcwSUyOxLDceT+AFUY7Ylj0Fcv3/h3QkANqQxZ0B5mEpEKxhTw76vDmvrruSMV9n9Q==
+  version "1.6.36"
+  resolved "https://registry.yarnpkg.com/@types/webfontloader/-/webfontloader-1.6.36.tgz#d722e073a874447893cf19f1bf09894b46c20fa7"
+  integrity sha512-zi18nVXGF9m7GFqWCJHZvu1Hxzcsr7B+FFExY9cbuOzq60sqOiaDW1X1BUoDUwQaXxWaiDYXOgFHnlsnSvPasw==
 
 "@typescript-eslint/eslint-plugin@6.8.0", "@typescript-eslint/eslint-plugin@^6.7.0":
   version "6.8.0"
