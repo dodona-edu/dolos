@@ -4074,7 +4074,7 @@ toidentifier@1.0.1:
   resolved "https://registry.yarnpkg.com/toidentifier/-/toidentifier-1.0.1.tgz#3be34321a88a820ed1bd80dfaa33e479fbb8dd35"
   integrity sha512-o5sSPKEkg/DIQNmH43V0/uerLrpzVedkUh8tGNvaeXpfpuwjKenlSox/2O/BTlZUtEe+JG7s5YhEz608PlAHRA==
 
-tree-sitter-bash@^0.20.0:
+tree-sitter-bash@^0.20.3:
   version "0.20.3"
   resolved "https://registry.yarnpkg.com/tree-sitter-bash/-/tree-sitter-bash-0.20.3.tgz#641415d93340cc7f920de10ae1836b1ce88ec14b"
   integrity sha512-/CjVqWSCPJ05G8LgqNedxNY9FgRpZydFDXdO48c8wb0VCvKaZSGHwihlkyAcfFqpnI061aI2DAu6VuRnJPhoAg==
