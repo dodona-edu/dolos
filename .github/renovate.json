@@ -1,12 +1,19 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:base",
-    "schedule:weekly"
+    "config:base"
+  ],
+  "schedule": [
+    "before 9am on wednesday"
   ],
   "prHourlyLimit": 0,
-  "rangeStrategy": "update-lockfile",
-  "lockFileMaintenance": { "enabled": true },
+  "rangeStrategy": "bump",
+  "lockFileMaintenance": {
+    "enabled": true,
+    "shedule": [
+      "before 8am on wednesday"
+    ]
+  },
   "timezone": "Europe/Brussels",
   "labels": ["dependencies"]
 }
