@@ -289,7 +289,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  active_model_serializers (~> 0.10)
+  active_model_serializers (~> 0.10, >= 0.10.14)
   active_storage_validations (~> 1.0)
   annotate (~> 3.2)
   bcrypt_pbkdf
