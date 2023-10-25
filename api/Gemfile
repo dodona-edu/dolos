@@ -59,7 +59,7 @@ group :development do
 end
 
 # Use Capistrano for deployment
-gem 'capistrano', '~> 3.10', group: :development
+gem 'capistrano', '~> 3.18', group: :development
 gem 'capistrano3-delayed-job', '~> 1.7.6'
 gem 'capistrano-passenger', '~> 0.2.1', group: :development
 gem 'capistrano-rails', '~> 1.6.2', group: :development
