@@ -40,17 +40,14 @@ export class ProgrammingLanguage extends Language {
   }
 
   public async loadLanguageModule(): Promise<TreeSitterLanguage> {
-    try {
       if (this.languageModule === undefined) {
-        this.languageModule = (await import(`tree-sitter-${this.name}`)).default;
+        // @ts-ignore
+        this.languageModule = (await import("@dodona/tree-sitter-parsers")).default[this.name];
+        if (this.languageModule === undefined) {
+          throw new LanguageError("Could not find language module for: " + this.name);
+        }
       }
       return this.languageModule;
-    } catch (error) {
-      throw new Error(
-        `The module 'tree-sitter-${this.name}' could not be found. ` +
-        "Try to install it using npm or yarn, but it may not be supported (yet)."
-      );
-    }
   }
 
   async createTokenizer(): Promise<Tokenizer> {
@@ -81,22 +78,6 @@ export class CustomTreeSitterLanguage extends ProgrammingLanguage {
   }
 }
 
-export class DolosProgrammingLanguage extends ProgrammingLanguage {
-  public async loadLanguageModule(): Promise<TreeSitterLanguage> {
-    try {
-      if (this.languageModule === undefined) {
-        // @ts-ignore
-        this.languageModule = (await import("@dodona/tree-sitter-parsers")).default[this.name];
-      }
-      return this.languageModule;
-    } catch (error) {
-      throw new Error(
-        `A parser for '${this.name}' could not be found:\n` + error
-      );
-    }
-  }
-}
-
 export class CustomTokenizerLanguage extends Language {
   constructor(
     readonly name: string,
@@ -123,14 +104,14 @@ export class LanguageError extends Error {
 export class LanguagePicker {
 
   static languages: Language[] = [
-    new DolosProgrammingLanguage("bash", [".sh", ".bash"]),
-    new DolosProgrammingLanguage("c", [".c", ".h"]),
-    new DolosProgrammingLanguage("cpp", [".cpp", ".hpp", ".cc", ".cp", ".cxx", ".c++", ".h", ".hh", ".hxx", ".h++"]),
-    new DolosProgrammingLanguage("c-sharp", [".cs", ".csx"]),
-    new DolosProgrammingLanguage("python", [".py", ".py3"]),
-    new DolosProgrammingLanguage("php", [".php", ".php3", ".php4", ".php5", ".php7", ".phps", ".phpt", ".phtml"]),
-    new DolosProgrammingLanguage("java", [".java"]),
-    new DolosProgrammingLanguage("javascript", [".js"]),
+    new ProgrammingLanguage("bash", [".sh", ".bash"]),
+    new ProgrammingLanguage("c", [".c", ".h"]),
+    new ProgrammingLanguage("cpp", [".cpp", ".hpp", ".cc", ".cp", ".cxx", ".c++", ".h", ".hh", ".hxx", ".h++"]),
+    new ProgrammingLanguage("c-sharp", [".cs", ".csx"]),
+    new ProgrammingLanguage("python", [".py", ".py3"]),
+    new ProgrammingLanguage("php", [".php", ".php3", ".php4", ".php5", ".php7", ".phps", ".phpt", ".phtml"]),
+    new ProgrammingLanguage("java", [".java"]),
+    new ProgrammingLanguage("javascript", [".js"]),
     new CustomTreeSitterLanguage("elm", [".elm"], "@elm-tooling/tree-sitter-elm"),
     new CustomTreeSitterLanguage("typescript", [".ts"],
       // @ts-ignore

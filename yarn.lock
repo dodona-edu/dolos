@@ -4090,14 +4090,14 @@ tree-sitter-c-sharp@^0.20.0:
   dependencies:
     nan "^2.14.0"
 
-tree-sitter-c@^0.20.1, tree-sitter-c@^0.20.4:
+tree-sitter-c@^0.20.1:
   version "0.20.6"
   resolved "https://registry.yarnpkg.com/tree-sitter-c/-/tree-sitter-c-0.20.6.tgz#fd88514eef58f221a2960cbcd81df9feba4474c4"
   integrity sha512-YosSBUOJ21j4mb7SmDmKI3QYQb7ANj55u2RTlj0XHQ6gFoLkpHzJDGvVK4zlbvqyPXA0u62LdhTwbLvYzHWcdw==
   dependencies:
     nan "^2.17.0"
 
-tree-sitter-cpp@^0.20.0, tree-sitter-cpp@^0.20.2:
+tree-sitter-cpp@^0.20.0:
   version "0.20.3"
   resolved "https://registry.yarnpkg.com/tree-sitter-cpp/-/tree-sitter-cpp-0.20.3.tgz#0db42ee5272cc0652ca786aab3184fc8130454d0"
   integrity sha512-rFyCvWdR1EtsmcOTeiyfPbHicJwcvO3WMavmjsL+Fo+ZqgbUphPVogYExfg4FEPZ+JbPKT0DZY14XRFPzf8/pQ==
@@ -4125,7 +4125,7 @@ tree-sitter-php@^0.19.0:
   dependencies:
     nan "^2.14.0"
 
-tree-sitter-python@^0.20.1, tree-sitter-python@^0.20.3:
+tree-sitter-python@^0.20.1:
   version "0.20.4"
   resolved "https://registry.yarnpkg.com/tree-sitter-python/-/tree-sitter-python-0.20.4.tgz#58cd55fbeaeb171e859c4ba4d9308b70f8c69065"
   integrity sha512-F+94q/t9+4J5yaQnmfAqEf4OZFjuhuyniRtb9P2jPaBwHrbyJL44RKFALovZxhF0syLFKpTQ7ODywyiGeB1YMg==
@@ -4139,7 +4139,7 @@ tree-sitter-typescript@^0.20.0:
   dependencies:
     nan "^2.14.0"
 
-tree-sitter@^0.20.0, tree-sitter@^0.20.5:
+tree-sitter@^0.20.0:
   version "0.20.6"
   resolved "https://registry.yarnpkg.com/tree-sitter/-/tree-sitter-0.20.6.tgz#fec52e5d7cc6c583135756479f2440dd89b25cbe"
   integrity sha512-GxJodajVpfgb3UREzzIbtA1hyRnTxVbWVXrbC6sk4xTMH5ERMBJk9HJNq4c8jOJeUaIOmLcwg+t6mez/PDvGqg==
