@@ -126,7 +126,7 @@ export class LanguagePicker {
     new DolosProgrammingLanguage("bash", [".sh", ".bash"]),
     new DolosProgrammingLanguage("c", [".c", ".h"]),
     new DolosProgrammingLanguage("cpp", [".cpp", ".hpp", ".cc", ".cp", ".cxx", ".c++", ".h", ".hh", ".hxx", ".h++"]),
-    new ProgrammingLanguage("c-sharp", [".cs", ".csx"]),
+    new DolosProgrammingLanguage("c-sharp", [".cs", ".csx"]),
     new ProgrammingLanguage("python", [".py", ".py3"]),
     new ProgrammingLanguage("php", [".php", ".php3", ".php4", ".php5", ".php7", ".phps", ".phpt", ".phtml"]),
     new DolosProgrammingLanguage("java", [".java"]),
