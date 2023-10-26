@@ -44,7 +44,7 @@
     "@types/d3": "7.4.2",
     "@types/luxon": "^3.3.1",
     "@types/papaparse": "^5.3.7",
-    "@types/prismjs": "^1.26.0",
+    "@types/prismjs": "^1.26.2",
     "@types/node": "^20.3.2",
     "@types/webfontloader": "^1.6.35",
     "@vitejs/plugin-vue": "^4.4.0",
