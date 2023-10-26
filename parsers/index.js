@@ -25,3 +25,10 @@ module.exports.php.nodeTypeInfo = require("./php/src/node-types.json");
 
 module.exports.python = require("./build/Release/tree_sitter_python_binding");
 module.exports.python.nodeTypeInfo = require("./python/src/node-types.json");
+
+const typescript_tsx = require("./build/Release/tree_sitter_typescript_binding");
+module.exports.typescript = typescript_tsx.typescript;
+module.exports.typescript.nodeTypeInfo = require("./typescript/typescript/src/node-types.json");
+
+module.exports.tsx = typescript_tsx.tsx;
+module.exports.tsx.nodeTypeInfo = require("./typescript/tsx/src/node-types.json");

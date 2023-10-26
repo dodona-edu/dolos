@@ -113,14 +113,8 @@ export class LanguagePicker {
     new ProgrammingLanguage("java", [".java"]),
     new ProgrammingLanguage("javascript", [".js"]),
     new ProgrammingLanguage("elm", [".elm"]),
-    new CustomTreeSitterLanguage("typescript", [".ts"],
-      // @ts-ignore
-      async () => (await import("tree-sitter-typescript")).default.typescript
-    ),
-    new CustomTreeSitterLanguage("tsx", [".tsx"],
-      // @ts-ignore
-      async () => (await import("tree-sitter-typescript")).default.tsx
-    ),
+    new ProgrammingLanguage("typescript", [".ts"]),
+    new ProgrammingLanguage("tsx", [".tsx"]),
     new CustomTokenizerLanguage("char", [".txt", ".md"], async self => {
       const { CharTokenizer } = await import("./tokenizer/charTokenizer.js");
       return new CharTokenizer(self);

@@ -25,3 +25,6 @@
 [submodule "parsers/elm"]
 	path = parsers/elm
 	url = git@github.com:elm-tooling/tree-sitter-elm.git
+[submodule "parsers/typescript"]
+	path = parsers/typescript
+	url = git@github.com:tree-sitter/tree-sitter-typescript.git

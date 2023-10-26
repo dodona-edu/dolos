@@ -8,6 +8,7 @@
         "java/binding.gyp",
         "javascript/binding.gyp",
         "php/binding.gyp",
-        "python/binding.gyp"
+        "python/binding.gyp",
+        "typescript/binding.gyp"
     ]
 }
