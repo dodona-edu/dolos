@@ -127,10 +127,10 @@ export class LanguagePicker {
     new DolosProgrammingLanguage("c", [".c", ".h"]),
     new DolosProgrammingLanguage("cpp", [".cpp", ".hpp", ".cc", ".cp", ".cxx", ".c++", ".h", ".hh", ".hxx", ".h++"]),
     new DolosProgrammingLanguage("c-sharp", [".cs", ".csx"]),
-    new ProgrammingLanguage("python", [".py", ".py3"]),
-    new ProgrammingLanguage("php", [".php", ".php3", ".php4", ".php5", ".php7", ".phps", ".phpt", ".phtml"]),
+    new DolosProgrammingLanguage("python", [".py", ".py3"]),
+    new DolosProgrammingLanguage("php", [".php", ".php3", ".php4", ".php5", ".php7", ".phps", ".phpt", ".phtml"]),
     new DolosProgrammingLanguage("java", [".java"]),
-    new ProgrammingLanguage("javascript", [".js"]),
+    new DolosProgrammingLanguage("javascript", [".js"]),
     new CustomTreeSitterLanguage("elm", [".elm"], "@elm-tooling/tree-sitter-elm"),
     new CustomTreeSitterLanguage("typescript", [".ts"],
       // @ts-ignore

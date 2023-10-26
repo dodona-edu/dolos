@@ -14,3 +14,11 @@ module.exports["c-sharp"].nodeTypeInfo = require("./c_sharp/src/node-types.json"
 module.exports.java = require("./build/Release/tree_sitter_java_binding");
 module.exports.java.nodeTypeInfo = require("./java/src/node-types.json");
 
+module.exports.javascript = require("./build/Release/tree_sitter_javascript_binding");
+module.exports.javascript.nodeTypeInfo = require("./javascript/src/node-types.json");
+
+module.exports.php = require("./build/Release/tree_sitter_php_binding");
+module.exports.php.nodeTypeInfo = require("./php/src/node-types.json");
+
+module.exports.python = require("./build/Release/tree_sitter_python_binding");
+module.exports.python.nodeTypeInfo = require("./python/src/node-types.json");
