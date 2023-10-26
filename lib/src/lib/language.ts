@@ -124,7 +124,7 @@ export class LanguagePicker {
 
   static languages: Language[] = [
     new DolosProgrammingLanguage("bash", [".sh", ".bash"]),
-    new ProgrammingLanguage("c", [".c", ".h"]),
+    new DolosProgrammingLanguage("c", [".c", ".h"]),
     new ProgrammingLanguage("cpp", [".cpp", ".hpp", ".cc", ".cp", ".cxx", ".c++", ".h", ".hh", ".hxx", ".h++"]),
     new ProgrammingLanguage("c-sharp", [".cs", ".csx"]),
     new ProgrammingLanguage("python", [".py", ".py3"]),
