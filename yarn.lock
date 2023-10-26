@@ -44,7 +44,11 @@
     "@babel/helper-validator-identifier" "^7.22.20"
     to-fast-properties "^2.0.0"
 
+<<<<<<< HEAD
 "@elm-tooling/tree-sitter-elm@5.6.6", "@elm-tooling/tree-sitter-elm@^5.6.6":
+=======
+"@elm-tooling/tree-sitter-elm@^5.6.0":
+>>>>>>> 9afa0a70 (Add Elm parser)
   version "5.6.6"
   resolved "https://registry.yarnpkg.com/@elm-tooling/tree-sitter-elm/-/tree-sitter-elm-5.6.6.tgz#fd2096a9d49cf927c010122837545aecaaaa8708"
   integrity sha512-Qg7Q4DaGFV7crtNc3FmIQYgtXH1/s8LMDVl+btrJySEvglquNf8XiT5d+1N66SedCswpOy2uupUdrZ/mo+XChw==

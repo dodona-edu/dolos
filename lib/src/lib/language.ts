@@ -112,7 +112,7 @@ export class LanguagePicker {
     new ProgrammingLanguage("php", [".php", ".php3", ".php4", ".php5", ".php7", ".phps", ".phpt", ".phtml"]),
     new ProgrammingLanguage("java", [".java"]),
     new ProgrammingLanguage("javascript", [".js"]),
-    new CustomTreeSitterLanguage("elm", [".elm"], "@elm-tooling/tree-sitter-elm"),
+    new ProgrammingLanguage("elm", [".elm"]),
     new CustomTreeSitterLanguage("typescript", [".ts"],
       // @ts-ignore
       async () => (await import("tree-sitter-typescript")).default.typescript
