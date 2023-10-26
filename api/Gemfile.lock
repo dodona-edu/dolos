@@ -294,7 +294,7 @@ DEPENDENCIES
   annotate (~> 3.2)
   bcrypt_pbkdf
   bootsnap
-  capistrano (~> 3.10)
+  capistrano (~> 3.18)
   capistrano-passenger (~> 0.2.1)
   capistrano-rails (~> 1.6.2)
   capistrano-rvm (~> 0.1.2)
