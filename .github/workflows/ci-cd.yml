@@ -76,7 +76,7 @@ jobs:
 
       - name: Setup Node 📚
         if: steps.cache-dependencies.outputs.cache-hit != 'true'
-        uses: actions/setup-node@v3.8.2
+        uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node }}
 
@@ -97,7 +97,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Node 📚
-        uses: actions/setup-node@v3.8.2
+        uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node }}
 
@@ -134,7 +134,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Node 📚
-        uses: actions/setup-node@v3.8.2
+        uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node }}
 
@@ -171,7 +171,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Node 📚
-        uses: actions/setup-node@v3.8.2
+        uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node }}
 
@@ -209,7 +209,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Node 📚
-        uses: actions/setup-node@v3.8.2
+        uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node }}
 
@@ -246,7 +246,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Node 📚
-        uses: actions/setup-node@v3.8.2
+        uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node }}
 
@@ -284,7 +284,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Node 📚
-        uses: actions/setup-node@v3.8.2
+        uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node }}
 
@@ -322,7 +322,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Node 📚
-        uses: actions/setup-node@v3.8.2
+        uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node }}
 
@@ -390,7 +390,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Node 📚
-        uses: actions/setup-node@v3.8.2
+        uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node }}
 
@@ -427,7 +427,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Node 📚
-        uses: actions/setup-node@v3.8.2
+        uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node }}
 
@@ -473,7 +473,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Node 📚
-        uses: actions/setup-node@v3.8.2
+        uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node }}
 
@@ -568,7 +568,7 @@ jobs:
       fail-fast: false
     steps:
       - name: Setup Node 📚
-        uses: actions/setup-node@v3.8.2
+        uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node }}
 
@@ -656,7 +656,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Node 📚
-        uses: actions/setup-node@v3.8.2
+        uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node }}
 
