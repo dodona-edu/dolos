@@ -575,7 +575,7 @@
   dependencies:
     "@types/node" "*"
 
-"@types/prismjs@^1.26.0":
+"@types/prismjs@^1.26.2":
   version "1.26.2"
   resolved "https://registry.yarnpkg.com/@types/prismjs/-/prismjs-1.26.2.tgz#f574066903a7f0d516353581185db74326100edc"
   integrity sha512-/r7Cp7iUIk7gts26mHXD66geUC+2Fo26TZYjQK6Nr4LDfi6lmdRmMqM0oPwfiMhUwoBAOFe8GstKi2pf6hZvwA==
