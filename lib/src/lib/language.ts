@@ -40,14 +40,14 @@ export class ProgrammingLanguage extends Language {
   }
 
   public async loadLanguageModule(): Promise<TreeSitterLanguage> {
+    if (this.languageModule === undefined) {
+      // @ts-ignore
+      this.languageModule = (await import("@dodona/tree-sitter-parsers")).default[this.name];
       if (this.languageModule === undefined) {
-        // @ts-ignore
-        this.languageModule = (await import("@dodona/tree-sitter-parsers")).default[this.name];
-        if (this.languageModule === undefined) {
-          throw new LanguageError("Could not find language module for: " + this.name);
-        }
+        throw new LanguageError("Could not find language module for: " + this.name);
       }
-      return this.languageModule;
+    }
+    return this.languageModule;
   }
 
   async createTokenizer(): Promise<Tokenizer> {
