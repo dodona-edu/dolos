@@ -64,7 +64,8 @@ jobs:
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v4
-
+        with:
+          submodules: true
       - name: Cache Yarn dependencies
         id: cache-dependencies
         uses: actions/cache@v3
@@ -72,7 +73,7 @@ jobs:
           path: |
             ${{ github.workspace }}/node_modules
             ${{ github.workspace }}/*/node_modules
-          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('**/yarn.lock') }}-${{ hashFiles('**/package.json') }}
+          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('yarn.lock', 'package.json', '*/yarn.lock', '*/package.json') }}
 
       - name: Setup Node 📚
         if: steps.cache-dependencies.outputs.cache-hit != 'true'
@@ -95,6 +96,8 @@ jobs:
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v4
+        with:
+          submodules: true
 
       - name: Setup Node 📚
         uses: actions/setup-node@v3
@@ -108,7 +111,7 @@ jobs:
           path: |
             ${{ github.workspace }}/node_modules
             ${{ github.workspace }}/*/node_modules
-          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('**/yarn.lock') }}-${{ hashFiles('**/package.json') }}
+          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('yarn.lock', 'package.json', '*/yarn.lock', '*/package.json') }}
 
       - name: Check if cache was hit 🔎
         if: steps.cache-dependencies.outputs.cache-hit != 'true'
@@ -145,7 +148,7 @@ jobs:
           path: |
             ${{ github.workspace }}/node_modules
             ${{ github.workspace }}/*/node_modules
-          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('**/yarn.lock') }}-${{ hashFiles('**/package.json') }}
+          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('yarn.lock', 'package.json', '*/yarn.lock', '*/package.json') }}
 
       - name: Check if cache was hit 🔎
         if: steps.cache-dependencies.outputs.cache-hit != 'true'
@@ -182,7 +185,7 @@ jobs:
           path: |
             ${{ github.workspace }}/node_modules
             ${{ github.workspace }}/*/node_modules
-          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('**/yarn.lock') }}-${{ hashFiles('**/package.json') }}
+          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('yarn.lock', 'package.json', '*/yarn.lock', '*/package.json') }}
 
       - name: Check if cache was hit 🔎
         if: steps.cache-dependencies.outputs.cache-hit != 'true'
@@ -220,7 +223,7 @@ jobs:
           path: |
             ${{ github.workspace }}/node_modules
             ${{ github.workspace }}/*/node_modules
-          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('**/yarn.lock') }}-${{ hashFiles('**/package.json') }}
+          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('yarn.lock', 'package.json', '*/yarn.lock', '*/package.json') }}
 
       - name: Check if cache was hit 🔎
         if: steps.cache-dependencies.outputs.cache-hit != 'true'
@@ -244,6 +247,8 @@ jobs:
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v4
+        with:
+          submodules: true
 
       - name: Setup Node 📚
         uses: actions/setup-node@v3
@@ -257,7 +262,7 @@ jobs:
           path: |
             ${{ github.workspace }}/node_modules
             ${{ github.workspace }}/*/node_modules
-          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('**/yarn.lock') }}-${{ hashFiles('**/package.json') }}
+          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('yarn.lock', 'package.json', '*/yarn.lock', '*/package.json') }}
 
       - name: Check if cache was hit 🔎
         if: steps.cache-dependencies.outputs.cache-hit != 'true'
@@ -295,7 +300,7 @@ jobs:
           path: |
             ${{ github.workspace }}/node_modules
             ${{ github.workspace }}/*/node_modules
-          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('**/yarn.lock') }}-${{ hashFiles('**/package.json') }}
+          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('yarn.lock', 'package.json', '*/yarn.lock', '*/package.json') }}
 
       - name: Check if cache was hit 🔎
         if: steps.cache-dependencies.outputs.cache-hit != 'true'
@@ -320,6 +325,8 @@ jobs:
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v4
+        with:
+          submodules: true
 
       - name: Setup Node 📚
         uses: actions/setup-node@v3
@@ -333,7 +340,7 @@ jobs:
           path: |
             ${{ github.workspace }}/node_modules
             ${{ github.workspace }}/*/node_modules
-          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('**/yarn.lock') }}-${{ hashFiles('**/package.json') }}
+          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('yarn.lock', 'package.json', '*/yarn.lock', '*/package.json') }}
 
       - name: Check if cache was hit 🔎
         if: steps.cache-dependencies.outputs.cache-hit != 'true'
@@ -401,7 +408,7 @@ jobs:
           path: |
             ${{ github.workspace }}/node_modules
             ${{ github.workspace }}/*/node_modules
-          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('**/yarn.lock') }}-${{ hashFiles('**/package.json') }}
+          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('yarn.lock', 'package.json', '*/yarn.lock', '*/package.json') }}
 
       - name: Check if cache was hit 🔎
         if: steps.cache-dependencies.outputs.cache-hit != 'true'
@@ -471,6 +478,8 @@ jobs:
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v4
+        with:
+          submodules: true
 
       - name: Setup Node 📚
         uses: actions/setup-node@v3
@@ -484,7 +493,7 @@ jobs:
           path: |
             ${{ github.workspace }}/node_modules
             ${{ github.workspace }}/*/node_modules
-          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('**/yarn.lock') }}-${{ hashFiles('**/package.json') }}
+          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('yarn.lock', 'package.json', '*/yarn.lock', '*/package.json') }}
 
       - name: Check if cache was hit 🔎
         if: steps.cache-dependencies.outputs.cache-hit != 'true'
@@ -654,6 +663,8 @@ jobs:
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v4
+        with:
+          submodules: true
 
       - name: Setup Node 📚
         uses: actions/setup-node@v3
