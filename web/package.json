@@ -40,7 +40,7 @@
     "webfontloader": "^1.0.0"
   },
   "devDependencies": {
-    "@babel/types": "^7.22.5",
+    "@babel/types": "^7.23.0",
     "@types/d3": "7.4.2",
     "@types/luxon": "^3.3.1",
     "@types/papaparse": "^5.3.7",
