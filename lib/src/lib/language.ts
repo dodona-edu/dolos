@@ -81,6 +81,22 @@ export class CustomTreeSitterLanguage extends ProgrammingLanguage {
   }
 }
 
+export class DolosProgrammingLanguage extends ProgrammingLanguage {
+  public async loadLanguageModule(): Promise<TreeSitterLanguage> {
+    try {
+      if (this.languageModule === undefined) {
+        // @ts-ignore
+        this.languageModule = (await import("@dodona/tree-sitter-parsers")).default[this.name];
+      }
+      return this.languageModule;
+    } catch (error) {
+      throw new Error(
+        `A parser for '${this.name}' could not be found:\n` + error
+      );
+    }
+  }
+}
+
 export class CustomTokenizerLanguage extends Language {
   constructor(
     readonly name: string,
@@ -107,16 +123,13 @@ export class LanguageError extends Error {
 export class LanguagePicker {
 
   static languages: Language[] = [
-    new ProgrammingLanguage("bash", [".sh", ".bash"]),
+    new DolosProgrammingLanguage("bash", [".sh", ".bash"]),
     new ProgrammingLanguage("c", [".c", ".h"]),
     new ProgrammingLanguage("cpp", [".cpp", ".hpp", ".cc", ".cp", ".cxx", ".c++", ".h", ".hh", ".hxx", ".h++"]),
     new ProgrammingLanguage("c-sharp", [".cs", ".csx"]),
     new ProgrammingLanguage("python", [".py", ".py3"]),
     new ProgrammingLanguage("php", [".php", ".php3", ".php4", ".php5", ".php7", ".phps", ".phpt", ".phtml"]),
-    new CustomTreeSitterLanguage("java", [".java"],
-      // @ts-ignore
-      async () => (await import("@dodona/tree-sitter-parsers")).default.java
-    ),
+    new DolosProgrammingLanguage("java", [".java"]),
     new ProgrammingLanguage("javascript", [".js"]),
     new CustomTreeSitterLanguage("elm", [".elm"], "@elm-tooling/tree-sitter-elm"),
     new CustomTreeSitterLanguage("typescript", [".ts"],

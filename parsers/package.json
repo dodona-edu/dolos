@@ -4,6 +4,9 @@
   "description": "Collection of tree-sitter parsers",
   "main": "index.js",
   "license": "MIT",
+  "scripts": {
+    "build": "node-gyp rebuild"
+  },
   "dependencies": {
     "node-gyp": "^9.4.0"
   }
