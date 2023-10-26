@@ -872,7 +872,7 @@
     find-cache-dir "^3.3.2"
     upath "^2.0.1"
 
-"@vueuse/core@^10.2.1":
+"@vueuse/core@^10.5.0":
   version "10.5.0"
   resolved "https://registry.yarnpkg.com/@vueuse/core/-/core-10.5.0.tgz#04d1e6d26592bb997bb755a4830ea7583c3e8612"
   integrity sha512-z/tI2eSvxwLRjOhDm0h/SXAjNm8N5ld6/SC/JQs6o6kpJ6Ya50LnEL8g5hoYu005i28L0zqB5L5yAl8Jl26K3A==
