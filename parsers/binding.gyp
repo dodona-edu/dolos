@@ -1,0 +1,5 @@
+{
+    "includes": [
+        "java/binding.gyp"
+    ]
+}

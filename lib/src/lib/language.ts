@@ -113,7 +113,10 @@ export class LanguagePicker {
     new ProgrammingLanguage("c-sharp", [".cs", ".csx"]),
     new ProgrammingLanguage("python", [".py", ".py3"]),
     new ProgrammingLanguage("php", [".php", ".php3", ".php4", ".php5", ".php7", ".phps", ".phpt", ".phtml"]),
-    new ProgrammingLanguage("java", [".java"]),
+    new CustomTreeSitterLanguage("java", [".java"],
+      // @ts-ignore
+      async () => (await import("@dodona/tree-sitter-parsers")).default.java
+    ),
     new ProgrammingLanguage("javascript", [".js"]),
     new CustomTreeSitterLanguage("elm", [".elm"], "@elm-tooling/tree-sitter-elm"),
     new CustomTreeSitterLanguage("typescript", [".ts"],

@@ -6,6 +6,7 @@
     "cli/",
     "core/",
     "lib/",
-    "web/"
+    "web/",
+    "parsers/"
   ]
 }

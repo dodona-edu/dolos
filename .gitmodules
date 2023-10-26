@@ -1,0 +1,3 @@
+[submodule "parsers/java"]
+	path = parsers/java
+	url = git@github.com:tree-sitter/tree-sitter-java.git
