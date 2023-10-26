@@ -73,6 +73,7 @@ jobs:
           path: |
             ${{ github.workspace }}/node_modules
             ${{ github.workspace }}/*/node_modules
+            ${{ github.workspace }}/parsers/build
           key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('yarn.lock', 'package.json', '*/yarn.lock', '*/package.json') }}
 
       - name: Setup Node 📚
@@ -111,6 +112,7 @@ jobs:
           path: |
             ${{ github.workspace }}/node_modules
             ${{ github.workspace }}/*/node_modules
+            ${{ github.workspace }}/parsers/build
           key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('yarn.lock', 'package.json', '*/yarn.lock', '*/package.json') }}
 
       - name: Check if cache was hit 🔎
@@ -148,6 +150,7 @@ jobs:
           path: |
             ${{ github.workspace }}/node_modules
             ${{ github.workspace }}/*/node_modules
+            ${{ github.workspace }}/parsers/build
           key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('yarn.lock', 'package.json', '*/yarn.lock', '*/package.json') }}
 
       - name: Check if cache was hit 🔎
@@ -185,6 +188,7 @@ jobs:
           path: |
             ${{ github.workspace }}/node_modules
             ${{ github.workspace }}/*/node_modules
+            ${{ github.workspace }}/parsers/build
           key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('yarn.lock', 'package.json', '*/yarn.lock', '*/package.json') }}
 
       - name: Check if cache was hit 🔎
@@ -223,6 +227,7 @@ jobs:
           path: |
             ${{ github.workspace }}/node_modules
             ${{ github.workspace }}/*/node_modules
+            ${{ github.workspace }}/parsers/build
           key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('yarn.lock', 'package.json', '*/yarn.lock', '*/package.json') }}
 
       - name: Check if cache was hit 🔎
@@ -262,6 +267,7 @@ jobs:
           path: |
             ${{ github.workspace }}/node_modules
             ${{ github.workspace }}/*/node_modules
+            ${{ github.workspace }}/parsers/build
           key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('yarn.lock', 'package.json', '*/yarn.lock', '*/package.json') }}
 
       - name: Check if cache was hit 🔎
@@ -300,6 +306,7 @@ jobs:
           path: |
             ${{ github.workspace }}/node_modules
             ${{ github.workspace }}/*/node_modules
+            ${{ github.workspace }}/parsers/build
           key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('yarn.lock', 'package.json', '*/yarn.lock', '*/package.json') }}
 
       - name: Check if cache was hit 🔎
@@ -340,6 +347,7 @@ jobs:
           path: |
             ${{ github.workspace }}/node_modules
             ${{ github.workspace }}/*/node_modules
+            ${{ github.workspace }}/parsers/build
           key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('yarn.lock', 'package.json', '*/yarn.lock', '*/package.json') }}
 
       - name: Check if cache was hit 🔎
@@ -408,6 +416,7 @@ jobs:
           path: |
             ${{ github.workspace }}/node_modules
             ${{ github.workspace }}/*/node_modules
+            ${{ github.workspace }}/parsers/build
           key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('yarn.lock', 'package.json', '*/yarn.lock', '*/package.json') }}
 
       - name: Check if cache was hit 🔎
@@ -493,6 +502,7 @@ jobs:
           path: |
             ${{ github.workspace }}/node_modules
             ${{ github.workspace }}/*/node_modules
+            ${{ github.workspace }}/parsers/build
           key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('yarn.lock', 'package.json', '*/yarn.lock', '*/package.json') }}
 
       - name: Check if cache was hit 🔎
