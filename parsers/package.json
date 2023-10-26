@@ -7,7 +7,7 @@
   "scripts": {
     "build": "node-gyp rebuild"
   },
-  "dependencies": {
+  "devDependencies": {
     "node-gyp": "^9.4.0"
   }
 }
