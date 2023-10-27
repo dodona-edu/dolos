@@ -15,6 +15,7 @@ const languageFiles = {
   "python": "../samples/python/caesar.py",
   "php": "../samples/php/caesar.php",
   "modelica": "../samples/modelica/sample.mo",
+  "r": "../samples/r/caesar.R",
   "tsx": "../samples/tsx/sample.tsx",
   "typescript": "../samples/typescript/caesar.ts",
 } as {[key: string]: string};

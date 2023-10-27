@@ -114,6 +114,7 @@ export class LanguagePicker {
     new ProgrammingLanguage("java", [".java"]),
     new ProgrammingLanguage("javascript", [".js"]),
     new ProgrammingLanguage("elm", [".elm"]),
+    new ProgrammingLanguage("r", [".r", ".rdata", ".rds", ".rda"]),
     new ProgrammingLanguage("typescript", [".ts"]),
     new ProgrammingLanguage("tsx", [".tsx"]),
     new CustomTokenizerLanguage("char", [".txt", ".md"], async self => {
@@ -128,8 +129,8 @@ export class LanguagePicker {
   constructor() {
     for (const language of LanguagePicker.languages) {
       for (const extension of language.extensions) {
-        this.byExtension.set(extension, language);
-        this.byName.set(language.name, language);
+        this.byExtension.set(extension.toLowerCase(), language);
+        this.byName.set(language.name.toLowerCase(), language);
       }
     }
   }
@@ -146,10 +147,10 @@ export class LanguagePicker {
     let maxCount = 0;
     let language: Language | undefined = undefined;
     for (const file of files) {
-      const count = (counts.get(file.extension) ?? 0) + 1;
+      const count = (counts.get(file.extension.toLowerCase()) ?? 0) + 1;
       if (count > maxCount) {
         maxCount = count;
-        language = this.byExtension.get(file.extension);
+        language = this.byExtension.get(file.extension.toLowerCase());
       }
       counts.set(file.extension, count);
     }
@@ -169,9 +170,9 @@ export class LanguagePicker {
    * @param name
    */
   public async findLanguage(name: string): Promise<Language> {
-    let language = this.byName.get(name);
+    let language = this.byName.get(name.toLowerCase());
     if (language == null) {
-      const proglang = new ProgrammingLanguage(name, []);
+      const proglang = new ProgrammingLanguage(name.toLowerCase(), []);
       // Try to load the language module to see if it exists,
       // will throw an error if it does not exist.
       await proglang.loadLanguageModule();

@@ -10,6 +10,7 @@
         "modelica/binding.gyp",
         "php/binding.gyp",
         "python/binding.gyp",
+        "r/binding.gyp",
         "typescript/binding.gyp"
     ]
 }
