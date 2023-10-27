@@ -20,6 +20,9 @@ module.exports.java.nodeTypeInfo = require("./java/src/node-types.json");
 module.exports.javascript = require("./build/Release/tree_sitter_javascript_binding");
 module.exports.javascript.nodeTypeInfo = require("./javascript/src/node-types.json");
 
+module.exports.modelica = require("./build/Release/tree_sitter_modelica_binding");
+module.exports.modelica.nodeTypeInfo = require("./modelica/src/node-types.json");
+
 module.exports.php = require("./build/Release/tree_sitter_php_binding");
 module.exports.php.nodeTypeInfo = require("./php/src/node-types.json");
 

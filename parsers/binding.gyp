@@ -7,6 +7,7 @@
         "elm/binding.gyp",
         "java/binding.gyp",
         "javascript/binding.gyp",
+        "modelica/binding.gyp",
         "php/binding.gyp",
         "python/binding.gyp",
         "typescript/binding.gyp"
