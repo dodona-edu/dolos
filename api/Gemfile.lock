@@ -296,7 +296,7 @@ DEPENDENCIES
   bootsnap
   capistrano (~> 3.18)
   capistrano-passenger (~> 0.2.1)
-  capistrano-rails (~> 1.6.2)
+  capistrano-rails (~> 1.6.3)
   capistrano-rvm (~> 0.1.2)
   capistrano-yarn (~> 2.0.2)
   capistrano3-delayed-job (~> 1.7.6)
