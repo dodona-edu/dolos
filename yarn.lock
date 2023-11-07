@@ -350,10 +350,15 @@
   dependencies:
     "@types/d3-selection" "*"
 
-"@types/d3-dsv@*", "@types/d3-dsv@3.0.5":
+"@types/d3-dsv@*":
   version "3.0.5"
   resolved "https://registry.yarnpkg.com/@types/d3-dsv/-/d3-dsv-3.0.5.tgz#c12df56be81d0b457d167842fa87276d0d6eb880"
   integrity sha512-73WZR3QFOaSRVz9iOrebTbTnbo7xjcgS/i0Cq5zy0jMXPO3v/JbkTD3Zqii1eYE6v4EJ78g5VP407rm+p8fdlA==
+
+"@types/d3-dsv@3.0.6":
+  version "3.0.6"
+  resolved "https://registry.yarnpkg.com/@types/d3-dsv/-/d3-dsv-3.0.6.tgz#c81f1eb24625ca6f5db69d262b3bc7533f7752f4"
+  integrity sha512-Lx1CROFmWCuP6eBw3Hl00QMt7/NLRMb5jIn0vzogrfQi8cFS5OpqHV7Kfg1Zg9k2q6yQ+601RH+ZC3v1OPrvYQ==
 
 "@types/d3-ease@*":
   version "3.0.1"
@@ -1547,7 +1552,7 @@ d3-delaunay@6:
     d3-dispatch "1 - 3"
     d3-selection "3"
 
-"d3-dsv@1 - 3", d3-dsv@3, d3-dsv@^3.0.0:
+"d3-dsv@1 - 3", d3-dsv@3, d3-dsv@^3.0.1:
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/d3-dsv/-/d3-dsv-3.0.1.tgz#c63af978f4d6a0d084a52a673922be2160789b73"
   integrity sha512-UG6OvdI5afDIFP9w4G0mNq50dSOsXHJaRE8arAS5o9ApWnIElp8GZw1Dun8vP8OyHOZ/QJUKUJwxiiCCnUwm+Q==
