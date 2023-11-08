@@ -355,10 +355,10 @@
   resolved "https://registry.yarnpkg.com/@types/d3-dsv/-/d3-dsv-3.0.5.tgz#c12df56be81d0b457d167842fa87276d0d6eb880"
   integrity sha512-73WZR3QFOaSRVz9iOrebTbTnbo7xjcgS/i0Cq5zy0jMXPO3v/JbkTD3Zqii1eYE6v4EJ78g5VP407rm+p8fdlA==
 
-"@types/d3-dsv@3.0.6":
-  version "3.0.6"
-  resolved "https://registry.yarnpkg.com/@types/d3-dsv/-/d3-dsv-3.0.6.tgz#c81f1eb24625ca6f5db69d262b3bc7533f7752f4"
-  integrity sha512-Lx1CROFmWCuP6eBw3Hl00QMt7/NLRMb5jIn0vzogrfQi8cFS5OpqHV7Kfg1Zg9k2q6yQ+601RH+ZC3v1OPrvYQ==
+"@types/d3-dsv@3.0.7":
+  version "3.0.7"
+  resolved "https://registry.yarnpkg.com/@types/d3-dsv/-/d3-dsv-3.0.7.tgz#0a351f996dc99b37f4fa58b492c2d1c04e3dac17"
+  integrity sha512-n6QBF9/+XASqcKK6waudgL0pf/S5XHPPI8APyMLLUHd8NqouBGLsU8MgtO7NINGtPBtk9Kko/W4ea0oAspwh9g==
 
 "@types/d3-ease@*":
   version "3.0.1"
