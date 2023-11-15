@@ -1,5 +1,5 @@
 # config valid for current version and patch releases of Capistrano
-lock "~> 3.17.1"
+lock "~> 3.18"
 
 set :application, "dolos"
 set :repo_url, "git@github.com:dodona-edu/dolos.git"
