@@ -29,7 +29,7 @@
     "luxon": "^3.3.0",
     "monaco-editor": "^0.44.0",
     "papaparse": "^5.4.1",
-    "pinia": "^2.1.4",
+    "pinia": "^2.1.7",
     "prismjs": "^1.29.0",
     "roboto-fontface": "*",
     "slugify": "^1.6.6",
