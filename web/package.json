@@ -26,7 +26,7 @@
     "comlink": "^4.4.1",
     "core-js": "^3.33.2",
     "d3": "^7.8.5",
-    "luxon": "^3.3.0",
+    "luxon": "^3.4.4",
     "monaco-editor": "^0.44.0",
     "papaparse": "^5.4.1",
     "pinia": "^2.1.4",
@@ -42,7 +42,7 @@
   "devDependencies": {
     "@babel/types": "^7.23.0",
     "@types/d3": "7.4.3",
-    "@types/luxon": "^3.3.1",
+    "@types/luxon": "^3.3.4",
     "@types/papaparse": "^5.3.11",
     "@types/prismjs": "^1.26.2",
     "@types/node": "^20.3.2",
