@@ -33,5 +33,5 @@
 	url = git@github.com:OpenModelica/tree-sitter-modelica.git
 [submodule "parsers/r"]
 	path = parsers/r
-	url = git@github.com:r-lib/tree-sitter-r.git
+	url = git@github.com:rien/tree-sitter-r.git
 	branch = next
