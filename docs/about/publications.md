@@ -37,6 +37,15 @@ import PublicationsPage from '@components/PublicationsPage.vue';
     </Publications>
     <Publications title="Publications by Team Dodona" lead="Dolos is developed by a larger team focussed around educational technology. Below is a list of articles published by other researchers in our group.">
         <Publication
+            title="Dodona: Learn to code with a virtual co-teacher that supports active learning"
+            authors="Charlotte Van Petegem, Rien Maertens, Niko Strijbol, Jorg Van Renterghem, Felix Van der Jeugt, Bram De Wever, Peter Dawyndt, Bart Mesuere"
+            journal="SoftwareX"
+            year="2023"
+            doi="http://doi.org/10.1016/j.softx.2023.101578"
+            image="/images/vanpetegem-2023-2.png">
+          Dodona (dodona.ugent.be) is an intelligent tutoring system for computer programming. It provides real-time data and feedback to help students learn better and teachers teach better. Dodona is free to use and has more than 61 thousand registered users across many educational and research institutes, including 20 thousand new users in the last year. The source code of Dodona is available on GitHub under the permissive MIT open-source license. This paper presents Dodona and its design and look-and-feel. We highlight some of the features built into Dodona that make it possible to shorten feedback loops, and discuss an example of how these features can be used in practice. We also highlight some of the research opportunities that Dodona has opened up and present some future developments.
+        </Publication>
+        <Publication
             title="Dodona: Learn to Code with a Virtual Co-teacher that Supports Active Learning"
             authors="Charlotte Van Petegem, Peter Dawyndt, Bart Mesuere"
             journal="Proceedings of the 2023 Conference on Innovation and Technology in Computer Science Education"
@@ -65,7 +74,7 @@ import PublicationsPage from '@components/PublicationsPage.vue';
         </Publication>
         <Publication
             title="Pass/fail prediction in programming courses"
-            authors="Charlotte Van Petegem, Peter Dawyndt, Bart Mesuere"
+            authors="Charlotte Van Petegem, Louise Deconinck, Dieter Mourisse, Rien Maertens, Niko Strijbol, Bart Dhoedt, Bram De Wever, Peter Dawyndt, Bart Mesuere"
             journal="Journal of Educational Computing Research"
             year="2022"
             doi="https://doi.org/10.1177/07356331221085595"
