@@ -12,10 +12,9 @@ A clear and concise description of what the bug is.
 
 **To Reproduce**
 Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
+- What files were you analyzing? How many?
+- What command did you run? Which command line options?
+- Which error do you get?
 
 **Expected behavior**
 A clear and concise description of what you expected to happen.
@@ -34,4 +33,4 @@ output here
 ```
 
 **Additional context**
-Add any other context about the problem here. What files were you analyzing? Which language? How many? Only attach files here if they are not privacy sensitive.
+Add any other context about the problem here.
