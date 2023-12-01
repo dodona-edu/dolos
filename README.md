@@ -87,7 +87,7 @@ Each project has its own build instructions in its own directory.
 - [Lib](https://github.com/dodona-edu/dolos/tree/main/lib): the core library
 - [Web](https://github.com/dodona-edu/dolos/tree/main/web): the graphical user interface in your browser which can be launched using the CLI
 - [Docs](https://github.com/dodona-edu/dolos/tree/main/docs): the source code of <https://dolos.ugent.be>
-- [API](https://github.com/dodona-edu/dolos/tree/main/api): an API so run Dolos as an online service
+- [API](https://github.com/dodona-edu/dolos/tree/main/api): an API to run Dolos as an online service
 
 ## Who made this software?
 
