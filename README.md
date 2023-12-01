@@ -1,7 +1,7 @@
 # Dolos
 
 <p align="center">
-  <a href="https://dolos.ugent.be">
+  <a href="https://dolos.ugent.be" target="_blank">
     <img width="180" src="https://github.com/dodona-edu/dolos/blob/main/docs/public/images/demo-exercise-graph-circle.png" alt="A plagiarism graph showing a lot of plagiarism.">
   </a>
 </p>
@@ -32,7 +32,7 @@ Dolos aims to be:
 Dolos is a command-line (CLI) tool that analyses source code files for similarities between them.
 It is able to show an interactive user interface in your browser by launching a local webserver.
 The analysis results are available in machine readable CSV files and Dolos can be integrated as a
-[JavaScript library](https://www.npmjs.com/package/@dodona/dolos-lib{target="_blank"}) in other applications empowering
+[JavaScript library](https://www.npmjs.com/package/@dodona/dolos-lib) in other applications empowering
 users to integrate plagiarism detection in their personal workflow.
 
 ## Installation
@@ -42,7 +42,7 @@ You can install Dolos on your system using npm:
 npm install -g @dodona/dolos
 ```
 
-See [the installation instructions on our website](https://dolos.ugent.be/guide/installation.html{target="_blank"}) for more complete instructions.
+See [the installation instructions on our website](https://dolos.ugent.be/guide/installation.html) for more complete instructions.
 
 ## Usage
 
@@ -55,7 +55,7 @@ dolos run -f web --language <language> path/to/your/files/*
 ```
 The above command will launch a web interface with the analysis results at <http://localhost:3000>.
 
-[More elaborate instructions on how to use Dolos](https://dolos.ugent.be/guide/running.html{target="_blank"}).
+[More elaborate instructions on how to use Dolos](https://dolos.ugent.be/guide/running.html).
 
 ## Documentation
 
@@ -64,8 +64,8 @@ Visit our web page at <https://dolos.ugent.be>.
 ## Building and developing
 
 If you want to build Dolos from source you will need
-[yarn (v1)](https://classic.yarnpkg.com/en/docs/install{target="_blank"}) because this project
-uses [yarn workspaces](https://classic.yarnpkg.com/en/docs/workspaces/{target="_blank"}) to
+[yarn (v1)](https://classic.yarnpkg.com/en/docs/install) because this project
+uses [yarn workspaces](https://classic.yarnpkg.com/en/docs/workspaces/) to
 combine the dependencies of each project (cli, web and docs).
 
 You only need to run install the dependencies once in the repository root by
@@ -83,11 +83,11 @@ Each project has its own build instructions in its own directory.
 
 ## Projects
 
-- [CLI](https://github.com/dodona-edu/dolos/tree/main/cli{target="_blank"}): the command-line interface
-- [Lib](https://github.com/dodona-edu/dolos/tree/main/lib{target="_blank"}): the core library
-- [Web](https://github.com/dodona-edu/dolos/tree/main/web{target="_blank"}): the graphical user interface in your browser which can be launched using the CLI
-- [Docs](https://github.com/dodona-edu/dolos/tree/main/docs{target="_blank"}): the source code of <https://dolos.ugent.be>
-- [API](https://github.com/dodona-edu/dolos/tree/main/api{target="_blank"}): an API to run Dolos as an online service
+- [CLI](https://github.com/dodona-edu/dolos/tree/main/cli): the command-line interface
+- [Lib](https://github.com/dodona-edu/dolos/tree/main/lib): the core library
+- [Web](https://github.com/dodona-edu/dolos/tree/main/web): the graphical user interface in your browser which can be launched using the CLI
+- [Docs](https://github.com/dodona-edu/dolos/tree/main/docs): the source code of <https://dolos.ugent.be>
+- [API](https://github.com/dodona-edu/dolos/tree/main/api): an API to run Dolos as an online service
 
 ## Who made this software?
 
