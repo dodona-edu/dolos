@@ -45,7 +45,7 @@
     "csv-stringify": "^6.4.4",
     "express": "^4.18.2",
     "open": "^9.1.0",
-    "tree-sitter": "^0.20.0",
+    "tree-sitter": "^0.20.6",
     "tree-sitter-bash": "^0.20.3",
     "tree-sitter-c": "^0.20.1",
     "tree-sitter-c-sharp": "^0.20.0",

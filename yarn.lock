@@ -4123,7 +4123,7 @@ tree-sitter-typescript@^0.20.0:
   dependencies:
     nan "^2.14.0"
 
-tree-sitter@^0.20.0, tree-sitter@^0.20.5:
+tree-sitter@^0.20.6:
   version "0.20.6"
   resolved "https://registry.yarnpkg.com/tree-sitter/-/tree-sitter-0.20.6.tgz#fec52e5d7cc6c583135756479f2440dd89b25cbe"
   integrity sha512-GxJodajVpfgb3UREzzIbtA1hyRnTxVbWVXrbC6sk4xTMH5ERMBJk9HJNq4c8jOJeUaIOmLcwg+t6mez/PDvGqg==
