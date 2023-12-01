@@ -7,13 +7,13 @@
 </p>
 
 <p align="center">
-  <a href="https://www.npmjs.com/package/@dodona/dolos">
+  <a href="https://www.npmjs.com/package/@dodona/dolos" target="_blank">
     <img src="https://img.shields.io/npm/v/@dodona/dolos.svg" alt="Version of the npm package">
   </a>
-  <a href="https://github.com/dodona-edu/dolos/actions?query=branch%3Amain">
+  <a href="https://github.com/dodona-edu/dolos/actions?query=branch%3Amain" target="_blank">
     <img src="https://github.com/dodona-edu/dolos/actions/workflows/ci-cd.yml/badge.svg" alt="GitHub checks status">
   </a>
-  <a href="https://github.com/dodona-edu/dolos/blob/main/LICENSE">
+  <a href="https://github.com/dodona-edu/dolos/blob/main/LICENSE" target="_blank">
     <img alt="Source code license" src="https://img.shields.io/github/license/dodona-edu/dolos">
   </a>
 </p>
