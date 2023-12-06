@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import { computed, ref } from "vue";
-import { DateTime } from "luxon";
 import { useVModel } from "@vueuse/core";
 import { useReportsStore } from "@/stores";
 import UploadStatus from "./UploadStatus.vue";
@@ -36,7 +35,7 @@ const headers = computed<any>(() => [
 const items = computed(() =>
   reports.reports.map((report) => ({
     name: report.name,
-    date: DateTime.fromISO(report.date).toLocaleString(DateTime.DATETIME_MED),
+    date: new Date(report.date),
     status: report.status,
     report: report,
     isFromSharing: report.isFromSharing,
@@ -90,6 +89,10 @@ const openShareDialog = (item: any): void => {
       <!-- Status -->
       <template #item.status="{ item }">
         <upload-status :status="item.status" />
+      </template>
+
+      <template #item.date="{ item }">
+        <file-timestamp :timestamp="item.date" long/>
       </template>
 
       <!-- Actions -->

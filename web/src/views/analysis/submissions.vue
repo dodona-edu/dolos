@@ -38,6 +38,7 @@
         v-model:search="search"
         class="submissions-table"
         :files="filesActiveListFiltered"
+        pagination
       />
     </v-card>
   </div>
@@ -47,15 +48,13 @@
 import { computed } from "vue";
 import { storeToRefs } from "pinia";
 import { useFileStore } from "@/api/stores";
-import { useRouteQuery } from "@/composables";
+import { useRouteQuery } from "@vueuse/router";
 
 const fileStore = useFileStore();
 const { filesActiveList } = storeToRefs(fileStore);
 const search = useRouteQuery("search", "");
-const startSimilarity = useRouteQuery("startSimilarity", 0.0, (v) =>
-  parseFloat(v)
-);
-const endSimilarity = useRouteQuery("endSimilarity", 1.0, (v) => parseFloat(v));
+const startSimilarity = useRouteQuery("startSimilarity", 0.0, { transform: Number });
+const endSimilarity = useRouteQuery("endSimilarity", 1.0, { transform: Number });
 
 // If the similarity filter is applied.
 const isSimilarityFilterApplied = computed(

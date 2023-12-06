@@ -31,7 +31,7 @@
 
 <script lang="ts" setup>
 import { usePairStore } from "@/api/stores";
-import { useRouteQuery } from "@/composables";
+import { useRouteQuery } from "@vueuse/router";
 
 const pairStore = usePairStore();
 const search = useRouteQuery("search", "");

@@ -28,14 +28,14 @@
                 <submissions-table
                   :files="clusterFiles"
                   :items-per-page="15"
-                  dense
                   pagination
+                  dense
                   order
                 />
               </v-window-item>
 
               <v-window-item>
-                <pairs-table :pairs="clusterPairs" :items-per-page="15" dense />
+                <pairs-table :pairs="clusterPairs" :items-per-page="15" />
               </v-window-item>
             </v-window>
           </v-card>
