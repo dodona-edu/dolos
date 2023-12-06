@@ -889,10 +889,25 @@
   resolved "https://registry.yarnpkg.com/@vueuse/metadata/-/metadata-10.5.0.tgz#7501a88cf5cbf7a515a03f0b8bbe3cecf30cad11"
   integrity sha512-fEbElR+MaIYyCkeM0SzWkdoMtOpIwO72x8WsZHRE7IggiOlILttqttM69AS13nrDxosnDBYdyy3C5mR1LCxHsw==
 
+"@vueuse/router@^10.5.0":
+  version "10.7.0"
+  resolved "https://registry.yarnpkg.com/@vueuse/router/-/router-10.7.0.tgz#193ee69345d23429238031fa85654a984acbe05f"
+  integrity sha512-8NQ12V3dtiIEKyd32RzzXLOqU+NC5/9cf7kv5cGOQzJB+Ne8j+1VmRz4ciOhOyHuiBJSfjwSqKDTzvsczZUBlQ==
+  dependencies:
+    "@vueuse/shared" "10.7.0"
+    vue-demi ">=0.14.6"
+
 "@vueuse/shared@10.5.0":
   version "10.5.0"
   resolved "https://registry.yarnpkg.com/@vueuse/shared/-/shared-10.5.0.tgz#b3ac8c190a5dae41db5e1b60fe304a9b4247393c"
   integrity sha512-18iyxbbHYLst9MqU1X1QNdMHIjks6wC7XTVf0KNOv5es/Ms6gjVFCAAWTVP2JStuGqydg3DT+ExpFORUEi9yhg==
+  dependencies:
+    vue-demi ">=0.14.6"
+
+"@vueuse/shared@10.7.0":
+  version "10.7.0"
+  resolved "https://registry.yarnpkg.com/@vueuse/shared/-/shared-10.7.0.tgz#21e425cc5ede421e0cda38ac59a0beee6da86b1b"
+  integrity sha512-kc00uV6CiaTdc3i1CDC4a3lBxzaBE9AgYNtFN87B5OOscqeWElj/uza8qVDmk7/U8JbqoONLbtqiLJ5LGRuqlw==
   dependencies:
     vue-demi ">=0.14.6"
 
@@ -4277,10 +4292,10 @@ vite-plugin-vuetify@^1.0.0:
     debug "^4.3.3"
     upath "^2.0.1"
 
-vite@^4.3.9:
-  version "4.5.0"
-  resolved "https://registry.yarnpkg.com/vite/-/vite-4.5.0.tgz#ec406295b4167ac3bc23e26f9c8ff559287cff26"
-  integrity sha512-ulr8rNLA6rkyFAlVWw2q5YJ91v098AFQ2R0PRFwPzREXOUJQPtFUG0t+/ZikhaOCDqFoDhN6/v8Sq0o4araFAw==
+vite@^4.5.1:
+  version "4.5.1"
+  resolved "https://registry.yarnpkg.com/vite/-/vite-4.5.1.tgz#3370986e1ed5dbabbf35a6c2e1fb1e18555b968a"
+  integrity sha512-AXXFaAJ8yebyqzoNB9fu2pHoo/nWX+xZlaRwoeYUxEqBO+Zj4msE5G+BhGBll9lYEKv9Hfks52PAF2X7qDYXQA==
   dependencies:
     esbuild "^0.18.10"
     postcss "^8.4.27"
