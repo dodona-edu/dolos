@@ -4109,7 +4109,7 @@ tree-sitter-php@^0.19.0:
   dependencies:
     nan "^2.14.0"
 
-tree-sitter-python@^0.20.1, tree-sitter-python@^0.20.3:
+tree-sitter-python@^0.20.4:
   version "0.20.4"
   resolved "https://registry.yarnpkg.com/tree-sitter-python/-/tree-sitter-python-0.20.4.tgz#58cd55fbeaeb171e859c4ba4d9308b70f8c69065"
   integrity sha512-F+94q/t9+4J5yaQnmfAqEf4OZFjuhuyniRtb9P2jPaBwHrbyJL44RKFALovZxhF0syLFKpTQ7ODywyiGeB1YMg==
