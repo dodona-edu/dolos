@@ -4074,7 +4074,7 @@ tree-sitter-c-sharp@^0.20.0:
   dependencies:
     nan "^2.14.0"
 
-tree-sitter-c@^0.20.1, tree-sitter-c@^0.20.4:
+tree-sitter-c@^0.20.6:
   version "0.20.6"
   resolved "https://registry.yarnpkg.com/tree-sitter-c/-/tree-sitter-c-0.20.6.tgz#fd88514eef58f221a2960cbcd81df9feba4474c4"
   integrity sha512-YosSBUOJ21j4mb7SmDmKI3QYQb7ANj55u2RTlj0XHQ6gFoLkpHzJDGvVK4zlbvqyPXA0u62LdhTwbLvYzHWcdw==
