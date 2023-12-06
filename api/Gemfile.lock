@@ -314,7 +314,7 @@ DEPENDENCIES
   rails (~> 7.1.2)
   rubocop-minitest (~> 0.33.0)
   rubocop-rails (~> 2.15)
-  rubyzip (~> 2.3)
+  rubyzip (~> 2.3, >= 2.3.2)
   tzinfo-data
 
 RUBY VERSION

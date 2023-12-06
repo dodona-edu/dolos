@@ -13,7 +13,7 @@ gem 'mysql2', '~> 0.5', '>= 0.5.5'
 gem 'puma', '~> 6.4'
 
 # Process ZIP archives
-gem 'rubyzip', '~> 2.3'
+gem 'rubyzip', '~> 2.3', '>= 2.3.2'
 
 # Validate ActiveStorage attachments
 gem 'active_storage_validations', '~> 1.0'
