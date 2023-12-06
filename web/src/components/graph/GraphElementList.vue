@@ -71,7 +71,7 @@ watch(
   () => props.selectedFiles,
   () => {
     if (props.selectedFiles && props.selectedFiles.length > 0 && props.scroll) {
-      const file = props.selectedFiles[0];
+      // const file = props.selectedFiles[0];
       // TODO: find a suitable replacement
       // vuetify.goTo(`#file-${file.id}`, {
       //   container: ".graph-list-body",
