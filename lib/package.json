@@ -51,7 +51,7 @@
     "tree-sitter-java": "^0.20.0",
     "tree-sitter-php": "^0.19.0",
     "tree-sitter-python": "^0.20.4",
-    "tree-sitter-typescript": "^0.20.0"
+    "tree-sitter-typescript": "^0.20.3"
   },
   "bugs": {
     "url": "https://github.com/dodona-edu/dolos/issues"
