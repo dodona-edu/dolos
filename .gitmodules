@@ -35,3 +35,6 @@
 	path = parsers/r
 	url = git@github.com:rien/tree-sitter-r.git
 	branch = next
+[submodule "parsers/sql"]
+	path = parsers/sql
+	url = git@github.com:DerekStride/tree-sitter-sql.git

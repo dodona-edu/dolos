@@ -1,7 +1,7 @@
 {
-  "name": "@dodona/tree-sitter-parsers",
+  "name": "@dodona/dolos-parsers",
   "version": "1.0.0",
-  "description": "Collection of tree-sitter parsers",
+  "description": "Collection of tree-sitter parsers used by Dolos",
   "main": "index.js",
   "license": "MIT",
   "scripts": {

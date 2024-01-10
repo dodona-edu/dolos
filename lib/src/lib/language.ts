@@ -42,7 +42,7 @@ export class ProgrammingLanguage extends Language {
   public async loadLanguageModule(): Promise<TreeSitterLanguage> {
     if (this.languageModule === undefined) {
       // @ts-ignore
-      this.languageModule = (await import("@dodona/tree-sitter-parsers")).default[this.name];
+      this.languageModule = (await import("@dodona/dolos-parsers")).default[this.name];
       if (this.languageModule === undefined) {
         throw new LanguageError("Could not find language module for: " + this.name);
       }
@@ -115,6 +115,7 @@ export class LanguagePicker {
     new ProgrammingLanguage("javascript", [".js"]),
     new ProgrammingLanguage("elm", [".elm"]),
     new ProgrammingLanguage("r", [".r", ".rdata", ".rds", ".rda"]),
+    new ProgrammingLanguage("sql", [".sql"]),
     new ProgrammingLanguage("typescript", [".ts"]),
     new ProgrammingLanguage("tsx", [".tsx"]),
     new CustomTokenizerLanguage("char", [".txt", ".md"], async self => {
@@ -181,8 +182,4 @@ export class LanguagePicker {
     return language;
   }
 }
-
-
-
-
 
