@@ -47,10 +47,14 @@ const items = computed(() =>
   }))
 );
 
-const selectedReportId = ref<string>();
-const selectedReport = computed(() =>
-  reports.getReportById(selectedReportId.value)
-);
+const selectedReportId = ref<string | undefined>();
+const selectedReport = computed(() => {
+  if (selectedReportId.value) {
+    return reports.getReportById(selectedReportId.value)
+  } else {
+    return undefined;
+  }
+});
 
 const infoDialog = ref(false);
 const deleteDialog = ref(false);

@@ -95,13 +95,21 @@ const acceptRules = [
 const uploadProgress = shallowRef(25);
 
 // Report
-const reportActiveId = shallowRef<string>();
-const reportActive = computed(() =>
-  reports.getReportById(reportActiveId.value)
-);
-const reportRoute = computed(() =>
-  reports.getReportRouteById(reportActiveId.value)
-);
+const reportActiveId = shallowRef<string | undefined>();
+const reportActive = computed(() => {
+  if (reportActiveId.value) {
+    return reports.getReportById(reportActiveId.value);
+  } else {
+    return undefined;
+  }
+});
+const reportRoute = computed(() => {
+  if (reportActiveId.value) {
+    return reports.getReportRouteById(reportActiveId.value);
+  } else {
+    return undefined;
+  }
+});
 
 // Clear the form.
 const clearForm = (): void => {
