@@ -11,7 +11,7 @@
   },
   "scripts": {
     "dev": "vite",
-    "dev:server": "VITE_MODE=server vite",
+    "dev:server": "VITE_API_URL=http://localhost:3000 VITE_MODE=server vite",
     "build": "vue-tsc --noEmit && vite build",
     "build:server": "VITE_MODE=server vite build",
     "preview": "vite preview",

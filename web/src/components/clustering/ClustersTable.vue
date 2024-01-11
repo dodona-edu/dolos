@@ -123,7 +123,7 @@ const maxWidth = computed(() => {
 
 // When a row is clicked.
 const rowClicked = (e: Event, value: any): void => {
-  router.push({ name: "Cluster", params: { clusterId: value.item.id } });
+  router.push({ name: "Cluster", params: { clusterId: String(value.item.id) } });
 };
 </script>
 

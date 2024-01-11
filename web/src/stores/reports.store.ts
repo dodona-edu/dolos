@@ -1,10 +1,10 @@
-import { UploadReport } from "@/types/uploads/UploadReport";
-import { useLocalStorage } from "@vueuse/core";
-import { defineStore } from "pinia";
-import { computed, onMounted } from "vue";
-import { useRoute } from "vue-router";
+import {UploadReport} from "@/types/uploads/UploadReport";
+import {useLocalStorage} from "@vueuse/core";
+import {defineStore} from "pinia";
+import {computed, onMounted} from "vue";
+import {useRoute} from "vue-router";
 import slugify from "slugify";
-import axios, { AxiosError } from "axios";
+import axios, {AxiosError} from "axios";
 
 export const useReportsStore = defineStore("reports", () => {
   // List of uploaded reports in localstorage.
@@ -41,17 +41,17 @@ export const useReportsStore = defineStore("reports", () => {
   }
 
   // Get a report in the list by reportId.
-  function getReportById(reportId: string | undefined) {
+  function getReportById(reportId: string) {
     return reports.value.find((r) => r.reportId === reportId);
   }
 
   // Get a report in the list by referenceId.
-  function getReportByReferenceId(referenceId: string | undefined) {
+  function getReportByReferenceId(referenceId: string) {
     return reports.value.find((r) => r.referenceId === referenceId);
   }
 
   // Get the route for a given report id.
-  function getReportRouteById(reportId: string | undefined) {
+  function getReportRouteById(reportId: string) {
     const report = getReportById(reportId);
 
     // If no report is found, return the home page.
@@ -64,28 +64,28 @@ export const useReportsStore = defineStore("reports", () => {
     return {
       name: "Overview",
       params: {
-        referenceId: report?.referenceId,
+        referenceId: report.referenceId,
       },
     };
   }
 
   // Get the share route for a given report id.
-  function getReportShareRouteById(reportId: string | undefined) {
+  function getReportShareRouteById(reportId: string) {
     return {
       name: "Share",
       params: {
-        reportId: reportId ?? "",
+        reportId: reportId,
       },
     };
   }
 
   // Delete a report by reportId.
-  function deleteReportById(reportId: string | undefined) {
+  function deleteReportById(reportId: string) {
     reports.value = reports.value.filter((r) => r.reportId !== reportId);
   }
 
   // Get the URL for a given report id.
-  const getReportUrlById = (reportId: string | undefined) => {
+  const getReportUrlById = (reportId: string) => {
     return `${import.meta.env.VITE_API_URL}/reports/${reportId}`;
   };
 
@@ -117,8 +117,14 @@ export const useReportsStore = defineStore("reports", () => {
   const route = useRoute();
   const currentReport = computed(() => {
     const reportId = route.params.reportId as string | undefined;
+    if (reportId) {
+      return getReportById(reportId);
+    }
     const referenceId = route.params.referenceId as string | undefined;
-    return getReportById(reportId) ?? getReportByReferenceId(referenceId);
+    if (referenceId) {
+      return getReportByReferenceId(referenceId);
+    }
+    return undefined;
   });
 
   return {

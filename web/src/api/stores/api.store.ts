@@ -68,7 +68,11 @@ export const useApiStore = defineStore("api", () => {
   // Re-hydrate the API stores when the anonymous value changes.
   watch(isAnonymous, () => fileStore.anonymize());
   // Re-hydrate the API stores when the url value changes.
-  watch(dataUrl, () => hydrate());
+  watch(dataUrl, () => {
+    if (dataUrl) {
+      hydrate();
+    }
+  });
 
   return {
     url: dataUrl,
