@@ -6,7 +6,7 @@
   "description": "Code similarity detection based on the Winnowing algorithm",
   "types": "dist/index.d.ts",
   "engines": {
-    "node": ">=16"
+    "node": ">=16.20.2"
   },
   "scripts": {
     "test": "tsc --build && ava",

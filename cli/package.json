@@ -5,7 +5,7 @@
   "type": "module",
   "export": "./dist/index.js",
   "engines": {
-    "node": ">=16"
+    "node": ">=16.20.2"
   },
   "bin": {
     "dolos": "dist/cli.js"
