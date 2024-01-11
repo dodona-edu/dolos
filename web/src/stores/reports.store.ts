@@ -1,10 +1,10 @@
-import { UploadReport } from "@/types/uploads/UploadReport";
-import { useLocalStorage } from "@vueuse/core";
-import { defineStore } from "pinia";
-import { computed, onMounted } from "vue";
-import { useRoute } from "vue-router";
+import {UploadReport} from "@/types/uploads/UploadReport";
+import {useLocalStorage} from "@vueuse/core";
+import {defineStore} from "pinia";
+import {computed, onMounted} from "vue";
+import {useRoute} from "vue-router";
 import slugify from "slugify";
-import axios, { AxiosError } from "axios";
+import axios, {AxiosError} from "axios";
 
 export const useReportsStore = defineStore("reports", () => {
   // List of uploaded reports in localstorage.
@@ -86,7 +86,9 @@ export const useReportsStore = defineStore("reports", () => {
 
   // Get the URL for a given report id.
   const getReportUrlById = (reportId: string | undefined) => {
-    return `${import.meta.env.VITE_API_URL}/reports/${reportId}`;
+    if (reportId) {
+      return `${import.meta.env.VITE_API_URL}/reports/${reportId}`;
+    }
   };
 
   async function checkReports() {

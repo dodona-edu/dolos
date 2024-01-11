@@ -22,7 +22,7 @@ export function useAppMode() {
   // URL to the data.
   const dataUrl = computed(() => {
     if (import.meta.env.VITE_MODE === "server") {
-      return `${reportUrl.value}/data`;
+      return reportUrl.value ? `${reportUrl.value}/data` : undefined;
     } else {
       return DATA_URL;
     }
