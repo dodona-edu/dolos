@@ -38,7 +38,7 @@
     "vue": "^3.3.4",
     "vue-router": "^4.2.2",
     "vuetify": "^3.3.6",
-    "webfontloader": "^1.0.0"
+    "webfontloader": "^1.6.28"
   },
   "devDependencies": {
     "@babel/types": "^7.23.0",
@@ -47,7 +47,7 @@
     "@types/papaparse": "^5.3.11",
     "@types/prismjs": "^1.26.3",
     "@types/node": "^20.3.2",
-    "@types/webfontloader": "^1.6.35",
+    "@types/webfontloader": "^1.6.38",
     "@vitejs/plugin-vue": "^4.4.0",
     "@vue/eslint-config-typescript": "^12.0.0",
     "eslint": "^8.53.0",
