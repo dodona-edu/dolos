@@ -55,7 +55,7 @@ GEM
       activemodel (>= 4.1)
       case_transform (>= 0.2)
       jsonapi-renderer (>= 0.1.1.beta1, < 0.3)
-    active_storage_validations (1.0.4)
+    active_storage_validations (1.1.4)
       activejob (>= 5.2.0)
       activemodel (>= 5.2.0)
       activestorage (>= 5.2.0)
@@ -291,7 +291,7 @@ PLATFORMS
 
 DEPENDENCIES
   active_model_serializers (~> 0.10, >= 0.10.14)
-  active_storage_validations (~> 1.0)
+  active_storage_validations (~> 1.1, >= 1.1.4)
   annotate (~> 3.2)
   bcrypt_pbkdf
   bootsnap
