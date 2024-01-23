@@ -49,12 +49,12 @@
     "@babel/helper-validator-identifier" "^7.22.20"
     to-fast-properties "^2.0.0"
 
-"@elm-tooling/tree-sitter-elm@5.6.6", "@elm-tooling/tree-sitter-elm@^5.6.6":
-  version "5.6.6"
-  resolved "https://registry.yarnpkg.com/@elm-tooling/tree-sitter-elm/-/tree-sitter-elm-5.6.6.tgz#fd2096a9d49cf927c010122837545aecaaaa8708"
-  integrity sha512-Qg7Q4DaGFV7crtNc3FmIQYgtXH1/s8LMDVl+btrJySEvglquNf8XiT5d+1N66SedCswpOy2uupUdrZ/mo+XChw==
+"@elm-tooling/tree-sitter-elm@5.7.0", "@elm-tooling/tree-sitter-elm@^5.7.0":
+  version "5.7.0"
+  resolved "https://registry.yarnpkg.com/@elm-tooling/tree-sitter-elm/-/tree-sitter-elm-5.7.0.tgz#ff146cac22da2d29f27af83d6b79a4a76ac9fc3d"
+  integrity sha512-ezKHIczyZx6bFtktLFRPbvW/7LzL0XdI1Y5OoxkNaSrfh2m0Bm8yilbB4Hya4VQN7mJktXhhzAMGab8nKm/2Bw==
   dependencies:
-    nan "^2.17.0"
+    nan "^2.18.0"
 
 "@esbuild/android-arm64@0.18.20":
   version "0.18.20"
