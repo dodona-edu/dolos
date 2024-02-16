@@ -3,5 +3,7 @@
 */bindings/*
 !*/bindings/node/*
 !*/src/*
+!*/binding.gyp
+!binding.gyp
 build/
 
