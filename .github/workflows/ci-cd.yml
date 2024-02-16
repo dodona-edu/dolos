@@ -282,6 +282,47 @@ jobs:
           yarn build
           yarn test -v --serial
 
+  parsers-build:
+    name: "Parsers 👓 - build 🔧"
+    runs-on: ubuntu-latest
+    needs: install-deps
+    strategy:
+      matrix:
+        node: [ "16", "18", "20" ]
+      fail-fast: false
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Setup Node 📚
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Fetch Dependencies ⚡️
+        id: cache-dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ${{ github.workspace }}/node_modules
+            ${{ github.workspace }}/*/node_modules
+            ${{ github.workspace }}/parsers/build
+          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('./yarn.lock', './package.json', './*/package.json', './parsers/binding.gyp', './.gitmodules') }}
+
+      - name: Check if cache was hit 🔎
+        if: steps.cache-dependencies.outputs.cache-hit != 'true'
+        run: |
+          echo "Should have hit cache"
+          false
+
+      - name: Build 🔧
+        run: |
+          cd parsers/
+          ./prepare.sh
+          yarn build
+
   lib-lint:
     name: "Lib 📚 - lint 📏"
     runs-on: ubuntu-latest
@@ -530,6 +571,12 @@ jobs:
           cd core/
           yarn build
 
+      - name: Build parsers 🔧
+        run: |
+          cd parsers/
+          ./prepare.sh
+          yarn build
+
       - name: Build lib 🔧
         run: |
           cd lib/
@@ -550,6 +597,14 @@ jobs:
         with:
           token: ${{ secrets.NPM_AUTH_TOKEN }}
           package: ./core/package.json
+          strategy: all
+          access: public
+
+      - name: Publish @dodona/dolos-parsers to NPM
+        uses: JS-DevTools/npm-publish@v3
+        with:
+          token: ${{ secrets.NPM_AUTH_TOKEN }}
+          package: ./parsers/package.json
           strategy: all
           access: public
 
