@@ -7,6 +7,12 @@
     "before 9am on wednesday"
   ],
   "prHourlyLimit": 0,
+  "packageRules": [
+    {
+      "matchDepTypes": ["devDependencies"],
+      "prPriority": -1
+    }
+  ],
   "rangeStrategy": "bump",
   "lockFileMaintenance": {
     "enabled": true,

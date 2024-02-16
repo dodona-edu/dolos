@@ -5,7 +5,7 @@
     :search="searchValue"
     :density="props.dense ? 'compact' : 'comfortable'"
     :sort-by="sortBy"
-    :items-per-page="15"
+    :items-per-page="props.itemsPerPage"
     must-sort
     fixed-header
     @click:row="rowClicked"
@@ -98,7 +98,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  itemsPerPage: 15,
+  itemsPerPage: 25,
 });
 const emit = defineEmits(["update:search"]);
 const router = useRouter();
@@ -123,7 +123,7 @@ const headers = computed(() => {
   h.push({
     title: "Submission",
     key: "name",
-    sortable: props.disableSorting ? false : true,
+    sortable: !props.disableSorting,
   });
 
   // Only add the label header if there are labels.
@@ -140,7 +140,7 @@ const headers = computed(() => {
     h.push({
       title: "Timestamp",
       key: "timestamp",
-      sortable: props.disableSorting ? false : true,
+      sortable: !props.disableSorting,
       filterable: false,
     });
   }
@@ -148,7 +148,7 @@ const headers = computed(() => {
   h.push({
     title: "Highest similarity",
     key: "similarity",
-    sortable: props.disableSorting ? false : true,
+    sortable: !props.disableSorting,
     filterable: false,
   });
 
@@ -156,7 +156,7 @@ const headers = computed(() => {
     h.push({
       title: "Lines",
       key: "lines",
-      sortable: props.disableSorting ? false : true,
+      sortable: !props.disableSorting,
       filterable: false,
     });
   }

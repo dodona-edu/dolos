@@ -3,17 +3,16 @@
     v-model:search="searchValue"
     :headers="headers"
     :items="items"
-    :items-per-page="15"
+    :items-per-page="props.itemsPerPage"
     :sort-by="sortBy"
     :footer-props="footerProps"
-    :density="props.dense ? 'compact' : 'default'"
+    density="compact"
     must-sort
     @click:row="rowClicked"
   >
     <template #item.similarity="{ item }">
       <similarity-display
         :similarity="+item.similarity"
-        :dense="props.dense"
         progress
       />
     </template>
@@ -35,7 +34,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  itemsPerPage: 15,
+  itemsPerPage: 25,
 });
 const emit = defineEmits(["update:search", "update:page"]);
 const router = useRouter();

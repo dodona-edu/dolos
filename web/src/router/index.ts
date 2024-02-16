@@ -49,7 +49,7 @@ const routes = [
         component: () => import("@/views/analysis/clusters.vue"),
       },
       {
-        path: "/clusters/:clusterId",
+        path: "clusters/:clusterId",
         name: "Cluster",
         component: () => import("@/views/analysis/cluster.vue"),
       },
@@ -84,5 +84,6 @@ const router = createRouter({
   history: createWebHashHistory(import.meta.env.BASE_URL),
   routes,
 });
+
 
 export default router;

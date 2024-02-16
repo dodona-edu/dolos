@@ -1,6 +1,6 @@
 { pkgs ? import <nixpkgs> { }, system ? builtins.currentSystem, ... }:
 let
-  dev = fetchTarball "https://github.com/chvp/devshell/archive/main.tar.gz";
+  dev = fetchTarball "https://github.com/numtide/devshell/archive/main.tar.gz";
   devshell = pkgs.devshell or (import dev { inherit system; });
   ruby = pkgs.ruby_3_2;
 in

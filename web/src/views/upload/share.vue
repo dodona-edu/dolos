@@ -19,19 +19,20 @@ onMounted(async () => {
 
   // If the report reference does not exist, generate a new one.
   if (!report) {
+
     try {
       // Fetch the report from the server.
-      const response = await axios.get(reports.getReportUrlById(reportId));
+      const url = reports.getReportUrlById(reportId);
+      const response = await axios.get(url);
       const data = response.data;
-
       // Create the uploaded report.
       const report: Partial<UploadReport> = {
         reportId,
         date: data["created_at"] ?? new Date().toISOString(),
         name: data["name"] ?? "Report",
         status: data["status"],
-        statusUrl: data["url"],
-        response: data["response"],
+        statusUrl: url,
+        response: response,
         isFromSharing: true,
       };
 
@@ -42,9 +43,9 @@ onMounted(async () => {
       return;
     }
   }
-
+  const reportRoute = reports.getReportRouteById(reportId);
   // Go to the report.
-  router.push(reports.getReportRouteById(reportId));
+  router.push(reportRoute);
 });
 </script>
 

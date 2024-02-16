@@ -27,19 +27,19 @@
   },
   "devDependencies": {
     "@ava/typescript": "4.1.0",
-    "@types/d3-dsv": "3.0.5",
+    "@types/d3-dsv": "3.0.7",
     "@types/node": "^20.3.2",
     "@typescript-eslint/eslint-plugin": "6.8.0",
     "@typescript-eslint/parser": "6.8.0",
     "ava": "5.3.1",
-    "eslint": "8.52.0",
-    "node-gyp": "^9.4.0",
+    "eslint": "8.53.0",
+    "node-gyp": "^9.4.1",
     "typescript": "5.2.2"
   },
   "dependencies": {
     "@dodona/dolos-parsers": "1.0.0",
     "@dodona/dolos-core": "1.0.0",
-    "d3-dsv": "^3.0.0"
+    "d3-dsv": "^3.0.1"
   },
   "bugs": {
     "url": "https://github.com/dodona-edu/dolos/issues"
