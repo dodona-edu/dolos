@@ -9,8 +9,11 @@ set -e
 yarn install
 
 for dir in core parsers lib web cli; do
+  echo "=== Building and packing $dir ===="
   (cd $dir && yarn build && yarn pack)
 done
+
+echo "=== Building and packing complete ===="
 
 mkdir /test
 cd /test
@@ -18,6 +21,11 @@ cp -r /dolos/samples .
 cp /dolos/*/*.tgz .
 rm -rf /dolos/
 
+echo "=== Installing packs ===="
+
 npm install -g *.tgz
 npm ls -g --all '@dodona/dolos'
+
+echo "=== Running Dolos ===="
+
 dolos samples/javascript/simple-dataset.zip
