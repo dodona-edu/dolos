@@ -10,7 +10,7 @@ yarn install
 
 for dir in core parsers lib web cli; do
   echo "=== Building and packing $dir ===="
-  (cd $dir && yarn build && yarn pack)
+  (cd $dir && (yarn prepare || true) && yarn build && yarn pack)
 done
 
 echo "=== Building and packing complete ===="
