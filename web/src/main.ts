@@ -3,8 +3,6 @@ import router from "./router";
 import { createApp } from "vue";
 import { createVuetify } from "vuetify";
 import { createPinia } from "pinia";
-import { VDataTable } from "vuetify/labs/VDataTable";
-import { VSkeletonLoader } from "vuetify/labs/VSkeletonLoader";
 import webFontLoader from "webfontloader";
 
 // Styles
@@ -17,9 +15,6 @@ const app = createApp(App);
 
 // Create the plugins
 const vuetify = createVuetify({
-  components: {
-    VDataTable, VSkeletonLoader
-  },
   theme: {
     themes: {
       light: {
