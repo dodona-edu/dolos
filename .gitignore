@@ -11,6 +11,7 @@
 .nyc_output
 .vscode
 dist/
+build/
 dolos-analysis-*
 dolos-report-*/
 node_modules/

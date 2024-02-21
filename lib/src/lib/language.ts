@@ -40,17 +40,14 @@ export class ProgrammingLanguage extends Language {
   }
 
   public async loadLanguageModule(): Promise<TreeSitterLanguage> {
-    try {
+    if (this.languageModule === undefined) {
+      // @ts-ignore
+      this.languageModule = (await import("@dodona/dolos-parsers")).default[this.name];
       if (this.languageModule === undefined) {
-        this.languageModule = (await import(`tree-sitter-${this.name}`)).default;
+        throw new LanguageError("Could not find language module for: " + this.name);
       }
-      return this.languageModule;
-    } catch (error) {
-      throw new Error(
-        `The module 'tree-sitter-${this.name}' could not be found. ` +
-        "Try to install it using npm or yarn, but it may not be supported (yet)."
-      );
     }
+    return this.languageModule;
   }
 
   async createTokenizer(): Promise<Tokenizer> {
@@ -113,17 +110,14 @@ export class LanguagePicker {
     new ProgrammingLanguage("c-sharp", [".cs", ".csx"]),
     new ProgrammingLanguage("python", [".py", ".py3"]),
     new ProgrammingLanguage("php", [".php", ".php3", ".php4", ".php5", ".php7", ".phps", ".phpt", ".phtml"]),
+    new ProgrammingLanguage("modelica", [".mo", ".mos"]),
     new ProgrammingLanguage("java", [".java"]),
     new ProgrammingLanguage("javascript", [".js"]),
-    new CustomTreeSitterLanguage("elm", [".elm"], "@elm-tooling/tree-sitter-elm"),
-    new CustomTreeSitterLanguage("typescript", [".ts"],
-      // @ts-ignore
-      async () => (await import("tree-sitter-typescript")).default.typescript
-    ),
-    new CustomTreeSitterLanguage("tsx", [".tsx"],
-      // @ts-ignore
-      async () => (await import("tree-sitter-typescript")).default.tsx
-    ),
+    new ProgrammingLanguage("elm", [".elm"]),
+    new ProgrammingLanguage("r", [".r", ".rdata", ".rds", ".rda"]),
+    new ProgrammingLanguage("sql", [".sql"]),
+    new ProgrammingLanguage("typescript", [".ts"]),
+    new ProgrammingLanguage("tsx", [".tsx"]),
     new CustomTokenizerLanguage("char", [".txt", ".md"], async self => {
       const { CharTokenizer } = await import("./tokenizer/charTokenizer.js");
       return new CharTokenizer(self);
@@ -136,8 +130,8 @@ export class LanguagePicker {
   constructor() {
     for (const language of LanguagePicker.languages) {
       for (const extension of language.extensions) {
-        this.byExtension.set(extension, language);
-        this.byName.set(language.name, language);
+        this.byExtension.set(extension.toLowerCase(), language);
+        this.byName.set(language.name.toLowerCase(), language);
       }
     }
   }
@@ -154,10 +148,10 @@ export class LanguagePicker {
     let maxCount = 0;
     let language: Language | undefined = undefined;
     for (const file of files) {
-      const count = (counts.get(file.extension) ?? 0) + 1;
+      const count = (counts.get(file.extension.toLowerCase()) ?? 0) + 1;
       if (count > maxCount) {
         maxCount = count;
-        language = this.byExtension.get(file.extension);
+        language = this.byExtension.get(file.extension.toLowerCase());
       }
       counts.set(file.extension, count);
     }
@@ -177,9 +171,9 @@ export class LanguagePicker {
    * @param name
    */
   public async findLanguage(name: string): Promise<Language> {
-    let language = this.byName.get(name);
+    let language = this.byName.get(name.toLowerCase());
     if (language == null) {
-      const proglang = new ProgrammingLanguage(name, []);
+      const proglang = new ProgrammingLanguage(name.toLowerCase(), []);
       // Try to load the language module to see if it exists,
       // will throw an error if it does not exist.
       await proglang.loadLanguageModule();
@@ -188,8 +182,4 @@ export class LanguagePicker {
     return language;
   }
 }
-
-
-
-
 
