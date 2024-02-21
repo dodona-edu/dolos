@@ -320,7 +320,7 @@ jobs:
       - name: Build 🔧
         run: |
           cd parsers/
-          ./prepare.sh
+          yarn prepare
           yarn build
 
   lib-lint:
@@ -574,7 +574,7 @@ jobs:
       - name: Build parsers 🔧
         run: |
           cd parsers/
-          ./prepare.sh
+          yarn prepare
           yarn build
 
       - name: Build lib 🔧

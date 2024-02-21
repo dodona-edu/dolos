@@ -5,12 +5,14 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
+    "prepare": "cd sql && tree-sitter generate",
     "build": "node-gyp rebuild"
   },
   "dependencies": {
     "nan": "^2.18.0"
   },
   "devDependencies": {
-    "node-gyp": "^9.4.0"
+    "node-gyp": "^9.4.0",
+    "tree-sitter-cli": "^0.20.8"
   }
 }
