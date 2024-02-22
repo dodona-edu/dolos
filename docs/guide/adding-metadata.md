@@ -18,7 +18,7 @@ If you export submissions from [Dodona](./dodona.md) with the option "Include in
 ## CSV format
 
 To submit metadata, you need to include a <abbr title="Comma Separated Values">CSV</abbr> file with this data in a structured format.
-The format is the same for Dolos Online, the Dolos CLI and the Dolos javascript library.
+The format is the same for the Dolos web app, the Dolos CLI and the Dolos javascript library.
 
 The `info.csv` file must have a column `filename` that contains the paths of all inspected source files relative to the root of the ZIP-file.
 
@@ -53,7 +53,7 @@ zoe.js,group1,2019-07-27 19:22:39 +0200
 ```
 :::
 
-## Using Dolos Online
+## Using the Dolos web app
 
 Include the `info.csv` file in the **root** of the ZIP-file (not in a directory).
 

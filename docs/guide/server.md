@@ -1,6 +1,6 @@
-# Use Dolos Online
+# Use Dolos
 
-Dolos Online is a [web app](https://dolos.ugent.be/server) for plagiarism detection in source code that is free to use.
+Dolos is a [web app](https://dolos.ugent.be/server) for plagiarism detection in source code that is free to use.
 
 All you need is a browser.
 No additional installations needed.
@@ -74,7 +74,7 @@ You can simply upload the same dataset again to generate a new report.
 
 ## How is this free?
 
-[Team Dodona](https://dodona.ugent.be/en/about/) develops Dolos and runs Dolos Online.
+[Team Dodona](https://dodona.ugent.be/en/about/) develops Dolos and hosts a free web app instance.
 We are researchers and teachers of programming courses at [Ghent University](https://www.ugent.be/en) (Belgium).
 
 Team Dodona never shares submitted files or analysis reports with others and never uses it for commercial purposes.

@@ -27,10 +27,10 @@ hero:
       
   
 features:
-  - title: Free online service
+  - title: Free web application
     details: No installation required. Secure, private and fast. Just upload your files and get a report. 
     link: https://dolos.ugent.be/server/
-    linkText: Try Dolos online
+    linkText: Try Dolos
     icon: 🌩️
     
   - title: Multilingual

@@ -21,18 +21,18 @@ export default defineConfig({
     sidebar: [
       { text: "Introduction", link: "/guide/" },
       {
-        text: 'Dolos Online',
+        text: 'Dolos',
         items: [
-          { text: 'Use Dolos Online', link: '/guide/server' },
+          { text: 'Use Dolos', link: '/guide/server' },
           { text: 'Use case: Dodona', link: '/guide/dodona' },
         ]
       },
       {
-        text: 'CLI & Library',
+        text: 'Dolos CLI & Library',
         items: [
-          { text: 'Install the Dolos CLI', link: '/guide/installation' },
-          { text: 'Use the Dolos CLI', link: '/guide/running' },
-          { text: 'Run Dolos using docker', link: '/guide/docker' },
+          { text: 'Install Dolos CLI', link: '/guide/installation' },
+          { text: 'Use Dolos CLI', link: '/guide/running' },
+          { text: 'Run Dolos CLI using docker', link: '/guide/docker' },
           { text: 'Add metadata', link: '/guide/adding-metadata' },
           { text: 'Add new languages', link: '/guide/adding-languages' },
           { text: 'Use the Dolos library', link: '/guide/library' },
