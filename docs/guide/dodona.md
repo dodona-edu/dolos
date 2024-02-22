@@ -20,13 +20,13 @@ Export submissions for a programming exercise in a [Dodona](https://dodona.ugent
 It is allowed to select multiple exercises from the same series (step 2). However, Dolos will cross-compare all exported submissions without making a distinction between submissions for the same exercise or for different exercises.
 :::
 
-## Detect plagiarism using Dolos Online
+## Detect plagiarism using Dolos
 
-Open [Dolos Online](https://dolos.ugent.be/server) in your browser. Upload the ZIP-file you just downloaded from Dodona. Click _Analyze_.
+Open the [Dolos web app](https://dolos.ugent.be/server) in your browser. Upload the ZIP-file you just downloaded from Dodona. Click _Analyze_.
 
 Within a few seconds, the plagiarism detection report will be ready and you will be able to explore the results.
 
-[Read more about how to use Dolos Online](/guide/server).
+[Read more about how to use Dolos](/guide/server).
 
 ## Run Dolos CLI (offline)
 

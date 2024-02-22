@@ -14,11 +14,12 @@ npm install @dodona/dolos-lib
 
 ### Node & Web environments
 
-Dolos uses [tree-sitter](https://www.npmjs.com/package/tree-sitter) to parse
-source code files. Tree-sitter currently only runs in node and will thus not
-run in browser environments. Since some of the library's functionality is use
-by the [Dolos Web UI](https://www.npmjs.com/package/@dodona/dolos-web), the
-dependency on tree-sitter is optional.
+**Required:** Node.js, Python 3 and a compiler (GCC)
+
+Dolos uses [tree-sitter](https://www.npmjs.com/package/tree-sitter) to parse source code files.
+Tree-sitter currently only runs in node and will thus not run in browser environments.
+
+If you only require the matching algorithms, you can use the platform-independent library [Dolos Core](https://www.npmjs.com/package/@dodona/dolos-core).
 
 ## Usage
 

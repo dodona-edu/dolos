@@ -21,7 +21,7 @@ Shipping Dolos with all languages readily installed would be impractical.
 Moreover, not all parsers are of the same quality or have been updated to the latest version of Tree-sitter.
 That's why we only ship the Dolos CLI with a default selection of high-quality parsers.
 
-Dolos CLI and the online service have out-of-the-box support for the most commonly used programming languages:
+Dolos and Dolos CLI have out-of-the-box support for the most commonly used programming languages:
 
 - Bash
 - C
@@ -33,10 +33,11 @@ Dolos CLI and the online service have out-of-the-box support for the most common
 - PHP
 - Python
 - Typescript
+- ...
 
 ## Requesting support for a new language
 
-If you're using Dolos Online and your programming language of choice is not in the above list, you can request support
+If you're using Dolos and your programming language of choice is not in the above list, you can request support
 on our [issue tracker on GitHub](https://github.com/dodona-edu/dolos/issues/1029) or [by sending us an email](mailto:dodona@ugent.be).
 
 ## Adding a language locally
