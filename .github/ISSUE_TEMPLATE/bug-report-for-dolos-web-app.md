@@ -1,6 +1,6 @@
 ---
-name: Bug report for Dolos Online
-about: Report a bug found with the webserver (https://dolos.ugent.be/server)
+name: Bug report for the Dolos web app
+about: Report a bug found with the web app (https://dolos.ugent.be/server)
 title: ''
 labels: bug, Dolos Online
 assignees: rien
