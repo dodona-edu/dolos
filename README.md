@@ -25,11 +25,11 @@ sensitize students to prevent plagiarism.
 
 Dolos aims to be:
 
-- **Easy to use** by offering an online web service with an intuitive user interface
+- **Easy to use** by offering a web app with an intuitive user interface
 - **Flexible** to support many programming languages
 - **Powerful** by using state-of-the-art algorithms to help you discover plagiarism
 
-Dolos is an [online service](https://dolos.ugent.be) that analyses source code files for similarities between them.
+Dolos is a [web app](https://dolos.ugent.be) that analyses source code files for similarities between them.
 In addition, it offers a command-line interface to run an analysis locally, showing the interactive user interface in your browser by launching a local webserver.
 The analysis results are available in machine readable CSV files and Dolos can be integrated as a [JavaScript library](https://www.npmjs.com/package/@dodona/dolos-lib) in other applications empowering users to integrate plagiarism detection in their personal workflow.
 
@@ -37,7 +37,7 @@ Try Dolos on <https://dolos.ugent.be>.
 
 ## Installation
 
-If you want to run Dolos locally instead of using [the online service](https://dolos.ugent.be), you can install Dolos your system using npm:
+If you want to run Dolos locally instead of using [the web app](https://dolos.ugent.be), you can install Dolos your system using npm:
 ```shell
 npm install -g @dodona/dolos
 ```
@@ -86,7 +86,7 @@ Each component has its own build instructions in its own directory.
 - [Lib](https://github.com/dodona-edu/dolos/tree/main/lib): the Node.js library which can parse and analyze files
 - [Web](https://github.com/dodona-edu/dolos/tree/main/web): the graphical user interface in your browser which can be launched using the CLI
 - [Docs](https://github.com/dodona-edu/dolos/tree/main/docs): the source code of <https://dolos.ugent.be>
-- [API](https://github.com/dodona-edu/dolos/tree/main/api): the API server running the Dolos Online service at <https://dolos.ugent.be/server>
+- [API](https://github.com/dodona-edu/dolos/tree/main/api): the API server running the Dolos web app at <https://dolos.ugent.be/server>
 
 ## Who made this software?
 
