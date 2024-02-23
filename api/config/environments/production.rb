@@ -1,6 +1,8 @@
 require "active_support/core_ext/integer/time"
 
 Rails.application.configure do
+  config.hosts = ENV.fetch('DOLOS_API_HOSTS') { 'dolos.ugent.be' }
+
   # Settings specified here will take precedence over those in config/application.rb.
 
   # Code is not reloaded between requests.
@@ -39,7 +41,7 @@ Rails.application.configure do
   # config.action_cable.allowed_request_origins = [ "http://example.com", /http:\/\/example.*/ ]
 
   # Force all access to the app over SSL, use Strict-Transport-Security, and use secure cookies.
-  config.force_ssl = true
+  config.force_ssl = !ENV["DOLOS_API_DISABLE_FORCE_SSL"]
 
   # Include generic and useful information about system operation, but avoid logging too much
   # information to avoid inadvertent exposure of personally identifiable information (PII).
@@ -85,6 +87,6 @@ Rails.application.configure do
   config.active_record.dump_schema_after_migration = false
 
   routes.default_url_options = {
-    host: 'dolos.ugent.be'
+    host: ENV.fetch('DOLOS_API_HOSTS') { 'dolos.ugent.be' }
   }
 end

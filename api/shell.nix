@@ -2,7 +2,7 @@
 let
   dev = fetchTarball "https://github.com/numtide/devshell/archive/main.tar.gz";
   devshell = pkgs.devshell or (import dev { inherit system; });
-  ruby = pkgs.ruby_3_2;
+  ruby = pkgs.ruby_3_3;
 in
 devshell.mkShell {
   name = "Dolos API server";
@@ -15,8 +15,6 @@ devshell.mkShell {
   };
   packages = with pkgs; [
     nixpkgs-fmt
-    docker-compose
-    docker
   ];
   language.ruby = {
     package = (pkgs.lowPrio ruby);

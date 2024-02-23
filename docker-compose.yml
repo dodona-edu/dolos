@@ -1,3 +1,4 @@
+name: dolos
 version: "3.9"
 services:
   db:
@@ -5,38 +6,57 @@ services:
     volumes:
       - dolos-db-data:/var/lib/mysql
     environment:
-      MYSQL_ROOT_PASSWORD: dolos
+      MARIADB_ROOT_PASSWORD: dolos
     networks:
       - dolos
   web:
-    build: .
+    build:
+      context: ./web/
+    ports:
+      - "8080:8080"
+    environment:
+      VITE_HOST: 0.0.0.0
+      VITE_PORT: 8080
+      VITE_API_URL: http://localhost:3000
+      VITE_MODE: server
+    depends_on:
+      - api
+    networks:
+      - dolos
+  api:
+    build: ./api/
     command: bash -c "rm -f tmp/pids/server.pid && bundle exec rails db:prepare && bundle exec rails s -p 3000 -b '0.0.0.0'"
     volumes:
       - dolos-api-storage:/dolos/storage
       - /tmp:/tmp
-      #- .:/dolos
     ports:
       - "3000:3000"
     environment:
+      DOLOS_API_CORS_ORIGINS: http://localhost:8080
+      DOLOS_API_HOSTS: localhost:3000
+      DOLOS_API_DISABLE_FORCE_SSL: true
       DOLOS_API_DATABASE_USERNAME: root
       DOLOS_API_DATABASE_PASSWORD: dolos
       DOLOS_API_DATABASE_HOST: db
+      RAILS_ENV: production
+      RAILS_LOG_TO_STDOUT: true
+      SECRET_KEY_BASE_DUMMY: true
     depends_on:
       - worker
     networks:
       - dolos
   worker:
-    build: .
+    build: ./api/
     command: bash -c "bundle exec rails jobs:work"
     volumes:
       - dolos-api-storage:/dolos/storage
-      - /var/run/docker.sock:/var/run/docker.sock
       - /tmp:/tmp
-      #- .:/dolos
+      - /var/run/docker.sock:/var/run/docker.sock
     environment:
       DOLOS_API_DATABASE_USERNAME: root
       DOLOS_API_DATABASE_PASSWORD: dolos
       DOLOS_API_DATABASE_HOST: db
+      RAILS_ENV: production
     depends_on:
       - db
     networks:

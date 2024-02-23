@@ -52,5 +52,6 @@ test:
 production:
   <<: *default
   database: dolos
-  username: <%= Rails.application.credentials[:db_user] %>
-  password: <%= Rails.application.credentials[:db_password] %>
+  username: <%= ENV.fetch("DOLOS_API_DATABASE_USERNAME") { Rails.application.credentials[:db_user] } %>
+  password: <%= ENV.fetch("DOLOS_API_DATABASE_PASSWORD") { Rails.application.credentials[:db_password] } %>
+  host: <%= ENV.fetch("DOLOS_API_DATABASE_HOST") { "localhost" } %>

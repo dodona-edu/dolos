@@ -4,6 +4,8 @@ This is the API server for Dolos.
 
 It is a rails application that enables users to upload datasets, which will be analyzed with the Dolos CLI (running in a docker container) and the results will be available on a secret URL.
 
+Refer to the installation instructions in the root of this repository how to self-host a fully working Dolos web app.
+
 ## Development
 
 The next steps will guide you through the installation process to start developing:
@@ -25,10 +27,11 @@ The flake also provides the command `server:start` to start the database and job
 
 #### Using docker-compose
 
-We have provided a `docker-compose.yml` file that will start the development API server, job worker and MySQL database.
+The `docker-compose.yml` in this directory will start the development API server, job worker and MySQL database.
 You can start this environment with `docker-compose up`.
 
 **Note:** the job worker needs access to spawn new docker containers, the docker daemon socket (`unix:///var/run/docker.sock`) will be mounted in the worker service.
+
 
 #### Using your own environment
 
@@ -62,12 +65,20 @@ docker pull ghcr.io/dodona-ede/dolos:latest
 You can start the job worker with `rails jobs:work`.
 This will start the job worker and will spawn docker containers to analyze datasets once they are uploaded.
 
-
 ### 4. Running the frontend
 
-The frontend is part of the `dolos-web` project that can be found in the `web/` directory of this repository.
+To interact with the API server you should run the `dolos-web` front-end in _server mode_.
+Refer to the instructions in the `web/` directory of this repository.
 
-## Deployment
+## Hosting Dolos API
+
+You can also run the Ruby on Rails application directly without the use of docker-compose.
+
+System requirements:
+- Ruby (see `.ruby-version`)
+- A MariaDB or MySQL database
+- Docker Engine
+- Recommended: a reverse proxy (Nginx, Apache, ...)
 
 This application is deployed using capistrano.
 You can deploy the application with `cap production deploy`.
