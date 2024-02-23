@@ -35,16 +35,31 @@ The analysis results are available in machine readable CSV files and Dolos can b
 
 Try Dolos on <https://dolos.ugent.be>.
 
-## Installation
+## Self-hosting Dolos
 
-If you want to run Dolos locally instead of using [the web app](https://dolos.ugent.be), you can install Dolos your system using npm:
+We provide an instance of the Dolos web app free of charge at <https://dolos.ugent.be>.
+There are no hidden costs and we do not sell, distribute or abuse data in it in any way.
+
+Dolos is fully open-source and you can self-host your own instance.
+The simplest way to self-host dolos, is by using the `docker-compose.yml` configuration in the root of this repository:
+
+1. Ensure [Docker Engine](https://docs.docker.com/engine/install/) and [Docker Compose](https://docs.docker.com/compose/install/) are installed on the system where you will be running Dolos on.
+2. The compose-file is configured to run on localhost only. If you want to host Dolos publicly, change the corresponding configuration in the compose file.
+3. Run `docker-compose build` in this directory to pull and fetch all needed container images.
+4. Run `docker-compose up` to start the services.
+
+If you encounter any issues during the setup, please get in touch.
+
+## Local installation with Dolos CLI
+
+If you want to run the Dolos CLI instead of using [the web app](https://dolos.ugent.be), you can install Dolos CLI your system using npm:
 ```shell
 npm install -g @dodona/dolos
 ```
 
 See [the installation instructions on our website](https://dolos.ugent.be/guide/installation.html) for more complete instructions.
 
-## CLI Usage
+### Usage
 
 Dolos can be launched using the command-line interface, but it is able to
 show the results in your browser.
@@ -53,15 +68,15 @@ Launch Dolos using the following command in your terminal:
 ```shell
 dolos run -f web path/to/your/files/*
 ```
-The above command will launch a web interface with the analysis results at <http://localhost:3000>.
+This will launch a web interface with the analysis results at <http://localhost:3000>.
 
 [More elaborate instructions on how to use Dolos](https://dolos.ugent.be/guide/running.html).
 
-## Documentation
+### Documentation
 
-Visit our web page at <https://dolos.ugent.be>.
+Visit our web page at <https://dolos.ugent.be/docs>.
 
-## Building and developing
+### Building and developing
 
 If you want to build Dolos from source you will need
 [yarn (v1)](https://classic.yarnpkg.com/en/docs/install) because this project

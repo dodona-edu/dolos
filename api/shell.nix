@@ -15,8 +15,6 @@ devshell.mkShell {
   };
   packages = with pkgs; [
     nixpkgs-fmt
-    docker-compose
-    docker
   ];
   language.ruby = {
     package = (pkgs.lowPrio ruby);

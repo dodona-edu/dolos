@@ -9,6 +9,8 @@ pkgs.devshell.mkShell {
     gnumake
     tree-sitter
     nixpkgs-fmt
+    docker
+    docker-compose
   ];
   env = [{
     name = "PYTHON";
