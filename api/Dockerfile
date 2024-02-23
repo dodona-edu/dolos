@@ -1,10 +1,18 @@
 # syntax=docker/dockerfile:1
 FROM ruby:3.3.0
 RUN apt-get update -qq && apt-get -y install mariadb-client
-WORKDIR /dolos
 
-COPY . /dolos/
-RUN bundle install
+ADD config.ru Gemfile Gemfile.lock Rakefile /dolos/
+WORKDIR /dolos
+RUN bundle install && mkdir log
+
+ADD app/ /dolos/app
+ADD bin/ /dolos/bin
+ADD config/ /dolos/config
+ADD db/ /dolos/db
+ADD lib/ /dolos/lib
+ADD public/ /dolos/public
+ADD test/ /dolos/test
 
 EXPOSE 3000
 
