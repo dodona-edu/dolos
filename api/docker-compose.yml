@@ -19,7 +19,6 @@ services:
       VITE_PORT: 8080
       VITE_API_URL: http://localhost:3000
       VITE_MODE: server
-      RAILS_ENV: production
     depends_on:
       - api
     networks:

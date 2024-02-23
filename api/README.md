@@ -4,6 +4,17 @@ This is the API server for Dolos.
 
 It is a rails application that enables users to upload datasets, which will be analyzed with the Dolos CLI (running in a docker container) and the results will be available on a secret URL.
 
+## Self-host Dolos
+
+We provide a `docker-compose.yml` configuration which you can use to self-host the Dolos web app.
+You can run the Dolos web app by following these instructions:
+1. Ensure [Docker Engine](https://docs.docker.com/engine/install/) and [Docker Compose](https://docs.docker.com/compose/install/) are installed on the system where you will be running Dolos on.
+2. The compose-file is configured to run on localhost only. If you want to host Dolos publicly, change the corresponding configuration in the compose file.
+3. Run `docker-compose build` in this directory to pull and fetch all needed container images.
+4. Run `docker-compose up` to start the services.
+
+If you encounter any issues during the setup, please get in touch.
+
 ## Development
 
 The next steps will guide you through the installation process to start developing:
