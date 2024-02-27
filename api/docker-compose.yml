@@ -1,0 +1,51 @@
+# IMPORTANT: This docker-compose.yml is for development purposes only
+# Please use the docker-compose.yml in the root of this repository for a production setup
+version: "3.9"
+services:
+  db:
+    image: mariadb:11
+    volumes:
+      - dolos-db-data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: dolos
+    networks:
+      - dolos
+  web:
+    build: .
+    command: bash -c "rm -f tmp/pids/server.pid && bundle exec rails db:prepare && bundle exec rails s -p 3000 -b '0.0.0.0'"
+    volumes:
+      - dolos-api-storage:/dolos/storage
+      - /tmp:/tmp
+      #- .:/dolos
+    ports:
+      - "3000:3000"
+    environment:
+      DOLOS_API_DATABASE_USERNAME: root
+      DOLOS_API_DATABASE_PASSWORD: dolos
+      DOLOS_API_DATABASE_HOST: db
+    depends_on:
+      - worker
+    networks:
+      - dolos
+  worker:
+    build: .
+    command: bash -c "bundle exec rails jobs:work"
+    volumes:
+      - dolos-api-storage:/dolos/storage
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /tmp:/tmp
+      #- .:/dolos
+    environment:
+      DOLOS_API_DATABASE_USERNAME: root
+      DOLOS_API_DATABASE_PASSWORD: dolos
+      DOLOS_API_DATABASE_HOST: db
+    depends_on:
+      - db
+    networks:
+      - dolos
+volumes:
+  dolos-db-data:
+  dolos-api-storage:
+
+networks:
+  dolos:
