@@ -2,7 +2,7 @@ name: dolos
 version: "3.9"
 services:
   db:
-    image: mariadb:latest
+    image: mariadb:11
     volumes:
       - dolos-db-data:/var/lib/mysql
     environment:
