@@ -2,7 +2,7 @@
 let
   dev = fetchTarball "https://github.com/numtide/devshell/archive/main.tar.gz";
   devshell = pkgs.devshell or (import dev { inherit system; });
-  ruby = pkgs.ruby_3_3;
+  ruby = pkgs.ruby_3_2;
 in
 devshell.mkShell {
   name = "Dolos API server";
