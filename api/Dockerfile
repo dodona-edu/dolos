@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM ruby:3.3.0
+FROM ruby:3.2.3
 RUN apt-get update -qq && apt-get -y install mariadb-client
 
 ADD config.ru Gemfile Gemfile.lock Rakefile /dolos/
