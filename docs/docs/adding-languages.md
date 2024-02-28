@@ -3,8 +3,11 @@
 Dolos is built on top of a [generic parser model](/about/languages.md) to achieve loose coupling with specific programming languages. 
 As a result, it is fairly easy to add support for additional programming languages if a suitable parser is available.
 
-Dolos automatically discovers the available [Tree-sitter parsers](https://tree-sitter.github.io/tree-sitter/) on the local system at runtime.
-As such, adding support for a new language comes down to installing a Tree-sitter parser for that language in the `node_modules` on your system (Dolos searches `NODE_PATH`).
+Dolos bundles officially supported parsers in the [`dolos-parsers`](https://www.npmjs.com/package/@dodona/dolos-parsers) module.
+[Let us know](https://github.com/dodona-edu/dolos/issues/1029) if you want to use a language that is not supported yet.
+
+In addition, Dolos can automatically discover available [Tree-sitter parsers](https://tree-sitter.github.io/tree-sitter/) on the local system at runtime.
+As such, if you are running Dolos locally, you can quickly add support for a new language by installing a Tree-sitter parser for that language in the `node_modules` on your system (Dolos searches `NODE_PATH`).
 
 As an example, we demonstrate how the **Rust** programming language can be supported.
 
@@ -32,7 +35,7 @@ There exists a Rust parser named [`tree-sitter-rust`](https://github.com/tree-si
 
 ::: tip
 If the language you are looking for is not listed on either the website or GitHub, it might be that there is no parser available.
-If that is the case, you can [contact us](mailto:dodona@ugent.be) and we will see if we can help.
+If that is the case, you can [contact us](/about/contact) and we will see if we can help.
 
 It is possible to [create a new parser](https://tree-sitter.github.io/tree-sitter/creating-parsers), but this quickly becomes complicated.
 :::

@@ -7,6 +7,7 @@ No additional installations needed.
 We describe the steps for plagiarism detection within a set of source files.
 Download this [ZIP-file](/simple-dataset.zip) containing some sample files if you want to perform the analysis yourself.
 
+
 ## Upload and inspect source files
 
 Start plagiarism detection by uploading a ZIP-file containing the source files you want to inspect.
@@ -26,9 +27,9 @@ Click "Analyze" to upload your files and start the analysis.
 
 ::: tip
 
-You can enhance the analysis results by [adding metadata](/guide/adding-metadata) to your submissions.
+You can enhance the analysis results by [adding metadata](/docs/adding-metadata) to your submissions.
 
-Submissions exported from [Dodona](/guide/dodona) with the option `Include info csv` enabled already include metadata in a format Dolos recognizes.
+Submissions exported from [Dodona](/docs/dodona) with the option `Include info csv` enabled already include metadata in a format Dolos recognizes.
 
 :::
 
@@ -74,14 +75,14 @@ You can simply upload the same dataset again to generate a new report.
 
 ## How is this free?
 
-[Team Dodona](https://dodona.ugent.be/en/about/) develops Dolos and hosts a free web app instance.
+[Team Dodona](https://dodona.be/en/about/) develops Dolos and hosts a free web app instance.
 We are researchers and teachers of programming courses at [Ghent University](https://www.ugent.be/en) (Belgium).
 
 Team Dodona never shares submitted files or analysis reports with others and never uses it for commercial purposes.
 You can delete your data from our servers at any point.
 We periodically delete older data to free up space on our servers.
 
-As with our [Dodona](https://dodona.ugent.be) platform for learning to code, we provide Dolos as a free service to schools and universities.
+As with our [Dodona](https://dodona.be) platform for learning to code, we provide Dolos as a free service to schools and universities.
 Our servers are hosted by [Ghent University](https://www.ugent.be/en) (Belgium).
 
 You can also [run Dolos locally](installation.html) or [host your own server](docker.html).
@@ -96,5 +97,5 @@ The source code of Dolos is open and available on Github: [github.com/dodona-edu
 <a href="https://www.elixir-belgium.org/"><img src="/images/elixir.png" alt="ELIXIR Belgium" /></a>
 </div>
 
-Help us keep Dolos and Dodona free and [support us](https://dodona.ugent.be/en/support-us/).
+Help us keep Dolos and Dodona free and [support us](https://dodona.be/en/support-us/).
 

@@ -3,11 +3,11 @@
 The Dolos CLI is actually a wrapper around the core TypeScript/JavaScript library [@dodona/dolos-lib](https://www.npmjs.com/package/@dodona/dolos-lib).
 This library implements the [algorithms](/about/algorithm) of the Dolos plagiarism detection pipeline.
 Feel free to use or extend individual algorithms in your own projects.
-We're happy to [hear](https://dodona.ugent.be/nl/contact/) about any extensions you make.
+We're happy to [hear](/about/contact/) about any extensions you make.
 
 ## Installation
 
-Using `npm` or `yarn` to install the library, similar to [installing the CLI](/guide/installation):
+Using `npm` or `yarn` to install the library, similar to [installing the CLI](/docs/installation):
 
 ```shell
 npm install @dodona/dolos-lib
@@ -42,6 +42,6 @@ for (const pair of report.allPairs()) {
 }
 ```
 
-Since Dolos primarily targets teachers that will use Dolos as a [web app](/guide/server) or as a [command line tool](/guide/running),
+Since Dolos primarily targets teachers that will use Dolos as a [web app](/docs/server) or as a [command line tool](/docs/running),
 the library is not documented as extensive as we would like.
-Feel free to [create an issue on GitHub](https://github.com/dodona-edu/dolos) or [send us an email](mailto:dodona@ugent.be) if you have any questions.
+Feel free to [create an issue on GitHub](https://github.com/dodona-edu/dolos) or [contact us](/about/contact) if you have any questions.

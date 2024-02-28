@@ -16,14 +16,15 @@ hero:
 
   actions:
     - text: Documentation
-      link: /guide/
+      link: /docs/
       theme: alt
     - text: Examples
-      link: /try/
+      link: /demo/
       theme: alt
-    - text: Try it out →
+    - text: Use Dolos →
       link: https://dolos.ugent.be/server/
       theme: brand
+
       
   
 features:
@@ -65,7 +66,7 @@ features:
     icon: 🚀
   
 
-footer: Made by <a href="https://dodona.ugent.be/en/about/">Team Dodona</a> with ❤️
+footer: Made by <a href="https://dodona.be/en/about/">Team Dodona</a> with ❤️
 ---
 
 

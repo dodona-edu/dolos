@@ -7,7 +7,7 @@ On this page you can find the results of a plagiarism analysis for a few differe
 
 ## Try on your own data!
 
-If you want to run Dolos yourself, you can follow our [quick start guide](/guide/server.md).
+If you want to run Dolos yourself, you can follow our [quick start guide](/docs/server.md).
 
 ## Classroom dataset
 
@@ -46,7 +46,7 @@ Analysis performed on all 392 submissions for a mandatory assignment. Communicat
 
 ## Benchmark dataset
 
-These reports shows how Dolos performs on the [SOCO dataset](https://pan.webis.de/fire14/pan14-web/soco.html). The inputs of Dolos were enhanced by adding [labels](../guide/running.html#adding-metadata)
+These reports shows how Dolos performs on the [SOCO dataset](https://pan.webis.de/fire14/pan14-web/soco.html). The inputs of Dolos were enhanced by adding [labels](../docs/running.html#adding-metadata)
 indicating whether a file is involved in plagiarism (orange) or not (blue).
 
 Note that these labels were added manually by experts, but they might not be fully accurate. Some submissions look very similar although they are not labeled as plagiarism.

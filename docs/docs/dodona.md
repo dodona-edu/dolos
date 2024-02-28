@@ -1,10 +1,14 @@
 # Use case: Dodona
 
-To illustrate how Dolos can be used in education practice, we show how teachers can perform plagiarism detection on submissions exported from the coding platform [Dodona](https://dodona.ugent.be).
+To illustrate how Dolos can be used in education practice, we show how teachers can perform plagiarism detection on submissions exported from the coding platform [Dodona](https://dodona.be).
+
+View the video or **follow the instructions below**:
+
+<iframe src="https://player.vimeo.com/video/917504935?h=27230fe835" style="width:100%; aspect-ratio: 16 / 9;" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
 
 ## Export submissions from Dodona
 
-Export submissions for a programming exercise in a [Dodona](https://dodona.ugent.be) course:
+Export submissions for a programming exercise in a [Dodona](https://dodona.be) course:
 
 1. In the series that contains the exercise, open the series menu and choose _Export student submissions_. ![Series menu showing "Export student submissions" as option](/images/dodona-export-0.png)
 2. Select the exercise and click _Next step_. ![Export wizard showing a selection of exercises](/images/dodona-export-1.png)
@@ -26,11 +30,11 @@ Open the [Dolos web app](https://dolos.ugent.be/server) in your browser. Upload 
 
 Within a few seconds, the plagiarism detection report will be ready and you will be able to explore the results.
 
-[Read more about how to use Dolos](/guide/server).
+[Read more about how to use Dolos](/docs/server).
 
 ## Run Dolos CLI (offline)
 
-[Installing Dolos CLI](/guide/installation) on your computer if you haven't done so. Run Dolos on the ZIP-file you just downloaded from Dodona: 
+[Installing Dolos CLI](/docs/installation) on your computer if you haven't done so. Run Dolos on the ZIP-file you just downloaded from Dodona: 
 
 ```shell
 dolos run -f web -l ${LANGUAGE} dodona-exported.zip
