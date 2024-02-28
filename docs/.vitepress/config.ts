@@ -10,32 +10,31 @@ export default defineConfig({
   ],
 
   themeConfig: {
-    // https://vitepress.dev/reference/default-theme-config
-
     nav: [
-      { text: 'Documentation', link: '/guide/' },
-      { text: 'Examples', link: '/try/' },
+      { text: 'Documentation', link: '/docs/' },
+      { text: 'Examples', link: '/demo/' },
       { text: 'Use Dolos', link: 'https://dolos.ugent.be/server' },
     ],
 
     sidebar: [
-      { text: "Introduction", link: "/guide/" },
+      { text: "Introduction", link: "/docs/" },
       {
         text: 'Dolos',
         items: [
-          { text: 'Use Dolos', link: '/guide/server' },
-          { text: 'Use case: Dodona', link: '/guide/dodona' },
+          { text: 'Use Dolos', link: '/docs/server' },
+          { text: 'Use case: Dodona', link: '/docs/dodona' },
+          { text: 'Self-host Dolos', link: '/docs/hosting-dolos' },
         ]
       },
       {
         text: 'Dolos CLI & Library',
         items: [
-          { text: 'Install Dolos CLI', link: '/guide/installation' },
-          { text: 'Use Dolos CLI', link: '/guide/running' },
-          { text: 'Run Dolos CLI using docker', link: '/guide/docker' },
-          { text: 'Add metadata', link: '/guide/adding-metadata' },
-          { text: 'Add new languages', link: '/guide/adding-languages' },
-          { text: 'Use the Dolos library', link: '/guide/library' },
+          { text: 'Install Dolos CLI', link: '/docs/installation' },
+          { text: 'Use Dolos CLI', link: '/docs/running' },
+          { text: 'Run Dolos CLI using docker', link: '/docs/docker' },
+          { text: 'Add metadata', link: '/docs/adding-metadata' },
+          { text: 'Add new languages', link: '/docs/adding-languages' },
+          { text: 'Use the Dolos library', link: '/docs/library' },
         ]
       },
       {
@@ -44,10 +43,10 @@ export default defineConfig({
           { text: 'How Dolos works', link: '/about/algorithm' },
           { text: 'Supported programming languages', link: '/about/languages' },
           { text: 'Research publications', link: '/about/publications' },
+          { text: 'Contact us', link: '/about/contact' },
         ]
       }
     ],
-
     socialLinks: [
       { icon: 'github', link: 'https://github.com/dodona-edu/dolos' }
     ],

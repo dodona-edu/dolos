@@ -38,11 +38,9 @@ Dolos and Dolos CLI have out-of-the-box support for the most commonly used progr
 ## Requesting support for a new language
 
 If you're using Dolos and your programming language of choice is not in the above list, you can request support
-on our [issue tracker on GitHub](https://github.com/dodona-edu/dolos/issues/1029) or [by sending us an email](mailto:dodona@ugent.be).
+on our [issue tracker on GitHub](https://github.com/dodona-edu/dolos/issues/1029) or [by contacting us](/about/contact).
 
 ## Adding a language locally
 
-If you don't want to wait on our support to add a new language, you can also add it yourself by running the [Dolos CLI](/guide/installation) and [installing additional parsers locally](/guide/adding-languages.md).
+If you don't want to wait on our support to add a new language, you can also add it yourself by running the [Dolos CLI](/docs/installation) and [installing additional parsers locally](/docs/adding-languages.md).
 
-Please let us know if you've been successful, so we can officially add support for the language in our next release of Dolos.
-If you need help, contact us [on GitHub](https://github.com/dodona-edu/dolos/issues/1029) or [by sending us an email](mailto:dodona@ugent.be).

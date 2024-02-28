@@ -10,7 +10,7 @@ const props = defineProps<{
 <template>
   <div class="hero">
     <h1 class="hero-title">Publications</h1>
-    <p class="hero-lead">Dolos is developed by <a href="https://dodona.ugent.be/en/about/">Team Dodona</a> at Ghent University in Belgium. Our research is published in the following journals and conferences.</p>
+    <p class="hero-lead">Dolos is developed by <a href="https://dodona.be/en/about/">Team Dodona</a> at Ghent University in Belgium. Our research is published in the following journals and conferences.</p>
   </div>
   <slot />
 </template>

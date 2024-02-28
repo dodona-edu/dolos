@@ -1,11 +1,13 @@
 # Introduction
 
-Dolos is a source code plagiarism detection tool that [supports a broad range of programming languages](/about/languages).
-It is available as [a web app](/guide/server) for regular users, and as a [command-line tool](/guide/installation) and a [JavaScript library](/guide/library) for more advanced users. The source code of Dolos is [open](https://github.com/dodona-edu/dolos) under the MIT license.
+<iframe src="https://player.vimeo.com/video/913639891?h=cbff92408d&loop=1" style="padding-top: 1em; width: 100%; aspect-ratio: 16 / 9;" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
 
-- [Online examples to see Dolos in action](/try/)
-- [Use Dolos on your own data](/guide/server)
-- [Install Dolos CLI for offline usage](/guide/installation)
+Dolos is a source code plagiarism detection tool that [supports a broad range of programming languages](/about/languages).
+It is available as [a web app](/docs/server) for regular users, and as a [command-line tool](/docs/installation) and a [JavaScript library](/docs/library) for more advanced users. The source code of Dolos is [open](https://github.com/dodona-edu/dolos) under the MIT license.
+
+- [Online examples to see Dolos in action](/demo/)
+- [Use Dolos on your own data](/docs/server)
+- [Install Dolos CLI for offline usage](/docs/installation)
 
 See at a glance how similar the analyzed files are from the powerful visualizations provided by Dolos. Based on our experience with teaching programming courses, Dolos focuses on two main use cases:
 
@@ -26,7 +28,7 @@ With Dolos, we want to provide an **open-source** tool that can easily be extend
 
 ## Who made this software?
 
-Dolos is an active research project by [Team Dodona](https://dodona.ugent.be/en/about/) at [Ghent University](https://www.ugent.be/en) (Belgium). Please use this citation if you use Dolos in your own research:
+Dolos is an active research project by [Team Dodona](https://dodona.be/en/about/) at [Ghent University](https://www.ugent.be/en) (Belgium). Please use this citation if you use Dolos in your own research:
 
 > Maertens et. al. (2022) J. Computer Assisted Learning [doi:10.1111/jcal.12662](https://doi.org/10.1111/jcal.12662)
 

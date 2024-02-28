@@ -75,13 +75,11 @@ dolos --version
 ```
 
 Dolos supports most commonly used programming languages out-of-the box.
-However, you can easily [add a new language](/guide/adding-languages#adding-a-new-language) if your target programming language is not yet supported.
+However, you can easily [add a new language](/docs/adding-languages#adding-a-new-language) if your target programming language is not yet supported.
 
 ## Troubleshooting
 
-If you encounter a problem not listed here, or if the solution does not work for you,
-please contact us a [dodona@ugent.be](mailto:dodona@ugent.be)
-or [open an issue on GitHub](https://github.com/dodona-edu/dolos/issues/new).
+If you encounter a problem not listed here, or if the solution does not work for you, please [get in touch](/about/contact) or [open an issue on GitHub](https://github.com/dodona-edu/dolos/issues/new).
 
 ### Module was compiled against a different Node.js version
 

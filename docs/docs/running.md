@@ -47,7 +47,7 @@ You can show all command line options by passing the `-h` or `--help` flag or by
 ## Adding metadata
 
 You can improve the plagiarism detection report by adding metadata to your submissions (submission time, labels, author name, ...).
-See the page about [adding metadata](/guide/adding-metadata) to see how.
+See the page about [adding metadata](/docs/adding-metadata) to see how.
 
 ## Modifying plagiarism detection parameters
 

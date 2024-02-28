@@ -33,22 +33,13 @@ Dolos is a [web app](https://dolos.ugent.be) that analyses source code files for
 In addition, it offers a command-line interface to run an analysis locally, showing the interactive user interface in your browser by launching a local webserver.
 The analysis results are available in machine readable CSV files and Dolos can be integrated as a [JavaScript library](https://www.npmjs.com/package/@dodona/dolos-lib) in other applications empowering users to integrate plagiarism detection in their personal workflow.
 
-Try Dolos on <https://dolos.ugent.be>.
+You can use our free to use instance of Dolos on <https://dolos.ugent.be>.
 
 ## Self-hosting Dolos
 
-We provide an instance of the Dolos web app free of charge at <https://dolos.ugent.be>.
-There are no hidden costs and we do not sell, distribute or abuse data in it in any way.
+As Dolos is open source, it is also possible to host the Dolos web app.
 
-Dolos is fully open-source and you can self-host your own instance.
-The simplest way to self-host dolos, is by using the `docker-compose.yml` configuration in the root of this repository:
-
-1. Ensure [Docker Engine](https://docs.docker.com/engine/install/) and [Docker Compose](https://docs.docker.com/compose/install/) are installed on the system where you will be running Dolos on.
-2. The compose-file is configured to run on localhost only. If you want to host Dolos publicly, change the corresponding configuration in the compose file.
-3. Run `docker-compose build` in this directory to pull and fetch all needed container images.
-4. Run `docker-compose up` to start the services.
-
-If you encounter any issues during the setup, please get in touch.
+Follow our instructions on <https://dolos.ugent.be/docs>.
 
 ## Local installation with Dolos CLI
 
