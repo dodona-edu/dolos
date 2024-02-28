@@ -3,7 +3,7 @@
 The Dolos CLI is actually a wrapper around the core TypeScript/JavaScript library [@dodona/dolos-lib](https://www.npmjs.com/package/@dodona/dolos-lib).
 This library implements the [algorithms](/about/algorithm) of the Dolos plagiarism detection pipeline.
 Feel free to use or extend individual algorithms in your own projects.
-We're happy to [hear](/about/contact/) about any extensions you make.
+We're happy to [hear](/about/contact) about any extensions you make.
 
 ## Installation
 

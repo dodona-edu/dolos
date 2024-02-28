@@ -5,7 +5,7 @@
 Dolos is a source code plagiarism detection tool that [supports a broad range of programming languages](/about/languages).
 It is available as [a web app](/docs/server) for regular users, and as a [command-line tool](/docs/installation) and a [JavaScript library](/docs/library) for more advanced users. The source code of Dolos is [open](https://github.com/dodona-edu/dolos) under the MIT license.
 
-- [Online examples to see Dolos in action](/try/)
+- [Online examples to see Dolos in action](/demo/)
 - [Use Dolos on your own data](/docs/server)
 - [Install Dolos CLI for offline usage](/docs/installation)
 
