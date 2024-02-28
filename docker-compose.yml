@@ -57,6 +57,8 @@ services:
       DOLOS_API_DATABASE_PASSWORD: dolos
       DOLOS_API_DATABASE_HOST: db
       RAILS_ENV: production
+      SECRET_KEY_BASE_DUMMY: true
+      RAILS_LOG_TO_STDOUT: true
     depends_on:
       - db
     networks:
