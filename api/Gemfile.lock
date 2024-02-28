@@ -175,7 +175,7 @@ GEM
     msgpack (1.7.2)
     multi_json (1.15.0)
     mutex_m (0.2.0)
-    mysql2 (0.5.5)
+    mysql2 (0.5.6)
     net-imap (0.4.9.1)
       date
       net-protocol
@@ -308,7 +308,7 @@ DEPENDENCIES
   factory_bot_rails (~> 6.4.3)
   faker (~> 3.2.3)
   mocha (~> 2.1.0)
-  mysql2 (~> 0.5, >= 0.5.5)
+  mysql2 (~> 0.5, >= 0.5.6)
   puma (~> 6.4, >= 6.4.2)
   rack-cors
   rails (~> 7.1.3)
