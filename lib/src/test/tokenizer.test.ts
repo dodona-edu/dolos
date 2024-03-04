@@ -70,6 +70,6 @@ test("should be able to use external tree-sitter parsers (tree-sitter-json)", as
   const tokenizer = await language.createTokenizer();
   t.truthy(tokenizer);
 
-  const {tokens} = tokenizer.tokenizeFile(file);
+  const { tokens } = tokenizer.tokenizeFile(file);
   t.truthy(tokens);
 });

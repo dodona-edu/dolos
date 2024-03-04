@@ -45,7 +45,10 @@ export class ProgrammingLanguage extends Language {
       this.languageModule = (await import("@dodona/dolos-parsers")).default[this.name];
       this.languageModule ||= (await import(`tree-sitter-${this.name}`)).default;
       if (this.languageModule === undefined) {
-        throw new LanguageError(`Could not find language module for ${this.name}, searched in @dodona/dolos-parsers and tree-sitter-${this.name}`);
+        throw new LanguageError(
+          `Could not find language module for ${this.name}, ` +
+          `searched in @dodona/dolos-parsers and tree-sitter-${this.name}`
+        );
       }
     }
     return this.languageModule;
