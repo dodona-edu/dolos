@@ -1,6 +1,6 @@
 {
   "name": "@dodona/dolos-lib",
-  "version": "3.1.0",
+  "version": "3.1.1",
   "exports": "./dist/index.js",
   "type": "module",
   "description": "Code similarity detection based on the Winnowing algorithm",
