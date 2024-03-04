@@ -4114,6 +4114,13 @@ tree-sitter-cli@^0.20.8:
   resolved "https://registry.yarnpkg.com/tree-sitter-cli/-/tree-sitter-cli-0.20.8.tgz#06a81cea8d6d82f93d67eed7d28b6bc04a4a8916"
   integrity sha512-XjTcS3wdTy/2cc/ptMLc/WRyOLECRYcMTrSWyhZnj1oGSOWbHLTklgsgRICU3cPfb0vy+oZCC33M43u6R1HSCA==
 
+tree-sitter-json@0.20.2:
+  version "0.20.2"
+  resolved "https://registry.yarnpkg.com/tree-sitter-json/-/tree-sitter-json-0.20.2.tgz#8909ffb7149120daa72f9cadb63e8a214f1e5aba"
+  integrity sha512-eUxrowp4F1QEGk/i7Sa+Xl8Crlfp7J0AXxX1QdJEQKQYMWhgMbCIgyQvpO3Q0P9oyTrNQxRLlRipDS44a8EtRw==
+  dependencies:
+    nan "^2.18.0"
+
 tree-sitter@^0.20.6:
   version "0.20.6"
   resolved "https://registry.yarnpkg.com/tree-sitter/-/tree-sitter-0.20.6.tgz#fec52e5d7cc6c583135756479f2440dd89b25cbe"

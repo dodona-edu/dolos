@@ -62,3 +62,14 @@ test("language picker should detect most common language", t => {
   const detected = new LanguagePicker().detectLanguage(files);
   t.deepEqual(detected.name, "python");
 });
+
+test("should be able to use external tree-sitter parsers (tree-sitter-json)", async t => {
+  const file = (await readPath("./package.json")).ok();
+  const language = await (new LanguagePicker().findLanguage("json"));
+
+  const tokenizer = await language.createTokenizer();
+  t.truthy(tokenizer);
+
+  const { tokens } = tokenizer.tokenizeFile(file);
+  t.truthy(tokens);
+  t.snapshot(tokens, "stable tokenization");});
