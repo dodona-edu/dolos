@@ -258,7 +258,7 @@ const startPolling = (reportId: string): void => {
         }
 
         if (report.status === "failed" || report.status === "error") {
-          stderr.value = status.stderr.split("\n")[0].replace(/\[\d+m/g, "");
+          stderr.value = status.stderr.replace(/\[\d+m/g, "");
           handleError(`An error occurred while analyzing the dataset (${status.error})`);
         }
       }

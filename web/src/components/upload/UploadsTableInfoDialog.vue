@@ -88,13 +88,12 @@ const isDone = computed(
           props.report.status === 'error' || props.report.status === 'failed'
         "
       >
-        <v-card-text>
+        <v-card-text color="error">
           <v-alert type="error" variant="tonal" class="mt-2 mb-0">
             <p class="font-weight-bold">
               Unable to execute the analysis for the uploaded file.
             </p>
-
-            {{ props.report.response?.stderr }}
+            <v-textarea readonly :model-value="props.report.response?.stderr" />
           </v-alert>
         </v-card-text>
       </template>
