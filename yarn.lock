@@ -906,13 +906,13 @@
   resolved "https://registry.yarnpkg.com/@vueuse/metadata/-/metadata-10.7.2.tgz#ba0187ce138c287fd80301afc5b0d6a97e563633"
   integrity sha512-kCWPb4J2KGrwLtn1eJwaJD742u1k5h6v/St5wFe8Quih90+k2a0JP8BS4Zp34XUuJqS2AxFYMb1wjUL8HfhWsQ==
 
-"@vueuse/router@^10.7.2":
-  version "10.7.2"
-  resolved "https://registry.yarnpkg.com/@vueuse/router/-/router-10.7.2.tgz#74a5b5fb8e7c43386cf05b07e55a8ab339115f3f"
-  integrity sha512-TE9QtcqtZ793bwJWnlxn1gir7TXHJh5Y0KTIAS2DFOFvz4f3yTPmxAtIHC5e96oBVaVdnzxQQ9EsOhBDfBtCDg==
+"@vueuse/router@^10.9.0":
+  version "10.9.0"
+  resolved "https://registry.yarnpkg.com/@vueuse/router/-/router-10.9.0.tgz#544fe23b579c4ff677fe74baef9169364e4537b8"
+  integrity sha512-MOmrCMQlRuPS4PExE1hy8T0XbZUXaNbEuh7CAG5mC8kdvdgANQMkdvJ7vIEOP27n5mXK/4YjvXJOZSsur4E0QQ==
   dependencies:
-    "@vueuse/shared" "10.7.2"
-    vue-demi ">=0.14.6"
+    "@vueuse/shared" "10.9.0"
+    vue-demi ">=0.14.7"
 
 "@vueuse/shared@10.7.2":
   version "10.7.2"
@@ -920,6 +920,13 @@
   integrity sha512-qFbXoxS44pi2FkgFjPvF4h7c9oMDutpyBdcJdMYIMg9XyXli2meFMuaKn+UMgsClo//Th6+beeCgqweT/79BVA==
   dependencies:
     vue-demi ">=0.14.6"
+
+"@vueuse/shared@10.9.0":
+  version "10.9.0"
+  resolved "https://registry.yarnpkg.com/@vueuse/shared/-/shared-10.9.0.tgz#13af2a348de15d07b7be2fd0c7fc9853a69d8fe0"
+  integrity sha512-Uud2IWncmAfJvRaFYzv5OHDli+FbOzxiVEQdLCKQKLyhz94PIyFC3CHcH7EDMwIn8NPtD06+PNbC/PiO0LGLtw==
+  dependencies:
+    vue-demi ">=0.14.7"
 
 abbrev@^1.0.0:
   version "1.1.1"
@@ -4290,6 +4297,11 @@ vue-demi@>=0.14.5, vue-demi@>=0.14.6:
   version "0.14.6"
   resolved "https://registry.yarnpkg.com/vue-demi/-/vue-demi-0.14.6.tgz#dc706582851dc1cdc17a0054f4fec2eb6df74c92"
   integrity sha512-8QA7wrYSHKaYgUxDA5ZC24w+eHm3sYCbp0EzcDwKqN3p6HqtTCGR/GVsPyZW92unff4UlcSh++lmqDWN3ZIq4w==
+
+vue-demi@>=0.14.7:
+  version "0.14.7"
+  resolved "https://registry.yarnpkg.com/vue-demi/-/vue-demi-0.14.7.tgz#8317536b3ef74c5b09f268f7782e70194567d8f2"
+  integrity sha512-EOG8KXDQNwkJILkx/gPcoL/7vH+hORoBaKgGe+6W7VFMvCYJfmF2dGbvgDroVnI8LU7/kTu8mbjRZGBU1z9NTA==
 
 vue-eslint-parser@^9.3.1:
   version "9.3.2"
