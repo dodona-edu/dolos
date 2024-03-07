@@ -6,7 +6,7 @@
   "description": "Code similarity detection based on the Winnowing algorithm",
   "types": "dist/index.d.ts",
   "engines": {
-    "node": ">=16"
+    "node": ">=20.11.1"
   },
   "scripts": {
     "test": "tsc --build && ava",
@@ -28,7 +28,7 @@
   "devDependencies": {
     "@ava/typescript": "4.1.0",
     "@types/d3-dsv": "3.0.7",
-    "@types/node": "^20.3.2",
+    "@types/node": "^20.11.25",
     "@typescript-eslint/eslint-plugin": "6.8.0",
     "@typescript-eslint/parser": "6.8.0",
     "ava": "5.3.1",
