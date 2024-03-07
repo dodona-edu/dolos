@@ -11,6 +11,11 @@
     {
       "matchDepTypes": ["devDependencies"],
       "prPriority": -1
+    },
+    {
+      "description": "Don't bump engines",
+      "matchDepTypes": [ "engines" ],
+      "enabled": false
     }
   ],
   "rangeStrategy": "bump",
