@@ -35,7 +35,7 @@
     "roboto-fontface": "*",
     "slugify": "^1.6.6",
     "unique-names-generator": "^4.7.1",
-    "vue": "^3.4.20",
+    "vue": "^3.4.21",
     "vue-router": "^4.2.5",
     "vuetify": "^3.5.8",
     "webfontloader": "^1.6.28"
