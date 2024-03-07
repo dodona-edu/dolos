@@ -38,6 +38,7 @@ export const useReportsStore = defineStore("reports", () => {
   async function updateReportStatus(report: UploadReport) {
     const response = await axios.get(report.statusUrl);
     report.response = response.data;
+    report.stderr = response.data.stderr?.replace(/\s*.\[\d+m\[error\].\[\d+m\s*/g, "")
     return response.data;
   }
 
