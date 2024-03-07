@@ -6,6 +6,7 @@ export type UploadReport = {
   status: UploadReportStatus;
   statusUrl: string;
   response?: Record<string, any>;
+  stderr?: string;
 
   // Report ID is the ID of the report, as received from the server.
   // This is used to identify the report in the server.

@@ -43,22 +43,25 @@ const isDone = computed(
         <v-spacer />
         <v-btn icon="mdi-close" variant="text" @click="open = false" />
       </v-card-title>
+      <v-divider/>
 
-      <v-list class="info-list" density="compact">
-        <v-list-item class="info-list-item">
-          <template #prepend>
-            <v-icon>mdi-clock-outline</v-icon>
-          </template>
-          <v-list-item-title>{{ reportDate }}</v-list-item-title>
-        </v-list-item>
+      <v-card-text>
+        <v-list class="info-list" density="compact">
+          <v-list-item class="info-list-item">
+            <template #prepend>
+              <v-icon>mdi-clock-outline</v-icon>
+            </template>
+            <v-list-item-title>{{ reportDate }}</v-list-item-title>
+          </v-list-item>
 
-        <v-list-item class="info-list-item">
-          <template #prepend>
-            <v-icon>mdi-pulse</v-icon>
-          </template>
-          <upload-status :status="props.report.status" />
-        </v-list-item>
-      </v-list>
+          <v-list-item class="info-list-item">
+            <template #prepend>
+              <v-icon>mdi-pulse</v-icon>
+            </template>
+            <upload-status :status="props.report.status" />
+          </v-list-item>
+        </v-list>
+      </v-card-text>
 
       <!-- Status: Queue -->
       <template v-if="props.report.status === 'queued'">
@@ -88,15 +91,20 @@ const isDone = computed(
           props.report.status === 'error' || props.report.status === 'failed'
         "
       >
-        <v-card-text>
-          <v-alert type="error" variant="tonal" class="mt-2 mb-0">
+        <v-card-text color="error">
+          <v-alert type="error" variant="tonal" class="mt-2 mb-2">
             <p class="font-weight-bold">
               Unable to execute the analysis for the uploaded file.
             </p>
-
-            {{ props.report.response?.stderr }}
           </v-alert>
+          <v-expand-transition>
+            <div>
+              <v-textarea readonly rows="15" :model-value="props.report.stderr" />
+            </div>
+          </v-expand-transition>
         </v-card-text>
+
+
       </template>
 
       <!-- Status: Finished -->
@@ -118,6 +126,7 @@ const isDone = computed(
         </v-card-text>
       </template>
 
+      <v-divider />
       <v-card-actions>
         <!-- Delete -->
         <v-btn
@@ -158,15 +167,3 @@ const isDone = computed(
     </v-card>
   </v-dialog>
 </template>
-
-<style lang="scss" scoped>
-.info-list {
-  padding-left: 0.5rem;
-
-  &-item {
-    display: flex;
-    gap: 0.5rem;
-    width: 100%;
-  }
-}
-</style>

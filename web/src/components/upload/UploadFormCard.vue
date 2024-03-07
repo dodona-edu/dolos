@@ -49,8 +49,12 @@ const languages = [
     value: "bash",
   },
   {
-    name: "C/C++",
+    name: "C",
     value: "c",
+  },
+  {
+    name: "C++",
+    value: "cpp",
   },
   {
     name: "C#",
@@ -69,8 +73,24 @@ const languages = [
     value: "javascript",
   },
   {
+    name: "Modelica",
+    value: "modelica"
+  },
+  {
+    name: "PHP",
+    value: "php"
+  },
+  {
     name: "Python",
     value: "python",
+  },
+  {
+    name: "R",
+    value: "r"
+  },
+  {
+    name: "SQL",
+    value: "sql"
   },
   {
     name: "Text / Markdown",
@@ -258,7 +278,7 @@ const startPolling = (reportId: string): void => {
         }
 
         if (report.status === "failed" || report.status === "error") {
-          stderr.value = status.stderr.split("\n")[0].replace(/\[\d+m/g, "");
+          stderr.value = report.stderr;
           handleError(`An error occurred while analyzing the dataset (${status.error})`);
         }
       }
@@ -302,10 +322,13 @@ watch(
 
       <v-window class="upload-stepper" v-model="step">
         <v-window-item :value="1">
+          <div v-if="error">
           <v-alert v-if="error" class="mb-4" variant="tonal" type="error" density="compact">
-            {{ error }}<br />
-            {{ stderr }}
+            {{ error }}
           </v-alert>
+          <v-textarea readonly rows="15" :model-value="stderr" />
+
+          </div>
 
           <v-form v-model="valid" class="mt-2" fast-fail @submit="onSubmit">
             <v-file-input

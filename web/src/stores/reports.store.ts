@@ -35,8 +35,10 @@ export const useReportsStore = defineStore("reports", () => {
   }
 
   // Get the status for a given report.
-  async function getReportStatus(report: UploadReport) {
+  async function updateReportStatus(report: UploadReport) {
     const response = await axios.get(report.statusUrl);
+    report.response = response.data;
+    report.stderr = response.data.stderr?.replace(/\s*.\[\d+m\[error\].\[\d+m\s*/g, "")
     return response.data;
   }
 
@@ -94,7 +96,7 @@ export const useReportsStore = defineStore("reports", () => {
     for (const report of toCheck) {
       if (report.status === "finished") {
         try {
-          const status = await getReportStatus(report);
+          const status = await updateReportStatus(report);
           // Update the report status.
           report.status = status.status;
         } catch (error) {
@@ -130,7 +132,7 @@ export const useReportsStore = defineStore("reports", () => {
   return {
     reports,
     addReport,
-    getReportStatus,
+    getReportStatus: updateReportStatus,
     getReportById,
     getReportRouteById,
     getReportShareRouteById,
