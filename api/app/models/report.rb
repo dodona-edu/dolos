@@ -93,7 +93,7 @@ class Report < ApplicationRecord
   def purge_files!
     return if purged?
 
-    RESULT_FILES.each do |_file, name|
+    RESULT_FILES.each_value do |name|
       attachment = send(name)
       attachment.purge if attachment.attached?
     end

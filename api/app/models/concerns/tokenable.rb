@@ -5,7 +5,7 @@ module Tokenable
   class_methods do
     def token_generator(name, length: 16, unique: true)
       token_name = name.to_sym
-      generate_token_method_name = "generate_#{name}".to_sym
+      generate_token_method_name = :"generate_#{name}"
 
       # Generate a random base64 string, but strip characters which might
       # look ambiguous.
