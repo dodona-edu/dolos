@@ -53,6 +53,7 @@ class AnalyzeDatasetJob < ApplicationJob
     cmd += ['-l', @dataset.programming_language] if @dataset.programming_language.present?
     docker_options = {
       Cmd: cmd,
+      User: Process.euid.to_s,
       Image: DOLOS_IMAGE,
       name: "dolos-#{@report.id}",
       NetworkDisabled: true,
