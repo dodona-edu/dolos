@@ -21,7 +21,8 @@
 #  index_reports_on_token       (token)
 #
 class ReportSerializer < ApplicationSerializer
-  attributes :token, :error, :exit_status, :memory, :run_time, :status, :stderr, :stdout
+  attributes :token, :error, :exit_status, :memory, :run_time, :status, :stderr, :stdout, :name
+
 
   has_one :dataset
 end

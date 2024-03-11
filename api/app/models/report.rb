@@ -48,6 +48,8 @@ class Report < ApplicationRecord
   before_create :generate_token
   after_create :queue_analysis
 
+  delegate :name, to: :dataset
+
   def queue_analysis
     return if finished?
 

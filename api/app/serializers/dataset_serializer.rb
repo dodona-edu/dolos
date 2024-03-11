@@ -15,7 +15,7 @@
 #  index_datasets_on_token  (token)
 #
 class DatasetSerializer < ApplicationSerializer
-  attributes :token, :programming_language, :zipfile
+  attributes :token, :programming_language, :zipfile, :name
 
   def zipfile
     url_for(object.zipfile)
