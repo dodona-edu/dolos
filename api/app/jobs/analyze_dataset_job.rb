@@ -161,7 +161,7 @@ class AnalyzeDatasetJob < ApplicationJob
 
   def finalize
     # remove path on file system used as temporary working directory for analyzing the dataset
-    FileUtils.remove_entry_secure(@mount, verbose: true)
+    FileUtils.remove_entry_secure(@mount)
     @mount = nil
   end
 
