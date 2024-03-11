@@ -6,21 +6,13 @@
 #  file_count           :integer
 #  name                 :string(255)
 #  programming_language :string(255)
-#  token                :string(255)      not null
 #  created_at           :datetime         not null
 #  updated_at           :datetime         not null
 #
-# Indexes
-#
-#  index_datasets_on_token  (token)
-#
 
 class Dataset < ApplicationRecord
-  include Tokenable
 
   MAX_ZIP_SIZE = 10.megabytes
-
-  token_generator :token
 
   has_one_attached :zipfile
   has_many :reports, dependent: :destroy
@@ -29,8 +21,6 @@ class Dataset < ApplicationRecord
             attached: true,
             content_type: 'application/zip',
             size: { less_than: MAX_ZIP_SIZE }
-
-  before_create :generate_token
 
   def purge_files!
     return unless zipfile.attached?
