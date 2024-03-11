@@ -53,6 +53,7 @@ class AnalyzeDatasetJob < ApplicationJob
     cmd += ['-l', @dataset.programming_language] if @dataset.programming_language.present?
     docker_options = {
       Cmd: cmd,
+      User: Process.euid.to_s,
       Image: DOLOS_IMAGE,
       name: "dolos-#{@report.id}",
       NetworkDisabled: true,
@@ -161,7 +162,7 @@ class AnalyzeDatasetJob < ApplicationJob
 
   def finalize
     # remove path on file system used as temporary working directory for analyzing the dataset
-    FileUtils.remove_entry_secure(@mount, verbose: true)
+    FileUtils.remove_entry_secure(@mount)
     @mount = nil
   end
 

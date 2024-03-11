@@ -6,6 +6,7 @@ RUN apk --no-cache add python3 build-base unzip &&\
     npm -g install @dodona/dolos@$dolos_version &&\
     apk --no-cache del python3 build-base
 
-EXPOSE 3000/tcp
+USER node
 WORKDIR /dolos
+EXPOSE 3000/tcp
 ENTRYPOINT [ "dolos" ]

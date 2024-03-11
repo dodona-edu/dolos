@@ -18,6 +18,8 @@
 class Dataset < ApplicationRecord
   include Tokenable
 
+  MAX_ZIP_SIZE = 10.megabytes
+
   token_generator :token
 
   has_one_attached :zipfile
@@ -26,7 +28,7 @@ class Dataset < ApplicationRecord
   validates :zipfile,
             attached: true,
             content_type: 'application/zip',
-            size: { less_than: 10.megabytes }
+            size: { less_than: MAX_ZIP_SIZE }
 
   before_create :generate_token
 
