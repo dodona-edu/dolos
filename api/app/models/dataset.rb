@@ -11,7 +11,6 @@
 #
 
 class Dataset < ApplicationRecord
-
   MAX_ZIP_SIZE = 10.megabytes
 
   has_one_attached :zipfile
