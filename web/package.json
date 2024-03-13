@@ -28,7 +28,7 @@
     "core-js": "^3.36.0",
     "d3": "^7.8.5",
     "luxon": "^3.4.4",
-    "monaco-editor": "^0.45.0",
+    "monaco-editor": "^0.47.0",
     "papaparse": "^5.4.1",
     "pinia": "^2.1.7",
     "prismjs": "^1.29.0",
