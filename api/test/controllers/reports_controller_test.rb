@@ -11,6 +11,13 @@ class ReportsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test 'should include frontend url in report json' do
+    get report_url(@report), as: :json
+    assert_response :success
+    json = JSON.parse(@response.body)
+    assert_equal "https://example.com/frontend/#/share/#{@report.id}", json['html_url']
+  end
+
   test 'should report files' do
     %w[metadata.csv files.csv kgrams.csv pairs.csv].each do |f|
       get data_report_url(@report, f)

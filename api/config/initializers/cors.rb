@@ -8,11 +8,8 @@
 Rails.application.config.middleware.insert_before 0, Rack::Cors do
   debug true
   allow do
-    if Rails.env.production?
-      origins ENV.fetch('DOLOS_API_CORS_ORIGINS') { Rails.application.config.hosts }
-    else
-      origins "*"
-    end
+    # The API of Dolos is public, anyone is allowed to create their own front-end
+    origins "*"
 
     resource "*",
       headers: :any,
