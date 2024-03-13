@@ -85,7 +85,7 @@ GEM
       minitest (>= 5.1)
       mutex_m
       tzinfo (~> 2.0)
-    airbrussh (1.5.0)
+    airbrussh (1.5.1)
       sshkit (>= 1.6.1, != 1.7.0)
     annotate (3.2.0)
       activerecord (>= 3.2, < 8.0)
@@ -97,7 +97,7 @@ GEM
     bootsnap (1.16.0)
       msgpack (~> 1.2)
     builder (3.2.4)
-    capistrano (3.18.0)
+    capistrano (3.18.1)
       airbrussh (>= 1.0.0)
       i18n
       rake (>= 10.0.0)
@@ -186,7 +186,7 @@ GEM
       net-ssh (>= 2.6.5, < 8.0.0)
     net-smtp (0.4.0.1)
       net-protocol
-    net-ssh (7.2.0)
+    net-ssh (7.2.1)
     nio4r (2.7.0)
     nokogiri (1.16.2)
       mini_portile2 (~> 2.8.2)
@@ -271,7 +271,8 @@ GEM
     ruby-progressbar (1.13.0)
     ruby2_keywords (0.0.5)
     rubyzip (2.3.2)
-    sshkit (1.21.5)
+    sshkit (1.21.7)
+      mutex_m
       net-scp (>= 1.1.2)
       net-ssh (>= 2.8.0)
     stringio (3.1.0)
@@ -295,7 +296,7 @@ DEPENDENCIES
   annotate (~> 3.2)
   bcrypt_pbkdf
   bootsnap
-  capistrano (~> 3.18)
+  capistrano (~> 3.18, >= 3.18.1)
   capistrano-passenger (~> 0.2.1)
   capistrano-rails (~> 1.6.3)
   capistrano-rvm (~> 0.1.2)
