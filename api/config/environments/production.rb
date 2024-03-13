@@ -3,6 +3,8 @@ require "active_support/core_ext/integer/time"
 Rails.application.configure do
   config.hosts = ENV.fetch('DOLOS_API_HOSTS') { 'dolos.ugent.be' }
 
+  config.front_end_base_url = ENV.fetch('DOLOS_API_FRONT_END_URL') { 'https://dolos.ugent.be/server' }
+
   # Settings specified here will take precedence over those in config/application.rb.
 
   # Code is not reloaded between requests.

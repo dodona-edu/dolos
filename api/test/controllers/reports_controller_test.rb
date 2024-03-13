@@ -15,7 +15,7 @@ class ReportsControllerTest < ActionDispatch::IntegrationTest
     get report_url(@report), as: :json
     assert_response :success
     json = JSON.parse(@response.body)
-    assert_equal "https://example.com/frontend/#/share/#{@report.id}", json['share_url']
+    assert_equal "https://example.com/frontend/#/share/#{@report.id}", json['html_url']
   end
 
   test 'should report files' do

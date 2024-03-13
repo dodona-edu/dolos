@@ -11,6 +11,9 @@ module DolosApi
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 7.0
 
+    config.front_end_base_url = nil # overwritten in production.rb, development.rb, testing.rb
+    config.front_end_html_path = '#/share/'
+
     # Configuration for the application, engines, and railties goes here.
     #
     # These settings can be overridden in specific environments using the files
