@@ -19,11 +19,7 @@
 #  index_reports_on_dataset_id  (dataset_id)
 #
 class ReportSerializer < ApplicationSerializer
-  attributes :error, :exit_status, :memory, :run_time, :status, :stderr, :stdout, :name, :html_url
+  attributes :error, :exit_status, :status, :stderr, :stdout, :name, :html_url
 
   has_one :dataset
-
-  def html_url
-    "#{Rails.configuration.front_end_base_url}#{Rails.configuration.front_end_html_path}#{id}"
-  end
 end

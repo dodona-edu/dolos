@@ -39,9 +39,16 @@ class Report < ApplicationRecord
 
   enum :status, { unknown: 0, queued: 1, running: 2, failed: 3, error: 4, finished: 5, purged: 6 }
 
+  validates_associated :dataset, on: :create
+  accepts_nested_attributes_for :dataset
+
   after_create :queue_analysis
 
   delegate :name, to: :dataset
+
+  def html_url
+    "#{Rails.configuration.front_end_base_url}#{Rails.configuration.front_end_html_path}#{id}"
+  end
 
   def queue_analysis
     return if finished?
