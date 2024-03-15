@@ -24,6 +24,7 @@ export default defineConfig({
           { text: 'Use Dolos', link: '/docs/server' },
           { text: 'Use case: Dodona', link: '/docs/dodona' },
           { text: 'Self-host Dolos', link: '/docs/hosting-dolos' },
+          { text: 'Dolos API', link: '/docs/api' },
         ]
       },
       {
