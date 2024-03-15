@@ -1,5 +1,5 @@
 ---
-outline: [1,4]
+outline: [2,3]
 ---
 
 # Dolos API
@@ -17,20 +17,72 @@ You can access the visualisations using the `html_url` returned by the API.
 
 ::: code-group
 
-```shell [cURL]
-curl
-```
+```shell [Shell]
+# Requires curl and jq
+# Outputs the URL to the resulting report
+curl --request POST \
+    --form "dataset[name]=Example" \
+    --form "dataset[zipfile]=@simple-dataset.zip" \
+    https://dolos.ugent.be/api/reports \
+    | jq -r '.html_url'
+ ```
 
-```javascript [JavaScript]
-fetch
+```html [HTML / Javascript]
+<form id="dolos-upload" action="https://dolos.ugent.be/api/reports" >
+   <input type="text" name="dataset[name]" placeholder="Name" />
+   <input type="file" name="dataset[zifile]" />
+   <input type="submit" value="Submit" />
+</form>
+<script type="text/javascript">
+   document.getElementById("dolos-upload").addEventListener('submit', (event) => {
+      event.preventDefault();
+      fetch(event.target.action, {
+         method: 'POST',
+         body: new FormData(event.target)
+      }).then(r => r.json()
+      ).then(json => {
+         // Go to the report URL
+         window.location = json["html_url"];
+      });
+      return false;
+   });
+</script>
 ```
 
 ```python [Python]
-requests
+import requests # pip install requests
+
+def submit_to_dolos(name, zipfile_path):
+   """
+   Submit a ZIP-file to the Dolos API for plagiarism detection
+   and return the URL where the resulting HTML report can be found.
+   """
+   response = requests.post(
+      'https://dolos.ugent.be/api/reports',
+      files = { 'dataset[zipfile]': open(zipfile_path, 'rb') },
+      data = { 'dataset[name]': name }
+   )
+   json = response.json()
+   return json["html_url"]
 ```
 
 ```ruby [Ruby]
-httparty
+require 'httparty' # bundle install httparty
+
+# Submit a ZIP-file to the Dolos API for plagiarism detection
+# and return the URL where the resulting HTML report can be found.
+def submit_to_dolos(name, zipfile_path)
+   response = HTTParty.post(
+     'https://dolos.ugent.be/api/reports',
+     body: {
+       dataset: {
+         name: name,
+         zipfile: File.open(zipfile_path)
+       }
+     }
+   )
+   return response['html_url']
+end
 ```
 
 :::
