@@ -21,9 +21,21 @@ class Dataset < ApplicationRecord
             content_type: 'application/zip',
             size: { less_than: MAX_ZIP_SIZE }
 
+  validates :name, presence: true, length: { minimum: 3, maximum: 255 }
+
+  before_validation :ensure_name
+
   def purge_files!
     return unless zipfile.attached?
 
     zipfile.purge
+  end
+
+  private
+
+  def ensure_name
+    return unless zipfile.attached?
+
+    self.name ||= zipfile.filename.base
   end
 end

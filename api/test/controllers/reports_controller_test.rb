@@ -40,7 +40,25 @@ class ReportsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test 'should purge report, but keep records' do
+  test 'dataset and report name should default to file name' do
+    assert_enqueued_jobs 1, only: AnalyzeDatasetJob do
+      zipfile = fixture_file_upload(Rails.root.join('test/files/simple-dataset.zip'), 'application/zip')
+      assert_difference('Dataset.count') do
+        assert_difference('Report.count') do
+          post(reports_url, params: { dataset: { zipfile: zipfile } })
+          assert_response :created
+        end
+      end
+
+      dataset = Dataset.order(:created_at).last
+      report = Report.order(:created_at).last
+
+      assert_equal 'simple-dataset', dataset.name
+      assert_equal 'simple-dataset', report.name
+    end
+  end
+
+  test 'should purge report but keep records' do
     delete report_url(@report), as: :json
     assert_response :no_content
 

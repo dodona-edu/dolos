@@ -8,8 +8,7 @@ class ReportsController < ApplicationController
 
   # POST /reports
   def create
-    @dataset = Dataset.new(dataset_params)
-    @report = Report.new(dataset: @dataset)
+    @report = Report.new(dataset_attributes: dataset_params)
     if @report.save
       render json: @report, status: :created, location: @report
     else
@@ -35,11 +34,6 @@ class ReportsController < ApplicationController
   # Use callbacks to share common setup or constraints between actions.
   def set_report
     @report = Report.find(params[:id])
-  end
-
-  # Only allow a list of trusted parameters through.
-  def report_params
-    params.require(:report).permit(:dataset)
   end
 
   def dataset_params
