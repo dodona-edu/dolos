@@ -4,7 +4,7 @@ outline: [2,3]
 
 # Dolos API
 
-Dolos provides its JSON API for automated integration with exercise platforms such as [Dodona](https//dodona.be).
+Dolos provides its JSON API for automated integration with exercise platforms such as [Dodona](https://dodona.be).
 
 The description below works with our publicly hosted instance ([dolos.ugent.be/api](https://dolos.ugent.be/api)) or a [self-hosted](./hosting-dolos) instance.
 
