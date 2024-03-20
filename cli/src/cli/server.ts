@@ -14,18 +14,18 @@ export interface Options {
 }
 
 const MIME: { [k: string]: string } = {
-  'html': 'text/html',
-  'css': 'text/css',
-  'js': 'text/javascript',
-  'csv': 'text/csv',
-  'json': 'text/json',
-  'ttf': 'font/ttf',
-  'eot': 'application/vnd.ms-fontobject',
-  'woff': 'font/woff',
-  'woff2': 'font/woff2'
-}
+  "html": "text/html",
+  "css": "text/css",
+  "js": "text/javascript",
+  "csv": "text/csv",
+  "json": "text/json",
+  "ttf": "font/ttf",
+  "eot": "application/vnd.ms-fontobject",
+  "woff": "font/woff",
+  "woff2": "font/woff2"
+};
 
-function notFound(response: http.ServerResponse) {
+function notFound(response: http.ServerResponse): void {
   response.writeHead(404, "Not found", { "Content-Type": "text/html" });
   response.end("File not found");
 }
@@ -41,7 +41,7 @@ export default async function runServer(
   const webDir = webroot();
   const server = http.createServer();
 
-  server.on('request', (request, response) => {
+  server.on("request", (request, response) => {
     if (!request.url) {
       return notFound(response);
     }
@@ -64,7 +64,7 @@ export default async function runServer(
       if (err) {
         notFound(response);
       } else {
-        response.writeHead(200, { 'Content-Type': type });
+        response.writeHead(200, { "Content-Type": type });
         response.end(data);
       }
     });
