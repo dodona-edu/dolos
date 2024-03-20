@@ -575,10 +575,10 @@
   dependencies:
     undici-types "~5.26.4"
 
-"@types/papaparse@^5.3.11":
-  version "5.3.11"
-  resolved "https://registry.yarnpkg.com/@types/papaparse/-/papaparse-5.3.11.tgz#73c0bcc884709da9d30af926e487a76ce21a05f9"
-  integrity sha512-ISil0lMkpRDrBTKRPnUgVb5IqxWwj19gWBrX/ROk3pbkkslBN3URa713r/BSfAUj+w9gTPg3S3f45aMToVfh1w==
+"@types/papaparse@^5.3.14":
+  version "5.3.14"
+  resolved "https://registry.yarnpkg.com/@types/papaparse/-/papaparse-5.3.14.tgz#345cc2a675a90106ff1dc33b95500dfb30748031"
+  integrity sha512-LxJ4iEFcpqc6METwp9f6BV6VVc43m6MfH0VqFosHvrUgfXiFe6ww7R3itkOQ+TCK6Y+Iv/+RnnvtRZnkc5Kc9g==
   dependencies:
     "@types/node" "*"
 
