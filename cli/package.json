@@ -5,7 +5,7 @@
   "type": "module",
   "export": "./dist/index.js",
   "engines": {
-    "node": ">=16"
+    "node": ">=18"
   },
   "bin": {
     "dolos": "dist/cli.js"
@@ -43,7 +43,7 @@
     "commander": "^11.1.0",
     "csv-stringify": "^6.4.6",
     "express": "^4.18.3",
-    "open": "^9.1.0",
+    "open": "^10.1.0",
     "tree-sitter": "^0.20.6"
   },
   "bugs": {

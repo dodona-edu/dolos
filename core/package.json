@@ -5,9 +5,6 @@
   "type": "module",
   "description": "Core classes and algorithms for Dolos source code similarity checker",
   "types": "dist/index.d.ts",
-  "engines": {
-    "node": ">=16"
-  },
   "scripts": {
     "test": "tsc --build && ava",
     "build": "tsc --build --verbose",
