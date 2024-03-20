@@ -25,7 +25,7 @@
     "@vueuse/router": "^10.9.0",
     "axios": "^1.6.8",
     "comlink": "^4.4.1",
-    "core-js": "^3.36.0",
+    "core-js": "^3.36.1",
     "d3": "^7.9.0",
     "luxon": "^3.4.4",
     "monaco-editor": "^0.47.0",
