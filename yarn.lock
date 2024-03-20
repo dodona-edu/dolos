@@ -12,10 +12,9 @@
   resolved "https://registry.yarnpkg.com/@antfu/utils/-/utils-0.7.7.tgz#26ea493a831b4f3a85475e7157be02fb4eab51fb"
   integrity sha512-gFPqTG7otEJ8uP6wrhDv6mqwGWYZKNvAcCq6u9hOj0c+IKCEsY4L1oC9trPq2SaWIzAfHvqfBDxF591JkMf+kg==
 
-"@ava/typescript@4.1.0":
+"@ava/typescript@git+https://github.com/rien/ava-typescript":
   version "4.1.0"
-  resolved "https://registry.yarnpkg.com/@ava/typescript/-/typescript-4.1.0.tgz#0dde7b3bbcfe59c1424fb20eb289b4a2b3694418"
-  integrity sha512-1iWZQ/nr9iflhLK9VN8H+1oDZqe93qxNnyYUz+jTzkYPAHc5fdZXBrqmNIgIfFhWYXK5OaQ5YtC7OmLeTNhVEg==
+  resolved "git+https://github.com/rien/ava-typescript#a7af20cb390555c1f64842fad290471f45e31dd6"
   dependencies:
     escape-string-regexp "^5.0.0"
     execa "^7.1.1"
