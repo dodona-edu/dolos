@@ -558,7 +558,7 @@ jobs:
 
       - name: Draft release
         id: create_release
-        uses: release-drafter/release-drafter@v5
+        uses: release-drafter/release-drafter@v6
         with:
           name: ${{ steps.parse_tag.outputs.version }}
           tag: ${{ steps.parse_tag.outputs.version }}
