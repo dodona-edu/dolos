@@ -4453,7 +4453,7 @@ vue@^3.4.21:
     "@vue/server-renderer" "3.4.21"
     "@vue/shared" "3.4.21"
 
-vuetify@^3.5.9:
+vuetify@^3.5.10:
   version "3.5.10"
   resolved "https://registry.yarnpkg.com/vuetify/-/vuetify-3.5.10.tgz#76a42d1963a40ea09f08f4d6e06a23b1c56d9869"
   integrity sha512-UutmZX7lAJfneAHx75DaONBD0w3zRGok7HE+dDepWyWMh0vOSUPLap5WXu80UwUNcTT2j0OYWYAsnTK/bJ/c1A==
