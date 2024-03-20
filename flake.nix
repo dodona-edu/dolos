@@ -25,7 +25,7 @@
           overlays = [
             devshell.overlays.default
             (self: super: {
-              nodejs = super.nodejs_20;
+              nodejs = super.nodejs_21;
             })
           ];
         };
