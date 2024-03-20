@@ -1,10 +1,18 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:base"
+    ":dependencyDashboard",
+    ":ignoreModulesAndTests",
+    "group:monorepos",
+    "group:recommended",
+    "replacements:all",
+    "workarounds:all",
+    "npm:unpublishSafe",
+    ":automergeAll",
+    ":automergeBranch"
   ],
   "schedule": [
-    "before 9am on wednesday"
+    "after 13:00 on monday"
   ],
   "prHourlyLimit": 0,
   "packageRules": [
@@ -22,7 +30,7 @@
   "lockFileMaintenance": {
     "enabled": true,
     "schedule": [
-      "before 8am on wednesday"
+      "after 13:00 on monday"
     ]
   },
   "timezone": "Europe/Brussels",
