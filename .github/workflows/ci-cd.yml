@@ -66,7 +66,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: true
-      - name: Cache Yarn dependencies
+      - name: Cache npm dependencies
         id: cache-dependencies
         uses: actions/cache@v4
         with:
@@ -74,7 +74,7 @@ jobs:
             ${{ github.workspace }}/node_modules
             ${{ github.workspace }}/*/node_modules
             ${{ github.workspace }}/parsers/build
-          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('./yarn.lock', './package.json', './*/package.json', './parsers/binding.gyp', './.gitmodules') }}
+          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('./package-lock.json', './package.json', './*/package.json', './parsers/binding.gyp', './.gitmodules') }}
 
       - name: Setup Node 📚
         if: steps.cache-dependencies.outputs.cache-hit != 'true'
@@ -82,9 +82,9 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
 
-      - name: Yarn install ⚡️
+      - name: Npm install ⚡️
         if: steps.cache-dependencies.outputs.cache-hit != 'true'
-        run: yarn install
+        run: npm install
 
   cli-build:
     name: "CLI 💻️ - build 🔧"
@@ -113,7 +113,7 @@ jobs:
             ${{ github.workspace }}/node_modules
             ${{ github.workspace }}/*/node_modules
             ${{ github.workspace }}/parsers/build
-          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('./yarn.lock', './package.json', './*/package.json', './parsers/binding.gyp', './.gitmodules') }}
+          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('./package-lock.json', './package.json', './*/package.json', './parsers/binding.gyp', './.gitmodules') }}
 
       - name: Check if cache was hit 🔎
         if: steps.cache-dependencies.outputs.cache-hit != 'true'
@@ -124,7 +124,7 @@ jobs:
       - name: Build 🔧
         run: |
           cd cli/
-          yarn build --force
+          npm run build --force
 
   cli-lint:
     name: "CLI 💻️ - lint 📏"
@@ -151,7 +151,7 @@ jobs:
             ${{ github.workspace }}/node_modules
             ${{ github.workspace }}/*/node_modules
             ${{ github.workspace }}/parsers/build
-          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('./yarn.lock', './package.json', './*/package.json', './parsers/binding.gyp', './.gitmodules') }}
+          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('./package-lock.json', './package.json', './*/package.json', './parsers/binding.gyp', './.gitmodules') }}
 
       - name: Check if cache was hit 🔎
         if: steps.cache-dependencies.outputs.cache-hit != 'true'
@@ -162,7 +162,7 @@ jobs:
       - name: Lint 📏
         run: |
           cd cli/
-          yarn lint
+          npm run lint
 
   core-build-test:
     name: "Core ❤️ - build & test 🔧"
@@ -189,7 +189,7 @@ jobs:
             ${{ github.workspace }}/node_modules
             ${{ github.workspace }}/*/node_modules
             ${{ github.workspace }}/parsers/build
-          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('./yarn.lock', './package.json', './*/package.json', './parsers/binding.gyp', './.gitmodules') }}
+          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('./package-lock.json', './package.json', './*/package.json', './parsers/binding.gyp', './.gitmodules') }}
 
       - name: Check if cache was hit 🔎
         if: steps.cache-dependencies.outputs.cache-hit != 'true'
@@ -200,8 +200,8 @@ jobs:
       - name: Build & test 🔧
         run: |
           cd core/
-          yarn build
-          yarn test -v --serial
+          npm run build
+          npm run test -v --serial
 
   core-lint:
     name: "Core ❤️ - lint 📏"
@@ -228,7 +228,7 @@ jobs:
             ${{ github.workspace }}/node_modules
             ${{ github.workspace }}/*/node_modules
             ${{ github.workspace }}/parsers/build
-          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('./yarn.lock', './package.json', './*/package.json', './parsers/binding.gyp', './.gitmodules') }}
+          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('./package-lock.json', './package.json', './*/package.json', './parsers/binding.gyp', './.gitmodules') }}
 
       - name: Check if cache was hit 🔎
         if: steps.cache-dependencies.outputs.cache-hit != 'true'
@@ -239,7 +239,7 @@ jobs:
       - name: Lint 📏
         run: |
           cd core/
-          yarn lint
+          npm run lint
 
   lib-build-test:
     name: "Lib 📚 - build & test 🔧"
@@ -268,7 +268,7 @@ jobs:
             ${{ github.workspace }}/node_modules
             ${{ github.workspace }}/*/node_modules
             ${{ github.workspace }}/parsers/build
-          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('./yarn.lock', './package.json', './*/package.json', './parsers/binding.gyp', './.gitmodules') }}
+          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('./package-lock.json', './package.json', './*/package.json', './parsers/binding.gyp', './.gitmodules') }}
 
       - name: Check if cache was hit 🔎
         if: steps.cache-dependencies.outputs.cache-hit != 'true'
@@ -279,8 +279,8 @@ jobs:
       - name: Build & test 🔧
         run: |
           cd lib/
-          yarn build
-          yarn test -v --serial
+          npm run build
+          npm run test -v --serial
 
   parsers-build:
     name: "Parsers 👓 - build 🔧"
@@ -309,7 +309,7 @@ jobs:
             ${{ github.workspace }}/node_modules
             ${{ github.workspace }}/*/node_modules
             ${{ github.workspace }}/parsers/build
-          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('./yarn.lock', './package.json', './*/package.json', './parsers/binding.gyp', './.gitmodules') }}
+          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('./package-lock.json', './package.json', './*/package.json', './parsers/binding.gyp', './.gitmodules') }}
 
       - name: Check if cache was hit 🔎
         if: steps.cache-dependencies.outputs.cache-hit != 'true'
@@ -320,8 +320,8 @@ jobs:
       - name: Build 🔧
         run: |
           cd parsers/
-          yarn prepare
-          yarn build
+          npm run prepare
+          npm run build
 
   lib-lint:
     name: "Lib 📚 - lint 📏"
@@ -348,7 +348,7 @@ jobs:
             ${{ github.workspace }}/node_modules
             ${{ github.workspace }}/*/node_modules
             ${{ github.workspace }}/parsers/build
-          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('./yarn.lock', './package.json', './*/package.json', './parsers/binding.gyp', './.gitmodules') }}
+          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('./package-lock.json', './package.json', './*/package.json', './parsers/binding.gyp', './.gitmodules') }}
 
       - name: Check if cache was hit 🔎
         if: steps.cache-dependencies.outputs.cache-hit != 'true'
@@ -359,7 +359,7 @@ jobs:
       - name: Lint 📏
         run: |
           cd lib/
-          yarn lint
+          npm run lint
 
 
   web-build-deploy:
@@ -389,7 +389,7 @@ jobs:
             ${{ github.workspace }}/node_modules
             ${{ github.workspace }}/*/node_modules
             ${{ github.workspace }}/parsers/build
-          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('./yarn.lock', './package.json', './*/package.json', './parsers/binding.gyp', './.gitmodules') }}
+          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('./package-lock.json', './package.json', './*/package.json', './parsers/binding.gyp', './.gitmodules') }}
 
       - name: Check if cache was hit 🔎
         if: steps.cache-dependencies.outputs.cache-hit != 'true'
@@ -400,12 +400,12 @@ jobs:
       - name: Build core 🔧
         run: |
           cd core/
-          yarn build
+          npm run build
 
       - name: Build web 🔧
         run: |
           cd web/
-          yarn build
+          npm run build
 
       - name: Deploy to staging 🚀
         if: ${{ matrix.node == '20' }}
@@ -458,7 +458,7 @@ jobs:
             ${{ github.workspace }}/node_modules
             ${{ github.workspace }}/*/node_modules
             ${{ github.workspace }}/parsers/build
-          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('./yarn.lock', './package.json', './*/package.json', './parsers/binding.gyp', './.gitmodules') }}
+          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('./package-lock.json', './package.json', './*/package.json', './parsers/binding.gyp', './.gitmodules') }}
 
       - name: Check if cache was hit 🔎
         if: steps.cache-dependencies.outputs.cache-hit != 'true'
@@ -469,7 +469,7 @@ jobs:
       - name: Lint 📏
         run: |
           cd web/
-          yarn lint
+          npm run lint
 
   docs:
     name: "Docs 📑"
@@ -491,8 +491,8 @@ jobs:
       - name: Build 🔧
         run: |
           cd docs/
-          yarn install
-          yarn build
+          npm install
+          npm run build
 
       - name: Deploy 🚀
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
@@ -544,7 +544,7 @@ jobs:
             ${{ github.workspace }}/node_modules
             ${{ github.workspace }}/*/node_modules
             ${{ github.workspace }}/parsers/build
-          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('./yarn.lock', './package.json', './*/package.json', './parsers/binding.gyp', './.gitmodules') }}
+          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('./package-lock.json', './package.json', './*/package.json', './parsers/binding.gyp', './.gitmodules') }}
 
       - name: Check if cache was hit 🔎
         if: steps.cache-dependencies.outputs.cache-hit != 'true'
@@ -569,28 +569,28 @@ jobs:
       - name: Build core 🔧
         run: |
           cd core/
-          yarn build
+          npm run build
 
       - name: Build parsers 🔧
         run: |
           cd parsers/
-          yarn prepare
-          yarn build
+          npm run prepare
+          npm run build
 
       - name: Build lib 🔧
         run: |
           cd lib/
-          yarn build
+          npm run build
 
       - name: Build CLI 🔧
         run: |
           cd cli/
-          yarn build --force
+          npm run build --force
 
       - name: Build web 🔧
         run: |
           cd web/
-          yarn build
+          npm run build
 
       - name: Publish @dodona/dolos-core to NPM
         uses: JS-DevTools/npm-publish@v3

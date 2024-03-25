@@ -1,5 +1,4 @@
 !docs/yarn.lock
-**/package-lock.json
 **/yarn.lock
 *.csv
 *.log

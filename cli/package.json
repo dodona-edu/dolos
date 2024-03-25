@@ -11,8 +11,8 @@
     "dolos": "dist/cli.js"
   },
   "scripts": {
-    "dolos": "yarn build && node dist/cli.js",
-    "debug": "yarn build && node inspect dist/cli.js",
+    "dolos": "npm run build && node dist/cli.js",
+    "debug": "npm run build && node inspect dist/cli.js",
     "build": "tsc --build --verbose",
     "force-build": "tsc --build --verbose --force",
     "lint": "eslint --ext .ts src/"
