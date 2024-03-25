@@ -10,7 +10,7 @@
   "license": "MIT",
   "type": "module",
   "devDependencies": {
-    "vitepress": "1.0.0-rc.45"
+    "vitepress": "^1.0.1"
   },
   "scripts": {
     "dev": "vitepress dev",
