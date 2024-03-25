@@ -57,7 +57,7 @@ Dolos uses Tree-sitter v0.20.0 in the above example above,
 so we need to install `tree-sitter-rust@0.20` in that case.
 You may safely omit the minor version (the third number after the final dot).
 
-Use `npm` or `yarn` to install a Tree-sitter parser for a specific programming language:
+Use `npm` to install a Tree-sitter parser for a specific programming language:
 
 ```shell
 npm install -g tree-sitter-rust@0.20

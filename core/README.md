@@ -13,7 +13,6 @@ Visit [dolos.ugent.be](https://dolos.ugent.be) for more information.
 ## Installation
 
 ```
-yarn add @dodona/dolos-core # or,
 npm install @dodona/dolos-core
 ```
 
@@ -21,15 +20,15 @@ npm install @dodona/dolos-core
 
 1. Install dependencies (preferably in the repository root)
     ```
-    yarn install
+    npm install
     ```
 2. Build the project with typescript
     ```
-    yarn build
+    npm run build
     ```
 3. Test the project with ava.js
     ```
-    yarn test
+    npm run test
     ```
 
 ## Documentation

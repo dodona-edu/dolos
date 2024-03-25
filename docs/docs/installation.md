@@ -60,12 +60,6 @@ If you just try installing `dolos`, you will install another package that is not
 The `-g` flag will install Dolos globally.
 If you omit this flag, `npm` will only add Dolos as a dependency to your current JavaScript project (if any) and Dolos will only be available for that project.
 
-Alternatively, you can use the [yarn](https://classic.yarnpkg.com/lang/en/) node package manager:
-
-```shell
-yarn add global @dodona/dolos
-```
-
 You should now be able to run Dolos.
 Test this by running Dolos with the `--version` flag. 
 This will print the Dolos version, the version of Node.js it is running on and the version of [Tree-sitter](https://tree-sitter.github.io/tree-sitter/).
