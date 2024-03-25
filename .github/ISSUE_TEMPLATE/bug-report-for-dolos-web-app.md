@@ -2,7 +2,7 @@
 name: Bug report for the Dolos web app
 about: Report a bug found with the web app (https://dolos.ugent.be/server)
 title: ''
-labels: bug, Dolos Online
+labels: bug
 assignees: rien
 
 ---
