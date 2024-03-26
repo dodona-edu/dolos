@@ -52,7 +52,7 @@
     "@vue/eslint-config-typescript": "^12.0.0",
     "eslint": "^8.53.0",
     "eslint-plugin-vue": "^9.16.1",
-    "eslint-plugin-vuetify": "^2.0.5",
+    "eslint-plugin-vuetify": "^2.2.0",
     "sass": "^1.63.6",
     "typescript": "^5.2.2",
     "unplugin-vue-components": "^0.25.1",
