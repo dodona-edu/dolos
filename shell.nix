@@ -3,7 +3,6 @@ pkgs.devshell.mkShell {
   name = "Dolos";
   packages = with pkgs; [
     nodejs
-    yarn
     python3
     gcc
     gnumake

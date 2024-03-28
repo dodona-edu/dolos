@@ -5,9 +5,6 @@
   "type": "module",
   "description": "Core classes and algorithms for Dolos source code similarity checker",
   "types": "dist/index.d.ts",
-  "engines": {
-    "node": ">=16"
-  },
   "scripts": {
     "test": "tsc --build && ava",
     "build": "tsc --build --verbose",
@@ -25,7 +22,7 @@
     "access": "public"
   },
   "devDependencies": {
-    "@ava/typescript": "4.1.0",
+    "@ava/typescript": "git+https://github.com/rien/ava-typescript",
     "@typescript-eslint/eslint-plugin": "6.8.0",
     "@typescript-eslint/parser": "6.8.0",
     "ava": "5.3.1",

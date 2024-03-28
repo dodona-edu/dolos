@@ -5,14 +5,14 @@
   "type": "module",
   "export": "./dist/index.js",
   "engines": {
-    "node": ">=16"
+    "node": ">=18"
   },
   "bin": {
     "dolos": "dist/cli.js"
   },
   "scripts": {
-    "dolos": "yarn build && node dist/cli.js",
-    "debug": "yarn build && node inspect dist/cli.js",
+    "dolos": "npm run build && node dist/cli.js",
+    "debug": "npm run build && node inspect dist/cli.js",
     "build": "tsc --build --verbose",
     "force-build": "tsc --build --verbose --force",
     "lint": "eslint --ext .ts src/"
@@ -28,7 +28,6 @@
     "access": "public"
   },
   "devDependencies": {
-    "@types/express": "4.17.21",
     "@types/node": "^20.11.30",
     "@typescript-eslint/eslint-plugin": "6.8.0",
     "@typescript-eslint/parser": "6.8.0",
@@ -42,8 +41,7 @@
     "cliui": "^8.0.1",
     "commander": "^11.1.0",
     "csv-stringify": "^6.4.6",
-    "express": "^4.18.3",
-    "open": "^9.1.0",
+    "open": "^10.1.0",
     "tree-sitter": "^0.20.6"
   },
   "bugs": {

@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 
-yarn build
+npm run build
 
 rsync -glpPrtvz \
     -e 'ssh -p 4840' \

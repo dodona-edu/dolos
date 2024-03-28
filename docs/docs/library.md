@@ -7,7 +7,7 @@ We're happy to [hear](/about/contact) about any extensions you make.
 
 ## Installation
 
-Using `npm` or `yarn` to install the library, similar to [installing the CLI](/docs/installation):
+Using `npm` to install the library, similar to [installing the CLI](/docs/installation):
 
 ```shell
 npm install @dodona/dolos-lib
