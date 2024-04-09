@@ -12,7 +12,7 @@
     "nan": "^2.19.0"
   },
   "devDependencies": {
-    "node-gyp": "^9.4.0",
+    "node-gyp": "^10.1.0",
     "tree-sitter-cli": "^0.20.8"
   }
 }
