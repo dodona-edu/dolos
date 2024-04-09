@@ -10,7 +10,6 @@ If you want to use Dolos, you don't need to install this package directly.
 However, if you want to use the bundled parsers in your own app, you can install JavaScript library with:
 
 ```
-yarn add @dodona/dolos-parsers # or,
 npm install @dodona/dolos-parsers
 ```
 
@@ -25,15 +24,15 @@ Tree-sitter currently only runs in node and will thus not run in browser environ
 
 1. Install dependencies (preferably in the repository root)
     ```
-    yarn install
+    npm install
     ```
 2. Prepare the project (generate some parsers)
     ```
-    yarn prepare
+    npm run prepare
     ```
 3. Build the node bindings
     ```
-    yarn build
+    npm run build
     ```
 
 ## Documentation

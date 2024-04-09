@@ -6,11 +6,11 @@ exec time docker run -v "$PWD:/repo:ro" --rm --entrypoint="" node:20 \
 ### Docker script starts here
 set -e
 
-yarn install
+npm install
 
 for dir in core parsers lib web cli; do
   echo "=== Building and packing $dir ===="
-  (cd $dir && (yarn prepare || true) && yarn build && yarn pack)
+  (cd $dir && (npm run prepare || true) && npm run build && npm pack)
 done
 
 echo "=== Building and packing complete ===="

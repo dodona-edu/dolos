@@ -63,11 +63,7 @@ Visit our web page at <https://dolos.ugent.be>.
 
 ## Development
 
-This project uses [yarn workspaces](https://classic.yarnpkg.com/en/docs/workspaces/)
-so you will need to use yarn.
-
-- Run `yarn install` in the **root directory**, this will link the `web` project
-  with the `cli` project as well.
+- Run `npm install` in the **root directory**, this will link the internal dependencies between the different Dolos modules.
 - If you want to use the `web` format, you need to build the [web project](../web/) first.
-- Build the project with `yarn build`
-- Run tests with `yarn test`
+- Build the project with `npm run build`
+- Run tests with `npm run test`
