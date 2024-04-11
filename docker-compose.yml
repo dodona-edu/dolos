@@ -10,8 +10,8 @@ services:
     networks:
       - dolos
   web:
-    build:
-      context: ./web/
+    image: ghcr.io/dodona-edu/dolos-web
+    # build: ./web/
     ports:
       - "8080:8080"
     environment:
@@ -24,7 +24,8 @@ services:
     networks:
       - dolos
   api:
-    build: ./api/
+    image: ghcr.io/dodona-edu/dolos-api
+    # build: ./api/
     command: bash -c "rm -f tmp/pids/server.pid && bundle exec rails db:prepare && bundle exec rails s -p 3000 -b '0.0.0.0'"
     volumes:
       - dolos-api-storage:/dolos/storage
@@ -46,7 +47,8 @@ services:
     networks:
       - dolos
   worker:
-    build: ./api/
+    image: ghcr.io/dodona-edu/dolos-api
+    # build: ./api/
     command: bash -c "bundle exec rails jobs:work"
     volumes:
       - dolos-api-storage:/dolos/storage

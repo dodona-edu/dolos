@@ -2,6 +2,8 @@
 FROM ruby:3.2.3
 RUN apt-get update -qq && apt-get -y install mariadb-client
 
+LABEL org.opencontainers.image.source https://github.com/dodona-edu/dolos
+
 ADD config.ru Gemfile Gemfile.lock Rakefile /dolos/
 WORKDIR /dolos
 RUN bundle install && mkdir log

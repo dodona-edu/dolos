@@ -25,7 +25,7 @@ Run Dolos on your own system using these instructions:
     cd dolos/
   ```
 3. Run `docker-compose build` in this directory to pull and fetch all needed container images.
-4. Run `docker pull ghcr.io/dodona-edu/dolos:latest` to ensure the container running the Dolos CLI is up-to-date.
+4. Run `docker pull ghcr.io/dodona-edu/dolos-cli:latest` to ensure the container running the Dolos CLI is up-to-date.
 5. Run `docker-compose up` to start the services.
 
 You can now visit the web app running locally on <http://localhost:8080>.

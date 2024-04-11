@@ -8,7 +8,7 @@ class AnalyzeDatasetJob < ApplicationJob
 
   TMPDIR_PATH = '/tmp'.freeze
   OUTPUT_DIRNAME = 'result'.freeze
-  DOLOS_IMAGE = 'ghcr.io/dodona-edu/dolos:latest'.freeze
+  DOLOS_IMAGE = 'ghcr.io/dodona-edu/dolos-cli:latest'.freeze
   TIMEOUT = 60.seconds
   MEMORY_LIMIT = 2_000_000_000
   OUTPUT_LIMIT = 65_000
