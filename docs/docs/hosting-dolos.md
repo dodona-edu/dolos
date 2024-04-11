@@ -9,23 +9,17 @@ These instructions are for **local** hosting only. The section [external hosting
 
 [Docker](https://www.docker.com/) is a containerization technology that allows you to run our service without the hassle of installing the different dependencies and services yourself.
 
-::: info
-
-The instructions below are for **Linux** and **MacOS** systems only.
-[Contact us](/about/contact) if you want to run the Dolos web app on windows.
-
-:::
 
 Run Dolos on your own system using these instructions:
 
 1. Ensure [Git](https://git-scm.com/downloads), [Docker Engine](https://docs.docker.com/engine/install/) and [Docker Compose](https://docs.docker.com/compose/install/) are installed on the system where you will be running Dolos on.
-2. Clone the Docker repository with Git and enter the new directory
+2. In a terminal, clone the Docker repository with Git and enter the new directory
   ```
     git clone https://github.com/dodona-edu/dolos.git
     cd dolos/
   ```
-3. Run `docker-compose build` in this directory to pull and fetch all needed container images.
-4. Run `docker pull ghcr.io/dodona-edu/dolos-cli:latest` to ensure the container running the Dolos CLI is up-to-date.
+3. Run `docker-compose pull` in this directory to pull and fetch all needed container images.
+4. Run `docker pull ghcr.io/dodona-edu/dolos-cli:latest` to ensure the container running the Dolos CLI is present and up-to-date.
 5. Run `docker-compose up` to start the services.
 
 You can now visit the web app running locally on <http://localhost:8080>.
