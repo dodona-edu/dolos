@@ -9,6 +9,10 @@ services:
       MARIADB_ROOT_PASSWORD: dolos
     networks:
       - dolos
+    healthcheck:
+      start_period: 5s
+      interval: 10s
+      test: healthcheck.sh --su-mysql --connect --innodb_initialized
   web:
     image: ghcr.io/dodona-edu/dolos-web
     # build: ./web/
@@ -23,6 +27,10 @@ services:
       - api
     networks:
       - dolos
+    healthcheck:
+      start_period: 5s
+      interval: 10s
+      test: curl --fail http://localhost:8080 || exit 1
   api:
     image: ghcr.io/dodona-edu/dolos-api
     # build: ./api/
@@ -46,6 +54,10 @@ services:
       - worker
     networks:
       - dolos
+    healthcheck:
+      start_period: 5s
+      interval: 10s
+      test: curl --fail http://localhost:3000/up || exit 1
   worker:
     image: ghcr.io/dodona-edu/dolos-api
     # build: ./api/
@@ -65,6 +77,10 @@ services:
       - db
     networks:
       - dolos
+    healthcheck:
+      start_period: 5s
+      interval: 10s
+      test: ruby -e true || exit 1
 volumes:
   dolos-db-data:
   dolos-api-storage:
