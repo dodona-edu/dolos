@@ -1,7 +1,10 @@
 #!/usr/bin/env sh
-# Run the current script in a docker container
+
+# This script tests whether packaging Dolos with its different components works
+
+# Run the current script in a docker container with a clean repository
 exec time docker run -v "$PWD:/repo:ro" --rm --entrypoint="" node:20 \
-  sh -c 'git clone --recursive --no-remote-submodules --shallow-submodules /repo /dolos && cd /dolos && tail -n+5 test_package.sh | sh -'
+  sh -c 'git clone --recursive --no-remote-submodules --shallow-submodules /repo /dolos && cd /dolos && tail -n+8 test_package.sh | sh -'
 
 ### Docker script starts here
 set -e
