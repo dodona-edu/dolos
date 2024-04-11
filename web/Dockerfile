@@ -16,4 +16,4 @@ EXPOSE 8080/tcp
 
 RUN npm run build
 
-CMD npm run preview --host "$VITE_HOST" --port "$VITE_PORT" --strictPort
+CMD npm run preview -- --host "$VITE_HOST" --port "$VITE_PORT" --strictPort
