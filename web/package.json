@@ -38,7 +38,7 @@
     "d3": "^7.9.0",
     "eslint": "^8.57.0",
     "eslint-plugin-vue": "^9.24.0",
-    "eslint-plugin-vuetify": "^2.2.0",
+    "eslint-plugin-vuetify": "^2.3.0",
     "luxon": "^3.4.4",
     "monaco-editor": "^0.47.0",
     "papaparse": "^5.4.1",
