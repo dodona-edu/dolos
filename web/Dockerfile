@@ -6,7 +6,7 @@ ADD public/ /web/public
 ADD src/ /web/src
 ADD index.html index.d.ts index.js package.json tsconfig.json tsconfig.node.json vite.config.ts /web/
 
-RUN npm install
+RUN npm install && apk add --no-cache curl
 
 ENV VITE_HOST=0.0.0.0
 ENV VITE_PORT=8080

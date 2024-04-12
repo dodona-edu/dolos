@@ -34,7 +34,7 @@ jobs:
       - name: Run tests 🧪
         run: |
           cd api/
-          docker pull ghcr.io/dodona-edu/dolos:latest
+          docker pull ghcr.io/dodona-edu/dolos-cli:latest
           bundle exec rails db:prepare
           bundle exec rails test
 
@@ -722,7 +722,7 @@ jobs:
              dodona@dolos.ugent.be:demo
 
   docker:
-    name: "Publish docker container 🚢"
+    name: "Publish docker containers 🚢"
     needs: publish
     runs-on: ubuntu-latest
     steps:
@@ -740,14 +740,23 @@ jobs:
         id: parse_tag
         run: "echo ${{ github.ref }} | sed 's#^refs/tags/v#version=#' >> $GITHUB_OUTPUT"
 
-      - name: Build the new image
-        run: docker build docker/ -t ghcr.io/dodona-edu/dolos:${{ steps.parse_tag.outputs.version }}
+      - name: Build the Dolos images
+        run: |
+          docker build docker/ -t ghcr.io/dodona-edu/dolos-cli:${{ steps.parse_tag.outputs.version }}
+          docker build web/ -t ghcr.io/dodona-edu/dolos-web:${{ steps.parse_tag.outputs.version }}
+          docker build api/ -t ghcr.io/dodona-edu/dolos-api:${{ steps.parse_tag.outputs.version }}
 
       - name: Login to the container registry
         run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
 
-      - name: Tag the new image with latest
-        run: docker tag ghcr.io/dodona-edu/dolos:${{ steps.parse_tag.outputs.version }} ghcr.io/dodona-edu/dolos:latest
+      - name: Tag the new images with latest
+        run: |
+          docker tag ghcr.io/dodona-edu/dolos-cli:${{ steps.parse_tag.outputs.version }} ghcr.io/dodona-edu/dolos-cli:latest
+          docker tag ghcr.io/dodona-edu/dolos-web:${{ steps.parse_tag.outputs.version }} ghcr.io/dodona-edu/dolos-web:latest
+          docker tag ghcr.io/dodona-edu/dolos-api:${{ steps.parse_tag.outputs.version }} ghcr.io/dodona-edu/dolos-api:latest
 
-      - name: Push the new image
-        run: docker push --all-tags ghcr.io/dodona-edu/dolos
+      - name: Push the images
+        run: |
+          docker push --all-tags ghcr.io/dodona-edu/dolos-cli
+          docker push --all-tags ghcr.io/dodona-edu/dolos-web
+          docker push --all-tags ghcr.io/dodona-edu/dolos-api

@@ -1,3 +1,4 @@
+
 name: dolos
 version: "3.9"
 services:
@@ -9,9 +10,13 @@ services:
       MARIADB_ROOT_PASSWORD: dolos
     networks:
       - dolos
+    healthcheck:
+      start_period: 2s
+      interval: 5s
+      test: healthcheck.sh --su-mysql --connect --innodb_initialized
   web:
-    build:
-      context: ./web/
+    image: ghcr.io/dodona-edu/dolos-web
+    # build: ./web/
     ports:
       - "8080:8080"
     environment:
@@ -23,8 +28,13 @@ services:
       - api
     networks:
       - dolos
+    healthcheck:
+      start_period: 2s
+      interval: 5s
+      test: curl --fail http://localhost:8080 || exit 1
   api:
-    build: ./api/
+    image: ghcr.io/dodona-edu/dolos-api
+    # build: ./api/
     command: bash -c "rm -f tmp/pids/server.pid && bundle exec rails db:prepare && bundle exec rails s -p 3000 -b '0.0.0.0'"
     volumes:
       - dolos-api-storage:/dolos/storage
@@ -42,11 +52,17 @@ services:
       RAILS_LOG_TO_STDOUT: true
       SECRET_KEY_BASE_DUMMY: true
     depends_on:
-      - worker
+      db:
+        condition: service_healthy
     networks:
       - dolos
+    healthcheck:
+      start_period: 2s
+      interval: 10s
+      test: curl --fail http://localhost:3000/up || exit 1
   worker:
-    build: ./api/
+    image: ghcr.io/dodona-edu/dolos-api
+    # build: ./api/
     command: bash -c "bundle exec rails jobs:work"
     volumes:
       - dolos-api-storage:/dolos/storage
@@ -60,9 +76,13 @@ services:
       SECRET_KEY_BASE_DUMMY: true
       RAILS_LOG_TO_STDOUT: true
     depends_on:
-      - db
+      - api
     networks:
       - dolos
+    healthcheck:
+      start_period: 2s
+      interval: 5s
+      test: ruby -e true || exit 1
 volumes:
   dolos-db-data:
   dolos-api-storage:

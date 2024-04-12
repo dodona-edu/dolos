@@ -1,11 +1,11 @@
-# Install Dolos with Docker
+# Install Dolos CLI with Docker
 
-The lastest Dolos version comes pre-installed in a [Docker container image](https://github.com/dodona-edu/dolos/pkgs/container/dolos)
+The latest Dolos version comes pre-installed in a [Docker container image](https://github.com/dodona-edu/dolos/pkgs/container/dolos-cli)
 that is available from GitHub's container registry.
 Use the following commando to pull the image:
 
 ```shell
-docker pull ghcr.io/dodona-edu/dolos:latest
+docker pull ghcr.io/dodona-edu/dolos-cli:latest
 ```
 
 ## Run Dolos CLI in Docker
@@ -23,7 +23,7 @@ Here is, for example, a containerized version of the command from the [Running D
 to run a plagiarism detection analysis and open an interatie web app where the analysis results can be explored:
 
 ```shell
-docker run --init --network host -v "$PWD:/dolos" ghcr.io/dodona-edu/dolos -l javascript -f web *.js
+docker run --init --network host -v "$PWD:/dolos" ghcr.io/dodona-edu/dolos-cli -l javascript -f web *.js
 ```
 
 :::: tip

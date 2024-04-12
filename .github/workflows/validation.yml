@@ -1,0 +1,58 @@
+name: Validation
+on:
+  push:
+    branches: [main]
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  install-cli:
+    name: "Install and run CLI on ${{ matrix.os }}"
+    strategy:
+      matrix:
+        os:
+          - macos-14
+          - macos-13
+          - ubuntu-latest
+      fail-fast: false
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Setup Node 📚
+        uses: actions/setup-node@v4
+        with:
+          node-version: 21
+
+      - name: Install dolos
+        shell: bash
+        run: |
+          npm install -g @dodona/dolos
+          dolos --version
+
+      - name: Prepare analysis
+        run: |
+          wget https://dolos.ugent.be/simple-dataset.zip
+
+      - name: Run analysis on samples
+        run: |
+          dolos simple-dataset.zip
+
+  self-hosting:
+    name: "Test docker-compose for self-hosting Dolos web app"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v4
+
+      - name: Run test script
+        run: ./test_compose.sh
+
+  packaging:
+    name: "Test packing and installing Dolos"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v4
+
+      - name: Run test script
+        run: ./test_package.sh
