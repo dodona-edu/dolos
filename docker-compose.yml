@@ -1,3 +1,4 @@
+
 name: dolos
 version: "3.9"
 services:
@@ -10,8 +11,8 @@ services:
     networks:
       - dolos
     healthcheck:
-      start_period: 5s
-      interval: 10s
+      start_period: 2s
+      interval: 5s
       test: healthcheck.sh --su-mysql --connect --innodb_initialized
   web:
     image: ghcr.io/dodona-edu/dolos-web
@@ -28,8 +29,8 @@ services:
     networks:
       - dolos
     healthcheck:
-      start_period: 5s
-      interval: 10s
+      start_period: 2s
+      interval: 5s
       test: curl --fail http://localhost:8080 || exit 1
   api:
     image: ghcr.io/dodona-edu/dolos-api
@@ -51,11 +52,12 @@ services:
       RAILS_LOG_TO_STDOUT: true
       SECRET_KEY_BASE_DUMMY: true
     depends_on:
-      - worker
+      db:
+        condition: service_healthy
     networks:
       - dolos
     healthcheck:
-      start_period: 5s
+      start_period: 2s
       interval: 10s
       test: curl --fail http://localhost:3000/up || exit 1
   worker:
@@ -74,12 +76,12 @@ services:
       SECRET_KEY_BASE_DUMMY: true
       RAILS_LOG_TO_STDOUT: true
     depends_on:
-      - db
+      - api
     networks:
       - dolos
     healthcheck:
-      start_period: 5s
-      interval: 10s
+      start_period: 2s
+      interval: 5s
       test: ruby -e true || exit 1
 volumes:
   dolos-db-data:
