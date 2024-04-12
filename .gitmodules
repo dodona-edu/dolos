@@ -38,3 +38,6 @@
 [submodule "parsers/sql"]
 	path = parsers/sql
 	url = https://github.com/rien/tree-sitter-sql.git
+[submodule "parsers/verilog"]
+	path = parsers/verilog
+	url = https://github.com/tree-sitter/tree-sitter-verilog.git

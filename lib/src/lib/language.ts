@@ -122,6 +122,7 @@ export class LanguagePicker {
     new ProgrammingLanguage("sql", [".sql"]),
     new ProgrammingLanguage("typescript", [".ts"]),
     new ProgrammingLanguage("tsx", [".tsx"]),
+    new ProgrammingLanguage("verilog", [".v", ".vh"]),
     new CustomTokenizerLanguage("char", [".txt", ".md"], async self => {
       const { CharTokenizer } = await import("./tokenizer/charTokenizer.js");
       return new CharTokenizer(self);

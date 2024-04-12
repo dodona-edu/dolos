@@ -12,6 +12,7 @@
         "python/binding.gyp",
         "r/binding.gyp",
         "sql/binding.gyp",
-        "typescript/binding.gyp"
+        "typescript/binding.gyp",
+        "verilog/binding.gyp"
     ]
 }

@@ -41,3 +41,6 @@ module.exports.typescript.nodeTypeInfo = require("./typescript/typescript/src/no
 
 module.exports.tsx = typescript_tsx.tsx;
 module.exports.tsx.nodeTypeInfo = require("./typescript/tsx/src/node-types.json");
+
+module.exports.verilog = require("./build/Release/tree_sitter_verilog_binding");
+module.exports.verilog.nodeTypeInfo = require("./verilog/src/node-types.json");
