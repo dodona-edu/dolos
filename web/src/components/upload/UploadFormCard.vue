@@ -104,6 +104,10 @@ const languages = [
     name: "TSX",
     value: "tsx",
   },
+  {
+    name: "Verilog",
+    value: "verilog"
+  }
 ];
 
 const accept = shallowRef<boolean>(false);

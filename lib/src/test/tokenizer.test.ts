@@ -19,6 +19,7 @@ const languageFiles = {
   "sql": "../samples/sql/sample.sql",
   "tsx": "../samples/tsx/sample.tsx",
   "typescript": "../samples/typescript/caesar.ts",
+  "verilog": "../samples/verilog/module.v"
 } as {[key: string]: string};
 
 for (const [languageName, languageFile] of Object.entries(languageFiles)) {
