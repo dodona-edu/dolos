@@ -3,10 +3,10 @@ set -e
 
 # This script tests whether self-hosting the Dolos web-app works using the docker-compose.yml
 
-docker-compose down
-docker-compose pull
+docker compose --progress quiet down
+docker compose --progress quiet pull
 docker pull ghcr.io/dodona-edu/dolos-cli:latest
-docker-compose up --wait --detach
+docker compose up # --wait --detach
 
 echo "Upload zipfile"
 
