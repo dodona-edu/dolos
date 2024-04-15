@@ -1,55 +1,87 @@
-import {UploadReport} from "@/types/uploads/UploadReport";
+import {UploadReport, Report} from "@/types/uploads/UploadReport";
 import {useLocalStorage} from "@vueuse/core";
 import {defineStore} from "pinia";
 import {computed, onMounted} from "vue";
 import {useRoute} from "vue-router";
 import slugify from "slugify";
-import axios, {AxiosError} from "axios";
+import axios from "axios";
 
 export const useReportsStore = defineStore("reports", () => {
   // List of uploaded reports in localstorage.
-  const reports = useLocalStorage<UploadReport[]>("reports:upload", []);
+  const oldReports = useLocalStorage<UploadReport[]>("reports:upload", []);
+  const reports = useLocalStorage<Report[]>("dolos:reports", [], {
+    serializer: {
+      read: (v: any) => Report.arrayFromSerialized(v),
+      write: (v: any) => JSON.stringify(v),
+    }
+  });
 
-  // Add a report to the list of uploaded reports.
-  function addReport(report: Partial<UploadReport>) {
-    // If no name is provided, use a generic one.
-    if (!report.name) {
-      report.name = "Report";
+  function findNextSlug(name: string) {
+    let slug = slugify(name, { lower: true });
+
+    let i = 1;
+    while (reports.value.find((r) => r.slug === slug)) {
+        i += 1;
+        slug = `${slug}-${i}`;
     }
 
-    // If no referenceId is provided, generate one.
-    if (!report.referenceId) {
-      const slug = slugify(report.name, { lower: true });
-
-      // Attempt to find a reference id that is not already used.
-      let i = 1;
-      while (reports.value.find((r) => r.referenceId === `${slug}-${i}`)) {
-        i++;
-      }
-
-      report.referenceId = `${slug}-${i}`;
-    }
-
-    // Add the report to the list.
-    reports.value.push(report as UploadReport);
+    return slug;
   }
 
-  // Get the status for a given report.
-  async function updateReportStatus(report: UploadReport) {
-    const response = await axios.get(report.statusUrl);
-    report.response = response.data;
-    report.stderr = response.data.stderr?.replace(/\s*.\[\d+m\[error\].\[\d+m\s*/g, "")
-    return response.data;
+  // Upload a new report
+  async function uploadReport(name: string, file: File, language?: string): Promise<Report> {
+    const data = new FormData();
+    data.append("dataset[zipfile]", file);
+    data.append("dataset[name]", name);
+    data.append("dataset[programming_language]", language ?? "");
+
+    const response = await axios.post(
+      `${import.meta.env.VITE_API_URL}/reports`,
+      data
+    );
+
+    if (response.status !== 201) {
+      console.log(response);
+      throw new Error(`HTTP error while uploading report: ${response.statusText}`);
+    }
+
+    const slug = findNextSlug(name);
+    const report = Report.fromResponse(response.data, slug)
+
+    // Add the report to the reports list in local storage.
+    reports.value.push(report);
+    return report;
+  }
+
+  async function reloadReport(reportId: string): Promise<Report> {
+    const url = getReportUrlById(reportId);
+    const response = await axios.get(url);
+    if (response.status !== 200) {
+      throw new Error(`HTTP error ${response.status} while fetching report ${reportId}`);
+    }
+
+    let report;
+    const existing = reports.value.findIndex((r) => r.id === reportId);
+    if (existing) {
+      const previous = reports.value[existing];
+      report = Report.fromResponse(response.data, previous.slug, previous.fromSharing);
+      reports.value[existing] = report;
+    } else {
+      const slug = findNextSlug(response.data["name"]);
+      report = Report.fromResponse(response.data, slug, true);
+      reports.value.push(report);
+    }
+    return report;
   }
 
   // Get a report in the list by reportId.
   function getReportById(reportId: string) {
-    return reports.value.find((r) => r.reportId === reportId);
+    return reports.value.find((r) => r.id === reportId);
   }
 
   // Get a report in the list by referenceId.
-  function getReportByReferenceId(referenceId: string) {
-    return reports.value.find((r) => r.referenceId === referenceId);
+  function getReportBySlug(slug: string) {
+    return reports.value.find((r) => r.slug === slug);
   }
 
   // Get the route for a given report id.
@@ -66,7 +98,7 @@ export const useReportsStore = defineStore("reports", () => {
     return {
       name: "Overview",
       params: {
-        referenceId: report.referenceId,
+        referenceId: report.slug,
       },
     };
   }
@@ -83,7 +115,7 @@ export const useReportsStore = defineStore("reports", () => {
 
   // Delete a report by reportId.
   function deleteReportById(reportId: string) {
-    reports.value = reports.value.filter((r) => r.reportId !== reportId);
+    reports.value = reports.value.filter((r) => r.id !== reportId);
   }
 
   // Get the URL for a given report id.
@@ -91,29 +123,32 @@ export const useReportsStore = defineStore("reports", () => {
     return `${import.meta.env.VITE_API_URL}/reports/${reportId}`;
   };
 
-  async function checkReports() {
+  async function reloadAllReports() {
     const toCheck = reports.value;
+
+    // These lines gracefully migrate previous reports,
+    // remove when all users have migrated.
+    for (const report of oldReports.value) {
+      toCheck.push(Report.fromUploadReport(report));
+    }
+    oldReports.value = [];
+
     for (const report of toCheck) {
       if (report.status === "finished") {
         try {
-          const status = await updateReportStatus(report);
-          // Update the report status.
-          report.status = status.status;
-        } catch (error) {
-          const axiosError = error as AxiosError;
-          if (axiosError?.response?.status === 404 || axiosError?.response?.status === 500) {
-            // Set the report status to deleted.
-            report.status = "deleted";
-          }
+          await reloadReport(report.id);
+        } catch (error: any) {
+          // Set the report status to deleted.
+          report.status = "api_error";
+          report.error = error?.message;
         }
       }
     }
     reports.value = toCheck;
   }
 
-  // Update all report statuses for the succeeded reports.
-  // This is to detect if a report has been deleted.
-  onMounted(async () => await checkReports());
+  // Fetch all stored reports and update if needed
+  onMounted(async () => await reloadAllReports());
 
   // Attempt to get the current report from the route.
   const route = useRoute();
@@ -122,17 +157,17 @@ export const useReportsStore = defineStore("reports", () => {
     if (reportId) {
       return getReportById(reportId);
     }
-    const referenceId = route.params.referenceId as string | undefined;
-    if (referenceId) {
-      return getReportByReferenceId(referenceId);
+    const slug = route.params.referenceId as string | undefined;
+    if (slug) {
+      return getReportBySlug(slug);
     }
     return undefined;
   });
 
   return {
     reports,
-    addReport,
-    getReportStatus: updateReportStatus,
+    uploadReport,
+    reloadReport,
     getReportById,
     getReportRouteById,
     getReportShareRouteById,

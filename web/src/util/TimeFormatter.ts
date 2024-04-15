@@ -5,16 +5,18 @@ import * as d3 from "d3";
  * Convert a Date object to a short date string.
  * @param date Date object to convert
  */
-export function formatShortDateTime(date: Date): string {
-  return DateTime.fromJSDate(date).toLocaleString(DateTime.DATETIME_SHORT);
+export function formatShortDateTime(date: Date | string): string {
+    const dateTime = date instanceof Date ? DateTime.fromJSDate(date) : DateTime.fromISO(date);
+    return dateTime.toLocaleString(DateTime.DATETIME_SHORT);
 }
 
 /**
  * Convert a Date object to a long date string.
  * @param date Date object to convert
  */
-export function formatLongDateTime(date: Date): string {
-  return DateTime.fromJSDate(date).toLocaleString({
+export function formatLongDateTime(date: Date | string): string {
+  const dateTime = date instanceof Date ? DateTime.fromJSDate(date) : DateTime.fromISO(date);
+  return dateTime.toLocaleString({
     weekday: "short",
     month: "short",
     day: "numeric",

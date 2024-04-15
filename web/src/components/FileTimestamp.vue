@@ -23,7 +23,7 @@ import { computed } from "vue";
 
 interface Props {
   file?: File;
-  timestamp?: Date;
+  timestamp?: Date | string;
   long?: boolean;
 }
 

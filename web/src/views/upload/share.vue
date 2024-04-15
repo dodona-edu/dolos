@@ -1,10 +1,8 @@
 <script setup lang="ts">
 import { onMounted } from "vue";
-import { UploadReport } from "@/types/uploads/UploadReport";
 import { ref } from "vue";
 import { useReportsStore } from "@/stores";
 import { useRoute, useRouter } from "vue-router";
-import axios from "axios";
 
 const router = useRouter();
 const route = useRoute();
@@ -21,23 +19,15 @@ onMounted(async () => {
   if (!report) {
 
     try {
-      // Fetch the report from the server.
-      const url = reports.getReportUrlById(reportId);
-      const response = await axios.get(url);
-      const data = response.data;
-      // Create the uploaded report.
-      const report: Partial<UploadReport> = {
-        reportId,
-        date: data["created_at"] ?? new Date().toISOString(),
-        name: data["name"] ?? "Report",
-        status: data["status"],
-        statusUrl: url,
-        response: response,
-        isFromSharing: true,
-      };
+      // Fetch the report from the server
+      const report = await reports.reloadReport(reportId);
 
-      // Add the report to the store.
-      reports.addReport(report);
+      // Wait until status is final
+      while (!report.hasFinalStatus()) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        await reports.reloadReport(reportId);
+      }
+
     } catch (err: any) {
       error.value = err.message ?? "Unknown error";
       return;

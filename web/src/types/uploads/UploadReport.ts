@@ -21,3 +21,74 @@ export type UploadReport = {
   // Or is it an opened shared report.
   isFromSharing: boolean;
 };
+
+export class Report {
+  readonly fromSharing: boolean;
+
+  private constructor(
+    public readonly id: string,
+    public readonly name: string,
+    public readonly date: string,
+    public status: UploadReportStatus,
+    public readonly url: string,
+    public readonly datasetURL?: string,
+    public readonly stderr?: string,
+    public error?: string,
+    public slug?: string,
+    fromSharing?: boolean,
+  ) {
+    this.fromSharing = fromSharing || false;
+  }
+
+  public hasFinalStatus() {
+    return this.status !== "running" && this.status !== "queued";
+  }
+
+  static fromResponse(response: Record<string, any>, slug?: string, fromSharing?: boolean): Report {
+    return new Report(
+      response.id,
+      response.name,
+      response.date,
+      response.status,
+      response.url,
+      response.dataset?.zipfile,
+      response.stderr?.replace(/\s*.\[\d+m\[error\].\[\d+m\s*/g, ""),
+      response.error,
+      slug,
+      fromSharing
+    );
+  }
+
+  static fromUploadReport(report: UploadReport): Report {
+    return new Report(
+      report.reportId,
+      report.name,
+      report.date,
+      report.status,
+      `${import.meta.env.VITE_API_URL}/reports/${report.reportId}`,
+      report.response?.dataset?.zipfile,
+      report.stderr,
+      undefined,
+      report.referenceId,
+      report.isFromSharing
+    );
+  }
+
+  static arrayFromSerialized(serialized: string): Report[] {
+    return (JSON.parse(serialized) as Record<string, any>[])
+      .map(object =>
+        new Report(
+          object.id,
+          object.name,
+          object.date,
+          object.status,
+          object.url,
+          object.datasetURL,
+          object.stderr,
+          object.error,
+          object.slug,
+          object.isFromSharing
+        )
+      );
+  }
+}

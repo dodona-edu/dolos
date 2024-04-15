@@ -33,18 +33,16 @@ const headers = computed<any>(() => [
 // Table items
 // In the format for the Vuetify data-table.
 const items = computed(() =>
-  reports.reports.map((report) => ({
+  reports.reports.map((report) => {
+    console.log(report);
+    return {
     name: report.name,
-    date: new Date(report.date),
+    date: report.date,
     status: report.status,
     report: report,
-    isFromSharing: report.isFromSharing,
-    done:
-      report.status === "error" ||
-      report.status === "failed" ||
-      report.status === "finished" ||
-      report.status === "deleted",
-  }))
+    isFromSharing: report.fromSharing,
+    done: report.hasFinalStatus(),
+  }})
 );
 
 const selectedReportId = ref<string | undefined>();

@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import { shallowRef, ref, computed, watch } from "vue";
-import { default as axios } from "axios";
 import { useReportsStore } from "@/stores";
 
 const reports = useReportsStore();
@@ -165,52 +164,17 @@ const handleError = (message: string): void => {
 const onSubmit = async (): Promise<void> => {
   // Make sure the form is valid.
   if (valid.value) {
-    const file = files.value?.[0];
-    const data = new FormData();
-    data.append("dataset[zipfile]", file ?? new Blob());
-    data.append("dataset[name]", name.value ?? "");
-    data.append("dataset[programming_language]", language.value ?? "");
+    const file = files.value?.[0]!;
 
     // Go to the next step.
     step.value = 2;
 
     // Upload the file.
     try {
-      const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}/reports`,
-        data,
-        {
-          onUploadProgress: (e) => {
-            uploadProgress.value = Math.ceil((e.loaded / (e.total ?? 1)) * 100);
-
-            // Go to the next step when the upload is complete.
-            if (e.loaded === e.total) {
-              step.value = 3;
-            }
-          },
-        }
-      );
-
-      // Create a new report.
-      const report = {
-        reportId: response.data["id"] as string,
-        name: name.value ?? "",
-        date: new Date().toISOString(),
-        status: response.data["status"],
-        statusUrl: response.data["url"],
-        response: response.data,
-      };
-
-      // Add the report to the reports list in local storage.
-      reports.addReport(report);
+      const report = await reports.uploadReport(name.value ?? file.name, file, language.value ?? "");
 
       // Set the report as active.
-      reportActiveId.value = response.data["id"];
-
-      // Make sure a status url was provided.
-      if (!report.statusUrl) {
-        handleError("No analysis URL was provided by the API.");
-      }
+      reportActiveId.value = report.id;
     } catch (e: any) {
       if (e.code == "ERR_NETWORK") {
         handleError("Could not connect to the API.");
@@ -245,7 +209,7 @@ const startPolling = (reportId: string): void => {
     }
 
     // Get the report from the reports list.
-    const report = reports.getReportById(reportId);
+    let report = reports.getReportById(reportId);
 
     // Stop the polling if the report no longer exists.
     if (!report) {
@@ -254,17 +218,10 @@ const startPolling = (reportId: string): void => {
     }
 
     try {
-      const status = await reports.getReportStatus(report);
-
-      // Update the report status.
-      report.status = status.status;
+      report = await reports.reloadReport(report.id);
 
       // Stop the polling when the report status is final.
-      if (
-        report.status === "finished" ||
-        report.status === "error" ||
-        report.status === "failed"
-      ) {
+      if (report.hasFinalStatus()) {
         pollingReports.value = pollingReports.value.filter(
           (id) => id !== reportId
         );
@@ -283,7 +240,7 @@ const startPolling = (reportId: string): void => {
 
         if (report.status === "failed" || report.status === "error") {
           stderr.value = report.stderr;
-          handleError(`An error occurred while analyzing the dataset (${status.error})`);
+          handleError(`An error occurred while analyzing the dataset (${report.error})`);
         }
       }
     } catch (e: any) {
@@ -302,7 +259,7 @@ watch(
   (reports) => {
     for (const report of reports) {
       if (report.status === "queued" || report.status === "running") {
-        startPolling(report.reportId);
+        startPolling(report.id);
       }
     }
   },

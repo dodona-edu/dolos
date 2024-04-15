@@ -14,7 +14,7 @@ export function useAppMode() {
   const reportUrl = computed(() => {
     if (import.meta.env.VITE_MODE === "server") {
       if (reports.currentReport) {
-        return reports.getReportUrlById(reports.currentReport.reportId);
+        return reports.currentReport.url;
       } else {
         return undefined;
       }
