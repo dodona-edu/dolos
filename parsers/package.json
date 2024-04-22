@@ -13,6 +13,6 @@
   },
   "devDependencies": {
     "node-gyp": "^9.4.1",
-    "tree-sitter-cli": "^0.20.8"
+    "tree-sitter-cli": "^0.22.5"
   }
 }
