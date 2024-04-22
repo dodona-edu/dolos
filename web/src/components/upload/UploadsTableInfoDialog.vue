@@ -1,13 +1,13 @@
 <script lang="ts" setup>
 import { useReportsStore } from "@/stores";
-import { UploadReport } from "@/types/uploads/UploadReport";
+import { Report } from "@/types/uploads/UploadReport";
 import { useVModel } from "@vueuse/core";
 import { DateTime } from "luxon";
 import { computed } from "vue";
 
 type Props = {
   open: boolean;
-  report: UploadReport;
+  report: Report;
 };
 const props = withDefaults(defineProps<Props>(), {
   open: false,
@@ -17,7 +17,7 @@ const open = useVModel(props, "open", emit);
 const reports = useReportsStore();
 
 const reportRoute = computed(() =>
-  reports.getReportRouteById(props.report.reportId)
+  reports.getReportRouteById(props.report.id)
 );
 const reportDate = computed(() =>
   DateTime.fromISO(props.report.date ?? "").toLocaleString(
@@ -148,6 +148,17 @@ const isDone = computed(
         >
           Share
           <v-icon end>mdi-share-variant</v-icon>
+        </v-btn>
+
+        <!-- Download ZIP -->
+        <v-btn
+            variant="text"
+            color="primary"
+            v-if="props.report.datasetURL"
+            :href="props.report.datasetURL"
+        >
+          Dataset
+          <v-icon end>mdi-download</v-icon>
         </v-btn>
 
         <v-spacer />

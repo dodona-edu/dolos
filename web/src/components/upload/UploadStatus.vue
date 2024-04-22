@@ -8,23 +8,23 @@ const props = defineProps<Props>();
 </script>
 
 <template>
-  <v-chip v-if="props.status === 'queued'" color="warning" small>
+  <v-chip v-if="props.status === 'queued'" color="warning" size="small">
     Queued
   </v-chip>
-  <v-chip v-else-if="props.status === 'running'" color="info" small>
+  <v-chip v-else-if="props.status === 'running'" color="info" size="small">
     Running
   </v-chip>
-  <v-chip v-else-if="props.status === 'finished'" color="success" small>
+  <v-chip v-else-if="props.status === 'finished'" color="success" size="small">
     Finished
   </v-chip>
-  <v-chip v-else-if="props.status === 'failed'" color="error" small>
+  <v-chip v-else-if="props.status === 'failed'" color="error" size="small">
     Failed
   </v-chip>
-  <v-chip v-else-if="props.status === 'error'" color="error" small>
+  <v-chip v-else-if="props.status === 'error'" color="error" size="small">
     Error
   </v-chip>
-  <v-chip v-else-if="props.status === 'deleted'" color="grey" small>
+  <v-chip v-else-if="props.status === 'deleted'" color="grey" size="small">
     Deleted
   </v-chip>
-  <v-chip v-else color="grey" small> Unknown </v-chip>
+  <v-chip v-else color="grey" size="small"> Unknown </v-chip>
 </template>

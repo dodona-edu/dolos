@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { UploadReport } from "@/types/uploads/UploadReport";
+import { Report } from "@/types/uploads/UploadReport";
 import { useVModel } from "@vueuse/core";
 import { computed } from "vue";
 import { useSnackbar } from "../util/snackbar/useSnackbar";
@@ -8,7 +8,7 @@ import { useRouter } from "vue-router";
 
 type Props = {
   open: boolean;
-  report: UploadReport;
+  report: Report;
 };
 const props = withDefaults(defineProps<Props>(), {
   open: false,
@@ -18,7 +18,7 @@ const router = useRouter();
 const reports = useReportsStore();
 
 const reportShareRoute = computed(() =>
-  reports.getReportShareRouteById(props.report.reportId)
+  reports.getReportShareRouteById(props.report.id)
 );
 
 const open = useVModel(props, "open", emit);

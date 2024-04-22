@@ -35,15 +35,11 @@ const headers = computed<any>(() => [
 const items = computed(() =>
   reports.reports.map((report) => ({
     name: report.name,
-    date: new Date(report.date),
+    date: report.date,
     status: report.status,
     report: report,
-    isFromSharing: report.isFromSharing,
-    done:
-      report.status === "error" ||
-      report.status === "failed" ||
-      report.status === "finished" ||
-      report.status === "deleted",
+    isFromSharing: report.fromSharing,
+    done: report.hasFinalStatus(),
   }))
 );
 
@@ -62,19 +58,19 @@ const shareDialog = ref(false);
 
 // Open the dialog for a specific report.
 const openInfoDialog = (e: Event, value: any): void => {
-  selectedReportId.value = value.item.report.reportId;
+  selectedReportId.value = value.item.report.id;
   infoDialog.value = true;
 };
 
 // Open the dialog for deleting a specific report.
 const openDeleteDialog = (item: any): void => {
-  selectedReportId.value = item.report.reportId;
+  selectedReportId.value = item.report.id;
   deleteDialog.value = true;
 };
 
 // Open the dialog for sharing a specific report.
 const openShareDialog = (item: any): void => {
-  selectedReportId.value = item.report.reportId;
+  selectedReportId.value = item.report.id;
   shareDialog.value = true;
 };
 </script>

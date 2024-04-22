@@ -99,7 +99,7 @@ const display = useDisplay();
 const drawerValue = useVModel(props, "drawer", emit);
 const settingsValue = useVModel(props, "settings", emit);
 const shareDialog = ref(false);
-const downloadDatasetUrl = computed(() => currentReport.value?.response?.dataset?.zipfile);
+const downloadDatasetUrl = computed(() => currentReport.value?.datasetURL);
 const { currentReport } = storeToRefs(useReportsStore());
 </script>
 

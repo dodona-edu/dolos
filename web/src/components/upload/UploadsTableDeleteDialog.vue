@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { UploadReport } from "@/types/uploads/UploadReport";
+import { Report } from "@/types/uploads/UploadReport";
 import { useVModel } from "@vueuse/core";
 import { ref } from "vue";
 import { useSnackbar } from "../util/snackbar/useSnackbar";
@@ -8,7 +8,7 @@ import { useReportsStore } from "@/stores";
 
 type Props = {
   open: boolean;
-  report: UploadReport;
+  report: Report;
 };
 const props = withDefaults(defineProps<Props>(), {
   open: false,
@@ -32,8 +32,8 @@ const confirm = async (): Promise<void> => {
   try {
     // Attempt to delete the upload.
     // Only delete the upload if a report id is present and the report is not already deleted.
-    if (props.report.reportId && props.report.status !== "deleted") {
-      await axios.delete(reports.getReportUrlById(props.report.reportId));
+    if (props.report.id && props.report.status !== "deleted") {
+      await axios.delete(reports.getReportUrlById(props.report.id));
     }
 
     // Close the dialog.
@@ -58,7 +58,7 @@ const confirm = async (): Promise<void> => {
     loading.value = false;
 
     // Delete the upload from local storage.
-    reports.deleteReportById(props.report.reportId);
+    reports.deleteReportById(props.report.id);
   }
 };
 </script>
