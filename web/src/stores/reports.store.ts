@@ -17,12 +17,13 @@ export const useReportsStore = defineStore("reports", () => {
   });
 
   function findNextSlug(name: string) {
-    let slug = slugify(name, { lower: true });
+    const base = slugify(name, { lower: true });
+    let slug = base;
 
     let i = 1;
     while (reports.value.find((r) => r.slug === slug)) {
         i += 1;
-        slug = `${slug}-${i}`;
+        slug = `${base}-${i}`;
     }
 
     return slug;
@@ -62,7 +63,7 @@ export const useReportsStore = defineStore("reports", () => {
 
     let report;
     const existing = reports.value.findIndex((r) => r.id === reportId);
-    if (existing) {
+    if (existing >= 0) {
       const previous = reports.value[existing];
       report = Report.fromResponse(response.data, previous.slug, previous.fromSharing);
       reports.value[existing] = report;

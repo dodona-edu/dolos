@@ -33,16 +33,14 @@ const headers = computed<any>(() => [
 // Table items
 // In the format for the Vuetify data-table.
 const items = computed(() =>
-  reports.reports.map((report) => {
-    console.log(report);
-    return {
+  reports.reports.map((report) => ({
     name: report.name,
     date: report.date,
     status: report.status,
     report: report,
     isFromSharing: report.fromSharing,
     done: report.hasFinalStatus(),
-  }})
+  }))
 );
 
 const selectedReportId = ref<string | undefined>();
@@ -60,19 +58,19 @@ const shareDialog = ref(false);
 
 // Open the dialog for a specific report.
 const openInfoDialog = (e: Event, value: any): void => {
-  selectedReportId.value = value.item.report.reportId;
+  selectedReportId.value = value.item.report.id;
   infoDialog.value = true;
 };
 
 // Open the dialog for deleting a specific report.
 const openDeleteDialog = (item: any): void => {
-  selectedReportId.value = item.report.reportId;
+  selectedReportId.value = item.report.id;
   deleteDialog.value = true;
 };
 
 // Open the dialog for sharing a specific report.
 const openShareDialog = (item: any): void => {
-  selectedReportId.value = item.report.reportId;
+  selectedReportId.value = item.report.id;
   shareDialog.value = true;
 };
 </script>

@@ -41,14 +41,14 @@ export class Report {
   }
 
   public hasFinalStatus() {
-    return this.status !== "running" && this.status !== "queued";
+    return this.status === "finished" || this.status === "error" || this.status === "failed";
   }
 
   static fromResponse(response: Record<string, any>, slug?: string, fromSharing?: boolean): Report {
     return new Report(
       response.id,
       response.name,
-      response.date,
+      response.created_at,
       response.status,
       response.url,
       response.dataset?.zipfile,
