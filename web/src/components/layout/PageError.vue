@@ -2,11 +2,19 @@
   <div class="page-error">
     <h2>Oops! Something went wrong.</h2>
     <p>{{ message }}</p>
+    <v-btn-group v-if="isServer">
+      <v-btn :to="{ name: 'Upload' }">
+        Go to upload form
+      </v-btn>
+    </v-btn-group>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { computed } from "vue";
+import { useAppMode } from "@/composables/useAppMode";
+
+const { isServer } = useAppMode();
 
 interface Props {
   error: Error | string;

@@ -175,6 +175,7 @@ const onSubmit = async (): Promise<void> => {
 
       // Set the report as active.
       reportActiveId.value = report.id;
+      step.value = 3;
     } catch (e: any) {
       if (e.code == "ERR_NETWORK") {
         handleError("Could not connect to the API.");
@@ -230,7 +231,7 @@ const startPolling = (reportId: string): void => {
 
       // If the report is the active report
       // apply some changes to the form UI.
-      if (report === reportActive.value) {
+      if (report.id === reportActive.value?.id) {
         if (report.status === "finished") {
           // Go to the results page.
           step.value = 4;
@@ -258,8 +259,8 @@ watch(
   () => reports.reports,
   (reports) => {
     for (const report of reports) {
-      if (report.status === "queued" || report.status === "running") {
-        startPolling(report.id);
+      if (!report.hasFinalStatus()) {
+         startPolling(report.id);
       }
     }
   },
@@ -287,7 +288,7 @@ watch(
           <v-alert v-if="error" class="mb-4" variant="tonal" type="error" density="compact">
             {{ error }}
           </v-alert>
-          <v-textarea readonly rows="15" :model-value="stderr" />
+          <v-textarea v-if="stderr" readonly :rows="Math.min(15, stderr?.split('\n').length)" :model-value="stderr" />
 
           </div>
 

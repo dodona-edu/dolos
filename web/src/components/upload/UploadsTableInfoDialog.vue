@@ -150,6 +150,17 @@ const isDone = computed(
           <v-icon end>mdi-share-variant</v-icon>
         </v-btn>
 
+        <!-- Download ZIP -->
+        <v-btn
+            variant="text"
+            color="primary"
+            v-if="props.report.datasetURL"
+            :href="props.report.datasetURL"
+        >
+          Dataset
+          <v-icon end>mdi-download</v-icon>
+        </v-btn>
+
         <v-spacer />
 
         <!-- View results -->
