@@ -16,6 +16,7 @@ const languageFiles = {
   "php": "../samples/php/caesar.php",
   "modelica": "../samples/modelica/sample.mo",
   "r": "../samples/r/caesar.R",
+  "scala": "../samples/scala/Caesar.scala",
   "sql": "../samples/sql/sample.sql",
   "tsx": "../samples/tsx/sample.tsx",
   "typescript": "../samples/typescript/caesar.ts",

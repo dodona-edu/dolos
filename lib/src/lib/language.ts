@@ -119,6 +119,7 @@ export class LanguagePicker {
     new ProgrammingLanguage("javascript", [".js"]),
     new ProgrammingLanguage("elm", [".elm"]),
     new ProgrammingLanguage("r", [".r", ".rdata", ".rds", ".rda"]),
+    new ProgrammingLanguage("scala", [".scala", ".sc"]),
     new ProgrammingLanguage("sql", [".sql"]),
     new ProgrammingLanguage("typescript", [".ts"]),
     new ProgrammingLanguage("tsx", [".tsx"]),
