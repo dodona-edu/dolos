@@ -1,7 +1,7 @@
 {
   "name": "@dodona/dolos-web",
   "description": "Web UI for the Dolos plagiarism detection tool.",
-  "version": "2.5.1",
+  "version": "2.6.0",
   "homepage": "https://dolos.ugent.be",
   "license": "MIT",
   "type": "module",
@@ -20,7 +20,7 @@
   },
   "devDependencies": {
     "@babel/types": "^7.24.0",
-    "@dodona/dolos-core": "1.0.1",
+    "@dodona/dolos-core": "1.0.2",
     "@mdi/font": "7.4.47",
     "@types/d3": "7.4.3",
     "@types/luxon": "^3.4.2",
