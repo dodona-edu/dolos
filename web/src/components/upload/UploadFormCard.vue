@@ -14,7 +14,7 @@ const error = shallowRef();
 const stderr = shallowRef();
 
 // Selected file.
-const files = shallowRef<File[]>();
+const file = shallowRef<File>();
 const filesRules = [(v: File) => !!v || "File is required"];
 
 // Selected file name.
@@ -22,9 +22,8 @@ const name = shallowRef<string>();
 const nameRules = [(v: string) => !!v || "Name is required"];
 
 // Update the file name when the file changes.
-watch(files, (files) => {
-  if (files) {
-    const file = files[0];
+watch(file, (file) => {
+  if (file) {
     if (!file) return;
 
     name.value = file.name;
@@ -140,7 +139,7 @@ const reportRoute = computed(() => {
 
 // Clear the form.
 const clearForm = (): void => {
-  files.value = undefined;
+  file.value = undefined;
   name.value = "";
   language.value = null;
 };
@@ -168,14 +167,13 @@ const handleError = (message: string): void => {
 const onSubmit = async (): Promise<void> => {
   // Make sure the form is valid.
   if (valid.value) {
-    const file = files.value?.[0]!;
 
     // Go to the next step.
     step.value = 2;
 
     // Upload the file.
     try {
-      const report = await reports.uploadReport(name.value ?? file.name, file, language.value ?? "");
+      const report = await reports.uploadReport(name.value ?? file.value!.name, file.value!, language.value ?? "");
 
       // Set the report as active.
       reportActiveId.value = report.id;
@@ -298,7 +296,7 @@ watch(
 
           <v-form v-model="valid" class="mt-2" fast-fail @submit="onSubmit">
             <v-file-input
-              v-model="files"
+              v-model="file"
               :rules="filesRules"
               :truncate-length="80"
               :show-size="1000"
