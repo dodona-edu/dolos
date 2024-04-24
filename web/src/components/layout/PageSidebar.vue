@@ -6,7 +6,7 @@
   >
     <template v-if="props.variant === 'analysis'">
       <v-list v-if="isServer" nav density="compact">
-        <v-list-item  :to="{ name: 'Upload' }" link exact>
+        <v-list-item  :to="{ name: 'Upload' }" target="_blank" link exact>
           <template #prepend>
             <v-icon>mdi-chevron-left</v-icon>
           </template>
