@@ -41,3 +41,6 @@
 [submodule "parsers/verilog"]
 	path = parsers/verilog
 	url = https://github.com/tree-sitter/tree-sitter-verilog.git
+[submodule "parsers/scala"]
+	path = parsers/scala
+	url = https://github.com/tree-sitter/tree-sitter-scala.git
