@@ -88,6 +88,10 @@ const languages = [
     value: "r"
   },
   {
+    name: "Scala",
+    value: "scala"
+  },
+  {
     name: "SQL",
     value: "sql"
   },
