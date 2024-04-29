@@ -40,7 +40,7 @@
     "eslint-plugin-vue": "^9.25.0",
     "eslint-plugin-vuetify": "^2.4.0",
     "luxon": "^3.4.4",
-    "monaco-editor": "^0.47.0",
+    "monaco-editor": "^0.48.0",
     "papaparse": "^5.4.1",
     "pinia": "^2.1.7",
     "prismjs": "^1.29.0",
