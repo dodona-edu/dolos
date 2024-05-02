@@ -25,7 +25,7 @@
     "@ava/typescript": "git+https://github.com/rien/ava-typescript",
     "@typescript-eslint/eslint-plugin": "6.21.0",
     "@typescript-eslint/parser": "6.21.0",
-    "ava": "5.3.1",
+    "ava": "6.1.2",
     "eslint": "8.57.0",
     "typescript": "5.2.2"
   },
