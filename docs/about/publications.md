@@ -34,7 +34,7 @@ import PublicationsPage from '@components/PublicationsPage.vue';
         <Publication
             title="[Extended Preprint] Discovering and exploring cases of educational source code plagiarism with Dolos"
             authors="Rien Maertens, Charlotte Van Petegem, Niko Strijbol, Toon Baeyens, Arne Carla Jacobs, Peter Dawyndt, Bart Mesuere"
-            journal="arXiv"
+            journal="arXiv preprint"
             year="2024"
             doi="https://doi.org/10.48550/arXiv.2402.10853"
             image="/images/maertens-2024-arxiv.png">
@@ -63,22 +63,22 @@ import PublicationsPage from '@components/PublicationsPage.vue';
     </Publications>
     <Publications title="Publications by Team Dodona" lead="Dolos is developed by a larger team focussed around educational technology. Below is a list of articles published by other researchers in our group.">
         <Publication
+            title="Mining patterns in syntax trees to automate code reviews of student solutions for programming exercise"
+            authors="Charlotte Van Petegem, Kasper Demeyere, Rien Maertens, Niko Strijbol, Bram De Wever, Bart Mesuere, Peter Dawyndt"
+            journal="arXiv preprint"
+            year="2024"
+            doi="https://doi.org/10.48550/arXiv.2405.01579"
+            image="/images/vanpetegem-2024.png">
+            In programming education, providing manual feedback is essential but labour-intensive, posing challenges in consistency and timeliness. We introduce ECHO, a machine learning method to automate the reuse of feedback in educational code reviews by analysing patterns in abstract syntax trees. This study investigates two primary questions: whether ECHO can predict feedback annotations to specific lines of student code based on previously added annotations by human reviewers (RQ1), and whether its training and prediction speeds are suitable for using ECHO for real-time feedback during live code reviews by human reviewers (RQ2). Our results, based on annotations from both automated linting tools and human reviewers, show that ECHO can accurately and quickly predict appropriate feedback annotations. Its efficiency in processing and its flexibility in adapting to feedback patterns can significantly reduce the time and effort required for manual feedback provisioning in educational settings. 
+        </Publication>
+        <Publication
             title="Dodona: Learn to code with a virtual co-teacher that supports active learning"
             authors="Charlotte Van Petegem, Rien Maertens, Niko Strijbol, Jorg Van Renterghem, Felix Van der Jeugt, Bram De Wever, Peter Dawyndt, Bart Mesuere"
             journal="SoftwareX"
             year="2023"
             doi="http://doi.org/10.1016/j.softx.2023.101578"
-            image="/images/vanpetegem-2023-2.png">
-          Dodona (dodona.ugent.be) is an intelligent tutoring system for computer programming. It provides real-time data and feedback to help students learn better and teachers teach better. Dodona is free to use and has more than 61 thousand registered users across many educational and research institutes, including 20 thousand new users in the last year. The source code of Dodona is available on GitHub under the permissive MIT open-source license. This paper presents Dodona and its design and look-and-feel. We highlight some of the features built into Dodona that make it possible to shorten feedback loops, and discuss an example of how these features can be used in practice. We also highlight some of the research opportunities that Dodona has opened up and present some future developments.
-        </Publication>
-        <Publication
-            title="Dodona: Learn to Code with a Virtual Co-teacher that Supports Active Learning"
-            authors="Charlotte Van Petegem, Peter Dawyndt, Bart Mesuere"
-            journal="Proceedings of the 2023 Conference on Innovation and Technology in Computer Science Education"
-            year="2023"
-            doi="https://doi.org/10.1145/3587103.3594165"
             image="/images/vanpetegem-2023.png">
-        Dodona (dodona.ugent.be) is an intelligent tutoring system for learning computer programming, statistics and data science. It bridges the gap between assessment and learning by providing real-time data and feedback to help students learn better, teachers teach better and educational technology become more effective. We show how Dodona can be used as a virtual co-teacher to stimulate active learning and support challenge-based education in open and collaborative learning environments. We also highlight some of the opportunities and challenges we have faced in practice. Dodona is free to use and has more than 50 thousand registered users across many educational and research institutions, including 15 thousand new users in the last year. Dodona's source code is available on GitHub under the permissive MIT open-source license.
+          Dodona (dodona.ugent.be) is an intelligent tutoring system for computer programming. It provides real-time data and feedback to help students learn better and teachers teach better. Dodona is free to use and has more than 61 thousand registered users across many educational and research institutes, including 20 thousand new users in the last year. The source code of Dodona is available on GitHub under the permissive MIT open-source license. This paper presents Dodona and its design and look-and-feel. We highlight some of the features built into Dodona that make it possible to shorten feedback loops, and discuss an example of how these features can be used in practice. We also highlight some of the research opportunities that Dodona has opened up and present some future developments.
         </Publication>
         <Publication
             title="Blink: An Educational Software Debugger for Scratch"
