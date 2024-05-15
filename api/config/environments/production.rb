@@ -1,9 +1,12 @@
 require "active_support/core_ext/integer/time"
 
 Rails.application.configure do
-  config.hosts = ENV.fetch('DOLOS_API_HOSTS') { 'dolos.ugent.be' }
 
+  config.dolos_api_url = URI.parse(ENV.fetch('DOLOS_API_URL') { 'https://dolos.ugent.be/api' })
   config.front_end_base_url = ENV.fetch('DOLOS_API_FRONT_END_URL') { 'https://dolos.ugent.be/server' }
+
+  config.hosts = ENV.fetch('DOLOS_API_HOSTS') { config.dolos_api_url.host }
+
 
   # Settings specified here will take precedence over those in config/application.rb.
 
@@ -43,7 +46,7 @@ Rails.application.configure do
   # config.action_cable.allowed_request_origins = [ "http://example.com", /http:\/\/example.*/ ]
 
   # Force all access to the app over SSL, use Strict-Transport-Security, and use secure cookies.
-  config.force_ssl = !ENV["DOLOS_API_DISABLE_FORCE_SSL"]
+  config.force_ssl = !ENV.fetch("DOLOS_API_DISABLE_FORCE_SSL") { config.dolos_api_url.scheme == 'http' }
 
   # Include generic and useful information about system operation, but avoid logging too much
   # information to avoid inadvertent exposure of personally identifiable information (PII).
@@ -88,7 +91,12 @@ Rails.application.configure do
   # Do not dump schema after migrations.
   config.active_record.dump_schema_after_migration = false
 
+  # Set base url
+  config.relative_url_root = config.dolos_api_url.path
+
   routes.default_url_options = {
-    host: ENV.fetch('DOLOS_API_HOSTS') { 'dolos.ugent.be' }
+    host: ENV.fetch('DOLOS_API_HOSTS') { config.dolos_api_url.host },
+    protocol: config.dolos_api_url.scheme,
+    port: config.dolos_api_url.port,
   }
 end
