@@ -47,7 +47,7 @@
     "roboto-fontface": "*",
     "sass": "^1.75.0",
     "slugify": "^1.6.6",
-    "typescript": "^5.2.2",
+    "typescript": "^5.4.5",
     "unique-names-generator": "^4.7.1",
     "unplugin-vue-components": "^0.25.1",
     "vite": "^4.5.3",
