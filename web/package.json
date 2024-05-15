@@ -19,7 +19,7 @@
     "check": "vue-tsc --noEmit && eslint . --fix --ignore-path .gitignore"
   },
   "devDependencies": {
-    "@babel/types": "^7.24.0",
+    "@babel/types": "^7.24.5",
     "@dodona/dolos-core": "1.0.2",
     "@mdi/font": "7.4.47",
     "@types/d3": "7.4.3",
