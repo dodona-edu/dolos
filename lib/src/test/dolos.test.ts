@@ -288,6 +288,33 @@ test("should generate warning when not all files match detected language", async
   t.is(1, pairs.length);
 });
 
+test("should ignore template code", async t => {
+  const dolos = new Dolos();
+
+  const report = await dolos.analyzePaths([
+    "./src/test/fixtures/javascript/boilerplate_copy.js",
+    "./src/test/fixtures/javascript/implementation-unique.js",
+    "./src/test/fixtures/javascript/implementation-alternative.js",
+    "./src/test/fixtures/javascript/implementation-alternative-similar.js",
+  ],     "./src/test/fixtures/javascript/boilerplate_copy.js");
+
+  const files = report.files;
+  t.is(4, files.length);
+
+  const boilerplate = files[0];
+  const unique = files[1];
+  const alternative = files[2];
+  const similar  = files[3];
+
+  console.debug(report.allPairs());
+
+  // Boilerplate copy should not have a match
+  t.is(0, report.getPair(boilerplate, unique).similarity);
+  t.is(0, report.getPair(boilerplate, alternative).similarity);
+  t.is(0, report.getPair(boilerplate, similar).similarity);
+  t.fail();
+});
+
 test.failing("repeating sequences should not cause too many fragments", async t => {
   const dolos = new Dolos();
 

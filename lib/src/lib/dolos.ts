@@ -91,7 +91,7 @@ export class Dolos {
   }
 
 
-  public async analyzePaths(paths: string[]): Promise<Report> {
+  public async analyzePaths(paths: string[], template?: string): Promise<Report> {
     let files = null;
     let nameCandidate = undefined;
     if(paths.length == 1) {
@@ -113,14 +113,19 @@ export class Dolos {
         nameCandidate = path.basename(paths[0]) + " & " + path.basename(paths[1]);
       }
     }
-    return this.analyze((await files).ok(), nameCandidate);
+    let templateFile;
+    if (template) {
+      templateFile = (await readPath(template)).ok();
+    }
+    return this.analyze((await files).ok(), nameCandidate, templateFile);
   }
 
   public async analyze(
     files: Array<File>,
-    nameCandidate?: string
+    nameCandidate?: string,
+    template?: File
   ): Promise<Report> {
-
+    console.log(template);
     if (this.index == null) {
       if (this.options.language) {
         this.language = await this.languagePicker.findLanguage(this.options.language);
