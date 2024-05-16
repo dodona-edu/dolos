@@ -13,7 +13,8 @@ export type Hash = number;
 export interface FileEntry {
   file: TokenizedFile;
   kgrams: Array<Range>,
-  shared: Set<SharedFingerprint>;
+  shared: Set<SharedFingerprint>,
+  ignored: Set<SharedFingerprint>;
 }
 
 export interface Occurrence {
@@ -24,6 +25,7 @@ export interface Occurrence {
 export class FingerprintIndex {
   private readonly hashFilter: HashFilter;
   private readonly files: Map<number, FileEntry>;
+  private readonly templates: Map<number, FileEntry>;
   private readonly index: Map<Hash, SharedFingerprint>;
 
   /**
@@ -38,7 +40,13 @@ export class FingerprintIndex {
   ) {
     this.hashFilter = new WinnowFilter(this.kgramLength, this.kgramsInWindow, kgramData);
     this.files = new Map<number, FileEntry>();
+    this.templates = new Map<number, FileEntry>();
     this.index = new Map<Hash, SharedFingerprint>();
+  }
+
+  public addTemplate(tokenizedFile: TokenizedFile) {
+    assert(!this.templates.has(tokenizedFile.id), `This template file has already been analyzed: ${tokenizedFile.file.path}`);
+    this.addFileToIndex(tokenizedFile, true);
   }
 
   public addFiles(tokenizedFiles: TokenizedFile[]): Map<Hash, SharedFingerprint> {
@@ -48,69 +56,87 @@ export class FingerprintIndex {
     }
 
     for (const file of tokenizedFiles) {
-      let kgram = 0;
-
-      const entry: FileEntry = {
-        file,
-        kgrams: [],
-        shared: new Set<SharedFingerprint>()
-      };
-
-      this.files.set(file.id, entry);
-
-      for (
-        const { data, hash, start, stop  }
-        of this.hashFilter.fingerprints(file.tokens)
-      ) {
-
-        // add kgram to file
-        entry.kgrams.push(new Range(start, stop));
-
-        // sanity check
-        assert(
-          Region.isInOrder(
-            file.mapping[start],
-            file.mapping[stop]
-          )
-            // If we end our kgram on a ')', the location of the opening token is used.
-            // However, the location of this token in the file might be before
-            // the location of the starting token of the kmer
-            // For example: the last token of every ast is ')', closing the program.
-            // The location of this token is always (0, 0), since the program root is the first token.
-            // In this way, the 'end' token is before any other token in the AST.
-            || file.tokens[stop] === ")" ,
-          `Invalid ordering:
-             expected ${file.mapping[start]}
-             to start be before the end of ${file.mapping[stop]}`
-        );
-
-        const location = Region.merge(
-          file.mapping[start],
-          file.mapping[stop]
-        );
-
-        const part: Occurrence = {
-          file,
-          side: { index: kgram, start, stop, data, location }
-        };
-
-        // look if the index already contains the given hashing
-        let shared: SharedFingerprint | undefined = this.index.get(hash);
-
-        if (!shared) {
-          // if the hashing does not yet exist in the index, add it
-          shared = new SharedFingerprint(hash, data);
-          this.index.set(hash, shared);
-        }
-
-        shared.add(part);
-        entry.shared.add(shared);
-
-        kgram += 1;
-      }
+      this.addFileToIndex(file);
     }
 
     return this.index;
+  }
+
+  private addFileToIndex(file: TokenizedFile, template = false) {
+    let kgram = 0;
+
+    const entry: FileEntry = {
+      file,
+      kgrams: [],
+      shared: new Set<SharedFingerprint>(),
+      ignored: new Set<SharedFingerprint>()
+    };
+
+    this.files.set(file.id, entry);
+
+    for (
+      const { data, hash, start, stop  }
+      of this.hashFilter.fingerprints(file.tokens)
+      ) {
+
+      // add kgram to file
+      entry.kgrams.push(new Range(start, stop));
+
+      // sanity check
+      assert(
+        Region.isInOrder(
+          file.mapping[start],
+          file.mapping[stop]
+        )
+        // If we end our kgram on a ')', the location of the opening token is used.
+        // However, the location of this token in the file might be before
+        // the location of the starting token of the kmer
+        // For example: the last token of every ast is ')', closing the program.
+        // The location of this token is always (0, 0), since the program root is the first token.
+        // In this way, the 'end' token is before any other token in the AST.
+        || file.tokens[stop] === ")" ,
+        `Invalid ordering:
+             expected ${file.mapping[start]}
+             to start be before the end of ${file.mapping[stop]}`
+      );
+
+      const location = Region.merge(
+        file.mapping[start],
+        file.mapping[stop]
+      );
+
+      const part: Occurrence = {
+        file,
+        side: { index: kgram, start, stop, data, location }
+      };
+
+      // look if the index already contains the given hashing
+      let shared: SharedFingerprint | undefined = this.index.get(hash);
+
+      if (!shared) {
+        // if the hashing does not yet exist in the index, add it
+        shared = new SharedFingerprint(hash, data);
+        this.index.set(hash, shared);
+      }
+
+      shared.add(part);
+      if (template) {
+        this.ignoreSharedFingerPrint(shared);
+      } else {
+        entry.shared.add(shared);
+      }
+
+      kgram += 1;
+    }
+  }
+
+  private ignoreSharedFingerPrint(shared: SharedFingerprint) {
+    shared.ignored = true;
+    for (const other of shared.files()) {
+      const otherEntry = this.files.get(other.id)!;
+      otherEntry.shared.delete(shared);
+      otherEntry.ignored.add(shared);
+    }
   }
 
   public sharedFingerprints(): Array<SharedFingerprint> {

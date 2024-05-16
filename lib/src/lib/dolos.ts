@@ -125,7 +125,6 @@ export class Dolos {
     nameCandidate?: string,
     template?: File
   ): Promise<Report> {
-    console.log(template);
     if (this.index == null) {
       if (this.options.language) {
         this.language = await this.languagePicker.findLanguage(this.options.language);
@@ -165,6 +164,10 @@ export class Dolos {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const tokenizedFiles = filteredFiles.map(f => this.tokenizer!.tokenizeFile(f));
     this.index.addFiles(tokenizedFiles);
+    if (template) {
+      const tokenizedTemplate = this.tokenizer!.tokenizeFile(template);
+      this.index.addTemplate(tokenizedTemplate);
+    }
 
     return new Report(
       this.options,

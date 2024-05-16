@@ -4,6 +4,9 @@ import { Identifiable } from "../util/identifiable.js";
 
 export class SharedFingerprint extends Identifiable {
 
+  // Whether this SharedFingerprint occurs in the boilerplate/template code
+  public ignored: boolean = false;
+
   private partMap: Map<TokenizedFile, Array<Occurrence>> = new Map();
 
   constructor(
