@@ -24,7 +24,7 @@
     "@mdi/font": "7.4.47",
     "@types/d3": "7.4.3",
     "@types/luxon": "^3.4.2",
-    "@types/node": "^20.12.7",
+    "@types/node": "^20.12.11",
     "@types/papaparse": "^5.3.14",
     "@types/prismjs": "^1.26.3",
     "@types/webfontloader": "^1.6.38",

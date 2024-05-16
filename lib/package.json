@@ -28,7 +28,7 @@
   "devDependencies": {
     "@ava/typescript": "git+https://github.com/rien/ava-typescript",
     "@types/d3-dsv": "3.0.7",
-    "@types/node": "^20.12.7",
+    "@types/node": "^20.12.11",
     "@typescript-eslint/eslint-plugin": "6.8.0",
     "@typescript-eslint/parser": "6.8.0",
     "ava": "5.3.1",
