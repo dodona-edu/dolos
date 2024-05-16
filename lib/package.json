@@ -34,7 +34,7 @@
     "ava": "5.3.1",
     "eslint": "8.57.0",
     "node-gyp": "^9.4.1",
-    "typescript": "5.2.2",
+    "typescript": "5.4.5",
     "tree-sitter-json": "0.20.2"
   },
   "dependencies": {
