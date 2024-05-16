@@ -1,62 +1,87 @@
 cff-version: 1.2.0
-title: "Dolos"
-url: "https://dolos.ugent.be"
-abstract: "Dolos is a source code plagiarism detection tool designed to be as effective as possible to use."
-message: "If you use this software in your research, please cite it as below."
+title: Dolos
+message: >-
+  If you use this software in your research, please cite it
+  as below.
+type: software
 authors:
-- family-names: "Maertens"
-  given-names: "Rien"
-  orcid: "https://orcid.org/0000-0002-2927-3032"
-- family-names: "Van Petegem"
-  given-names: "Charlotte"
-  orcid: "https://orcid.org/0000-0003-0779-4897"
-- family-names: "Strijbol"
-  given-names: "Niko"
-  orcid: "https://orcid.org/0000-0002-3161-174X"
-- family-names: "Baeyens"
-  given-names: "Toon"
-  orcid: "https://orcid.org/0000-0002-2069-7824"
-- family-names: "Jacobs"
-  given-names: "Arne Carla"
-  orcid: "https://orcid.org/0000-0003-0412-9648"
-- family-names: "Dawyndt"
-  given-names: "Peter"
-  orcid: "https://orcid.org/0000-0002-1623-9070"
-- family-names: "Mesuere"
-  given-names: "Bart"
-  orcid: "https://orcid.org/0000-0003-0610-3441"
-preferred-citation:
-  type: article
-  doi: "10.1111/jcal.12662"
-  journal: "Journal of Computer Assisted Learning"
-  title: "Dolos: Language-agnostic plagiarism detection in source code"
-  authors:
-    - family-names: "Maertens"
-      given-names: "Rien"
-      orcid: "https://orcid.org/0000-0002-2927-3032"
-    - family-names: "Van Petegem"
-      given-names: "Charlotte"
-      orcid: "https://orcid.org/0000-0003-0779-4897"
-    - family-names: "Strijbol"
-      given-names: "Niko"
-      orcid: "https://orcid.org/0000-0002-3161-174X"
-    - family-names: "Baeyens"
-      given-names: "Toon"
-      orcid: "https://orcid.org/0000-0002-2069-7824"
-    - family-names: "Jacobs"
-      given-names: "Arne Carla"
-      orcid: "https://orcid.org/0000-0003-0412-9648"
-    - family-names: "Dawyndt"
-      given-names: "Peter"
-      orcid: "https://orcid.org/0000-0002-1623-9070"
-    - family-names: "Mesuere"
-      given-names: "Bart"
-      orcid: "https://orcid.org/0000-0003-0610-3441"
-  year: 2022
-repository-code: "https://github.com/dodona-edu/dolos"
-license: "MIT"
+  - family-names: Maertens
+    given-names: Rien
+    orcid: 'https://orcid.org/0000-0002-2927-3032'
+  - family-names: Van Petegem
+    given-names: Charlotte
+    orcid: 'https://orcid.org/0000-0003-0779-4897'
+  - family-names: Strijbol
+    given-names: Niko
+    orcid: 'https://orcid.org/0000-0002-3161-174X'
+  - family-names: Baeyens
+    given-names: Toon
+    orcid: 'https://orcid.org/0000-0002-2069-7824'
+  - given-names: Maarten
+    family-names: Van Neyghem
+    orcid: 'https://orcid.org/0009-0007-1804-4211'
+  - given-names: Maxiem
+    family-names: Geldhof
+    orcid: 'https://orcid.org/0009-0002-6988-7220'
+  - family-names: Jacobs
+    given-names: Arne Carla
+    orcid: 'https://orcid.org/0000-0003-0412-9648'
+  - family-names: Dawyndt
+    given-names: Peter
+    orcid: 'https://orcid.org/0000-0002-1623-9070'
+  - family-names: Mesuere
+    given-names: Bart
+    orcid: 'https://orcid.org/0000-0003-0610-3441'
+identifiers:
+  - type: doi
+    value: 10.1016/j.softx.2024.101755
+    description: >-
+      Discovering and exploring cases of educational source
+      code plagiarism with Dolos - SoftwareX
+  - type: doi
+    value: 10.1111/jcal.12662
+    description: >-
+      Dolos: Language-agnostic plagiarism detection in
+      source code - Journal of Computer Assisted Learning
+  - type: doi
+    value: 10.5281/zenodo.7966722
+    description: Zenodo
+repository-code: 'https://github.com/dodona-edu/dolos'
+url: 'https://dolos.ugent.be'
+abstract: >-
+  Dolos is a source code plagiarism detection tool designed
+  to be as effective as possible to use.
 keywords:
   - plagiarism detection
   - source code analysis
   - education
   - code similarity
+license: MIT
+preferred-citation:
+  type: article
+  doi: 10.1016/j.softx.2024.101755
+  journal: SoftwareX
+  title: 'Discovering and exploring cases of educational source code plagiarism with Dolos'
+  authors:
+    - family-names: Maertens
+      given-names: Rien
+      orcid: 'https://orcid.org/0000-0002-2927-3032'
+    - given-names: Maarten
+      family-names: Van Neyghem
+      orcid: 'https://orcid.org/0009-0007-1804-4211'
+    - given-names: Maxiem
+      family-names: Geldhof
+      orcid: 'https://orcid.org/0009-0002-6988-7220'
+    - family-names: Van Petegem
+      given-names: Charlotte
+      orcid: 'https://orcid.org/0000-0003-0779-4897'
+    - family-names: Strijbol
+      given-names: Niko
+      orcid: 'https://orcid.org/0000-0002-3161-174X'
+    - family-names: Dawyndt
+      given-names: Peter
+      orcid: 'https://orcid.org/0000-0002-1623-9070'
+    - family-names: Mesuere
+      given-names: Bart
+      orcid: 'https://orcid.org/0000-0003-0610-3441'
+  year: 2024
