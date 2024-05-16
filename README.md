@@ -10,8 +10,11 @@
   <a href="https://www.npmjs.com/package/@dodona/dolos">
     <img src="https://img.shields.io/npm/v/@dodona/dolos.svg" alt="Current version of the npm package">
   </a>
-  <a href="https://doi.org/10.1111/jcal.12662">
-    <img src="https://img.shields.io/badge/DOI-10.1111%2Fjcal.12662-28A745.svg?link=https%3A%2F%2Fdoi.org%2F10.1111%2Fjcal.12662" alt="DOI of the latest journal article about Dolos">
+  <a href="https://doi.org/10.1016/j.softx.2024.101755">
+    <img src="https://img.shields.io/badge/DOI-10.1016%2Fj.softx.2024.101755-28A745.svg?link=https%3A%2F%2Fdoi.org%2F10.1016%2Fj.softx.2024.101755" alt="DOI of the latest journal article about Dolos">
+  </a>
+  <a href="https://matrix.to/#/#dolos:matrix.org">
+    <img src="https://img.shields.io/matrix/dolos%3Amatrix.org.svg?logo=matrix" alt="Public chat channel for Dolos">
   </a>
   <a href="https://github.com/dodona-edu/dolos/blob/main/LICENSE">
     <img alt="MIT source code license" src="https://img.shields.io/github/license/dodona-edu/dolos">
@@ -92,4 +95,4 @@ Each component has its own build instructions in its own directory.
 
 Dolos is an active research project by [Team Dodona](https://dodona.ugent.be/en/about/) at Ghent University. If you use this software for your research, please cite:
 
-- Maertens et. al. (2022) J. Computer Assisted Learning [doi:10.1111/jcal.12662](https://doi.org/10.1111/jcal.12662)
+- Maertens et. al. (2024) SoftwareX [doi:10.1016/j.softx.2024.101755](https://doi.org/10.1016/j.softx.2024.101755)

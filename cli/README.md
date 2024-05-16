@@ -8,13 +8,16 @@
 
 <p align="center">
   <a href="https://www.npmjs.com/package/@dodona/dolos">
-    <img src="https://img.shields.io/npm/v/@dodona/dolos.svg" alt="Version of the npm package">
+    <img src="https://img.shields.io/npm/v/@dodona/dolos.svg" alt="Current version of the npm package">
   </a>
-  <a href="https://github.com/dodona-edu/dolos/actions?query=branch%3Amain">
-    <img src="https://github.com/dodona-edu/dolos/actions/workflows/ci.yml/badge.svg" alt="GitHub checks status">
+  <a href="https://doi.org/10.1016/j.softx.2024.101755">
+    <img src="https://img.shields.io/badge/DOI-10.1016%2Fj.softx.2024.101755-28A745.svg?link=https%3A%2F%2Fdoi.org%2F10.1016%2Fj.softx.2024.101755" alt="DOI of the latest journal article about Dolos">
+  </a>
+  <a href="https://matrix.to/#/#dolos:matrix.org">
+    <img src="https://img.shields.io/matrix/dolos%3Amatrix.org.svg?logo=matrix" alt="Public chat channel for Dolos">
   </a>
   <a href="https://github.com/dodona-edu/dolos/blob/main/LICENSE">
-    <img alt="Source code license" src="https://img.shields.io/github/license/dodona-edu/dolos">
+    <img alt="MIT source code license" src="https://img.shields.io/github/license/dodona-edu/dolos">
   </a>
 </p>
 
