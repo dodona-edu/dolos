@@ -43,4 +43,8 @@ export class SharedFingerprint extends Identifiable {
   public fileCount(): number {
     return this.partMap.size;
   }
+
+  public includesFile(file: TokenizedFile): boolean {
+    return this.partMap.has(file);
+  }
 }

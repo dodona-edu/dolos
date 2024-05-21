@@ -125,6 +125,7 @@ export class Dolos {
     nameCandidate?: string,
     template?: File
   ): Promise<Report> {
+
     if (this.index == null) {
       if (this.options.language) {
         this.language = await this.languagePicker.findLanguage(this.options.language);
@@ -135,7 +136,6 @@ export class Dolos {
       this.tokenizer = await this.language.createTokenizer();
       this.index = new FingerprintIndex(this.options.kgramLength, this.options.kgramsInWindow, this.options.kgramData);
     }
-
     const warnings = [];
     let filteredFiles;
     if (this.languageDetected) {
@@ -152,21 +152,31 @@ export class Dolos {
       filteredFiles = files;
     }
 
-    if (files.length < 2) {
+    if (filteredFiles.length < 2) {
       throw new Error("You need to supply at least two files");
-    } else if (files.length == 2 && this.options.maxFingerprintPercentage !== null) {
+    } else if (filteredFiles.length == 2 && this.options.maxFingerprintPercentage !== null) {
       throw new Error("You have given a maximum hash percentage but your are " +
         "comparing two files. Each matching hash will thus " +
         "be present in 100% of the files. This option does only" +
         "make sense when comparing more than two files.");
     }
 
+    let maxFingerprintFileCount = undefined;
+    if (this.options.maxFingerprintCount != null) {
+      maxFingerprintFileCount  = this.options.maxFingerprintCount;
+    } else if (this.options.maxFingerprintPercentage != null) {
+      const total = this.index.entries().length + filteredFiles.length;
+      maxFingerprintFileCount = this.options.maxFingerprintPercentage * total;
+    }
+
+    this.index.updateMaxFingerprintFileCount(maxFingerprintFileCount);
+
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const tokenizedFiles = filteredFiles.map(f => this.tokenizer!.tokenizeFile(f));
     this.index.addFiles(tokenizedFiles);
     if (template) {
       const tokenizedTemplate = this.tokenizer!.tokenizeFile(template);
-      this.index.addTemplate(tokenizedTemplate);
+      this.index.addIgnoredFile(tokenizedTemplate);
     }
 
     return new Report(

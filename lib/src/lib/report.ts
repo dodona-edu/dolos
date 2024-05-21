@@ -9,11 +9,8 @@ export interface Metadata extends DolosOptions {
 }
 
 export class Report {
-  // maximum amount of files a kgram can occur in a file before it is ignored
-  private readonly kgramMaxFileOccurrences: number;
 
   private pairs: Array<Pair> = [];
-  private fingerprints: Array<SharedFingerprint> = [];
 
   public readonly name: string;
   public readonly createdAt: string = new Date().toISOString();
@@ -26,23 +23,11 @@ export class Report {
     name?: string,
     public readonly warnings: string[] = [],
   ) {
-    if (this.options.maxFingerprintCount != null) {
-      this.kgramMaxFileOccurrences = this.options.maxFingerprintCount;
-    } else if (this.options.maxFingerprintPercentage != null) {
-      this.kgramMaxFileOccurrences = this.options.maxFingerprintPercentage * this.files.length;
-    } else {
-      this.kgramMaxFileOccurrences = this.files.length;
-    }
-
     if (this.options.reportName) {
       this.name = this.options.reportName;
     } else {
       this.name = name || `${this.files.length} ${ this.language?.name } files`;
     }
-
-    this.fingerprints = Array.from(index.sharedFingerprints()).filter(
-      (k: SharedFingerprint) => k.fileCount() <= this.kgramMaxFileOccurrences,
-    );
   }
 
   public getPair(file1: TokenizedFile, file2: TokenizedFile): Pair {
@@ -57,7 +42,7 @@ export class Report {
   }
 
   public sharedFingerprints(): Array<SharedFingerprint> {
-    return Array.from(this.fingerprints.values());
+    return this.index.sharedFingerprints();
   }
 
   public entries(): Array<FileEntry> {

@@ -22,11 +22,17 @@ export interface Occurrence {
   side: ASTRegion;
 }
 
+export interface FingerprintIndexOptions {
+  maxFingerprintCount?: number;
+  maxFingerprintPercentage?: number;
+}
+
 export class FingerprintIndex {
   private readonly hashFilter: HashFilter;
   private readonly files: Map<number, FileEntry>;
-  private readonly templates: Map<number, FileEntry>;
+  private readonly ignored: Map<number, FileEntry>;
   private readonly index: Map<Hash, SharedFingerprint>;
+  private readonly ignoredFileFingerprints: Set<SharedFingerprint>;
 
   /**
    * Creates a Fingerprint Index which is able to compare files with each other
@@ -36,17 +42,39 @@ export class FingerprintIndex {
   constructor(
     private readonly kgramLength: number,
     private readonly kgramsInWindow: number,
-    kgramData?: boolean
+    kgramData?: boolean,
+    private maxFingerprintFileCount = Number.MAX_SAFE_INTEGER,
   ) {
     this.hashFilter = new WinnowFilter(this.kgramLength, this.kgramsInWindow, kgramData);
     this.files = new Map<number, FileEntry>();
-    this.templates = new Map<number, FileEntry>();
+    this.ignored = new Map<number, FileEntry>();
     this.index = new Map<Hash, SharedFingerprint>();
+    this.ignoredFileFingerprints = new Set<SharedFingerprint>();
   }
 
-  public addTemplate(tokenizedFile: TokenizedFile) {
-    assert(!this.templates.has(tokenizedFile.id), `This template file has already been analyzed: ${tokenizedFile.file.path}`);
+  public addIgnoredFile(tokenizedFile: TokenizedFile): void {
+    assert(!this.ignored.has(tokenizedFile.id), `This file has already been ignored: ${tokenizedFile.file.path}`);
     this.addFileToIndex(tokenizedFile, true);
+  }
+
+  public getMaxFingerprintFileCount(): number {
+    return this.maxFingerprintFileCount;
+  }
+
+  public updateMaxFingerprintFileCount(maxFingerprintFileCount: number | undefined): void {
+    if (maxFingerprintFileCount == this.maxFingerprintFileCount) {
+      return;
+    }
+    this.maxFingerprintFileCount = maxFingerprintFileCount || Number.MAX_SAFE_INTEGER;
+    for (const shared of this.index.values()) {
+      if (!this.ignoredFileFingerprints.has(shared)) {
+        if (shared.fileCount() > this.maxFingerprintFileCount && !shared.ignored) {
+          this.ignoreSharedFingerprint(shared);
+        } else if (shared.fileCount() <= this.maxFingerprintFileCount && shared.ignored) {
+          this.unIgnoreSharedFingerprint(shared);
+        }
+      }
+    }
   }
 
   public addFiles(tokenizedFiles: TokenizedFile[]): Map<Hash, SharedFingerprint> {
@@ -62,9 +90,7 @@ export class FingerprintIndex {
     return this.index;
   }
 
-  private addFileToIndex(file: TokenizedFile, template = false) {
-    let kgram = 0;
-
+  private addFileToIndex(file: TokenizedFile, template = false): void {
     const entry: FileEntry = {
       file,
       kgrams: [],
@@ -74,10 +100,11 @@ export class FingerprintIndex {
 
     this.files.set(file.id, entry);
 
+    let kgram = 0;
     for (
       const { data, hash, start, stop  }
       of this.hashFilter.fingerprints(file.tokens)
-      ) {
+    ) {
 
       // add kgram to file
       entry.kgrams.push(new Range(start, stop));
@@ -120,8 +147,8 @@ export class FingerprintIndex {
       }
 
       shared.add(part);
-      if (template) {
-        this.ignoreSharedFingerPrint(shared);
+      if (template || shared.fileCount() > this.maxFingerprintFileCount) {
+        this.ignoreSharedFingerprint(shared);
       } else {
         entry.shared.add(shared);
       }
@@ -130,12 +157,21 @@ export class FingerprintIndex {
     }
   }
 
-  private ignoreSharedFingerPrint(shared: SharedFingerprint) {
+  private ignoreSharedFingerprint(shared: SharedFingerprint): void {
     shared.ignored = true;
     for (const other of shared.files()) {
       const otherEntry = this.files.get(other.id)!;
       otherEntry.shared.delete(shared);
       otherEntry.ignored.add(shared);
+    }
+  }
+
+  private unIgnoreSharedFingerprint(shared: SharedFingerprint): void {
+    shared.ignored = false;
+    for (const other of shared.files()) {
+      const otherEntry = this.files.get(other.id)!;
+      otherEntry.ignored.delete(shared);
+      otherEntry.shared.add(shared);
     }
   }
 
