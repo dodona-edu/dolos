@@ -306,13 +306,86 @@ test("should ignore template code", async t => {
   const alternative = files[2];
   const similar  = files[3];
 
-  console.debug(report.allPairs());
+  // Boilerplate copy should not have a match
+  t.is(0, report.getPair(boilerplate, unique).similarity);
+  t.is(0, report.getPair(boilerplate, alternative).similarity);
+  t.is(0, report.getPair(boilerplate, similar).similarity);
+
+
+  const unique_alternative = report.getPair(unique, alternative);
+  const unique_similar = report.getPair(unique, similar);
+  const alternative_similar = report.getPair(alternative, similar);
+  t.true(unique_alternative.similarity < alternative_similar.similarity, "Pairs with unique should be less similar");
+  t.true(unique_similar.similarity < alternative_similar.similarity, "Pairs with unique should be less similar");
+  t.true(alternative_similar.similarity > 0.5, "Pairs with similar code should have a similarity above 50%");
+});
+
+test("should ignore with maxFingerprintCount", async t => {
+  const dolos = new Dolos({
+    maxFingerprintCount: 3
+  });
+
+  const report = await dolos.analyzePaths([
+    "./src/test/fixtures/javascript/boilerplate_copy.js",
+    "./src/test/fixtures/javascript/implementation-unique.js",
+    "./src/test/fixtures/javascript/implementation-alternative.js",
+    "./src/test/fixtures/javascript/implementation-alternative-similar.js",
+  ]);
+
+  const files = report.files;
+  t.is(4, files.length);
+
+  const boilerplate = files[0];
+  const unique = files[1];
+  const alternative = files[2];
+  const similar  = files[3];
 
   // Boilerplate copy should not have a match
   t.is(0, report.getPair(boilerplate, unique).similarity);
   t.is(0, report.getPair(boilerplate, alternative).similarity);
   t.is(0, report.getPair(boilerplate, similar).similarity);
-  t.fail();
+
+
+  const unique_alternative = report.getPair(unique, alternative);
+  const unique_similar = report.getPair(unique, similar);
+  const alternative_similar = report.getPair(alternative, similar);
+  t.true(unique_alternative.similarity < alternative_similar.similarity, "Pairs with unique should be less similar");
+  t.true(unique_similar.similarity < alternative_similar.similarity, "Pairs with unique should be less similar");
+  t.true(alternative_similar.similarity > 0.5, "Pairs with similar code should have a similarity above 50%");
+});
+
+test("should ignore with maxFingerprintPercentage", async t => {
+  const dolos = new Dolos({
+    maxFingerprintPercentage: 0.75
+  });
+
+  const report = await dolos.analyzePaths([
+    "./src/test/fixtures/javascript/boilerplate_copy.js",
+    "./src/test/fixtures/javascript/implementation-unique.js",
+    "./src/test/fixtures/javascript/implementation-alternative.js",
+    "./src/test/fixtures/javascript/implementation-alternative-similar.js",
+  ]);
+
+  const files = report.files;
+  t.is(4, files.length);
+
+  const boilerplate = files[0];
+  const unique = files[1];
+  const alternative = files[2];
+  const similar  = files[3];
+
+  // Boilerplate copy should not have a match
+  t.is(0, report.getPair(boilerplate, unique).similarity);
+  t.is(0, report.getPair(boilerplate, alternative).similarity);
+  t.is(0, report.getPair(boilerplate, similar).similarity);
+
+
+  const unique_alternative = report.getPair(unique, alternative);
+  const unique_similar = report.getPair(unique, similar);
+  const alternative_similar = report.getPair(alternative, similar);
+  t.true(unique_alternative.similarity < alternative_similar.similarity, "Pairs with unique should be less similar");
+  t.true(unique_similar.similarity < alternative_similar.similarity, "Pairs with unique should be less similar");
+  t.true(alternative_similar.similarity > 0.5, "Pairs with similar code should have a similarity above 50%");
 });
 
 test.failing("repeating sequences should not cause too many fragments", async t => {
