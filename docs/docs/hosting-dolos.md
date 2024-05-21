@@ -60,7 +60,14 @@ Environment variables of the `dolos-web` service (the front-end web UI):
 #### Dolos API 
 Environment variables of the `dolos-api` service (the API server):
 
-- `DOLOS_API_FRONT_END_URL`: full URL (format: `https://{hostname}:{port}`) where the front-end is hosted
-- `DOLOS_API_HOSTS`: hostname and port of the API (format: `{hostname}:{port}`)
-- `DOLOS_API_DISABLE_FORCE_SSL`: disables https when set to `true`. **Warning:** always use https when publicly hosting dolos.
+- `DOLOS_API_URL`: full URL where Dolos API will be hosted, including the subdirectory (e.g. `http://localhost:3000/api`)
+- `DOLOS_API_FRONT_END_URL`: full URL where the front-end is hosted (format: `https://{hostname}:{port}`)
 - `DOLOS_API_DATABASE_{HOST,USERNAME,PASSWORD}`: hostname, username and password of the database server (MariaDB or MySQL)
+
+::: info
+
+When hosting the Dolos API **on a subdirectory** (for example: `/api/`) using Docker behind a reverse proxy (**nginx**, **apache**, **haproxy**), there is currently a bug where Rails is generating incorrect URL's not respecting this subdirectory.
+
+See [issue#1523](https://github.com/dodona-edu/dolos/issues/1523) on GitHub for more information and possible workarounds.
+
+:::

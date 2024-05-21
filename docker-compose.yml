@@ -43,8 +43,7 @@ services:
       - "3000:3000"
     environment:
       DOLOS_API_FRONT_END_URL: http://localhost:8080
-      DOLOS_API_HOSTS: localhost:3000
-      DOLOS_API_DISABLE_FORCE_SSL: true
+      DOLOS_API_URL: http://localhost:3000
       DOLOS_API_DATABASE_USERNAME: root
       DOLOS_API_DATABASE_PASSWORD: dolos
       DOLOS_API_DATABASE_HOST: db
