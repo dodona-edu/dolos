@@ -49,6 +49,7 @@ export function populateFragments(
   const leftFile = fileToTokenizedFile(pair.leftFile);
   const rightFile = fileToTokenizedFile(pair.rightFile);
   index.addFiles([leftFile, rightFile]);
+  index.addIgnoredHashes(kgrams.filter(k => k.ignored).map(k => k.hash));
   const reportPair = index.getPair(leftFile, rightFile);
 
   const kmersMap: Map<Hash, Kgram> = new Map();

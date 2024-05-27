@@ -49,6 +49,10 @@ export class Report {
     return this.index.entries();
   }
 
+  public ignoredEntries(): Array<FileEntry> {
+    return this.index.ignoredEntries();
+  }
+
   public metadata(): Metadata {
     return {
       ...this.options.asObject(),

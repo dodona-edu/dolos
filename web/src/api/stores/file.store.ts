@@ -156,6 +156,7 @@ export const useFileStore = defineStore("file", () => {
       const extra = JSON.parse(row.extra || "{}");
       extra.timestamp = extra.createdAt && new Date(extra.createdAt);
       hasTimestamps = hasTimestamps || !!extra.timestamp;
+      file.ignored = row.ignored == "true"
       file.extra = extra;
       file.ast = JSON.parse(row.ast);
       file.mapping = JSON.parse(row.mapping);
@@ -203,7 +204,9 @@ export const useFileStore = defineStore("file", () => {
         labels: extra.labels,
       };
 
-      files[file.id] = file;
+      if (!file.ignored) {
+        files[file.id] = file;
+      }
     }
 
     // Find the common path in the files.

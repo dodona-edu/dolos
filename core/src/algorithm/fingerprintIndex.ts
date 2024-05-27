@@ -12,9 +12,10 @@ export type Hash = number;
 
 export interface FileEntry {
   file: TokenizedFile;
-  kgrams: Array<Range>,
-  shared: Set<SharedFingerprint>,
+  kgrams: Array<Range>;
+  shared: Set<SharedFingerprint>;
   ignored: Set<SharedFingerprint>;
+  isIgnored: boolean;
 }
 
 export interface Occurrence {
@@ -28,11 +29,16 @@ export interface FingerprintIndexOptions {
 }
 
 export class FingerprintIndex {
+  // HashFilter transforms tokens into (a selection of) hashes
   private readonly hashFilter: HashFilter;
+  // A map of file id to FileEntry object that has been analysed
   private readonly files: Map<number, FileEntry>;
-  private readonly ignored: Map<number, FileEntry>;
+  // A map of file id to FileEntry object that is ignored (e.g. template code)
+  private readonly ignoredFiles: Map<number, FileEntry>;
+  // A map of hashes to their Shared Fingerprints (which keep track of the files they are in)
   private readonly index: Map<Hash, SharedFingerprint>;
-  private readonly ignoredFileFingerprints: Set<SharedFingerprint>;
+  // A set of ignored hashes (either manually added, or through the ignored files, NOT because of maxFileCount)
+  private readonly ignoredHashes: Set<number>;
 
   /**
    * Creates a Fingerprint Index which is able to compare files with each other
@@ -47,13 +53,13 @@ export class FingerprintIndex {
   ) {
     this.hashFilter = new WinnowFilter(this.kgramLength, this.kgramsInWindow, kgramData);
     this.files = new Map<number, FileEntry>();
-    this.ignored = new Map<number, FileEntry>();
+    this.ignoredFiles = new Map<number, FileEntry>();
     this.index = new Map<Hash, SharedFingerprint>();
-    this.ignoredFileFingerprints = new Set<SharedFingerprint>();
+    this.ignoredHashes = new Set<number>();
   }
 
   public addIgnoredFile(tokenizedFile: TokenizedFile): void {
-    assert(!this.ignored.has(tokenizedFile.id), `This file has already been ignored: ${tokenizedFile.file.path}`);
+    assert(!this.ignoredFiles.has(tokenizedFile.id), `This file has already been ignored: ${tokenizedFile.file.path}`);
     this.addFileToIndex(tokenizedFile, true);
   }
 
@@ -67,7 +73,7 @@ export class FingerprintIndex {
     }
     this.maxFingerprintFileCount = maxFingerprintFileCount || Number.MAX_SAFE_INTEGER;
     for (const shared of this.index.values()) {
-      if (!this.ignoredFileFingerprints.has(shared)) {
+      if (!this.ignoredHashes.has(shared.hash)) {
         if (shared.fileCount() > this.maxFingerprintFileCount && !shared.ignored) {
           this.ignoreSharedFingerprint(shared);
         } else if (shared.fileCount() <= this.maxFingerprintFileCount && shared.ignored) {
@@ -90,10 +96,11 @@ export class FingerprintIndex {
     return this.index;
   }
 
-  private addFileToIndex(file: TokenizedFile, template = false): void {
+  private addFileToIndex(file: TokenizedFile, ignored = false): void {
     const entry: FileEntry = {
       file,
       kgrams: [],
+      isIgnored: ignored,
       shared: new Set<SharedFingerprint>(),
       ignored: new Set<SharedFingerprint>()
     };
@@ -147,13 +154,23 @@ export class FingerprintIndex {
       }
 
       shared.add(part);
-      if (template || shared.fileCount() > this.maxFingerprintFileCount) {
+      if (ignored || shared.fileCount() > this.maxFingerprintFileCount || this.ignoredHashes.has(hash)) {
         this.ignoreSharedFingerprint(shared);
       } else {
         entry.shared.add(shared);
       }
 
       kgram += 1;
+    }
+  }
+
+  public addIgnoredHashes(hashes: Array<Hash>): void {
+    for (const hash of hashes) {
+      this.ignoredHashes.add(hash);
+      const shared = this.index.get(hash);
+      if (shared) {
+        this.ignoreSharedFingerprint(shared);
+      }
     }
   }
 
@@ -181,6 +198,10 @@ export class FingerprintIndex {
 
   public entries(): Array<FileEntry> {
     return Array.from(this.files.values());
+  }
+
+  public ignoredEntries(): Array<FileEntry> {
+    return Array.from(this.ignoredFiles.values());
   }
 
   public getPair(file1: TokenizedFile, file2: TokenizedFile): Pair {

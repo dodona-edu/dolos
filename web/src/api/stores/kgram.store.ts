@@ -27,6 +27,7 @@ export const useKgramStore = defineStore("kgrams", () => {
       kgrams[id] = {
         id,
         hash: parseInt(row.hash),
+        ignored: row.ignored == "true",
         data: row.data,
         files,
       };

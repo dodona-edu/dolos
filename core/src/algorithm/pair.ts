@@ -77,8 +77,9 @@ export class Pair extends Identifiable {
     this.rightIgnored = leftEntry.ignored.size;
     this.leftTotal = leftEntry.kgrams.length;
     this.rightTotal = rightEntry.kgrams.length;
-    if (this.leftTotal + this.rightTotal > 0) {
-      this.similarity = (this.leftCovered + this.rightCovered) / (this.leftTotal + this.rightTotal - this.leftIgnored - this.rightIgnored);
+    const denominator = this.leftTotal + this.rightTotal - this.leftIgnored - this.rightIgnored;
+    if (denominator > 0) {
+      this.similarity = (this.leftCovered + this.rightCovered) / denominator;
     } else {
       this.similarity = 0;
     }

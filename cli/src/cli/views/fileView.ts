@@ -12,14 +12,14 @@ import {
 function writeCSVto<T>(
   out: Writable,
   data: T[],
-  extractor: {[field: string]: (obj: T) => string | number | boolean | null}
+  extractor: {[field: string]: (obj: T) => string | number | null}
 ): void {
 
   const csv = stringify();
   csv.pipe(out);
 
   const keys: string[] = [];
-  const extractors: Array<(obj: T) => string | number | boolean | null> = [];
+  const extractors: Array<(obj: T) => string | number | null> = [];
   for (const [key, extract] of Object.entries(extractor)) {
     keys.push(key);
     extractors.push(extract);
@@ -77,7 +77,7 @@ export class FileView extends View {
       {
         "id": s => s.id,
         "hash": s => s.hash,
-        "ignored": s => s.ignored,
+        "ignored": s => s.ignored ? "true" : "false",
         "data": s => s.kgram?.join(" ") || null,
         "files": s => JSON.stringify(s.files().map(f => f.id))
       });
@@ -86,9 +86,10 @@ export class FileView extends View {
   public writeFiles(out: Writable): void {
     writeCSVto<FileEntry>(
       out,
-      this.report.entries(),
+      this.report.entries().concat(this.report.ignoredEntries()),
       {
         "id": f => f.file.id,
+        "ignored": f => f.isIgnored ? "true" : "false",
         "path": f => f.file.path,
         "content": f => f.file.content,
         "amountOfKgrams": f => f.kgrams.length,
