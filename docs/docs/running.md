@@ -49,6 +49,28 @@ You can show all command line options by passing the `-h` or `--help` flag or by
 You can improve the plagiarism detection report by adding metadata to your submissions (submission time, labels, author name, ...).
 See the page about [adding metadata](/docs/adding-metadata) to see how.
 
+## Ignoring template code
+
+Programming exercises often have code in common that is not plagiarised. For example: class and method definitions, given test cases, boilerplate code, ...
+Dolos will often detect these code fragments as similar and include them in the similarity score, making it harder to spot actual plagiarism.
+
+With the `-i <path>` or `--ignore <path>` parameter, you can add an _ignore_ file (often also called a _template_ or _boilerplate_) to the analysis.
+Code fragments from analysed solutions that match with this file will be ignored and these fingerprints will not count towards similarity.
+
+In addition, it is also possible to **automaticaly detect** common code.
+By passing `-m <integer>` or `--max-fingerprint-count <integer>` you can specify a maximum number of files a code fragment can occur in before it is ignored.
+With `-M <fraction>` or `--max-fingerprint-percentage <fraction>` it is possible to specify this number as a fraction (percentage) of the total analysed file count.
+It is possible to combine this with specifying an ignore file with the `-i` option.
+
+
+Example usage:
+
+```sh
+# Ignore all code fragments occurring in more than half of the files,
+# or occurring in template.js
+dolos run -M 0.5 -i template.js solutions/*.js 
+```
+
 ## Modifying plagiarism detection parameters
 
 The plagiarism detection parameters can be altered by passing the relevant arguments when running Dolos.
