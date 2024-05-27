@@ -91,7 +91,7 @@ export class Dolos {
   }
 
 
-  public async analyzePaths(paths: string[], template?: string): Promise<Report> {
+  public async analyzePaths(paths: string[], ignore?: string): Promise<Report> {
     let files = null;
     let nameCandidate = undefined;
     if(paths.length == 1) {
@@ -113,17 +113,17 @@ export class Dolos {
         nameCandidate = path.basename(paths[0]) + " & " + path.basename(paths[1]);
       }
     }
-    let templateFile;
-    if (template) {
-      templateFile = (await readPath(template)).ok();
+    let ignoredFile;
+    if (ignore) {
+      ignoredFile = (await readPath(ignore)).ok();
     }
-    return this.analyze((await files).ok(), nameCandidate, templateFile);
+    return this.analyze((await files).ok(), nameCandidate, ignoredFile);
   }
 
   public async analyze(
     files: Array<File>,
     nameCandidate?: string,
-    template?: File
+    ignoredFile?: File
   ): Promise<Report> {
 
     if (this.index == null) {
@@ -174,8 +174,8 @@ export class Dolos {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const tokenizedFiles = filteredFiles.map(f => this.tokenizer!.tokenizeFile(f));
     this.index.addFiles(tokenizedFiles);
-    if (template) {
-      const tokenizedTemplate = this.tokenizer!.tokenizeFile(template);
+    if (ignoredFile) {
+      const tokenizedTemplate = this.tokenizer!.tokenizeFile(ignoredFile);
       this.index.addIgnoredFile(tokenizedTemplate);
     }
 

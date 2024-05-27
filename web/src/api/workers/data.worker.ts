@@ -1,5 +1,6 @@
 import { fileToTokenizedFile } from "@/api/utils";
 import {
+  File,
   Pair,
   Kgram,
   Metadata,
@@ -40,7 +41,9 @@ export function parseFragments(
 export function populateFragments(
   pair: Pair,
   metadata: Metadata,
-  kgrams: Kgram[]
+  kgrams: Kgram[],
+  ignoredKgrams: Kgram[],
+  ignoredFile?: File,
 ): Pair {
   const customOptions = metadata;
   const kmers = kgrams;
@@ -49,7 +52,11 @@ export function populateFragments(
   const leftFile = fileToTokenizedFile(pair.leftFile);
   const rightFile = fileToTokenizedFile(pair.rightFile);
   index.addFiles([leftFile, rightFile]);
-  index.addIgnoredHashes(kgrams.filter(k => k.ignored).map(k => k.hash));
+  if (ignoredFile) {
+    const ignored = fileToTokenizedFile(ignoredFile);
+    index.addIgnoredFile(ignored);
+  }
+  index.addIgnoredHashes(ignoredKgrams.map(k => k.hash));
   const reportPair = index.getPair(leftFile, rightFile);
 
   const kmersMap: Map<Hash, Kgram> = new Map();

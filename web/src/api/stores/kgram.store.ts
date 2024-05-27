@@ -10,6 +10,7 @@ import { useFileStore, useApiStore } from "@/api/stores";
 export const useKgramStore = defineStore("kgrams", () => {
   // List of k-grams.
   const kgrams = shallowRef<Kgram[]>([]);
+  const ignoredKgrams = shallowRef<Kgram[]>([]);
 
   // If this store has been hydrated.
   const hydrated = shallowRef(false);
@@ -18,21 +19,34 @@ export const useKgramStore = defineStore("kgrams", () => {
   function parse(
     kgramData: any[],
     filesById: File[]
-  ): Kgram[] {
+  ): {
+    kgrams: Kgram[],
+    ignored: Kgram[]
+  } {
     const kgrams: Kgram[] = [];
+    const ignored: Kgram[] = [];
     for (const row of kgramData) {
       const id = parseInt(row.id);
       const fileIds: number[] = JSON.parse(row.files);
       const files: File[] = fileIds.map((id) => filesById[id]);
-      kgrams[id] = {
+      const kgram = {
         id,
         hash: parseInt(row.hash),
         ignored: row.ignored == "true",
         data: row.data,
         files,
       };
+      if (kgram.ignored) {
+        ignored.push(kgram);
+      } else {
+        kgrams[id] = kgram;
+      }
+
     }
-    return kgrams;
+    return {
+      kgrams,
+      ignored
+    };
   }
 
   // Reference to other stores.
@@ -54,7 +68,9 @@ export const useKgramStore = defineStore("kgrams", () => {
       );
     }
 
-    kgrams.value = parse(await fetch(), fileStore.filesById);
+    const parsed = parse(await fetch(), fileStore.filesById);
+    kgrams.value = parsed.kgrams;
+    ignoredKgrams.value = parsed.ignored;
     hydrated.value = true;
   }
 

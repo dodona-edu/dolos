@@ -58,9 +58,18 @@ export class FingerprintIndex {
     this.ignoredHashes = new Set<number>();
   }
 
-  public addIgnoredFile(tokenizedFile: TokenizedFile): void {
-    assert(!this.ignoredFiles.has(tokenizedFile.id), `This file has already been ignored: ${tokenizedFile.file.path}`);
-    this.addFileToIndex(tokenizedFile, true);
+  public addIgnoredFile(file: TokenizedFile): void {
+    assert(!this.ignoredFiles.has(file.id), `This file has already been ignored: ${file.file.path}`);
+    const entry: FileEntry = {
+      file,
+      kgrams: [],
+      isIgnored: true,
+      shared: new Set<SharedFingerprint>(),
+      ignored: new Set<SharedFingerprint>()
+    };
+
+    this.ignoredFiles.set(file.id, entry);
+    this.addEntry(entry);
   }
 
   public getMaxFingerprintFileCount(): number {
@@ -90,23 +99,23 @@ export class FingerprintIndex {
     }
 
     for (const file of tokenizedFiles) {
-      this.addFileToIndex(file);
+      const entry: FileEntry = {
+        file,
+        kgrams: [],
+        isIgnored: false,
+        shared: new Set<SharedFingerprint>(),
+        ignored: new Set<SharedFingerprint>()
+      };
+
+      this.files.set(file.id, entry);
+      this.addEntry(entry);
     }
 
     return this.index;
   }
 
-  private addFileToIndex(file: TokenizedFile, ignored = false): void {
-    const entry: FileEntry = {
-      file,
-      kgrams: [],
-      isIgnored: ignored,
-      shared: new Set<SharedFingerprint>(),
-      ignored: new Set<SharedFingerprint>()
-    };
-
-    this.files.set(file.id, entry);
-
+  private addEntry(entry: FileEntry): void {
+    const file = entry.file;
     let kgram = 0;
     for (
       const { data, hash, start, stop  }
@@ -154,7 +163,7 @@ export class FingerprintIndex {
       }
 
       shared.add(part);
-      if (ignored || shared.fileCount() > this.maxFingerprintFileCount || this.ignoredHashes.has(hash)) {
+      if (entry.isIgnored || shared.fileCount() > this.maxFingerprintFileCount || this.ignoredHashes.has(hash)) {
         this.ignoreSharedFingerprint(shared);
       } else {
         entry.shared.add(shared);
@@ -177,9 +186,11 @@ export class FingerprintIndex {
   private ignoreSharedFingerprint(shared: SharedFingerprint): void {
     shared.ignored = true;
     for (const other of shared.files()) {
-      const otherEntry = this.files.get(other.id)!;
-      otherEntry.shared.delete(shared);
-      otherEntry.ignored.add(shared);
+      if (!this.ignoredFiles.has(other.id)) {
+        const otherEntry = this.files.get(other.id)!;
+        otherEntry.shared.delete(shared);
+        otherEntry.ignored.add(shared);
+      }
     }
   }
 
