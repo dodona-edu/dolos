@@ -76,6 +76,7 @@ export const useKgramStore = defineStore("kgrams", () => {
 
   return {
     kgrams,
+    ignoredKgrams,
     hydrated,
     hydrate,
   };

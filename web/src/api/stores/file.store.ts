@@ -299,6 +299,7 @@ export const useFileStore = defineStore("file", () => {
   );
 
   return {
+    ignoredFile,
     filesById,
     filesList,
     filesActiveById,

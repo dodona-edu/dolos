@@ -113,9 +113,11 @@ export const usePairStore = defineStore("pairs", () => {
   // Populate the fragments for a given pair.
   async function populateFragments(pair: Pair): Promise<Pair> {
     const customOptions = metadataStore.metadata;
-    const kmers = kgramStore.kgrams;
+    const kgrams = kgramStore.kgrams;
+    const ignoredKgrams = kgramStore.ignoredKgrams;
+    const ignoredFile = fileStore.ignoredFile;
 
-    const pairWithFragments = await dataWorker.populateFragments(pair, customOptions, kmers);
+    const pairWithFragments = await dataWorker.populateFragments(pair, customOptions, kgrams, ignoredKgrams, ignoredFile);
     pairsById.value[pair.id] = pairWithFragments;
     return pairWithFragments;
   }
