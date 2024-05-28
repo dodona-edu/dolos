@@ -23,11 +23,6 @@ export interface Occurrence {
   side: ASTRegion;
 }
 
-export interface FingerprintIndexOptions {
-  maxFingerprintCount?: number;
-  maxFingerprintPercentage?: number;
-}
-
 export class FingerprintIndex {
   // HashFilter transforms tokens into (a selection of) hashes
   private readonly hashFilter: HashFilter;
