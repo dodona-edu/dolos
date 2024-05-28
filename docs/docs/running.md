@@ -57,7 +57,7 @@ Dolos will often detect these code fragments as similar and include them in the 
 With the `-i <path>` or `--ignore <path>` parameter, you can add an _ignore_ file (often also called a _template_ or _boilerplate_) to the analysis.
 Code fragments from analysed solutions that match with this file will be ignored and these fingerprints will not count towards similarity.
 
-In addition, it is also possible to **automaticaly detect** common code.
+In addition, it is also possible to **automatically detect** common code.
 By passing `-m <integer>` or `--max-fingerprint-count <integer>` you can specify a maximum number of files a code fragment can occur in before it is ignored.
 With `-M <fraction>` or `--max-fingerprint-percentage <fraction>` it is possible to specify this number as a fraction (percentage) of the total analysed file count.
 It is possible to combine this with specifying an ignore file with the `-i` option.
