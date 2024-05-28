@@ -7,6 +7,7 @@ set :repo_tree, "api"
 
 # Default branch is :master
 # ask :branch, `git rev-parse --abbrev-ref HEAD`.chomp
+set :branch, ENV['GITHUB_SHA'] || 'main'
 
 # Default deploy_to directory is /var/www/my_app_name
 set :deploy_to, "/home/dodona/dolos/api"

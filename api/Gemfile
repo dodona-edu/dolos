@@ -37,9 +37,9 @@ gem 'rack-cors'
 gem 'active_model_serializers', '~> 0.10', '>= 0.10.14'
 
 # Use Sentry
-gem "stackprof"
-gem "sentry-ruby"
-gem "sentry-rails"
+gem 'sentry-rails'
+gem 'sentry-ruby'
+gem 'stackprof'
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
