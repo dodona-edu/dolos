@@ -3,7 +3,7 @@
 # This script tests whether packaging Dolos with its different components works
 
 # Run the current script in a docker container with a clean repository
-exec time docker run -v "$PWD:/repo:ro" --rm --entrypoint="" node:20 \
+exec time docker run -v "$PWD:/repo:ro" --rm --entrypoint="" node:22 \
   sh -c 'git clone --recursive --no-remote-submodules --shallow-submodules /repo /dolos && cd /dolos && tail -n+8 test_package.sh | sh -'
 
 ### Docker script starts here
