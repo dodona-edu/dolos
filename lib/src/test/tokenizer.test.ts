@@ -5,10 +5,10 @@ import { readPath } from "../lib/reader.js";
 
 const languageFiles = {
   "bash": "../samples/bash/caesar.sh",
-  //"c": "../samples/c/caesar.c",
-  //"c-sharp": "../samples/c-sharp/Caesar.cs",
-  //"char": "../samples/char/caesar.txt",
-  //"cpp": "../samples/cpp/caesar.cpp",
+  "c": "../samples/c/caesar.c",
+  "c-sharp": "../samples/c-sharp/Caesar.cs",
+  "char": "../samples/char/caesar.txt",
+  "cpp": "../samples/cpp/caesar.cpp",
   //"elm": "../samples/elm/Caesar.elm",
   //"java": "../samples/java/Caesar.java",
   "javascript": "../samples/javascript/sample.js",
