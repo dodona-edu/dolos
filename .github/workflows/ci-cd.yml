@@ -727,6 +727,8 @@ jobs:
     name: "Publish docker containers 🚢"
     needs: publish
     runs-on: ubuntu-latest
+    permissions:
+      packages: write
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v4
