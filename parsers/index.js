@@ -1,4 +1,3 @@
-
 const parsers = {};
 
 parsers.bash = require("./build/Release/tree_sitter_bash_binding");
@@ -32,14 +31,14 @@ parsers.php.nodeTypeInfo = require("./php/php/src/node-types.json");
 parsers.python = require("./build/Release/tree_sitter_python_binding");
 parsers.python.nodeTypeInfo = require("./python/src/node-types.json");
 
-//parsers.r = require("./build/Release/tree_sitter_r_binding");
-//parsers.r.nodeTypeInfo = require("./r/src/node-types.json");
+parsers.r = require("./build/Release/tree_sitter_r_binding");
+parsers.r.nodeTypeInfo = require("./r/src/node-types.json");
 
 parsers.scala = require("./build/Release/tree_sitter_scala_binding");
 parsers.scala.nodeTypeInfo = require("./scala/src/node-types.json");
 
-//parsers.sql = require("./build/Release/tree_sitter_sql_binding");
-//parsers.sql.nodeTypeInfo = require("./sql/src/node-types.json");
+parsers.sql = require("./build/Release/tree_sitter_sql_binding");
+parsers.sql.nodeTypeInfo = require("./sql/src/node-types.json");
 
 const typescript_tsx = require("./build/Release/tree_sitter_typescript_binding");
 parsers.typescript = typescript_tsx.typescript;
@@ -48,8 +47,8 @@ parsers.typescript.nodeTypeInfo = require("./typescript/typescript/src/node-type
 parsers.tsx = typescript_tsx.tsx;
 parsers.tsx.nodeTypeInfo = require("./typescript/tsx/src/node-types.json");
 
-//parsers.verilog = require("./build/Release/tree_sitter_verilog_binding");
-//parsers.verilog.nodeTypeInfo = require("./verilog/src/node-types.json");
+parsers.verilog = require("./build/Release/tree_sitter_verilog_binding");
+parsers.verilog.nodeTypeInfo = require("./verilog/src/node-types.json");
 
 // Converting tree-sitter 0.21 parsers is a no-op
 const convert = require("tree-sitter-compat").convertLanguage;

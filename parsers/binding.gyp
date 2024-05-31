@@ -10,10 +10,10 @@
         "modelica/binding.gyp",
         "php/binding.gyp",
         "python/binding.gyp",
-        #"r/binding.gyp",
+        "r/binding.gyp",
         "scala/binding.gyp",
-        #"sql/binding.gyp",
+        "sql/binding.gyp",
         "typescript/binding.gyp",
-        #"verilog/binding.gyp"
+        "verilog/binding.gyp"
     ]
 }
