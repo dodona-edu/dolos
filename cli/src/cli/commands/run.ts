@@ -58,6 +58,13 @@ export function runCommand(program: Command): Command {
       x => parseFloat(x),
     )
     .option(
+      "-i, --ignore <path>",
+      Utils.indent(
+        "Path of a file with template/boilerplate code. " +
+        "Code fragments matching with this file will be ignored."
+      )
+    )
+    .option(
       "-L, --limit-results <integer>",
       Utils.indent(
         "Specifies how many matching file pairs are shown in the result. " +
@@ -171,6 +178,7 @@ interface RunOptions extends Options {
   host: string;
   outputFormat: string;
   outputDestination: string;
+  ignore: string;
 }
 
 export async function run(locations: string[], options: RunOptions): Promise<void> {
@@ -199,7 +207,7 @@ export async function run(locations: string[], options: RunOptions): Promise<voi
       sortBy: options.sortBy,
       fragmentSortBy: options.fragmentSortBy,
     });
-    const report = await dolos.analyzePaths(locations);
+    const report = await dolos.analyzePaths(locations, options.ignore);
 
     if (report.warnings.length > 0) {
       report.warnings.forEach(warn => warning(warn));

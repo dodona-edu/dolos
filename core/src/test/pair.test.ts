@@ -54,13 +54,17 @@ test("paired occurrence merging & squashing", t => {
   const left = {
     kgrams: new Array<Range>(),
     shared: new Set<SharedFingerprint>(),
-    file: leftFile
+    ignored: new Set<SharedFingerprint>(),
+    file: leftFile,
+    isIgnored: false,
   };
 
   const right = {
     kgrams: new Array<Range>(),
     shared: new Set<SharedFingerprint>(),
-    file: rightFile
+    ignored: new Set<SharedFingerprint>(),
+    file: rightFile,
+    isIgnored: false,
   };
 
 

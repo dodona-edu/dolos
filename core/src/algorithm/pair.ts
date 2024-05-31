@@ -30,6 +30,8 @@ export class Pair extends Identifiable {
   public readonly rightTotal;
   public readonly longest;
   public readonly similarity;
+  public readonly leftIgnored;
+  public readonly rightIgnored;
 
   constructor(
     public readonly leftEntry: FileEntry,
@@ -71,10 +73,13 @@ export class Pair extends Identifiable {
 
     this.leftCovered = left.length;
     this.rightCovered = right.length;
+    this.leftIgnored = leftEntry.ignored.size;
+    this.rightIgnored = leftEntry.ignored.size;
     this.leftTotal = leftEntry.kgrams.length;
     this.rightTotal = rightEntry.kgrams.length;
-    if (this.leftTotal + this.rightTotal > 0) {
-      this.similarity = (this.leftCovered + this.rightCovered) / (this.leftTotal + this.rightTotal);
+    const denominator = this.leftTotal + this.rightTotal - this.leftIgnored - this.rightIgnored;
+    if (denominator > 0) {
+      this.similarity = (this.leftCovered + this.rightCovered) / denominator;
     } else {
       this.similarity = 0;
     }

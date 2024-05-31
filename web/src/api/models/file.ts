@@ -9,6 +9,7 @@ export interface FileIndeterminate {
   ast: string[] | string;
   mapping: Selection[] | string;
   amountOfKgrams: number;
+  ignored: boolean;
   label: Label;
   extra: {
     timestamp?: Date;

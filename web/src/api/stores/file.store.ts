@@ -21,6 +21,7 @@ export const useFileStore = defineStore("file", () => {
   // State
   const hydrated = shallowRef(false);
 
+  const ignoredFile = shallowRef<File | undefined>();
   const filesById = shallowRef<File[]>([]);
   const filesList = computed(() => Object.values(filesById.value));
 
@@ -107,6 +108,7 @@ export const useFileStore = defineStore("file", () => {
     const parsed = parse(await fetch());
     filesById.value = parsed.files;
     filesActiveById.value = parsed.files;
+    ignoredFile.value = parsed.ignoredFile;
     legend.value = parsed.labels;
     hasLabels.value = parsed.hasLabels;
     hasUnlabeled.value = parsed.hasUnlabeled;
@@ -122,6 +124,7 @@ export const useFileStore = defineStore("file", () => {
 
   // Parse the files from a CSV string.
   function parse(fileData: any[]): {
+    ignoredFile?: File;
     files: File[];
     labels: Legend;
     hasLabels: boolean;
@@ -145,6 +148,7 @@ export const useFileStore = defineStore("file", () => {
 
     const files: File[] = [];
     const labels: Legend = {};
+    let ignoredFile;
     let hasLabels = false;
     let hasUnlabeled = false;
     let hasTimestamps = false;
@@ -156,6 +160,7 @@ export const useFileStore = defineStore("file", () => {
       const extra = JSON.parse(row.extra || "{}");
       extra.timestamp = extra.createdAt && new Date(extra.createdAt);
       hasTimestamps = hasTimestamps || !!extra.timestamp;
+      file.ignored = row.ignored == "true"
       file.extra = extra;
       file.ast = JSON.parse(row.ast);
       file.mapping = JSON.parse(row.mapping);
@@ -203,7 +208,11 @@ export const useFileStore = defineStore("file", () => {
         labels: extra.labels,
       };
 
-      files[file.id] = file;
+      if (!file.ignored) {
+        files[file.id] = file;
+      } else {
+        ignoredFile = file;
+      }
     }
 
     // Find the common path in the files.
@@ -230,7 +239,7 @@ export const useFileStore = defineStore("file", () => {
       labels[defaultLabel.name] = defaultLabel;
     }
 
-    return { files, labels, hasLabels, hasUnlabeled, hasTimestamps };
+    return { files, ignoredFile, labels, hasLabels, hasUnlabeled, hasTimestamps };
   }
 
   // Anonymize the data.
@@ -290,6 +299,7 @@ export const useFileStore = defineStore("file", () => {
   );
 
   return {
+    ignoredFile,
     filesById,
     filesList,
     filesActiveById,
