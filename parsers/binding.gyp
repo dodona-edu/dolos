@@ -6,7 +6,7 @@
         #"c_sharp/binding.gyp",
         #"elm/binding.gyp",
         #"java/binding.gyp",
-        #"javascript/binding.gyp",
+        "javascript/binding.gyp",
         #"modelica/binding.gyp",
         #"php/binding.gyp",
         #"python/binding.gyp",

@@ -5,22 +5,22 @@ import { readPath } from "../lib/reader.js";
 
 const languageFiles = {
   "bash": "../samples/bash/caesar.sh",
-  "c": "../samples/c/caesar.c",
-  "c-sharp": "../samples/c-sharp/Caesar.cs",
-  "char": "../samples/char/caesar.txt",
-  "cpp": "../samples/cpp/caesar.cpp",
-  "elm": "../samples/elm/Caesar.elm",
-  "java": "../samples/java/Caesar.java",
+  //"c": "../samples/c/caesar.c",
+  //"c-sharp": "../samples/c-sharp/Caesar.cs",
+  //"char": "../samples/char/caesar.txt",
+  //"cpp": "../samples/cpp/caesar.cpp",
+  //"elm": "../samples/elm/Caesar.elm",
+  //"java": "../samples/java/Caesar.java",
   "javascript": "../samples/javascript/sample.js",
-  "python": "../samples/python/caesar.py",
-  "php": "../samples/php/caesar.php",
-  "modelica": "../samples/modelica/sample.mo",
-  "r": "../samples/r/caesar.R",
-  "scala": "../samples/scala/Caesar.scala",
-  "sql": "../samples/sql/sample.sql",
-  "tsx": "../samples/tsx/sample.tsx",
-  "typescript": "../samples/typescript/caesar.ts",
-  "verilog": "../samples/verilog/module.v"
+  //"python": "../samples/python/caesar.py",
+  //"php": "../samples/php/caesar.php",
+  //"modelica": "../samples/modelica/sample.mo",
+  //"r": "../samples/r/caesar.R",
+  //"scala": "../samples/scala/Caesar.scala",
+  //"sql": "../samples/sql/sample.sql",
+  //"tsx": "../samples/tsx/sample.tsx",
+  //"typescript": "../samples/typescript/caesar.ts",
+  //"verilog": "../samples/verilog/module.v"
 } as {[key: string]: string};
 
 for (const [languageName, languageFile] of Object.entries(languageFiles)) {

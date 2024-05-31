@@ -17,8 +17,8 @@ module.exports.bash.nodeTypeInfo = require("./bash/src/node-types.json");
 //module.exports.java = require("./build/Release/tree_sitter_java_binding");
 //module.exports.java.nodeTypeInfo = require("./java/src/node-types.json");
 
-//module.exports.javascript = require("./build/Release/tree_sitter_javascript_binding");
-//module.exports.javascript.nodeTypeInfo = require("./javascript/src/node-types.json");
+module.exports.javascript = require("./build/Release/tree_sitter_javascript_binding");
+module.exports.javascript.nodeTypeInfo = require("./javascript/src/node-types.json");
 
 //module.exports.modelica = require("./build/Release/tree_sitter_modelica_binding");
 //module.exports.modelica.nodeTypeInfo = require("./modelica/src/node-types.json");
