@@ -9,7 +9,7 @@ const languageFiles = {
   "c-sharp": "../samples/c-sharp/Caesar.cs",
   "char": "../samples/char/caesar.txt",
   "cpp": "../samples/cpp/caesar.cpp",
-  //"elm": "../samples/elm/Caesar.elm",
+  "elm": "../samples/elm/Caesar.elm",
   "java": "../samples/java/Caesar.java",
   "javascript": "../samples/javascript/sample.js",
   "python": "../samples/python/caesar.py",
