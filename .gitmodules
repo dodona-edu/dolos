@@ -30,7 +30,7 @@
 	url = https://github.com/tree-sitter/tree-sitter-typescript.git
 [submodule "parsers/modelica"]
 	path = parsers/modelica
-	url = https://github.com/OpenModelica/tree-sitter-modelica.git
+	url = https://github.com/rien/tree-sitter-modelica.git
 [submodule "parsers/r"]
 	path = parsers/r
 	url = https://github.com/rien/tree-sitter-r.git

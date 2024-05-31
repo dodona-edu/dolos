@@ -20,8 +20,8 @@ module.exports.java.nodeTypeInfo = require("./java/src/node-types.json");
 module.exports.javascript = require("./build/Release/tree_sitter_javascript_binding");
 module.exports.javascript.nodeTypeInfo = require("./javascript/src/node-types.json");
 
-//module.exports.modelica = require("./build/Release/tree_sitter_modelica_binding");
-//module.exports.modelica.nodeTypeInfo = require("./modelica/src/node-types.json");
+module.exports.modelica = require("./build/Release/tree_sitter_modelica_binding");
+module.exports.modelica.nodeTypeInfo = require("./modelica/src/node-types.json");
 
 // Note: this parser provides php_only and php (includes HTML)
 module.exports.php = require("./build/Release/tree_sitter_php_binding").php;
@@ -33,8 +33,8 @@ module.exports.python.nodeTypeInfo = require("./python/src/node-types.json");
 //module.exports.r = require("./build/Release/tree_sitter_r_binding");
 //module.exports.r.nodeTypeInfo = require("./r/src/node-types.json");
 
-//module.exports.scala = require("./build/Release/tree_sitter_scala_binding");
-//module.exports.scala.nodeTypeInfo = require("./scala/src/node-types.json");
+module.exports.scala = require("./build/Release/tree_sitter_scala_binding");
+module.exports.scala.nodeTypeInfo = require("./scala/src/node-types.json");
 
 //module.exports.sql = require("./build/Release/tree_sitter_sql_binding");
 //module.exports.sql.nodeTypeInfo = require("./sql/src/node-types.json");
