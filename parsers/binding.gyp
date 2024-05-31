@@ -13,7 +13,7 @@
         #"r/binding.gyp",
         #"scala/binding.gyp",
         #"sql/binding.gyp",
-        #"typescript/binding.gyp",
+        "typescript/binding.gyp",
         #"verilog/binding.gyp"
     ]
 }

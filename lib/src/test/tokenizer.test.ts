@@ -18,8 +18,8 @@ const languageFiles = {
   //"r": "../samples/r/caesar.R",
   //"scala": "../samples/scala/Caesar.scala",
   //"sql": "../samples/sql/sample.sql",
-  //"tsx": "../samples/tsx/sample.tsx",
-  //"typescript": "../samples/typescript/caesar.ts",
+  "tsx": "../samples/tsx/sample.tsx",
+  "typescript": "../samples/typescript/caesar.ts",
   //"verilog": "../samples/verilog/module.v"
 } as {[key: string]: string};
 
