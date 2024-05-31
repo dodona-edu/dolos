@@ -10,6 +10,7 @@ const languageFiles = {
   "char": "../samples/char/caesar.txt",
   "cpp": "../samples/cpp/caesar.cpp",
   "elm": "../samples/elm/Caesar.elm",
+  "groovy": "../samples/groovy/caesar.groovy",
   "java": "../samples/java/Caesar.java",
   "javascript": "../samples/javascript/sample.js",
   "python": "../samples/python/caesar.py",
