@@ -5,6 +5,7 @@
         "cpp/binding.gyp",
         "c_sharp/binding.gyp",
         "elm/binding.gyp",
+        "groovy/binding.gyp",
         "java/binding.gyp",
         "javascript/binding.gyp",
         "modelica/binding.gyp",

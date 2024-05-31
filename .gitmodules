@@ -44,3 +44,6 @@
 [submodule "parsers/scala"]
 	path = parsers/scala
 	url = https://github.com/tree-sitter/tree-sitter-scala.git
+[submodule "parsers/groovy"]
+	path = parsers/groovy
+	url = https://github.com/murtaza64/tree-sitter-groovy.git
