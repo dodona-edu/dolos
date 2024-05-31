@@ -14,8 +14,8 @@ module.exports["c-sharp"].nodeTypeInfo = require("./c_sharp/src/node-types.json"
 //module.exports.elm = require("./build/Release/tree_sitter_elm_binding");
 //module.exports.elm.nodeTypeInfo = require("./elm/src/node-types.json");
 
-//module.exports.java = require("./build/Release/tree_sitter_java_binding");
-//module.exports.java.nodeTypeInfo = require("./java/src/node-types.json");
+module.exports.java = require("./build/Release/tree_sitter_java_binding");
+module.exports.java.nodeTypeInfo = require("./java/src/node-types.json");
 
 module.exports.javascript = require("./build/Release/tree_sitter_javascript_binding");
 module.exports.javascript.nodeTypeInfo = require("./javascript/src/node-types.json");
@@ -23,11 +23,12 @@ module.exports.javascript.nodeTypeInfo = require("./javascript/src/node-types.js
 //module.exports.modelica = require("./build/Release/tree_sitter_modelica_binding");
 //module.exports.modelica.nodeTypeInfo = require("./modelica/src/node-types.json");
 
-//module.exports.php = require("./build/Release/tree_sitter_php_binding");
-//module.exports.php.nodeTypeInfo = require("./php/src/node-types.json");
+// Note: this parser provides php_only and php (includes HTML)
+module.exports.php = require("./build/Release/tree_sitter_php_binding").php;
+module.exports.php.nodeTypeInfo = require("./php/php/src/node-types.json");
 
-//module.exports.python = require("./build/Release/tree_sitter_python_binding");
-//module.exports.python.nodeTypeInfo = require("./python/src/node-types.json");
+module.exports.python = require("./build/Release/tree_sitter_python_binding");
+module.exports.python.nodeTypeInfo = require("./python/src/node-types.json");
 
 //module.exports.r = require("./build/Release/tree_sitter_r_binding");
 //module.exports.r.nodeTypeInfo = require("./r/src/node-types.json");
