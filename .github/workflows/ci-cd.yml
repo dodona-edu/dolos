@@ -126,7 +126,7 @@ jobs:
       - name: Build 🔧
         run: |
           cd cli/
-          npm run build --force
+          npm run build -- --force
 
   cli-lint:
     name: "CLI 💻️ - lint 📏"
@@ -203,7 +203,7 @@ jobs:
         run: |
           cd core/
           npm run build
-          npm run test -v --serial
+          npm run test -- -v --serial
 
   core-lint:
     name: "Core ❤️ - lint 📏"
@@ -282,7 +282,7 @@ jobs:
         run: |
           cd lib/
           npm run build
-          npm run test -v --serial
+          npm run test -- -v --serial
 
   parsers-build:
     name: "Parsers 👓 - build 🔧"
@@ -587,7 +587,7 @@ jobs:
       - name: Build CLI 🔧
         run: |
           cd cli/
-          npm run build --force
+          npm run build -- --force
 
       - name: Build web 🔧
         run: |
