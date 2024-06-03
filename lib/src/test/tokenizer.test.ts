@@ -76,3 +76,14 @@ test("should be able to use external tree-sitter parsers (tree-sitter-json)", as
   const { tokens } = tokenizer.tokenizeFile(file);
   t.truthy(tokens);
 });
+
+test("should be able to parse larger files", async t => {
+  const file = new File("long.js", "var test = 1;\n".repeat(10000));
+  const language = await (new LanguagePicker().findLanguage("javascript"));
+
+  const tokenizer = await language.createTokenizer();
+  t.truthy(tokenizer);
+
+  const { tokens } = tokenizer.tokenizeFile(file);
+  t.truthy(tokens);
+});

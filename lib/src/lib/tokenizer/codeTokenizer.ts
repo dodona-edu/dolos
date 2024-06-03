@@ -27,7 +27,7 @@ export class CodeTokenizer extends Tokenizer {
    * @param text The text string to parse
    */
   public tokenize(text: string): string {
-    const tree = this.parser.parse(text);
+    const tree = this.parser.parse(text, undefined, { bufferSize: Math.max(32 * 1024, text.length * 2) });
     return tree.rootNode.toString();
   }
 
@@ -39,7 +39,7 @@ export class CodeTokenizer extends Tokenizer {
    * @param text The text string to parse
    */
   public *generateTokens(text: string): IterableIterator<Token> {
-    const tree = this.parser.parse(text);
+    const tree = this.parser.parse(text, undefined, { bufferSize: Math.max(32 * 1024, text.length * 2) });
     yield* this.tokenizeNode(tree.rootNode);
   }
 
