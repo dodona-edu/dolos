@@ -410,7 +410,6 @@ jobs:
           npm run build
 
       - name: Deploy to staging 🚀
-        if: ${{ matrix.node == '20' }}
         run: |
           if [ -n "$KNOWN_HOSTS" ]; then
             cd web/
