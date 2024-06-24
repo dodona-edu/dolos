@@ -39,7 +39,7 @@
     "@dodona/dolos-web": "2.7.1",
     "chalk": "^5.3.0",
     "cliui": "^8.0.1",
-    "commander": "^11.1.0",
+    "commander": "^12.1.0",
     "csv-stringify": "^6.5.0",
     "open": "^10.1.0",
     "tree-sitter": "^0.21.1"
