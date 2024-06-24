@@ -52,7 +52,7 @@ group :development, :test do
   gem 'faker', '~> 3.4.1'
 
   # Stubbing and mocking
-  gem 'mocha', '~> 2.3.0'
+  gem 'mocha', '~> 2.4.0'
 end
 
 group :development do
