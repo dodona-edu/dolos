@@ -55,7 +55,7 @@
     "vite-plugin-vuetify": "^1.0.2",
     "vue": "^3.4.26",
     "vue-router": "^4.3.2",
-    "vue-tsc": "^1.8.27",
+    "vue-tsc": "^2.0.22",
     "vuetify": "^3.6.7",
     "webfontloader": "^1.6.28"
   },
