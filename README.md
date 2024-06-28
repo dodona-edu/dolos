@@ -72,6 +72,15 @@ Visit our web page at <https://dolos.ugent.be/docs>.
 
 ### Building and developing
 
+To develop the parsers, library or CLI components, you will need to clone this repository recursively to include its submodules (the tree-sitter parsers):
+
+```sh
+git clone --recursive git://github.com/dodona-edu/dolos.git
+
+# or, if you have cloned the repository already:
+git submodule update --init --recursive
+```
+
 You only need to run install the dependencies once in the repository root by
 running `npm install`. This will install all dependencies and link them in each
 project's `node_modules`. You should **not** run `npm install` in each project's directory separately.

@@ -322,7 +322,6 @@ jobs:
       - name: Build 🔧
         run: |
           cd parsers/
-          npm run prepare
           npm run build
 
   lib-lint:
@@ -575,7 +574,6 @@ jobs:
       - name: Build parsers 🔧
         run: |
           cd parsers/
-          npm run prepare
           npm run build
 
       - name: Build lib 🔧

@@ -20,15 +20,23 @@ npm install @dodona/dolos-parsers
 These parsers use [tree-sitter](https://www.npmjs.com/package/tree-sitter) to parse source code files.
 Tree-sitter currently only runs in node and will thus not run in browser environments.
 
+
+
 ## Development
 
-1. Install dependencies (preferably in the repository root)
+1. Clone the Dolos repository including the submodules
+    ```sh
+    git clone --recursive git://github.com/dodona-edu/dolos.git
+
+    # or, if you have cloned the repository already:
+    git submodule update --init --recursive
     ```
+
+
+2. Install dependencies (preferably in the repository root)
+    ```sh
     npm install
     ```
-2. Prepare the project (generate some parsers)
-    ```
-    npm run prepare
     ```
 3. Build the node bindings
     ```
