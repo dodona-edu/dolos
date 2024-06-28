@@ -5,7 +5,6 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "prepare": "(cd sql && tree-sitter generate)",
     "build": "node-gyp rebuild"
   },
   "dependencies": {

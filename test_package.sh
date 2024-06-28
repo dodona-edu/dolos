@@ -13,7 +13,7 @@ npm install
 
 for dir in core parsers lib web cli; do
   echo "=== Building and packing $dir ===="
-  (cd $dir && (npm run prepare || true) && npm run build && npm pack)
+  (cd $dir && npm run build && npm pack)
 done
 
 echo "=== Building and packing complete ===="
