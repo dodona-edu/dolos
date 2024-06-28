@@ -56,3 +56,39 @@ jobs:
 
       - name: Run test script
         run: ./test_package.sh
+
+  docker-api:
+    name: "Build dolos-api docker container"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v4
+
+      - name: Build API container
+        run: |
+          cd api
+          docker build .
+
+  docker-web:
+    name: "Build dolos-web docker container"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v4
+
+      - name: Build WEB container
+        run: |
+          cd web
+          docker build .
+
+  docker-cli:
+    name: "Build dolos-cli docker container"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v4
+
+      - name: Build WEB container
+        run: |
+          cd web
+          docker build .
