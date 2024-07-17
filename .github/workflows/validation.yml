@@ -7,6 +7,21 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  flake-build-check:
+    name: "Nix Flake ❄️"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+      - name: Setup Nix 📚
+        uses: cachix/install-nix-action@v27
+        with:
+          github_access_token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build & check 🧪
+        run: nix build -L '.?submodules=1#checks.x86_64-linux.dolos-cli'
+        
   install-cli:
     name: "Install and run CLI on ${{ matrix.os }}"
     strategy:
