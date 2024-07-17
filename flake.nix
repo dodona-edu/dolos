@@ -40,6 +40,9 @@
         default = dolos-cli;
         dolos-cli = pkgs.callPackage (import ./package.nix) {};
       };
+      overlays.default = final: prev: {
+        dolos-cli = final.callPackage (import ./package.nix) {};
+      };
       checks = rec {
         default = dolos-cli;
         dolos-cli = pkgs.runCommand "check-dolos-cli" {} ''
