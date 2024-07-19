@@ -59,6 +59,26 @@ export class Region {
     return new Region(startRow, startCol, endRow, endCol);
   }
 
+  public static toUInt16(array: Region[]): number[] {
+    const out = [];
+    for (let i = 0; i < array.length; i++) {
+      const idx = i * 4;
+      out[idx] = array[i].startRow;
+      out[idx + 1] = array[i].startCol;
+      out[idx + 2] = array[i].endRow;
+      out[idx + 3] = array[i].endCol;
+    }
+    return out;
+  }
+
+  public static fromUInt16(array: number[]): Region[] {
+    const out = [];
+    for (let i = 0; i < array.length; i += 4) {
+      out.push(new Region(array[i], array[i + 1], array[i + 2], array[i + 3]));
+    }
+    return out;
+  }
+
   constructor(
     public startRow: number,
     public startCol: number,

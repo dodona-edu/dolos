@@ -6,6 +6,7 @@ import {
 } from "../util/utils.js";
 
 import { DEFAULT_HOST, DEFAULT_PORT } from "../server.js";
+import { DbView } from "../views/dbView.js";
 import { TerminalView } from "../views/terminalView.js";
 import { FileView } from "../views/fileView.js";
 import { WebView } from "../views/webView.js";
@@ -219,6 +220,7 @@ export async function run(locations: string[], options: RunOptions): Promise<voi
       "csv": () => new FileView(report, options),
       "html": () => new WebView(report, options),
       "web": () => new WebView(report, options),
+      "db": () => new DbView(report, options),
     });
 
     if (view == null) {
