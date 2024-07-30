@@ -1,9 +1,10 @@
 import { View } from "./view.js";
 import { Database } from "duckdb-async";
+import * as arrow from "apache-arrow";
 import { promises as fs } from "fs";
 import {
-  Report,
   Region,
+  Report,
 } from "@dodona/dolos-lib";
 
 
@@ -28,39 +29,6 @@ export class DbView extends View {
   }
 
   public async writePairs(db: Database): Promise<void> {
-    await db.exec(`
-        CREATE TABLE pairs (
-            id INTEGER,
-            leftFileId INTEGER,
-            leftFilePath STRING,
-            rightFileId INTEGER,
-            rightFilePath STRING,
-            similarity FLOAT,
-            totalOverlap INTEGER,
-            longestFragment INTEGER,
-            leftCovered INTEGER,
-            rightCovered INTEGER
-       );
-    `);
-    const stmt = await db.prepare(`INSERT INTO pairs VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`);
-    for (const pair of this.report.allPairs()) {
-      await stmt.run(
-        pair.id,
-        pair.leftFile.id,
-        pair.leftFile.path,
-        pair.rightFile.id,
-        pair.rightFile.path,
-        pair.similarity,
-        pair.overlap,
-        pair.longest,
-        pair.leftCovered,
-        pair.rightCovered
-      );
-    }
-    stmt.finalize();
-  }
-
-  /*public async writePairs(db: Database): Promise<void> {
     const pairs = this.report.allPairs().map(pair => {
       return {
         id: pair.id,
@@ -80,61 +48,49 @@ export class DbView extends View {
 
     await db.register_buffer("arrow_pairs", [arrow.tableToIPC(table)], true);
     await db.exec("CREATE TABLE pairs AS SELECT * FROM arrow_pairs");
-  }*/
-
+  }
 
   public async writeKgrams(db: Database): Promise<void> {
     const fingerprints = this.report.sharedFingerprints();
-    await db.exec(`
-        CREATE TABLE kgrams (
-            id INTEGER,
-            hash INT8,
-            ignored BOOLEAN,
-            data STRING,
-            files INTEGER[],
-       );
-    `);
-    const stmt = await db.prepare(`INSERT INTO kgrams VALUES (?, ?, ?, ?, ?)`);
-    for (const fingeprint of fingerprints) {
-      await stmt.run(
-        fingeprint.id,
-        fingeprint.hash,
-        fingeprint.ignored,
-        fingeprint.kgram?.join(" ") || null,
-        JSON.stringify(fingeprint.files().map(f => f.id))
-      );
-    }
-    stmt.finalize();
+
+    const table = arrow.tableFromArrays({
+      id: new Uint32Array(fingerprints.map(f => f.id)),
+      hash: new BigUint64Array(fingerprints.map(f => BigInt(f.hash))),
+      ignored: fingerprints.map(f => f.ignored),
+      data: fingerprints.map(f => f.kgram?.join(" ") || ""),
+      files: fingerprints.map(f => JSON.stringify(f.files().map(f => f.id)))
+    });
+
+
+    await db.register_buffer("arrow_kgrams", [arrow.tableToIPC(table)], true);
+    await db.exec("CREATE TABLE kgrams AS SELECT id, hash, ignored, data, list_transform(files->'$[*]', f -> f::INTEGER) AS files FROM arrow_kgrams");
   }
 
   public async writeFiles(db: Database): Promise<void> {
     const entries = this.report.entries().concat(this.report.ignoredEntries());
+
+    const table = arrow.tableFromArrays({
+      id: new Uint32Array(entries.map(e => e.file.id)),
+      ignored: entries.map(e => e.isIgnored),
+      path: entries.map(e => e.file.path),
+      content: entries.map(e => e.file.content),
+      kgramCount: new Uint32Array(entries.map(e => e.kgrams.length)),
+      ast: entries.map(e => JSON.stringify(e.file.tokens)),
+      mapping: entries.map(e => JSON.stringify(Region.toUInt16(e.file.mapping))),
+    });
+
+    await db.register_buffer("arrow_files", [arrow.tableToIPC(table)], true);
     await db.exec(`
-        CREATE TABLE files (
-            id INTEGER,
-            ignored BOOLEAN,
-            path STRING,
-            content STRING,
-            amountOfKgrams INTEGER,
-            ast STRING[],
-            mapping SMALLINT[],
-            extra STRING
-       );
+        CREATE TABLE files
+            AS SELECT
+                   id,
+                   path,
+                   content,
+                   kgramCount,
+                   list_transform(ast->'$[*]', s->s::STRING) AS ast,
+                   list_transform(mapping->'$[*]', m -> m::INT2) AS mapping
+            FROM arrow_files
     `);
-    const stmt = await db.prepare(`INSERT INTO files VALUES (?, ?, ?, ?, ?, ?, ?, ?)`);
-    for (const entry of entries) {
-      await stmt.run(
-        entry.file.id,
-        entry.isIgnored,
-        entry.file.path,
-        entry.file.content,
-        entry.kgrams.length,
-        JSON.stringify(entry.file.tokens),
-        JSON.stringify(Region.toUInt16(entry.file.mapping)),
-        ""
-      );
-    }
-    stmt.finalize();
   }
 
   public async writeMetadata(db: Database): Promise<void> {
