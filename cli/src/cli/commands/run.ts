@@ -224,7 +224,9 @@ export async function run(locations: string[], options: RunOptions): Promise<voi
     if (view == null) {
       throw new Error(`Invalid output format: ${options.outputFormat}`);
     }
-
+    const startTime = new Date().getTime();
     await view().show();
+    const endTime = new Date().getTime();
+    console.log(`Write-out took ${endTime - startTime} ms`);
   });
 }
