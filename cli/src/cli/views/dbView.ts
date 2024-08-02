@@ -75,7 +75,7 @@ export class DbView extends View {
       kgramCount: new Uint32Array(entries.map(e => e.kgrams.length)),
       ast: entries.map(e => JSON.stringify(e.file.tokens)),
       mapping: entries.map(e => JSON.stringify(Region.toUInt16(e.file.mapping))),
-      extra: entries.map(e => JSON.stringify(e.file.extra))
+      extra: entries.map(e => JSON.stringify(e.file.extra || {}))
     });
 
     await db.register_buffer("arrow_files", [arrow.tableToIPC(table)], true);
