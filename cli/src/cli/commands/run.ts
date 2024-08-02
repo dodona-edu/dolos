@@ -13,6 +13,7 @@ import { WebView } from "../views/webView.js";
 import { Command } from "commander";
 import * as Utils from "../util/utils.js";
 import { Dolos, Options } from "@dodona/dolos-lib";
+import { DbWebView } from "../views/dbWebView.js";
 
 export function runCommand(program: Command): Command {
   return new Command("run")
@@ -221,6 +222,7 @@ export async function run(locations: string[], options: RunOptions): Promise<voi
       "html": () => new WebView(report, options),
       "web": () => new WebView(report, options),
       "db": () => new DbView(report, options),
+      "dbweb": () => new DbWebView(report, options),
     });
 
     if (view == null) {

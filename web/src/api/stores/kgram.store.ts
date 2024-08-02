@@ -3,6 +3,7 @@ import { shallowRef } from "vue";
 import { Kgram, File } from "@/api/models";
 import { parseCsv } from "@/api/utils";
 import { useFileStore, useApiStore } from "@/api/stores";
+import { AsyncDuckDBConnection } from "@duckdb/duckdb-wasm";
 
 /**
  * Store containing the k-grams data & helper functions.
@@ -26,12 +27,12 @@ export const useKgramStore = defineStore("kgrams", () => {
     const kgrams: Kgram[] = [];
     const ignored: Kgram[] = [];
     for (const row of kgramData) {
-      const id = parseInt(row.id);
-      const fileIds: number[] = JSON.parse(row.files);
+      const id = row.id;
+      const fileIds: number[] = row.files.toArray();
       const files: File[] = fileIds.map((id) => filesById[id]);
       const kgram = {
         id,
-        hash: parseInt(row.hash),
+        hash: Number(row.hash),
         ignored: row.ignored == "true",
         data: row.data,
         files,
@@ -54,13 +55,13 @@ export const useKgramStore = defineStore("kgrams", () => {
   const fileStore = useFileStore();
 
   // Fetch the k-grams from the CSV file.
-  async function fetch(): Promise<any[]> {
-    const url = apiStore.url + "/kgrams.csv";
-    return await parseCsv(url);
+  async function fetch(conn: AsyncDuckDBConnection): Promise<any[]> {
+    const result = await conn.query("SELECT * from kgrams");
+    return result.toArray();
   }
 
   // Hydrate the store
-  async function hydrate(): Promise<void> {
+  async function hydrate(conn: AsyncDuckDBConnection): Promise<void> {
     // Make sure the file store is hydrated.
     if (!fileStore.hydrated) {
       throw new Error(
@@ -68,7 +69,7 @@ export const useKgramStore = defineStore("kgrams", () => {
       );
     }
 
-    const parsed = parse(await fetch(), fileStore.filesById);
+    const parsed = parse(await fetch(conn), fileStore.filesById);
     kgrams.value = parsed.kgrams;
     ignoredKgrams.value = parsed.ignored;
     hydrated.value = true;

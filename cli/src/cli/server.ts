@@ -14,6 +14,8 @@ export interface Options {
 }
 
 const MIME: { [k: string]: string } = {
+  "db": "application/octet-stream",
+  "wasm": "application/wasm",
   "html": "text/html",
   "css": "text/css",
   "js": "text/javascript",
@@ -48,7 +50,9 @@ export default async function runServer(
     const reqPath = path.normalize(new URL(request.url, baseURL).pathname);
 
     let filePath;
-    if (reqPath.startsWith("/data")) {
+    if (reqPath === "/data/dolos.db") {
+      filePath = reportDir; // actually path to dolos.db
+    } else if (reqPath.startsWith("/data")) {
       filePath = path.join(reportDir, reqPath.slice(5));
     } else if (reqPath.endsWith("/")) {
       filePath = path.join(webDir, reqPath, "index.html");

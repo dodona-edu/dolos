@@ -29,22 +29,20 @@ export class DbView extends View {
   }
 
   public async writePairs(db: Database): Promise<void> {
-    const pairs = this.report.allPairs().map(pair => {
-      return {
-        id: pair.id,
-        leftFileId: pair.leftFile.id,
-        leftFilePath: pair.leftFile.path,
-        rightFileId: pair.rightFile.id,
-        rightFilePath: pair.rightFile.path,
-        similarity: pair.similarity,
-        totalOverlap: pair.overlap,
-        longestFragment: pair.longest,
-        leftCovered: pair.leftCovered,
-        rightCovered: pair.rightCovered
-      };
-    });
+    const pairs = this.report.allPairs();
 
-    const table = arrow.tableFromJSON(pairs);
+    const table = arrow.tableFromArrays({
+      id: new Uint32Array(pairs.map(p => p.id)),
+      leftFileId: new Uint32Array(pairs.map(p => p.leftFile.id)),
+      leftFilePath: pairs.map(p => p.leftFile.path),
+      rightFileId: new Uint32Array(pairs.map(p => p.rightFile.id)),
+      rightFilePath: pairs.map(p => p.rightFile.path),
+      similarity: pairs.map(p => p.similarity),
+      totalOverlap: new Uint32Array(pairs.map(p => p.overlap)),
+      longestFragment: new Uint32Array(pairs.map(p => p.longest)),
+      leftCovered: new Uint32Array(pairs.map(p => p.leftCovered)),
+      rightCovered: new Uint32Array(pairs.map(p => p.rightCovered)),
+    });
 
     await db.register_buffer("arrow_pairs", [arrow.tableToIPC(table)], true);
     await db.exec("CREATE TABLE pairs AS SELECT * FROM arrow_pairs");
@@ -77,6 +75,7 @@ export class DbView extends View {
       kgramCount: new Uint32Array(entries.map(e => e.kgrams.length)),
       ast: entries.map(e => JSON.stringify(e.file.tokens)),
       mapping: entries.map(e => JSON.stringify(Region.toUInt16(e.file.mapping))),
+      extra: entries.map(e => JSON.stringify(e.file.extra))
     });
 
     await db.register_buffer("arrow_files", [arrow.tableToIPC(table)], true);
@@ -84,11 +83,13 @@ export class DbView extends View {
         CREATE TABLE files
             AS SELECT
                    id,
+                   ignored,
                    path,
                    content,
                    kgramCount,
-                   list_transform(ast->'$[*]', s->s::STRING) AS ast,
-                   list_transform(mapping->'$[*]', m -> m::INT2) AS mapping
+                   list_transform(ast->>'$[*]', s->s::STRING) AS ast,
+                   list_transform(mapping->'$[*]', m -> m::INT2) AS mapping,
+                   extra->'$' as extra
             FROM arrow_files
     `);
   }

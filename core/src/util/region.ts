@@ -71,7 +71,7 @@ export class Region {
     return out;
   }
 
-  public static fromUInt16(array: number[]): Region[] {
+  public static fromUInt16(array: Uint16Array): Region[] {
     const out = [];
     for (let i = 0; i < array.length; i += 4) {
       out.push(new Region(array[i], array[i + 1], array[i + 2], array[i + 3]));
