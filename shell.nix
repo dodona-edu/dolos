@@ -10,6 +10,7 @@ pkgs.devshell.mkShell {
     nixpkgs-fmt
     docker
     docker-compose
+    duckdb
   ];
   env = [{
     name = "PYTHON";

@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 import { parseCsv } from "@/api/utils";
 import { shallowRef, computed } from "vue";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
+import { AsyncDuckDBConnection } from "@duckdb/duckdb-wasm";
 import {
   singleLinkageCluster
 } from "@/util/clustering-algorithms/SingleLinkageClustering";
@@ -72,19 +73,19 @@ export const usePairStore = defineStore("pairs", () => {
   function parse(pairData: any[], files: File[]): Pair[] {
     const pairs: Pair[] = [];
     for (const row of pairData) {
-      const id = parseInt(row.id);
-      const similarity = parseFloat(row.similarity);
-      const longestFragment = parseFloat(row.longestFragment);
-      const totalOverlap = parseFloat(row.totalOverlap);
-      const leftCovered = parseFloat(row.leftCovered);
-      const rightCovered = parseFloat(row.rightCovered);
+      const id = row.id;
+      const similarity = row.similarity;
+      const longestFragment = row.longestFragment;
+      const totalOverlap = row.totalOverlap;
+      const leftCovered = row.leftCovered;
+      const rightCovered = row.rightCovered;
       pairs[id] = {
         id,
         similarity,
         longestFragment,
         totalOverlap,
-        leftFile: files[parseInt(row.leftFileId)],
-        rightFile: files[parseInt(row.rightFileId)],
+        leftFile: files[row.leftFileId],
+        rightFile: files[row.rightFileId],
         fragments: null,
         leftCovered,
         rightCovered,
@@ -94,19 +95,19 @@ export const usePairStore = defineStore("pairs", () => {
   }
 
   // Fetch the pairs from the CSV file.
-  async function fetch(): Promise<any[]> {
-    const url = apiStore.url + "/pairs.csv";
-    return await parseCsv(url);
+  async function fetch(conn: AsyncDuckDBConnection): Promise<any[]> {
+    const result = await conn.query("SELECT * from pairs");
+    return result.toArray();
   }
 
   // Hydrate the store
-  async function hydrate(): Promise<void> {
+  async function hydrate(conn: AsyncDuckDBConnection): Promise<void> {
     // Make sure the file store is hydrated.
     if (!fileStore.hydrated) {
       throw new Error("The file store must be hydrated before the pair store.");
     }
 
-    pairsById.value = parse(await fetch(), fileStore.filesActiveById);
+    pairsById.value = parse(await fetch(conn), fileStore.filesActiveById);
     hydrated.value = true;
   }
 
@@ -116,7 +117,6 @@ export const usePairStore = defineStore("pairs", () => {
     const kgrams = kgramStore.kgrams;
     const ignoredKgrams = kgramStore.ignoredKgrams;
     const ignoredFile = fileStore.ignoredFile;
-
     const pairWithFragments = await dataWorker.populateFragments(pair, customOptions, kgrams, ignoredKgrams, ignoredFile);
     pairsById.value[pair.id] = pairWithFragments;
     return pairWithFragments;

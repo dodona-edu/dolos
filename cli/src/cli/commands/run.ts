@@ -6,12 +6,14 @@ import {
 } from "../util/utils.js";
 
 import { DEFAULT_HOST, DEFAULT_PORT } from "../server.js";
+import { DbView } from "../views/dbView.js";
 import { TerminalView } from "../views/terminalView.js";
 import { FileView } from "../views/fileView.js";
 import { WebView } from "../views/webView.js";
 import { Command } from "commander";
 import * as Utils from "../util/utils.js";
 import { Dolos, Options } from "@dodona/dolos-lib";
+import { DbWebView } from "../views/dbWebView.js";
 
 export function runCommand(program: Command): Command {
   return new Command("run")
@@ -219,12 +221,17 @@ export async function run(locations: string[], options: RunOptions): Promise<voi
       "csv": () => new FileView(report, options),
       "html": () => new WebView(report, options),
       "web": () => new WebView(report, options),
+      "db": () => new DbView(report, options),
+      "dbweb": () => new DbWebView(report, options),
     });
 
     if (view == null) {
       throw new Error(`Invalid output format: ${options.outputFormat}`);
     }
 
+    const startTime = new Date().getTime();
     await view().show();
+    const endTime = new Date().getTime();
+    console.log(`Write-out took ${endTime - startTime} ms`);
   });
 }
