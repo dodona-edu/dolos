@@ -15,6 +15,11 @@ export class WebView extends FileView {
 
   async show(): Promise<void> {
     const reportDir = await this.writeToDirectory();
-    setTimeout(async () => await runServer(reportDir, this.options), 1000);
+    const start = Date.now();
+    const done = () => {
+      const stop = Date.now();
+      console.log(`Shown in ${stop - start}ms`);
+    }
+    setTimeout(async () => await runServer(reportDir, this.options, done), 1000);
   }
 }

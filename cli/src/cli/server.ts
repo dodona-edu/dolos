@@ -34,7 +34,8 @@ function notFound(response: http.ServerResponse): void {
 
 export default async function runServer(
   reportDir: string,
-  options: Options
+  options: Options,
+  doneCallback?: () => void
 ): Promise<void> {
   const port = options.port || DEFAULT_PORT;
   const host = options.host || DEFAULT_HOST;
@@ -52,6 +53,11 @@ export default async function runServer(
     let filePath;
     if (reqPath === "/data/dolos.db") {
       filePath = reportDir; // actually path to dolos.db
+    } else if (reqPath.startsWith("/data/done")) {
+      if (doneCallback) doneCallback();
+      response.writeHead(202);
+      response.end();
+      return;
     } else if (reqPath.startsWith("/data")) {
       filePath = path.join(reportDir, reqPath.slice(5));
     } else if (reqPath.endsWith("/")) {
