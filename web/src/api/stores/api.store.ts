@@ -61,6 +61,7 @@ export const useApiStore = defineStore("api", () => {
     }
 
     loading.value = false;
+    await fetch(dataUrl.value + '/done');
   };
 
   const { dataUrl } = useAppMode();
