@@ -74,4 +74,15 @@ class ReportsControllerTest < ActionDispatch::IntegrationTest
       assert_response :not_found
     end
   end
+
+  test 'should successfully show purged reports' do
+    delete report_url(@report), as: :json
+    assert_response :no_content
+
+    @report.reload
+    assert_equal @report.status, 'purged'
+
+    get report_url(@report), as: :json
+    assert_response :success
+  end
 end
