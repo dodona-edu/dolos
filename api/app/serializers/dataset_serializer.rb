@@ -13,6 +13,7 @@ class DatasetSerializer < ApplicationSerializer
   attributes :programming_language, :zipfile, :name
 
   def zipfile
+    return unless object.zipfile.present?
     url_for(object.zipfile)
   end
 end
