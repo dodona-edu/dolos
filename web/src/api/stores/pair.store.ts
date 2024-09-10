@@ -106,8 +106,10 @@ export const usePairStore = defineStore("pairs", () => {
     if (!fileStore.hydrated) {
       throw new Error("The file store must be hydrated before the pair store.");
     }
-
+    console.time("Hydrate pairs");
     pairsById.value = parse(await fetch(conn), fileStore.filesActiveById);
+    console.timeEnd("Hydrate pairs");
+
     hydrated.value = true;
   }
 

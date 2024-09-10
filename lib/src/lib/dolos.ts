@@ -19,7 +19,7 @@ export class Dolos {
   private languageDetected = false;
   private language: Language | null = null;
   private tokenizer: Tokenizer | null = null;
-  private index: FingerprintIndex | null = null;
+  public index: FingerprintIndex | null = null;
 
   private readonly languagePicker = new LanguagePicker();
 

@@ -44,6 +44,7 @@ export const useApiStore = defineStore("api", () => {
   // Hydrate the API stores.
   const hydrate = async (): Promise<void> => {
     loading.value = true;
+    console.time("Hydrate");
     try {
       const conn = await useDuckDB(dataUrl.value + '/dolos.db');
 
@@ -69,6 +70,7 @@ export const useApiStore = defineStore("api", () => {
     }
 
     loading.value = false;
+    console.timeEnd("Hydrate");
     await fetch(dataUrl.value + '/done');
   };
 
