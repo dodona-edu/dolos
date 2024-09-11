@@ -22,6 +22,7 @@ export type UploadReport = {
   isFromSharing: boolean;
 };
 
+
 export class Report {
   readonly fromSharing: boolean;
 
@@ -41,7 +42,7 @@ export class Report {
   }
 
   public hasFinalStatus() {
-    return this.status === "finished" || this.status === "error" || this.status === "failed";
+    return this.status !== "queued" && this.status !== "running";
   }
 
   static fromResponse(response: Record<string, any>, slug?: string, fromSharing?: boolean): Report {

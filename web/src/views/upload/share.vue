@@ -18,9 +18,9 @@ onMounted(async () => {
 
   try{
     // If the report reference does not exist, generate a new one.
-    if (!report) {
+    if (report === undefined) {
       // Fetch the report from the server
-      report = await reports.reloadReport(reportId);
+      report = await reports.addReportFromShared(reportId);
     }
 
     // Wait until status is final

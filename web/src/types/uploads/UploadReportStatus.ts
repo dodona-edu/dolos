@@ -4,5 +4,5 @@ export type UploadReportStatus =
   | "failed"
   | "error"
   | "finished"
-  | "deleted"
+  | "purged"
   | "api_error";

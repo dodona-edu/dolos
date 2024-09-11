@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { shallowRef, ref, computed, watch } from "vue";
+import { shallowRef, computed, watch } from "vue";
 import { useReportsStore } from "@/stores";
 
 const reports = useReportsStore();
@@ -194,87 +194,30 @@ const onSubmit = async (): Promise<void> => {
   }
 };
 
-// Poll configuration
-const pollingInterval = 1000;
 
-// List containing the the ids of the reports that are currently polling.
-const pollingReports = ref<string[]>([]);
-
-// Start polling for a specific report.
-const startPolling = (reportId: string): void => {
-  // Do not start polling when the report is already polling.
-  if (pollingReports.value.includes(reportId)) {
-    return;
-  }
-
-  // Create the interval for polling.
-  const interval = setInterval(async () => {
-    // Stop the interval when the report is not in the list of polling reports.
-    if (!pollingReports.value.includes(reportId)) {
-      clearInterval(interval);
-      return;
-    }
-
-    // Get the report from the reports list.
-    let report = reports.getReportById(reportId);
-
-    // Stop the polling if the report no longer exists.
-    if (!report) {
-      clearInterval(interval);
-      return;
-    }
-
-    try {
-      report = await reports.reloadReport(report.id);
-
-      // Stop the polling when the report status is final.
-      if (report.hasFinalStatus()) {
-        pollingReports.value = pollingReports.value.filter(
-          (id) => id !== reportId
-        );
-        clearInterval(interval);
-      }
-
-      // If the report is the active report
-      // apply some changes to the form UI.
-      if (report.id === reportActive.value?.id) {
-        if (report.status === "finished") {
-          // Go to the results page.
-          step.value = 4;
-          // Clear the form.
-          clearForm();
-        }
-
-        if (report.status === "failed" || report.status === "error") {
-          stderr.value = report.stderr;
-          handleError(`An error occurred while analyzing the dataset (${report.error})`);
-        }
-      }
-    } catch (e: any) {
-      //
-    }
-  }, pollingInterval);
-
-  // Add the report.
-  pollingReports.value.push(reportId);
-};
-
-// Start polling for any report in the list of reports
-// of which the status is not final yet.
+// If the submitted report is ready, show the result page
 watch(
-  () => reports.reports,
-  (reports) => {
-    for (const report of reports) {
-      if (!report.hasFinalStatus()) {
-         startPolling(report.id);
+  () => reportActive.value,
+  (report) => {
+    if (report?.hasFinalStatus()) {
+      if (report.status === "finished") {
+        // Go to the results page.
+        step.value = 4;
+        // Clear the form.
+        clearForm();
+      }
+
+      if (report.status === "failed" || report.status === "error") {
+        stderr.value = report.stderr;
+        handleError(`An error occurred while analyzing the dataset (${report.error})`);
       }
     }
   },
   {
-    immediate: true,
     deep: true,
   }
 );
+
 </script>
 
 <template>
@@ -366,9 +309,7 @@ watch(
         <v-window-item :value="2">
           <span>Uploading file...</span>
 
-          <v-progress-linear v-model="uploadProgress" class="mt-2" color="primary" height="25">
-            <strong>{{ uploadProgress }}%</strong>
-          </v-progress-linear>
+          <v-progress-linear indeterminate reverse class="mt-2" color="primary" height="25" />
 
           <v-card-actions class="mt-4 pa-0">
             <v-spacer />

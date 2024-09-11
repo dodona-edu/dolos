@@ -23,8 +23,11 @@ const props = defineProps<Props>();
   <v-chip v-else-if="props.status === 'error'" color="error" size="small">
     Error
   </v-chip>
-  <v-chip v-else-if="props.status === 'deleted'" color="grey" size="small">
+  <v-chip v-else-if="props.status === 'purged'" color="grey" size="small">
     Deleted
+  </v-chip>
+  <v-chip v-else-if="props.status === 'api_error'" color="error" size="small">
+    <abbr>API</abbr>&nbsp;Error
   </v-chip>
   <v-chip v-else color="grey" size="small"> Unknown </v-chip>
 </template>
