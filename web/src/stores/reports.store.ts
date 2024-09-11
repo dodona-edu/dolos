@@ -1,14 +1,14 @@
-import {UploadReport, Report} from "@/types/uploads/UploadReport";
+import {Report} from "@/types/uploads/UploadReport";
 import {useLocalStorage} from "@vueuse/core";
 import {defineStore} from "pinia";
-import {computed, onMounted} from "vue";
+import {computed, onMounted, ref, shallowRef} from "vue";
 import {useRoute} from "vue-router";
 import slugify from "slugify";
 import axios from "axios";
 
+
 export const useReportsStore = defineStore("reports", () => {
   // List of uploaded reports in localstorage.
-  const oldReports = useLocalStorage<UploadReport[]>("reports:upload", []);
   const reports = useLocalStorage<Report[]>("dolos:reports", [], {
     serializer: {
       read: (v: any) => Report.arrayFromSerialized(v),
@@ -29,6 +29,33 @@ export const useReportsStore = defineStore("reports", () => {
     return slug;
   }
 
+  const MAX_POLLS = 90; // Default execution timeout is 60s
+  const POLLING_INTERVAL_MS = 1000;
+  const polling = ref<Map<string, number>>(new Map());
+  const pollingInterval = shallowRef<ReturnType<typeof setInterval> | null>(null);
+
+  function startPolling(report: Report) {
+    polling.value.set(report.id, 0);
+    if (pollingInterval.value == null) {
+      pollingInterval.value = setInterval(poll, POLLING_INTERVAL_MS);
+    }
+  }
+
+  async function poll() {
+    for (const [reportId, retries] of polling.value.entries()) {
+      const report = await reloadReport(reportId);
+      if (!report.hasFinalStatus() && retries < MAX_POLLS) {
+        polling.value.set(reportId, retries + 1);
+      } else {
+        polling.value.delete(reportId);
+      }
+    }
+    if (polling.value.size == 0 && pollingInterval.value != null) {
+      clearInterval(pollingInterval.value);
+      pollingInterval.value = null;
+    }
+  }
+
   // Upload a new report
   async function uploadReport(name: string, file: File, language?: string): Promise<Report> {
     const data = new FormData();
@@ -42,14 +69,26 @@ export const useReportsStore = defineStore("reports", () => {
     );
 
     if (response.status !== 201) {
-      console.log(response);
       throw new Error(`HTTP error while uploading report: ${response.statusText}`);
     }
 
     const slug = findNextSlug(name);
-    const report = Report.fromResponse(response.data, slug)
+    const report = Report.fromResponse(response.data, slug);
 
     // Add the report to the reports list in local storage.
+    reports.value.push(report);
+    startPolling(report);
+    return report;
+  }
+
+  async function addReportFromShared(reportId: string): Promise<Report> {
+    const url = getReportUrlById(reportId);
+    const response = await axios.get(url);
+    if (response.status !== 200) {
+      throw new Error(`HTTP error while fetching shared report: ${response.statusText}`);
+    }
+    const slug = findNextSlug(response.data["name"]);
+    const report = Report.fromResponse(response.data, slug, true);
     reports.value.push(report);
     return report;
   }
@@ -57,21 +96,21 @@ export const useReportsStore = defineStore("reports", () => {
   async function reloadReport(reportId: string): Promise<Report> {
     const url = getReportUrlById(reportId);
     const response = await axios.get(url);
-    if (response.status !== 200) {
-      throw new Error(`HTTP error ${response.status} while fetching report ${reportId}`);
-    }
 
-    let report;
     const existing = reports.value.findIndex((r) => r.id === reportId);
-    if (existing >= 0) {
-      const previous = reports.value[existing];
-      report = Report.fromResponse(response.data, previous.slug, previous.fromSharing);
-      reports.value[existing] = report;
-    } else {
-      const slug = findNextSlug(response.data["name"]);
-      report = Report.fromResponse(response.data, slug, true);
-      reports.value.push(report);
+    if (existing === -1) {
+      throw new Error("reportId not found");
     }
+    const previous = reports.value[existing];
+    let report;
+    if (response.status !== 200) {
+      previous.status = "api_error";
+      report = previous;
+    } else {
+      report = Report.fromResponse(response.data, previous.slug, previous.fromSharing);
+    }
+    reports.value[existing] = report;
+
     return report;
   }
 
@@ -125,27 +164,13 @@ export const useReportsStore = defineStore("reports", () => {
   };
 
   async function reloadAllReports() {
-    const toCheck = reports.value;
-
-    // These lines gracefully migrate previous reports,
-    // remove when all users have migrated.
-    for (const report of oldReports.value) {
-      toCheck.push(Report.fromUploadReport(report));
+    for (const report of reports.value) {
+      await reloadReport(report.id);
     }
-    oldReports.value = [];
-
-    for (const report of toCheck) {
-      if (report.status === "finished") {
-        try {
-          await reloadReport(report.id);
-        } catch (error: any) {
-          // Set the report status to deleted.
-          report.status = "api_error";
-          report.error = error?.message;
-        }
-      }
+    const pending = reports.value.filter(report => !report.hasFinalStatus());
+    for (const report of pending) {
+      startPolling(report);
     }
-    reports.value = toCheck;
   }
 
   // Fetch all stored reports and update if needed
@@ -167,6 +192,7 @@ export const useReportsStore = defineStore("reports", () => {
 
   return {
     reports,
+    addReportFromShared,
     uploadReport,
     reloadReport,
     getReportById,

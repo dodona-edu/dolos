@@ -32,7 +32,7 @@ const confirm = async (): Promise<void> => {
   try {
     // Attempt to delete the upload.
     // Only delete the upload if a report id is present and the report is not already deleted.
-    if (props.report.id && props.report.status !== "deleted") {
+    if (props.report.id && props.report.status !== "purged") {
       await axios.delete(reports.getReportUrlById(props.report.id));
     }
 
@@ -72,7 +72,7 @@ const confirm = async (): Promise<void> => {
         <v-btn variant="text" icon="mdi-close" @click="open = false" />
       </v-card-title>
 
-      <v-card-text v-if="props.report.status == 'deleted'">
+      <v-card-text v-if="props.report.status == 'purged'">
           <div>Are you sure you want to delete "{{ props.report.name }}" from the list?</div>
 
           <div>

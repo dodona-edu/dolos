@@ -31,7 +31,7 @@ const isDone = computed(
     props.report.status === "finished" ||
     props.report.status === "error" ||
     props.report.status === "failed" ||
-    props.report.status === "deleted"
+    props.report.status === "purged"
 );
 </script>
 
@@ -117,7 +117,7 @@ const isDone = computed(
       </template>
 
       <!-- Status: Deleted -->
-      <template v-else-if="props.report.status === 'deleted'">
+      <template v-else-if="props.report.status === 'purged'">
         <v-card-text>
           <v-alert type="warning" variant="tonal" class="mt-2 mb-0">
             This report has been deleted on the server and is no longer available.<br />

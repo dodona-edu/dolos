@@ -4,11 +4,14 @@ import { createApp } from "vue";
 import { createVuetify } from "vuetify";
 import { createPinia } from "pinia";
 import webFontLoader from "webfontloader";
+import axios from "axios";
 
 // Styles
 import "@mdi/font/css/materialdesignicons.css";
 import "vuetify/styles";
 import "@/assets/scss/main.scss";
+
+axios.defaults.validateStatus = () => true;
 
 // Create the app
 const app = createApp(App);
