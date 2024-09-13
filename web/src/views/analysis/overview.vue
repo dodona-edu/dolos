@@ -281,9 +281,7 @@ const similarities = computed(() =>
 
 // Average maximum similarity.
 const averageSimilarity = computed(() => {
-  const mean =
-    similarities.value.reduce((a, b) => a + b, 0) / similarities.value.length ??
-    0;
+  const mean = similarities.value.reduce((a, b) => a + b, 0) / similarities.value.length;
   return isNaN(mean) ? 0 : mean;
 });
 
