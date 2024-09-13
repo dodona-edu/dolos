@@ -1,4 +1,4 @@
-FROM node:22.2.0-alpine3.19
+FROM node:22.8.0-alpine3.19
 
 WORKDIR /web/
 
@@ -10,10 +10,11 @@ RUN npm install && apk add --no-cache curl
 
 ENV VITE_HOST=0.0.0.0
 ENV VITE_PORT=8080
-ENV VITE_API_URL=http://localhost:3000
 ENV VITE_MODE=server
+ENV DEFAULT_VITE_API_URL=http://localhost:3000
 EXPOSE 8080/tcp
 
-RUN npm run build
+RUN VITE_API_URL="$DEFAULT_VITE_API_URL" npm run build
 
-CMD npm run preview -- --host "$VITE_HOST" --port "$VITE_PORT" --strictPort
+
+CMD (test "$VITE_API_URL" == "$DEFAULT_VITE_API_URL" || npm run build) && npm run preview -- --host "$VITE_HOST" --port "$VITE_PORT" --strictPort
