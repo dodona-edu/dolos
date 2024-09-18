@@ -9,16 +9,22 @@ import {
 } from "@/api/stores";
 import { refDebounced } from "@vueuse/shared";
 import { guessSimilarityThreshold } from "../utils";
+import { useDuckDB } from "@/composables/useDuckDB";
+import { computed, ShallowRef } from "vue";
+import { AsyncDuckDBConnection } from "@duckdb/duckdb-wasm";
 
 /**
  * Store managing the API.
  */
 export const useApiStore = defineStore("api", () => {
+
   // API Stores
   const fileStore = useFileStore();
   const kgramStore = useKgramStore();
   const metadataStore = useMetadataStore();
   const pairStore = usePairStore();
+
+  const duckdb: ShallowRef<AsyncDuckDBConnection | undefined> = shallowRef();
 
   // If the data is loaded.
   const loading = shallowRef(true);
@@ -38,19 +44,22 @@ export const useApiStore = defineStore("api", () => {
   // Hydrate the API stores.
   const hydrate = async (): Promise<void> => {
     loading.value = true;
-
+    console.time("Hydrate");
     try {
+      const conn = await useDuckDB(dataUrl.value + '/dolos.db');
+
       // Hydrate all stores (fetch data)
       loadingText.value = "Fetching & parsing metadata...";
-      await metadataStore.hydrate();
+      await metadataStore.hydrate(conn);
 
       loadingText.value = "Fetching & parsing files...";
-      await fileStore.hydrate();
+      await fileStore.hydrate(conn);
+
       loadingText.value = "Fetching & parsing k-grams...";
-      await kgramStore.hydrate();
+      await kgramStore.hydrate(conn);
 
       loadingText.value = "Fetching & parsing pairs...";
-      await pairStore.hydrate();
+      await pairStore.hydrate(conn);
 
       // Calculate the initial cut-off value.
       loadingText.value = "Calculating initial cut-off...";
@@ -61,6 +70,8 @@ export const useApiStore = defineStore("api", () => {
     }
 
     loading.value = false;
+    console.timeEnd("Hydrate");
+    await fetch(dataUrl.value + '/done');
   };
 
   const { dataUrl } = useAppMode();

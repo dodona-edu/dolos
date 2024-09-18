@@ -241,4 +241,21 @@ export class FingerprintIndex {
     }
     return pairs;
   }
+
+  public pairsByOverlap(n: number = 100): Array<Pair> {
+    const byShared = Array.from(this.files.values());
+    byShared.sort((a, b) => a.shared.size - b.shared.size);
+
+    let j = 0, k = 1;
+    const pairs = [];
+    while (pairs.length < n && k < byShared.length) {
+      pairs.push(new Pair(byShared[j], byShared[k]));
+      j += 1;
+      if (j === k) {
+        k += 1;
+        j = 0;
+      }
+    }
+    return pairs;
+  }
 }

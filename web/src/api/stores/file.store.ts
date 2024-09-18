@@ -9,6 +9,8 @@ import {
   FileScoring,
   SimilarityScore,
 } from "@/util/FileInterestingness";
+import { Region } from "@dodona/dolos-core";
+import { AsyncDuckDBConnection } from "@duckdb/duckdb-wasm";
 
 /**
  * Store containing the file data & helper functions.
@@ -104,8 +106,8 @@ export const useFileStore = defineStore("file", () => {
 
   // Functions
 
-  async function hydrate(): Promise<void> {
-    const parsed = parse(await fetch());
+  async function hydrate(conn: AsyncDuckDBConnection): Promise<void> {
+    const parsed = parse(await fetch(conn));
     filesById.value = parsed.files;
     filesActiveById.value = parsed.files;
     ignoredFile.value = parsed.ignoredFile;
@@ -117,9 +119,10 @@ export const useFileStore = defineStore("file", () => {
   }
 
   async function fetch(
-    url: string = apiStore.url + "/files.csv"
+    conn: AsyncDuckDBConnection
   ): Promise<any[]> {
-    return await parseCsv(url);
+    const result = await conn.query("SELECT * from files");
+    return result.toArray();
   }
 
   // Parse the files from a CSV string.
@@ -154,7 +157,7 @@ export const useFileStore = defineStore("file", () => {
     let hasTimestamps = false;
 
     for (const row of fileData) {
-      const file = row as File;
+      const file = {...row } as File;
       const filePathSplit = row.path.split(".");
       const filePathExtension = filePathSplit[filePathSplit.length - 1];
       const extra = JSON.parse(row.extra || "{}");
@@ -162,10 +165,10 @@ export const useFileStore = defineStore("file", () => {
       hasTimestamps = hasTimestamps || !!extra.timestamp;
       file.ignored = row.ignored == "true"
       file.extra = extra;
-      file.ast = JSON.parse(row.ast);
-      file.mapping = JSON.parse(row.mapping);
+      file.ast = row.ast.toArray();
+      file.mapping = Region.fromUInt16(row.mapping.toArray());
       file.astAndMappingLoaded = true;
-      file.amountOfKgrams = file.amountOfKgrams || file.ast.length;
+      file.amountOfKgrams = row.kgramCount || file.ast.length;
 
       if (extra.labels && extra.labels.length > 0) {
         hasLabels = true;

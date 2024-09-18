@@ -21,6 +21,7 @@
   "devDependencies": {
     "@babel/types": "^7.24.7",
     "@dodona/dolos-core": "1.1.0",
+    "@duckdb/duckdb-wasm": "^1.28.1-dev246.0",
     "@mdi/font": "7.4.47",
     "@types/d3": "7.4.3",
     "@types/luxon": "^3.4.2",
