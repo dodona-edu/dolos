@@ -13,7 +13,7 @@
     "tree-sitter-compat": "^0.1.0"
   },
   "devDependencies": {
-    "node-gyp": "^9.4.1",
+    "node-gyp": "^10.2.0",
     "tree-sitter-cli": "^0.20.8"
   }
 }
