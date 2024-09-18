@@ -9,7 +9,7 @@ buildNpmPackage rec {
 
   src = ./.;
 
-  npmDepsHash = "sha256-6/+j8KPcVYhsbeTYFp8WRisuVowlYdzKFCKG5qo/HNU=";
+  npmDepsHash = "sha256-SVI+YchTaBurXqbrlcJ6gxDiDz/z0psyIp5Utm1WYt4=";
 
   npmWorkspace="cli";
 
