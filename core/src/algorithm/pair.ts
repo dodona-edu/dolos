@@ -28,10 +28,11 @@ export class Pair extends Identifiable {
   public readonly rightCovered;
   public readonly leftTotal;
   public readonly rightTotal;
-  public readonly longest;
   public readonly similarity;
   public readonly leftIgnored;
   public readonly rightIgnored;
+
+  private longestValue: number;
 
   constructor(
     public readonly leftEntry: FileEntry,
@@ -50,12 +51,38 @@ export class Pair extends Identifiable {
       large = leftEntry;
     }
 
-    for (const fingeprint of small.shared) {
-      if (large.shared.has(fingeprint)) {
-        this.shared.push(fingeprint);
+    this.leftCovered = 0;
+    this.rightCovered = 0;
+    for (const fingerprint of small.shared) {
+      if (large.shared.has(fingerprint)) {
+        this.shared.push(fingerprint);
+        this.leftCovered += fingerprint.occurrencesOf(this.leftFile).length;
+        this.rightCovered += fingerprint.occurrencesOf(this.rightFile).length;
       }
     }
 
+    this.longestValue = -1;
+
+    this.leftIgnored = leftEntry.ignored.size;
+    this.rightIgnored = leftEntry.ignored.size;
+    this.leftTotal = leftEntry.kgrams.length;
+    this.rightTotal = rightEntry.kgrams.length;
+    const denominator = this.leftTotal + this.rightTotal - this.leftIgnored - this.rightIgnored;
+    if (denominator > 0) {
+      this.similarity = (this.leftCovered + this.rightCovered) / denominator;
+    } else {
+      this.similarity = 0;
+    }
+  }
+
+  get longest(): number {
+    if (this.longestValue < 0) {
+      this.calculateLongestFragment();
+    }
+    return this.longestValue;
+  }
+
+  public calculateLongestFragment() {
     const left: Kgram[] = [];
     const right: Kgram[] = [];
     for (const fingerprint of this.shared) {
@@ -69,20 +96,8 @@ export class Pair extends Identifiable {
     left.sort((a, b) => a.index - b.index);
     right.sort((a, b) => a.index - b.index);
 
-    this.longest = this.longestCommonSubstring(left, right);
-
-    this.leftCovered = left.length;
-    this.rightCovered = right.length;
-    this.leftIgnored = leftEntry.ignored.size;
-    this.rightIgnored = leftEntry.ignored.size;
-    this.leftTotal = leftEntry.kgrams.length;
-    this.rightTotal = rightEntry.kgrams.length;
-    const denominator = this.leftTotal + this.rightTotal - this.leftIgnored - this.rightIgnored;
-    if (denominator > 0) {
-      this.similarity = (this.leftCovered + this.rightCovered) / denominator;
-    } else {
-      this.similarity = 0;
-    }
+    this.longestValue = this.longestCommonSubstring(left, right);
+    return this.longestValue;
   }
 
   private longestCommonSubstring(l: Kgram[], r: Kgram[]): number {
