@@ -35,6 +35,7 @@ export class FingerprintIndex {
   // A set of ignored hashes (either manually added, or through the ignored files, NOT because of maxFileCount)
   private readonly ignoredHashes: Set<number>;
 
+
   /**
    * Creates a Fingerprint Index which is able to compare files with each other
    * based on their winnowed fingerprints (kgrams of tokens).
