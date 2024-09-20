@@ -1,5 +1,5 @@
 import { TokenizedFile, FingerprintIndex, Pair, SharedFingerprint, FileEntry } from "@dodona/dolos-core";
-import { DolosOptions, Options } from "./options.js";
+import { DolosOptions, Options } from "../../../core/src/options.js";
 import { Language } from "./language.js";
 
 export interface Metadata extends DolosOptions {

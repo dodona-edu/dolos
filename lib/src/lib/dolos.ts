@@ -1,5 +1,5 @@
 import { Report } from "./report.js";
-import { CustomOptions, Options } from "./options.js";
+import { CustomOptions, Options } from "../../../core/src/options.js";
 import { Tokenizer } from "./tokenizer/tokenizer.js";
 import { Language, LanguagePicker } from "./language.js";
 import { readFiles, readPath } from "./reader.js";
