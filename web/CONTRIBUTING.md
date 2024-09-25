@@ -39,7 +39,7 @@ These different modules are grouped together in folders, the most important ones
 - [src/composables](https://github.com/dodona-edu/dolos/blob/main/web/src/composables/) contains the Vue [Composables](https://vuejs.org/guide/reusability/composables.html), these contain functionality that is required a lot (like tooltips) or that have a lot of JavaScript that would not belong in a component. For example: you will find the code responsible for rendering the Plagiarism Graph in [src/composables/d3/graph](https://github.com/dodona-edu/dolos/tree/main/web/src/composables/d3), which is then included within the components that use this graph ([src/components/graph/GraphCanvas.vue](https://github.com/dodona-edu/dolos/blob/main/web/src/components/graph/GraphCanvas.vue) and others).
 
 Dolos UI has two modes:
-- **analysis** mode (de default mode) that is used to visualise the results of one report
+- **analysis** mode (the default mode) that is used to visualise the results of one report
 - **server** mode (used when the environment variable `VITE_MODE=server` is set) that is used as the UI for the Dolos web server, it has an upload form and can talk to the Dolos API
 
 The mode in which the UI is built changes how the routing works, take a look at the router in [src/router](https://github.com/dodona-edu/dolos/blob/main/web/src/router/) for more information.
