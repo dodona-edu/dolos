@@ -32,6 +32,7 @@ services:
       start_period: 2s
       interval: 5s
       test: curl --fail http://localhost:8080 || exit 1
+    command: sh -c "echo -e \"npm run build\\nnpm run preview -- --host 0.0.0.0 --port 8080 --strictPort\" > entrypoint.sh && chmod +x entrypoint.sh && ./entrypoint.sh"
   api:
     image: ghcr.io/dodona-edu/dolos-api
     # build: ./api/
