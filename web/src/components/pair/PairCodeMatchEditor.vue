@@ -43,7 +43,7 @@ const emit = defineEmits(["update:selectedMatch", "update:hoveringMatch"]);
 const colors = {
   match: "rgba(60, 115, 168, 0.2)",
   matchHovering: "rgba(60, 115, 168, 0.3)",
-  matchSelected: "rgba(26, 188, 156, 0.3)",
+  matchSelected: "rgba(26, 188, 156, 0.5)",
 };
 
 // File to display
@@ -180,6 +180,15 @@ const initializeSelections = (): void => {
   }
 };
 
+const areMatchesEqual = (match1: Fragment | null, match2: Fragment | null) => {
+  if (!match1 || !match2) return false;
+
+  return match1.left.startCol === match2.left.startCol &&
+         match1.left.endCol === match2.left.endCol &&
+         match1.right.startCol === match2.right.startCol &&
+         match1.right.endCol === match2.right.endCol;
+};
+
 // Initialize the editor decorations
 const initializeDecorations = (): void => {
   // Convert the selections into Monaco decorations.
@@ -189,12 +198,13 @@ const initializeDecorations = (): void => {
       const match = selection.match;
 
       let classname = "highlight-match";
-      if (match === selectedMatch.value) classname += " highlight-match--selected";
-      else if (match === hoveringMatch.value) classname += " highlight-match--hovering";
+      if (areMatchesEqual(match, selectedMatch?.value)) classname += " highlight-match--selected";
+      else if (areMatchesEqual(match, hoveringMatch?.value)) classname += " highlight-match--hovering";
+
 
       let color = colors.match;
-      if (match === selectedMatch.value) color = colors.matchSelected;
-      else if (match === hoveringMatch.value) color = colors.matchHovering;
+      if (areMatchesEqual(match, selectedMatch?.value)) color = colors.matchSelected;
+      else if (areMatchesEqual(match, hoveringMatch?.value)) color = colors.matchHovering;
 
       return {
         range: selection.range,
