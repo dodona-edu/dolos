@@ -61,6 +61,12 @@ Next, go to the **root directory** and ensure the npm dependencies are installed
 npm install
 ```
 
+Then make sure to build the dolos-core manually by going to the **core** directory and running
+```shell
+# in the core directory:
+npm run build
+```
+
 When everything is set up, you can use the following commands during development:
 - `npm run dev`: launches the Vite development server on http://localhost:8080 in analysis mode, it will already contain data of the Pyramidal constants demo
 - `npm run dev:server`: launches the Vite development server on http://localhost:8080 in server mode. It will expect an API server running on http://localhost:3000. You can start the API server by following the instructions in the [api](../api) project.
