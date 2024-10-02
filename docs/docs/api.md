@@ -2,11 +2,70 @@
 outline: [2,3]
 ---
 
+<script setup>
+import { ref } from 'vue';
+const defaultURL = "https://dolos.ugent.be/api";
+const localhostURL = "http://localhost:3000";
+const dolosURL = ref("https://dolos.ugent.be/api");
+
+function setLocalhost() {
+   dolosURL.value = localhostURL;
+};
+
+function setPublicAPI() {
+   dolosURL.value = defaultURL;
+};
+
+</script>
+<style>
+.url-input {
+	padding: 6px 12px;
+	font-size: inherit;
+	width: 100%;
+	line-height: inherit;
+	color: inherit;
+	border: 1px solid var(--vp-c-divider);
+	border-radius: 4px;
+	display: flex;
+	align-items: center;
+	cursor: text;
+}
+
+.button-row button {
+   background-color: var(--vp-button-alt-bg);
+   color: var(--vp-button-alt-text);
+   border-radius: 20px;
+   padding: 0 20px;
+   margin: 0 5px;
+   line-height: 38px;
+   font-size: 14px;
+   display: inline-block;
+   text-align: center;
+   font-weight: 600;
+   white-space: nowrap;
+   transition: colos 0.25s, border-color 0.25s, background-color 0.25s;
+}
+</style>
+
 # Dolos API
 
 Dolos provides its JSON API for automated integration with exercise platforms such as [Dodona](https://dodona.be).
 
-The description below works with our publicly hosted instance ([dolos.ugent.be/api](https://dolos.ugent.be/api)) or a [self-hosted](./hosting-dolos) instance.
+<div v-if="dolosURL == defaultURL">
+   The description below shows the URL endpoints of our publicly hosted instance (<a href="https://dolos.ugent.be/server">dolos.ugent.be/api</a>).
+</div>
+<div v-else>
+   The description below shows the URL endpoints of your custom URL endpoint. Click one of the buttons to change this back to the public endpoint.
+</div>
+
+Edit the value below to change the endpoint URL used in this documentation:
+
+<input class="url-input" v-model="dolosURL"></input>
+
+<div class="button-row">
+<button :onclick="setPublicAPI">Use public API</button>
+<button :onclick="setLocalhost">Use localhost API</button>
+</div>
 
 The API currently requires **no authentication**.
 
@@ -17,18 +76,18 @@ You can access the visualisations using the `html_url` returned by the API.
 
 ::: code-group
 
-```shell [Shell]
+```shell-vue [Shell]
 # Requires curl and jq
 # Outputs the URL to the resulting report
 curl --request POST \
     --form "dataset[name]=Example" \
     --form "dataset[zipfile]=@simple-dataset.zip" \
-    https://dolos.ugent.be/api/reports \
+    {{ dolosURL }}/reports \
     | jq -r '.html_url'
  ```
 
-```html [HTML / Javascript]
-<form id="dolos-upload" action="https://dolos.ugent.be/api/reports" >
+```html-vue [HTML / Javascript]
+<form id="dolos-upload" action="{{ dolosURL }}/reports" >
    <input type="text" name="dataset[name]" placeholder="Name" />
    <input type="file" name="dataset[zifile]" />
    <input type="submit" value="Submit" />
@@ -49,7 +108,7 @@ curl --request POST \
 </script>
 ```
 
-```python [Python]
+```python-vue [Python]
 import requests # pip install requests
 
 def submit_to_dolos(name, zipfile_path):
@@ -58,7 +117,7 @@ def submit_to_dolos(name, zipfile_path):
    and return the URL where the resulting HTML report can be found.
    """
    response = requests.post(
-      'https://dolos.ugent.be/api/reports',
+      '{{ dolosURL }}/reports',
       files = { 'dataset[zipfile]': open(zipfile_path, 'rb') },
       data = { 'dataset[name]': name }
    )
@@ -66,14 +125,14 @@ def submit_to_dolos(name, zipfile_path):
    return json["html_url"]
 ```
 
-```ruby [Ruby]
+```ruby-vue [Ruby]
 require 'httparty' # bundle install httparty
 
 # Submit a ZIP-file to the Dolos API for plagiarism detection
 # and return the URL where the resulting HTML report can be found.
 def submit_to_dolos(name, zipfile_path)
    response = HTTParty.post(
-     'https://dolos.ugent.be/api/reports',
+     '{{ dolosURL }}/reports',
      body: {
        dataset: {
          name: name,
@@ -137,11 +196,11 @@ The resulting **report files** (`metadata.csv`, `files.csv`, `kgrams.csv` and `p
 
 ### Example JSON
 
-```json
+```json-vue
 {
   "created_at": "2024-03-11T14:11:19.142Z",
   "updated_at": "2024-03-11T14:11:27.666Z",
-  "url": "https://dolos.ugent.be/api/reports/9876543210123456789",
+  "url": "{{ dolosURL }}/reports/9876543210123456789",
   "id": "9876543210123456789",
   "error": null,
   "status": "finished",
@@ -152,10 +211,10 @@ The resulting **report files** (`metadata.csv`, `files.csv`, `kgrams.csv` and `p
   "dataset": {
     "created_at": "2024-03-11T14:11:19.136Z",
     "updated_at": "2024-03-11T14:11:19.141Z",
-    "url": "https://dolos.ugent.be/api/datasets/1234567891234567890",
+    "url": "{{ dolosURL }}/datasets/1234567891234567890",
     "id": "1234567891234567890",
     "programming_language": "",
-    "zipfile": "https://dolos.ugent.be/api/rails/active_storage/blobs/redirect/<...>/example.zip",
+    "zipfile": "{{ dolosURL }}/rails/active_storage/blobs/redirect/<...>/example.zip",
     "name": "Example"
   }
 }
@@ -168,7 +227,7 @@ To submit a ZIP-file for analysis, you need to send a `multipart/form-data` with
 
 #### Request
 
-`POST https://dolos.ugent.be/api/reports`
+`POST {{ dolosURL }}/reports`
 
 | Parameters                    | Type   | Required | Description                                                               |
 |-------------------------------|--------|----------|---------------------------------------------------------------------------|
@@ -211,7 +270,7 @@ If you need the resulting files
 
 #### Request
 
-`GET https://dolos.ugent.be/api/reports/:id`
+`GET {{ dolosURL }}/reports/:id`
 
 #### Response
 
@@ -221,7 +280,7 @@ If a report with the corresponding id exists, the API will return a status `200 
 
 #### Request
 
-`GET https://dolos.ugent.be/api/reports/:id/data/:file`
+`GET {{ dolosURL }}/reports/:id/data/:file`
 
 Where `:file` is one of:
 - `metadata`: report metadata (such as detected programming language)
@@ -240,7 +299,7 @@ A report object will still be preserved with status set to `purged`.
 
 #### Request
 
-`DELETE https://dolos.ugent.be/api/reports/:id`
+`DELETE {{ dolosURL }}/reports/:id`
 
 #### Response
 
