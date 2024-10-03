@@ -58,7 +58,13 @@ export class Dolos {
       }
       const infoPath = path.join(tmpDir, "info.csv");
       if (await fs.access(infoPath, constants.R_OK).then(() => true).catch(() => false)) {
-        return await this.fromCSV(infoPath);
+        const { nonIgnoredFiles } = (await this.fromCSV(infoPath)).ok();
+        if (nonIgnoredFiles) {
+          return Result.ok(nonIgnoredFiles);
+        }
+        else {
+          throw new Error("Failed to process files");
+        }
       } else {
         return await this.fromDirectory(tmpDir);
       }
@@ -67,7 +73,7 @@ export class Dolos {
     }
   }
 
-  private async fromCSV(infoPath: string): Promise<Result<File[]>> {
+  private async fromCSV(infoPath: string): Promise<Result<{ nonIgnoredFiles: File[], ignoredFile: File | undefined }>> {
     const dirname = path.dirname(infoPath);
     try {
       const files = csvParse((await fs.readFile(infoPath)).toString())
@@ -81,10 +87,18 @@ export class Dolos {
           nameNL: row.name_nl as string,
           exerciseID: row.exercise_id as string,
           createdAt: new Date(row.created_at as string),
-          labels: row.label as string || row.labels as string
+          labels: row.label as string || row.labels as string,
+          ignored: row.ignored as string
         }))
         .map((row: ExtraInfo) => readPath(path.join(dirname, row.filename), row));
-      return await Result.all(files);
+        const resolvedFiles = await Result.all(files);
+        const ignoredFiles = resolvedFiles.ok().filter(file => file.extra?.ignored === "true");
+        if (ignoredFiles.length > 1) {
+          throw new Error("More than one file has the ignored field set to true.");
+        }
+        const ignoredFile = ignoredFiles.length === 1 ? ignoredFiles[0] : undefined;
+        const nonIgnoredFiles = resolvedFiles.ok().filter(file => file.extra?.ignored !== "true");
+      return Result.ok({nonIgnoredFiles, ignoredFile});
     } catch(e) {
       throw new Error("The given '.csv'-file could not be opened");
     }
@@ -113,11 +127,16 @@ export class Dolos {
         nameCandidate = path.basename(paths[0]) + " & " + path.basename(paths[1]);
       }
     }
-    let ignoredFile;
-    if (ignore) {
-      ignoredFile = (await readPath(ignore)).ok();
+    const result = (await files).ok() as { nonIgnoredFiles: File[]; ignoredFile: File | undefined; };
+    if (result) {
+      let { nonIgnoredFiles, ignoredFile } = result;
+      if (ignore) {
+        ignoredFile = (await readPath(ignore)).ok();
+      }  
+      return this.analyze(nonIgnoredFiles, nameCandidate, ignoredFile);
+    } else {
+      throw new Error("Failed to process files");
     }
-    return this.analyze((await files).ok(), nameCandidate, ignoredFile);
   }
 
   public async analyze(
@@ -177,6 +196,9 @@ export class Dolos {
     if (ignoredFile) {
       const tokenizedTemplate = this.tokenizer!.tokenizeFile(ignoredFile);
       this.index.addIgnoredFile(tokenizedTemplate);
+      warnings.push(
+        `Ignored file detected ${ignoredFile.id} `
+      );
     }
 
     return new Report(
