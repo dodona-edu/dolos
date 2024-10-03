@@ -3,18 +3,22 @@ outline: [2,3]
 ---
 
 <script setup>
-import { ref } from 'vue';
+import { computed } from 'vue';
+import { useStorage } from '@vueuse/core';
+
 const defaultURL = "https://dolos.ugent.be/api";
 const localhostURL = "http://localhost:3000";
-const dolosURL = ref("https://dolos.ugent.be/api");
+const dolosURL = useStorage("dolos-docs-api-url", "https://dolos.ugent.be/api");
+
+const isDefault = computed(() => dolosURL.value === defaultURL);
 
 function setLocalhost() {
    dolosURL.value = localhostURL;
-};
+}
 
 function setPublicAPI() {
    dolosURL.value = defaultURL;
-};
+}
 
 </script>
 <style>
@@ -45,13 +49,18 @@ function setPublicAPI() {
    white-space: nowrap;
    transition: colos 0.25s, border-color 0.25s, background-color 0.25s;
 }
+
+.button-row button.primary {
+   color: var(--vp-button-brand-text);
+   background-color: var(--vp-button-brand-bg);
+}
 </style>
 
 # Dolos API
 
 Dolos provides its JSON API for automated integration with exercise platforms such as [Dodona](https://dodona.be).
 
-<div v-if="dolosURL == defaultURL">
+<div v-if="isDefault">
    The description below shows the URL endpoints of our publicly hosted instance (<a href="https://dolos.ugent.be/server">dolos.ugent.be/api</a>).
 </div>
 <div v-else>
@@ -63,8 +72,8 @@ Edit the value below to change the endpoint URL used in this documentation:
 <input class="url-input" v-model="dolosURL"></input>
 
 <div class="button-row">
-<button :onclick="setPublicAPI">Use public API</button>
-<button :onclick="setLocalhost">Use localhost API</button>
+<button :class="isDefault || 'primary'" @click="setPublicAPI">Use public API</button>
+<button @click="setLocalhost">Use localhost API</button>
 </div>
 
 The API currently requires **no authentication**.
