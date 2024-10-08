@@ -107,6 +107,8 @@ export class Dolos {
 
   public async analyzePaths(paths: string[], ignore?: string): Promise<Report> {
     let files = null;
+    let files_from_csv = null;
+    let ignoredFile = undefined;
     let nameCandidate = undefined;
     if(paths.length == 1) {
       const inputFile = paths[0];
@@ -114,7 +116,7 @@ export class Dolos {
         files = this.fromZIP(inputFile);
         nameCandidate = path.basename(inputFile, ".zip");
       } else if(inputFile.toLowerCase().endsWith(".csv")) {
-        files = this.fromCSV(inputFile);
+        files_from_csv = this.fromCSV(inputFile);
         if (inputFile.endsWith("info.csv")) {
           nameCandidate = path.dirname(inputFile).split(path.sep).pop();
         }
@@ -127,16 +129,19 @@ export class Dolos {
         nameCandidate = path.basename(paths[0]) + " & " + path.basename(paths[1]);
       }
     }
-    const result = (await files).ok() as { nonIgnoredFiles: File[]; ignoredFile: File | undefined; };
-    if (result) {
-      let { nonIgnoredFiles, ignoredFile } = result;
-      if (ignore) {
-        ignoredFile = (await readPath(ignore)).ok();
-      }  
-      return this.analyze(nonIgnoredFiles, nameCandidate, ignoredFile);
-    } else {
-      throw new Error("Failed to process files");
-    }
+      if (files) {
+        if (ignore) {
+          ignoredFile = (await readPath(ignore)).ok();
+        }
+        return this.analyze((await files).ok(), nameCandidate, ignoredFile);
+      }
+      else if (files_from_csv) {
+        const { nonIgnoredFiles, ignoredFile } = (await files_from_csv).ok();
+        return this.analyze(nonIgnoredFiles, nameCandidate, ignoredFile);
+      }
+      else {
+        throw new Error("No files to analyze");
+      }
   }
 
   public async analyze(
@@ -196,9 +201,6 @@ export class Dolos {
     if (ignoredFile) {
       const tokenizedTemplate = this.tokenizer!.tokenizeFile(ignoredFile);
       this.index.addIgnoredFile(tokenizedTemplate);
-      warnings.push(
-        `Ignored file detected ${ignoredFile.id} `
-      );
     }
 
     return new Report(
