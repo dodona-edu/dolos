@@ -11,6 +11,7 @@ export interface ExtraInfo {
   exerciseID: string;
   createdAt: Date;
   labels: string;
+  ignored: string;
 }
 
 /**
