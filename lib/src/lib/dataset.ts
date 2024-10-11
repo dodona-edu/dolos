@@ -36,19 +36,25 @@ export class Dataset {
     return await Result.all(files);
   }
 
-private async setIgnoredFile(resolvedFiles: File[], ignore?: string): Promise<File | undefined> {
-  const ignoredFiles = resolvedFiles.filter(file => file.extra?.ignored === "true");
-  if (ignoredFiles.length > 1) {
-    throw new Error("More than one file has the ignored field set to true. Only one template/boilerplate code file is allowed at this moment.");
-  }
-  else if (ignore) {
+  private async setIgnoredFile(resolvedFiles: File[], ignore?: string): Promise<File | undefined> {
+    const ignoredFiles = resolvedFiles.filter(file => file.extra?.ignored === "true");
+    if (ignoredFiles.length > 1) {
+      throw new Error(
+        "More than one file has the ignored field set to true. " +
+        "Only one template/boilerplate code file is allowed at this moment."
+      );
+    }
+    else if (ignore) {
       return (await readPath(ignore)).ok();
+    }
+    return ignoredFiles.length === 1 ? ignoredFiles[0] : undefined;
   }
-  return ignoredFiles.length === 1 ? ignoredFiles[0] : undefined;
-}
 
 
-  private async fromZIP(zipPath: string, ignore?: string): Promise<Result<{ nonIgnoredFiles: File[], ignoredFile: File | undefined }>> {
+  private async fromZIP(
+    zipPath: string,
+    ignore?: string
+  ): Promise<Result<{ nonIgnoredFiles: File[], ignoredFile: File | undefined }>> {
     const tmpDir = await fs.mkdtemp(path.join(tmpdir(), "dolos-unzip-"));
     try {
       const { status, error, stderr } = spawn("unzip", [zipPath, "-d", tmpDir]);
@@ -61,7 +67,7 @@ private async setIgnoredFile(resolvedFiles: File[], ignore?: string): Promise<Fi
       if (await fs.access(infoPath, constants.R_OK).then(() => true).catch(() => false)) {
         const { nonIgnoredFiles, ignoredFile } = (await this.fromCSV(infoPath, ignore)).ok();
         if (nonIgnoredFiles) {
-          return Result.ok({nonIgnoredFiles, ignoredFile});
+          return Result.ok({ nonIgnoredFiles, ignoredFile });
         }
         else {
           throw new Error("Failed to process files");
@@ -69,7 +75,7 @@ private async setIgnoredFile(resolvedFiles: File[], ignore?: string): Promise<Fi
       } else {
         const nonIgnoredFiles = (await this.fromDirectory(tmpDir)).ok();
         const ignoredFile = undefined;
-        return Result.ok({nonIgnoredFiles, ignoredFile});
+        return Result.ok({ nonIgnoredFiles, ignoredFile });
       }
     } finally {
       await fs.rm(tmpDir, { recursive: true });
@@ -77,7 +83,10 @@ private async setIgnoredFile(resolvedFiles: File[], ignore?: string): Promise<Fi
   }
 
 
-  private async fromCSV(infoPath: string, ignore?: string): Promise<Result<{ nonIgnoredFiles: File[], ignoredFile: File | undefined }>> {
+  private async fromCSV(
+    infoPath: string,
+    ignore?: string
+  ): Promise<Result<{ nonIgnoredFiles: File[], ignoredFile: File | undefined }>> {
     const dirname = path.dirname(infoPath);
     try {
       const files = csvParse((await fs.readFile(infoPath)).toString())
@@ -95,10 +104,10 @@ private async setIgnoredFile(resolvedFiles: File[], ignore?: string): Promise<Fi
           ignored: row.ignored as string
         }))
         .map((row: ExtraInfo) => readPath(path.join(dirname, row.filename), row));
-        const resolvedFiles = await Result.all(files);
-        const ignoredFile = await this.setIgnoredFile(resolvedFiles.ok(), ignore);
-        const nonIgnoredFiles = resolvedFiles.ok().filter(file => file.extra?.ignored !== "true");
-      return Result.ok({nonIgnoredFiles, ignoredFile});
+      const resolvedFiles = await Result.all(files);
+      const ignoredFile = await this.setIgnoredFile(resolvedFiles.ok(), ignore);
+      const nonIgnoredFiles = resolvedFiles.ok().filter(file => file.extra?.ignored !== "true");
+      return Result.ok({ nonIgnoredFiles, ignoredFile });
     } catch(e) {
       throw new Error("The given '.csv'-file could not be opened");
     }
