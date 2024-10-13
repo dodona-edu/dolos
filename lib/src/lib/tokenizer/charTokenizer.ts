@@ -15,4 +15,8 @@ export class CharTokenizer extends Tokenizer {
         .split("")
         .map((char, col) => this.newToken(char, new Region(lineNumber, col, lineNumber, col + 1)));
   }
+
+  generateTokensNew(text: string): Token[] {
+    return [...this.generateTokens(text)];
+  }
 }

@@ -1,5 +1,5 @@
 import { default as Parser, SyntaxNode } from "tree-sitter";
-import { Region, assert } from "@dodona/dolos-core";
+import { assert, Region } from "@dodona/dolos-core";
 import { Token, Tokenizer } from "./tokenizer.js";
 import { ProgrammingLanguage } from "../language.js";
 
@@ -51,7 +51,8 @@ export class CodeTokenizer extends Tokenizer {
       node.endPosition.column
     );
 
-    const location = Region.firstDiff(fullSpan, this.getChildrenRegions(node));
+    const childrenRegions = this.getChildrenRegions(node);
+    const location = Region.firstDiff(fullSpan,childrenRegions);
     assert(location !== null, "There should be at least one diff'ed region");
 
     yield this.newToken("(", location);
@@ -83,5 +84,41 @@ export class CodeTokenizer extends Tokenizer {
         );
 
     return node.children.map(getChildrenRegion).flat();
+  }
+
+  generateTokensNew(text: string): Token[] {
+    const tree = this.parser.parse(text, undefined, { bufferSize: Math.max(32 * 1024, text.length * 2) });
+    return this.tokenizeNodeNew(tree.rootNode)[0];
+  }
+  
+  private tokenizeNodeNew(node: SyntaxNode): [Token[], Region[]]{
+    const fullSpan = new Region(
+      node.startPosition.row,
+      node.startPosition.column,
+      node.endPosition.row,
+      node.endPosition.column
+    );
+    
+    const allNodes: Token[] = [];
+    const allRegions: Region[] = [];
+    const childrenNodes: Token[] = [];
+
+    for (const child of node.namedChildren) {
+      const [tokens, regions] = this.tokenizeNodeNew(child);
+      childrenNodes.push(...tokens);
+      allRegions.push(...regions);
+    }
+
+    const location = Region.firstDiff(fullSpan, allRegions);
+    assert(location !== null, "There should be at least one diff'ed region");
+
+    allNodes.push(this.newToken("(", location));
+    allNodes.push(this.newToken(node.type, location));
+    allNodes.push(...childrenNodes);
+    allNodes.push(this.newToken(")", location));
+
+    allRegions.push(fullSpan);
+
+    return [allNodes, allRegions];
   }
 }

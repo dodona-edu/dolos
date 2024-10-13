@@ -96,7 +96,7 @@ test("should be able to correctly tokenize a variable", async t => {
   const { tokens, mapping } = tokenizer.tokenizeFile(file);
   t.is(tokens.join(""), "(program(variable_declaration(variable_declarator(identifier)(number))))");
   t.is(mapping.length, 15);
-  t.deepEqual(mapping, [
+  t.deepEqual([
     new Region(0, 0, 0, 0),
     new Region(0, 0, 0, 0),
     new Region(0, 0, 0, 4),
@@ -112,7 +112,7 @@ test("should be able to correctly tokenize a variable", async t => {
     new Region(0, 4, 0, 12),
     new Region(0, 0, 0, 4),
     new Region(0, 0, 0, 0)
-  ]);
+  ], mapping);
 });
 
 test("should be able to correctly tokenize a loop", async t => {
@@ -125,7 +125,7 @@ test("should be able to correctly tokenize a loop", async t => {
       "(while_statement(parenthesized_expression(binary_expression(identifier)(number)))" +
       "(statement_block(expression_statement(augmented_assignment_expression(identifier)(number))))))");
   t.is(mapping.length, 45);
-  t.deepEqual(mapping,     [
+  t.deepEqual( [
     new Region (0,0,0,0),
     new Region (0,0,0,0),
     new Region (0,0,0,4),
@@ -171,6 +171,6 @@ test("should be able to correctly tokenize a loop", async t => {
     new Region (1,15,2,2),
     new Region (1,0,1,6),
     new Region (0,0,0,0),
-  ]
+  ],mapping
   );
 });

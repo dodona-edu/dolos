@@ -20,6 +20,8 @@ export abstract class Tokenizer {
    */
   public abstract generateTokens(text: string): IterableIterator<Token>;
 
+  public abstract generateTokensNew(text:string): Token[];
+
   /**
    * Returns a tokenized version of the given file.
    *
@@ -49,7 +51,7 @@ export abstract class Tokenizer {
   public tokenizeWithMapping(text: string): [string[], Region[]] {
     const resultTokens: Array<string> = [];
     const positionMapping: Array<Region> = [];
-    for (const { token, location } of this.generateTokens(text)) {
+    for (const { token, location } of this.generateTokensNew(text)) {
       resultTokens.push(token);
       positionMapping.push(location);
     }
