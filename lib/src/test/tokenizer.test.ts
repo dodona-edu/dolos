@@ -1,5 +1,5 @@
 import test from "ava";
-import { File } from "@dodona/dolos-core";
+import { File, Region } from "@dodona/dolos-core";
 import { LanguagePicker } from "../lib/language.js";
 import { readPath } from "../lib/reader.js";
 
@@ -86,4 +86,91 @@ test("should be able to parse larger files", async t => {
 
   const { tokens } = tokenizer.tokenizeFile(file);
   t.truthy(tokens);
+});
+
+test("should be able to correctly tokenize a variable", async t => {
+  const file = new File("long.js", "var test = 1;");
+  const language = await (new LanguagePicker().findLanguage("javascript"));
+  const tokenizer = await language.createTokenizer();
+
+  const { tokens, mapping } = tokenizer.tokenizeFile(file);
+  t.is(tokens.join(""), "(program(variable_declaration(variable_declarator(identifier)(number))))");
+  t.is(mapping.length, 15);
+  t.deepEqual(mapping, [
+    new Region(0, 0, 0, 0),
+    new Region(0, 0, 0, 0),
+    new Region(0, 0, 0, 4),
+    new Region(0, 0, 0, 4),
+    new Region(0, 4, 0, 12),
+    new Region(0, 4, 0, 12),
+    new Region(0, 4, 0, 8),
+    new Region(0, 4, 0, 8),
+    new Region(0, 4, 0, 8),
+    new Region(0, 11, 0, 12),
+    new Region(0, 11, 0, 12),
+    new Region(0, 11, 0, 12),
+    new Region(0, 4, 0, 12),
+    new Region(0, 0, 0, 4),
+    new Region(0, 0, 0, 0)
+  ]);
+});
+
+test("should be able to correctly tokenize a loop", async t => {
+  const file = new File("long.js", "let i = 0;\nwhile (i < 10) {\n  i += 1;\n}");
+  const language = await (new LanguagePicker().findLanguage("javascript"));
+
+  const tokenizer = await language.createTokenizer();
+  const { tokens, mapping } = tokenizer.tokenizeFile(file);
+  t.is(tokens.join(""), "(program(lexical_declaration(variable_declarator(identifier)(number)))" +
+      "(while_statement(parenthesized_expression(binary_expression(identifier)(number)))" +
+      "(statement_block(expression_statement(augmented_assignment_expression(identifier)(number))))))");
+  t.is(mapping.length, 45);
+  t.deepEqual(mapping,     [
+    new Region (0,0,0,0),
+    new Region (0,0,0,0),
+    new Region (0,0,0,4),
+    new Region (0,0,0,4),
+    new Region (0,4,0,9),
+    new Region (0,4,0,9),
+    new Region (0,4,0,5),
+    new Region (0,4,0,5),
+    new Region (0,4,0,5),
+    new Region (0,8,0,9),
+    new Region (0,8,0,9),
+    new Region (0,8,0,9),
+    new Region (0,4,0,9),
+    new Region (0,0,0,4),
+    new Region (1,0,1,6),
+    new Region (1,0,1,6),
+    new Region (1,6,1,7),
+    new Region (1,6,1,7),
+    new Region (1,7,1,13),
+    new Region (1,7,1,13),
+    new Region (1,7,1,8),
+    new Region (1,7,1,8),
+    new Region (1,7,1,8),
+    new Region (1,11,1,13),
+    new Region (1,11,1,13),
+    new Region (1,11,1,13),
+    new Region (1,7,1,13),
+    new Region (1,6,1,7),
+    new Region (1,15,2,2),
+    new Region (1,15,2,2),
+    new Region (2,2,2,2),
+    new Region (2,2,2,2),
+    new Region (2,2,2,8),
+    new Region (2,2,2,8),
+    new Region (2,2,2,3),
+    new Region (2,2,2,3),
+    new Region (2,2,2,3),
+    new Region (2,7,2,8),
+    new Region (2,7,2,8),
+    new Region (2,7,2,8),
+    new Region (2,2,2,8),
+    new Region (2,2,2,2),
+    new Region (1,15,2,2),
+    new Region (1,0,1,6),
+    new Region (0,0,0,0),
+  ]
+  );
 });
