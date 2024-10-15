@@ -21,8 +21,8 @@ export class Dolos {
   }
 
   public async analyzePaths(paths: string[], ignore?: string): Promise<Report> {
-    const dataset = await (new Dataset()).prepareDataset(paths, ignore);
-    return this.analyze(dataset.nonIgnoredFiles, dataset.nameCandidate, dataset.ignoredFile);
+    const dataset = await Dataset.create(paths, ignore);
+    return this.analyze(dataset.files, dataset.name, dataset.ignore);
   }
 
   public async analyze(
