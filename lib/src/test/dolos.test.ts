@@ -234,6 +234,33 @@ test("should read CSV-files", async t => {
   t.true(pairs[0].similarity > 0.75);
 });
 
+test("should read CSV-files with template code", async t => {
+  const dolos = new Dolos();
+
+  const report = await dolos.analyzePaths(["./src/test/fixtures/javascript/info_with_template.csv"]);
+
+  const files = report.files;
+  t.is(5, files.length);
+
+  const boilerplate = files[0];
+  const unique = files[1];
+  const alternative = files[2];
+  const similar  = files[3];
+
+  // Boilerplate copy should not have a match
+  t.is(0, report.getPair(boilerplate, unique).similarity);
+  t.is(0, report.getPair(boilerplate, alternative).similarity);
+  t.is(0, report.getPair(boilerplate, similar).similarity);
+
+
+  const unique_alternative = report.getPair(unique, alternative);
+  const unique_similar = report.getPair(unique, similar);
+  const alternative_similar = report.getPair(alternative, similar);
+  t.true(unique_alternative.similarity < alternative_similar.similarity, "Pairs with unique should be less similar");
+  t.true(unique_similar.similarity < alternative_similar.similarity, "Pairs with unique should be less similar");
+  t.true(alternative_similar.similarity > 0.5, "Pairs with similar code should have a similarity above 50%");
+});
+
 test("should read ZIP-files with info.csv", async t => {
   const dolos = new Dolos();
 
