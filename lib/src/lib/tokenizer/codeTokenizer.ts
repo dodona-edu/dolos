@@ -32,66 +32,18 @@ export class CodeTokenizer extends Tokenizer {
   }
 
   /**
-   * Runs the parser on a given string. Returns an async iterator returning
-   * tuples containing the stringified version of the token and the
+   * Runs the parser on a given string. Returns a list of Tokens
+   * containing the stringified version of the token and the
    * corresponding position.
    *
    * @param text The text string to parse
    */
-  public *generateTokens(text: string): IterableIterator<Token> {
+  public generateTokens(text: string): Token[] {
     const tree = this.parser.parse(text, undefined, { bufferSize: Math.max(32 * 1024, text.length * 2) });
-    yield* this.tokenizeNode(tree.rootNode);
-  }
-
-  private *tokenizeNode(node: SyntaxNode): IterableIterator<Token> {
-    const fullSpan = new Region(
-      node.startPosition.row,
-      node.startPosition.column,
-      node.endPosition.row,
-      node.endPosition.column
-    );
-
-    const childrenRegions = this.getChildrenRegions(node);
-    const location = Region.firstDiff(fullSpan,childrenRegions);
-    assert(location !== null, "There should be at least one diff'ed region");
-
-    yield this.newToken("(", location);
-
-    // "(node.type child1 child2 ...)"
-    yield this.newToken(node.type, location);
-
-    for (const child of node.namedChildren) {
-      yield* this.tokenizeNode(child);
-    }
-    yield this.newToken(")", location);
-  }
-
-  private getChildrenRegions(node: SyntaxNode): Region[] {
-    const nodeToRegion = (node: SyntaxNode):Region => new Region(
-      node.startPosition.row,
-      node.startPosition.column,
-      node.endPosition.row,
-      node.endPosition.column
-    );
-
-    const getChildrenRegion =
-      (node: SyntaxNode): Region[] =>
-        node.children.reduce<Region[]>(
-          (list, child) =>
-            list.concat(getChildrenRegion(child))
-              .concat(nodeToRegion(node)),
-          []
-        );
-
-    return node.children.map(getChildrenRegion).flat();
-  }
-
-  generateTokensNew(text: string): Token[] {
-    const tree = this.parser.parse(text, undefined, { bufferSize: Math.max(32 * 1024, text.length * 2) });
-    return this.tokenizeNodeNew(tree.rootNode)[0];
+    return this.tokenizeNode(tree.rootNode)[0];
   }
   
-  private tokenizeNodeNew(node: SyntaxNode): [Token[], Region[]]{
+  private tokenizeNode(node: SyntaxNode): [Token[], Region[]]{
     const fullSpan = new Region(
       node.startPosition.row,
       node.startPosition.column,
@@ -104,7 +56,7 @@ export class CodeTokenizer extends Tokenizer {
     const childrenNodes: Token[] = [];
 
     for (const child of node.namedChildren) {
-      const [tokens, regions] = this.tokenizeNodeNew(child);
+      const [tokens, regions] = this.tokenizeNode(child);
       childrenNodes.push(...tokens);
       allRegions.push(...regions);
     }
