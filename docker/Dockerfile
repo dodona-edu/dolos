@@ -1,4 +1,4 @@
-FROM node:22.2.0-alpine3.19
+FROM node:22.10.0-alpine3.19
 ARG dolos_version=2.7.1
 
 LABEL org.opencontainers.image.source https://github.com/dodona-edu/dolos
