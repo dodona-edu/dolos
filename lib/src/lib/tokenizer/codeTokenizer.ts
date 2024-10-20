@@ -1,5 +1,5 @@
 import { default as Parser, SyntaxNode } from "tree-sitter";
-import { assert, Region } from "@dodona/dolos-core";
+import { Region } from "@dodona/dolos-core";
 import { Token, Tokenizer } from "./tokenizer.js";
 import { ProgrammingLanguage } from "../language.js";
 
@@ -42,35 +42,32 @@ export class CodeTokenizer extends Tokenizer {
     const tree = this.parser.parse(text, undefined, { bufferSize: Math.max(32 * 1024, text.length * 2) });
     return this.tokenizeNode(tree.rootNode)[0];
   }
-  
-  private tokenizeNode(node: SyntaxNode): [Token[], Region[]]{
-    const fullSpan = new Region(
+
+  private tokenizeNode(node: SyntaxNode): [Token[], [number,number]]{
+    const location = new Region(
       node.startPosition.row,
       node.startPosition.column,
       node.endPosition.row,
       node.endPosition.column
     );
-    
-    const allNodes: Token[] = [];
-    const allRegions: Region[] = [];
-    const childrenNodes: Token[] = [];
 
-    for (const child of node.namedChildren) {
-      const [tokens, regions] = this.tokenizeNode(child);
-      childrenNodes.push(...tokens);
-      allRegions.push(...regions);
-    }
-
-    const location = Region.firstDiff(fullSpan, allRegions);
-    assert(location !== null, "There should be at least one diff'ed region");
-
+    const allNodes = [];
     allNodes.push(this.newToken("(", location));
     allNodes.push(this.newToken(node.type, location));
-    allNodes.push(...childrenNodes);
+    for (const child of node.namedChildren) {
+
+      const [childNodes, [childStartRow, childStartCol]] = this.tokenizeNode(child);
+
+      if ((childStartRow < location.endRow) || (childStartRow === location.endRow && childStartCol < location.endCol)) {
+        location.endRow = childStartRow;
+        location.endCol = childStartCol;
+      }
+
+      allNodes.push(...childNodes);
+    }
+
     allNodes.push(this.newToken(")", location));
 
-    allRegions.push(fullSpan);
-
-    return [allNodes, allRegions];
+    return [allNodes, [location.startRow, location.startCol]];
   }
 }
