@@ -10,7 +10,7 @@
   "dependencies": {
     "nan": "^2.22.0",
     "node-addon-api": "^8.0.0",
-    "tree-sitter-compat": "^0.1.0"
+    "tree-sitter-compat": "^0.1.1"
   },
   "devDependencies": {
     "node-gyp": "^10.2.0",
