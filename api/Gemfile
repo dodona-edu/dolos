@@ -49,7 +49,7 @@ group :development, :test do
   gem 'factory_bot_rails', '~> 6.4.3'
 
   # Faker for generating test data
-  gem 'faker', '~> 3.4.1'
+  gem 'faker', '~> 3.5.1'
 
   # Stubbing and mocking
   gem 'mocha', '~> 2.4.5'
