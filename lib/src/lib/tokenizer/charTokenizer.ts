@@ -4,15 +4,14 @@ import { Token, Tokenizer } from "./tokenizer.js";
 export class CharTokenizer extends Tokenizer {
 
   generateTokens(text: string): Token[] {
-    const tokens = [];
+    const tokens: Token[] = [];
     for (const [lineNumber, line] of text.split("\n").entries()) {
-      tokens.push(
-        line
-          .split("")
-          .map((char, col) => this.newToken(char, new Region(lineNumber, col, lineNumber, col + 1)))
-      );
+      for (let col = 0; col < line.length; col++) {
+        tokens.push(this.newToken(line[col], new Region(lineNumber, col, lineNumber, col + 1)));
+
+      }
     }
 
-    return tokens.flat();
+    return tokens;
   }
 }
