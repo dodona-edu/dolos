@@ -43,6 +43,16 @@ export class CodeTokenizer extends Tokenizer {
     return this.tokenizeNode(tree.rootNode)[0];
   }
 
+  /**
+   * Tokenizes the given node and its child nodes. It will create a list of Tokens
+   * containing the stringified version of the token and the corresponding position.
+   *
+   * @param node The node (and child nodes) that will be tokenized.
+   *
+   * @returns A tuple `(Tokens, (startRow, startCol))`, where `Tokens`
+   * is the current list of tokens, and `(startRow, startCol)` represents
+   * the starting position of the given tokenized node.
+   */
   private tokenizeNode(node: SyntaxNode): [Token[], [number,number]]{
     const location = new Region(
       node.startPosition.row,
@@ -58,6 +68,7 @@ export class CodeTokenizer extends Tokenizer {
 
       const [childNodes, [childStartRow, childStartCol]] = this.tokenizeNode(child);
 
+      // If the code is already captured in one of the children, the region of the current node can be shortened.
       if ((childStartRow < location.endRow) || (childStartRow === location.endRow && childStartCol < location.endCol)) {
         location.endRow = childStartRow;
         location.endCol = childStartCol;
@@ -68,6 +79,7 @@ export class CodeTokenizer extends Tokenizer {
 
     allNodes.push(this.newToken(")", location));
 
+    // Also return the startRow and startCol, this can be used by the parent node.
     return [allNodes, [location.startRow, location.startCol]];
   }
 }
