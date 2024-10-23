@@ -36,7 +36,7 @@ export abstract class Tokenizer {
    * @param text The buffer to stringify
    */
   public tokenize(text: string): string {
-    return Array.of(this.generateTokens(text)).join();
+    return this.generateTokens(text).join();
   }
 
   /**
@@ -49,10 +49,10 @@ export abstract class Tokenizer {
   public tokenizeWithMapping(text: string): [string[], Region[]] {
     const resultTokens: Array<string> = [];
     const positionMapping: Array<Region> = [];
-    this.generateTokens(text).forEach(({ location, token }) => {
+    for (const { token, location } of this.generateTokens(text)) {
       resultTokens.push(token);
       positionMapping.push(location);
-    });
+    }
     return [resultTokens, positionMapping];
   }
 

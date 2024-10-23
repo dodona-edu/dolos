@@ -40,7 +40,9 @@ export class CodeTokenizer extends Tokenizer {
    */
   public generateTokens(text: string): Token[] {
     const tree = this.parser.parse(text, undefined, { bufferSize: Math.max(32 * 1024, text.length * 2) });
-    return this.tokenizeNode(tree.rootNode)[0];
+    const tokens: Token[] = [];
+    this.tokenizeNode(tree.rootNode, tokens);
+    return tokens;
   }
 
   /**
@@ -48,12 +50,11 @@ export class CodeTokenizer extends Tokenizer {
    * containing the stringified version of the token and the corresponding position.
    *
    * @param node The node (and child nodes) that will be tokenized.
-   *
-   * @returns A tuple `(Tokens, (startRow, startCol))`, where `Tokens`
-   * is the current list of tokens, and `(startRow, startCol)` represents
+   * @param tokens A list of tokens that will be filled during the execution of the function
+   * @returns A tuple `(startRow, startCol)`, It represents
    * the starting position of the given tokenized node.
    */
-  private tokenizeNode(node: SyntaxNode): [Token[], [number,number]]{
+  private tokenizeNode(node: SyntaxNode, tokens: Token[]): [number,number]{
     const location = new Region(
       node.startPosition.row,
       node.startPosition.column,
@@ -61,25 +62,22 @@ export class CodeTokenizer extends Tokenizer {
       node.endPosition.column
     );
 
-    const allNodes = [];
-    allNodes.push(this.newToken("(", location));
-    allNodes.push(this.newToken(node.type, location));
+    tokens.push(this.newToken("(", location));
+    tokens.push(this.newToken(node.type, location));
     for (const child of node.namedChildren) {
 
-      const [childNodes, [childStartRow, childStartCol]] = this.tokenizeNode(child);
+      const [childStartRow, childStartCol] = this.tokenizeNode(child, tokens);
 
       // If the code is already captured in one of the children, the region of the current node can be shortened.
       if ((childStartRow < location.endRow) || (childStartRow === location.endRow && childStartCol < location.endCol)) {
         location.endRow = childStartRow;
         location.endCol = childStartCol;
       }
-
-      allNodes.push(...childNodes);
     }
 
-    allNodes.push(this.newToken(")", location));
+    tokens.push(this.newToken(")", location));
 
     // Also return the startRow and startCol, this can be used by the parent node.
-    return [allNodes, [location.startRow, location.startCol]];
+    return [location.startRow, location.startCol];
   }
 }
