@@ -7,9 +7,25 @@ buildNpmPackage rec {
   pname = "dolos";
   version = "2.7.1";
 
-  src = ./.;
+  srcs = [
+    ./package.json
+    ./package-lock.json
+    ./tsconfig.global.json
+    ./core
+    ./parsers
+    ./lib
+    ./web
+    ./cli
+  ];
 
-  npmDepsHash = "sha256-qgAdXhohaIyQffkiIWxVXeE3c4JRTgbjxrNFI9dlaNs=";
+  unpackPhase = ''
+    for src in $srcs; do
+      cp -r $src ./$(stripHash $src)
+      chmod -R 700 ./$(stripHash $src)
+    done
+  '';
+
+  npmDepsHash = "sha256-XMATCZS/j5bcGjfUQnaFC2mPCv47+3tgIfruTYUQhN4=";
 
   npmWorkspace="cli";
 

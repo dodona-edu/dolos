@@ -38,6 +38,25 @@
       packages = rec {
         default = dolos-cli;
         dolos-cli = pkgs.callPackage (import ./package.nix) {};
+        dolos-docker-image = pkgs.dockerTools.buildImage {
+          name = "ghcr.io/dodona-edu/dolos-cli";
+          tag = "latest";
+          copyToRoot = pkgs.buildEnv {
+              name = "image-root";
+              paths = [ dolos-cli ];
+              pathsToLink = [ "/bin" ];
+          };
+          runAsRoot = ''
+            mkdir -p /dolos
+          '';
+          config = {
+            Cmd = [ "/bin/dolos" ];
+            WorkingDir = "/dolos";
+          };
+        };
+        dolos-load-docker = pkgs.writeShellScriptBin "dolos-load-docker" ''
+          docker load < ${dolos-docker-image}
+        '';
       };
       overlays.default = final: prev: {
         dolos-cli = final.callPackage (import ./package.nix) {};
