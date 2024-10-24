@@ -1,12 +1,14 @@
 require 'test_helper'
 
 class AnalyzeDatasetJobTest < ActiveJob::TestCase
+  include ActiveJob::TestHelper
+
   setup do
     @report = create(:report)
   end
 
   test 'run analyze dataset job' do
-    AnalyzeDatasetJob.perform_now(@report)
+    perform_enqueued_jobs
     assert_empty @report.stderr
     assert_nil @report.error
     assert_equal 'finished', @report.status
@@ -16,7 +18,7 @@ class AnalyzeDatasetJobTest < ActiveJob::TestCase
   test 'should detect programming language' do
     assert_nil @report.dataset.programming_language
 
-    AnalyzeDatasetJob.perform_now(@report)
+    perform_enqueued_jobs
 
     assert_equal 'javascript', @report.reload.dataset.programming_language
   end
@@ -24,7 +26,7 @@ class AnalyzeDatasetJobTest < ActiveJob::TestCase
   test 'should have correct report name' do
     assert_nil @report.dataset.programming_language
 
-    AnalyzeDatasetJob.perform_now(@report)
+    perform_enqueued_jobs
 
     metadata_name = CSV.parse(@report.reload.metadata.download).filter_map { |k, v, _| v if k == 'reportName' }.first
     assert_equal @report.dataset.name, metadata_name
@@ -33,7 +35,7 @@ class AnalyzeDatasetJobTest < ActiveJob::TestCase
   test 'should not overwrite programming language' do
     @report.dataset.update(programming_language: 'python')
 
-    AnalyzeDatasetJob.perform_now(@report)
+    perform_enqueued_jobs
 
     assert_equal 'python', @report.reload.dataset.programming_language
   end
