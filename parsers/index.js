@@ -18,6 +18,9 @@ parsers.elm.nodeTypeInfo = require("./elm/src/node-types.json");
 parsers.java = require("./build/Release/tree_sitter_java_binding");
 parsers.java.nodeTypeInfo = require("./java/src/node-types.json");
 
+parsers.go = require("./build/Release/tree_sitter_go_binding");
+parsers.go.nodeTypeInfo = require("./go/src/node-types.json");
+
 parsers.groovy = require("./build/Release/tree_sitter_groovy_binding");
 parsers.groovy.nodeTypeInfo = require("./groovy/src/node-types.json");
 
@@ -36,6 +39,9 @@ parsers.python.nodeTypeInfo = require("./python/src/node-types.json");
 
 parsers.r = require("./build/Release/tree_sitter_r_binding");
 parsers.r.nodeTypeInfo = require("./r/src/node-types.json");
+
+parsers.rust = require("./build/Release/tree_sitter_rust_binding");
+parsers.rust.nodeTypeInfo = require("./rust/src/node-types.json");
 
 parsers.scala = require("./build/Release/tree_sitter_scala_binding");
 parsers.scala.nodeTypeInfo = require("./scala/src/node-types.json");

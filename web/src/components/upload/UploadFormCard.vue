@@ -63,6 +63,10 @@ const languages = [
     value: "elm",
   },
   {
+    name: "Go",
+    value: "go",
+  },
+  {
     name: "Groovy",
     value: "groovy",
   },
@@ -89,6 +93,10 @@ const languages = [
   {
     name: "R",
     value: "r"
+  },
+  {
+    name: "Rust",
+    value: "rust"
   },
   {
     name: "Scala",
