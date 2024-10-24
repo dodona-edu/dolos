@@ -47,3 +47,6 @@
 [submodule "parsers/groovy"]
 	path = parsers/groovy
 	url = https://github.com/murtaza64/tree-sitter-groovy.git
+[submodule "parsers/go"]
+	path = parsers/go
+	url = https://github.com/tree-sitter/tree-sitter-go.git

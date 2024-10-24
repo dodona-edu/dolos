@@ -63,6 +63,10 @@ const languages = [
     value: "elm",
   },
   {
+    name: "Go",
+    value: "go",
+  },
+  {
     name: "Groovy",
     value: "groovy",
   },

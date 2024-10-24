@@ -18,6 +18,9 @@ parsers.elm.nodeTypeInfo = require("./elm/src/node-types.json");
 parsers.java = require("./build/Release/tree_sitter_java_binding");
 parsers.java.nodeTypeInfo = require("./java/src/node-types.json");
 
+parsers.go = require("./build/Release/tree_sitter_go_binding");
+parsers.go.nodeTypeInfo = require("./go/src/node-types.json");
+
 parsers.groovy = require("./build/Release/tree_sitter_groovy_binding");
 parsers.groovy.nodeTypeInfo = require("./groovy/src/node-types.json");
 
