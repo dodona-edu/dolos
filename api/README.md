@@ -59,11 +59,26 @@ You can start the server with `rails server`. This will start the API server on 
 To be able to analyze datasets, you need to have the latest image of the Dolos docker
 
 ```bash
-docker pull ghcr.io/dodona-ede/dolos:latest
+docker pull ghcr.io/dodona-edu/dolos-cli:latest
 ```
 
 You can start the job worker with `rails jobs:work`.
 This will start the job worker and will spawn docker containers to analyze datasets once they are uploaded.
+
+#### Testing changes to the Dolos CLI in the API
+
+If you want to test and develop with local changes to the Dolos lib or CLI that haven't been published yet, you can use `nix` to create a docker image for you:
+
+```shell
+nix build .?submodules=1#dolos-load-docker
+./result/bin/dolos-load-docker
+# Loaded image: ghcr.io/dodona-edu/dolos-cli:latest
+```
+
+Explanation: `nix build` will first build the `dolos-cli` package using the current state of the repository (including submodules), then wrap the CLI in a docker image, and then build the script loading that image in your current docker instance with the correct name.
+
+If `nix` complains about an incorect `npmDepsHash`, you can replace the expected hash in `../package.nix`.
+
 
 ### 4. Running the frontend
 
