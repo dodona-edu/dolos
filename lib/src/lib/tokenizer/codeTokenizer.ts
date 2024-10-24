@@ -1,5 +1,5 @@
 import { default as Parser, SyntaxNode } from "tree-sitter";
-import { Region, assert } from "@dodona/dolos-core";
+import { Region } from "@dodona/dolos-core";
 import { Token, Tokenizer } from "./tokenizer.js";
 import { ProgrammingLanguage } from "../language.js";
 
@@ -32,56 +32,52 @@ export class CodeTokenizer extends Tokenizer {
   }
 
   /**
-   * Runs the parser on a given string. Returns an async iterator returning
-   * tuples containing the stringified version of the token and the
+   * Runs the parser on a given string. Returns a list of Tokens
+   * containing the stringified version of the token and the
    * corresponding position.
    *
    * @param text The text string to parse
    */
-  public *generateTokens(text: string): IterableIterator<Token> {
+  public generateTokens(text: string): Token[] {
     const tree = this.parser.parse(text, undefined, { bufferSize: Math.max(32 * 1024, text.length * 2) });
-    yield* this.tokenizeNode(tree.rootNode);
+    const tokens: Token[] = [];
+    this.tokenizeNode(tree.rootNode, tokens);
+    return tokens;
   }
 
-  private *tokenizeNode(node: SyntaxNode): IterableIterator<Token> {
-    const fullSpan = new Region(
+  /**
+   * Tokenizes the given node and its child nodes. It will create a list of Tokens
+   * containing the stringified version of the token and the corresponding position.
+   *
+   * @param node The node (and child nodes) that will be tokenized.
+   * @param tokens A list of tokens that will be filled during the execution of the function
+   * @returns A tuple `(startRow, startCol)`, It represents
+   * the starting position of the given tokenized node.
+   */
+  private tokenizeNode(node: SyntaxNode, tokens: Token[]): [number,number]{
+    const location = new Region(
       node.startPosition.row,
       node.startPosition.column,
       node.endPosition.row,
       node.endPosition.column
     );
 
-    const location = Region.firstDiff(fullSpan, this.getChildrenRegions(node));
-    assert(location !== null, "There should be at least one diff'ed region");
-
-    yield this.newToken("(", location);
-
-    // "(node.type child1 child2 ...)"
-    yield this.newToken(node.type, location);
-
+    tokens.push(this.newToken("(", location));
+    tokens.push(this.newToken(node.type, location));
     for (const child of node.namedChildren) {
-      yield* this.tokenizeNode(child);
+
+      const [childStartRow, childStartCol] = this.tokenizeNode(child, tokens);
+
+      // If the code is already captured in one of the children, the region of the current node can be shortened.
+      if ((childStartRow < location.endRow) || (childStartRow === location.endRow && childStartCol < location.endCol)) {
+        location.endRow = childStartRow;
+        location.endCol = childStartCol;
+      }
     }
-    yield this.newToken(")", location);
-  }
 
-  private getChildrenRegions(node: SyntaxNode): Region[] {
-    const nodeToRegion = (node: SyntaxNode):Region => new Region(
-      node.startPosition.row,
-      node.startPosition.column,
-      node.endPosition.row,
-      node.endPosition.column
-    );
+    tokens.push(this.newToken(")", location));
 
-    const getChildrenRegion =
-      (node: SyntaxNode): Region[] =>
-        node.children.reduce<Region[]>(
-          (list, child) =>
-            list.concat(getChildrenRegion(child))
-              .concat(nodeToRegion(node)),
-          []
-        );
-
-    return node.children.map(getChildrenRegion).flat();
+    // Also return the startRow and startCol, this can be used by the parent node.
+    return [location.startRow, location.startCol];
   }
 }

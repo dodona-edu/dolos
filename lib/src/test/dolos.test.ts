@@ -30,8 +30,8 @@ test("equal content should be a full match", async t => {
   t.is(fragments.length, 1);
   const match = fragments[0];
 
-  t.deepEqual(new Region(2, 2, 9, 37), match.leftSelection);
-  t.deepEqual(new Region(2, 2, 9, 37), match.rightSelection);
+  t.deepEqual(new Region(2, 2, 9, 32), match.leftSelection);
+  t.deepEqual(new Region(2, 2, 9, 32), match.rightSelection);
 
   t.is(0, match.leftkgrams.from);
   t.is(0, match.rightkgrams.from);
@@ -64,7 +64,7 @@ test("renamed variables should be a full match", async t => {
   const wereld = () => "wereld";
 
   function halloWereld() {
-    console.log(halo() + " " + wereld())
+    console.log(hallo() + " " + wereld())
   }
   `;
 
@@ -82,8 +82,8 @@ test("renamed variables should be a full match", async t => {
   t.is(fragments.length, 1);
   const match = fragments[0];
 
-  t.deepEqual(new Region(2, 2, 9, 37), match.leftSelection);
-  t.deepEqual(new Region(2, 2, 9, 37), match.rightSelection);
+  t.deepEqual(new Region(2, 2, 9, 32), match.leftSelection);
+  t.deepEqual(new Region(2, 2, 9, 32), match.rightSelection);
 
   t.is(0, match.leftkgrams.from);
   t.is(0, match.rightkgrams.from);

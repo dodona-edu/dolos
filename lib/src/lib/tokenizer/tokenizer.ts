@@ -12,13 +12,13 @@ export abstract class Tokenizer {
 
 
   /**
-   * Runs the tokenizer on a given Buffer. Returns an async iterator returning
-   * tuples containing the stringified version of the token and the
+   * Runs the parser on a given string. Returns a list of Tokens
+   * containing the stringified version of the token and the
    * corresponding position.
    *
    * @param text The text string to parse
    */
-  public abstract generateTokens(text: string): IterableIterator<Token>;
+  public abstract generateTokens(text:string): Token[];
 
   /**
    * Returns a tokenized version of the given file.
@@ -36,7 +36,7 @@ export abstract class Tokenizer {
    * @param text The buffer to stringify
    */
   public tokenize(text: string): string {
-    return Array.of(...this.generateTokens(text)).join();
+    return this.generateTokens(text).join();
   }
 
   /**
