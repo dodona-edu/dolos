@@ -13,6 +13,7 @@
         "php/binding.gyp",
         "python/binding.gyp",
         "r/binding.gyp",
+        "rust/binding.gyp",
         "scala/binding.gyp",
         "sql/binding.gyp",
         "typescript/binding.gyp",

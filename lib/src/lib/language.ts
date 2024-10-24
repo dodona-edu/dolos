@@ -121,6 +121,7 @@ export class LanguagePicker {
     new ProgrammingLanguage("go", [".go"]),
     new ProgrammingLanguage("groovy", [".groovy", ".gvy", ".gy", ".gsh"]),
     new ProgrammingLanguage("r", [".r", ".rdata", ".rds", ".rda"]),
+    new ProgrammingLanguage("rust", [".rs", ".rlib"]),
     new ProgrammingLanguage("scala", [".scala", ".sc"]),
     new ProgrammingLanguage("sql", [".sql"]),
     new ProgrammingLanguage("typescript", [".ts"]),

@@ -95,6 +95,10 @@ const languages = [
     value: "r"
   },
   {
+    name: "Rust",
+    value: "rust"
+  },
+  {
     name: "Scala",
     value: "scala"
   },
