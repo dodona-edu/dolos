@@ -62,8 +62,10 @@ export class CodeTokenizer extends Tokenizer {
       node.endPosition.column
     );
 
-    tokens.push(this.newToken("(", location));
-    tokens.push(this.newToken(node.type, location));
+    if (!node.type.includes("comment")) {
+      tokens.push(this.newToken("(", location));
+      tokens.push(this.newToken(node.type, location));
+    }
     for (const child of node.namedChildren) {
 
       const [childStartRow, childStartCol] = this.tokenizeNode(child, tokens);
@@ -75,7 +77,9 @@ export class CodeTokenizer extends Tokenizer {
       }
     }
 
-    tokens.push(this.newToken(")", location));
+    if (!node.type.includes("comment")) {
+      tokens.push(this.newToken(")", location));
+    }
 
     // Also return the startRow and startCol, this can be used by the parent node.
     return [location.startRow, location.startCol];
