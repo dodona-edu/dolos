@@ -1,21 +1,21 @@
 import { default as Parser, SyntaxNode } from "tree-sitter";
 import { Region } from "@dodona/dolos-core";
-import { Token, Tokenizer } from "./tokenizer.js";
+import { Token, Tokenizer, TokenizerOptions } from "./tokenizer.js";
 import { ProgrammingLanguage } from "../language.js";
 
 export class CodeTokenizer extends Tokenizer {
 
   private readonly parser: Parser;
-
   /**
    * Creates a new tokenizer of the given language. Will throw an error when the
    * given language is not supported. See Tokenizer.supportedLanguages for a
    * list of all supported languages.
    *
    * @param language The language to use for this tokenizer.
+   * @param options
    */
-  constructor(language: ProgrammingLanguage) {
-    super(language);
+  constructor(language: ProgrammingLanguage, options: TokenizerOptions) {
+    super(language, options);
     this.parser = new Parser();
     this.parser.setLanguage(language.getLanguageModule());
   }
@@ -63,7 +63,7 @@ export class CodeTokenizer extends Tokenizer {
     );
 
     const isComment = node.type.includes("comment");
-    if (!isComment) {
+    if (!this.options.excludeComments || !isComment) {
       tokens.push(this.newToken("(", location));
       tokens.push(this.newToken(node.type, location));
     }
@@ -78,7 +78,7 @@ export class CodeTokenizer extends Tokenizer {
       }
     }
 
-    if (!isComment) {
+    if (!this.options.excludeComments || !isComment) {
       tokens.push(this.newToken(")", location));
     }
 

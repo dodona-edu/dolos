@@ -6,9 +6,17 @@ export interface Token {
   location: Region;
 }
 
+export type TokenizerOptions = {
+  excludeComments: boolean;
+}
+
 export abstract class Tokenizer {
 
-  constructor(public readonly language: Language) {}
+  protected options: TokenizerOptions;
+
+  constructor(public readonly language: Language, options: TokenizerOptions) {
+    this.options = options;
+  }
 
 
   /**

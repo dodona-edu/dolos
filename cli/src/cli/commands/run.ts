@@ -185,7 +185,6 @@ interface RunOptions extends Options {
   outputFormat: string;
   outputDestination: string;
   ignore: string;
-  excludeComments: boolean;
 }
 
 export async function run(locations: string[], options: RunOptions): Promise<void> {
@@ -213,6 +212,7 @@ export async function run(locations: string[], options: RunOptions): Promise<voi
       limitResults: options.limitResults,
       sortBy: options.sortBy,
       fragmentSortBy: options.fragmentSortBy,
+      excludeComments: options.excludeComments
     });
     const report = await dolos.analyzePaths(locations, options.ignore);
 

@@ -68,7 +68,7 @@ for (const [languageName, languageFile] of Object.entries(languageFiles)) {
     const file = (await readPath(languageFile)).ok();
     const language = new LanguagePicker().detectLanguage([file]);
 
-    const tokenizer = await language.createTokenizer();
+    const tokenizer = await language.createTokenizer({ excludeComments: false });
     t.truthy(tokenizer);
 
     const { tokens } = tokenizer.tokenizeFile(file);
@@ -96,7 +96,7 @@ test("should be able to use external tree-sitter parsers (tree-sitter-json)", as
   const file = (await readPath("./package.json")).ok();
   const language = await (new LanguagePicker().findLanguage("json"));
 
-  const tokenizer = await language.createTokenizer();
+  const tokenizer = await language.createTokenizer({ excludeComments: false });
   t.truthy(tokenizer);
 
   const { tokens } = tokenizer.tokenizeFile(file);
@@ -107,7 +107,7 @@ test("should be able to parse larger files", async t => {
   const file = new File("long.js", "var test = 1;\n".repeat(10000));
   const language = await (new LanguagePicker().findLanguage("javascript"));
 
-  const tokenizer = await language.createTokenizer();
+  const tokenizer = await language.createTokenizer({ excludeComments: false });
   t.truthy(tokenizer);
 
   const { tokens } = tokenizer.tokenizeFile(file);
@@ -117,7 +117,7 @@ test("should be able to parse larger files", async t => {
 test("should be able to correctly tokenize a variable", async t => {
   const file = new File("long.js", "var test = 1;");
   const language = await (new LanguagePicker().findLanguage("javascript"));
-  const tokenizer = await language.createTokenizer();
+  const tokenizer = await language.createTokenizer({ excludeComments: false });
 
   const { tokens, mapping } = tokenizer.tokenizeFile(file);
   t.is(tokens.join(""), "(program(variable_declaration(variable_declarator(identifier)(number))))");
@@ -145,7 +145,7 @@ test("should be able to correctly tokenize a loop", async t => {
   const file = new File("long.js", "let i = 0;\nwhile (i < 10) {\n  i += 1;\n}");
   const language = await (new LanguagePicker().findLanguage("javascript"));
 
-  const tokenizer = await language.createTokenizer();
+  const tokenizer = await language.createTokenizer({ excludeComments: false });
   const { tokens, mapping } = tokenizer.tokenizeFile(file);
   t.is(tokens.join(""), "(program(lexical_declaration(variable_declarator(identifier)(number)))" +
       "(while_statement(parenthesized_expression(binary_expression(identifier)(number)))" +
