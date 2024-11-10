@@ -166,6 +166,12 @@ export function runCommand(program: Command): Command {
       x => parseFloat(x),
       Options.defaultKgramsInWindow
     )
+    .option(
+      "-e, --exclude-comments",
+      Utils.indent(
+        "Exclude the comments during the tokenization process."
+      )
+    )
     .action(async (locations, options) => run(locations, { ...options , ...program.opts() }));
 }
 
@@ -179,6 +185,7 @@ interface RunOptions extends Options {
   outputFormat: string;
   outputDestination: string;
   ignore: string;
+  excludeComments: boolean;
 }
 
 export async function run(locations: string[], options: RunOptions): Promise<void> {
