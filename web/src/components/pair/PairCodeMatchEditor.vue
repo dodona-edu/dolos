@@ -44,7 +44,7 @@ const colors = {
   match: "rgba(60, 115, 168, 0.2)",
   matchHovering: "rgba(60, 115, 168, 0.3)",
   matchSelected: "rgba(26, 188, 156, 0.5)",
-  matchIgnored: "rgba(0, 0, 0, 0.05)",
+  matchIgnored: "rgba(220, 220, 220, 1)",
 };
 
 // File to display
