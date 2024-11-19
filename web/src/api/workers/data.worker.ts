@@ -8,7 +8,7 @@ import {
   PairedOccurrence,
   Hash,
 } from "@/api/models";
-import { Fragment as DolosFragment, FingerprintIndex } from "@dodona/dolos-core";
+import { Fragment as DolosFragment, FingerprintIndex, TokenizedFile, Pair as DolosPair } from "@dodona/dolos-core";
 
 // Parse a list of Dolos fragments into a list of fragment models.
 export function parseFragments(
@@ -35,6 +35,30 @@ export function parseFragments(
       }),
     };
   });
+}
+
+function getIgnoredKgrams(reportPair: DolosPair, leftFile: TokenizedFile, rightFile: TokenizedFile) {
+  const leftIgnoredKgrams = [];
+  const rightIgnoredKgrams = [];
+
+  for (const ignoredKgram of reportPair.leftEntry.ignored) {
+    const occurrences = ignoredKgram.occurrencesOf(leftFile);
+    if (occurrences.length > 0) {
+      leftIgnoredKgrams.push(occurrences[0].side.location);
+    }
+  }
+
+  for (const ignoredKgram of reportPair.rightEntry.ignored) {
+    const occurrences = ignoredKgram.occurrencesOf(rightFile);
+    if (occurrences.length > 0) {
+      rightIgnoredKgrams.push(occurrences[0].side.location);
+    }
+  }
+
+  return {
+    leftIgnoredKgrams,
+    rightIgnoredKgrams
+  };
 }
 
 // Populate the fragments for a given pair.
@@ -64,7 +88,10 @@ export function populateFragments(
     const kmer = kmers[kmerKey];
     kmersMap.set(kmer.hash, kmer);
   }
-  pair.fragments = parseFragments(reportPair.buildFragments(), kmersMap);
+  const ignoredKgramsMap = getIgnoredKgrams(reportPair, leftFile, rightFile);
 
+  pair.fragments = parseFragments(reportPair.buildFragments(), kmersMap);
+  pair.leftIgnoredKgrams = ignoredKgramsMap.leftIgnoredKgrams;
+  pair.rightIgnoredKgrams = ignoredKgramsMap.rightIgnoredKgrams;
   return pair;
 }

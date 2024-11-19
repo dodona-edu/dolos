@@ -28,7 +28,7 @@ interface Props {
 }
 
 interface Selection {
-  match: Fragment | null;
+  match: Fragment | null | string;
   range: monaco.IRange | null;
   isWholeLine: boolean;
 }
@@ -44,11 +44,13 @@ const colors = {
   match: "rgba(60, 115, 168, 0.2)",
   matchHovering: "rgba(60, 115, 168, 0.3)",
   matchSelected: "rgba(26, 188, 156, 0.5)",
+  matchIgnored: "rgba(220, 220, 220, 1)",
 };
 
 // File to display
 // Based on the pair & the given side.
 const file = computed(() => props.side === "left" ? props.pair.leftFile : props.pair.rightFile);
+const ignoredKgrams = computed(() => props.side === "left" ? props.pair.leftIgnoredKgrams : props.pair.rightIgnoredKgrams);
 
 // List of matches, sorted on the start line & column.
 const matches = computed(() => {
@@ -83,7 +85,6 @@ const getMatchAtPosition = (row: number, col: number): Fragment | null => {
 
   for (const match of matches.value) {
     const side = match[props.side];
-
     // If the row/col is within the match row range.
     const inRowRange = side.startRow + 1 <= row && row <= side.endRow + 1;
     // If the row/col is within the match col range.
@@ -178,6 +179,20 @@ const initializeSelections = (): void => {
       isWholeLine: true,
     });
   }
+
+  // Convert the ignored kgrams into selections
+  for (const ignored of ignoredKgrams.value) {
+    selections.value.push({
+      match: "ignored",
+      range: {
+        startLineNumber: ignored.startRow + 1,
+        startColumn: ignored.startCol + 1,
+        endLineNumber: ignored.endRow + 1,
+        endColumn: ignored.endCol + 1,
+      },
+      isWholeLine: false,
+    });
+  }
 };
 
 const areMatchesEqual = (match1: Fragment | null, match2: Fragment | null) => {
@@ -196,15 +211,20 @@ const initializeDecorations = (): void => {
     decorations.value,
     selections.value.map((selection) => {
       const match = selection.match;
-
       let classname = "highlight-match";
-      if (areMatchesEqual(match, selectedMatch?.value)) classname += " highlight-match--selected";
-      else if (areMatchesEqual(match, hoveringMatch?.value)) classname += " highlight-match--hovering";
-
+      if (typeof match !== "string") {
+        if (areMatchesEqual(match, selectedMatch?.value)) classname += " highlight-match--selected";
+        else if (areMatchesEqual(match, hoveringMatch?.value)) classname += " highlight-match--hovering";
+      }
+      else if (match === "ignored") {
+        classname += " highlight-match--ignored";
+      }
 
       let color = colors.match;
-      if (areMatchesEqual(match, selectedMatch?.value)) color = colors.matchSelected;
-      else if (areMatchesEqual(match, hoveringMatch?.value)) color = colors.matchHovering;
+      if (typeof match !== "string") {
+        if (areMatchesEqual(match, selectedMatch?.value)) color = colors.matchSelected;
+        else if (areMatchesEqual(match, hoveringMatch?.value)) color = colors.matchHovering;
+      }
 
       return {
         range: selection.range,
@@ -366,6 +386,10 @@ watch(
 
     &--hovering {
       background-color: v-bind("colors.matchHovering");
+    }
+
+    &--ignored {
+      background-color: v-bind("colors.matchIgnored");
     }
   }
 }

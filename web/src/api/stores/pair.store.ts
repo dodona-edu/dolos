@@ -88,6 +88,8 @@ export const usePairStore = defineStore("pairs", () => {
         fragments: null,
         leftCovered,
         rightCovered,
+        leftIgnoredKgrams: [],
+        rightIgnoredKgrams: [],
       };
     }
     return pairs;
