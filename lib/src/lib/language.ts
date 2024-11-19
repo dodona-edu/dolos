@@ -25,7 +25,7 @@ export abstract class Language {
     }
   }
 
-  public abstract createTokenizer(options: TokenizerOptions): Promise<Tokenizer>;
+  public abstract createTokenizer(options?: TokenizerOptions): Promise<Tokenizer>;
 }
 
 export class ProgrammingLanguage extends Language {
@@ -54,7 +54,7 @@ export class ProgrammingLanguage extends Language {
     return this.languageModule;
   }
 
-  async createTokenizer(options: TokenizerOptions): Promise<Tokenizer> {
+  async createTokenizer(options?: TokenizerOptions): Promise<Tokenizer> {
     const { CodeTokenizer } = await import ("./tokenizer/codeTokenizer.js");
     await this.loadLanguageModule();
     return new CodeTokenizer(this, options);
@@ -86,12 +86,12 @@ export class CustomTokenizerLanguage extends Language {
   constructor(
     readonly name: string,
     readonly extensions: string[],
-    readonly customTokenizer: ((self: Language, options: TokenizerOptions) => Promise<Tokenizer>)
+    readonly customTokenizer: ((self: Language, options?: TokenizerOptions) => Promise<Tokenizer>)
   ) {
     super(name, extensions);
   }
 
-  public async createTokenizer(options: TokenizerOptions): Promise<Tokenizer> {
+  public async createTokenizer(options?: TokenizerOptions): Promise<Tokenizer> {
     return await this.customTokenizer(this, options);
   }
 }

@@ -6,16 +6,18 @@ export interface Token {
   location: Region;
 }
 
-export type TokenizerOptions = {
-  excludeComments: boolean;
-}
+export type TokenizerOptions = Partial<{
+  includeComments: boolean;
+}>
 
 export abstract class Tokenizer {
 
-  protected options: TokenizerOptions;
+  protected options: TokenizerOptions = {};
 
-  constructor(public readonly language: Language, options: TokenizerOptions) {
-    this.options = options;
+  constructor(public readonly language: Language, options?: TokenizerOptions) {
+    if (options !== undefined) {
+      this.options = options;
+    }
   }
 
 

@@ -14,7 +14,7 @@ export class CodeTokenizer extends Tokenizer {
    * @param language The language to use for this tokenizer.
    * @param options
    */
-  constructor(language: ProgrammingLanguage, options: TokenizerOptions) {
+  constructor(language: ProgrammingLanguage, options?: TokenizerOptions) {
     super(language, options);
     this.parser = new Parser();
     this.parser.setLanguage(language.getLanguageModule());
@@ -63,7 +63,7 @@ export class CodeTokenizer extends Tokenizer {
     );
 
     const isComment = node.type.includes("comment");
-    if (!this.options.excludeComments || !isComment) {
+    if (!isComment || this.options.includeComments) {
       tokens.push(this.newToken("(", location));
       tokens.push(this.newToken(node.type, location));
     }
@@ -78,7 +78,7 @@ export class CodeTokenizer extends Tokenizer {
       }
     }
 
-    if (!this.options.excludeComments || !isComment) {
+    if (!isComment || this.options.includeComments) {
       tokens.push(this.newToken(")", location));
     }
 

@@ -167,9 +167,9 @@ export function runCommand(program: Command): Command {
       Options.defaultKgramsInWindow
     )
     .option(
-      "-e, --exclude-comments",
+      "-ic, --include-comments",
       Utils.indent(
-        "Exclude the comments during the tokenization process."
+        "Include the comments during the tokenization process."
       )
     )
     .action(async (locations, options) => run(locations, { ...options , ...program.opts() }));
@@ -212,7 +212,7 @@ export async function run(locations: string[], options: RunOptions): Promise<voi
       limitResults: options.limitResults,
       sortBy: options.sortBy,
       fragmentSortBy: options.fragmentSortBy,
-      excludeComments: options.excludeComments
+      includeComments: options.includeComments
     });
     const report = await dolos.analyzePaths(locations, options.ignore);
 

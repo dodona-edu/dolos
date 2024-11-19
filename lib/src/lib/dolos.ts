@@ -38,7 +38,7 @@ export class Dolos {
         this.language = this.languagePicker.detectLanguage(files);
         this.languageDetected = true;
       }
-      this.tokenizer = await this.language.createTokenizer({ excludeComments: this.options.excludeComments });
+      this.tokenizer = await this.language.createTokenizer({ includeComments: this.options.includeComments });
       this.index = new FingerprintIndex(this.options.kgramLength, this.options.kgramsInWindow, this.options.kgramData);
     }
     const warnings = [];

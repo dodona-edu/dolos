@@ -27,26 +27,26 @@ const languageFiles = {
 } as {[key: string]: string};
 
 const tokenLength = {
-  "../samples/bash/caesar.sh": 1185,
+  "../samples/bash/caesar.sh": 1179,
   "../samples/c/caesar.c": 582,
-  "../samples/c-sharp/Caesar.cs": 606,
+  "../samples/c-sharp/Caesar.cs": 603,
   "../samples/char/caesar.txt": 3700,
-  "../samples/cpp/caesar.cpp": 801,
+  "../samples/cpp/caesar.cpp": 795,
   "../samples/elm/Caesar.elm": 753,
   "../samples/go/Caesar.go": 1032,
   "../samples/groovy/caesar.groovy": 282,
-  "../samples/java/Caesar.java": 522,
+  "../samples/java/Caesar.java": 519,
   "../samples/javascript/sample.js": 861,
-  "../samples/python/caesar.py": 309,
+  "../samples/python/caesar.py": 306,
   "../samples/php/caesar.php": 411,
-  "../samples/modelica/sample.mo": 7542,
-  "../samples/r/caesar.R": 594,
+  "../samples/modelica/sample.mo": 7533,
+  "../samples/r/caesar.R": 585,
   "../samples/rust/caesar.rs": 774,
   "../samples/scala/Caesar.scala": 366,
-  "../samples/sql/sample.sql": 543,
-  "../samples/tsx/sample.tsx": 1659,
-  "../samples/typescript/caesar.ts": 378,
-  "../samples/verilog/module.v": 2484
+  "../samples/sql/sample.sql": 540,
+  "../samples/tsx/sample.tsx": 1656,
+  "../samples/typescript/caesar.ts": 375,
+  "../samples/verilog/module.v": 2448
 } as {[key: string]: number};
 
 for (const [languageName, languageFile] of Object.entries(languageFiles)) {
@@ -68,7 +68,7 @@ for (const [languageName, languageFile] of Object.entries(languageFiles)) {
     const file = (await readPath(languageFile)).ok();
     const language = new LanguagePicker().detectLanguage([file]);
 
-    const tokenizer = await language.createTokenizer({ excludeComments: false });
+    const tokenizer = await language.createTokenizer();
     t.truthy(tokenizer);
 
     const { tokens } = tokenizer.tokenizeFile(file);
@@ -96,7 +96,7 @@ test("should be able to use external tree-sitter parsers (tree-sitter-json)", as
   const file = (await readPath("./package.json")).ok();
   const language = await (new LanguagePicker().findLanguage("json"));
 
-  const tokenizer = await language.createTokenizer({ excludeComments: false });
+  const tokenizer = await language.createTokenizer();
   t.truthy(tokenizer);
 
   const { tokens } = tokenizer.tokenizeFile(file);
@@ -107,7 +107,7 @@ test("should be able to parse larger files", async t => {
   const file = new File("long.js", "var test = 1;\n".repeat(10000));
   const language = await (new LanguagePicker().findLanguage("javascript"));
 
-  const tokenizer = await language.createTokenizer({ excludeComments: false });
+  const tokenizer = await language.createTokenizer();
   t.truthy(tokenizer);
 
   const { tokens } = tokenizer.tokenizeFile(file);
@@ -117,7 +117,7 @@ test("should be able to parse larger files", async t => {
 test("should be able to correctly tokenize a variable", async t => {
   const file = new File("long.js", "var test = 1;");
   const language = await (new LanguagePicker().findLanguage("javascript"));
-  const tokenizer = await language.createTokenizer({ excludeComments: false });
+  const tokenizer = await language.createTokenizer();
 
   const { tokens, mapping } = tokenizer.tokenizeFile(file);
   t.is(tokens.join(""), "(program(variable_declaration(variable_declarator(identifier)(number))))");
@@ -145,7 +145,7 @@ test("should be able to correctly tokenize a loop", async t => {
   const file = new File("long.js", "let i = 0;\nwhile (i < 10) {\n  i += 1;\n}");
   const language = await (new LanguagePicker().findLanguage("javascript"));
 
-  const tokenizer = await language.createTokenizer({ excludeComments: false });
+  const tokenizer = await language.createTokenizer();
   const { tokens, mapping } = tokenizer.tokenizeFile(file);
   t.is(tokens.join(""), "(program(lexical_declaration(variable_declarator(identifier)(number)))" +
       "(while_statement(parenthesized_expression(binary_expression(identifier)(number)))" +
