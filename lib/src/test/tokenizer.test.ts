@@ -26,29 +26,6 @@ const languageFiles = {
   "verilog": "../samples/verilog/module.v"
 } as {[key: string]: string};
 
-const tokenLength = {
-  "../samples/bash/caesar.sh": 1185,
-  "../samples/c/caesar.c": 582,
-  "../samples/c-sharp/Caesar.cs": 606,
-  "../samples/char/caesar.txt": 3700,
-  "../samples/cpp/caesar.cpp": 801,
-  "../samples/elm/Caesar.elm": 753,
-  "../samples/go/Caesar.go": 1032,
-  "../samples/groovy/caesar.groovy": 282,
-  "../samples/java/Caesar.java": 522,
-  "../samples/javascript/sample.js": 861,
-  "../samples/python/caesar.py": 309,
-  "../samples/php/caesar.php": 411,
-  "../samples/modelica/sample.mo": 7542,
-  "../samples/r/caesar.R": 594,
-  "../samples/rust/caesar.rs": 774,
-  "../samples/scala/Caesar.scala": 366,
-  "../samples/sql/sample.sql": 543,
-  "../samples/tsx/sample.tsx": 1659,
-  "../samples/typescript/caesar.ts": 378,
-  "../samples/verilog/module.v": 2484
-} as {[key: string]: number};
-
 for (const [languageName, languageFile] of Object.entries(languageFiles)) {
   test(`LanguagePicker can find ${languageName} correctly by name`, async t => {
     const language = await new LanguagePicker().findLanguage(languageName);
@@ -74,7 +51,6 @@ for (const [languageName, languageFile] of Object.entries(languageFiles)) {
     const { tokens } = tokenizer.tokenizeFile(file);
     t.truthy(tokens);
     t.snapshot(tokens, "stable tokenization");
-    t.is(tokens.length, tokenLength[languageFile]);
   });
 }
 
@@ -201,3 +177,12 @@ test("should be able to correctly tokenize a loop", async t => {
   );
 });
 
+
+test("tokens should contain comments when includeComments is true", async t => {
+  const file = new File("comments.js", "let i = 0;\nwhile (i < 10) { // comment\n  i += 1;\n}");
+  const language = await (new LanguagePicker().findLanguage("javascript"));
+
+  const tokenizer = await language.createTokenizer({ includeComments: true });
+  const { tokens } = tokenizer.tokenizeFile(file);
+  t.true(tokens.includes("comment"));
+});

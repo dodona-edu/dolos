@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { Tokenizer } from "./tokenizer/tokenizer.js";
+import { Tokenizer, TokenizerOptions } from "./tokenizer/tokenizer.js";
 import { File } from "@dodona/dolos-core";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -25,7 +25,7 @@ export abstract class Language {
     }
   }
 
-  public abstract createTokenizer(): Promise<Tokenizer>;
+  public abstract createTokenizer(options?: TokenizerOptions): Promise<Tokenizer>;
 }
 
 export class ProgrammingLanguage extends Language {
@@ -54,10 +54,10 @@ export class ProgrammingLanguage extends Language {
     return this.languageModule;
   }
 
-  async createTokenizer(): Promise<Tokenizer> {
+  async createTokenizer(options?: TokenizerOptions): Promise<Tokenizer> {
     const { CodeTokenizer } = await import ("./tokenizer/codeTokenizer.js");
     await this.loadLanguageModule();
-    return new CodeTokenizer(this);
+    return new CodeTokenizer(this, options);
   }
 }
 
@@ -86,13 +86,13 @@ export class CustomTokenizerLanguage extends Language {
   constructor(
     readonly name: string,
     readonly extensions: string[],
-    readonly customTokenizer: ((self: Language) => Promise<Tokenizer>)
+    readonly customTokenizer: ((self: Language, options?: TokenizerOptions) => Promise<Tokenizer>)
   ) {
     super(name, extensions);
   }
 
-  public async createTokenizer(): Promise<Tokenizer> {
-    return await this.customTokenizer(this);
+  public async createTokenizer(options?: TokenizerOptions): Promise<Tokenizer> {
+    return await this.customTokenizer(this, options);
   }
 }
 
@@ -127,9 +127,9 @@ export class LanguagePicker {
     new ProgrammingLanguage("typescript", [".ts"]),
     new ProgrammingLanguage("tsx", [".tsx"]),
     new ProgrammingLanguage("verilog", [".v", ".vh"]),
-    new CustomTokenizerLanguage("char", [".txt", ".md"], async self => {
+    new CustomTokenizerLanguage("char", [".txt", ".md"], async (self, options) => {
       const { CharTokenizer } = await import("./tokenizer/charTokenizer.js");
-      return new CharTokenizer(self);
+      return new CharTokenizer(self, options);
     }),
   ];
 

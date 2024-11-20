@@ -166,6 +166,12 @@ export function runCommand(program: Command): Command {
       x => parseFloat(x),
       Options.defaultKgramsInWindow
     )
+    .option(
+      "-C, --include-comments",
+      Utils.indent(
+        "Include the comments during the tokenization process."
+      )
+    )
     .action(async (locations, options) => run(locations, { ...options , ...program.opts() }));
 }
 
@@ -206,6 +212,7 @@ export async function run(locations: string[], options: RunOptions): Promise<voi
       limitResults: options.limitResults,
       sortBy: options.sortBy,
       fragmentSortBy: options.fragmentSortBy,
+      includeComments: options.includeComments
     });
     const report = await dolos.analyzePaths(locations, options.ignore);
 

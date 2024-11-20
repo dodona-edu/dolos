@@ -1,21 +1,21 @@
 import { default as Parser, SyntaxNode } from "tree-sitter";
 import { Region } from "@dodona/dolos-core";
-import { Token, Tokenizer } from "./tokenizer.js";
+import { Token, Tokenizer, TokenizerOptions } from "./tokenizer.js";
 import { ProgrammingLanguage } from "../language.js";
 
 export class CodeTokenizer extends Tokenizer {
 
   private readonly parser: Parser;
-
   /**
    * Creates a new tokenizer of the given language. Will throw an error when the
    * given language is not supported. See Tokenizer.supportedLanguages for a
    * list of all supported languages.
    *
    * @param language The language to use for this tokenizer.
+   * @param options
    */
-  constructor(language: ProgrammingLanguage) {
-    super(language);
+  constructor(language: ProgrammingLanguage, options?: TokenizerOptions) {
+    super(language, options);
     this.parser = new Parser();
     this.parser.setLanguage(language.getLanguageModule());
   }
@@ -62,8 +62,11 @@ export class CodeTokenizer extends Tokenizer {
       node.endPosition.column
     );
 
-    tokens.push(this.newToken("(", location));
-    tokens.push(this.newToken(node.type, location));
+    const includeToken = !node.type.includes("comment") || this.options.includeComments;
+    if (includeToken) {
+      tokens.push(this.newToken("(", location));
+      tokens.push(this.newToken(node.type, location));
+    }
     for (const child of node.namedChildren) {
 
       const [childStartRow, childStartCol] = this.tokenizeNode(child, tokens);
@@ -75,7 +78,9 @@ export class CodeTokenizer extends Tokenizer {
       }
     }
 
-    tokens.push(this.newToken(")", location));
+    if (includeToken) {
+      tokens.push(this.newToken(")", location));
+    }
 
     // Also return the startRow and startCol, this can be used by the parent node.
     return [location.startRow, location.startCol];

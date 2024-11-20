@@ -6,10 +6,13 @@ export interface Token {
   location: Region;
 }
 
+export type TokenizerOptions = Partial<{
+  includeComments: boolean;
+}>
+
 export abstract class Tokenizer {
 
-  constructor(public readonly language: Language) {}
-
+  constructor(public readonly language: Language, protected readonly options: TokenizerOptions = {}) {}
 
   /**
    * Runs the parser on a given string. Returns a list of Tokens

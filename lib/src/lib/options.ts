@@ -11,6 +11,7 @@ export interface DolosOptions {
   sortBy: string | null;
   fragmentSortBy: string | null;
   kgramData: boolean;
+  includeComments: boolean;
 }
 
 export type CustomOptions = Partial<DolosOptions>;
@@ -87,6 +88,9 @@ export class Options implements DolosOptions {
     return this.custom.kgramData == true;
   }
 
+  get includeComments(): boolean {
+    return this.custom.includeComments === true;
+  }
 
   get limitResults(): number | null {
     return definedOrNull(this.custom.limitResults);
@@ -155,6 +159,7 @@ export class Options implements DolosOptions {
       sortBy: this.sortBy,
       fragmentSortBy: this.fragmentSortBy,
       kgramData: this.kgramData,
+      includeComments: this.includeComments,
     };
   }
 
