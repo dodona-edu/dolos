@@ -25,7 +25,7 @@
     "@types/d3": "7.4.3",
     "@types/luxon": "^3.4.2",
     "@types/node": "^20.16.12",
-    "@types/papaparse": "^5.3.14",
+    "@types/papaparse": "^5.3.15",
     "@types/prismjs": "^1.26.4",
     "@types/webfontloader": "^1.6.38",
     "@vitejs/plugin-vue": "^4.6.2",
