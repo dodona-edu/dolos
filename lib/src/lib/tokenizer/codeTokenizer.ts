@@ -62,8 +62,8 @@ export class CodeTokenizer extends Tokenizer {
       node.endPosition.column
     );
 
-    const isComment = node.type.includes("comment");
-    if (!isComment || this.options.includeComments) {
+    const includeToken = !node.type.includes("comment") || this.options.includeComments;
+    if (includeToken) {
       tokens.push(this.newToken("(", location));
       tokens.push(this.newToken(node.type, location));
     }
@@ -78,7 +78,7 @@ export class CodeTokenizer extends Tokenizer {
       }
     }
 
-    if (!isComment || this.options.includeComments) {
+    if (includeToken) {
       tokens.push(this.newToken(")", location));
     }
 

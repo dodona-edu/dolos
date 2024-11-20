@@ -12,14 +12,7 @@ export type TokenizerOptions = Partial<{
 
 export abstract class Tokenizer {
 
-  protected options: TokenizerOptions = {};
-
-  constructor(public readonly language: Language, options?: TokenizerOptions) {
-    if (options !== undefined) {
-      this.options = options;
-    }
-  }
-
+  constructor(public readonly language: Language, protected readonly options: TokenizerOptions = {}) {}
 
   /**
    * Runs the parser on a given string. Returns a list of Tokens

@@ -167,7 +167,7 @@ export function runCommand(program: Command): Command {
       Options.defaultKgramsInWindow
     )
     .option(
-      "-ic, --include-comments",
+      "-C, --include-comments",
       Utils.indent(
         "Include the comments during the tokenization process."
       )
