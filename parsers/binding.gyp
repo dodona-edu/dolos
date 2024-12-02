@@ -10,6 +10,7 @@
         "java/binding.gyp",
         "javascript/binding.gyp",
         "modelica/binding.gyp",
+        "ocaml/binding.gyp",
         "php/binding.gyp",
         "python/binding.gyp",
         "r/binding.gyp",

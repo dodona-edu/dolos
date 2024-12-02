@@ -83,6 +83,10 @@ const languages = [
     value: "modelica"
   },
   {
+    name: "OCaml",
+    value: "ocaml"
+  },
+  {
     name: "PHP",
     value: "php"
   },

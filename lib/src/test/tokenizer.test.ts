@@ -17,6 +17,7 @@ const languageFiles = {
   "python": "../samples/python/caesar.py",
   "php": "../samples/php/caesar.php",
   "modelica": "../samples/modelica/sample.mo",
+  "ocaml": "../samples/ocaml/Caesar.ml",
   "r": "../samples/r/caesar.R",
   "rust": "../samples/rust/caesar.rs",
   "scala": "../samples/scala/Caesar.scala",
