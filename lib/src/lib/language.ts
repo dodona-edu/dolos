@@ -115,6 +115,7 @@ export class LanguagePicker {
     new ProgrammingLanguage("python", [".py", ".py3"]),
     new ProgrammingLanguage("php", [".php", ".php3", ".php4", ".php5", ".php7", ".phps", ".phpt", ".phtml"]),
     new ProgrammingLanguage("modelica", [".mo", ".mos"]),
+    new ProgrammingLanguage("ocaml", [".ml"]),
     new ProgrammingLanguage("java", [".java"]),
     new ProgrammingLanguage("javascript", [".js"]),
     new ProgrammingLanguage("elm", [".elm"]),
