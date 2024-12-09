@@ -32,7 +32,7 @@
     "@typescript-eslint/eslint-plugin": "6.8.0",
     "@typescript-eslint/parser": "6.8.0",
     "ava": "5.3.1",
-    "eslint": "8.57.0",
+    "eslint": "8.57.1",
     "typescript": "5.4.5",
     "tree-sitter-json": "0.21.0"
   },
