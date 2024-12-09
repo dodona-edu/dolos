@@ -30,6 +30,9 @@ parsers.javascript.nodeTypeInfo = require("./javascript/src/node-types.json");
 parsers.modelica = require("./build/Release/tree_sitter_modelica_binding");
 parsers.modelica.nodeTypeInfo = require("./modelica/src/node-types.json");
 
+parsers.ocaml = require("./build/Release/tree_sitter_ocaml_binding").ocaml;
+parsers.ocaml.nodeTypeInfo = require("./ocaml/grammars/ocaml/src/node-types.json");
+
 // Note: this parser provides php_only and php (includes HTML)
 parsers.php = require("./build/Release/tree_sitter_php_binding").php;
 parsers.php.nodeTypeInfo = require("./php/php/src/node-types.json");
