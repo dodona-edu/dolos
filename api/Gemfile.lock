@@ -326,7 +326,7 @@ DEPENDENCIES
   delayed_job_active_record
   docker-api (~> 2.3.0)
   ed25519
-  factory_bot_rails (~> 6.4.3)
+  factory_bot_rails (~> 6.4.4)
   faker (~> 3.5.1)
   mocha (~> 2.4.5)
   mysql2 (~> 0.5, >= 0.5.6)
