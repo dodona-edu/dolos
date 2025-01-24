@@ -28,7 +28,7 @@ export function runCommand(program: Command): Command {
     .option(
       "-l, --language <language>",
       Utils.indent(
-        "Programming language used in the submitted files. Or 'chars' to do " +
+        "Programming language used in the submitted files. Or 'char' to do " +
         "a character by character comparison. Detect automatically if not given.",
       ),
     )
