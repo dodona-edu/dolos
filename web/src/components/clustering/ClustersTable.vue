@@ -4,7 +4,7 @@
     :headers="headers"
     :items="items"
     :sort-by="sortBy"
-    :items-per-page="25"
+    :items-per-page="15"
     must-sort
     fixed-header
     @click:row="rowClicked"
@@ -29,6 +29,11 @@
         />
       </span>
     </template>
+
+    <!-- Hide the pagination buttons if pagination is disabled -->
+    <template v-if="!pagination" #bottom>
+      <div />
+    </template>
   </v-data-table>
 </template>
 
@@ -48,7 +53,7 @@ interface Props {
   pagination?: boolean;
 }
 
-const props = withDefaults(defineProps<Props>(), {});
+const props = withDefaults(defineProps<Props>(), { pagination: true });
 const router = useRouter();
 const pairStore = usePairStore();
 
