@@ -211,6 +211,7 @@
           <clusters-table
             :clusters="clustersOverview"
             :limit="10"
+            :pagination="false"
             concise
             disable-sorting
           />
