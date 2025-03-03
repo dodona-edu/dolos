@@ -4,7 +4,7 @@
     :headers="headers"
     :items="items"
     :sort-by="sortBy"
-    :items-per-page="15"
+    :items-per-page="25"
     must-sort
     fixed-header
     @click:row="rowClicked"
@@ -28,11 +28,6 @@
           dim-below-cutoff
         />
       </span>
-    </template>
-
-    <!-- Temporary hack to hide pagination when disabled -->
-    <template v-if="!pagination" #bottom>
-      <div />
     </template>
   </v-data-table>
 </template>
