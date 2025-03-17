@@ -2,11 +2,14 @@ FROM node:22.10.0-alpine3.19
 
 WORKDIR /web/
 
+RUN apk add --no-cache curl
+
+ADD package.json /web/
+RUN npm install
+
 ADD public/ /web/public
 ADD src/ /web/src
-ADD index.html index.d.ts index.js package.json tsconfig.json tsconfig.node.json vite.config.ts /web/
-
-RUN npm install && apk add --no-cache curl
+ADD index.html index.d.ts index.js tsconfig.json tsconfig.node.json vite.config.ts /web/
 
 ENV VITE_HOST=0.0.0.0
 ENV VITE_PORT=8080
