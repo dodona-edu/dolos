@@ -1,6 +1,7 @@
 !docs/yarn.lock
 **/yarn.lock
 *.csv
+.env
 *.log
 *.tgz
 *.tsbuildinfo
