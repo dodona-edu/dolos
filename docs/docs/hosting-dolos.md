@@ -3,9 +3,9 @@
 If you do not want to use our free to use instance ([dolos.ugent.be/server](https://dolos.ugent.be/server)),
 it is also possible to host your own instance.
 
-## Local hosting using docker-compose
+## Local hosting using Docker Compose
 
-These instructions are for **local** hosting only. The section [external hosting](#external-hosting-without-docker-compose) explains how you create a public instance of Dolos.
+These instructions are for **local** hosting only. The section [external hosting](#external-hosting) explains how you create a public instance of Dolos.
 
 [Docker](https://www.docker.com/) is a containerization technology that allows you to run our service without the hassle of installing the different dependencies and services yourself.
 
@@ -18,12 +18,13 @@ Run Dolos on your own system using these instructions:
     git clone https://github.com/dodona-edu/dolos.git
     cd dolos/
   ```
-3. Run `docker-compose pull` in this directory to pull and fetch all needed container images.
+3. Run `cp .env.example .env` to create a copy of the template environment settings.
+3. Run `docker compose pull` in this directory to pull and fetch all needed container images.
 4. Run `docker pull ghcr.io/dodona-edu/dolos-cli:latest` to ensure the container running the Dolos CLI is present and up-to-date.
-5. Run `docker-compose up` to start the services.
+5. Run `docker compose up` to start the services.
 
 You can now visit the web app running locally on <http://localhost:8080>.
-The API is available on <http://localhost:3000>.
+The API is available on <http://localhost:3000>. By changing the entries in the `.env` file, it is possible to change the ports on which Dolos is hosted - these are the settings `FRONTEND_EXTERNAL_PORT` and `API_EXTERNAL_PORT`. After such changes, make sure to run `docker compose up` again to apply.
 
 ::: warning
 
@@ -34,9 +35,9 @@ This grants the web app full control over your docker instance.
 
 :::
 
-## External hosting without docker-compose
+## External hosting
 
-To host your own public instance of Dolos, you will need some extra security precautions that are not included in the `docker-compose.yml` configuration:
+To host your own public instance of Dolos, you will need some extra security precautions that are not included in the default `docker-compose.yml` configuration:
 - **configure a domain name** and subdomain or path for the API
 - **configure HTTPS**
 - **configure serving static files** for the front-end Web UI
@@ -44,6 +45,17 @@ To host your own public instance of Dolos, you will need some extra security pre
 This is typically handled by using a reverse proxy like Nginx, Apache, Traefik, ... 
 
 As this configuration is highly dependent on your situation, we recommend [contacting us](/about/contact) describing what you want to achieve.
+
+### Running Docker Compose behind a reverse proxy
+
+The provided Docker Compose configuration provides some basic provisions to run Dolos behind a reverse proxy, which should be set up separately. After setting up the reverse proxy, you should customise the `.env` settings. For these instructions, we assume we want to host Dolos on `https://foo.example.com/` and the API on `https://foo.example.com/api`.
+
+- `WEB_PROTOCOL` should be set to `https` (assuming the reverse proxy has this set up)
+- The three `DATABASE_*` fields should be changed to more secure values
+- The `FRONTEND_EXTERNAL_*` fields should correspond to the public endpoint of your Dolos instance. In this case, `_HOST` would be `foo.example.com`, `_PORT` would be `443` (public HTTPS), and `_PATH` can be left empty.
+- `FRONTEND_INTERNAL_HOST` should be the IP address where your reverse proxy is located, typically `127.0.0.1`. This prevents external users from bypassing the revervse proxy: only the proxy can contact Dolos.
+- `FRONTEND_INTERNAL_PORT` should be set to the port that your reverse proxy will be using to contact Dolos. This is different from the external port.
+- The `API_*` fields should be set up in the same way as the `FRONTEND_` fields before, but now you should provide `_PATH` as `/api`.
 
 ### Configurable environment variables
 

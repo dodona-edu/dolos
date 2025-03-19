@@ -5,22 +5,30 @@ services:
     volumes:
       - dolos-db-data:/var/lib/mysql
     environment:
-      MARIADB_ROOT_PASSWORD: dolos
+      MARIADB_ROOT_PASSWORD: ${DATABASE_ROOT_PASSWORD:?}
+      MARIADB_DATABASE: dolos
+      MARIADB_USER: ${DATABASE_USER:?}
+      MARIADB_PASSWORD: ${DATABASE_PASSWORD:?}
     networks:
       - dolos
     healthcheck:
       start_period: 2s
       interval: 5s
       test: healthcheck.sh --su-mysql --connect --innodb_initialized
+    restart: always
+
   web:
     image: ghcr.io/dodona-edu/dolos-web
     # build: ./web/
     ports:
-      - "8080:8080"
+      # This renders to "host:port:8080", so traffic from the provided hosts on the specified
+      # port is available to port 8080 inside the container. By default, this will be
+      # 0.0.0.0:8080:8080.
+      - ${FRONTEND_INTERNAL_HOST:-0.0.0.0}:${FRONTEND_INTERNAL_PORT:-${FRONTEND_EXTERNAL_PORT:?}}:8080
     environment:
       VITE_HOST: 0.0.0.0
       VITE_PORT: 8080
-      VITE_API_URL: http://localhost:3000
+      VITE_API_URL: ${WEB_PROTOCOL:?}://${API_EXTERNAL_HOST:?}:${API_EXTERNAL_PORT:?}/${API_EXTERNAL_PATH:-}
       VITE_MODE: server
     depends_on:
       - api
@@ -30,6 +38,8 @@ services:
       start_period: 2s
       interval: 5s
       test: curl --fail http://localhost:8080 || exit 1
+    restart: always
+
   api:
     image: ghcr.io/dodona-edu/dolos-api
     # build: ./api/
@@ -38,12 +48,15 @@ services:
       - dolos-api-storage:/dolos/storage
       - /tmp:/tmp
     ports:
-      - "3000:3000"
+      # This renders to "host:port:3000", so traffic from the provided hosts on the specified
+      # port is available to port 3000 inside the container. By default, this will be
+      # 0.0.0.0:3000:3000.
+      - ${API_INTERNAL_HOST:-0.0.0.0}:${API_INTERNAL_PORT:-${API_EXTERNAL_PORT:?}}:3000
     environment:
-      DOLOS_API_FRONT_END_URL: http://localhost:8080
-      DOLOS_API_URL: http://localhost:3000
-      DOLOS_API_DATABASE_USERNAME: root
-      DOLOS_API_DATABASE_PASSWORD: dolos
+      DOLOS_API_FRONT_END_URL: ${WEB_PROTOCOL:?}://${FRONTEND_EXTERNAL_HOST:?}:${FRONTEND_EXTERNAL_PORT:?}/${FRONTEND_EXTERNAL_PATH:-}
+      DOLOS_API_URL: ${WEB_PROTOCOL:?}://${API_EXTERNAL_HOST:?}:${API_EXTERNAL_PORT:?}/${API_EXTERNAL_PATH:-}
+      DOLOS_API_DATABASE_USERNAME: ${DATABASE_USER:?}
+      DOLOS_API_DATABASE_PASSWORD: ${DATABASE_PASSWORD:?}
       DOLOS_API_DATABASE_HOST: db
       RAILS_ENV: production
       RAILS_LOG_TO_STDOUT: true
@@ -56,7 +69,12 @@ services:
     healthcheck:
       start_period: 2s
       interval: 10s
-      test: curl --fail "$$DOLOS_API_URL/up" || exit 1
+      # This health check "emulates" a browser request to API_EXTERNAL_*, while actually just
+      # querying localhost. This way, we overcome the strict host checking done by rails, which
+      # is based on the DOLOS_API_URL variable.
+      test: 'curl --fail --header "Host: ${API_EXTERNAL_HOST:-localhost}:${API_EXTERNAL_PORT:?}" --header "X-Forwarded-Proto: ${WEB_PROTOCOL:-http}" "localhost:3000/up" || exit 1'
+    restart: always
+
   worker:
     image: ghcr.io/dodona-edu/dolos-api
     # build: ./api/
@@ -66,8 +84,8 @@ services:
       - /tmp:/tmp
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
-      DOLOS_API_DATABASE_USERNAME: root
-      DOLOS_API_DATABASE_PASSWORD: dolos
+      DOLOS_API_DATABASE_USERNAME: ${DATABASE_USER:?}
+      DOLOS_API_DATABASE_PASSWORD: ${DATABASE_PASSWORD:?}
       DOLOS_API_DATABASE_HOST: db
       RAILS_ENV: production
       SECRET_KEY_BASE_DUMMY: true
@@ -80,6 +98,8 @@ services:
       start_period: 2s
       interval: 5s
       test: ruby -e true || exit 1
+    restart: always
+
 volumes:
   dolos-db-data:
   dolos-api-storage:
