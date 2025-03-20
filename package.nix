@@ -5,11 +5,11 @@
 }:
 buildNpmPackage rec {
   pname = "dolos";
-  version = "2.9.0";
+  version = "2.9.1";
 
   src = ./.;
 
-  npmDepsHash = "sha256-grE7PQgiyv9ZS+q6AoD2VpW9RJt3KpmEARMub9ESBmA=";
+  npmDepsHash = "sha256-xw4gzSJjr2o0TAQrhvZFU88cp1uUPmcahzJKAB39IvI=";
 
   npmWorkspace="cli";
 
