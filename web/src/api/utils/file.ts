@@ -20,7 +20,7 @@ export function commonFilenamePrefix(files: File[]): string {
   //debugger;
   const first = files[0].path;
   // Find all possible locations with a path separator, sort them descending
-  const splitLocations = Array.from(first.matchAll(/[\\/]/g)).map(r => r.index).sort().reverse();
+  const splitLocations = Array.from(first.matchAll(/[\\/]/g)).map(r => r.index).sort((a, b) => b - a);
   /// If there are none, there is no desirable prefix
   if (splitLocations.length == 0) {
     return "";
