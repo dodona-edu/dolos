@@ -35,8 +35,7 @@ services:
     networks:
       - dolos
     healthcheck:
-      start_period: 2s
-      interval: 5s
+      start_period: 45s
       test: curl --fail http://localhost:8080 || exit 1
     restart: always
 

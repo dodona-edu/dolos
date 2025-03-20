@@ -3,10 +3,11 @@ set -e
 
 # This script tests whether self-hosting the Dolos web-app works using the docker-compose.yml
 
-docker compose --progress quiet down
-docker compose --progress quiet pull
+PROJECT_NAME="dolos-test"
+docker compose -p "$PROJECT_NAME" --env-file .env.example --progress quiet down
+docker compose -p "$PROJECT_NAME" --env-file .env.example --progress quiet pull
 docker pull ghcr.io/dodona-edu/dolos-cli:latest
-docker compose up --wait --detach
+docker compose -p "$PROJECT_NAME" --env-file .env.example up --wait --detach
 
 echo "Upload zipfile"
 
@@ -43,4 +44,4 @@ curl -s --location --fail "$report_url/data/pairs.csv"
 
 echo "Everything is working as expected"
 
-docker compose down
+docker compose -p "$PROJECT_NAME" --env-file .env.example down
