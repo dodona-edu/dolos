@@ -243,7 +243,6 @@ import {
   usePairStore,
   useMetadataStore,
 } from "@/api/stores";
-import router from "@/router";
 
 const apiStore = useApiStore();
 const fileStore = useFileStore();
@@ -323,9 +322,6 @@ const calculateBinColor = (x0: number, x1: number): string => {
   return x1 <= apiStore.cutoff ? "rgba(25, 118, 210, 0.25)" : "#1976D2";
 };
 
-const gotoSurvey = () => {
-  router.push("https://ugent.qualtrics.com/jfe/form/SV_6QpMmrEuuoGSMWW");
-}
 </script>
 
 <style lang="scss" scoped>
