@@ -33,7 +33,6 @@ declare module 'vue' {
     PairCodeMatch: typeof import('./../components/pair/PairCodeMatch.vue')['default']
     PairCodeMatchEditor: typeof import('./../components/pair/PairCodeMatchEditor.vue')['default']
     PairsTable: typeof import('./../components/pair/PairsTable.vue')['default']
-    QuestionnaireAlert: typeof import('./../components/QuestionnaireAlert.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SimilarityDisplay: typeof import('./../components/SimilarityDisplay.vue')['default']

@@ -216,10 +216,8 @@ export const useFileStore = defineStore("file", () => {
     }
 
     // Find the common path in the files.
-    const commonPath = commonFilenamePrefix(
-      Object.values(files),
-      (f) => f.path
-    );
+    const commonPath = commonFilenamePrefix(Object.values(files),);
+
     const commonPathLength = commonPath.length;
     for (const file of Object.values(files)) {
       file.shortPath = file.path.substring(commonPathLength);

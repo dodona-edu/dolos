@@ -13,19 +13,37 @@ export function fileToTokenizedFile(file: File): TokenizedFile {
 /**
  * Common filename prefix for a given list of files
  * @param files Files
- * @param getPath Function to extract the path from the file
  * @returns Common prefix for all files.
  */
-export function commonFilenamePrefix(files: File[], getPath: (f: File) => string): string {
+export function commonFilenamePrefix(files: File[]): string {
   if (files.length <= 1) return "";
-
-  let index = 0;
-  while (
-    getPath(files[0])[index] &&
-    files.every((f) => getPath(f)[index] === getPath(files[0])[index])
-  ) {
-    index++;
+  //debugger;
+  const first = files[0].path;
+  // Find all possible locations with a path separator, sort them descending
+  const splitLocations = Array.from(first.matchAll(/[\\/]/g)).map(r => r.index).sort().reverse();
+  /// If there are none, there is no desirable prefix
+  if (splitLocations.length == 0) {
+    return "";
+  }
+  let splitIndex = 0;
+  let prefixLength = splitLocations[splitIndex];
+  let i = 1;
+  while(i < files.length && prefixLength > 0) {
+    let j = 0;
+    while(j < prefixLength && first[j] == files[i].path[j]) {
+      j += 1;
+    }
+    while (prefixLength != undefined && j < prefixLength) {
+      splitIndex += 1;
+      prefixLength = splitLocations[splitIndex];
+    }
+    i += 1;
   }
 
-  return getPath(files[0]).substring(0, index) ?? "";
+  if (prefixLength == undefined || prefixLength == 0) {
+    return "";
+  } else {
+    return files[0].path.substring(0, prefixLength + 1);
+  }
+
 }
