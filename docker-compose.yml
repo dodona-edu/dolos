@@ -81,7 +81,7 @@ services:
     volumes:
       - dolos-api-storage:/dolos/storage
       - /tmp:/tmp
-      - /var/run/docker.sock:/var/run/docker.sock
+      - ${DOCKER_SOCKET}:/var/run/docker.sock
     environment:
       DOLOS_API_DATABASE_USERNAME: ${DATABASE_USER:?}
       DOLOS_API_DATABASE_PASSWORD: ${DATABASE_PASSWORD:?}
