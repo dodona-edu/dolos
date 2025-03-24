@@ -329,7 +329,7 @@ DEPENDENCIES
   mysql2 (~> 0.5, >= 0.5.6)
   puma (~> 6.4, >= 6.4.3)
   rack-cors
-  rails (~> 7.2.2)
+  rails (~> 7.2.2, >= 7.2.2.1)
   rubocop-minitest (~> 0.36.0)
   rubocop-rails (~> 2.30, >= 2.30.3)
   rubyzip (~> 2.3, >= 2.3.2)
