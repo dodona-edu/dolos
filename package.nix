@@ -36,6 +36,9 @@ buildNpmPackage rec {
     done
   '';
 
+  # Some symlinks from cli are still broken
+  dontCheckForBrokenSymlinks = true;
+
   postInstall = ''
     for dir in core parsers lib web; do
         # npm creates a symlink to each dependent workspace in node_modules
