@@ -102,9 +102,3 @@ const rowClicked = (e: Event, value: any): void => {
   router.push({ name: "Pair", params: { pairId: String(value.item.pair.id) } });
 };
 </script>
-
-<style scoped>
-.v-data-table >>> tr:hover {
-  cursor: pointer;
-}
-</style>
