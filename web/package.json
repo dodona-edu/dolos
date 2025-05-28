@@ -42,7 +42,7 @@
     "luxon": "^3.4.4",
     "monaco-editor": "^0.48.0",
     "papaparse": "^5.5.2",
-    "pinia": "^2.1.7",
+    "pinia": "^3.0.2",
     "prismjs": "^1.30.0",
     "roboto-fontface": "*",
     "sass": "^1.83.4",
