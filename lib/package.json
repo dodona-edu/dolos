@@ -26,12 +26,12 @@
     "access": "public"
   },
   "devDependencies": {
-    "@ava/typescript": "git+https://github.com/rien/ava-typescript",
+    "@ava/typescript": "5.0.0",
     "@types/d3-dsv": "3.0.7",
     "@types/node": "^20.16.12",
     "@typescript-eslint/eslint-plugin": "6.8.0",
     "@typescript-eslint/parser": "6.8.0",
-    "ava": "5.3.1",
+    "ava": "6.3.0",
     "eslint": "8.57.1",
     "typescript": "5.4.5",
     "tree-sitter-json": "0.21.0"
