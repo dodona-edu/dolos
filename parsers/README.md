@@ -42,6 +42,17 @@ Tree-sitter currently only runs in node and will thus not run in browser environ
     ```
     npm run build
     ```
+   
+### Updating parsers
+
+Parsers are included as git submodules. Steps to update:
+
+1. Ensure the working directory is clean
+2. Fetch the latest commits, switch to the desired commit (e.g. latest tag)
+3. Test building the parsers and running the tests in `dolos-lib`
+   ```sh
+   npm --workspace=parsers run build && npm --workspace=lib run test
+   ```
 
 ## Documentation
 
