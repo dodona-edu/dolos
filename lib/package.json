@@ -40,7 +40,7 @@
     "@dodona/dolos-parsers": "1.4.0",
     "@dodona/dolos-core": "1.2.0",
     "d3-dsv": "^3.0.1",
-    "tree-sitter": "^0.22.4"
+    "tree-sitter": "^0.25.0"
   },
   "bugs": {
     "url": "https://github.com/dodona-edu/dolos/issues"
