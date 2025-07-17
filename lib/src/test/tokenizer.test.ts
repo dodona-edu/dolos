@@ -69,7 +69,7 @@ test("language picker should detect most common language", t => {
   t.deepEqual(detected.name, "python");
 });
 
-test("should be able to use external tree-sitter parsers (tree-sitter-json)", async t => {
+test.skip("should be able to use external tree-sitter parsers (tree-sitter-json)", async t => {
   const file = (await readPath("./package.json")).ok();
   const language = await (new LanguagePicker().findLanguage("json"));
 

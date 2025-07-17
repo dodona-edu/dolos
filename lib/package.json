@@ -33,8 +33,7 @@
     "@typescript-eslint/parser": "6.8.0",
     "ava": "6.3.0",
     "eslint": "8.57.1",
-    "typescript": "5.4.5",
-    "tree-sitter-json": "0.21.0"
+    "typescript": "5.4.5"
   },
   "dependencies": {
     "@dodona/dolos-parsers": "1.4.0",
