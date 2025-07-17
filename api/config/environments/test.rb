@@ -18,15 +18,11 @@ Rails.application.configure do
   # system, or in some way before deploying your code.
   config.eager_load = ENV["CI"].present?
 
-  # Configure public file server for tests with Cache-Control for performance.
-  config.public_file_server.enabled = true
-  config.public_file_server.headers = {
-    "Cache-Control" => "public, max-age=#{1.hour.to_i}"
-  }
+  # Configure public file server for tests with cache-control for performance.
+  config.public_file_server.headers = { "cache-control" => "public, max-age=3600" }
 
-  # Show full error reports and disable caching.
+  # Show full error reports.
   config.consider_all_requests_local       = true
-  config.action_controller.perform_caching = false
   config.cache_store = :null_store
 
   # Raise exceptions instead of rendering exception templates.
@@ -38,8 +34,6 @@ Rails.application.configure do
   # Store uploaded files on the local file system in a temporary directory.
   config.active_storage.service = :test
 
-  config.action_mailer.perform_caching = false
-
   # Tell Action Mailer not to deliver emails to the real world.
   # The :test delivery method accumulates sent emails in the
   # ActionMailer::Base.deliveries array.
@@ -47,12 +41,6 @@ Rails.application.configure do
 
   # Print deprecation notices to the stderr.
   config.active_support.deprecation = :stderr
-
-  # Raise exceptions for disallowed deprecations.
-  config.active_support.disallowed_deprecation = :raise
-
-  # Tell Active Support which deprecation messages to disallow.
-  config.active_support.disallowed_deprecation_warnings = []
 
   # Raises error for missing translations.
   # config.i18n.raise_on_missing_translations = true

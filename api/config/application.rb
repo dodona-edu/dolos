@@ -9,10 +9,15 @@ Bundler.require(*Rails.groups)
 module DolosApi
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
-    config.load_defaults 7.0
+    config.load_defaults 8.0
 
     config.front_end_base_url = nil # overwritten in production.rb, development.rb, testing.rb
     config.front_end_html_path = '#/share/'
+
+    # Please, add to the `ignore` list any other `lib` subdirectories that do
+    # not contain `.rb` files, or that should not be reloaded or eager loaded.
+    # Common ones are `templates`, `generators`, or `middleware`, for example.
+    config.autoload_lib(ignore: %w[assets tasks])
 
     # Configuration for the application, engines, and railties goes here.
     #
