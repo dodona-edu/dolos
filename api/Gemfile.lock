@@ -332,7 +332,7 @@ DEPENDENCIES
   rails (~> 7.2.2)
   rubocop-minitest (~> 0.36.0)
   rubocop-rails (~> 2.30, >= 2.30.3)
-  rubyzip (~> 2.3, >= 2.3.2)
+  rubyzip (~> 2.4, >= 2.4.1)
   sentry-rails
   sentry-ruby
   stackprof
