@@ -10,16 +10,16 @@ gem 'rails', '~> 8.0.2'
 gem 'mysql2', '~> 0.5', '>= 0.5.6'
 
 # Use the Puma web server [https://github.com/puma/puma]
-gem 'puma', '~> 6.4', '>= 6.4.3'
+gem 'puma', '~> 6.6'
 
 # Process ZIP archives
-gem 'rubyzip', '~> 2.3', '>= 2.3.2'
+gem 'rubyzip', '~> 2.4.1'
 
 # Validate ActiveStorage attachments
 gem 'active_storage_validations', '~> 1.4'
 
 # interfacing with docker
-gem 'docker-api', '~> 2.3.0'
+gem 'docker-api', '~> 2.4.0'
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
@@ -46,10 +46,10 @@ group :development, :test do
   gem 'debug', platforms: %i[mri mingw x64_mingw]
 
   # Factory bot for testing factories
-  gem 'factory_bot_rails', '~> 6.4.4'
+  gem 'factory_bot_rails', '~> 6.5.0'
 
   # Faker for generating test data
-  gem 'faker', '~> 3.5.1'
+  gem 'faker', '~> 3.5.2'
 
   # Stubbing and mocking
   gem 'mocha', '~> 2.7.1'
@@ -67,7 +67,7 @@ end
 gem 'capistrano', '~> 3.19', '>= 3.19.2', group: :development
 gem 'capistrano3-delayed-job', '~> 1.7.6'
 gem 'capistrano-passenger', '~> 0.2.1', group: :development
-gem 'capistrano-rails', '~> 1.6.3', group: :development
+gem 'capistrano-rails', '~> 1.7.0', group: :development
 gem 'capistrano-rvm', '~> 0.1.2', group: :development
 gem 'capistrano-yarn', '~> 2.0.2'
 
