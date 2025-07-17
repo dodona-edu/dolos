@@ -201,7 +201,7 @@ GEM
     psych (5.2.3)
       date
       stringio
-    puma (6.5.0)
+    puma (6.6.0)
       nio4r (~> 2.0)
     racc (1.8.1)
     rack (3.1.12)
@@ -327,7 +327,7 @@ DEPENDENCIES
   faker (~> 3.5.1)
   mocha (~> 2.7.1)
   mysql2 (~> 0.5, >= 0.5.6)
-  puma (~> 6.4, >= 6.4.3)
+  puma (~> 6.6)
   rack-cors
   rails (~> 7.2.2)
   rubocop-minitest (~> 0.36.0)
