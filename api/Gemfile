@@ -67,7 +67,7 @@ end
 gem 'capistrano', '~> 3.19', '>= 3.19.2', group: :development
 gem 'capistrano3-delayed-job', '~> 1.7.6'
 gem 'capistrano-passenger', '~> 0.2.1', group: :development
-gem 'capistrano-rails', '~> 1.6.3', group: :development
+gem 'capistrano-rails', '~> 1.7.0', group: :development
 gem 'capistrano-rvm', '~> 0.1.2', group: :development
 gem 'capistrano-yarn', '~> 2.0.2'
 
