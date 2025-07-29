@@ -19,7 +19,9 @@ services:
 
   web:
     image: ghcr.io/dodona-edu/dolos-web
-    # build: ./web/
+    #build:
+    #  dockerfile: ./Dockerfile.web
+    #  context: .
     ports:
       # This renders to "host:port:8080", so traffic from the provided hosts on the specified
       # port is available to port 8080 inside the container. By default, this will be

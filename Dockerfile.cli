@@ -1,0 +1,37 @@
+FROM node:22.17.1-alpine3.22
+
+WORKDIR /repo/
+
+RUN apk add --no-cache curl python3 build-base
+
+ADD package-lock.json package.json tsconfig.global.json /repo/
+
+ADD core/ /repo/core
+
+ADD parsers/ /repo/parsers
+
+ADD lib/package.json lib/tsconfig.json lib/
+ADD lib/src /repo/lib/src
+
+ADD web/index.d.ts web/index.js web/index.html web/package.json web/tsconfig.json web/vite.config.ts web/tsconfig.node.json /repo/web/
+ADD web/src /repo/web/src
+ADD web/public /repo/web/public
+
+ADD cli/tsconfig.json cli/package.json /repo/cli/
+ADD cli/src /repo/cli/src
+ADD cli/typings /repo/cli/typings
+
+RUN npm install
+
+RUN apk del --no-cache python3 build-base
+
+
+RUN npm run --workspace core build
+RUN npm run --workspace web build
+RUN npm run --workspace cli build
+RUN npm --workspace cli link
+
+WORKDIR /dolos
+USER node
+EXPOSE 3000/tcp
+ENTRYPOINT [ "dolos" ]

@@ -1,0 +1,4 @@
+*.tsbuildinfo
+dist/
+node_modules/
+*.iml
