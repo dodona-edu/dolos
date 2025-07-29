@@ -743,8 +743,8 @@ jobs:
 
       - name: Build the Dolos images
         run: |
-          docker build docker/ -t ghcr.io/dodona-edu/dolos-cli:${{ steps.parse_tag.outputs.version }}
-          docker build web/ -t ghcr.io/dodona-edu/dolos-web:${{ steps.parse_tag.outputs.version }}
+          docker build . -f Dockerfile.cli -t ghcr.io/dodona-edu/dolos-cli:${{ steps.parse_tag.outputs.version }}
+          docker build . -f Dockerfile.web -t ghcr.io/dodona-edu/dolos-web:${{ steps.parse_tag.outputs.version }}
           docker build api/ -t ghcr.io/dodona-edu/dolos-api:${{ steps.parse_tag.outputs.version }}
 
       - name: Login to the container registry
