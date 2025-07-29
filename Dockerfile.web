@@ -12,7 +12,7 @@ ADD web/src /repo/web/src
 ADD web/public /repo/web/public
 
 RUN npm install
-
+RUN npm run build --workspace core
 
 ENV VITE_HOST=0.0.0.0
 ENV VITE_PORT=8080
