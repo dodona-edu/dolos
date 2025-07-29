@@ -1,8 +1,8 @@
 # syntax=docker/dockerfile:1
-FROM ruby:3.3.5
+FROM ruby:3.3.6
 RUN apt-get update -qq && apt-get -y install mariadb-client
 
-LABEL org.opencontainers.image.source https://github.com/dodona-edu/dolos
+LABEL org.opencontainers.image.source=https://github.com/dodona-edu/dolos
 
 ADD config.ru Gemfile Gemfile.lock Rakefile /dolos/
 WORKDIR /dolos
