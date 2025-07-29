@@ -80,4 +80,4 @@ You can change the following environment variables to alter how the UI works:
 - `VITE_API_URL` (default: http://localhost:3000) points to the Dolos API url
 - `VITE_MODE` changes the mode (`server` or empty)
 
-Note that `VITE_HOST` and `VITE_PORT` can be used to change where the [Docker container](./Dockerfile) will be hosted.
+Note that `VITE_HOST` and `VITE_PORT` can be used to change where the [Docker container](../Dockerfile.web) will be hosted.

@@ -90,6 +90,26 @@ This allows you to simultaneously develop the CLI, lib and the web project toget
 
 Each component has its own build instructions in its own directory.
 
+## Local installation using Docker
+
+The latest Dolos version comes pre-installed in a Docker container image that is available from GitHub's container registry. Use the following command to pull the image:
+
+```shell
+docker pull ghcr.io/dodona-edu/dolos-cli:latest
+```
+
+Next, you can run an analysis with Dolos and start a web server to view the results using the following docker command:
+
+```shell
+docker run --init --network host -v "$PWD:/dolos" dodona/dolos -l javascript -f web *.js
+```
+
+The arguments passed to docker serve the following purpose:
+- `--init` will make sure stopping the container with Control-C works
+- `--network host` allows Dolos's webserver to bind to <http://localhost:3000>
+- `-v "$PWD:/dolos"` gives Dolos acces to your current directory
+
+
 ## Components
 
 - [CLI](https://github.com/dodona-edu/dolos/tree/main/cli): the command-line interface
