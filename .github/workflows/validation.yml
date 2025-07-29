@@ -15,10 +15,12 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: true
+
       - name: Setup Nix 📚
         uses: cachix/install-nix-action@v30
         with:
           github_access_token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Build & check 🧪
         run: nix build -L '.?submodules=1#checks.x86_64-linux.dolos-cli'
 
@@ -43,9 +45,11 @@ jobs:
         run: |
           npm install -g @dodona/dolos
           dolos --version
+
       - name: Prepare analysis
         run: |
           wget https://dolos.ugent.be/simple-dataset.zip
+
       - name: Run analysis on samples
         run: |
           dolos simple-dataset.zip
