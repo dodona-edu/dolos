@@ -26,6 +26,7 @@ RUN npm install
 RUN apk del --no-cache python3 build-base
 
 
+RUN npm run --workspace core build
 RUN npm run --workspace web build
 RUN npm run --workspace cli build
 RUN npm --workspace cli link
