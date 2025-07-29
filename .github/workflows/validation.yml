@@ -38,8 +38,7 @@ jobs:
 
       - name: Build WEB container
         run: |
-          cd web
-          docker build .
+          docker build . -f Dockerfile.web
 
   docker-cli:
     name: "Build dolos-cli docker container"
@@ -48,7 +47,6 @@ jobs:
       - name: Checkout 🛎️
         uses: actions/checkout@v4
 
-      - name: Build WEB container
+      - name: Build CLI container
         run: |
-          cd cli
-          docker build .
+          docker build . -f Dockerfile.cli
