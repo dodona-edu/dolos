@@ -10,6 +10,7 @@
 .nvmrc
 .nyc_output
 .vscode
+.idea
 dist/
 build/
 dolos-analysis-*
