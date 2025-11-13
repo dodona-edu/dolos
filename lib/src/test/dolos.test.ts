@@ -287,7 +287,7 @@ test("should process zip with no write permission", async t => {
   const pairs = report.allPairs();
   t.is(6, pairs.length);
   t.true(pairs[0].similarity > 0.75);
-})
+});
 
 test("should read ZIP-files without info.csv", async t => {
   const dolos = new Dolos();
