@@ -2,7 +2,7 @@
 let
   dev = fetchTarball "https://github.com/numtide/devshell/archive/main.tar.gz";
   devshell = pkgs.devshell or (import dev { inherit system; });
-  ruby = pkgs.ruby_3_3;
+  ruby = pkgs.ruby_3_4;
 in
 devshell.mkShell {
   name = "Dolos API server";
@@ -19,7 +19,7 @@ devshell.mkShell {
     docker-compose
   ];
   language.ruby = {
-    package = (pkgs.lowPrio ruby);
+    package = ruby;
     nativeDeps = with pkgs; [ libmysqlclient libyaml ];
   };
   env = [
