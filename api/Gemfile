@@ -15,6 +15,9 @@ gem 'puma', '~> 6.6'
 # Process ZIP archives
 gem 'rubyzip', '~> 2.4.1'
 
+# Parse CSV files
+gem 'csv', '~> 3.3', '>= 3.3.5'
+
 # Validate ActiveStorage attachments
 gem 'active_storage_validations', '~> 1.4'
 
