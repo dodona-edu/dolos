@@ -50,6 +50,20 @@ export class Dataset {
     return ignoredFiles.length === 1 ? ignoredFiles[0] : undefined;
   }
 
+  private static runCommand(
+    command: string,
+    args: string[]
+  ): void {
+    const result = spawn(command, args);
+    if (result.error) {
+      throw result.error;
+    }
+    if (result.status !== 0) {
+      throw new Error(
+        `The ${command} command failed with exit status ${result.status}, stderr:\n${result.stderr}`
+      );
+    }
+  }
 
   private static async fromZIP(
     zipPath: string,
@@ -57,12 +71,9 @@ export class Dataset {
   ): Promise<Dataset> {
     const tmpDir = await fs.mkdtemp(path.join(tmpdir(), "dolos-unzip-"));
     try {
-      const { status, error, stderr } = spawn("unzip", [zipPath, "-d", tmpDir]);
-      if (error) {
-        throw error;
-      } else if (status != 0) {
-        throw new Error(`Unzipping failed with exit status ${ status }, stderr: \n${stderr}`);
-      }
+      this.runCommand("unzip", [zipPath, "-d", tmpDir]);
+      this.runCommand("chmod", ["-R", "u+rwx", tmpDir]);
+
       const infoPath = path.join(tmpDir, "info.csv");
       if (await fs.access(infoPath, constants.R_OK).then(() => true).catch(() => false)) {
         const dataset = await Dataset.fromCSV(infoPath, ignore);

@@ -275,6 +275,20 @@ test("should read ZIP-files with info.csv", async t => {
   t.true(pairs[0].similarity > 0.75);
 });
 
+test("should process zip with no write permission", async t => {
+  const dolos = new Dolos();
+
+  const report = await dolos.analyzePaths(["../samples/javascript/simple-dataset-no-write.zip"]);
+
+  t.is(4, report.files.length);
+  t.is(report.name, "simple-dataset-no-write");
+  t.is(report.metadata()["reportName"], "simple-dataset-no-write");
+
+  const pairs = report.allPairs();
+  t.is(6, pairs.length);
+  t.true(pairs[0].similarity > 0.75);
+});
+
 test("should read ZIP-files without info.csv", async t => {
   const dolos = new Dolos();
 
