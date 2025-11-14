@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM ruby:3.3.6
+FROM ruby:3.4.7
 RUN apt-get update -qq && apt-get -y install mariadb-client
 
 LABEL org.opencontainers.image.source=https://github.com/dodona-edu/dolos
