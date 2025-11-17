@@ -12,7 +12,7 @@ class ReportsController < ApplicationController
     if @report.save
       render json: @report, status: :created, location: @report
     else
-      render json: @report.errors, status: :unprocessable_entity
+      render json: @report.errors, status: :unprocessable_content
     end
   end
 
