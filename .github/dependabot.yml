@@ -1,0 +1,172 @@
+version: 2
+updates:
+
+  # API - Ruby/Bundler
+  - package-ecosystem: "bundler"
+    directory: "/api"
+    schedule:
+      interval: "weekly"
+    cooldown:
+      default-days: 5
+    groups:
+      api-dependencies-security:
+        applies-to: security-updates
+        patterns:
+          - "*"
+      api-dependencies-version:
+        applies-to: version-updates
+        patterns:
+          - "*"
+
+  # CLI - NPM
+  - package-ecosystem: "npm"
+    directory: "/cli"
+    schedule:
+      interval: "weekly"
+    cooldown:
+      default-days: 5
+    groups:
+      cli-dependencies-security:
+        applies-to: security-updates
+        patterns:
+          - "*"
+      cli-dependencies-version:
+        applies-to: version-updates
+        patterns:
+          - "*"
+
+  # Core - NPM
+  - package-ecosystem: "npm"
+    directory: "/core"
+    schedule:
+      interval: "weekly"
+    cooldown:
+      default-days: 5
+    groups:
+      core-dependencies-security:
+        applies-to: security-updates
+        patterns:
+          - "*"
+      core-dependencies-version:
+        applies-to: version-updates
+        patterns:
+          - "*"
+
+  # Docs - NPM
+  - package-ecosystem: "npm"
+    directory: "/docs"
+    schedule:
+      interval: "weekly"
+    cooldown:
+      default-days: 5
+    groups:
+      docs-dependencies-security:
+        applies-to: security-updates
+        patterns:
+          - "*"
+      docs-dependencies-version:
+        applies-to: version-updates
+        patterns:
+          - "*"
+
+  # Lib - NPM
+  - package-ecosystem: "npm"
+    directory: "/lib"
+    schedule:
+      interval: "weekly"
+    cooldown:
+      default-days: 5
+    groups:
+      lib-dependencies-security:
+        applies-to: security-updates
+        patterns:
+          - "*"
+      lib-dependencies-version:
+        applies-to: version-updates
+        patterns:
+          - "*"
+
+  # Parsers - NPM
+  - package-ecosystem: "npm"
+    directory: "/parsers"
+    schedule:
+      interval: "weekly"
+    cooldown:
+      default-days: 5
+    groups:
+      parsers-dependencies-security:
+        applies-to: security-updates
+        patterns:
+          - "*"
+      parsers-dependencies-version:
+        applies-to: version-updates
+        patterns:
+          - "*"
+
+  # Web - NPM
+  - package-ecosystem: "npm"
+    directory: "/web"
+    schedule:
+      interval: "weekly"
+    cooldown:
+      default-days: 5
+    groups:
+      web-dependencies-security:
+        applies-to: security-updates
+        patterns:
+          - "*"
+      web-dependencies-version:
+        applies-to: version-updates
+        patterns:
+          - "*"
+
+  # API - Docker
+  - package-ecosystem: "docker"
+    directory: "/api"
+    schedule:
+      interval: "weekly"
+    cooldown:
+      default-days: 5
+    groups:
+      api-docker-security:
+        applies-to: security-updates
+        patterns:
+          - "*"
+      api-docker-version:
+        applies-to: version-updates
+        patterns:
+          - "*"
+
+  # Root Docker
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    cooldown:
+      default-days: 5
+    groups:
+      root-docker-security:
+        applies-to: security-updates
+        patterns:
+          - "*"
+      root-docker-version:
+        applies-to: version-updates
+        patterns:
+          - "*"
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    cooldown:
+      default-days: 5
+    groups:
+      github-actions-security:
+        applies-to: security-updates
+        patterns:
+          - "*"
+      github-actions-version:
+        applies-to: version-updates
+        patterns:
+          - "*"
