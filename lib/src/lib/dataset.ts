@@ -122,7 +122,7 @@ export class Dataset {
       const files = resolvedFiles.ok().filter(file => file.extra?.ignored !== "true");
       const nameCandidate = path.dirname(infoPath).split(path.sep).pop() || "undefined";
       return new Dataset(nameCandidate, files, ignoredFile);
-    } catch(e) {
+    } catch {
       throw new Error("The given '.csv'-file could not be opened");
     }
   }
