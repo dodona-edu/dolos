@@ -22,12 +22,12 @@
     "access": "public"
   },
   "devDependencies": {
-    "@ava/typescript": "5.0.0",
-    "@typescript-eslint/eslint-plugin": "6.8.0",
-    "@typescript-eslint/parser": "6.8.0",
-    "ava": "6.3.0",
+    "@ava/typescript": "6.0.0",
+    "@typescript-eslint/eslint-plugin": "8.46.4",
+    "@typescript-eslint/parser": "8.46.4",
+    "ava": "6.4.1",
     "eslint": "8.57.1",
-    "typescript": "5.4.5"
+    "typescript": "5.9.3"
   },
   "bugs": {
     "url": "https://github.com/dodona-edu/dolos/issues"
