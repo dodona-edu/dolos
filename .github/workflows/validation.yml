@@ -30,7 +30,7 @@ jobs:
       matrix:
         os:
           - macos-14
-          - macos-13
+          - macos-15
           - ubuntu-latest
       fail-fast: false
     runs-on: ${{ matrix.os }}
