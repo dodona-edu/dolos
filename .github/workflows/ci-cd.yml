@@ -80,7 +80,7 @@ jobs:
 
       - name: Setup Node 📚
         if: steps.cache-dependencies.outputs.cache-hit != 'true'
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node }}
 
@@ -103,7 +103,7 @@ jobs:
           submodules: true
 
       - name: Setup Node 📚
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node }}
 
@@ -141,7 +141,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Node 📚
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node }}
 
@@ -179,7 +179,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Node 📚
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node }}
 
@@ -218,7 +218,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Node 📚
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node }}
 
@@ -258,7 +258,7 @@ jobs:
           submodules: true
 
       - name: Setup Node 📚
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node }}
 
@@ -299,7 +299,7 @@ jobs:
           submodules: true
 
       - name: Setup Node 📚
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node }}
 
@@ -337,7 +337,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Node 📚
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node }}
 
@@ -378,7 +378,7 @@ jobs:
           submodules: true
 
       - name: Setup Node 📚
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node }}
 
@@ -446,7 +446,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Node 📚
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node }}
 
@@ -484,7 +484,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Node 📚
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node }}
 
@@ -532,7 +532,7 @@ jobs:
           submodules: true
 
       - name: Setup Node 📚
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node }}
 
@@ -592,7 +592,7 @@ jobs:
           npm run build
 
       - name: Publish @dodona/dolos-core to NPM
-        uses: JS-DevTools/npm-publish@v3
+        uses: JS-DevTools/npm-publish@v4
         with:
           token: ${{ secrets.NPM_AUTH_TOKEN }}
           package: ./core/package.json
@@ -600,7 +600,7 @@ jobs:
           access: public
 
       - name: Publish @dodona/dolos-parsers to NPM
-        uses: JS-DevTools/npm-publish@v3
+        uses: JS-DevTools/npm-publish@v4
         with:
           token: ${{ secrets.NPM_AUTH_TOKEN }}
           package: ./parsers/package.json
@@ -608,7 +608,7 @@ jobs:
           access: public
 
       - name: Publish @dodona/dolos-lib to NPM
-        uses: JS-DevTools/npm-publish@v3
+        uses: JS-DevTools/npm-publish@v4
         with:
           token: ${{ secrets.NPM_AUTH_TOKEN }}
           package: ./lib/package.json
@@ -616,7 +616,7 @@ jobs:
           access: public
 
       - name: Publish @dodona/dolos-web to NPM
-        uses: JS-DevTools/npm-publish@v3
+        uses: JS-DevTools/npm-publish@v4
         with:
           token: ${{ secrets.NPM_AUTH_TOKEN }}
           package: ./web/package.json
@@ -624,7 +624,7 @@ jobs:
           access: public
 
       - name: Publish @dodona/dolos to NPM
-        uses: JS-DevTools/npm-publish@v3
+        uses: JS-DevTools/npm-publish@v4
         with:
           token: ${{ secrets.NPM_AUTH_TOKEN }}
           package: ./cli/package.json
@@ -641,7 +641,7 @@ jobs:
       fail-fast: false
     steps:
       - name: Setup Node 📚
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node }}
 
@@ -733,7 +733,7 @@ jobs:
           submodules: true
 
       - name: Setup Node 📚
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node }}
 
