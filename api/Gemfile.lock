@@ -193,7 +193,7 @@ GEM
     net-smtp (0.5.1)
       net-protocol
     net-ssh (7.3.0)
-    nio4r (2.7.4)
+    nio4r (2.7.5)
     nokogiri (1.18.8)
       mini_portile2 (~> 2.8.2)
       racc (~> 1.4)
@@ -209,7 +209,7 @@ GEM
     psych (5.2.6)
       date
       stringio
-    puma (6.6.0)
+    puma (6.6.1)
       nio4r (~> 2.0)
     racc (1.8.1)
     rack (3.2.4)
@@ -340,7 +340,7 @@ DEPENDENCIES
   faker (~> 3.5.2)
   mocha (~> 2.7.1)
   mysql2 (~> 0.5, >= 0.5.6)
-  puma (~> 6.6)
+  puma (~> 6.6, >= 6.6.1)
   rack-cors
   rails (~> 8.0.2)
   rubocop-minitest (~> 0.38.2)
