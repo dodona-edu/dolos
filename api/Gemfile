@@ -4,22 +4,22 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 ruby '3.4.7'
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
-gem 'rails', '~> 8.0.2'
+gem 'rails', '~> 8.1.1'
 
 # Use mysql as the database for Active Record
-gem 'mysql2', '~> 0.5', '>= 0.5.6'
+gem 'mysql2', '~> 0.5'
 
 # Use the Puma web server [https://github.com/puma/puma]
-gem 'puma', '~> 6.6'
+gem 'puma', '~> 7.1'
 
 # Process ZIP archives
-gem 'rubyzip', '~> 2.4.1'
+gem 'rubyzip', '~> 3.2.2'
 
 # Parse CSV files
 gem 'csv', '~> 3.3', '>= 3.3.5'
 
 # Validate ActiveStorage attachments
-gem 'active_storage_validations', '~> 1.4'
+gem 'active_storage_validations', '~> 3.0'
 
 # interfacing with docker
 gem 'docker-api', '~> 2.4.0'
@@ -49,19 +49,19 @@ group :development, :test do
   gem 'debug', platforms: %i[mri mingw x64_mingw]
 
   # Factory bot for testing factories
-  gem 'factory_bot_rails', '~> 6.5.0'
+  gem 'factory_bot_rails', '~> 6.5.1'
 
   # Faker for generating test data
   gem 'faker', '~> 3.5.2'
 
   # Stubbing and mocking
-  gem 'mocha', '~> 2.7.1'
+  gem 'mocha', '~> 2.8.2'
 end
 
 group :development do
   # Speed up commands on slow machines / big apps [https://github.com/rails/spring]
   # gem "spring"
-  gem 'annotaterb', '~> 4.17' # Remove workaround in lib/tasks/annotate.rb when https://github.com/ctran/annotate_models/issues/696 is fixed
+  gem 'annotaterb', '~> 4.20' # Remove workaround in lib/tasks/annotate.rb when https://github.com/ctran/annotate_models/issues/696 is fixed
   gem 'rubocop-minitest', '~> 0.38.2'
   gem 'rubocop-rails', '~> 2.34'
 end
