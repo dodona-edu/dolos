@@ -49,7 +49,7 @@ group :development, :test do
   gem 'debug', platforms: %i[mri mingw x64_mingw]
 
   # Factory bot for testing factories
-  gem 'factory_bot_rails', '~> 6.5.0'
+  gem 'factory_bot_rails', '~> 6.5.1'
 
   # Faker for generating test data
   gem 'faker', '~> 3.5.2'
