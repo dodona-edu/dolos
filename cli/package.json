@@ -29,8 +29,8 @@
   },
   "devDependencies": {
     "@types/node": "^24.10.1",
-    "@typescript-eslint/eslint-plugin": "8.46.4",
-    "@typescript-eslint/parser": "8.46.4",
+    "@typescript-eslint/eslint-plugin": "8.47.0",
+    "@typescript-eslint/parser": "8.47.0",
     "eslint": "8.57.1",
     "typescript": "5.9.3"
   },
@@ -41,7 +41,7 @@
     "cliui": "^8.0.1",
     "commander": "^14.0.2",
     "csv-stringify": "^6.6.0",
-    "open": "^10.2.0",
+    "open": "^11.0.0",
     "tree-sitter": "^0.25.0"
   },
   "bugs": {
