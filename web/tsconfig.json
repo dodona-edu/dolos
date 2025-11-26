@@ -6,7 +6,7 @@
     "allowSyntheticDefaultImports": true,
     "composite": true,
     "module": "esnext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "strict": true,
     "jsx": "preserve",
     "sourceMap": false,
