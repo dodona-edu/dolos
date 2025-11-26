@@ -42,7 +42,7 @@ features:
     
   - title: CLI & Library
     details: Run Dolos from the command line or use it as a library in your own project. For advanced users.
-    link: /guide/installation
+    link: /docs/installation
     linkText: Installation instructions
     icon: 💻
         
