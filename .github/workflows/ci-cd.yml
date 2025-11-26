@@ -525,6 +525,9 @@ jobs:
       matrix:
         node:  [ "22" ]
       fail-fast: false
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v4
