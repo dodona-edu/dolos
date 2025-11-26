@@ -1,6 +1,6 @@
 {
   "name": "@dodona/dolos-core",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "exports": "./dist/index.js",
   "type": "module",
   "description": "Core classes and algorithms for Dolos source code similarity checker",
