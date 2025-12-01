@@ -29,8 +29,8 @@
     "@ava/typescript": "6.0.0",
     "@types/d3-dsv": "3.0.7",
     "@types/node": "^24.10.1",
-    "@typescript-eslint/eslint-plugin": "8.46.4",
-    "@typescript-eslint/parser": "8.46.4",
+    "@typescript-eslint/eslint-plugin": "8.48.0",
+    "@typescript-eslint/parser": "8.48.0",
     "ava": "6.4.1",
     "eslint": "8.57.1",
     "typescript": "5.9.3"
