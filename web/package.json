@@ -39,7 +39,7 @@
     "eslint-plugin-vue": "^9.26.0",
     "eslint-plugin-vuetify": "^2.5.2",
     "luxon": "^3.4.4",
-    "monaco-editor": "^0.54.0",
+    "monaco-editor": "^0.55.1",
     "papaparse": "^5.5.2",
     "pinia": "^3.0.2",
     "roboto-fontface": "*",
