@@ -37,7 +37,7 @@ gem 'delayed_job_active_record'
 gem 'rack-cors'
 
 # Use ActiveModelSerializer for serializing to JSON
-gem 'active_model_serializers', '~> 0.10', '>= 0.10.15'
+gem 'active_model_serializers', '~> 0.10'
 
 # Use Sentry
 gem 'sentry-rails'
