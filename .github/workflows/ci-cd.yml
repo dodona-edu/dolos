@@ -27,7 +27,7 @@ jobs:
         options: --health-cmd="healthcheck.sh --su-mysql --connect --innodb_initialized" --health-interval=10s --health-timeout=5s --health-retries=5
     steps:
       - name: Checkout 🛎️
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Setup Ruby 📚
         uses: ruby/setup-ruby@v1
         with:
@@ -45,7 +45,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout 🛎️
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Setup Ruby 📚
         uses: ruby/setup-ruby@v1
         with:
@@ -65,7 +65,7 @@ jobs:
       fail-fast: false
     steps:
       - name: Checkout 🛎️
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: true
       - name: Cache npm dependencies
@@ -98,7 +98,7 @@ jobs:
       fail-fast: false
     steps:
       - name: Checkout 🛎️
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: true
 
@@ -138,7 +138,7 @@ jobs:
       fail-fast: false
     steps:
       - name: Checkout 🛎️
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Node 📚
         uses: actions/setup-node@v6
@@ -176,7 +176,7 @@ jobs:
       fail-fast: false
     steps:
       - name: Checkout 🛎️
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Node 📚
         uses: actions/setup-node@v6
@@ -215,7 +215,7 @@ jobs:
       fail-fast: false
     steps:
       - name: Checkout 🛎️
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Node 📚
         uses: actions/setup-node@v6
@@ -253,7 +253,7 @@ jobs:
       fail-fast: false
     steps:
       - name: Checkout 🛎️
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: true
 
@@ -294,7 +294,7 @@ jobs:
       fail-fast: false
     steps:
       - name: Checkout 🛎️
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: true
 
@@ -334,7 +334,7 @@ jobs:
       fail-fast: false
     steps:
       - name: Checkout 🛎️
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Node 📚
         uses: actions/setup-node@v6
@@ -373,7 +373,7 @@ jobs:
       fail-fast: false
     steps:
       - name: Checkout 🛎️
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: true
 
@@ -443,7 +443,7 @@ jobs:
       fail-fast: false
     steps:
       - name: Checkout 🛎️
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Node 📚
         uses: actions/setup-node@v6
@@ -481,7 +481,7 @@ jobs:
       fail-fast: false
     steps:
       - name: Checkout 🛎️
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Node 📚
         uses: actions/setup-node@v6
@@ -530,7 +530,7 @@ jobs:
       pull-requests: write
     steps:
       - name: Checkout 🛎️
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: true
 
@@ -731,7 +731,7 @@ jobs:
       packages: write
     steps:
       - name: Checkout 🛎️
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: true
 
