@@ -32,11 +32,11 @@ impl Language {
         }
     }
 
-    pub fn tree_sitter_language(self) -> tree_sitter::Language {
+    pub fn tree_sitter_language(self) -> tree_sitter_language::LanguageFn{
         match self {
-            Language::Java => tree_sitter_java::language(),
-            Language::Javascript => tree_sitter_javascript::language(),
-            Language::Python => tree_sitter_python::language(),
+            Language::Java => tree_sitter_java::LANGUAGE,
+            Language::Javascript => tree_sitter_javascript::LANGUAGE,
+            Language::Python => tree_sitter_python::LANGUAGE,
         }
     }
 }

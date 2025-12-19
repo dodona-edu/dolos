@@ -20,7 +20,7 @@ impl Tokenizer {
     pub fn new(language: Language) -> Self {
         let mut parser = Parser::new();
         parser
-            .set_language(language.tree_sitter_language())
+            .set_language(&language.tree_sitter_language().into())
             .expect("set language");
         Tokenizer { language, parser }
     }
