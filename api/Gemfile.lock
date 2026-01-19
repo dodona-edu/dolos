@@ -1,7 +1,7 @@
 GEM
   remote: https://rubygems.org/
   specs:
-    action_text-trix (2.1.15)
+    action_text-trix (2.1.16)
       railties
     actioncable (8.1.1)
       actionpack (= 8.1.1)
@@ -210,7 +210,7 @@ GEM
     pp (0.6.3)
       prettyprint
     prettyprint (0.2.0)
-    prism (1.7.0)
+    prism (1.8.0)
     psych (5.3.1)
       date
       stringio
@@ -260,7 +260,7 @@ GEM
       zeitwerk (~> 2.6)
     rainbow (3.1.1)
     rake (13.3.1)
-    rdoc (7.0.3)
+    rdoc (7.1.0)
       erb
       psych (>= 4.0.0)
       tsort
@@ -310,7 +310,7 @@ GEM
       ostruct
     stackprof (0.2.27)
     stringio (3.2.0)
-    thor (1.4.0)
+    thor (1.5.0)
     timeout (0.6.0)
     tsort (0.2.0)
     tzinfo (2.0.6)
@@ -324,7 +324,7 @@ GEM
       base64
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
-    zeitwerk (2.7.3)
+    zeitwerk (2.7.4)
 
 PLATFORMS
   ruby
