@@ -9,9 +9,11 @@ buildNpmPackage rec {
 
   src = ./.;
 
-  npmDepsHash = "sha256-3RMUWo6vybfi0BvQ12jjxuYFPDe3HkTv24L3BsuOCFg";
+  npmDepsHash = "sha256-p2VlinpS6AKrzQHA1fCe+gbiaMNkcH3uDLHj7Bf0V4g=";
 
   npmWorkspace="cli";
+
+  npmFlags = [ "--legacy-peer-deps" ];
 
   makeWrapperArgs = "--prefix PATH : ${lib.makeBinPath [ unzip ]}";
 
