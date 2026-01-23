@@ -17,8 +17,8 @@ fn main() {
             for pair in report.pairs {
                 println!(
                     "{} - {} (sim: {:.2}%, longest: {}, total: {})",
-                    pair.pair.left.file_name(),
-                    pair.pair.right.file_name(),
+                    pair.left_file.file_name(),
+                    pair.right_file.file_name(),
                     pair.similarity * 100f64,
                     pair.longest,
                     pair.overlap

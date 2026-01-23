@@ -4,7 +4,6 @@ use crate::winnowing::hashes::{hash_token, RollingHash};
 #[derive(Debug, PartialEq, Clone)]
 pub struct Fingerprint {
     pub index: usize,
-    pub kgram: Vec<Token>,
     pub hash: usize,
 }
 
@@ -47,11 +46,6 @@ impl Winnow for Vec<Token> {
                 filtered.push(Fingerprint {
                     index: filtered.len(),
                     hash: window[min_index % w],
-                    kgram: self
-                        .windows(k)
-                        .nth(min_index + 1 - k)
-                        .expect("incorrect kgram index")
-                        .to_vec(),
                 });
             } else if window[token_index % w] <= window[min_index % w] {
                 // we have found a new minimum
@@ -60,11 +54,6 @@ impl Winnow for Vec<Token> {
                 filtered.push(Fingerprint {
                     index: filtered.len(),
                     hash: window[min_index % w],
-                    kgram: self
-                        .windows(k)
-                        .nth(min_index + 1 - k)
-                        .expect("incorrect kgram index")
-                        .to_vec(),
                 });
             }
         }
@@ -112,19 +101,6 @@ mod tests {
                     "Mismatch (k={}, w={}): {:?} and {:?}",
                     k, w, fingerprint, expected[i]
                 );
-                assert_eq!(
-                    fingerprint
-                        .kgram
-                        .iter()
-                        .map(|t| t.name.to_string())
-                        .collect::<Vec<String>>(),
-                    expected[i].data,
-                    "Mismatch (k={}, w={}): {:?} and {:?}",
-                    k,
-                    w,
-                    fingerprint,
-                    expected[i]
-                );
                 length = i;
             }
             assert_eq!(
@@ -166,19 +142,6 @@ mod tests {
                     fingerprint.hash, expected[i].hash,
                     "Mismatch (k={}, w={}): {:?} and {:?}",
                     k, w, fingerprint, expected[i]
-                );
-                assert_eq!(
-                    fingerprint
-                        .kgram
-                        .iter()
-                        .map(|t| t.name.to_string())
-                        .collect::<Vec<String>>(),
-                    expected[i].data,
-                    "Mismatch (k={}, w={}): {:?} and {:?}",
-                    k,
-                    w,
-                    fingerprint,
-                    expected[i]
                 );
                 length = i;
             }

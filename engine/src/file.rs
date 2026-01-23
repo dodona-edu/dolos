@@ -1,19 +1,18 @@
-use std::ffi::OsStr;
+use std::collections::HashSet;
 use std::fmt;
 use std::hash::{Hash, Hasher};
 use std::io::Read;
 use std::path::{Path, PathBuf};
 
-use tree_sitter::Tree;
-
 use crate::language::Language;
-use crate::tokenizer::Token;
+use crate::winnowing::hashes::Hash as OtherHash;
 use crate::winnowing::tokens::Fingerprint;
 
 pub struct File {
     pub path: PathBuf,
     pub language: Language,
     pub fingerprints: Vec<Fingerprint>,
+    pub shared: HashSet<OtherHash>,
 }
 
 impl File {

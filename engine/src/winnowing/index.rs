@@ -7,7 +7,7 @@ use crate::winnowing::report::Report;
 use crate::winnowing::shared_fingerprint::SharedFingerprint;
 use crate::winnowing::tokens::{Fingerprint, Winnow};
 use std::collections::hash_map::Entry;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::path::PathBuf;
 use std::rc::Rc;
 
@@ -47,10 +47,17 @@ impl Index {
         let tree = self.tokenizer.parse(&path);
         let tokens = tree.tokens();
         let fingerprints = tokens.winnow(self.k, self.w);
+
+        let mut shared = HashSet::new();
+        for fingerprint in &fingerprints {
+            shared.insert(fingerprint.hash);
+        }
+
         let file = Rc::new(File {
             path,
             fingerprints,
             language: self.language,
+            shared,
         });
 
         self.files.push(file.clone());
@@ -74,26 +81,14 @@ impl Index {
     }
 
     pub fn build_report(&self) -> Report {
-        // TODO filter fingerprints
-        let filtered = self.fingerprints.values();
-        let mut pairs: HashMap<(Rc<File>, Rc<File>), Pair> = HashMap::new();
+        let files = &self.files;
+        let mut report: Report = Report::new();
 
-        for fingerprint in filtered {
-            let parts: Vec<(&Rc<File>, &Vec<Occurrence>)> = fingerprint.parts.iter().collect();
-            for (i, p1) in parts.iter().enumerate() {
-                for p2 in parts[(i + 1)..].iter() {
-                    let ((lf, lo), (rf, ro)) = if p1.0 < p2.0 { (p1, p2) } else { (p2, p1) };
-                    if lf != rf {
-                        let key = (lf.clone().to_owned(), rf.clone().to_owned());
-                        pairs
-                            .entry(key)
-                            .or_insert_with(|| Pair::new(lf, rf))
-                            .add(lo, ro);
-                    }
-                }
+        for i in 0..files.len() {
+            for j in i+1..files.len() {
+                report.add(Pair::new(&files[i], &files[j], &self.fingerprints));
             }
         }
-
-        Report::from(pairs.into_values())
+        report
     }
 }

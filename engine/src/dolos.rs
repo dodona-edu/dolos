@@ -1,6 +1,5 @@
 use crate::language::Language;
 use crate::winnowing::index::Index;
-use crate::winnowing::pair::Pair;
 use crate::winnowing::report::Report;
 use std::fmt;
 use std::path::PathBuf;
