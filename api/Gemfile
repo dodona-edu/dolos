@@ -4,13 +4,13 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 ruby '3.4.7'
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
-gem 'rails', '~> 8.1.1'
+gem 'rails', '~> 8.1.2'
 
 # Use mysql as the database for Active Record
 gem 'mysql2', '~> 0.5'
 
 # Use the Puma web server [https://github.com/puma/puma]
-gem 'puma', '~> 7.1'
+gem 'puma', '~> 7.2'
 
 # Process ZIP archives
 gem 'rubyzip', '~> 3.2.2'
