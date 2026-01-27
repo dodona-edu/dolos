@@ -1,10 +1,10 @@
 use std::fs::File;
 use std::io;
 use std::io::{BufWriter, Write};
+use std::path::PathBuf;
 use crate::opts::OutputFormat;
 
 pub trait OutputWriter {
-    fn new() -> io::Result<Self> where Self: Sized;
     fn write_pair(&mut self, right_file: &str, left_file: &str, similarity: f64, longest: usize) -> io::Result<()>;
     fn finish(self) -> io::Result<()>;
 }
@@ -15,19 +15,15 @@ pub enum Writer {
 }
 
 impl Writer {
-    pub fn new(format: OutputFormat) -> io::Result<Self> {
+    pub fn new(format: OutputFormat, output_destination: PathBuf) -> io::Result<Self> {
         match format {
-            OutputFormat::Csv => Ok(Writer::Csv(CsvWriter::new()?)),
-            OutputFormat::Terminal => Ok(Writer::Terminal(TerminalWriter::new()?)),
+            OutputFormat::Csv => Ok(Writer::Csv(CsvWriter::new(output_destination)?)),
+            OutputFormat::Terminal => Ok(Writer::Terminal(TerminalWriter)),
         }
     }
 }
 
 impl OutputWriter for Writer {
-    fn new() -> io::Result<Self> {
-        // This won't be used directly, but needed for trait completeness
-        unreachable!("Use Writer::new(format) instead")
-    }
 
     fn write_pair(&mut self, right_file: &str, left_file: &str, similarity: f64, longest: usize) -> io::Result<()> {
         match self {
@@ -48,12 +44,19 @@ pub struct CsvWriter {
     writer: BufWriter<File>,
 }
 
-impl OutputWriter for CsvWriter {
-    fn new() -> io::Result<Self> {
+impl CsvWriter {
+    fn new(output_destination: PathBuf) -> io::Result<Self> {
+        let csv_path = output_destination.join("similarities.csv");
+        let mut writer = BufWriter::new(File::create(csv_path)?);
+        writeln!(writer, "file1,file2,similarity,longest")?;
         Ok(Self {
-            writer: BufWriter::new(File::create("similarities.csv")?),
+            writer,
         })
     }
+}
+
+impl OutputWriter for CsvWriter {
+
 
     fn write_pair(&mut self, right_file: &str, left_file: &str, similarity: f64, longest: usize) -> io::Result<()> {
         writeln!(self.writer, "{},{},{},{}", right_file, left_file, similarity, longest)
@@ -67,9 +70,6 @@ impl OutputWriter for CsvWriter {
 pub struct TerminalWriter;
 
 impl OutputWriter for TerminalWriter {
-    fn new() -> io::Result<Self> {
-        Ok(Self)
-    }
 
     fn write_pair(&mut self, right_file: &str, left_file: &str, similarity: f64, longest: usize) -> io::Result<()> {
         println!("{} - {} (sim: {:.2}%, longest: {})",

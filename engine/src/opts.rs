@@ -1,3 +1,4 @@
+use std::env;
 use clap::{Parser, Subcommand};
 
 use std::path::PathBuf;
@@ -20,9 +21,12 @@ pub enum Command {
     /// Run a similarity analysis on the given files.
     Run {
         /// Files to analyze
-        files: Vec<PathBuf>,
+        files: PathBuf,
 
         #[arg(value_enum, short = 'f', long, default_value_t = OutputFormat::Terminal)]
         output_format: OutputFormat,
+
+        #[arg(short, long, default_value = ".")]
+        output_destination: PathBuf
     },
 }
