@@ -46,6 +46,7 @@ pub struct CsvWriter {
 
 impl CsvWriter {
     fn new(output_destination: PathBuf) -> io::Result<Self> {
+        std::fs::create_dir_all(&output_destination)?;
         let csv_path = output_destination.join("similarities.csv");
         let mut writer = BufWriter::new(File::create(csv_path)?);
         writeln!(writer, "file1,file2,similarity,longest")?;

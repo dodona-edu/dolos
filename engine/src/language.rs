@@ -4,6 +4,7 @@ use std::path::PathBuf;
 #[derive(Debug, Eq, PartialEq, Clone, Copy)]
 pub enum Language {
     Java,
+    C,
     Javascript,
     Python,
 }
@@ -23,6 +24,8 @@ impl Language {
     pub fn from_ext(ext: &OsStr) -> Option<Language> {
         if ext.eq_ignore_ascii_case("java") {
             Some(Self::Java)
+        } else if ext.eq_ignore_ascii_case("c") {
+            Some(Self::C)
         } else if ext.eq_ignore_ascii_case("js") {
             Some(Self::Javascript)
         } else if ext.eq_ignore_ascii_case("py") || ext.eq_ignore_ascii_case("py3") {
@@ -35,6 +38,7 @@ impl Language {
     pub fn tree_sitter_language(self) -> tree_sitter_language::LanguageFn{
         match self {
             Language::Java => tree_sitter_java::LANGUAGE,
+            Language::C => tree_sitter_c::LANGUAGE,
             Language::Javascript => tree_sitter_javascript::LANGUAGE,
             Language::Python => tree_sitter_python::LANGUAGE,
         }

@@ -21,7 +21,7 @@ pub enum Command {
     /// Run a similarity analysis on the given files.
     Run {
         /// Files to analyze
-        files: PathBuf,
+        files: Vec<PathBuf>,
 
         #[arg(value_enum, short = 'f', long, default_value_t = OutputFormat::Terminal)]
         output_format: OutputFormat,
