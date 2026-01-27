@@ -9,11 +9,20 @@ pub struct Opts {
     pub command: Command,
 }
 
+#[derive(Debug, Clone, clap::ValueEnum)]
+pub enum OutputFormat {
+    Csv,
+    Terminal,
+}
+
 #[derive(Subcommand, Debug)]
 pub enum Command {
     /// Run a similarity analysis on the given files.
     Run {
         /// Files to analyze
         files: Vec<PathBuf>,
+
+        #[arg(value_enum, short = 'f', long, default_value_t = OutputFormat::Terminal)]
+        output_format: OutputFormat,
     },
 }
