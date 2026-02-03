@@ -22,16 +22,12 @@ impl Language {
     }
 
     pub fn from_ext(ext: &OsStr) -> Option<Language> {
-        if ext.eq_ignore_ascii_case("java") {
-            Some(Self::Java)
-        } else if ext.eq_ignore_ascii_case("c") {
-            Some(Self::C)
-        } else if ext.eq_ignore_ascii_case("js") {
-            Some(Self::Javascript)
-        } else if ext.eq_ignore_ascii_case("py") || ext.eq_ignore_ascii_case("py3") {
-            Some(Self::Python)
-        } else {
-            None
+        match ext.to_ascii_lowercase().to_str() {
+            Some("java") => Some(Self::Java),
+            Some("c") => Some(Self::C),
+            Some("js") => Some(Self::Javascript),
+            Some("py") | Some("py3") => Some(Self::Python),
+            _ => None
         }
     }
 

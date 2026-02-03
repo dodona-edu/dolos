@@ -1,4 +1,3 @@
-use std::env;
 use clap::{Parser, Subcommand};
 
 use std::path::PathBuf;
@@ -14,6 +13,7 @@ pub struct Opts {
 pub enum OutputFormat {
     Csv,
     Terminal,
+    Console,
 }
 
 #[derive(Subcommand, Debug)]
@@ -21,6 +21,7 @@ pub enum Command {
     /// Run a similarity analysis on the given files.
     Run {
         /// Files to analyze
+        #[arg(required = true)]
         files: Vec<PathBuf>,
 
         #[arg(value_enum, short = 'f', long, default_value_t = OutputFormat::Terminal)]

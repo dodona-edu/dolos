@@ -15,22 +15,12 @@ fn main() -> std::io::Result<()> {
 
     match opts.command {
         Command::Run { files, output_format, output_destination } => {
-            let paths = get_file_paths(files);
-            let dolos = Dolos::from_paths(paths?);
+            let paths = get_file_paths(files)?;
+            let dolos = Dolos::from_paths(paths);
             let report = dolos.build_report();
 
-            let mut writer = Writer::new(output_format, output_destination)?;
-
-            for pair in &report.pairs {
-                writer.write_pair(
-                    pair.right_file.file_name(),
-                    pair.left_file.file_name(),
-                    pair.similarity,
-                    pair.longest,
-                )?;
-            }
-
-            writer.finish()?;
+            Writer::new(output_format, output_destination)?
+                .write_and_finish(&report.pairs)?;
         }
     }
     Ok(())
