@@ -105,7 +105,7 @@ impl Pair {
                 if l_item.hash == s_item.hash {
                     let can_extend = matches!(
                         (prev_l_item, prev_s_item),
-                        (Some(p_l), Some(p_s)) if prev_row[i - 1] > 0 && l_item.index == p_l.index + 1 && s_item.index == p_s.index + 1
+                        (Some(p_l), Some(p_s)) if l_item.index == p_l.index + 1 && s_item.index == p_s.index + 1
                     );
 
                     if can_extend {
@@ -117,6 +117,8 @@ impl Pair {
                     if curr_row[i] > longest {
                         longest = curr_row[i];
                     }
+                } else {
+                    curr_row[i] = 0;
                 }
 
                 prev_s_item = Some(s_item);
