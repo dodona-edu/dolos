@@ -11,4 +11,5 @@ pub mod language;
 pub mod opts;
 pub mod tokenizer;
 pub mod winnowing;
- pub mod writer;
+pub mod suffixtree;
+pub mod writer;
