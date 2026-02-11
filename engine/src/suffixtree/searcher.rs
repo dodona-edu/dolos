@@ -76,7 +76,9 @@ mod tests {
 
         assert!(searcher.search_if_match("ABX".as_bytes()));
         assert!(searcher.search_if_match("ABC".as_bytes()));
-        assert_eq!(searcher.find_all_suffix_indices("AB".as_bytes()), vec![0,1]);
+        let mut result = searcher.find_all_suffix_indices("AB".as_bytes());
+        result.sort();
+        assert_eq!(result, vec![0, 1]);
     }
 
     #[test]
@@ -84,7 +86,7 @@ mod tests {
         let input = "ABC-ABD-ABE$".as_bytes().to_vec();
         let tree = Tree::new(&input, UkkonenBuilder::new());
         let mut searcher = Searcher::new(&tree, &input);
-        
+
         assert!(!searcher.search_if_match("C-A".as_bytes()));
         assert!(!searcher.search_if_match("D-A".as_bytes()));
         assert!(!searcher.search_if_match("C-ABD-A".as_bytes()));

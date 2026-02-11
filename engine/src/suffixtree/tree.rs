@@ -85,11 +85,11 @@ impl Node {
 
     fn char_to_child_index(character: u8) -> usize {
         if character == SEPARATION_CHARACTER {
-            26
+            0
         } else if character == END_CHARACTER {
-            27
+            1
         } else {
-            character as usize - 65 // 65 is 'A' in ascii
+            character as usize
         }
     }
 
