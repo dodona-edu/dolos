@@ -1,5 +1,6 @@
+use crate::suffixtree::tree::{Node, NodeIndex, Nullable, Range, Tree};
 use std::cmp::min;
-use crate::suffixtree::tree::{MAX_CHILDREN, Node, NodeIndex, Nullable, Range, Tree};
+use std::collections::HashMap;
 
 #[derive(Debug, PartialEq)]
 pub enum CursorIterator {
@@ -55,13 +56,13 @@ impl<'a> Cursor<'a> {
 
     /// the split function for the naive builder
     pub fn split_and_add_naive(&mut self, index_in_entry: usize, end_index: usize, input_string: &[u8]) {
-        let new_node = Node::new(Range::new(index_in_entry, end_index), self.current_node_index_in_arena, [NodeIndex::NULL; MAX_CHILDREN], NodeIndex::NULL, NodeIndex::NULL);
+        let new_node = Node::new(Range::new(index_in_entry, end_index), self.current_node_index_in_arena, HashMap::new(), NodeIndex::NULL, NodeIndex::NULL);
         let new_node_char = input_string[new_node.range.start];
         let new_node_index = self.tree.arena.len();
         self.tree.arena.push(new_node);
 
         let current_node = &mut self.tree.arena[self.current_node_index_in_arena];
-        let node_to_insert_in_edge = Node::new(Range::new(current_node.range.start + self.index, current_node.range.end), self.current_node_index_in_arena, current_node.children, NodeIndex::NULL, NodeIndex::NULL);
+        let node_to_insert_in_edge = Node::new(Range::new(current_node.range.start + self.index, current_node.range.end), self.current_node_index_in_arena, current_node.children.clone(), NodeIndex::NULL, NodeIndex::NULL);
         current_node.set_new_children(
             vec![
                 (input_string[node_to_insert_in_edge.range.start], new_node_index + 1), // index is 1 higher than the already pushed top
@@ -75,7 +76,7 @@ impl<'a> Cursor<'a> {
 
     /// Add a leaf in the naive building algorithm
     pub fn add_leaf_naive(&mut self, index_in_entry: usize, end_index: usize, input_string: &[u8]) {
-        let new_node = Node::new(Range::new(index_in_entry, end_index), self.current_node_index_in_arena, [NodeIndex::NULL; MAX_CHILDREN], NodeIndex::NULL, NodeIndex::NULL);
+        let new_node = Node::new(Range::new(index_in_entry, end_index), self.current_node_index_in_arena, HashMap::new(), NodeIndex::NULL, NodeIndex::NULL);
         let new_node_index = self.tree.arena.len();
         self.tree.arena.push(new_node);
         let current_node = &mut self.tree.arena[self.current_node_index_in_arena];
@@ -127,7 +128,7 @@ impl<'a> Cursor<'a> {
         let new_leaf = Node::new(
             Range::new(j, input_string.len()),
             self.current_node_index_in_arena,
-            [NodeIndex::NULL; MAX_CHILDREN],
+            HashMap::new(),
             NodeIndex::NULL,
             suffix_index,
         );
@@ -176,7 +177,8 @@ impl<'a> Cursor<'a> {
 #[cfg(test)]
 mod tests {
     use crate::suffixtree::cursor::Cursor;
-    use crate::suffixtree::tree::{MAX_CHILDREN, Node, NodeIndex, Nullable, Range, Tree};
+    use crate::suffixtree::tree::{Node, NodeIndex, Nullable, Range, Tree};
+    use std::collections::HashMap;
 
     #[test]
     fn test_split_edge() {
@@ -187,21 +189,21 @@ mod tests {
                 Node::new(
                     Range::new(0, 0),
                     NodeIndex::NULL,
-                    [NodeIndex::NULL; MAX_CHILDREN],
+                    HashMap::new(),
                     NodeIndex::NULL,
                     NodeIndex::NULL,
                 ),
                 Node::new(
                     Range::new(0, 5),
                     0,
-                    [NodeIndex::NULL; MAX_CHILDREN],
+                    HashMap::new(),
                     NodeIndex::NULL,
                     NodeIndex::NULL,
                 ),
                 Node::new(
                     Range::new(1, 5),
                     0,
-                    [NodeIndex::NULL; MAX_CHILDREN],
+                    HashMap::new(),
                     NodeIndex::NULL,
                     NodeIndex::NULL,
                 ),
@@ -216,28 +218,28 @@ mod tests {
                 Node::new(
                     Range::new(0, 0),
                     NodeIndex::NULL,
-                    [NodeIndex::NULL; MAX_CHILDREN],
+                    HashMap::new(),
                     NodeIndex::NULL,
                     NodeIndex::NULL,
                 ),
                 Node::new(
                     Range::new(1, 5),
                     3,
-                    [NodeIndex::NULL; MAX_CHILDREN],
+                    HashMap::new(),
                     NodeIndex::NULL,
                     NodeIndex::NULL,
                 ),
                 Node::new(
                     Range::new(1, 5),
                     0,
-                    [NodeIndex::NULL; MAX_CHILDREN],
+                    HashMap::new(),
                     NodeIndex::NULL,
                     NodeIndex::NULL,
                 ),
                 Node::new(
                     Range::new(0, 1),
                     0,
-                    [NodeIndex::NULL; MAX_CHILDREN],
+                    HashMap::new(),
                     NodeIndex::NULL,
                     NodeIndex::NULL,
                 ),

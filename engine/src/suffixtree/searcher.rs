@@ -49,10 +49,8 @@ impl<'a> Searcher<'a> {
             if !current_node.suffix_index.is_null() {
                 suffix_indices_list.push(current_node.suffix_index);
             } else {
-                current_node.children.iter().for_each(|&child| {
-                    if !child.is_null() {
-                        stack.push(&self.cursor.tree.arena[child]);
-                    }
+                current_node.children.values().for_each(|child| {
+                    stack.push(&self.cursor.tree.arena[*child]);
                 });
             }
         }
