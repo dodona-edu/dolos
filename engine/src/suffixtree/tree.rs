@@ -43,7 +43,7 @@ impl Tree {
 #[derive(Debug, PartialEq)]
 pub struct Node {
     pub range: Range,
-    pub children: HashMap<NodeIndex, NodeIndex>,
+    pub children: HashMap<u8, NodeIndex>,
     pub parent: NodeIndex,
     pub link: NodeIndex,
     pub suffix_index: NodeIndex,
@@ -61,7 +61,7 @@ impl Node {
     }
 
     /// Returns a tuple that contains the index of the new node in the arena and a reference to that node
-    pub fn new(range: Range, parent: NodeIndex, children: HashMap<NodeIndex, NodeIndex>, link: NodeIndex, suffix_index: usize) -> Node {
+    pub fn new(range: Range, parent: NodeIndex, children: HashMap<u8, NodeIndex>, link: NodeIndex, suffix_index: usize) -> Node {
         Node {
             range,
             children,
@@ -83,13 +83,13 @@ impl Node {
         node
     }
 
-    fn char_to_child_index(character: u8) -> usize {
+    fn char_to_child_index(character: u8) -> u8 {
         if character == SEPARATION_CHARACTER {
             0
         } else if character == END_CHARACTER {
             1
         } else {
-            character as usize
+            character
         }
     }
 
