@@ -3,11 +3,11 @@ use crate::suffixtree::tree::{Node, Nullable, Tree};
 
 pub struct Searcher<'a> {
     cursor: SearchCursor<'a>,
-    original_input_string: &'a [u8]
+    original_input_string: &'a[&'a[u8]]
 }
 
 impl<'a> Searcher<'a> {
-    pub fn new(tree: &'a Tree, original_input_string: &'a [u8]) -> Self {
+    pub fn new(tree: &'a Tree, original_input_string: &'a[&'a[u8]]) -> Self {
         Self {
             cursor: SearchCursor::new(tree),
             original_input_string
@@ -46,8 +46,8 @@ impl<'a> Searcher<'a> {
         let mut suffix_indices_list: Vec<usize> = vec![];
         let mut stack = vec![end_node];
         while let Some(current_node) = stack.pop() {
-            if !current_node.suffix_index.is_null() {
-                suffix_indices_list.push(current_node.suffix_index);
+            if !current_node.inputs.is_empty() {
+                suffix_indices_list.extend(current_node.inputs.iter());
             } else {
                 current_node.children.values().for_each(|child| {
                     stack.push(&self.cursor.tree.arena[*child]);
@@ -70,7 +70,10 @@ mod tests {
 
     #[test]
     fn test_simple_search() {
-        let input = "ABX-ABC$".as_bytes().to_vec();
+        let vec1 = "ABX$".as_bytes();
+        let vec2 = "ABC$".as_bytes();
+        let input = vec![vec1, vec2];
+        
         let tree = Tree::new(&input, UkkonenBuilder::new());
         let mut searcher = Searcher::new(&tree, &input);
 
@@ -83,23 +86,33 @@ mod tests {
 
     #[test]
     fn test_no_match_between_inputs() {
-        let input = "ABC-ABD-ABE$".as_bytes().to_vec();
+        let vec1 = "ABC$".as_bytes();
+        let vec2 = "ABD$".as_bytes();
+        let vec3 = "ABE$".as_bytes();
+        let input = vec![vec1, vec2, vec3];
+        
         let tree = Tree::new(&input, UkkonenBuilder::new());
         let mut searcher = Searcher::new(&tree, &input);
 
-        assert!(!searcher.search_if_match("C-A".as_bytes()));
-        assert!(!searcher.search_if_match("D-A".as_bytes()));
-        assert!(!searcher.search_if_match("C-ABD-A".as_bytes()));
+        assert!(!searcher.search_if_match("CA".as_bytes()));
+        assert!(!searcher.search_if_match("DA".as_bytes()));
+        assert!(!searcher.search_if_match("CABDA".as_bytes()));
     }
 
     #[test]
     fn test_suffix_indices_equal_input() {
-        let input = "ABC-ABC$".as_bytes().to_vec();
+        let vec1 = "ABC$".as_bytes();
+        let vec2 = "ABC$".as_bytes();
+        let input = vec![vec1, vec2];
+        
         let tree = Tree::new(&input, UkkonenBuilder::new());
         let mut searcher = Searcher::new(&tree, &input);
 
-        let mut result = searcher.find_all_suffix_indices("ABC".as_bytes());
-        result.sort();
-        assert_eq!(result, vec![0, 1]);
+        for i in 0..vec1.len() {
+            let mut result = searcher.find_all_suffix_indices(&vec1[i..]);
+            result.sort();
+            
+            assert_eq!(result, vec![0, 1]);
+        }
     }
 }

@@ -21,9 +21,9 @@ impl<'a> SearchCursor<'a> {
     /// Try to progress by consuming `next_character`
     /// Returns Some(()) if we were able to move to the next location.
     /// None otherwise
-    pub fn next(&mut self, next_character: u8, bytes_input: &[u8]) -> Option<()> {
+    pub fn next(&mut self, next_character: u8, bytes_input: &[&[u8]]) -> Option<()> {
         if self.index < self.current_node.range.length() {
-            if bytes_input[self.current_node.range.start + self.index] == next_character {
+            if bytes_input[self.current_node.range.input][self.current_node.range.start + self.index] == next_character {
                 self.index += 1;
                 return Some(());
             }
