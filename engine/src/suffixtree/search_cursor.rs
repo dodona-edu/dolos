@@ -1,4 +1,5 @@
-use crate::suffixtree::tree::{Node, Nullable, Tree};
+use crate::suffixtree::node::{Node, Nullable};
+use crate::suffixtree::tree::{Tree};
 
 /// A Cursor that cannot mutate the tree (which means it can only be used during the search phase).
 /// Because it does not need a mutable reference, we can directly store a reference to the node,

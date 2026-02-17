@@ -1,6 +1,7 @@
-use crate::suffixtree::tree::{Node, NodeIndex, Nullable, Range, Tree};
+use crate::suffixtree::tree::{Tree};
 use std::cmp::min;
 use std::collections::{HashMap, HashSet};
+use crate::suffixtree::node::{Node, NodeIndex, Nullable, Range};
 
 #[derive(Debug, PartialEq)]
 pub enum CursorIterator {
@@ -167,8 +168,9 @@ impl<'a> Cursor<'a> {
 #[cfg(test)]
 mod tests {
     use crate::suffixtree::cursor::Cursor;
-    use crate::suffixtree::tree::{Node, NodeIndex, Nullable, Range, Tree};
+    use crate::suffixtree::tree::{Tree};
     use std::collections::{HashMap, HashSet};
+    use crate::suffixtree::node::{Node, NodeIndex, Nullable, Range};
 
     #[test]
     fn test_split_edge() {

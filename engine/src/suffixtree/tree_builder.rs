@@ -1,5 +1,6 @@
 use crate::suffixtree::cursor::{Cursor, CursorIterator};
-use crate::suffixtree::tree::{NodeIndex, Nullable, Tree};
+use crate::suffixtree::node::NodeIndex;
+use crate::suffixtree::tree::{Tree};
 
 pub trait TreeBuilder {
     fn new() -> Self;
@@ -66,6 +67,7 @@ impl TreeBuilder for UkkonenBuilder {
     fn build(&self, data: &[&[u8]], mut tree: Tree) -> Tree {
 
         for (i, _) in data.iter().enumerate() {
+            // TODO: first decent in the tree to skip everything that is already in it
             tree = self.build_single_input(data,i, tree);
         }
         tree
