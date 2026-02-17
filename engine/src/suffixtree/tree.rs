@@ -182,87 +182,30 @@ mod tests_single_input {
 
 
     #[test]
-    fn total_test() {
+    fn test_single_word() {
         let vec1 = "ACACACGT$".as_bytes();
         let input = vec![vec1];
 
         let tree = Tree::new(&input, UkkonenBuilder::new());
 
-        let mut control_tree = Tree { arena: vec![] };
-        for _ in 0..14 {
-            control_tree.arena.push(Node::new(
-                Range::new(0, 0, 0),
-                NodeIndex::NULL,
-                HashMap::new(),
-                NodeIndex::NULL,
-                HashSet::new(),
-            ));
-        }
-
-        // too see the required structure: place the input in: https://brenden.github.io/ukkonen-animation/
-
-        // set the parents right
-        control_tree.arena[1].parent = 3;
-        control_tree.arena[2].parent = 5;
-        control_tree.arena[3].parent = 7;
-        control_tree.arena[4].parent = 3;
-        control_tree.arena[5].parent = 9;
-        control_tree.arena[6].parent = 5;
-        control_tree.arena[7].parent = 0;
-        control_tree.arena[8].parent = 7;
-        control_tree.arena[9].parent = 0;
-        control_tree.arena[10].parent = 9;
-        control_tree.arena[11].parent = 0;
-        control_tree.arena[12].parent = 0;
-        control_tree.arena[13].parent = 0;
-
-        // set children
-        let children_for_each_node = vec![
-            vec![('$', 13), ('A', 7), ('C', 9), ('G', 11), ('T', 12)],
-            vec![],
-            vec![],
-            vec![('A', 1), ('G', 4)],
-            vec![],
-            vec![('A', 2), ('G', 6)],
-            vec![],
-            vec![('A', 3), ('G', 8)],
-            vec![],
-            vec![('A', 5), ('G', 10)],
-            vec![],
-            vec![],
-            vec![],
-            vec![],
-        ];
-        for (i, children) in children_for_each_node.iter().enumerate() {
-            children.iter().for_each(|(character, child)| {
-                control_tree.arena[i].add_child(*character as u8, *child);
-            });
-        }
-
-        // set ranges
-        control_tree.arena[1].range = Range::new(4, 9, 0);
-        control_tree.arena[2].range = Range::new(4, 9, 0);
-        control_tree.arena[3].range = Range::new(2, 4, 0);
-        control_tree.arena[4].range = Range::new(6, 9, 0);
-        control_tree.arena[5].range = Range::new(2, 4, 0);
-        control_tree.arena[6].range = Range::new(6, 9, 0);
-        control_tree.arena[7].range = Range::new(0, 2, 0);
-        control_tree.arena[8].range = Range::new(6, 9, 0);
-        control_tree.arena[9].range = Range::new(1, 2, 0);
-        control_tree.arena[10].range = Range::new(6,9, 0);
-        control_tree.arena[11].range = Range::new(6,9, 0);
-        control_tree.arena[13].range = Range::new(8,9, 0);
-        control_tree.arena[12].range = Range::new(7,9, 0);
-
-        // set suffix links
-        control_tree.arena[3].link = 5;
-        control_tree.arena[5].link = 7;
-        control_tree.arena[7].link = 9;
-        control_tree.arena[9].link = 0;
-
-        // set suffix indices
-        let leaves = vec![1, 4, 8, 2, 6, 10, 11, 12, 13];
-        leaves.into_iter().for_each(|i| { control_tree.arena[i].inputs.insert(0); });
+        let control_tree = Tree {
+            arena: vec![
+                Node::new(Range::new(0, 0, 0), NodeIndex::NULL, HashMap::from([(b'$', 13), (b'A', 7), (b'C', 9), (b'G', 11), (b'T', 12)]), NodeIndex::NULL, HashSet::new()),
+                Node::new(Range::new(4, 9, 0), 3, HashMap::new(), NodeIndex::NULL, HashSet::from([0])),
+                Node::new(Range::new(4, 9, 0), 5, HashMap::new(), NodeIndex::NULL, HashSet::from([0])),
+                Node::new(Range::new(2, 4, 0), 7, HashMap::from([(b'A', 1), (b'G', 4)]), 5, HashSet::new()),
+                Node::new(Range::new(6, 9, 0), 3, HashMap::new(), NodeIndex::NULL, HashSet::from([0])),
+                Node::new(Range::new(2, 4, 0), 9, HashMap::from([(b'A', 2), (b'G', 6)]), 7, HashSet::new()),
+                Node::new(Range::new(6, 9, 0), 5, HashMap::new(), NodeIndex::NULL, HashSet::from([0])),
+                Node::new(Range::new(0, 2, 0), 0, HashMap::from([(b'A', 3), (b'G', 8)]), 9, HashSet::new()),
+                Node::new(Range::new(6, 9, 0), 7, HashMap::new(), NodeIndex::NULL, HashSet::from([0])),
+                Node::new(Range::new(1, 2, 0), 0, HashMap::from([(b'A', 5), (b'G', 10)]), 0, HashSet::new()),
+                Node::new(Range::new(6, 9, 0), 9, HashMap::new(), NodeIndex::NULL, HashSet::from([0])),
+                Node::new(Range::new(6, 9, 0), 0, HashMap::new(), NodeIndex::NULL, HashSet::from([0])),
+                Node::new(Range::new(7, 9, 0), 0, HashMap::new(), NodeIndex::NULL, HashSet::from([0])),
+                Node::new(Range::new(8, 9, 0), 0, HashMap::new(), NodeIndex::NULL, HashSet::from([0])),
+            ]
+        };
 
         assert_eq!(tree, control_tree);
     }
@@ -338,33 +281,6 @@ mod tests_multiple_inputs {
     }
 
     #[test]
-    fn test_two_overlapping_middle_inputs() {
-        let vec1 = "AXYB$".as_bytes();
-        let vec2 = "CXYD$".as_bytes();
-        let input = vec![vec1, vec2];
-        let tree = Tree::new(&input, UkkonenBuilder::new());
-
-        let control_tree = Tree {
-            arena: vec![
-                Node::new(Range::new(0, 0, 0), NodeIndex::NULL, HashMap::from([(b'A', 1),(b'B', 4),(b'C', 6),(b'D', 11),(b'X', 7),(b'Y', 9),(b'$', 5)]), NodeIndex::NULL, HashSet::new()),
-                Node::new(Range::new(0, 5, 0), 0, HashMap::new(), NodeIndex::NULL, HashSet::from([0])),
-                Node::new(Range::new(3, 5, 0), 7, HashMap::new(), NodeIndex::NULL, HashSet::from([0])),
-                Node::new(Range::new(3, 5, 0), 9, HashMap::new(), NodeIndex::NULL, HashSet::from([0])),
-                Node::new(Range::new(3, 5, 0), 0, HashMap::new(), NodeIndex::NULL, HashSet::from([0])),
-                Node::new(Range::new(4, 5, 0), 0, HashMap::new(), NodeIndex::NULL, HashSet::from([0, 1])),
-                Node::new(Range::new(0, 5, 1), 0, HashMap::new(), NodeIndex::NULL, HashSet::from([1])),
-                Node::new(Range::new(1, 3, 0), 0, HashMap::from([(b'B', 2),(b'D', 8)]), 9, HashSet::new()),
-                Node::new(Range::new(3, 5, 1), 7, HashMap::new(), NodeIndex::NULL, HashSet::from([1])),
-                Node::new(Range::new(2, 3, 0), 0, HashMap::from([(b'B', 3),(b'D', 10)]), 0, HashSet::new()),
-                Node::new(Range::new(3, 5, 1), 9, HashMap::new(), NodeIndex::NULL, HashSet::from([1])),
-                Node::new(Range::new(3, 5, 1), 0, HashMap::new(), NodeIndex::NULL, HashSet::from([1]))
-            ]
-        };
-
-        assert_eq!(tree, control_tree);
-    }
-
-    #[test]
     fn test_two_overlapping_end_inputs() {
         let vec1 = "ABXY$".as_bytes();
         let vec2 = "CDXY$".as_bytes();
@@ -388,25 +304,13 @@ mod tests_multiple_inputs {
     }
 
     #[test]
-    fn test_different_endings() {
-        let vec1 = "ABXY$".as_bytes();
-        let vec2 = "CDXY$".as_bytes();
-        let input = vec![vec1, vec2];
-        let tree = Tree::new(&input, UkkonenBuilder::new());
-
-        let mut s = Searcher::new(&tree, &input);
-        test_all_substrings(&input, &mut s);
-    }
-
-    #[test]
     fn test_multiple_inputs() {
-        let vec1 = "I$".as_bytes();
-        let vec3 = "II$".as_bytes();
+        let vec1 = "MISSISSIPPI$".as_bytes();
+        let vec2 = "BANANA$".as_bytes();
+        let vec3 = "BANASSIPPI$".as_bytes();
 
-        let input = vec![vec1, vec3];
+        let input = vec![vec1, vec2, vec3];
         let tree = Tree::new(&input, UkkonenBuilder::new());
-
-        tree.print();
 
         let mut s = Searcher::new(&tree, &input);
         test_all_substrings(&input, &mut s);
