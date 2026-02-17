@@ -1,5 +1,5 @@
 use crate::suffixtree::cursor::{Cursor, CursorIterator};
-use crate::suffixtree::tree::{NodeIndex, Tree};
+use crate::suffixtree::tree::{NodeIndex, Nullable, Tree};
 
 pub trait TreeBuilder {
     fn new() -> Self;
@@ -31,8 +31,7 @@ impl UkkonenBuilder {
                     if j == end_index { // in a leaf
                         cursor.add_input(current_input_index);
                         // decrease the index by 1, because where simulating that it does not yet know the end character
-                        cursor.index -= 1;
-                        cursor.index_in_word -= 1;
+                        cursor.return_one();
                         cursor.follow_link(data);
                         continue;
                     } else {

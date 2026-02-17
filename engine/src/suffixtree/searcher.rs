@@ -1,5 +1,5 @@
 use crate::suffixtree::search_cursor::SearchCursor;
-use crate::suffixtree::tree::{Node, Nullable, Tree};
+use crate::suffixtree::tree::{Node, Tree};
 
 pub struct Searcher<'a> {
     cursor: SearchCursor<'a>,

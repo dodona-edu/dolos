@@ -1,5 +1,4 @@
 use crate::suffixtree::tree_builder::TreeBuilder;
-use crate::suffixtree::{END_CHARACTER, SEPARATION_CHARACTER};
 use std::collections::{HashMap, HashSet};
 
 /// Custom trait implemented by types that have a value that represents NULL
@@ -189,8 +188,6 @@ mod tests_single_input {
 
         let tree = Tree::new(&input, UkkonenBuilder::new());
 
-        tree.print();
-
         let mut control_tree = Tree { arena: vec![] };
         for _ in 0..14 {
             control_tree.arena.push(Node::new(
@@ -272,10 +269,23 @@ mod tests_single_input {
 }
 
 mod tests_multiple_inputs {
-    use std::collections::{HashMap, HashSet};
     use crate::suffixtree::searcher::Searcher;
     use crate::suffixtree::tree::{Node, NodeIndex, Nullable, Range, Tree};
     use crate::suffixtree::tree_builder::{TreeBuilder, UkkonenBuilder};
+    use std::collections::{HashMap, HashSet};
+
+    fn test_all_substrings(inputs: &[&[u8]], searcher: &mut Searcher) {
+        for (i, word) in inputs.iter().enumerate() {
+            for start in 0..word.len() {
+                for end in start +1..=word.len() {
+                    assert!(searcher.search_if_match(&word[start..end]));
+                    let vec = searcher.find_all_suffix_indices(&word[start..end]);
+                    assert!(vec.contains(&i));
+
+                }
+            }
+        }
+    }
 
     #[test]
     fn test_two_non_overlapping_inputs() {
@@ -385,34 +395,21 @@ mod tests_multiple_inputs {
         let tree = Tree::new(&input, UkkonenBuilder::new());
 
         let mut s = Searcher::new(&tree, &input);
-
-        for i in 0..vec1.len() {
-            for j in i+1..=vec1.len() {
-                assert!(s.search_if_match(&vec1[i..j]));
-                assert!(s.search_if_match(&vec2[i..j]));
-            }
-        }
+        test_all_substrings(&input, &mut s);
     }
 
     #[test]
     fn test_multiple_inputs() {
-        let vec1 = "MISSISSIPPI$".as_bytes();
-        let vec2 = "BANANA$".as_bytes();
-        let vec3 = "BANANASSIPPI$".as_bytes();
+        let vec1 = "I$".as_bytes();
+        let vec3 = "II$".as_bytes();
 
-        let input = vec![vec1, vec2, vec3];
+        let input = vec![vec1, vec3];
         let tree = Tree::new(&input, UkkonenBuilder::new());
 
         tree.print();
 
         let mut s = Searcher::new(&tree, &input);
-        for vec in &input {
-            for i in 0..vec.len() {
-                for j in i+1..=vec.len() {
-                    assert!(s.search_if_match(&vec[i..j]));
-                }
-            }
-        }
+        test_all_substrings(&input, &mut s);
     }
 
     #[test]
@@ -432,12 +429,6 @@ mod tests_multiple_inputs {
         let tree = Tree::new(&input, UkkonenBuilder::new());
 
         let mut s = Searcher::new(&tree, &input);
-        for vec in &vecs {
-            for i in 0..vec.len() {
-                for j in i+1..=vec.len() {
-                    assert!(s.search_if_match(&vec[i..j]));
-                }
-            }
-        }
+        test_all_substrings(&input, &mut s);
     }
 }

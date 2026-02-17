@@ -52,6 +52,16 @@ impl<'a> Cursor<'a> {
         CursorIterator::AtEnd
     }
 
+    pub fn return_one(&mut self) {
+        self.index -= 1;
+        self.index_in_word -= 1;
+
+        if self.index == 0 && self.current_node_index_in_arena != 0 {
+            self.current_node_index_in_arena = self.tree.arena[self.current_node_index_in_arena].parent;
+            self.index = self.tree.arena[self.current_node_index_in_arena].range.length();
+        }
+    }
+
     /// Reset the cursor to the root of the tree
     pub fn reset(&mut self) {
         self.index = 0;
@@ -125,12 +135,10 @@ impl<'a> Cursor<'a> {
         }
 
         let mut current_node = &self.tree.arena[self.current_node_index_in_arena];
-        let mut begin = current_node.range.start;
 
         let mut distance_left_to_walk;
         if current_node.parent == 0 { // parent with index 0 is the root
             self.current_node_index_in_arena = 0;
-            begin += 1;
             distance_left_to_walk = self.index - 1;
             self.index_in_word -= self.index - 1;
         } else {
@@ -151,7 +159,6 @@ impl<'a> Cursor<'a> {
             let current_advance = min(current_node.range.length(), distance_left_to_walk);
             distance_left_to_walk -= current_advance;
             self.index_in_word += current_advance;
-            begin += current_advance;
             self.index = current_advance;
         }
     }
