@@ -49,12 +49,7 @@ impl<'a> OverlapBitsets<'a> {
     }
 
     /// Mark a range in the overlap bitsets for a pair of inputs
-    /// Excludes the last position (the end marker $) from being marked
     fn mark_overlap(&mut self, sp1: &StartPosition, sp2: &StartPosition, length: usize) {
-        if sp1.input == sp2.input {
-            return;
-        }
-
         let (bits1, bits2) = self.data.get_mut(sp1.input, sp2.input);
 
         // Determine which bitset corresponds to which start position
@@ -64,11 +59,9 @@ impl<'a> OverlapBitsets<'a> {
             (sp2.start, sp1.start)
         };
 
-        // Mark the range for the first and second position (excluding the last position which is $)
-        let end1 = start1 + length;
-        let end2 = start2 + length;
-        bits1[start1..end1].fill(true);
-        bits2[start2..end2].fill(true);
+        // Mark the range for the first and second position
+        bits1[start1..start1 + length].fill(true);
+        bits2[start2..start2 + length].fill(true);
     }
 
     /// Calculate similarity for a pair of inputs
@@ -87,6 +80,85 @@ impl<'a> OverlapBitsets<'a> {
         } else {
             total_overlap as f64 / total_length as f64
         }
+    }
+}
+
+/// Collects and processes matches found during tree traversal
+struct MatchCollector<'a> {
+    inputs: &'a [&'a [NodeType]],
+    longest_fragments: PairArray<usize>,
+    overlap_bitsets: OverlapBitsets<'a>,
+}
+
+impl<'a> MatchCollector<'a> {
+    fn new(input_lengths: &'a Vec<usize>) -> Self {
+        let num_inputs = input_lengths.len();
+        Self {
+            inputs: &[],
+            longest_fragments: PairArray::new(num_inputs, 0),
+            overlap_bitsets: OverlapBitsets::new(input_lengths),
+        }
+    }
+
+    fn set_inputs(&mut self, inputs: &'a [&'a [NodeType]]) {
+        self.inputs = inputs;
+    }
+
+    /// Record a maximal match between two positions
+    fn record_match(&mut self, sp1: &StartPosition, sp2: &StartPosition, length: usize) {
+        let effective_length = self.calculate_effective_length(sp1, sp2, length);
+
+        if effective_length == 0 {
+            return;
+        }
+
+        self.update_longest_fragment(sp1.input, sp2.input, effective_length);
+        self.overlap_bitsets.mark_overlap(sp1, sp2, effective_length);
+    }
+
+    /// Calculate the effective length of a match, excluding end markers
+    #[inline]
+    fn calculate_effective_length(&self, sp1: &StartPosition, sp2: &StartPosition, length: usize) -> usize {
+        let ends_at_marker = sp1.start + length >= self.inputs[sp1.input].len()
+            || sp2.start + length >= self.inputs[sp2.input].len();
+
+        if ends_at_marker {
+            length.saturating_sub(1)
+        } else {
+            length
+        }
+    }
+
+    /// Update the longest fragment for a pair if this is longer
+    fn update_longest_fragment(&mut self, input1: usize, input2: usize, length: usize) {
+        let current = self.longest_fragments.get_mut(input1, input2);
+        if length > *current {
+            *current = length;
+        }
+    }
+
+    /// Build the final analysis result
+    fn into_result(self) -> AnalysisResult {
+        let num_inputs = self.longest_fragments.size();
+        let similarities = self.calculate_similarities(num_inputs);
+
+        AnalysisResult {
+            similarities,
+            longest_fragments: self.longest_fragments,
+        }
+    }
+
+    /// Calculate similarities for all pairs
+    fn calculate_similarities(&self, num_inputs: usize) -> PairArray<f64> {
+        let mut similarities = PairArray::new(num_inputs, 0.0);
+
+        for i1 in 0..num_inputs {
+            for i2 in (i1 + 1)..num_inputs {
+                similarities.set(i1, i2, self.overlap_bitsets.calculate_similarity(i1, i2));
+            }
+        }
+
+        similarities
     }
 }
 
@@ -110,67 +182,14 @@ impl<'a> MaximalMatchAnalyzer<'a> {
     /// Perform the analysis and return the results
     pub fn analyze(&self) -> AnalysisResult {
         let input_lengths: Vec<usize> = self.inputs.iter().map(|i| i.len()).collect();
-        let num_inputs = self.inputs.len();
 
-        let mut longest_fragments = PairArray::new(num_inputs, 0);
-        let mut overlap_bitsets = OverlapBitsets::new(&input_lengths);
-
-        // Process callback for each maximal pair found
-        let mut process = |sp1: &StartPosition, sp2: &StartPosition, length: usize| {
-            // Calculate the effective length excluding the end marker
-            let effective_length = self.calculate_effective_length(sp1, sp2, length);
-
-            if effective_length == 0 {
-                return;
-            }
-
-            // Update longest fragment if this is longer
-            let current = longest_fragments.get_mut(sp1.input, sp2.input);
-            if effective_length > *current {
-                *current = effective_length;
-            }
-
-            // Mark overlap
-            overlap_bitsets.mark_overlap(sp1, sp2, effective_length);
-        };
+        let mut collector = MatchCollector::new(&input_lengths);
+        collector.set_inputs(self.inputs);
 
         // Find all maximal pairs starting from the root
-        self.find_maximal_pairs(0, 0, &mut process);
+        self.find_maximal_pairs(0, 0, &mut collector);
 
-        // Calculate similarities
-        let similarities = self.calculate_all_similarities(&overlap_bitsets, num_inputs);
-
-        AnalysisResult {
-            similarities,
-            longest_fragments,
-        }
-    }
-
-    /// Calculate the effective length of a match, excluding end markers
-    #[inline]
-    fn calculate_effective_length(&self, sp1: &StartPosition, sp2: &StartPosition, length: usize) -> usize {
-        let ends_at_marker = sp1.start + length >= self.inputs[sp1.input].len()
-            || sp2.start + length >= self.inputs[sp2.input].len();
-
-        if ends_at_marker {
-            length.saturating_sub(1)
-        } else {
-            length
-        }
-    }
-
-    /// Calculate similarities for all pairs
-    fn calculate_all_similarities(&self, overlap_bitsets: &OverlapBitsets, num_inputs: usize) -> PairArray<f64> {
-        let mut similarities = PairArray::new(num_inputs, 0.0);
-
-        for i1 in 0..num_inputs {
-            for i2 in (i1 + 1)..num_inputs {
-                let similarity = overlap_bitsets.calculate_similarity(i1, i2);
-                similarities.set(i1, i2, similarity);
-            }
-        }
-
-        similarities
+        collector.into_result()
     }
 
     /// Create leaf maps for a leaf node
@@ -198,92 +217,6 @@ impl<'a> MaximalMatchAnalyzer<'a> {
             .collect()
     }
 
-    /// Get union of all values from maps where the key is different from the given key
-    /// (or where the key is 0, meaning start of string)
-    fn union_values(&self, maps: &[HashMap<NodeType, Vec<StartPosition>>], exclude_key: NodeType) -> Vec<StartPosition> {
-        maps.iter()
-            .flat_map(|map| {
-                map.iter()
-                    .filter(|(&k, _)| k != exclude_key || k == 0)
-                    .flat_map(|(_, positions)| positions.iter().cloned())
-            })
-            .collect()
-    }
-
-    /// Process all pairs of positions with the given length
-    #[inline]
-    fn process_pairs<F>(
-        &self,
-        length: usize,
-        positions1: &[StartPosition],
-        positions2: &[StartPosition],
-        process: &mut F,
-    ) where
-        F: FnMut(&StartPosition, &StartPosition, usize),
-    {
-        for sp1 in positions1 {
-            for sp2 in positions2 {
-                if sp1.input != sp2.input {
-                    process(sp1, sp2, length);
-                }
-            }
-        }
-    }
-
-    /// Generate all maximal pairs from the children maps at a given depth
-    fn generate_pairs<F>(
-        &self,
-        depth: usize,
-        children_maps: &[HashMap<NodeType, Vec<StartPosition>>],
-        process: &mut F,
-    ) where
-        F: FnMut(&StartPosition, &StartPosition, usize),
-    {
-        for (i, map) in children_maps.iter().enumerate() {
-            for (&left_char, positions) in map {
-                // Get union of positions from subsequent maps with different left character
-                let union = self.union_values(&children_maps[(i + 1)..], left_char);
-                self.process_pairs(depth, positions, &union, process);
-            }
-        }
-    }
-
-    /// Recursively find maximal pairs in the subtree rooted at the given node
-    /// `depth` is the string depth at this node (sum of edge lengths from root to this node)
-    fn find_maximal_pairs<F>(
-        &self,
-        node_index: usize,
-        depth: usize,
-        process: &mut F,
-    ) -> HashMap<NodeType, Vec<StartPosition>>
-    where
-        F: FnMut(&StartPosition, &StartPosition, usize),
-    {
-        let node = &self.tree.arena[node_index];
-        let node_depth = depth + node.range.length();
-
-        let maps = if node.children.is_empty() {
-            // Leaf node - use node_depth which includes this edge
-            self.create_leaf_maps(node, node_depth)
-        } else {
-            // Internal node: recursively process children
-            node.children
-                .values()
-                .map(|&child_index| {
-                    self.find_maximal_pairs(child_index, node_depth, process)
-                })
-                .collect()
-        };
-
-        // Generate pairs if we're at sufficient depth (use node_depth, the depth at this node)
-        if node_depth >= self.min_match_length {
-            self.generate_pairs(node_depth, &maps, process);
-        }
-
-        // Merge all maps for the parent
-        Self::merge_maps(maps)
-    }
-
     /// Merge a list of maps into a single map
     fn merge_maps(maps: Vec<HashMap<NodeType, Vec<StartPosition>>>) -> HashMap<NodeType, Vec<StartPosition>> {
         let mut result = HashMap::new();
@@ -298,6 +231,107 @@ impl<'a> MaximalMatchAnalyzer<'a> {
         }
 
         result
+    }
+
+    /// Generate all maximal pairs from the children maps at a given depth
+    fn generate_pairs(
+        &self,
+        depth: usize,
+        children_maps: &[HashMap<NodeType, Vec<StartPosition>>],
+        collector: &mut MatchCollector,
+    ) {
+        for (i, map) in children_maps.iter().enumerate() {
+            for (&left_char, positions1) in map {
+                self.process_pairs_with_subsequent_maps(
+                    &children_maps[(i + 1)..],
+                    left_char,
+                    positions1,
+                    depth,
+                    collector,
+                );
+            }
+        }
+    }
+
+    /// Process pairs between positions1 and all positions in subsequent maps
+    fn process_pairs_with_subsequent_maps(
+        &self,
+        subsequent_maps: &[HashMap<NodeType, Vec<StartPosition>>],
+        left_char: NodeType,
+        positions1: &[StartPosition],
+        depth: usize,
+        collector: &mut MatchCollector,
+    ) {
+        for other_map in subsequent_maps {
+            for (&other_left_char, positions2) in other_map {
+                if self.should_process_pair(left_char, other_left_char) {
+                    self.process_position_pairs(positions1, positions2, depth, collector);
+                }
+            }
+        }
+    }
+
+    /// Check if two position groups should be paired based on their left characters
+    #[inline]
+    fn should_process_pair(&self, left_char: NodeType, other_left_char: NodeType) -> bool {
+        // Process pairs where left characters differ, or where left_char is 0 (start of string)
+        other_left_char != left_char || left_char == 0
+    }
+
+    /// Process all pairs between two position groups
+    fn process_position_pairs(
+        &self,
+        positions1: &[StartPosition],
+        positions2: &[StartPosition],
+        depth: usize,
+        collector: &mut MatchCollector,
+    ) {
+        for sp1 in positions1 {
+            for sp2 in positions2 {
+                if sp1.input != sp2.input {
+                    collector.record_match(sp1, sp2, depth);
+                }
+            }
+        }
+    }
+
+    /// Recursively find maximal pairs in the subtree rooted at the given node
+    /// `depth` is the string depth at this node (sum of edge lengths from root to this node)
+    fn find_maximal_pairs(
+        &self,
+        node_index: usize,
+        depth: usize,
+        collector: &mut MatchCollector,
+    ) -> HashMap<NodeType, Vec<StartPosition>> {
+        let node = &self.tree.arena[node_index];
+        let node_depth = depth + node.range.length();
+
+        let maps = if node.children.is_empty() {
+            self.create_leaf_maps(node, node_depth)
+        } else {
+            self.collect_children_maps(node, node_depth, collector)
+        };
+
+        // Generate pairs if we're at sufficient depth
+        if node_depth >= self.min_match_length {
+            self.generate_pairs(node_depth, &maps, collector);
+        }
+
+        // Merge all maps for the parent
+        Self::merge_maps(maps)
+    }
+
+    /// Collect maps from all children by recursively processing them
+    fn collect_children_maps(
+        &self,
+        node: &Node,
+        node_depth: usize,
+        collector: &mut MatchCollector,
+    ) -> Vec<HashMap<NodeType, Vec<StartPosition>>> {
+        node.children
+            .values()
+            .map(|&child_index| self.find_maximal_pairs(child_index, node_depth, collector))
+            .collect()
     }
 }
 

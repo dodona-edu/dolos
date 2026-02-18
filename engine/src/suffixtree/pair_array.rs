@@ -25,6 +25,7 @@ impl<T: Clone> PairArray<T> {
     /// Convert pair indices to linear index
     #[inline]
     fn index(&self, i1: usize, i2: usize) -> usize {
+        debug_assert_ne!(i1, i2);
         let (min, max) = if i1 < i2 { (i1, i2) } else { (i2, i1) };
         // Formula for upper triangular index
         min * (2 * self.size - min - 1) / 2 + (max - min - 1)
@@ -48,6 +49,7 @@ impl<T: Clone> PairArray<T> {
     }
 
     /// Get the size of the array (number of inputs)
+    #[inline]
     pub fn size(&self) -> usize {
         self.size
     }
