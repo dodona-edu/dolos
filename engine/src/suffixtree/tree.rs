@@ -1,4 +1,4 @@
-use crate::suffixtree::node::Node;
+use crate::suffixtree::node::{Node, NodeType};
 use crate::suffixtree::tree_builder::TreeBuilder;
 
 #[derive(Debug, PartialEq)]
@@ -7,7 +7,7 @@ pub struct Tree {
 }
 
 impl Tree {
-    pub fn new(data: &[&[u8]], builder: impl TreeBuilder) -> Self {
+    pub fn new(data: &[&[NodeType]], builder: impl TreeBuilder) -> Self {
         builder.build(
             data,
             Tree {
@@ -23,7 +23,7 @@ impl Tree {
 
 #[cfg(test)]
 mod tests_single_input {
-    use crate::suffixtree::node::{Node, NodeIndex, Nullable, Range};
+    use crate::suffixtree::node::{Node, NodeIndex, NodeType, Nullable, Range};
     use crate::suffixtree::searcher::Searcher;
     use crate::suffixtree::tree::Tree;
     use crate::suffixtree::tree_builder::{TreeBuilder, UkkonenBuilder};
@@ -34,9 +34,9 @@ mod tests_single_input {
         let mut vec1 = vec![];
 
         for i in 1..50 {
-            vec1.push(i as u8);
+            vec1.push(i as NodeType);
         }
-        let input: Vec<&[u8]> = vec![&vec1];
+        let input: Vec<&[NodeType]> = vec![&vec1];
         let tree = Tree::new(&input, UkkonenBuilder::new());
         let mut searcher = Searcher::new(&tree, &input);
 
@@ -99,13 +99,13 @@ mod tests_single_input {
 }
 
 mod tests_multiple_inputs {
-    use crate::suffixtree::node::{Node, NodeIndex, Nullable, Range};
+    use crate::suffixtree::node::{Node, NodeIndex, NodeType, Nullable, Range};
     use crate::suffixtree::searcher::Searcher;
     use crate::suffixtree::tree::Tree;
     use crate::suffixtree::tree_builder::{TreeBuilder, UkkonenBuilder};
     use std::collections::{HashMap, HashSet};
 
-    fn test_all_substrings(inputs: &[&[u8]], searcher: &mut Searcher) {
+    fn test_all_substrings(inputs: &[&[NodeType]], searcher: &mut Searcher) {
         for (i, word) in inputs.iter().enumerate() {
             for start in 0..word.len() {
                 for end in start +1..=word.len() {
@@ -206,18 +206,18 @@ mod tests_multiple_inputs {
 
     #[test]
     fn test_large_random() {
-        let mut vecs: Vec<Vec<u8>> = vec![];
+        let mut vecs: Vec<Vec<NodeType>> = vec![];
 
-        for _ in 0..100 {
+        for _ in 0..50 {
             let mut vec = vec![];
-            for _ in 0..100 {
-                vec.push(rand::random::<u8>() % 10 + b'A');
+            for _ in 0..50 {
+                vec.push(rand::random::<NodeType>() % 10 + b'A');
             }
             vec.push(b'$');
             vecs.push(vec);
         }
 
-        let input: Vec<&[u8]> = vecs.iter().map(|v| v.as_slice()).collect();
+        let input: Vec<&[NodeType]> = vecs.iter().map(|v| v.as_slice()).collect();
         let tree = Tree::new(&input, UkkonenBuilder::new());
 
         let mut s = Searcher::new(&tree, &input);

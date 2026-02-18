@@ -1,14 +1,14 @@
-use crate::suffixtree::node::Node;
+use crate::suffixtree::node::{Node, NodeType};
 use crate::suffixtree::search_cursor::SearchCursor;
 use crate::suffixtree::tree::{Tree};
 
 pub struct Searcher<'a> {
     cursor: SearchCursor<'a>,
-    original_input_string: &'a[&'a[u8]]
+    original_input_string: &'a[&'a[NodeType]]
 }
 
 impl<'a> Searcher<'a> {
-    pub fn new(tree: &'a Tree, original_input_string: &'a[&'a[u8]]) -> Self {
+    pub fn new(tree: &'a Tree, original_input_string: &'a[&'a[NodeType]]) -> Self {
         Self {
             cursor: SearchCursor::new(tree),
             original_input_string
@@ -17,7 +17,7 @@ impl<'a> Searcher<'a> {
 
     /// Return true as first value of the tuple if we have a valid match until the end
     /// the second value of the tuple is the index of the last current node in the arena during search
-    fn find_end_node(&mut self, search_string: &[u8]) -> (bool, &'a Node) {
+    fn find_end_node(&mut self, search_string: &[NodeType]) -> (bool, &'a Node) {
         if search_string.is_empty() {
             return (true, &self.cursor.tree.arena[0]);
         }
@@ -39,7 +39,7 @@ impl<'a> Searcher<'a> {
         (false, end_node)
     }
 
-    pub fn find_all_suffix_indices(&mut self, search_string: &[u8]) -> Vec<usize> {
+    pub fn find_all_suffix_indices(&mut self, search_string: &[NodeType]) -> Vec<usize> {
         let (match_found, end_node) = self.find_end_node(search_string);
         if !match_found {
             return vec![];
@@ -58,7 +58,7 @@ impl<'a> Searcher<'a> {
         suffix_indices_list
     }
 
-    pub fn search_if_match(&mut self, search_string: &[u8]) -> bool {
+    pub fn search_if_match(&mut self, search_string: &[NodeType]) -> bool {
         self.find_end_node(search_string).0
     }
 }

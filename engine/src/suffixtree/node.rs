@@ -9,6 +9,7 @@ pub trait Nullable<T> {
 
 /// Type that represents the index of a node in the arena part of the tree
 pub type NodeIndex = usize;
+pub type NodeType = u8;
 
 impl Nullable<NodeIndex> for NodeIndex {
     /// Use usize::MAX as NULL value since this will in practice never be reached.
@@ -24,7 +25,7 @@ impl Nullable<NodeIndex> for NodeIndex {
 #[derive(Debug, PartialEq)]
 pub struct Node {
     pub range: Range,
-    pub children: HashMap<u8, NodeIndex>,
+    pub children: HashMap<NodeType, NodeIndex>,
     pub parent: NodeIndex,
     pub link: NodeIndex,
     pub inputs: HashSet<usize>,
@@ -43,7 +44,7 @@ impl Node {
     }
 
     /// Returns a tuple that contains the index of the new node in the arena and a reference to that node
-    pub fn new(range: Range, parent: NodeIndex, children: HashMap<u8, NodeIndex>, link: NodeIndex, inputs: HashSet<usize>) -> Node {
+    pub fn new(range: Range, parent: NodeIndex, children: HashMap<NodeType, NodeIndex>, link: NodeIndex, inputs: HashSet<usize>) -> Node {
         Node {
             range,
             children,
@@ -53,7 +54,7 @@ impl Node {
         }
     }
 
-    pub fn new_with_child_tuples(range: Range, parent: NodeIndex, children_tuples: Vec<(u8, NodeIndex)>, link: NodeIndex, inputs: HashSet<usize>) -> Node {
+    pub fn new_with_child_tuples(range: Range, parent: NodeIndex, children_tuples: Vec<(NodeType, NodeIndex)>, link: NodeIndex, inputs: HashSet<usize>) -> Node {
         let mut node = Node {
             range,
             children: HashMap::new(),
@@ -65,15 +66,15 @@ impl Node {
         node
     }
 
-    pub fn add_child(&mut self, character: u8, child: NodeIndex) {
+    pub fn add_child(&mut self, character: NodeType, child: NodeIndex) {
         self.children.insert(character, child);
     }
 
-    pub fn get_child(&self, character: u8) -> NodeIndex {
+    pub fn get_child(&self, character: NodeType) -> NodeIndex {
         self.children.get(&character).copied().unwrap_or(NodeIndex::NULL)
     }
 
-    pub fn set_new_children(&mut self, new_children: Vec<(u8, NodeIndex)>) {
+    pub fn set_new_children(&mut self, new_children: Vec<(NodeType, NodeIndex)>) {
         self.children = HashMap::new();
         new_children.iter().for_each(|(character, child)| self.add_child(*character, *child));
     }

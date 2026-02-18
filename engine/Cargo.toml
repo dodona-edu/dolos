@@ -7,6 +7,7 @@ edition = "2021"
 
 [dependencies]
 clap = { version = "4.5.53", features = ["derive"] }
+bitvec = "1.0.1"
 tree-sitter = "=0.25.10"
 tree-sitter-java = "=0.23.5"
 tree-sitter-c = "0.24.1"
