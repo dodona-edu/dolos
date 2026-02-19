@@ -13,7 +13,7 @@ impl Tree {
         }
     }
 
-    pub fn add_words(&mut self, data: &[&[NodeType]], tree_builder: impl TreeBuilder) {
+    pub fn add_words(&mut self, data: &[Vec<NodeType>], tree_builder: impl TreeBuilder) {
         tree_builder.add_words(data, self);
     }
 
@@ -41,21 +41,20 @@ mod tests_single_input {
         for i in 1..50 {
             vec1.push(i as NodeType);
         }
-        let input: Vec<&[NodeType]> = vec![&vec1];
+        let input = vec![vec1];
         let mut tree = Tree::new();
         tree.add_words(&input, UkkonenBuilder::new());
         let mut searcher = Searcher::new(&tree, &input);
 
         for i in 0..26 {
-            assert!(searcher.search_if_match(&vec1[i..i + 1]));
-            assert!(searcher.search_if_match(&vec1[i..]));
+            assert!(searcher.search_if_match(&input[0][i..i + 1]));
+            assert!(searcher.search_if_match(&input[0][i..]));
         }
     }
 
     #[test]
     fn small_test() {
-        let vec1: Vec<NodeType> = str_to_nodes("ABCD$");
-        let input = vec![vec1.as_slice()];
+        let input = vec![str_to_nodes("ABCD$")];
         let mut tree = Tree::new();
         tree.add_words(&input, UkkonenBuilder::new());
 
@@ -77,8 +76,7 @@ mod tests_single_input {
 
     #[test]
     fn test_single_word() {
-        let vec1 = str_to_nodes("ACACACGT$");
-        let input = vec![vec1.as_slice()];
+        let input = vec![str_to_nodes("ACACACGT$")];
 
         let mut tree = Tree::new();
         tree.add_words(&input, UkkonenBuilder::new());
@@ -117,7 +115,7 @@ mod tests_multiple_inputs {
         s.as_bytes().iter().map(|&b| b as NodeType).collect()
     }
 
-    fn test_all_substrings(inputs: &[&[NodeType]], searcher: &mut Searcher) {
+    fn test_all_substrings(inputs: &[Vec<NodeType>], searcher: &mut Searcher) {
         for (i, word) in inputs.iter().enumerate() {
             for start in 0..word.len() {
                 for end in start +1..=word.len() {
@@ -132,9 +130,10 @@ mod tests_multiple_inputs {
 
     #[test]
     fn test_two_non_overlapping_inputs() {
-        let vec1 = str_to_nodes("ABC$");
-        let vec2 = str_to_nodes("DEF$");
-        let input = vec![vec1. as_slice(), vec2. as_slice()];
+        let input = vec![
+            str_to_nodes("ABC$"), 
+            str_to_nodes("DEF$")
+        ];
 
         let mut tree = Tree::new();
         tree.add_words(&input, UkkonenBuilder::new());
@@ -157,9 +156,10 @@ mod tests_multiple_inputs {
 
     #[test]
     fn test_two_overlapping_begin_inputs() {
-        let vec1 = str_to_nodes("XYAB$");
-        let vec2 = str_to_nodes("XYCD$");
-        let input = vec![vec1.as_slice(), vec2.as_slice()];
+        let input = vec![
+            str_to_nodes("XYAB$"), 
+            str_to_nodes("XYCD$")
+        ];
 
         let mut tree = Tree::new();
         tree.add_words(&input, UkkonenBuilder::new());
@@ -186,9 +186,10 @@ mod tests_multiple_inputs {
 
     #[test]
     fn test_two_overlapping_end_inputs() {
-        let vec1 = str_to_nodes("ABXY$");
-        let vec2 = str_to_nodes("CDXY$");
-        let input = vec![vec1.as_slice(), vec2.as_slice()];
+        let input = vec![
+            str_to_nodes("ABXY$"), 
+            str_to_nodes("CDXY$")
+        ];
 
         let mut tree = Tree::new();
         tree.add_words(&input, UkkonenBuilder::new());
@@ -211,11 +212,11 @@ mod tests_multiple_inputs {
 
     #[test]
     fn test_multiple_inputs() {
-        let vec1 = str_to_nodes("MISSISSIPPI$");
-        let vec2 = str_to_nodes("BANANA$");
-        let vec3 = str_to_nodes("BANASSIPPI$");
-
-        let input = vec![vec1.as_slice(), vec2.as_slice(), vec3.as_slice()];
+        let input = vec![
+            str_to_nodes("MISSISSIPPI$"), 
+            str_to_nodes("BANANA$"), 
+            str_to_nodes("BANASSIPPI$")
+        ];
 
         let mut tree = Tree::new();
         tree.add_words(&input, UkkonenBuilder::new());
@@ -226,7 +227,7 @@ mod tests_multiple_inputs {
 
     #[test]
     fn test_large_random() {
-        let mut vecs: Vec<Vec<NodeType>> = vec![];
+        let mut input: Vec<Vec<NodeType>> = vec![];
 
         for _ in 0..50 {
             let mut vec: Vec<NodeType> = vec![];
@@ -234,10 +235,9 @@ mod tests_multiple_inputs {
                 vec.push((rand::random::<u8>() % 10 + 65) as NodeType);
             }
             vec.push(36);
-            vecs.push(vec);
+            input.push(vec);
         }
 
-        let input: Vec<&[NodeType]> = vecs.iter().map(|v| v.as_slice()).collect();
         let mut tree = Tree::new();
         tree.add_words(&input, UkkonenBuilder::new());
 

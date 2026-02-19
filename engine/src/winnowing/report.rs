@@ -1,19 +1,14 @@
-use crate::winnowing::pair::Pair;
+use std::rc::Rc;
+use crate::file::File;
+use crate::suffixtree::analysis::AnalysisResult;
 
 pub struct Report {
-    pub pairs: Vec<Pair>,
+    pub analysis_result: AnalysisResult,
+    pub files: Vec<Rc<File>>
 }
 
 impl Report {
-    pub fn new() -> Report {
-        Report { pairs: Vec::new() }
-    }
-    
-    pub fn add(&mut self, pair: Pair) {
-        self.pairs.push(pair);
-    }
-    
-    pub fn from(pairs: Vec<Pair>) -> Report {
-        Report { pairs }
+    pub fn from(analysis_result: AnalysisResult, files: Vec<Rc<File>>) -> Report {
+        Report { analysis_result, files }
     }
 }

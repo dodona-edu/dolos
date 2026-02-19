@@ -31,7 +31,7 @@ impl<'a> Cursor<'a> {
     /// Try to progress by consuming `next_character`
     /// Returns CursorIterator::Ok if this succeeds,
     /// otherwise CursorIterator::InWord or CursorIterator::AtEnd is returned to indicate where in a node we are
-    pub fn next(&mut self, next_character: NodeType, bytes_input: &[&[NodeType]]) -> CursorIterator {
+    pub fn next(&mut self, next_character: NodeType, bytes_input: &[Vec<NodeType>]) -> CursorIterator {
         let current_node = &self.tree.arena[self.current_node_index_in_arena];
         if self.index < current_node.range.length() {
             if bytes_input[current_node.range.input][current_node.range.start + self.index] == next_character {
@@ -85,7 +85,7 @@ impl<'a> Cursor<'a> {
     }
 
     /// Split edge implementation for Ukkonen
-    pub fn split_edge(&mut self, input_strings: &[&[NodeType]]) -> usize {
+    pub fn split_edge(&mut self, input_strings: &[Vec<NodeType>]) -> usize {
         // first get the index where the next node will be inserted, do this before we have a mutable borrow
         let new_internal_node_index_in_arena = self.tree.arena.len();
         // create the new node
@@ -247,8 +247,7 @@ mod tests {
         control_tree.arena[3].add_child(67, 1);
 
         let mut cursor = Cursor { current_node_index_in_arena: 1, index: 1, index_in_word: 2, tree: &mut tree };
-        let vec1 = str_to_nodes("ACAB$");
-        let inputs = vec![vec1.as_slice()];
+        let inputs = vec![str_to_nodes("ACAB$")];
         cursor.split_edge(&inputs);
 
         assert_eq!(cursor, Cursor { current_node_index_in_arena: 3, index: 1, index_in_word: 2, tree: &mut control_tree })

@@ -5,13 +5,13 @@ use crate::suffixtree::tree::{Tree};
 pub trait TreeBuilder {
     fn new() -> Self;
 
-    fn add_words(&self, data: &[&[NodeType]], tree: &mut Tree);
+    fn add_words(&self, data: &[Vec<NodeType>], tree: &mut Tree);
 }
 
 pub struct UkkonenBuilder;
 
 impl UkkonenBuilder {
-    fn build_single_input(&self, inputs: &[&[NodeType]], current_input_index: usize, tree: &mut Tree){
+    fn build_single_input(&self, inputs: &[Vec<NodeType>], current_input_index: usize, tree: &mut Tree){
         let data = &inputs[current_input_index];
         let mut cursor = Cursor::new(tree);
         let end_index = data.len();
@@ -62,7 +62,7 @@ impl TreeBuilder for UkkonenBuilder {
         Self
     }
 
-    fn add_words(&self, data: &[&[NodeType]], tree: &mut Tree) {
+    fn add_words(&self, data: &[Vec<NodeType>], tree: &mut Tree) {
 
         for (i, _) in data.iter().enumerate() {
             // TODO: first decent in the tree to skip everything that is already in it

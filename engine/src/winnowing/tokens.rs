@@ -13,7 +13,7 @@ pub trait Winnow {
     ///
     /// Code based on pseudocode from http://theory.stanford.edu/~aiken/publications/papers/sigmod03.pdf
     ///
-    fn winnow(&self, k: usize, w: usize) -> Vec<Fingerprint>;
+    fn winnow(&self, k: usize, w: usize) -> Vec<usize>;
 }
 
 impl Winnow for Vec<Token> {
@@ -22,7 +22,7 @@ impl Winnow for Vec<Token> {
     ///
     /// Code based on pseudocode from http://theory.stanford.edu/~aiken/publications/papers/sigmod03.pdf
     ///
-    fn winnow(&self, k: usize, w: usize) -> Vec<Fingerprint> {
+    fn winnow(&self, k: usize, w: usize) -> Vec<usize> {
         let mut rolling = RollingHash::new(k);
         let mut window = vec![usize::MAX; w];
         let mut filtered = Vec::new();
@@ -43,18 +43,12 @@ impl Winnow for Vec<Token> {
                     }
                 }
 
-                filtered.push(Fingerprint {
-                    index: filtered.len(),
-                    hash: window[min_index % w],
-                });
+                filtered.push(window[min_index % w]);
             } else if window[token_index % w] <= window[min_index % w] {
                 // we have found a new minimum
                 min_index = token_index;
 
-                filtered.push(Fingerprint {
-                    index: filtered.len(),
-                    hash: window[min_index % w],
-                });
+                filtered.push(window[min_index % w]);
             }
         }
 
@@ -97,7 +91,7 @@ mod tests {
             let mut length = 0;
             for (i, fingerprint) in actual.iter().enumerate() {
                 assert_eq!(
-                    fingerprint.hash, expected[i],
+                    *fingerprint, expected[i],
                     "Mismatch (k={}, w={}): {:?} and {:?}",
                     k, w, fingerprint, expected[i]
                 );
@@ -139,7 +133,7 @@ mod tests {
             let mut length = 0;
             for (i, fingerprint) in actual.iter().enumerate() {
                 assert_eq!(
-                    fingerprint.hash, expected[i],
+                    *fingerprint, expected[i],
                     "Mismatch (k={}, w={}): {:?} and {:?}",
                     k, w, fingerprint, expected[i]
                 );

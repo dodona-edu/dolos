@@ -1,9 +1,9 @@
-mod tree;
-mod tree_builder;
+pub mod tree;
+pub mod tree_builder;
+pub mod analysis;
 
 mod cursor;
 mod searcher;
 mod search_cursor;
 mod node;
-mod analysis;
 mod pair_array;

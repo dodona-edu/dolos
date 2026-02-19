@@ -4,11 +4,11 @@ use crate::suffixtree::tree::{Tree};
 
 pub struct Searcher<'a> {
     cursor: SearchCursor<'a>,
-    original_input_string: &'a[&'a[NodeType]]
+    original_input_string: &'a[Vec<NodeType>]
 }
 
 impl<'a> Searcher<'a> {
-    pub fn new(tree: &'a Tree, original_input_string: &'a[&'a[NodeType]]) -> Self {
+    pub fn new(tree: &'a Tree, original_input_string: &'a[Vec<NodeType>]) -> Self {
         Self {
             cursor: SearchCursor::new(tree),
             original_input_string
@@ -76,9 +76,10 @@ mod tests {
 
     #[test]
     fn test_simple_search() {
-        let vec1 = str_to_nodes("ABX$");
-        let vec2 = str_to_nodes("ABC$");
-        let input = vec![vec1.as_slice(), vec2.as_slice()];
+        let input = vec![
+            str_to_nodes("ABX$"),
+            str_to_nodes("ABC$")
+        ];
 
         let mut tree = Tree::new();
         tree.add_words(&input, UkkonenBuilder::new());
@@ -93,10 +94,11 @@ mod tests {
 
     #[test]
     fn test_no_match_between_inputs() {
-        let vec1 = str_to_nodes("ABC$");
-        let vec2 = str_to_nodes("ABD$");
-        let vec3 = str_to_nodes("ABE$");
-        let input = vec![vec1.as_slice(), vec2.as_slice(), vec3.as_slice()];
+        let input = vec![
+            str_to_nodes("ABC$"),
+            str_to_nodes("ABD$"),
+            str_to_nodes("ABE$")
+        ];
 
         let mut tree = Tree::new();
         tree.add_words(&input, UkkonenBuilder::new());
@@ -109,16 +111,17 @@ mod tests {
 
     #[test]
     fn test_suffix_indices_equal_input() {
-        let vec1 = str_to_nodes("ABC$");
-        let vec2 = str_to_nodes("ABC$");
-        let input = vec![vec1.as_slice(), vec2.as_slice()];
+        let input = vec![
+            str_to_nodes("ABC$"),
+            str_to_nodes("ABC$")
+        ];
 
         let mut tree = Tree::new();
         tree.add_words(&input, UkkonenBuilder::new());
         let mut searcher = Searcher::new(&tree, &input);
 
-        for i in 0..vec1.len() {
-            let mut result = searcher.find_all_suffix_indices(&vec1[i..]);
+        for i in 0..str_to_nodes("ABC$").len() {
+            let mut result = searcher.find_all_suffix_indices(&str_to_nodes("ABC$")[i..]);
             result.sort();
             
             assert_eq!(result, vec![0, 1]);

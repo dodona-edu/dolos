@@ -1,13 +1,11 @@
 use crate::file::File;
 use crate::language::Language;
+use crate::suffixtree::analysis::MaximalMatchAnalyzer;
+use crate::suffixtree::tree::Tree;
+use crate::suffixtree::tree_builder::{TreeBuilder, UkkonenBuilder};
 use crate::tokenizer::{Tokenizer, Tokens};
-use crate::winnowing::hashes::Hash;
-use crate::winnowing::pair::Pair;
 use crate::winnowing::report::Report;
-use crate::winnowing::shared_fingerprint::SharedFingerprint;
 use crate::winnowing::tokens::{Fingerprint, Winnow};
-use std::collections::hash_map::Entry;
-use std::collections::{HashMap, HashSet};
 use std::path::PathBuf;
 use std::rc::Rc;
 
@@ -22,8 +20,9 @@ pub struct Index {
     pub k: usize,
     pub w: usize,
     pub files: Vec<Rc<File>>,
+    data: Vec<Vec<usize>>,
     pub language: Language,
-    pub fingerprints: HashMap<Hash, SharedFingerprint>,
+    tree: Tree,
     tokenizer: Tokenizer,
 }
 
@@ -33,7 +32,8 @@ impl Index {
             k,
             w,
             files: Vec::new(),
-            fingerprints: HashMap::new(),
+            data: Vec::new(),
+            tree: Tree::new(),
             tokenizer: Tokenizer::new(language),
             language,
         }
@@ -46,49 +46,28 @@ impl Index {
 
         let tree = self.tokenizer.parse(&path);
         let tokens = tree.tokens();
-        let fingerprints = tokens.winnow(self.k, self.w);
-
-        let mut shared = HashSet::new();
-        for fingerprint in &fingerprints {
-            shared.insert(fingerprint.hash);
-        }
+        let mut fingerprints = tokens.winnow(self.k, self.w);
+        fingerprints.push(0);
+        self.data.push(fingerprints);
 
         let file = Rc::new(File {
             path,
-            fingerprints,
             language: self.language,
-            shared,
         });
 
-        self.files.push(file.clone());
-
-        for fingerprint in &file.fingerprints {
-            match self.fingerprints.entry(fingerprint.hash) {
-                Entry::Occupied(mut o) => {
-                    o.get_mut().add(fingerprint.clone(), file.clone());
-                }
-                Entry::Vacant(v) => {
-                    v.insert(SharedFingerprint::new(fingerprint.clone(), file.clone()));
-                }
-            };
-        }
+        self.files.push(file);
     }
 
     pub fn add_files(&mut self, paths: Vec<PathBuf>) {
         for path in paths {
             self.add_file(path);
         }
+        self.tree.add_words(&self.data, UkkonenBuilder::new());
     }
 
     pub fn build_report(&self) -> Report {
         let files = &self.files;
-        let mut report: Report = Report::new();
-
-        for i in 0..files.len() {
-            for j in i+1..files.len() {
-                report.add(Pair::new(&files[i], &files[j], &self.fingerprints));
-            }
-        }
-        report
+        let res = MaximalMatchAnalyzer::new(&self.tree, &self.data, 1).analyze();
+        Report::from(res, files.clone())
     }
 }

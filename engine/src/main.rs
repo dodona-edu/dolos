@@ -20,7 +20,7 @@ fn main() -> std::io::Result<()> {
             let report = dolos.build_report();
 
             Writer::new(output_format, output_destination)?
-                .write_and_finish(&report.pairs)?;
+                .write_and_finish(&report)?;
         }
     }
     Ok(())

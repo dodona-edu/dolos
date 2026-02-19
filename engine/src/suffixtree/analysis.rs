@@ -85,7 +85,7 @@ impl<'a> OverlapBitsets<'a> {
 
 /// Collects and processes matches found during tree traversal
 struct MatchCollector<'a> {
-    inputs: &'a [&'a [NodeType]],
+    inputs: &'a [Vec<NodeType>],
     longest_fragments: PairArray<usize>,
     overlap_bitsets: OverlapBitsets<'a>,
 }
@@ -100,7 +100,7 @@ impl<'a> MatchCollector<'a> {
         }
     }
 
-    fn set_inputs(&mut self, inputs: &'a [&'a [NodeType]]) {
+    fn set_inputs(&mut self, inputs: &'a [Vec<NodeType>]) {
         self.inputs = inputs;
     }
 
@@ -165,13 +165,13 @@ impl<'a> MatchCollector<'a> {
 /// Analyzer for finding maximal exact matches in a suffix tree
 pub struct MaximalMatchAnalyzer<'a> {
     tree: &'a Tree,
-    inputs: &'a [&'a [NodeType]],
+    inputs: &'a [Vec<NodeType>],
     min_match_length: usize,
 }
 
 impl<'a> MaximalMatchAnalyzer<'a> {
     /// Create a new analyzer
-    pub fn new(tree: &'a Tree, inputs: &'a [&'a [NodeType]], min_match_length: usize) -> Self {
+    pub fn new(tree: &'a Tree, inputs: &'a [Vec<NodeType>], min_match_length: usize) -> Self {
         Self {
             tree,
             inputs,
@@ -347,9 +347,10 @@ mod tests {
 
     #[test]
     fn test_identical_inputs() {
-        let vec1 = str_to_nodes("ABC$");
-        let vec2 = str_to_nodes("ABC$");
-        let input = vec![vec1.as_slice(), vec2.as_slice()];
+        let input = vec![
+            str_to_nodes("ABC$"),
+            str_to_nodes("ABC$")
+        ];
 
         let mut tree = Tree::new();
         tree.add_words(&input, UkkonenBuilder::new());
@@ -363,9 +364,10 @@ mod tests {
 
     #[test]
     fn test_non_overlapping_inputs() {
-        let vec1 = str_to_nodes("ABC$");
-        let vec2 = str_to_nodes("DEF$");
-        let input = vec![vec1.as_slice(), vec2.as_slice()];
+        let input = vec![
+            str_to_nodes("ABC$"),
+            str_to_nodes("DEF$")
+        ];
 
         let mut tree = Tree::new();
         tree.add_words(&input, UkkonenBuilder::new());
@@ -379,9 +381,10 @@ mod tests {
 
     #[test]
     fn test_partial_overlap() {
-        let vec1 = str_to_nodes("ABCDEF$");
-        let vec2 = str_to_nodes("XYZABC$");
-        let input = vec![vec1.as_slice(), vec2.as_slice()];
+        let input = vec![
+            str_to_nodes("ABCDEF$"),
+            str_to_nodes("XYZABC$")
+        ];
 
         let mut tree = Tree::new();
         tree.add_words(&input, UkkonenBuilder::new());
@@ -395,10 +398,11 @@ mod tests {
 
     #[test]
     fn test_multiple_inputs() {
-        let vec1 = str_to_nodes("ABCD$");
-        let vec2 = str_to_nodes("ABCE$");
-        let vec3 = str_to_nodes("XYZW$");
-        let input = vec![vec1.as_slice(), vec2.as_slice(), vec3.as_slice()];
+        let input = vec![
+            str_to_nodes("ABCD$"),
+            str_to_nodes("ABCE$"),
+            str_to_nodes("XYZW$")
+        ];
 
         let mut tree = Tree::new();
         tree.add_words(&input, UkkonenBuilder::new());
@@ -415,9 +419,10 @@ mod tests {
 
     #[test]
     fn test_min_match_length() {
-        let vec1 = str_to_nodes("ABCDEF$");
-        let vec2 = str_to_nodes("XYZABC$");
-        let input = vec![vec1.as_slice(), vec2.as_slice()];
+        let input = vec![
+            str_to_nodes("ABCDEF$"),
+            str_to_nodes("XYZABC$")
+        ];
 
         let mut tree = Tree::new();
         tree.add_words(&input, UkkonenBuilder::new());

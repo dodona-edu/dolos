@@ -10,9 +10,7 @@ use crate::winnowing::tokens::Fingerprint;
 
 pub struct File {
     pub path: PathBuf,
-    pub language: Language,
-    pub fingerprints: Vec<Fingerprint>,
-    pub shared: HashSet<OtherHash>,
+    pub language: Language
 }
 
 impl File {
