@@ -1,4 +1,4 @@
-use crate::suffixtree::node::{Node, NodeType, Nullable};
+use crate::suffixtree::node::{Node, NodeType};
 use crate::suffixtree::tree::{Tree};
 
 /// A Cursor that cannot mutate the tree (which means it can only be used during the search phase).
@@ -31,9 +31,8 @@ impl<'a> SearchCursor<'a> {
             return None;
         }
 
-        let child = self.current_node.get_child(next_character);
-        if !child.is_null() {
-            self.current_node = &self.tree.arena[child];
+        if let Some(child) = self.current_node.get_child(next_character) {
+            self.current_node = &self.tree.arena[*child];
             self.index = 1;
             return Some(());
         }

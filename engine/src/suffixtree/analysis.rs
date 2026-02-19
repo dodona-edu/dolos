@@ -196,7 +196,7 @@ impl<'a> MaximalMatchAnalyzer<'a> {
     /// Returns a map from left character to list of start positions
     /// `depth` is the string depth at this leaf (sum of all edge lengths from root to here)
     fn create_leaf_maps(&self, node: &Node, depth: usize) -> Vec<HashMap<NodeType, Vec<StartPosition>>> {
-        node.inputs
+        node.inputs.as_ref().expect("Leaf node must have inputs")
             .iter()
             .map(|&input| {
                 let seq_len = self.inputs[input].len();
@@ -306,7 +306,7 @@ impl<'a> MaximalMatchAnalyzer<'a> {
         let node = &self.tree.arena[node_index];
         let node_depth = depth + node.range.length();
 
-        let maps = if node.children.is_empty() {
+        let maps = if node.children.is_none() {
             self.create_leaf_maps(node, node_depth)
         } else {
             self.collect_children_maps(node, node_depth, collector)
@@ -328,7 +328,7 @@ impl<'a> MaximalMatchAnalyzer<'a> {
         node_depth: usize,
         collector: &mut MatchCollector,
     ) -> Vec<HashMap<NodeType, Vec<StartPosition>>> {
-        node.children
+        node.children.as_ref().expect("Node must have children")
             .values()
             .map(|&child_index| self.find_maximal_pairs(child_index, node_depth, collector))
             .collect()

@@ -39,22 +39,28 @@ impl<'a> Searcher<'a> {
         (false, end_node)
     }
 
+
     pub fn find_all_suffix_indices(&mut self, search_string: &[NodeType]) -> Vec<usize> {
         let (match_found, end_node) = self.find_end_node(search_string);
         if !match_found {
             return vec![];
         }
-        let mut suffix_indices_list: Vec<usize> = vec![];
+
+        let mut suffix_indices_list = Vec::new();
         let mut stack = vec![end_node];
+
         while let Some(current_node) = stack.pop() {
-            if !current_node.inputs.is_empty() {
-                suffix_indices_list.extend(current_node.inputs.iter());
-            } else {
-                current_node.children.values().for_each(|child| {
-                    stack.push(&self.cursor.tree.arena[*child]);
-                });
+            match (&current_node.inputs, &current_node.children) {
+                (Some(inputs), _) => {
+                    suffix_indices_list.extend(inputs.iter());
+                }
+                (None, Some(children)) => {
+                    stack.extend(children.values().map(|&child| &self.cursor.tree.arena[child]));
+                }
+                (None, None) => unreachable!("Node must have either inputs or children") // Empty node, skip
             }
         }
+
         suffix_indices_list
     }
 

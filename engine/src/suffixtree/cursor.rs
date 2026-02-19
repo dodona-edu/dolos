@@ -1,7 +1,7 @@
-use crate::suffixtree::tree::{Tree};
+use crate::suffixtree::node::{Node, NodeType, Range};
+use crate::suffixtree::tree::Tree;
 use std::cmp::min;
-use std::collections::{HashMap, HashSet};
-use crate::suffixtree::node::{Node, NodeIndex, NodeType, Nullable, Range};
+use std::collections::HashSet;
 
 #[derive(Debug, PartialEq)]
 pub enum CursorIterator {
@@ -42,9 +42,8 @@ impl<'a> Cursor<'a> {
             return CursorIterator::InWord;
         }
 
-        let child = current_node.get_child(next_character);
-        if !child.is_null() {
-            self.current_node_index_in_arena = child;
+        if let Some(child) = current_node.get_child(next_character) {
+            self.current_node_index_in_arena = *child;
             self.index = 1;
             self.index_in_word += 1;
             return CursorIterator::Ok;
@@ -57,9 +56,11 @@ impl<'a> Cursor<'a> {
         self.index -= 1;
         self.index_in_word -= 1;
 
-        if self.index == 0 && self.current_node_index_in_arena != 0 {
-            self.current_node_index_in_arena = self.tree.arena[self.current_node_index_in_arena].parent;
-            self.index = self.tree.arena[self.current_node_index_in_arena].range.length();
+        if self.index == 0 {
+            if let Some(parent) = self.tree.arena[self.current_node_index_in_arena].parent {
+                self.current_node_index_in_arena = parent;
+                self.index = self.tree.arena[self.current_node_index_in_arena].range.length();
+            }
         }
     }
 
@@ -77,11 +78,15 @@ impl<'a> Cursor<'a> {
 
     /// Adds a link from the `receiver` node to the `link_to` node
     pub fn add_link(&mut self, receiver: usize, link_to: usize) {
-        self.tree.arena[receiver].link = link_to;
+        self.tree.arena[receiver].link = Some(link_to);
     }
 
     pub fn add_input(&mut self, input: usize) {
-        self.tree.arena[self.current_node_index_in_arena].inputs.insert(input);
+        self.tree.arena[self.current_node_index_in_arena]
+            .inputs
+            .as_mut()
+            .expect("Cannot add input to node with None inputs")
+            .insert(input);
     }
 
     /// Split edge implementation for Ukkonen
@@ -97,13 +102,13 @@ impl<'a> Cursor<'a> {
             vec![
                 (input_strings[current_node.range.input][new_internal_node_end], self.current_node_index_in_arena)
             ],
-            NodeIndex::NULL,
-            HashSet::new(),
+            None,
+            None,
         );
-        let parent_index_in_arena = current_node.parent; // temp store the index since we will need it later
+        let parent_index_in_arena = current_node.parent.expect("Current node should have a parent"); // temp store the index since we will need it later
         // update current node
         current_node.range.start += self.index;
-        current_node.parent = new_internal_node_index_in_arena;
+        current_node.parent = Some(new_internal_node_index_in_arena);
         // update the parent now we have updated everything needed to the current node
         let parent = &mut self.tree.arena[parent_index_in_arena];
         parent.add_child(input_strings[new_internal_node.range.input][new_internal_node.range.start], new_internal_node_index_in_arena);
@@ -118,17 +123,17 @@ impl<'a> Cursor<'a> {
     pub fn add_leaf_from_position(&mut self, j: usize, input: usize, input_string: &[NodeType]) {
         let new_leaf = Node::new(
             Range::new(j, input_string.len(), input),
-            self.current_node_index_in_arena,
-            HashMap::new(),
-            NodeIndex::NULL,
-            HashSet::from([input]),
+            Some(self.current_node_index_in_arena),
+            None,
+            None,
+            Some(HashSet::from([input])),
         );
         let new_leaf_position_in_arena = self.tree.arena.len();
         let current_node = &mut self.tree.arena[self.current_node_index_in_arena];
         current_node.add_child(input_string[j], new_leaf_position_in_arena);
         self.tree.arena.push(new_leaf);
     }
-
+    
     /// Follow the suffix link during the Ukkonen algorithm
     pub fn follow_link(&mut self, data: &[NodeType]) {
         if self.current_node_index_in_arena == 0 || self.index == 0 {
@@ -138,22 +143,31 @@ impl<'a> Cursor<'a> {
         let mut current_node = &self.tree.arena[self.current_node_index_in_arena];
 
         let mut distance_left_to_walk;
-        if current_node.parent == 0 { // parent with index 0 is the root
-            self.current_node_index_in_arena = 0;
-            distance_left_to_walk = self.index - 1;
-            self.index_in_word -= self.index - 1;
+        if let Some(parent_index) = current_node.parent {
+            if parent_index == 0 { // parent is the root
+                self.current_node_index_in_arena = 0;
+                distance_left_to_walk = self.index - 1;
+                self.index_in_word -= self.index - 1;
+            } else {
+                // follow link
+                distance_left_to_walk = self.index; // distance before following link
+                self.index_in_word -= self.index;
+                let parent_node = &self.tree.arena[parent_index];
+                self.current_node_index_in_arena = parent_node.link.expect("Parent must have a suffix link");
+            }
         } else {
-            // follow link
-            distance_left_to_walk = self.index; // distance before following link
-            self.index_in_word -= self.index;
-            self.current_node_index_in_arena = self.tree.arena[current_node.parent].link;
+            // No parent means we're at root (shouldn't happen due to early return)
+            return;
         }
+
         current_node = &self.tree.arena[self.current_node_index_in_arena];
         self.index = current_node.range.length();
 
         while distance_left_to_walk > 0 {
             // move to child
-            self.current_node_index_in_arena = current_node.get_child(data[self.index_in_word]);
+            self.current_node_index_in_arena = *current_node
+                .get_child(data[self.index_in_word])
+                .expect("Child must exist during tree traversal");
             current_node = &self.tree.arena[self.current_node_index_in_arena];
 
             // walk as far as possible on current edge
@@ -168,9 +182,8 @@ impl<'a> Cursor<'a> {
 #[cfg(test)]
 mod tests {
     use crate::suffixtree::cursor::Cursor;
-    use crate::suffixtree::tree::{Tree};
-    use std::collections::{HashMap, HashSet};
-    use crate::suffixtree::node::{Node, NodeIndex, NodeType, Nullable, Range};
+    use crate::suffixtree::node::{Node, NodeType, Range};
+    use crate::suffixtree::tree::Tree;
 
     pub fn str_to_nodes(s: &str) -> Vec<NodeType> {
         s.as_bytes().iter().map(|&b| b as NodeType).collect()
@@ -181,28 +194,9 @@ mod tests {
 
         let mut tree = Tree {
             arena: vec![
-                Node::new(
-                    Range::new(0, 0, 0),
-                    NodeIndex::NULL,
-                    HashMap::new(),
-                    NodeIndex::NULL,
-                    HashSet::new(),
-
-                ),
-                Node::new(
-                    Range::new(0, 5, 0),
-                    0,
-                    HashMap::new(),
-                    NodeIndex::NULL,
-                    HashSet::new(),
-                ),
-                Node::new(
-                    Range::new(1, 5, 0),
-                    0,
-                    HashMap::new(),
-                    NodeIndex::NULL,
-                    HashSet::new(),
-                ),
+                Node::new(Range::new(0, 0, 0), None, None, None, None),
+                Node::new(Range::new(0, 5, 0), Some(0), None, None, None),
+                Node::new(Range::new(1, 5, 0), Some(0), None, None, None),
             ]
         };
 
@@ -211,34 +205,10 @@ mod tests {
 
         let mut control_tree = Tree {
             arena: vec![
-                Node::new(
-                    Range::new(0, 0, 0),
-                    NodeIndex::NULL,
-                    HashMap::new(),
-                    NodeIndex::NULL,
-                    HashSet::new(),
-                ),
-                Node::new(
-                    Range::new(1, 5, 0),
-                    3,
-                    HashMap::new(),
-                    NodeIndex::NULL,
-                    HashSet::new(),
-                ),
-                Node::new(
-                    Range::new(1, 5, 0),
-                    0,
-                    HashMap::new(),
-                    NodeIndex::NULL,
-                    HashSet::new(),
-                ),
-                Node::new(
-                    Range::new(0, 1, 0),
-                    0,
-                    HashMap::new(),
-                    NodeIndex::NULL,
-                    HashSet::new(),
-                ),
+                Node::new(Range::new(0, 0, 0), None, None, None,None),
+                Node::new(Range::new(1, 5, 0), Some(3), None, None, None),
+                Node::new(Range::new(1, 5, 0), Some(0), None, None, None),
+                Node::new(Range::new(0, 1, 0), Some(0), None, None, None),
             ]
         };
 
