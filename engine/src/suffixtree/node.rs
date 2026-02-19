@@ -9,7 +9,7 @@ pub trait Nullable<T> {
 
 /// Type that represents the index of a node in the arena part of the tree
 pub type NodeIndex = usize;
-pub type NodeType = u8;
+pub type NodeType = usize;
 
 impl Nullable<NodeIndex> for NodeIndex {
     /// Use usize::MAX as NULL value since this will in practice never be reached.
@@ -93,7 +93,7 @@ impl Node {
         // Recursively print all children
         for (char, &child_index) in &self.children {
             print!("{}", " ".repeat(((depth + 1) * 4) as usize));
-            print!("'{}' ->", *char as char);
+            print!("'{}' ->", *char);
             arena[child_index].print(depth + 1, arena);
         }
     }

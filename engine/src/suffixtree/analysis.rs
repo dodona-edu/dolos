@@ -341,14 +341,19 @@ mod tests {
     use crate::suffixtree::tree::Tree;
     use crate::suffixtree::tree_builder::{TreeBuilder, UkkonenBuilder};
 
+    pub fn str_to_nodes(s: &str) -> Vec<NodeType> {
+        s.as_bytes().iter().map(|&b| b as NodeType).collect()
+    }
+
     #[test]
     fn test_identical_inputs() {
-        let vec1 = "ABC$".as_bytes();
-        let vec2 = "ABC$".as_bytes();
-        let inputs = vec![vec1, vec2];
+        let vec1 = str_to_nodes("ABC$");
+        let vec2 = str_to_nodes("ABC$");
+        let input = vec![vec1.as_slice(), vec2.as_slice()];
 
-        let tree = Tree::new(&inputs, UkkonenBuilder::new());
-        let analyzer = MaximalMatchAnalyzer::new(&tree, &inputs, 1);
+        let mut tree = Tree::new();
+        tree.add_words(&input, UkkonenBuilder::new());
+        let analyzer = MaximalMatchAnalyzer::new(&tree, &input, 1);
         let result = analyzer.analyze();
 
         // Both inputs are identical, so similarity should be 1.0
@@ -358,12 +363,13 @@ mod tests {
 
     #[test]
     fn test_non_overlapping_inputs() {
-        let vec1 = "ABC$".as_bytes();
-        let vec2 = "DEF$".as_bytes();
-        let inputs = vec![vec1, vec2];
+        let vec1 = str_to_nodes("ABC$");
+        let vec2 = str_to_nodes("DEF$");
+        let input = vec![vec1.as_slice(), vec2.as_slice()];
 
-        let tree = Tree::new(&inputs, UkkonenBuilder::new());
-        let analyzer = MaximalMatchAnalyzer::new(&tree, &inputs, 1);
+        let mut tree = Tree::new();
+        tree.add_words(&input, UkkonenBuilder::new());
+        let analyzer = MaximalMatchAnalyzer::new(&tree, &input, 1);
         let result = analyzer.analyze();
 
         // No overlap
@@ -373,12 +379,13 @@ mod tests {
 
     #[test]
     fn test_partial_overlap() {
-        let vec1 = "ABCDEF$".as_bytes();
-        let vec2 = "XYZABC$".as_bytes();
-        let inputs = vec![vec1, vec2];
+        let vec1 = str_to_nodes("ABCDEF$");
+        let vec2 = str_to_nodes("XYZABC$");
+        let input = vec![vec1.as_slice(), vec2.as_slice()];
 
-        let tree = Tree::new(&inputs, UkkonenBuilder::new());
-        let analyzer = MaximalMatchAnalyzer::new(&tree, &inputs, 1);
+        let mut tree = Tree::new();
+        tree.add_words(&input, UkkonenBuilder::new());
+        let analyzer = MaximalMatchAnalyzer::new(&tree, &input, 1);
         let result = analyzer.analyze();
 
         // "ABC" is shared
@@ -388,13 +395,14 @@ mod tests {
 
     #[test]
     fn test_multiple_inputs() {
-        let vec1 = "ABCD$".as_bytes();
-        let vec2 = "ABCE$".as_bytes();
-        let vec3 = "XYZW$".as_bytes();
-        let inputs = vec![vec1, vec2, vec3];
+        let vec1 = str_to_nodes("ABCD$");
+        let vec2 = str_to_nodes("ABCE$");
+        let vec3 = str_to_nodes("XYZW$");
+        let input = vec![vec1.as_slice(), vec2.as_slice(), vec3.as_slice()];
 
-        let tree = Tree::new(&inputs, UkkonenBuilder::new());
-        let analyzer = MaximalMatchAnalyzer::new(&tree, &inputs, 1);
+        let mut tree = Tree::new();
+        tree.add_words(&input, UkkonenBuilder::new());
+        let analyzer = MaximalMatchAnalyzer::new(&tree, &input, 1);
         let result = analyzer.analyze();
 
         // Input 0 and 1 share "ABC"
@@ -407,14 +415,14 @@ mod tests {
 
     #[test]
     fn test_min_match_length() {
-        let vec1 = "ABCDEF$".as_bytes();
-        let vec2 = "XYZABC$".as_bytes();
-        let inputs = vec![vec1, vec2];
+        let vec1 = str_to_nodes("ABCDEF$");
+        let vec2 = str_to_nodes("XYZABC$");
+        let input = vec![vec1.as_slice(), vec2.as_slice()];
 
-        let tree = Tree::new(&inputs, UkkonenBuilder::new());
-
+        let mut tree = Tree::new();
+        tree.add_words(&input, UkkonenBuilder::new());
         // With min_match_length = 5, "ABC" (length 3) should not be counted
-        let analyzer = MaximalMatchAnalyzer::new(&tree, &inputs, 5);
+        let analyzer = MaximalMatchAnalyzer::new(&tree, &input, 5);
         let result = analyzer.analyze();
 
         assert_eq!(*result.longest_fragments.get(0, 1), 0);

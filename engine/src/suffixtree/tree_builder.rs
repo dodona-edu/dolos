@@ -1,19 +1,19 @@
 use crate::suffixtree::cursor::{Cursor, CursorIterator};
-use crate::suffixtree::node::NodeIndex;
+use crate::suffixtree::node::{NodeIndex, NodeType};
 use crate::suffixtree::tree::{Tree};
 
 pub trait TreeBuilder {
     fn new() -> Self;
 
-    fn build(&self, data: &[&[u8]], tree: Tree) -> Tree;
+    fn add_words(&self, data: &[&[NodeType]], tree: &mut Tree);
 }
 
 pub struct UkkonenBuilder;
 
 impl UkkonenBuilder {
-    fn build_single_input(&self, inputs: &[&[u8]], current_input_index: usize, mut tree: Tree) -> Tree {
+    fn build_single_input(&self, inputs: &[&[NodeType]], current_input_index: usize, tree: &mut Tree){
         let data = &inputs[current_input_index];
-        let mut cursor = Cursor::new(&mut tree);
+        let mut cursor = Cursor::new(tree);
         let end_index = data.len();
         let mut num_leaves = 0;
         for j in 1..=end_index {
@@ -55,8 +55,6 @@ impl UkkonenBuilder {
                 cursor.follow_link(data);
             }
         }
-
-        tree
     }
 }
 impl TreeBuilder for UkkonenBuilder {
@@ -64,12 +62,11 @@ impl TreeBuilder for UkkonenBuilder {
         Self
     }
 
-    fn build(&self, data: &[&[u8]], mut tree: Tree) -> Tree {
+    fn add_words(&self, data: &[&[NodeType]], tree: &mut Tree) {
 
         for (i, _) in data.iter().enumerate() {
             // TODO: first decent in the tree to skip everything that is already in it
-            tree = self.build_single_input(data,i, tree);
+            self.build_single_input(data,i, tree);
         }
-        tree
     }
 }

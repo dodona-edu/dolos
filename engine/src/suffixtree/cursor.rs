@@ -170,11 +170,14 @@ mod tests {
     use crate::suffixtree::cursor::Cursor;
     use crate::suffixtree::tree::{Tree};
     use std::collections::{HashMap, HashSet};
-    use crate::suffixtree::node::{Node, NodeIndex, Nullable, Range};
+    use crate::suffixtree::node::{Node, NodeIndex, NodeType, Nullable, Range};
+
+    pub fn str_to_nodes(s: &str) -> Vec<NodeType> {
+        s.as_bytes().iter().map(|&b| b as NodeType).collect()
+    }
 
     #[test]
     fn test_split_edge() {
-        let input = "ACAB$";
 
         let mut tree = Tree {
             arena: vec![
@@ -203,8 +206,8 @@ mod tests {
             ]
         };
 
-        tree.arena[0].add_child(b'A', 1);
-        tree.arena[0].add_child(b'C', 2);
+        tree.arena[0].add_child(65, 1);
+        tree.arena[0].add_child(67, 2);
 
         let mut control_tree = Tree {
             arena: vec![
@@ -239,13 +242,13 @@ mod tests {
             ]
         };
 
-        control_tree.arena[0].add_child(b'A', 3);
-        control_tree.arena[0].add_child(b'C', 2);
-        control_tree.arena[3].add_child(b'C', 1);
+        control_tree.arena[0].add_child(65, 3);
+        control_tree.arena[0].add_child(67, 2);
+        control_tree.arena[3].add_child(67, 1);
 
         let mut cursor = Cursor { current_node_index_in_arena: 1, index: 1, index_in_word: 2, tree: &mut tree };
-        let vec1 = input.as_bytes();
-        let inputs = vec![vec1];
+        let vec1 = str_to_nodes("ACAB$");
+        let inputs = vec![vec1.as_slice()];
         cursor.split_edge(&inputs);
 
         assert_eq!(cursor, Cursor { current_node_index_in_arena: 3, index: 1, index_in_word: 2, tree: &mut control_tree })
