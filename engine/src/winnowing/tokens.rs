@@ -82,11 +82,11 @@ mod tests {
     const TEST_K_W: [(usize, usize); 3] = [(17, 23), (3, 5), (16, 8)];
 
     #[test]
-    fn test_tokenization_and_winnowwing() {
+    fn test_tokenization_and_winnowing() {
         let mut tokenizer = Tokenizer::new(Language::Javascript);
 
         for (k, w) in TEST_K_W {
-            let expected: Vec<DolosFingerprint> =
+            let expected: Vec<usize> =
                 serde_any::from_file(format!("fixtures/sample.winnowk{}w{}.json", k, w)).unwrap();
 
             let actual = tokenizer
@@ -97,7 +97,7 @@ mod tests {
             let mut length = 0;
             for (i, fingerprint) in actual.iter().enumerate() {
                 assert_eq!(
-                    fingerprint.hash, expected[i].hash,
+                    fingerprint.hash, expected[i],
                     "Mismatch (k={}, w={}): {:?} and {:?}",
                     k, w, fingerprint, expected[i]
                 );
@@ -131,7 +131,7 @@ mod tests {
         }
 
         for (k, w) in TEST_K_W {
-            let expected: Vec<DolosFingerprint> =
+            let expected: Vec<usize> =
                 serde_any::from_file(format!("fixtures/sample.winnowk{}w{}.json", k, w)).unwrap();
 
             let actual = tokens.winnow(k, w);
@@ -139,7 +139,7 @@ mod tests {
             let mut length = 0;
             for (i, fingerprint) in actual.iter().enumerate() {
                 assert_eq!(
-                    fingerprint.hash, expected[i].hash,
+                    fingerprint.hash, expected[i],
                     "Mismatch (k={}, w={}): {:?} and {:?}",
                     k, w, fingerprint, expected[i]
                 );
