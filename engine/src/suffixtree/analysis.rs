@@ -1,7 +1,7 @@
 use std::collections::HashMap;
-use bitvec::prelude::*;
 use crate::suffixtree::node::{Node, NodeType};
 use crate::suffixtree::pair_array::PairArray;
+use crate::suffixtree::pair_bitmap::PairBitmap;
 use crate::suffixtree::tree::Tree;
 
 /// Represents a starting position of a match in the input sequences
@@ -20,88 +20,22 @@ pub struct AnalysisResult {
     pub longest_fragments: PairArray<usize>,
 }
 
-/// Overlap tracking for similarity calculation using bit vectors
-struct OverlapBitsets<'a> {
-    /// For each pair (i, j), stores two vectors tracking which positions are covered
-    data: PairArray<(BitVec, BitVec)>,
-    input_lengths: &'a Vec<usize>,
-}
-
-impl<'a> OverlapBitsets<'a> {
-    fn new(input_lengths: &'a Vec<usize>) -> Self {
-        let size = input_lengths.len();
-        let pair_count = size * (size - 1) / 2;
-
-        // Pre-allocate with properly sized BitVecs
-        let mut temp_data = Vec::with_capacity(pair_count);
-        for i in 0..size {
-            for j in (i + 1)..size {
-                temp_data.push((
-                    bitvec![0; input_lengths[i]],
-                    bitvec![0; input_lengths[j]]
-                ));
-            }
-        }
-
-        let data = PairArray::from_vec(temp_data, size);
-
-        Self { data, input_lengths }
-    }
-
-    /// Mark a range in the overlap bitsets for a pair of inputs
-    fn mark_overlap(&mut self, sp1: &StartPosition, sp2: &StartPosition, length: usize) {
-        let (bits1, bits2) = self.data.get_mut(sp1.input, sp2.input);
-
-        // Determine which bitset corresponds to which start position
-        let (start1, start2) = if sp1.input < sp2.input {
-            (sp1.start, sp2.start)
-        } else {
-            (sp2.start, sp1.start)
-        };
-
-        // Mark the range for the first and second position
-        bits1[start1..start1 + length].fill(true);
-        bits2[start2..start2 + length].fill(true);
-    }
-
-    /// Calculate similarity for a pair of inputs
-    ///
-    /// Similarity is defined as the total overlap divided by the total length
-    /// (excluding end markers)
-    fn calculate_similarity(&self, i1: usize, i2: usize) -> f64 {
-        let (bits1, bits2) = self.data.get(i1, i2);
-        let total_overlap = bits1.count_ones() + bits2.count_ones();
-
-        // Subtract 1 from each length to account for the end marker ($)
-        let total_length = (self.input_lengths[i1] - 1) + (self.input_lengths[i2] - 1);
-
-        if total_length == 0 {
-            0.0
-        } else {
-            total_overlap as f64 / total_length as f64
-        }
-    }
-}
-
 /// Collects and processes matches found during tree traversal
 struct MatchCollector<'a> {
     inputs: &'a [Vec<NodeType>],
     longest_fragments: PairArray<usize>,
-    overlap_bitsets: OverlapBitsets<'a>,
+    overlap_bitmap: PairBitmap,
 }
 
 impl<'a> MatchCollector<'a> {
-    fn new(input_lengths: &'a Vec<usize>) -> Self {
-        let num_inputs = input_lengths.len();
-        Self {
-            inputs: &[],
-            longest_fragments: PairArray::new(num_inputs, 0),
-            overlap_bitsets: OverlapBitsets::new(input_lengths),
-        }
-    }
+    fn new(inputs: &'a [Vec<usize>]) -> Self {
+        let input_lengths:Vec<usize> = inputs.iter().map(|i| i.len()).collect();
 
-    fn set_inputs(&mut self, inputs: &'a [Vec<NodeType>]) {
-        self.inputs = inputs;
+        Self {
+            inputs,
+            longest_fragments: PairArray::new(inputs.len(), 0),
+            overlap_bitmap: PairBitmap::new(input_lengths.as_slice()),
+        }
     }
 
     /// Record a maximal match between two positions
@@ -113,7 +47,7 @@ impl<'a> MatchCollector<'a> {
         }
 
         self.update_longest_fragment(sp1.input, sp2.input, effective_length);
-        self.overlap_bitsets.mark_overlap(sp1, sp2, effective_length);
+        self.overlap_bitmap.mark_pair(sp1.input, sp2.input, sp1.start, sp2.start, effective_length);
     }
 
     /// Calculate the effective length of a match, excluding end markers
@@ -154,7 +88,17 @@ impl<'a> MatchCollector<'a> {
 
         for i1 in 0..num_inputs {
             for i2 in (i1 + 1)..num_inputs {
-                similarities.set(i1, i2, self.overlap_bitsets.calculate_similarity(i1, i2));
+                let total_overlap = self.overlap_bitmap.count_ones_pair(i1, i2);
+                // Subtract 1 from each length to account for the end marker ($)
+                let total_length = (self.inputs[i1].len() - 1)
+                    + (self.inputs[i2].len() - 1);
+
+                let similarity = if total_length == 0 {
+                    0.0
+                } else {
+                    total_overlap as f64 / total_length as f64
+                };
+                similarities.set(i1, i2, similarity);
             }
         }
 
@@ -181,10 +125,7 @@ impl<'a> MaximalMatchAnalyzer<'a> {
 
     /// Perform the analysis and return the results
     pub fn analyze(&self) -> AnalysisResult {
-        let input_lengths: Vec<usize> = self.inputs.iter().map(|i| i.len()).collect();
-
-        let mut collector = MatchCollector::new(&input_lengths);
-        collector.set_inputs(self.inputs);
+        let mut collector = MatchCollector::new(self.inputs);
 
         // Find all maximal pairs starting from the root
         self.find_maximal_pairs(0, 0, &mut collector);
@@ -358,7 +299,7 @@ mod tests {
         let result = analyzer.analyze();
 
         // Both inputs are identical, so similarity should be 1.0
-        assert!((result.similarities.get(0, 1) - 1.0).abs() < 0.001);
+        assert_eq!(*result.similarities.get(0, 1), 1.0);
         assert_eq!(*result.longest_fragments.get(0, 1), 3); // "ABC" without the $
     }
 
@@ -393,7 +334,7 @@ mod tests {
 
         // "ABC" is shared
         assert_eq!(*result.longest_fragments.get(0, 1), 3);
-        assert!(*result.similarities.get(0, 1) > 0.0);
+        assert_eq!(*result.similarities.get(0, 1), 0.5);
     }
 
     #[test]
@@ -411,10 +352,13 @@ mod tests {
 
         // Input 0 and 1 share "ABC"
         assert_eq!(*result.longest_fragments.get(0, 1), 3);
+        assert_eq!(*result.similarities.get(0, 1), 0.75);
         // Input 0 and 2 share nothing
         assert_eq!(*result.longest_fragments.get(0, 2), 0);
+        assert_eq!(*result.similarities.get(0, 2), 0.0);
         // Input 1 and 2 share nothing
         assert_eq!(*result.longest_fragments.get(1, 2), 0);
+        assert_eq!(*result.similarities.get(1, 2), 0.0);
     }
 
     #[test]
