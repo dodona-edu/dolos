@@ -1,4 +1,4 @@
-use crate::suffixtree::node::{Node, NodeType};
+use crate::suffixtree::node::{Node, LetterType};
 use crate::suffixtree::tree_builder::TreeBuilder;
 
 #[derive(Debug, PartialEq)]
@@ -13,7 +13,7 @@ impl Tree {
         }
     }
 
-    pub fn add_words(&mut self, data: &[Vec<NodeType>], tree_builder: impl TreeBuilder) {
+    pub fn add_words(&mut self, data: &[Vec<LetterType>], tree_builder: impl TreeBuilder) {
         tree_builder.add_words(data, self);
     }
 
@@ -24,14 +24,14 @@ impl Tree {
 
 #[cfg(test)]
 mod tests_single_input {
-    use crate::suffixtree::node::{Node, NodeType, Range};
+    use crate::suffixtree::node::{Node, LetterType, Range};
     use crate::suffixtree::searcher::Searcher;
     use crate::suffixtree::tree::Tree;
     use crate::suffixtree::tree_builder::{TreeBuilder, UkkonenBuilder};
     use std::collections::{HashMap, HashSet};
 
-    pub fn str_to_nodes(s: &str) -> Vec<NodeType> {
-        s.as_bytes().iter().map(|&b| b as NodeType).collect()
+    pub fn str_to_nodes(s: &str) -> Vec<LetterType> {
+        s.as_bytes().iter().map(|&b| b as LetterType).collect()
     }
 
     #[test]
@@ -39,7 +39,7 @@ mod tests_single_input {
         let mut vec1 = vec![];
 
         for i in 1..50 {
-            vec1.push(i as NodeType);
+            vec1.push(i as LetterType);
         }
         let input = vec![vec1];
         let mut tree = Tree::new();
@@ -86,13 +86,13 @@ mod tests_single_input {
                 Node::new(Range::new(0, 0, 0), None, Some(HashMap::from([(36, 13), (65, 7), (67, 9), (71, 11), (84, 12)])), None, None),
                 Node::new(Range::new(4, 9, 0), Some(3), None, None, Some(HashSet::from([0]))),
                 Node::new(Range::new(4, 9, 0), Some(5), None, None, Some(HashSet::from([0]))),
-                Node::new(Range::new(2, 4, 0), Some(7), Some(HashMap::from([(65, 1), (b'G' as NodeType, 4)])), Some(5), None),
+                Node::new(Range::new(2, 4, 0), Some(7), Some(HashMap::from([(65, 1), (b'G' as LetterType, 4)])), Some(5), None),
                 Node::new(Range::new(6, 9, 0), Some(3), None, None, Some(HashSet::from([0]))),
-                Node::new(Range::new(2, 4, 0), Some(9), Some(HashMap::from([(65, 2), (b'G' as NodeType, 6)])), Some(7), None),
+                Node::new(Range::new(2, 4, 0), Some(9), Some(HashMap::from([(65, 2), (b'G' as LetterType, 6)])), Some(7), None),
                 Node::new(Range::new(6, 9, 0), Some(5), None, None, Some(HashSet::from([0]))),
-                Node::new(Range::new(0, 2, 0), Some(0), Some(HashMap::from([(65, 3), (b'G' as NodeType, 8)])), Some(9), None),
+                Node::new(Range::new(0, 2, 0), Some(0), Some(HashMap::from([(65, 3), (b'G' as LetterType, 8)])), Some(9), None),
                 Node::new(Range::new(6, 9, 0), Some(7), None, None, Some(HashSet::from([0]))),
-                Node::new(Range::new(1, 2, 0), Some(0), Some(HashMap::from([(65, 5), (b'G' as NodeType, 10)])), Some(0), None),
+                Node::new(Range::new(1, 2, 0), Some(0), Some(HashMap::from([(65, 5), (b'G' as LetterType, 10)])), Some(0), None),
                 Node::new(Range::new(6, 9, 0), Some(9), None, None, Some(HashSet::from([0]))),
                 Node::new(Range::new(6, 9, 0), Some(0), None, None, Some(HashSet::from([0]))),
                 Node::new(Range::new(7, 9, 0), Some(0), None, None, Some(HashSet::from([0]))),
@@ -105,17 +105,17 @@ mod tests_single_input {
 }
 
 mod tests_multiple_inputs {
-    use crate::suffixtree::node::{Node, NodeType, Range};
+    use crate::suffixtree::node::{Node, LetterType, Range};
     use crate::suffixtree::searcher::Searcher;
     use crate::suffixtree::tree::Tree;
     use crate::suffixtree::tree_builder::{TreeBuilder, UkkonenBuilder};
     use std::collections::{HashMap, HashSet};
 
-    pub fn str_to_nodes(s: &str) -> Vec<NodeType> {
-        s.as_bytes().iter().map(|&b| b as NodeType).collect()
+    pub fn str_to_nodes(s: &str) -> Vec<LetterType> {
+        s.as_bytes().iter().map(|&b| b as LetterType).collect()
     }
 
-    fn test_all_substrings(inputs: &[Vec<NodeType>], searcher: &mut Searcher) {
+    fn test_all_substrings(inputs: &[Vec<LetterType>], searcher: &mut Searcher) {
         for (i, word) in inputs.iter().enumerate() {
             for start in 0..word.len() {
                 for end in start +1..=word.len() {
@@ -227,12 +227,12 @@ mod tests_multiple_inputs {
 
     #[test]
     fn test_large_random() {
-        let mut input: Vec<Vec<NodeType>> = vec![];
+        let mut input: Vec<Vec<LetterType>> = vec![];
 
         for _ in 0..50 {
-            let mut vec: Vec<NodeType> = vec![];
+            let mut vec: Vec<LetterType> = vec![];
             for _ in 0..50 {
-                vec.push((rand::random::<u8>() % 10 + 65) as NodeType);
+                vec.push((rand::random::<u8>() % 10 + 65) as LetterType);
             }
             vec.push(36);
             input.push(vec);

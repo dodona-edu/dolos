@@ -1,14 +1,14 @@
-use crate::suffixtree::node::{Node, NodeType};
+use crate::suffixtree::node::{Node, LetterType};
 use crate::suffixtree::search_cursor::SearchCursor;
 use crate::suffixtree::tree::{Tree};
 
 pub struct Searcher<'a> {
     cursor: SearchCursor<'a>,
-    original_input_string: &'a[Vec<NodeType>]
+    original_input_string: &'a[Vec<LetterType>]
 }
 
 impl<'a> Searcher<'a> {
-    pub fn new(tree: &'a Tree, original_input_string: &'a[Vec<NodeType>]) -> Self {
+    pub fn new(tree: &'a Tree, original_input_string: &'a[Vec<LetterType>]) -> Self {
         Self {
             cursor: SearchCursor::new(tree),
             original_input_string
@@ -17,7 +17,7 @@ impl<'a> Searcher<'a> {
 
     /// Return true as first value of the tuple if we have a valid match until the end
     /// the second value of the tuple is the index of the last current node in the arena during search
-    fn find_end_node(&mut self, search_string: &[NodeType]) -> (bool, &'a Node) {
+    fn find_end_node(&mut self, search_string: &[LetterType]) -> (bool, &'a Node) {
         if search_string.is_empty() {
             return (true, &self.cursor.tree.arena[0]);
         }
@@ -40,7 +40,7 @@ impl<'a> Searcher<'a> {
     }
 
 
-    pub fn find_all_suffix_indices(&mut self, search_string: &[NodeType]) -> Vec<usize> {
+    pub fn find_all_suffix_indices(&mut self, search_string: &[LetterType]) -> Vec<usize> {
         let (match_found, end_node) = self.find_end_node(search_string);
         if !match_found {
             return vec![];
@@ -64,20 +64,20 @@ impl<'a> Searcher<'a> {
         suffix_indices_list
     }
 
-    pub fn search_if_match(&mut self, search_string: &[NodeType]) -> bool {
+    pub fn search_if_match(&mut self, search_string: &[LetterType]) -> bool {
         self.find_end_node(search_string).0
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::suffixtree::node::NodeType;
+    use crate::suffixtree::node::LetterType;
     use crate::suffixtree::searcher::Searcher;
     use crate::suffixtree::tree::Tree;
     use crate::suffixtree::tree_builder::{TreeBuilder, UkkonenBuilder};
 
-    pub fn str_to_nodes(s: &str) -> Vec<NodeType> {
-        s.as_bytes().iter().map(|&b| b as NodeType).collect()
+    pub fn str_to_nodes(s: &str) -> Vec<LetterType> {
+        s.as_bytes().iter().map(|&b| b as LetterType).collect()
     }
 
     #[test]

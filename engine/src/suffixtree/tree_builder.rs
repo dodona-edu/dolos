@@ -1,17 +1,17 @@
 use crate::suffixtree::cursor::{Cursor, CursorIterator};
-use crate::suffixtree::node::{NodeIndex, NodeType};
+use crate::suffixtree::node::{NodeIndex, LetterType};
 use crate::suffixtree::tree::{Tree};
 
 pub trait TreeBuilder {
     fn new() -> Self;
 
-    fn add_words(&self, data: &[Vec<NodeType>], tree: &mut Tree);
+    fn add_words(&self, data: &[Vec<LetterType>], tree: &mut Tree);
 }
 
 pub struct UkkonenBuilder;
 
 impl UkkonenBuilder {
-    fn build_single_input(&self, inputs: &[Vec<NodeType>], current_input_index: usize, tree: &mut Tree){
+    fn build_single_input(&self, inputs: &[Vec<LetterType>], current_input_index: usize, tree: &mut Tree){
         let data = &inputs[current_input_index];
         let mut cursor = Cursor::new(tree);
         let end_index = data.len();
@@ -21,7 +21,7 @@ impl UkkonenBuilder {
             let mut prev_internal_node: Option<NodeIndex> = None;
             let num_leaves_copy = num_leaves; // take copy since we cannot change the value that is used in the loop header itself
             // skip the first numLeaves leaves since this is rule 1 and can be skipped
-            for i in num_leaves_copy..j {
+            for _ in num_leaves_copy..j {
                 // if there is a previous internal node AND we are at a node with the cursor
                 if let (Some(prev_internal_node_index), true) = (prev_internal_node, cursor.at_node()) {
                     cursor.add_link(prev_internal_node_index, cursor.current_node_index_in_arena);
@@ -62,10 +62,9 @@ impl TreeBuilder for UkkonenBuilder {
         Self
     }
 
-    fn add_words(&self, data: &[Vec<NodeType>], tree: &mut Tree) {
+    fn add_words(&self, data: &[Vec<LetterType>], tree: &mut Tree) {
 
-        for (i, _) in data.iter().enumerate() {
-            // TODO: first decent in the tree to skip everything that is already in it
+        for i in 0..data.len() {
             self.build_single_input(data,i, tree);
         }
     }

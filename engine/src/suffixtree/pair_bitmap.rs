@@ -58,25 +58,6 @@ impl PairBitmap {
         }
     }
 
-    /// Mark bits `[start, start + length)` in the coverage vector for item
-    /// `item` within the pair `(i, j)`.
-    ///
-    /// `item` must be either `i` or `j`. The pair order doesn't matter — it
-    /// is normalised internally.
-    pub fn mark(&mut self, i: usize, j: usize, item: usize, start: usize, length: usize) {
-        debug_assert!(item == i || item == j);
-        let (min, max) = if i < j { (i, j) } else { (j, i) };
-
-        let base = self.pair_word_offset(min, max);
-        let word_offset = if item == min {
-            base
-        } else {
-            base + self.word_counts[min]
-        };
-
-        Self::fill_bit_range(&mut self.words, word_offset, start, length);
-    }
-
     /// Convenience: mark both sides of a pair at once.
     ///
     /// Equivalent to calling `mark(i, j, i, start_i, len)` and
@@ -116,7 +97,7 @@ impl PairBitmap {
         let base = self.pair_word_offset(min, max);
         let total_words = self.word_counts[min] + self.word_counts[max];
 
-        Self::popcount(&self.words[base..base + total_words])
+        Self::popcount(&self.words[base..(base + total_words)])
     }
 
     // ── private helpers ──────────────────────────────────────────────

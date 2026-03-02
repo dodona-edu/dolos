@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use crate::suffixtree::node::{Node, NodeType};
+use crate::suffixtree::node::{Node, LetterType};
 use crate::suffixtree::pair_array::PairArray;
 use crate::suffixtree::pair_bitmap::PairBitmap;
 use crate::suffixtree::tree::Tree;
@@ -22,7 +22,7 @@ pub struct AnalysisResult {
 
 /// Collects and processes matches found during tree traversal
 struct MatchCollector<'a> {
-    inputs: &'a [Vec<NodeType>],
+    inputs: &'a [Vec<LetterType>],
     longest_fragments: PairArray<usize>,
     overlap_bitmap: PairBitmap,
 }
@@ -109,13 +109,13 @@ impl<'a> MatchCollector<'a> {
 /// Analyzer for finding maximal exact matches in a suffix tree
 pub struct MaximalMatchAnalyzer<'a> {
     tree: &'a Tree,
-    inputs: &'a [Vec<NodeType>],
+    inputs: &'a [Vec<LetterType>],
     min_match_length: usize,
 }
 
 impl<'a> MaximalMatchAnalyzer<'a> {
     /// Create a new analyzer
-    pub fn new(tree: &'a Tree, inputs: &'a [Vec<NodeType>], min_match_length: usize) -> Self {
+    pub fn new(tree: &'a Tree, inputs: &'a [Vec<LetterType>], min_match_length: usize) -> Self {
         Self {
             tree,
             inputs,
@@ -136,7 +136,7 @@ impl<'a> MaximalMatchAnalyzer<'a> {
     /// Create leaf maps for a leaf node
     /// Returns a map from left character to list of start positions
     /// `depth` is the string depth at this leaf (sum of all edge lengths from root to here)
-    fn create_leaf_maps(&self, node: &Node, depth: usize) -> Vec<HashMap<NodeType, Vec<StartPosition>>> {
+    fn create_leaf_maps(&self, node: &Node, depth: usize) -> Vec<HashMap<LetterType, Vec<StartPosition>>> {
         node.inputs.as_ref().expect("Leaf node must have inputs")
             .iter()
             .map(|&input| {
@@ -148,7 +148,7 @@ impl<'a> MaximalMatchAnalyzer<'a> {
                 let left_char = if start_index > 0 {
                     self.inputs[input][start_index - 1]
                 } else {
-                    0
+                    usize::MAX
                 };
 
                 let mut map = HashMap::new();
@@ -159,7 +159,7 @@ impl<'a> MaximalMatchAnalyzer<'a> {
     }
 
     /// Merge a list of maps into a single map
-    fn merge_maps(maps: Vec<HashMap<NodeType, Vec<StartPosition>>>) -> HashMap<NodeType, Vec<StartPosition>> {
+    fn merge_maps(maps: Vec<HashMap<LetterType, Vec<StartPosition>>>) -> HashMap<LetterType, Vec<StartPosition>> {
         let mut result = HashMap::new();
 
         for map in maps {
@@ -178,7 +178,7 @@ impl<'a> MaximalMatchAnalyzer<'a> {
     fn generate_pairs(
         &self,
         depth: usize,
-        children_maps: &[HashMap<NodeType, Vec<StartPosition>>],
+        children_maps: &[HashMap<LetterType, Vec<StartPosition>>],
         collector: &mut MatchCollector,
     ) {
         for (i, map) in children_maps.iter().enumerate() {
@@ -197,8 +197,8 @@ impl<'a> MaximalMatchAnalyzer<'a> {
     /// Process pairs between positions1 and all positions in subsequent maps
     fn process_pairs_with_subsequent_maps(
         &self,
-        subsequent_maps: &[HashMap<NodeType, Vec<StartPosition>>],
-        left_char: NodeType,
+        subsequent_maps: &[HashMap<LetterType, Vec<StartPosition>>],
+        left_char: LetterType,
         positions1: &[StartPosition],
         depth: usize,
         collector: &mut MatchCollector,
@@ -214,9 +214,9 @@ impl<'a> MaximalMatchAnalyzer<'a> {
 
     /// Check if two position groups should be paired based on their left characters
     #[inline]
-    fn should_process_pair(&self, left_char: NodeType, other_left_char: NodeType) -> bool {
+    fn should_process_pair(&self, left_char: LetterType, other_left_char: LetterType) -> bool {
         // Process pairs where left characters differ, or where left_char is 0 (start of string)
-        other_left_char != left_char || left_char == 0
+        other_left_char != left_char || left_char == usize::MAX
     }
 
     /// Process all pairs between two position groups
@@ -243,7 +243,7 @@ impl<'a> MaximalMatchAnalyzer<'a> {
         node_index: usize,
         depth: usize,
         collector: &mut MatchCollector,
-    ) -> HashMap<NodeType, Vec<StartPosition>> {
+    ) -> HashMap<LetterType, Vec<StartPosition>> {
         let node = &self.tree.arena[node_index];
         let node_depth = depth + node.range.length();
 
@@ -268,7 +268,7 @@ impl<'a> MaximalMatchAnalyzer<'a> {
         node: &Node,
         node_depth: usize,
         collector: &mut MatchCollector,
-    ) -> Vec<HashMap<NodeType, Vec<StartPosition>>> {
+    ) -> Vec<HashMap<LetterType, Vec<StartPosition>>> {
         node.children.as_ref().expect("Node must have children")
             .values()
             .map(|&child_index| self.find_maximal_pairs(child_index, node_depth, collector))
@@ -282,8 +282,8 @@ mod tests {
     use crate::suffixtree::tree::Tree;
     use crate::suffixtree::tree_builder::{TreeBuilder, UkkonenBuilder};
 
-    pub fn str_to_nodes(s: &str) -> Vec<NodeType> {
-        s.as_bytes().iter().map(|&b| b as NodeType).collect()
+    pub fn str_to_nodes(s: &str) -> Vec<LetterType> {
+        s.as_bytes().iter().map(|&b| b as LetterType).collect()
     }
 
     #[test]

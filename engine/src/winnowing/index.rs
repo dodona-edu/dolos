@@ -39,7 +39,7 @@ impl Index {
         }
     }
 
-    pub fn add_file(&mut self, path: PathBuf) {
+    pub fn tokenize_file(&mut self, path: PathBuf) {
         if !self.language.matches(&path) {
             panic!("Language does not match")
         }
@@ -47,7 +47,7 @@ impl Index {
         let tree = self.tokenizer.parse(&path);
         let tokens = tree.tokens();
         let mut fingerprints = tokens.winnow(self.k, self.w);
-        fingerprints.push(0);
+        fingerprints.push(usize::MAX);
         self.data.push(fingerprints);
 
         let file = Rc::new(File {
@@ -60,7 +60,7 @@ impl Index {
 
     pub fn add_files(&mut self, paths: Vec<PathBuf>) {
         for path in paths {
-            self.add_file(path);
+            self.tokenize_file(path);
         }
         self.tree.add_words(&self.data, UkkonenBuilder::new());
     }

@@ -1,4 +1,4 @@
-use crate::suffixtree::node::{Node, NodeType, Range};
+use crate::suffixtree::node::{Node, LetterType, Range};
 use crate::suffixtree::tree::Tree;
 use std::cmp::min;
 use std::collections::HashSet;
@@ -31,7 +31,7 @@ impl<'a> Cursor<'a> {
     /// Try to progress by consuming `next_character`
     /// Returns CursorIterator::Ok if this succeeds,
     /// otherwise CursorIterator::InWord or CursorIterator::AtEnd is returned to indicate where in a node we are
-    pub fn next(&mut self, next_character: NodeType, bytes_input: &[Vec<NodeType>]) -> CursorIterator {
+    pub fn next(&mut self, next_character: LetterType, bytes_input: &[Vec<LetterType>]) -> CursorIterator {
         let current_node = &self.tree.arena[self.current_node_index_in_arena];
         if self.index < current_node.range.length() {
             if bytes_input[current_node.range.input][current_node.range.start + self.index] == next_character {
@@ -90,7 +90,7 @@ impl<'a> Cursor<'a> {
     }
 
     /// Split edge implementation for Ukkonen
-    pub fn split_edge(&mut self, input_strings: &[Vec<NodeType>]) -> usize {
+    pub fn split_edge(&mut self, input_strings: &[Vec<LetterType>]) -> usize {
         // first get the index where the next node will be inserted, do this before we have a mutable borrow
         let new_internal_node_index_in_arena = self.tree.arena.len();
         // create the new node
@@ -120,7 +120,7 @@ impl<'a> Cursor<'a> {
     }
 
     /// Add a leaf with suffix index used in the Ukkonen implementation
-    pub fn add_leaf_from_position(&mut self, j: usize, input: usize, input_string: &[NodeType]) {
+    pub fn add_leaf_from_position(&mut self, j: usize, input: usize, input_string: &[LetterType]) {
         let new_leaf = Node::new(
             Range::new(j, input_string.len(), input),
             Some(self.current_node_index_in_arena),
@@ -135,7 +135,7 @@ impl<'a> Cursor<'a> {
     }
     
     /// Follow the suffix link during the Ukkonen algorithm
-    pub fn follow_link(&mut self, data: &[NodeType]) {
+    pub fn follow_link(&mut self, data: &[LetterType]) {
         if self.current_node_index_in_arena == 0 || self.index == 0 {
             return;
         }
@@ -182,11 +182,11 @@ impl<'a> Cursor<'a> {
 #[cfg(test)]
 mod tests {
     use crate::suffixtree::cursor::Cursor;
-    use crate::suffixtree::node::{Node, NodeType, Range};
+    use crate::suffixtree::node::{Node, LetterType, Range};
     use crate::suffixtree::tree::Tree;
 
-    pub fn str_to_nodes(s: &str) -> Vec<NodeType> {
-        s.as_bytes().iter().map(|&b| b as NodeType).collect()
+    pub fn str_to_nodes(s: &str) -> Vec<LetterType> {
+        s.as_bytes().iter().map(|&b| b as LetterType).collect()
     }
 
     #[test]

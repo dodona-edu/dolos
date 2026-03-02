@@ -2,14 +2,14 @@ use std::collections::{HashMap, HashSet};
 
 /// Type that represents the index of a node in the arena part of the tree
 pub type NodeIndex = usize;
-pub type NodeType = usize;
+pub type LetterType = usize;
 
 #[derive(Debug, PartialEq)]
 pub struct Node {
     pub range: Range,
     pub parent: Option<NodeIndex>,
     pub link: Option<NodeIndex>,
-    pub children: Option<HashMap<NodeType, NodeIndex>>,
+    pub children: Option<HashMap<LetterType, NodeIndex>>,
     pub inputs: Option<HashSet<usize>>,
 }
 
@@ -26,7 +26,7 @@ impl Node {
     }
 
     /// Returns a tuple that contains the index of the new node in the arena and a reference to that node
-    pub fn new(range: Range, parent: Option<NodeIndex>, children: Option<HashMap<NodeType, NodeIndex>>, link: Option<NodeIndex>, inputs: Option<HashSet<usize>>) -> Node {
+    pub fn new(range: Range, parent: Option<NodeIndex>, children: Option<HashMap<LetterType, NodeIndex>>, link: Option<NodeIndex>, inputs: Option<HashSet<usize>>) -> Node {
         Node {
             range,
             children,
@@ -36,7 +36,7 @@ impl Node {
         }
     }
 
-    pub fn new_with_child_tuples(range: Range, parent: Option<NodeIndex>, children_tuples: Vec<(NodeType, NodeIndex)>, link: Option<NodeIndex>, inputs: Option<HashSet<usize>>) -> Node {
+    pub fn new_with_child_tuples(range: Range, parent: Option<NodeIndex>, children_tuples: Vec<(LetterType, NodeIndex)>, link: Option<NodeIndex>, inputs: Option<HashSet<usize>>) -> Node {
         let mut node = Node {
             range,
             children: Some(HashMap::new()),
@@ -48,13 +48,13 @@ impl Node {
         node
     }
 
-    pub fn add_child(&mut self, character: NodeType, child: NodeIndex) {
+    pub fn add_child(&mut self, character: LetterType, child: NodeIndex) {
         self.children
             .get_or_insert_with(HashMap::new)
             .insert(character, child);
     }
 
-    pub fn get_child(&self, character: NodeType) -> Option<&NodeIndex> {
+    pub fn get_child(&self, character: LetterType) -> Option<&NodeIndex> {
         self.children
             .as_ref()
             .and_then(|children| children.get(&character))
