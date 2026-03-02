@@ -5,16 +5,10 @@ use crate::suffixtree::tree::Tree;
 use crate::suffixtree::tree_builder::{TreeBuilder, UkkonenBuilder};
 use crate::tokenizer::{Tokenizer, Tokens};
 use crate::winnowing::report::Report;
-use crate::winnowing::tokens::{Fingerprint, Winnow};
+use crate::winnowing::tokens::Winnow;
 use std::path::PathBuf;
 use std::rc::Rc;
-
-/// A single kgram (fingerprint) within a file
-#[derive(Debug, Clone)]
-pub struct Occurrence {
-    pub file: Rc<File>,
-    pub fingerprint: Fingerprint,
-}
+use crate::suffixtree::tree::SENTINEL_LETTER;
 
 pub struct Index {
     pub k: usize,
@@ -47,7 +41,7 @@ impl Index {
         let tree = self.tokenizer.parse(&path);
         let tokens = tree.tokens();
         let mut fingerprints = tokens.winnow(self.k, self.w);
-        fingerprints.push(usize::MAX);
+        fingerprints.push(SENTINEL_LETTER);
         self.data.push(fingerprints);
 
         let file = Rc::new(File {

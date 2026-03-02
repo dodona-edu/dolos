@@ -8,5 +8,14 @@ fn test_similarity_fixtures() {
     ];
 
     let report = Dolos::from_paths(paths).build_report();
-    assert_eq!(*report.analysis_result.similarities.get(0, 1),0.4803921568627451);
+    let similarity = *report.analysis_result.similarities.get(0, 1);
+    let expected = 0.4803921568627451_f64;
+    let epsilon = 1e-9_f64;
+    assert!(
+        (similarity - expected).abs() < epsilon,
+        "similarity {} not within {} of expected {}",
+        similarity,
+        epsilon,
+        expected
+    );
 }

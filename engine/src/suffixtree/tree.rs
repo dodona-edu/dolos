@@ -1,6 +1,8 @@
 use crate::suffixtree::node::{Node, LetterType};
 use crate::suffixtree::tree_builder::TreeBuilder;
 
+pub const SENTINEL_LETTER: LetterType = usize::MAX;
+
 #[derive(Debug, PartialEq)]
 pub struct Tree {
     pub arena: Vec<Node>,
@@ -104,12 +106,14 @@ mod tests_single_input {
     }
 }
 
+#[cfg(test)]
 mod tests_multiple_inputs {
     use crate::suffixtree::node::{Node, LetterType, Range};
     use crate::suffixtree::searcher::Searcher;
     use crate::suffixtree::tree::Tree;
     use crate::suffixtree::tree_builder::{TreeBuilder, UkkonenBuilder};
     use std::collections::{HashMap, HashSet};
+    use rand::{SeedableRng, rngs::StdRng, RngExt};
 
     pub fn str_to_nodes(s: &str) -> Vec<LetterType> {
         s.as_bytes().iter().map(|&b| b as LetterType).collect()
@@ -227,12 +231,13 @@ mod tests_multiple_inputs {
 
     #[test]
     fn test_large_random() {
+        let mut rng = StdRng::seed_from_u64(42);
         let mut input: Vec<Vec<LetterType>> = vec![];
 
         for _ in 0..50 {
             let mut vec: Vec<LetterType> = vec![];
             for _ in 0..50 {
-                vec.push((rand::random::<u8>() % 10 + 65) as LetterType);
+                vec.push((rng.random::<u8>() % 10 + 65) as LetterType);
             }
             vec.push(36);
             input.push(vec);
