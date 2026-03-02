@@ -84,7 +84,7 @@ mod tests {
 
     #[test]
     fn test_tokenize() {
-        let path = "fixtures/sample.js";
+        let path = "fixtures/sample1.js";
         let expected: Vec<String> = serde_any::from_file("fixtures/sample.tokens.json").unwrap();
         let mut tokenizer = Tokenizer::new(Language::Javascript);
 

@@ -84,7 +84,7 @@ mod tests {
                 serde_any::from_file(format!("fixtures/sample.winnowk{}w{}.json", k, w)).unwrap();
 
             let actual = tokenizer
-                .parse(&"fixtures/sample.js".into())
+                .parse(&"fixtures/sample1.js".into())
                 .tokens()
                 .winnow(k, w);
 
