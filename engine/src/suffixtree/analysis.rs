@@ -7,7 +7,9 @@ use crate::suffixtree::tree::{Tree, SENTINEL_LETTER};
 /// Represents a starting position of a match in the input sequences
 #[derive(Debug, Clone)]
 pub struct StartPosition {
+    /// Index of the input sequence this position belongs to
     pub input: usize,
+    /// Offset within the input sequence where the match starts
     pub start: usize,
 }
 
@@ -22,12 +24,19 @@ pub struct AnalysisResult {
 
 /// Collects and processes matches found during tree traversal
 struct MatchCollector<'a> {
+    /// The input sequences being compared
     inputs: &'a [Vec<LetterType>],
+    /// Tracks the longest matching fragment length for each pair of inputs
     longest_fragments: PairArray<usize>,
+    /// Bitmap tracking which positions have been covered by matches, per input pair
     overlap_bitmap: PairBitmap,
 }
 
 impl<'a> MatchCollector<'a> {
+    /// Create a new `MatchCollector` for the given input sequences.
+    ///
+    /// Initialises the longest-fragment tracker and overlap bitmap with sizes
+    /// derived from the lengths of each input sequence.
     fn new(inputs: &'a [Vec<usize>]) -> Self {
         let input_lengths:Vec<usize> = inputs.iter().map(|i| i.len()).collect();
 
@@ -38,7 +47,11 @@ impl<'a> MatchCollector<'a> {
         }
     }
 
-    /// Record a maximal match between two positions
+    /// Record a maximal match between two positions.
+    ///
+    /// Computes the effective match length (trimming end-of-sequence markers),
+    /// updates the longest-fragment tracker, and marks the covered positions in
+    /// the overlap bitmap so that overlapping matches are not double-counted.
     fn record_match(&mut self, sp1: &StartPosition, sp2: &StartPosition, length: usize) {
         let effective_length = self.calculate_effective_length(sp1, sp2, length);
 
@@ -50,7 +63,10 @@ impl<'a> MatchCollector<'a> {
         self.overlap_bitmap.mark_pair(sp1.input, sp2.input, sp1.start, sp2.start, effective_length);
     }
 
-    /// Calculate the effective length of a match, excluding end markers
+    /// Calculate the effective length of a match, excluding end markers.
+    ///
+    /// If the match reaches the end-of-sequence sentinel (`$`) of either input,
+    /// the length is reduced by one so the sentinel is not counted as shared content.
     #[inline]
     fn calculate_effective_length(&self, sp1: &StartPosition, sp2: &StartPosition, length: usize) -> usize {
         let ends_at_marker = sp1.start + length >= self.inputs[sp1.input].len()
@@ -63,7 +79,7 @@ impl<'a> MatchCollector<'a> {
         }
     }
 
-    /// Update the longest fragment for a pair if this is longer
+    /// Update the longest fragment for a pair if the new length exceeds the current maximum.
     fn update_longest_fragment(&mut self, input1: usize, input2: usize, length: usize) {
         let current = self.longest_fragments.get_mut(input1, input2);
         if length > *current {
@@ -71,7 +87,10 @@ impl<'a> MatchCollector<'a> {
         }
     }
 
-    /// Build the final analysis result
+    /// Consume the collector and build the final [`AnalysisResult`].
+    ///
+    /// Computes pairwise similarity scores from the overlap bitmap and packages
+    /// them together with the longest-fragment data.
     fn into_result(self) -> AnalysisResult {
         let num_inputs = self.longest_fragments.size();
         let similarities = self.calculate_similarities(num_inputs);
@@ -82,7 +101,17 @@ impl<'a> MatchCollector<'a> {
         }
     }
 
-    /// Calculate similarities for all pairs
+    /// Calculate pairwise similarity scores for all input pairs.
+    ///
+    /// For each pair `(i1, i2)` the similarity is defined as:
+    ///
+    /// ```text
+    /// similarity = total_overlap / (len(i1) - 1 + len(i2) - 1)
+    /// ```
+    ///
+    /// where `total_overlap` is the number of positions covered by at least one
+    /// shared match (as tracked by the overlap bitmap), and the `-1` on each
+    /// length accounts for the mandatory end-of-sequence sentinel (`$`).
     fn calculate_similarities(&self, num_inputs: usize) -> PairArray<f64> {
         let mut similarities = PairArray::new(num_inputs, 0.0);
 
@@ -106,15 +135,31 @@ impl<'a> MatchCollector<'a> {
     }
 }
 
-/// Analyzer for finding maximal exact matches in a suffix tree
+/// Analyzer for finding maximal exact matches in a generalised suffix tree.
+///
+/// A *maximal exact match* (MEM) between two sequences is a shared substring
+/// that cannot be extended in either direction without introducing a mismatch.
+/// This analyzer traverses the suffix tree bottom-up, collecting left-extension
+/// characters at each internal node to identify MEMs and report pairwise
+/// similarity statistics.
 pub struct MaximalMatchAnalyzer<'a> {
+    /// The generalised suffix tree built from all input sequences
     tree: &'a Tree,
+    /// The original input sequences (including their end-of-sequence sentinels)
     inputs: &'a [Vec<LetterType>],
+    /// Only matches of at least this many tokens are considered
     min_match_length: usize,
 }
 
 impl<'a> MaximalMatchAnalyzer<'a> {
-    /// Create a new analyzer
+    /// Create a new [`MaximalMatchAnalyzer`].
+    ///
+    /// # Arguments
+    /// * `tree` – Generalised suffix tree built from all `inputs`.
+    /// * `inputs` – The original token sequences, each terminated with a unique
+    ///   end-of-sequence sentinel.
+    /// * `min_match_length` – Minimum number of tokens a shared substring must
+    ///   have to be counted as a match.
     pub fn new(tree: &'a Tree, inputs: &'a [Vec<LetterType>], min_match_length: usize) -> Self {
         Self {
             tree,
@@ -123,7 +168,12 @@ impl<'a> MaximalMatchAnalyzer<'a> {
         }
     }
 
-    /// Perform the analysis and return the results
+    /// Perform the full MEM analysis and return pairwise similarity results.
+    ///
+    /// Traverses the suffix tree depth-first, identifies all maximal exact
+    /// matches that meet `min_match_length`, and aggregates them into an
+    /// [`AnalysisResult`] containing per-pair similarity scores and longest
+    /// fragment lengths.
     pub fn analyze(&self) -> AnalysisResult {
         let mut collector = MatchCollector::new(self.inputs);
 
@@ -133,9 +183,16 @@ impl<'a> MaximalMatchAnalyzer<'a> {
         collector.into_result()
     }
 
-    /// Create leaf maps for a leaf node
-    /// Returns a map from left character to list of start positions
-    /// `depth` is the string depth at this leaf (sum of all edge lengths from root to here)
+    /// Build the left-character maps for a leaf node.
+    ///
+    /// Each leaf represents a suffix from one or more input sequences.  For every
+    /// input stored at this leaf the method computes the start index of the
+    /// suffix (given the current string `depth`) and records the character
+    /// immediately to the *left* of that suffix (i.e. the character that would
+    /// need to match for the current shared substring to be extended leftward).
+    /// [`usize::MAX`] is used as a sentinel when the suffix starts at position 0.
+    ///
+    /// Returns one `HashMap<left_char → positions>` per input stored at the leaf.
     fn create_leaf_maps(&self, node: &Node, depth: usize) -> Vec<HashMap<LetterType, Vec<StartPosition>>> {
         node.inputs.as_ref().expect("Leaf node must have inputs")
             .iter()
@@ -158,7 +215,10 @@ impl<'a> MaximalMatchAnalyzer<'a> {
             .collect()
     }
 
-    /// Merge a list of maps into a single map
+    /// Merge a list of `left_char → positions` maps into a single map.
+    ///
+    /// Maps from different children are combined so that positions sharing the
+    /// same left character end up in the same bucket.
     fn merge_maps(maps: Vec<HashMap<LetterType, Vec<StartPosition>>>) -> HashMap<LetterType, Vec<StartPosition>> {
         let mut result = HashMap::new();
 
@@ -174,7 +234,25 @@ impl<'a> MaximalMatchAnalyzer<'a> {
         result
     }
 
-    /// Generate all maximal pairs from the children maps at a given depth
+    /// Generate all maximal pairs from the children maps at a given depth.
+    ///
+    /// A match is a *maximal exact match* (MEM) when it cannot be extended in
+    /// either direction without introducing a mismatch:
+    ///
+    /// - **Right maximality** is guaranteed by the tree structure itself:
+    ///   positions coming from *different* child maps diverged at the current
+    ///   internal node, meaning they were reached via different edge characters.
+    ///   The character immediately after the shared prefix therefore already
+    ///   differs between the two groups — no explicit check is needed.
+    ///
+    /// - **Left maximality** is checked explicitly by comparing the `left_char`
+    ///   of each position (the character immediately before the match).  Two
+    ///   groups are left-maximal with respect to each other when their
+    ///   `left_char` values differ, or when one group is at the very start of
+    ///   its sequence (sentinel [`usize::MAX`]).
+    ///
+    /// All position pairs that satisfy both conditions are forwarded to
+    /// [`Self::process_position_pairs`] for recording.
     fn generate_pairs(
         &self,
         depth: usize,
@@ -194,7 +272,11 @@ impl<'a> MaximalMatchAnalyzer<'a> {
         }
     }
 
-    /// Process pairs between positions1 and all positions in subsequent maps
+    /// Compare `positions1` against every bucket in the subsequent children maps.
+    ///
+    /// For each `(other_left_char, positions2)` bucket in `subsequent_maps`, the
+    /// pair is eligible for recording only when [`Self::should_process_pair`]
+    /// returns `true` (i.e. the left characters differ, indicating maximality).
     fn process_pairs_with_subsequent_maps(
         &self,
         subsequent_maps: &[HashMap<LetterType, Vec<StartPosition>>],
@@ -212,14 +294,29 @@ impl<'a> MaximalMatchAnalyzer<'a> {
         }
     }
 
-    /// Check if two position groups should be paired based on their left characters
+    /// Returns `true` when the two left characters indicate that this pair
+    /// should be recorded.
+    ///
+    /// Two conditions trigger a `true`:
+    /// - The characters differ.
+    /// - Either character is [`usize::MAX`], the start-of-sequence sentinel
+    ///   used when a suffix begins at position 0 and has no left neighbour.
+    ///   Because no real character can equal [`usize::MAX`], this sentinel is
+    ///   always treated as distinct from any other value, including another
+    ///   sentinel (two suffixes both starting at position 0 in different inputs
+    ///   should still be paired).
     #[inline]
     fn should_process_pair(&self, left_char: LetterType, other_left_char: LetterType) -> bool {
         // Process pairs where left characters differ, or where left_char is STRING_SENTINEL (start of string)
         other_left_char != left_char || left_char == SENTINEL_LETTER
     }
 
-    /// Process all pairs between two position groups
+    /// Record a match for every cross-input pair between `positions1` and `positions2`.
+    ///
+    /// Positions that belong to the *same* input are skipped — a suffix can only
+    /// form a meaningful plagiarism signal when it appears in two *different*
+    /// source files.  For each valid cross-input pair the current string `depth`
+    /// is used as the match length.
     fn process_position_pairs(
         &self,
         positions1: &[StartPosition],
@@ -236,8 +333,26 @@ impl<'a> MaximalMatchAnalyzer<'a> {
         }
     }
 
-    /// Recursively find maximal pairs in the subtree rooted at the given node
-    /// `depth` is the string depth at this node (sum of edge lengths from root to this node)
+    /// Recursively find all MEMs in the subtree rooted at `node_index`,
+    /// returning the merged left-character map for this subtree.
+    ///
+    /// The core idea is a **bottom-up traversal**: every internal node in the
+    /// suffix tree represents a substring shared by all suffixes in its subtree.
+    /// By the time we return from a node's children, we know — for each suffix
+    /// in the subtree — what character appears immediately to the *left* of that
+    /// shared substring (the `left_char`).  We collect these into per-child
+    /// `left_char → positions` maps (see [`Self::create_leaf_maps`] for leaves,
+    /// [`Self::collect_children_maps`] for internal nodes).
+    ///
+    /// At each internal node we then compare the maps of every pair of children
+    /// (see [`Self::generate_pairs`]).  Because the children diverged at this
+    /// node, their suffixes already differ on the *right* — so right-maximality
+    /// is free.  Left-maximality is checked by comparing `left_char` values:
+    /// two occurrences form a MEM only when their left characters differ
+    /// (or one is at the start of its sequence).
+    ///
+    /// Finally, the children's maps are merged and propagated upward, so that
+    /// the parent node can repeat the same comparison at a greater depth.
     fn find_maximal_pairs(
         &self,
         node_index: usize,
@@ -262,7 +377,11 @@ impl<'a> MaximalMatchAnalyzer<'a> {
         Self::merge_maps(maps)
     }
 
-    /// Collect maps from all children by recursively processing them
+    /// Recursively process all children of `node` and collect their left-character maps.
+    ///
+    /// Each child's subtree is visited via [`Self::find_maximal_pairs`], which
+    /// both records any MEMs found below in the [`MatchCollector`] and returns
+    /// the merged left-character map for that child.
     fn collect_children_maps(
         &self,
         node: &Node,
