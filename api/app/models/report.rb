@@ -83,12 +83,14 @@ class Report < ApplicationRecord
         dataset.update(programming_language: lang)
       end
 
-      send(name).attach(
-        io: File.open(path),
-        filename: file,
-        content_type: 'text/csv',
-        identify: false
-      )
+      File.open(path, 'rb') do |io|
+        send(name).attach(
+          io: io,
+          filename: file,
+          content_type: 'text/csv',
+          identify: false
+        )
+      end
     end
   end
 
