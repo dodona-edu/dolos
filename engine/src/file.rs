@@ -7,14 +7,12 @@ use crate::language::Language;
 
 pub struct File {
     pub path: PathBuf,
-    pub language: Language
+    pub language: Language,
 }
 
 impl File {
     pub fn read<P: AsRef<Path>>(path: P) -> std::io::Result<String> {
-        let mut content = String::new();
-        std::fs::File::open(path)?.read_to_string(&mut content)?;
-        Ok(content)
+        std::fs::read_to_string(path)
     }
 
     pub fn file_name(&self) -> &str {

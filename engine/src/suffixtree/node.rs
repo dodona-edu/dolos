@@ -1,32 +1,35 @@
+use crate::suffixtree::types::{NodeIndex, SymbolType};
 use std::collections::{HashMap, HashSet};
 
-/// Type that represents the index of a node in the arena part of the tree
-pub type NodeIndex = usize;
-pub type LetterType = usize;
-
+/// Represents a node in the suffix tree.
 #[derive(Debug, PartialEq)]
 pub struct Node {
+    /// The range of symbols this node represents in one of the input strings.
     pub range: Range,
+    /// The index of the parent node in the arena.
     pub parent: Option<NodeIndex>,
+    /// Suffix link to another node in the tree, used by Ukkonen's algorithm.
     pub link: Option<NodeIndex>,
-    pub children: Option<HashMap<LetterType, NodeIndex>>,
+    /// Map of children nodes indexed by the first symbol of their edge.
+    pub children: Option<HashMap<SymbolType, NodeIndex>>,
+    /// Indices of input sequences that have a suffix ending at this leaf node.
     pub inputs: Option<HashSet<usize>>,
 }
 
-
 impl Node {
+    /// Creates a new root node for the suffix tree.
     pub fn create_root() -> Self {
-        Node {
-            range: Range::new(0, 0, 0),
-            children: None,
-            parent: None,
-            link: None,
-            inputs: None,
-        }
+        Node::new(Range::new(0, 0, 0), None, None, None, None)
     }
 
-    /// Returns a tuple that contains the index of the new node in the arena and a reference to that node
-    pub fn new(range: Range, parent: Option<NodeIndex>, children: Option<HashMap<LetterType, NodeIndex>>, link: Option<NodeIndex>, inputs: Option<HashSet<usize>>) -> Node {
+    /// Creates a new node with the given parameters.
+    pub fn new(
+        range: Range,
+        parent: Option<NodeIndex>,
+        children: Option<HashMap<SymbolType, NodeIndex>>,
+        link: Option<NodeIndex>,
+        inputs: Option<HashSet<usize>>,
+    ) -> Node {
         Node {
             range,
             children,
@@ -36,63 +39,61 @@ impl Node {
         }
     }
 
-    pub fn new_with_child_tuples(range: Range, parent: Option<NodeIndex>, children_tuples: Vec<(LetterType, NodeIndex)>, link: Option<NodeIndex>, inputs: Option<HashSet<usize>>) -> Node {
-        let mut node = Node {
+    pub fn create_leaf(range: Range, parent: NodeIndex) -> Node {
+        let input = range.input;
+        Node::new(
             range,
-            children: Some(HashMap::new()),
-            parent,
-            link,
-            inputs,
-        };
-        children_tuples.iter().for_each(|(char, child)| node.add_child(*char, *child));
+            Some(parent),
+            None,
+            None,
+            Some(HashSet::from([input])),
+        )
+    }
+
+    /// Creates an internal node with a single child.
+    pub fn create_internal_node_with_child(
+        range: Range,
+        parent: NodeIndex,
+        child_symbol: SymbolType,
+        child_index: NodeIndex,
+    ) -> Node {
+        let mut node = Node::new(range, Some(parent), Some(HashMap::new()), None, None);
+        node.add_child(child_symbol, child_index);
         node
     }
 
-    pub fn add_child(&mut self, character: LetterType, child: NodeIndex) {
+    /// Adds a child to this node.
+    pub fn add_child(&mut self, symbol: SymbolType, child: NodeIndex) {
         self.children
             .get_or_insert_with(HashMap::new)
-            .insert(character, child);
+            .insert(symbol, child);
     }
 
-    pub fn get_child(&self, character: LetterType) -> Option<&NodeIndex> {
+    /// Returns the index of the child node corresponding to the given symbol.
+    pub fn get_child(&self, symbol: SymbolType) -> Option<&NodeIndex> {
         self.children
             .as_ref()
-            .and_then(|children| children.get(&character))
-    }
-
-    pub fn print(&self, depth: i32, arena: &Vec<Node>) {
-        // Print node fields
-        println!(
-            "Node {{ range: {:?}, parent: {:?}, link: {:?}, inputs: {:?}, children: {:?} }}",
-            self.range,
-            self.parent,
-            self.link,
-            self.inputs,
-            self.children
-        );
-
-        // Recursively print all children
-        if let Some(children) = &self.children {
-            for (char, &child_index) in children {
-                print!("{}", " ".repeat(((depth + 1) * 4) as usize));
-                print!("'{}' ->", *char);
-                arena[child_index].print(depth + 1, arena);
-            }
-        }
+            .and_then(|children| children.get(&symbol))
     }
 }
 
+/// Represents a range of symbols in an input sequence.
 #[derive(Debug, PartialEq)]
 pub struct Range {
+    /// The start index of the range (inclusive).
     pub start: usize,
+    /// The end index of the range (exclusive).
     pub end: usize,
+    /// The index of the input sequence this range belongs to.
     pub input: usize,
 }
 
 impl Range {
+    /// Creates a new range.
     pub fn new(start: usize, end: usize, input: usize) -> Self {
         Range { start, end, input }
     }
+    /// Returns the length of the range.
     pub fn length(&self) -> usize {
         self.end - self.start
     }

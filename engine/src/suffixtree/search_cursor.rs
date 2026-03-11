@@ -1,17 +1,22 @@
-use crate::suffixtree::node::{Node, LetterType};
-use crate::suffixtree::tree::{Tree};
+use crate::suffixtree::node::Node;
+use crate::suffixtree::suffixtree::SuffixTree;
+use crate::suffixtree::types::SymbolType;
 
 /// A Cursor that cannot mutate the tree (which means it can only be used during the search phase).
 /// Because it does not need a mutable reference, we can directly store a reference to the node,
-/// and not an index in the arena
+/// and not an index in the arena.
 pub struct SearchCursor<'a> {
+    /// Reference to the current node.
     pub current_node: &'a Node,
+    /// Number of symbols consumed along the edge leading to the current node.
     pub index: usize,
-    pub tree: &'a Tree,
+    /// Reference to the suffix tree.
+    pub tree: &'a SuffixTree,
 }
 
 impl<'a> SearchCursor<'a> {
-    pub fn new(tree: &'a Tree) -> SearchCursor<'a> {
+    /// Creates a new search cursor at the root of the tree.
+    pub fn new(tree: &'a SuffixTree) -> SearchCursor<'a> {
         Self {
             current_node: &tree.arena[0],
             index: 0,
@@ -19,27 +24,31 @@ impl<'a> SearchCursor<'a> {
         }
     }
 
-    /// Try to progress by consuming `next_character`
-    /// Returns Some(()) if we were able to move to the next location.
-    /// None otherwise
-    pub fn next(&mut self, next_character: LetterType, bytes_input: &[Vec<LetterType>]) -> Option<()> {
+    /// Try to progress by consuming `next_symbol`
+    /// Returns `true` if we were able to move to the next location.
+    /// `false` otherwise
+    pub fn next(&mut self, next_symbol: SymbolType, bytes_input: &[Vec<SymbolType>]) -> bool {
         if self.index < self.current_node.range.length() {
-            if bytes_input[self.current_node.range.input][self.current_node.range.start + self.index] == next_character {
+            if bytes_input[self.current_node.range.input]
+                [self.current_node.range.start + self.index]
+                == next_symbol
+            {
                 self.index += 1;
-                return Some(());
+                return true;
             }
-            return None;
+            return false;
         }
 
-        if let Some(child) = self.current_node.get_child(next_character) {
+        if let Some(child) = self.current_node.get_child(next_symbol) {
             self.current_node = &self.tree.arena[*child];
             self.index = 1;
-            return Some(());
+            return true;
         }
 
-        None
+        false
     }
 
+    /// Resets the cursor to the root of the tree.
     pub fn reset(&mut self) {
         self.index = 0;
         self.current_node = &self.tree.arena[0];

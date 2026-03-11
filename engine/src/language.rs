@@ -1,5 +1,5 @@
 use std::ffi::OsStr;
-use std::path::PathBuf;
+use std::path::Path;
 
 #[derive(Debug, Eq, PartialEq, Clone, Copy)]
 pub enum Language {
@@ -10,11 +10,11 @@ pub enum Language {
 }
 
 impl Language {
-    pub fn guess_from_path(path: &PathBuf) -> Option<Language> {
+    pub fn guess_from_path(path: &Path) -> Option<Language> {
         Self::from_ext(path.extension().expect("file has no extension"))
     }
 
-    pub fn matches(&self, path: &PathBuf) -> bool {
+    pub fn matches(&self, path: &Path) -> bool {
         if let Some(lang) = Self::guess_from_path(path) {
             return self == &lang;
         };
@@ -27,11 +27,11 @@ impl Language {
             Some("c") => Some(Self::C),
             Some("js") => Some(Self::Javascript),
             Some("py") | Some("py3") => Some(Self::Python),
-            _ => None
+            _ => None,
         }
     }
 
-    pub fn tree_sitter_language(self) -> tree_sitter_language::LanguageFn{
+    pub fn tree_sitter_language(self) -> tree_sitter_language::LanguageFn {
         match self {
             Language::Java => tree_sitter_java::LANGUAGE,
             Language::C => tree_sitter_c::LANGUAGE,

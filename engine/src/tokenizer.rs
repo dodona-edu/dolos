@@ -1,7 +1,6 @@
 use crate::file::File;
 use crate::language::Language;
-
-use std::path::PathBuf;
+use std::path::Path;
 
 use tree_sitter::{Node, Parser, Range, Tree, TreeCursor};
 
@@ -25,7 +24,7 @@ impl Tokenizer {
         Tokenizer { language, parser }
     }
 
-    pub fn parse(&mut self, path: &PathBuf) -> Tree {
+    pub fn parse(&mut self, path: &Path) -> Tree {
         let content = File::read(path).expect("content");
         self.parser.parse(content, None).expect("tree")
     }
@@ -75,31 +74,22 @@ impl Tokens for Tree {
 
 #[cfg(test)]
 mod tests {
-    extern crate serde;
-    extern crate serde_any;
-    extern crate tree_sitter;
-    extern crate tree_sitter_javascript;
-
     use super::*;
 
     #[test]
     fn test_tokenize() {
-        let path = "fixtures/sample1.js";
+        let path = Path::new("fixtures/sample1.js");
         let expected: Vec<String> = serde_any::from_file("fixtures/sample.tokens.json").unwrap();
         let mut tokenizer = Tokenizer::new(Language::Javascript);
 
         let actual = tokenizer
-            .parse(&path.into())
+            .parse(path)
             .tokens()
             .into_iter()
             .map(|t| t.name)
             .collect::<Vec<String>>();
 
-        //dbg!(std::iter::zip(&expected, &actual).collect::<Vec<(&String, &String)>>());
-
-        for i in 0..expected.len() {
-            assert_eq!(&expected[i], &actual[i], "Mismatch at {}", i);
-        }
         assert_eq!(expected.len(), actual.len());
+        assert_eq!(actual, expected);
     }
 }

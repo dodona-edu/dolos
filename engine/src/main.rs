@@ -1,26 +1,26 @@
-use std::fs;
-use std::path::PathBuf;
-use clap::{Parser};
-use dolos::dolos::Dolos;
+use clap::Parser;
+use dolos::dolos::{Dolos, DolosConfig};
 use dolos::opts::{Command, Opts};
 use dolos::writer::{OutputWriter, Writer};
+use std::fs;
+use std::path::PathBuf;
 
 ///
 /// Main function
-/// ```
-/// assert_eq!(true, false)
-/// ```
 fn main() -> std::io::Result<()> {
     let opts = Opts::parse();
 
     match opts.command {
-        Command::Run { files, output_format, output_destination } => {
+        Command::Run {
+            files,
+            output_format,
+            output_destination,
+        } => {
             let paths = get_file_paths(files)?;
-            let dolos = Dolos::from_paths(paths);
+            let dolos = Dolos::from_paths(paths, DolosConfig::default());
             let report = dolos.build_report();
 
-            Writer::new(output_format, output_destination)?
-                .write_and_finish(&report)?;
+            Writer::new(output_format, output_destination)?.write_and_finish(&report)?;
         }
     }
     Ok(())
@@ -39,7 +39,7 @@ fn get_file_paths(files: Vec<PathBuf>) -> std::io::Result<Vec<PathBuf>> {
             // For now, return error
             Err(std::io::Error::new(
                 std::io::ErrorKind::Unsupported,
-                "ZIP file handling not yet implemented"
+                "ZIP file handling not yet implemented",
             ))
         } else {
             // Single file

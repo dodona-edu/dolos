@@ -24,14 +24,12 @@ pub struct PairBitmap {
 }
 
 impl PairBitmap {
-    /// Create a new `PairBitmap` for `lengths.len()` items, each with the
+    /// Creates a new `PairBitmap` for `lengths.len()` items, each with the
     /// given bit-length. All bits start as zero.
     pub fn new(lengths: &[usize]) -> Self {
         let size = lengths.len();
 
-        let word_counts: Vec<usize> = lengths.iter()
-            .map(|&len| (len + 63) / 64)
-            .collect();
+        let word_counts: Vec<usize> = lengths.iter().map(|&len| (len + 63) / 64).collect();
 
         let mut prefix_word_sums = vec![0usize; size + 1];
         for i in 0..size {
@@ -54,7 +52,7 @@ impl PairBitmap {
             words: vec![0u64; total_words],
             word_counts,
             prefix_word_sums,
-            row_offsets
+            row_offsets,
         }
     }
 
@@ -138,9 +136,7 @@ impl PairBitmap {
             words[word_base + first_word] |= !0u64 << start_bit;
 
             // Full middle words
-            for w in (first_word + 1)..last_word {
-                words[word_base + w] = !0u64;
-            }
+            words[(word_base + first_word + 1)..(word_base + last_word)].fill(!0u64);
 
             // Last partial word: set bits [0, end_bit)
             let end_bit = end % 64;
@@ -152,10 +148,14 @@ impl PairBitmap {
         }
     }
 
-    /// Create bitmask for bits `[low, high)` within a single u64 word.
+    /// Create a bitmask for bits `[low, high)` within a single u64 word.
     #[inline]
     fn mask_range(low: usize, high: usize) -> u64 {
-        let upper = if high >= 64 { !0u64 } else { (1u64 << high) - 1 };
+        let upper = if high >= 64 {
+            !0u64
+        } else {
+            (1u64 << high) - 1
+        };
         upper & (!0u64 << low)
     }
 }
@@ -180,7 +180,7 @@ mod tests {
     fn test_multiple_marks_union() {
         let mut bm = PairBitmap::new(&[20, 20]);
         bm.mark_pair(0, 1, 0, 0, 5);
-        bm.mark_pair(0, 1, 3, 3, 5); // overlaps [3,5) with first mark
+        bm.mark_pair(0, 1, 3, 3, 5); // overlaps [3,5) with the first mark
 
         // Union of [0,5) and [3,8) = [0,8) → 8 ones
         assert_eq!(bm.count_ones(0, 1, 0), 8);

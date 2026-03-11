@@ -1,35 +1,35 @@
 use crate::file::File;
 use crate::language::Language;
-use crate::suffixtree::analysis::MaximalMatchAnalyzer;
-use crate::suffixtree::tree::Tree;
-use crate::suffixtree::tree_builder::{TreeBuilder, UkkonenBuilder};
+use crate::report::Report;
+use crate::suffixtree::suffixtree::SuffixTree;
+use crate::suffixtree::types::SENTINEL_SYMBOL;
 use crate::tokenizer::{Tokenizer, Tokens};
-use crate::winnowing::report::Report;
-use crate::winnowing::tokens::Winnow;
+use crate::winnowing::tokens::{Fingerprint, Winnow};
 use std::path::PathBuf;
 use std::rc::Rc;
-use crate::suffixtree::tree::SENTINEL_LETTER;
 
 pub struct Index {
     pub k: usize,
     pub w: usize,
+    min_match_length: usize,
     pub files: Vec<Rc<File>>,
-    data: Vec<Vec<usize>>,
+    data: Vec<Vec<Fingerprint>>,
     pub language: Language,
-    tree: Tree,
     tokenizer: Tokenizer,
+    tree: Option<SuffixTree>,
 }
 
 impl Index {
-    pub fn new(k: usize, w: usize, language: Language) -> Self {
+    pub fn new(k: usize, w: usize, min_match_length: usize, language: Language) -> Self {
         Index {
             k,
             w,
+            min_match_length,
             files: Vec::new(),
             data: Vec::new(),
-            tree: Tree::new(),
             tokenizer: Tokenizer::new(language),
             language,
+            tree: None,
         }
     }
 
@@ -41,7 +41,7 @@ impl Index {
         let tree = self.tokenizer.parse(&path);
         let tokens = tree.tokens();
         let mut fingerprints = tokens.winnow(self.k, self.w);
-        fingerprints.push(SENTINEL_LETTER);
+        fingerprints.push(SENTINEL_SYMBOL);
         self.data.push(fingerprints);
 
         let file = Rc::new(File {
@@ -56,12 +56,15 @@ impl Index {
         for path in paths {
             self.tokenize_file(path);
         }
-        self.tree.add_words(&self.data, UkkonenBuilder::new());
+        self.tree = Some(SuffixTree::new(&self.data));
     }
 
-    pub fn build_report(&self) -> Report {
-        let files = &self.files;
-        let res = MaximalMatchAnalyzer::new(&self.tree, &self.data, 1).analyze();
-        Report::from(res, files.clone())
+    /// Consume the index and produce a report.
+    pub fn build_report(self) -> Report {
+        let tree = self
+            .tree
+            .expect("add_files must be called before build_report");
+        let result = tree.analyze(&self.data, self.min_match_length);
+        Report::from(result, self.files)
     }
 }

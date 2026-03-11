@@ -1,4 +1,4 @@
-/// A symmetric pair array that stores values for pairs (i, j) where i < j
+/// A symmetric pair array that stores values for pairs (i, j) where i < j.
 #[derive(Debug)]
 pub struct PairArray<T> {
     data: Vec<T>,
@@ -6,7 +6,7 @@ pub struct PairArray<T> {
 }
 
 impl<T: Clone> PairArray<T> {
-    /// Create a new PairArray with the given size, initialized with the default value
+    /// Creates a new `PairArray` with the given size, initialized with the default value.
     pub fn new(size: usize, default: T) -> Self {
         let data_size = size * (size - 1) / 2;
         Self {
@@ -15,14 +15,14 @@ impl<T: Clone> PairArray<T> {
         }
     }
 
-    /// Create a PairArray from a pre-initialized vector
-    /// The vector must have exactly size * (size - 1) / 2 elements
+    /// Creates a `PairArray` from a pre-initialized vector.
+    /// The vector must have exactly `size * (size - 1) / 2` elements.
     pub fn from_vec(data: Vec<T>, size: usize) -> Self {
         debug_assert_eq!(data.len(), size * (size - 1) / 2, "Data size mismatch");
         Self { data, size }
     }
 
-    /// Convert pair indices to linear index
+    /// Converts pair indices to linear index.
     #[inline]
     fn index(&self, i1: usize, i2: usize) -> usize {
         debug_assert_ne!(i1, i2);
@@ -31,40 +31,38 @@ impl<T: Clone> PairArray<T> {
         min * (2 * self.size - min - 1) / 2 + (max - min - 1)
     }
 
-    /// Get the value at position (i1, i2)
+    /// Returns the value at position (i1, i2).
     pub fn get(&self, i1: usize, i2: usize) -> &T {
         &self.data[self.index(i1, i2)]
     }
 
-    /// Get a mutable reference to the value at position (i1, i2)
+    /// Returns a mutable reference to the value at position (i1, i2).
     pub fn get_mut(&mut self, i1: usize, i2: usize) -> &mut T {
         let idx = self.index(i1, i2);
         &mut self.data[idx]
     }
 
-    /// Set the value at position (i1, i2)
+    /// Sets the value at position (i1, i2).
     pub fn set(&mut self, i1: usize, i2: usize, value: T) {
         let idx = self.index(i1, i2);
         self.data[idx] = value;
     }
 
-    /// Get the size of the array (number of inputs)
+    /// Returns the size of the array (number of inputs).
     #[inline]
     pub fn size(&self) -> usize {
         self.size
     }
 
-    /// Iterate over all pairs with their indices
+    /// Returns an iterator over all pairs with their indices.
     pub fn iter_pairs(&self) -> impl Iterator<Item = (usize, usize, &T)> {
-        (0..self.size).flat_map(move |i| {
-            ((i + 1)..self.size).map(move |j| (i, j, self.get(i, j)))
-        })
+        (0..self.size).flat_map(move |i| ((i + 1)..self.size).map(move |j| (i, j, self.get(i, j))))
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::suffixtree::pair_array::PairArray;
+    use crate::collections::pair_array::PairArray;
 
     #[test]
     fn test_pair_array() {
