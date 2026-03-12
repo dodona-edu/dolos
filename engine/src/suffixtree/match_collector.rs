@@ -19,7 +19,7 @@ impl<'a> MatchCollector<'a> {
     ///
     /// Initializes the longest-fragment tracker and overlap bitmap with sizes
     /// derived from the lengths of each input sequence.
-    pub fn new(inputs: &'a [Vec<usize>]) -> Self {
+    pub fn new(inputs: &'a [Vec<SymbolType>]) -> Self {
         let input_lengths: Vec<usize> = inputs.iter().map(|i| i.len()).collect();
 
         Self {

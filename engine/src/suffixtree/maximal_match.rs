@@ -35,7 +35,7 @@ impl<'a> MaximalMatchAnalyzer<'a> {
     ///
     /// # Arguments
     /// * `tree` – Generalized suffix tree built from all `inputs`.
-    /// * `inputs` – The original token sequences, each terminated with a unique
+    /// * `inputs` – The original token sequences, each terminated with an unique
     ///   end-of-sequence sentinel.
     /// * `min_match_length` – Minimum number of tokens a shared substring must
     ///   have to be counted as a match.
