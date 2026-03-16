@@ -2,7 +2,6 @@ use crate::file::File;
 use crate::language::Language;
 use crate::report::Report;
 use crate::suffixtree::suffixtree::SuffixTree;
-use crate::suffixtree::types::SENTINEL_SYMBOL;
 use crate::tokenizer::{Tokenizer, Tokens};
 use crate::winnowing::tokens::{Fingerprint, Winnow};
 use std::path::PathBuf;
@@ -38,11 +37,8 @@ impl Index {
             panic!("Language does not match")
         }
 
-        let tree = self.tokenizer.parse(&path);
-        let tokens = tree.tokens();
-        let mut fingerprints = tokens.winnow(self.k, self.w);
-        fingerprints.push(SENTINEL_SYMBOL);
-        self.data.push(fingerprints);
+        self.data
+            .push(self.tokenizer.parse(&path).tokens().winnow(self.k, self.w));
 
         let file = Rc::new(File {
             path,

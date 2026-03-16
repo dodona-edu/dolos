@@ -15,6 +15,5 @@ tree-sitter-python = "=0.25"
 tree-sitter-language = "0.1.7"
 
 [dev-dependencies]
-serde = "1"
 serde_any = "0.5"
 rand = "0.10.0"

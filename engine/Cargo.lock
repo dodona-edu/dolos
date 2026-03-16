@@ -219,7 +219,6 @@ version = "0.1.0"
 dependencies = [
  "clap",
  "rand",
- "serde",
  "serde_any",
  "tree-sitter",
  "tree-sitter-c",

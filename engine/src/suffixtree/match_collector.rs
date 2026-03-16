@@ -6,32 +6,32 @@ use crate::suffixtree::types::SymbolType;
 
 /// Collects and processes matches found during tree traversal
 pub struct MatchCollector<'a> {
-    /// The input sequences being compared
-    inputs: &'a [Vec<SymbolType>],
-    /// Tracks the longest matching fragment length for each pair of inputs
+    /// The words being compared.
+    words: &'a [Vec<SymbolType>],
+    /// Tracks the longest matching fragment length for each pair of words
     longest_fragments: PairArray<usize>,
-    /// Bitmap tracking which positions have been covered by matches, per input pair
+    /// Bitmap tracking which positions have been covered by matches, per word pair
     overlap_bitmap: PairBitmap,
 }
 
 impl<'a> MatchCollector<'a> {
-    /// Create a new `MatchCollector` for the given input sequences.
+    /// Create a new `MatchCollector` for the given words.
     ///
     /// Initializes the longest-fragment tracker and overlap bitmap with sizes
-    /// derived from the lengths of each input sequence.
-    pub fn new(inputs: &'a [Vec<SymbolType>]) -> Self {
-        let input_lengths: Vec<usize> = inputs.iter().map(|i| i.len()).collect();
+    /// derived from the length of each word.
+    pub fn new(words: &'a [Vec<SymbolType>]) -> Self {
+        let word_lengths: Vec<usize> = words.iter().map(|w| w.len()).collect();
 
         Self {
-            inputs,
-            longest_fragments: PairArray::new(inputs.len(), 0),
-            overlap_bitmap: PairBitmap::new(input_lengths.as_slice()),
+            words,
+            longest_fragments: PairArray::new(words.len(), 0),
+            overlap_bitmap: PairBitmap::new(word_lengths.as_slice()),
         }
     }
 
     /// Record a maximal match between two positions.
     ///
-    /// Computes the effective match length (trimming end-of-sequence markers),
+    /// Computes the effective match length, trimming virtual end-of-word markers,
     /// updates the longest-fragment tracker, and marks the covered positions in
     /// the overlap bitmap so that overlapping matches are not double-counted.
     pub(crate) fn record_match(&mut self, sp1: &StartPosition, sp2: &StartPosition, length: usize) {
@@ -41,35 +41,33 @@ impl<'a> MatchCollector<'a> {
             return;
         }
 
-        self.update_longest_fragment(sp1.input, sp2.input, effective_length);
-        self.overlap_bitmap
-            .mark_pair(sp1.input, sp2.input, sp1.start, sp2.start, effective_length);
+        self.update_longest_fragment(sp1.word_index, sp2.word_index, effective_length);
+        self.overlap_bitmap.mark_pair(
+            sp1.word_index,
+            sp2.word_index,
+            sp1.start,
+            sp2.start,
+            effective_length,
+        );
     }
 
-    /// Calculate the effective length of a match, excluding end markers.
+    /// Calculate the effective length of a match.
     ///
-    /// If the match reaches the end-of-sequence sentinel (`$`) of either input,
-    /// the length is reduced by one so the sentinel is not counted as shared content.
+    /// With sentinel-free edge lengths, reported depths already correspond to
+    /// real token counts.
     #[inline]
     fn calculate_effective_length(
         &self,
-        sp1: &StartPosition,
-        sp2: &StartPosition,
+        _sp1: &StartPosition,
+        _sp2: &StartPosition,
         length: usize,
     ) -> usize {
-        let ends_at_marker = sp1.start + length >= self.inputs[sp1.input].len()
-            || sp2.start + length >= self.inputs[sp2.input].len();
-
-        if ends_at_marker {
-            length.saturating_sub(1)
-        } else {
-            length
-        }
+        length
     }
 
     /// Update the longest fragment for a pair if the new length exceeds the current maximum.
-    fn update_longest_fragment(&mut self, input1: usize, input2: usize, length: usize) {
-        let current = self.longest_fragments.get_mut(input1, input2);
+    fn update_longest_fragment(&mut self, word1: usize, word2: usize, length: usize) {
+        let current = self.longest_fragments.get_mut(word1, word2);
         if length > *current {
             *current = length;
         }
@@ -78,10 +76,10 @@ impl<'a> MatchCollector<'a> {
     /// Consume the collector and build the final [`AnalysisResult`].
     ///
     /// Computes pairwise similarity scores from the overlap bitmap and packages
-    /// them together with the longest-fragment data.
+    /// them together with the longest-fragment results.
     pub(crate) fn into_result(self) -> AnalysisResult {
-        let num_inputs = self.longest_fragments.size();
-        let similarities = self.calculate_similarities(num_inputs);
+        let num_words = self.longest_fragments.size();
+        let similarities = self.calculate_similarities(num_words);
 
         AnalysisResult {
             similarities,
@@ -89,25 +87,23 @@ impl<'a> MatchCollector<'a> {
         }
     }
 
-    /// Calculate pairwise similarity scores for all input pairs.
+    /// Calculate pairwise similarity scores for all word pairs.
     ///
     /// For each pair `(i1, i2)` the similarity is defined as:
     ///
     /// ```text
-    /// similarity = total_overlap / (len(i1) - 1 + len(i2) - 1)
+    /// similarity = total_overlap / (len(i1) + len(i2))
     /// ```
     ///
     /// where `total_overlap` is the number of positions covered by at least one
-    /// shared match (as tracked by the overlap bitmap), and the `-1` on each
-    /// length accounts for the mandatory end-of-sequence sentinel (`$`).
-    fn calculate_similarities(&self, num_inputs: usize) -> PairArray<f64> {
-        let mut similarities = PairArray::new(num_inputs, 0.0);
+    /// shared match (as tracked by the overlap bitmap).
+    fn calculate_similarities(&self, num_words: usize) -> PairArray<f64> {
+        let mut similarities = PairArray::new(num_words, 0.0);
 
-        for i1 in 0..num_inputs {
-            for i2 in (i1 + 1)..num_inputs {
+        for i1 in 0..num_words {
+            for i2 in (i1 + 1)..num_words {
                 let total_overlap = self.overlap_bitmap.count_ones_pair(i1, i2);
-                // Subtract 1 from each length to account for the end marker ($)
-                let total_length = (self.inputs[i1].len() - 1) + (self.inputs[i2].len() - 1);
+                let total_length = self.words[i1].len() + self.words[i2].len();
 
                 let similarity = if total_length == 0 {
                     0.0

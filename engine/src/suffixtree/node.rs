@@ -4,7 +4,7 @@ use std::collections::{HashMap, HashSet};
 /// Represents a node in the suffix tree.
 #[derive(Debug, PartialEq)]
 pub struct Node {
-    /// The range of symbols this node represents in one of the input strings.
+    /// The range of symbols this node represents in one of the words.
     pub range: Range,
     /// The index of the parent node in the arena.
     pub parent: Option<NodeIndex>,
@@ -12,8 +12,8 @@ pub struct Node {
     pub link: Option<NodeIndex>,
     /// Map of children nodes indexed by the first symbol of their edge.
     pub children: Option<HashMap<SymbolType, NodeIndex>>,
-    /// Indices of input sequences that have a suffix ending at this leaf node.
-    pub inputs: Option<HashSet<usize>>,
+    /// Indices of words that have a suffix ending at this leaf node.
+    pub word_indices: Option<HashSet<usize>>,
 }
 
 impl Node {
@@ -28,26 +28,20 @@ impl Node {
         parent: Option<NodeIndex>,
         children: Option<HashMap<SymbolType, NodeIndex>>,
         link: Option<NodeIndex>,
-        inputs: Option<HashSet<usize>>,
+        word_indices: Option<HashSet<usize>>,
     ) -> Node {
         Node {
             range,
             children,
             parent,
             link,
-            inputs,
+            word_indices,
         }
     }
 
     pub fn create_leaf(range: Range, parent: NodeIndex) -> Node {
-        let input = range.input;
-        Node::new(
-            range,
-            Some(parent),
-            None,
-            None,
-            Some(HashSet::from([input])),
-        )
+        let word = range.word;
+        Node::new(range, Some(parent), None, None, Some(HashSet::from([word])))
     }
 
     /// Creates an internal node with a single child.
@@ -77,21 +71,25 @@ impl Node {
     }
 }
 
-/// Represents a range of symbols in an input sequence.
+/// Represents a range of symbols in a word.
 #[derive(Debug, PartialEq)]
 pub struct Range {
     /// The start index of the range (inclusive).
     pub start: usize,
     /// The end index of the range (exclusive).
     pub end: usize,
-    /// The index of the input sequence this range belongs to.
-    pub input: usize,
+    /// The index of the word this range belongs to.
+    pub word: usize,
 }
 
 impl Range {
     /// Creates a new range.
-    pub fn new(start: usize, end: usize, input: usize) -> Self {
-        Range { start, end, input }
+    pub fn new(start: usize, end: usize, word_index: usize) -> Self {
+        Range {
+            start,
+            end,
+            word: word_index,
+        }
     }
     /// Returns the length of the range.
     pub fn length(&self) -> usize {

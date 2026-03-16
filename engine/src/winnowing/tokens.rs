@@ -57,15 +57,8 @@ mod tests {
     use super::*;
     use crate::language::Language;
     use crate::tokenizer::{Tokenizer, Tokens};
-    use serde::Deserialize;
     use std::path::Path;
     use tree_sitter::{Point, Range};
-
-    #[derive(Debug, Deserialize)]
-    struct DolosFingerprint {
-        data: Vec<String>,
-        hash: usize,
-    }
 
     const TEST_K_W: [(usize, usize); 3] = [(17, 23), (3, 5), (16, 8)];
 

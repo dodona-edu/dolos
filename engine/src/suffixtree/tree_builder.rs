@@ -1,4 +1,4 @@
-use crate::suffixtree::build_cursor::{BuildCursor, CursorIterator};
+use crate::suffixtree::build_cursor::BuildCursor;
 use crate::suffixtree::suffixtree::SuffixTree;
 use crate::suffixtree::types::{NodeIndex, SymbolType};
 
@@ -10,17 +10,17 @@ impl UkkonenBuilder {
         Self
     }
 
-    pub(crate) fn add_words(&self, data: &[Vec<SymbolType>], tree: &mut SuffixTree) {
+    pub(crate) fn add_words(&self, words: &[Vec<SymbolType>], tree: &mut SuffixTree) {
         let mut cursor = BuildCursor::new(tree);
-        for i in 0..data.len() {
-            self.build_single_input(data, i, &mut cursor);
+        for i in 0..words.len() {
+            self.build_single_word(words, i, &mut cursor);
             cursor.reset();
         }
     }
 
-    /// Builds the suffix tree for a single input sequence using Ukkonen's algorithm.
+    /// Builds the suffix tree for a single word using Ukkonen's algorithm.
     ///
-    /// This method processes the input sequence symbol by symbol and performs implicit
+    /// This method processes the word symbol by symbol and performs implicit
     /// suffix extensions based on three main rules:
     ///
     /// 1. **Rule 1: Extension of existing leaves**. When a leaf node is reached, it
@@ -36,21 +36,19 @@ impl UkkonenBuilder {
     ///
     /// The algorithm also utilizes suffix links to navigate quickly between related nodes,
     /// ensuring linear-time construction.
-    fn build_single_input(
+    fn build_single_word(
         &self,
-        inputs: &[Vec<SymbolType>],
-        current_input_index: usize,
+        words: &[Vec<SymbolType>],
+        current_word_index: usize,
         cursor: &mut BuildCursor,
     ) {
-        let data = &inputs[current_input_index];
-        let end_index = data.len();
+        let current_word = &words[current_word_index];
+        let end_index = current_word.len() + 1; // +1 for the virtual end-of-word sentinel
         let mut num_leaves = 0;
         for j in 1..=end_index {
-            cursor.index_in_word = j - 1;
             let mut prev_internal_node: Option<NodeIndex> = None;
-            let num_leaves_copy = num_leaves; // take copy since we cannot change the value that is used in the loop header itself
             // skip the first num_leaves leaves since this is rule 1 and can be skipped
-            for _ in num_leaves_copy..j {
+            for _ in num_leaves..j {
                 // if there is a previous internal node AND we are at a node with the cursor
                 if let Some(prev_internal_node_index) = prev_internal_node
                     && cursor.at_node()
@@ -59,13 +57,13 @@ impl UkkonenBuilder {
                     prev_internal_node = None;
                 }
 
-                if cursor.next(data[j - 1], inputs) == CursorIterator::Ok {
+                if cursor.next(j - 1, current_word_index, words) {
                     if j == end_index {
                         // in a leaf
-                        cursor.add_input(current_input_index);
-                        // decrease the index by 1, because we are simulating that it does not yet know the end symbol
+                        cursor.add_word_index(current_word_index);
+                        // Return one symbol, because we are simulating that it does not yet know the end symbol
                         cursor.return_one_symbol();
-                        cursor.follow_link(data);
+                        cursor.follow_link(j - 1, current_word_index, words);
                         continue;
                     } else {
                         break; // rule 3 : do nothing + show stopper
@@ -74,17 +72,17 @@ impl UkkonenBuilder {
 
                 // rule 2: split edge if needed and add leaf
                 if !cursor.at_node() {
-                    let new_internal_node_index = cursor.split_edge(inputs);
+                    let new_internal_node_index = cursor.split_edge(words);
                     if let Some(prev_current_node_index) = prev_internal_node {
                         cursor.add_link(prev_current_node_index, new_internal_node_index);
                     }
                     prev_internal_node = Some(new_internal_node_index);
                 }
-                cursor.add_leaf_from_position(j - 1, current_input_index, data);
+                cursor.add_leaf_from_position(j - 1, current_word_index, words);
                 num_leaves += 1;
 
                 // follow the suffix link since the extension is complete
-                cursor.follow_link(data);
+                cursor.follow_link(j - 1, current_word_index, words);
             }
         }
     }
