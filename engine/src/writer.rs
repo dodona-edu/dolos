@@ -1,9 +1,9 @@
+use crate::opts::OutputFormat;
+use crate::report::{Pair, Report};
 use std::fs::File;
 use std::io;
 use std::io::{BufWriter, Write};
 use std::path::PathBuf;
-use crate::opts::OutputFormat;
-use crate::winnowing::pair::Pair;
 
 /// Trait for writing similarity analysis results in different formats
 pub trait OutputWriter {
@@ -11,9 +11,9 @@ pub trait OutputWriter {
     fn write_pair(&mut self, pair: &Pair) -> io::Result<()>;
 
     /// Write all pairs to the output
-    fn write_pairs(&mut self, pairs: &[Pair]) -> io::Result<()> {
-        for pair in pairs {
-            self.write_pair(pair)?;
+    fn write_report(&mut self, report: &Report) -> io::Result<()> {
+        for pair in report.iter_pairs() {
+            self.write_pair(&pair)?;
         }
         Ok(())
     }
@@ -22,11 +22,11 @@ pub trait OutputWriter {
     fn finish(self) -> io::Result<()>;
 
     /// Convenience method to write pairs and finish in one call
-    fn write_and_finish(mut self, pairs: &[Pair]) -> io::Result<()>
+    fn write_and_finish(mut self, report: &Report) -> io::Result<()>
     where
         Self: Sized,
     {
-        self.write_pairs(pairs)?;
+        self.write_report(report)?;
         self.finish()
     }
 }
@@ -84,10 +84,10 @@ impl OutputWriter for CsvWriter {
         writeln!(
             self.writer,
             "{},{},{},{}",
-            pair.right_file.file_name(),
             pair.left_file.file_name(),
+            pair.right_file.file_name(),
             pair.similarity,
-            pair.longest
+            pair.longest_fragment
         )
     }
 
@@ -106,7 +106,7 @@ impl OutputWriter for TerminalWriter {
             pair.left_file.file_name(),
             pair.right_file.file_name(),
             pair.similarity * 100.0,
-            pair.longest
+            pair.longest_fragment
         );
         Ok(())
     }

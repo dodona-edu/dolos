@@ -1,11 +1,7 @@
 use crate::tokenizer::Token;
-use crate::winnowing::hashes::{hash_token, RollingHash};
+use crate::winnowing::hashes::{RollingHash, hash_token};
 
-#[derive(Debug, PartialEq, Clone)]
-pub struct Fingerprint {
-    pub index: usize,
-    pub hash: usize,
-}
+pub type Fingerprint = usize;
 
 pub trait Winnow {
     /// Returns a filtered list of fingerprints: the kgrams (of length k) with the minimum hashing
@@ -24,7 +20,7 @@ impl Winnow for Vec<Token> {
     ///
     fn winnow(&self, k: usize, w: usize) -> Vec<Fingerprint> {
         let mut rolling = RollingHash::new(k);
-        let mut window = vec![usize::MAX; w];
+        let mut window = vec![Fingerprint::MAX; w];
         let mut filtered = Vec::new();
 
         for token in self.iter().take(k - 1) {
@@ -43,18 +39,12 @@ impl Winnow for Vec<Token> {
                     }
                 }
 
-                filtered.push(Fingerprint {
-                    index: filtered.len(),
-                    hash: window[min_index % w],
-                });
+                filtered.push(window[min_index % w]);
             } else if window[token_index % w] <= window[min_index % w] {
                 // we have found a new minimum
                 min_index = token_index;
 
-                filtered.push(Fingerprint {
-                    index: filtered.len(),
-                    hash: window[min_index % w],
-                });
+                filtered.push(window[min_index % w]);
             }
         }
 
@@ -64,20 +54,11 @@ impl Winnow for Vec<Token> {
 
 #[cfg(test)]
 mod tests {
-    extern crate serde;
-    extern crate serde_any;
-
     use super::*;
     use crate::language::Language;
     use crate::tokenizer::{Tokenizer, Tokens};
-    use serde::Deserialize;
+    use std::path::Path;
     use tree_sitter::{Point, Range};
-
-    #[derive(Debug, Deserialize)]
-    struct DolosFingerprint {
-        data: Vec<String>,
-        hash: usize,
-    }
 
     const TEST_K_W: [(usize, usize); 3] = [(17, 23), (3, 5), (16, 8)];
 
@@ -90,14 +71,14 @@ mod tests {
                 serde_any::from_file(format!("fixtures/sample.winnowk{}w{}.json", k, w)).unwrap();
 
             let actual = tokenizer
-                .parse(&"fixtures/sample.js".into())
+                .parse(Path::new("fixtures/sample1.js"))
                 .tokens()
                 .winnow(k, w);
 
             let mut length = 0;
             for (i, fingerprint) in actual.iter().enumerate() {
                 assert_eq!(
-                    fingerprint.hash, expected[i],
+                    *fingerprint, expected[i],
                     "Mismatch (k={}, w={}): {:?} and {:?}",
                     k, w, fingerprint, expected[i]
                 );
@@ -139,7 +120,7 @@ mod tests {
             let mut length = 0;
             for (i, fingerprint) in actual.iter().enumerate() {
                 assert_eq!(
-                    fingerprint.hash, expected[i],
+                    *fingerprint, expected[i],
                     "Mismatch (k={}, w={}): {:?} and {:?}",
                     k, w, fingerprint, expected[i]
                 );

@@ -1,25 +1,17 @@
-use std::collections::HashSet;
 use std::fmt;
 use std::hash::{Hash, Hasher};
-use std::io::Read;
 use std::path::{Path, PathBuf};
 
 use crate::language::Language;
-use crate::winnowing::hashes::Hash as OtherHash;
-use crate::winnowing::tokens::Fingerprint;
 
 pub struct File {
     pub path: PathBuf,
     pub language: Language,
-    pub fingerprints: Vec<Fingerprint>,
-    pub shared: HashSet<OtherHash>,
 }
 
 impl File {
     pub fn read<P: AsRef<Path>>(path: P) -> std::io::Result<String> {
-        let mut content = String::new();
-        std::fs::File::open(path)?.read_to_string(&mut content)?;
-        Ok(content)
+        std::fs::read_to_string(path)
     }
 
     pub fn file_name(&self) -> &str {

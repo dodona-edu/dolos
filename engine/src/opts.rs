@@ -28,6 +28,6 @@ pub enum Command {
         output_format: OutputFormat,
 
         #[arg(short, long, default_value = ".")]
-        output_destination: PathBuf
+        output_destination: PathBuf,
     },
 }
