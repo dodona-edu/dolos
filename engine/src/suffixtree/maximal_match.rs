@@ -5,6 +5,8 @@ use crate::suffixtree::suffixtree::SuffixTree;
 use crate::suffixtree::types::{SENTINEL_SYMBOL, SymbolType};
 use std::collections::HashMap;
 
+type LeftMap = HashMap<SymbolType, Vec<StartPosition>>;
+
 /// Represents a starting position of a match in a word.
 #[derive(Debug, Clone)]
 pub struct StartPosition {
@@ -74,22 +76,16 @@ impl<'a> MaximalMatchAnalyzer<'a> {
     /// need to match for the current shared substring to be extended leftward).
     /// [`usize::MAX`] is used as a sentinel when the suffix starts at position 0.
     ///
-    /// Returns one `HashMap<left_symbol → positions>` per word stored at the leaf.
-    fn create_leaf_maps(
-        &self,
-        node: &Node,
-        depth: usize,
-    ) -> Vec<HashMap<SymbolType, Vec<StartPosition>>> {
+    /// Returns one map per leaf occurrence so pair generation can reuse the same
+    /// logic as internal nodes.
+    fn create_leaf_maps(&self, node: &Node, depth: usize) -> Vec<LeftMap> {
         node.word_indices
             .as_ref()
             .expect("Leaf node must have words")
             .iter()
             .map(|&word_index| {
-                let seq_len = self.words[word_index].len();
-                // depth equals the suffix length in the real word.
-                let start_index = seq_len - depth;
-
-                // Get the symbol to the left of this match, or STRING_SENTINEL if at the beginning
+                let word_len = self.words[word_index].len();
+                let start_index = word_len - depth;
                 let left_symbol = if start_index > 0 {
                     self.words[word_index][start_index - 1]
                 } else {
@@ -109,81 +105,76 @@ impl<'a> MaximalMatchAnalyzer<'a> {
             .collect()
     }
 
-    /// Merge a list of `left_symbol → positions` maps into a single map.
-    ///
-    /// Maps from different children are combined so that positions sharing the
-    /// same left symbol end up in the same bucket.
-    fn merge_maps(
-        maps: Vec<HashMap<SymbolType, Vec<StartPosition>>>,
-    ) -> HashMap<SymbolType, Vec<StartPosition>> {
-        let mut result = HashMap::new();
-
-        for map in maps {
-            for (key, positions) in map {
-                result.entry(key).or_insert_with(Vec::new).extend(positions);
-            }
-        }
-
-        result
-    }
-
-    /// Generate all maximal pairs from the children's maps at a given depth.
-    ///
-    /// A match is a *maximal exact match* (MEM) when it cannot be extended in
-    /// either direction without introducing a mismatch:
-    ///
-    /// - **Right maximality** is guaranteed by the tree structure itself:
-    ///   positions coming from *different* child maps diverged at the current
-    ///   internal node, meaning they were reached via different edge symbols.
-    ///   The symbol immediately after the shared prefix therefore already
-    ///   differs between the two groups — no explicit check is needed.
-    ///
-    /// - **Left maximality** is checked explicitly by comparing the `left_symbol`
-    ///   of each position (the symbol immediately before the match).  Two
-    ///   groups are left-maximal with respect to each other when their
-    ///   `left_symbol` values differ or when one group is at the very start of
-    ///   its word (sentinel [`usize::MAX`]).
-    ///
-    /// All position pairs that satisfy both conditions are forwarded to
-    /// [`Self::process_position_pairs`] for recording.
-    fn generate_pairs(
+    /// Record MEM pairs between one new child map and already-seen children.
+    fn generate_pairs_against_accumulator(
         &self,
         depth: usize,
-        children_maps: &[HashMap<SymbolType, Vec<StartPosition>>],
+        accumulator: &LeftMap,
+        child_map: &LeftMap,
         collector: &mut MatchCollector,
     ) {
-        for (i, map) in children_maps.iter().enumerate() {
-            for (&left_symbol, positions1) in map {
-                self.process_pairs_with_subsequent_maps(
-                    &children_maps[(i + 1)..],
-                    left_symbol,
-                    positions1,
-                    depth,
-                    collector,
-                );
-            }
-        }
-    }
-
-    /// Compare `positions1` against every bucket in the subsequent children maps.
-    ///
-    /// For each `(other_left_symbol, positions2)` bucket in `subsequent_maps`, the
-    /// pair is eligible for recording only when [`Self::should_process_pair`]
-    /// returns `true` (i.e., the left symbols differ, indicating maximality).
-    fn process_pairs_with_subsequent_maps(
-        &self,
-        subsequent_maps: &[HashMap<SymbolType, Vec<StartPosition>>],
-        left_symbol: SymbolType,
-        positions1: &[StartPosition],
-        depth: usize,
-        collector: &mut MatchCollector,
-    ) {
-        for other_map in subsequent_maps {
-            for (&other_left_symbol, positions2) in other_map {
-                if self.should_process_pair(left_symbol, other_left_symbol) {
+        for (&left_symbol, positions1) in child_map {
+            for (&other_left_symbol, positions2) in accumulator {
+                if Self::should_process_pair(left_symbol, other_left_symbol) {
                     self.process_position_pairs(positions1, positions2, depth, collector);
                 }
             }
+        }
+    }
+
+    /// Merge `other` into `target` using a small-to-large strategy.
+    fn merge_into(target: &mut LeftMap, mut other: LeftMap) {
+        if target.len() < other.len() {
+            std::mem::swap(target, &mut other);
+        }
+
+        for (key, mut positions) in other {
+            target
+                .entry(key)
+                .or_insert_with(Vec::new)
+                .append(&mut positions);
+        }
+    }
+
+    /// Collect one `LeftMap` per child: leaf occurrences for leaf nodes, or the
+    /// merged subtree map per child for internal nodes.
+    fn collect_child_maps(
+        &self,
+        node: &Node,
+        node_depth: usize,
+        collector: &mut MatchCollector,
+    ) -> Vec<LeftMap> {
+        if node.children.is_none() {
+            return self.create_leaf_maps(node, node_depth);
+        }
+
+        let mut maps = Vec::new();
+        for &child_index in node
+            .children
+            .as_ref()
+            .expect("Node must have children")
+            .values()
+        {
+            maps.push(self.find_maximal_pairs(child_index, node_depth, collector));
+        }
+        maps
+    }
+
+    /// Process one child map into the current accumulator.
+    fn absorb_child_map(
+        &self,
+        node_depth: usize,
+        accumulator: &mut Option<LeftMap>,
+        child_map: LeftMap,
+        collector: &mut MatchCollector,
+    ) {
+        if let Some(acc) = accumulator.as_mut() {
+            if node_depth >= self.min_match_length {
+                self.generate_pairs_against_accumulator(node_depth, acc, &child_map, collector);
+            }
+            Self::merge_into(acc, child_map);
+        } else {
+            *accumulator = Some(child_map);
         }
     }
 
@@ -199,7 +190,7 @@ impl<'a> MaximalMatchAnalyzer<'a> {
     ///   sentinel (two suffixes both starting at position 0 in different words
     ///   should still be paired).
     #[inline]
-    fn should_process_pair(&self, left_symbol: SymbolType, other_left_symbol: SymbolType) -> bool {
+    fn should_process_pair(left_symbol: SymbolType, other_left_symbol: SymbolType) -> bool {
         // Process pairs where left symbols differ, or where left_symbol is STRING_SENTINEL (start of string)
         other_left_symbol != left_symbol || left_symbol == SENTINEL_SYMBOL
     }
@@ -233,12 +224,10 @@ impl<'a> MaximalMatchAnalyzer<'a> {
     /// suffix tree represents a substring shared by all suffixes in its subtree.
     /// By the time we return from a node's children, we know — for each suffix
     /// in the subtree — what symbol appears immediately to the *left* of that
-    /// shared substring (the `left_symbol`).  We collect these into per-child
-    /// `left_symbol → positions` maps (see [`Self::create_leaf_maps`] for leaves,
-    /// [`Self::collect_children_maps`] for internal nodes).
+    /// shared substring (the `left_symbol`).
     ///
-    /// At each internal node we then compare the maps of every pair of children
-    /// (see [`Self::generate_pairs`]).  Because the children diverged at this
+    /// At each internal node we compare each child map against an accumulator of
+    /// already processed children. Because the children diverged at this
     /// node, their suffixes already differ on the *right* — so right-maximality
     /// is free.  Left-maximality is checked by comparing `left_symbol` values:
     /// two occurrences form a MEM only when their left symbols differ
@@ -251,42 +240,16 @@ impl<'a> MaximalMatchAnalyzer<'a> {
         node_index: usize,
         depth: usize,
         collector: &mut MatchCollector,
-    ) -> HashMap<SymbolType, Vec<StartPosition>> {
+    ) -> LeftMap {
         let node = &self.tree.arena[node_index];
         let node_depth = depth + node.range.length();
 
-        let maps = if node.children.is_none() {
-            self.create_leaf_maps(node, node_depth)
-        } else {
-            self.collect_children_maps(node, node_depth, collector)
-        };
-
-        // Generate pairs if we're at sufficient depth
-        if node_depth >= self.min_match_length {
-            self.generate_pairs(node_depth, &maps, collector);
+        let mut accumulator: Option<LeftMap> = None;
+        for child_map in self.collect_child_maps(node, node_depth, collector) {
+            self.absorb_child_map(node_depth, &mut accumulator, child_map, collector);
         }
 
-        // Merge all maps for the parent
-        Self::merge_maps(maps)
-    }
-
-    /// Recursively process all children of `node` and collect their left-symbol maps.
-    ///
-    /// Each child's subtree is visited via [`Self::find_maximal_pairs`], which
-    /// both records any MEMs found below in the [`MatchCollector`] and returns
-    /// the merged left-symbol map for that child.
-    fn collect_children_maps(
-        &self,
-        node: &Node,
-        node_depth: usize,
-        collector: &mut MatchCollector,
-    ) -> Vec<HashMap<SymbolType, Vec<StartPosition>>> {
-        node.children
-            .as_ref()
-            .expect("Node must have children")
-            .values()
-            .map(|&child_index| self.find_maximal_pairs(child_index, node_depth, collector))
-            .collect()
+        accumulator.unwrap_or_default()
     }
 }
 
