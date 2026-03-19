@@ -9,7 +9,7 @@ buildNpmPackage rec {
 
   src = ./.;
 
-  npmDepsHash = "sha256-IR7R3joftW0RrDdKD6p1VJLsN1+XzWZd1usBq/yRrqw=";
+  npmDepsHash = "sha256-phMwMncdToAmyVbYL1H0KbnRmlcC73EU16V1ooNdA0c=";
 
   npmWorkspace="cli";
 
@@ -53,6 +53,25 @@ buildNpmPackage rec {
             cp "$dir/$file" "$dest"
         done < <(${jq}/bin/jq --raw-output '.[0].files | map(.path | select(. | startswith("node_modules/") | not)) | join("\n")' <<< "$(npm_config_cache="$HOME/.npm" npm pack --json --dry-run --loglevel=warn --no-foreground-scripts --workspace="$dir")")
     done
+
+    # Some CLI runtime dependencies can remain workspace-local and not be present
+    # in the packaged node_modules tree (e.g. cliui after version bumps).
+    # Copy any missing modules from cli/node_modules into the final package.
+    if [ -d cli/node_modules ]; then
+      for module in cli/node_modules/* cli/node_modules/@*/*; do
+        if [ ! -e "$module" ]; then
+          continue
+        fi
+        rel=$(printf '%s' "$module" | sed 's#^cli/node_modules/##')
+        dest="$packageOut/node_modules/$rel"
+        if [ -e "$dest" ]; then
+          continue
+        fi
+        mkdir -p "$(dirname "$dest")"
+        cp -rL "$module" "$dest"
+      done
+    fi
+
     # dolos-parsers does not include the built parsers with npm pack, copy them
     cp -r parsers/build "$packageOut/node_modules/@dodona/dolos-parsers"
   '';
