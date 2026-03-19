@@ -61,7 +61,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: [ "18", "20", "22" ]
+        node: [ "20", "22" ]
       fail-fast: false
     steps:
       - name: Checkout 🛎️
@@ -94,7 +94,7 @@ jobs:
     needs: install-deps
     strategy:
       matrix:
-        node:  [ "18", "20", "22" ]
+        node:  [ "20", "22" ]
       fail-fast: false
     steps:
       - name: Checkout 🛎️
@@ -172,7 +172,7 @@ jobs:
     needs: install-deps
     strategy:
       matrix:
-        node: [ "18", "20", "22" ]
+        node: [ "20", "22" ]
       fail-fast: false
     steps:
       - name: Checkout 🛎️
@@ -249,7 +249,7 @@ jobs:
     needs: install-deps
     strategy:
       matrix:
-        node: [ "18", "20", "22" ]
+        node: [ "20", "22" ]
       fail-fast: false
     steps:
       - name: Checkout 🛎️
@@ -290,7 +290,7 @@ jobs:
     needs: install-deps
     strategy:
       matrix:
-        node: [ "18", "20", "22" ]
+        node: [ "20", "22" ]
       fail-fast: false
     steps:
       - name: Checkout 🛎️
