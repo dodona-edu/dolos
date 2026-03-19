@@ -86,7 +86,7 @@ export class Dataset {
         }
       } else {
         const files = (await this.fromDirectory(tmpDir)).ok();
-        const ignoredFile = undefined;
+        const ignoredFile = await this.setIgnoredFile(files, ignore);
         const nameCandidate = path.basename(zipPath, ".zip");
         return new Dataset(nameCandidate, files, ignoredFile);
       }
