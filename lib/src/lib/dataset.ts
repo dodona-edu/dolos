@@ -129,10 +129,6 @@ export class Dataset {
 
 
   public static async create(paths: string[], ignore?: string): Promise<Dataset> {
-    let resolvedIgnoredFile = null;
-    let resolvedFiles = null;
-    let nameCandidate = "undefined";
-
     if (paths.length == 1) {
       const inputFile = paths[0];
       if (inputFile.toLowerCase().endsWith(".zip")) {
@@ -143,9 +139,9 @@ export class Dataset {
         throw new Error("You gave one input file, but it is not a CSV file or a ZIP archive.");
       }
     } else {
-      resolvedFiles = (await readFiles(paths)).ok();
-      resolvedIgnoredFile = await this.setIgnoredFile(resolvedFiles, ignore);
-      nameCandidate = path.basename(paths[0]) + " & " + path.basename(paths[1]);
+      const resolvedFiles = (await readFiles(paths)).ok();
+      const resolvedIgnoredFile = await this.setIgnoredFile(resolvedFiles, ignore);
+      const nameCandidate = path.basename(paths[0]) + " & " + path.basename(paths[1]);
       return new Dataset(nameCandidate, resolvedFiles, resolvedIgnoredFile);
     }
   }

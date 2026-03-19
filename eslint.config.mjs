@@ -1,0 +1,42 @@
+import { defineConfig } from "eslint/config";
+import eslint from "@eslint/js";
+
+export default defineConfig(
+  eslint.configs.recommended,
+  {
+      rules: {
+          "@typescript-eslint/explicit-member-accessibility": "off",
+          "@typescript-eslint/explicit-function-return-type": ["error", { allowExpressions: true }],
+          "@typescript-eslint/ban-ts-ignore": "off",
+          "@typescript-eslint/no-parameter-properties": "off",
+          "arrow-parens": ["error", "as-needed"],
+          "comma-dangle": [
+              "error",
+              {
+                  arrays: "only-multiline",
+                  objects: "only-multiline",
+                  imports: "only-multiline",
+                  exports: "only-multiline",
+                  functions: "only-multiline",
+              },
+          ],
+          semi: ["error", "always"],
+          indent: ["error", 2],
+          "max-len": ["error", { code: 120 }],
+          "no-unused-vars": "off",
+          "no-invalid-this": "error",
+          "no-param-reassign": ["error", { props: false }],
+          "object-curly-spacing": ["error", "always"],
+          quotes: ["error", "double"],
+          "require-jsdoc": "off",
+          "space-before-function-paren": [
+              "error",
+              {
+                  anonymous: "always",
+                  named: "never",
+                  asyncArrow: "always",
+              },
+          ],
+      },
+  },
+);
