@@ -13,7 +13,7 @@
     "test:watch": "ava --watch",
     "build": "tsc --build --verbose",
     "force-build": "tsc --build --verbose --force",
-    "lint": "eslint --ext .ts src/"
+    "lint": "eslint src/**/*.ts"
   },
   "repository": {
     "type": "git",
@@ -29,10 +29,10 @@
     "@ava/typescript": "6.0.0",
     "@types/d3-dsv": "3.0.7",
     "@types/node": "^25.0.0",
-    "@typescript-eslint/eslint-plugin": "8.54.0",
-    "@typescript-eslint/parser": "8.54.0",
     "ava": "6.4.1",
-    "eslint": "8.57.1",
+    "typescript-eslint": "^8.57.1" ,
+    "eslint": "^10.0.3",
+    "@eslint/js": "^10.0.1",
     "typescript": "5.9.3"
   },
   "dependencies": {
