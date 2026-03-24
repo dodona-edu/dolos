@@ -76,7 +76,6 @@ export class Dolos {
 
     this.index.updateMaxFingerprintFileCount(maxFingerprintFileCount);
 
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const tokenizedFiles = filteredFiles.map(f => this.tokenizer!.tokenizeFile(f));
     this.index.addFiles(tokenizedFiles);
     if (ignoredFile) {
