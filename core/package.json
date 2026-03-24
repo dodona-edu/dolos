@@ -23,7 +23,7 @@
   },
   "devDependencies": {
     "@ava/typescript": "6.0.0",
-    "ava": "6.4.1",
+    "ava": "7.0.0",
     "typescript-eslint": "^8.57.1" ,
     "eslint": "^10.0.3",
     "@eslint/js": "^10.0.1",
