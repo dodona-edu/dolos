@@ -1,4 +1,4 @@
-use crate::opts::OutputFormat;
+use crate::opts::{OutputArgs, OutputFormat};
 use crate::report::{Pair, Report};
 use std::fs::File;
 use std::io;
@@ -39,10 +39,11 @@ pub enum Writer {
 
 impl Writer {
     /// Create a new writer based on the specified format
-    pub fn new(format: OutputFormat, output_destination: PathBuf) -> io::Result<Self> {
-        match format {
-            OutputFormat::Csv => Ok(Writer::Csv(CsvWriter::new(output_destination)?)),
+    pub fn new(output_args: OutputArgs) -> io::Result<Self> {
+        match output_args.output_format {
+            OutputFormat::Csv => Ok(Writer::Csv(CsvWriter::new(output_args.output_destination)?)),
             OutputFormat::Terminal | OutputFormat::Console => Ok(Writer::Terminal(TerminalWriter)),
+            OutputFormat::Html | OutputFormat::Web => todo!("HTML output not yet implemented"),
         }
     }
 }

@@ -11,16 +11,12 @@ fn main() -> std::io::Result<()> {
     let opts = Opts::parse();
 
     match opts.command {
-        Command::Run {
-            files,
-            output_format,
-            output_destination,
-        } => {
+        Command::Run { files, run_args } => {
             let paths = get_file_paths(files)?;
             let dolos = Dolos::from_paths(paths, DolosConfig::default());
             let report = dolos.build_report();
 
-            Writer::new(output_format, output_destination)?.write_and_finish(&report)?;
+            Writer::new(run_args.output_args)?.write_and_finish(&report)?;
         }
     }
     Ok(())
