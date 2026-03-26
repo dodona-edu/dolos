@@ -2,8 +2,8 @@ use crate::file::File;
 use crate::language::Language;
 use crate::report::Report;
 use crate::suffixtree::suffixtree::SuffixTree;
-use crate::tokenizer::{Tokenizer, Tokens};
-use crate::winnowing::tokens::{Fingerprint, Winnow};
+use crate::winnowing::fingerprints::{Fingerprint, Winnow};
+use crate::winnowing::tokenizer::{Tokenizer, Tokens};
 use std::path::PathBuf;
 use std::rc::Rc;
 

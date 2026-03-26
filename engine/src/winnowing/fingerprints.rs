@@ -1,5 +1,5 @@
-use crate::tokenizer::Token;
 use crate::winnowing::hashes::{RollingHash, hash_token};
+use crate::winnowing::tokenizer::Token;
 
 pub type Fingerprint = usize;
 
@@ -56,9 +56,9 @@ impl Winnow for Vec<Token> {
 mod tests {
     use super::*;
     use crate::language::Language;
-    use crate::tokenizer::{Tokenizer, Tokens};
+    use crate::winnowing::region::{Point, Region};
+    use crate::winnowing::tokenizer::{Tokenizer, Tokens};
     use std::path::Path;
-    use tree_sitter::{Point, Range};
 
     const TEST_K_W: [(usize, usize); 3] = [(17, 23), (3, 5), (16, 8)];
 
@@ -96,7 +96,7 @@ mod tests {
 
     #[test]
     fn test_winnowing() {
-        let range = Range {
+        let range = Region {
             start_byte: 0,
             end_byte: 1,
             start_point: Point::new(0, 0),
