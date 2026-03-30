@@ -27,7 +27,7 @@
     "typescript-eslint": "^8.57.1" ,
     "eslint": "^10.0.3",
     "@eslint/js": "^10.0.1",
-    "typescript": "5.9.3"
+    "typescript": "6.0.2"
   },
   "bugs": {
     "url": "https://github.com/dodona-edu/dolos/issues"
