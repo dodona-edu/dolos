@@ -9,4 +9,4 @@ mod maximal_match;
 mod node;
 pub(crate) mod suffixtree;
 mod tree_builder;
-pub(crate) mod types;
+pub mod types;

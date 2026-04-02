@@ -1,6 +1,4 @@
-use crate::file::File;
 use crate::language::Language;
-use std::path::Path;
 
 use crate::winnowing::region::{Point, Region};
 use tree_sitter::{Node, Parser, Tree, TreeCursor};
@@ -8,7 +6,7 @@ use tree_sitter::{Node, Parser, Tree, TreeCursor};
 #[derive(Debug, PartialEq, Clone)]
 pub struct Token {
     pub name: String,
-    pub range: Region,
+    pub location: Region,
 }
 
 pub struct Tokenizer {
@@ -25,8 +23,7 @@ impl Tokenizer {
         Tokenizer { language, parser }
     }
 
-    pub fn parse(&mut self, path: &Path) -> Tree {
-        let content = File::read(path).expect("content");
+    pub fn parse(&mut self, content: &str) -> Tree {
         self.parser.parse(content, None).expect("tree")
     }
 }
@@ -49,11 +46,11 @@ fn recursive_add<'a: 'b, 'b>(node: Node<'a>, tokens: &mut Vec<Token>, cursor: &m
 
     tokens.push(Token {
         name: "(".to_string(),
-        range,
+        location: range,
     });
     tokens.push(Token {
         name: node.kind().to_string(),
-        range,
+        location: range,
     });
 
     for child in children {
@@ -62,7 +59,7 @@ fn recursive_add<'a: 'b, 'b>(node: Node<'a>, tokens: &mut Vec<Token>, cursor: &m
 
     tokens.push(Token {
         name: ")".to_string(),
-        range,
+        location: range,
     });
 }
 
@@ -87,15 +84,16 @@ impl Tokens for Tree {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::path::Path;
 
     #[test]
     fn test_tokenize() {
-        let path = Path::new("fixtures/sample1.js");
         let expected: Vec<String> = serde_any::from_file("fixtures/sample.tokens.json").unwrap();
         let mut tokenizer = Tokenizer::new(Language::Javascript);
 
+        let content = std::fs::read_to_string(Path::new("fixtures/sample1.js")).unwrap();
         let actual = tokenizer
-            .parse(path)
+            .parse(&content)
             .tokens()
             .into_iter()
             .map(|t| t.name)
@@ -107,106 +105,106 @@ mod tests {
 
     #[test]
     fn test_ranges() {
-        let path = Path::new("fixtures/simple.js");
         let mut tokenizer = Tokenizer::new(Language::Javascript);
-        let tokens = tokenizer.parse(path).tokens();
+        let content = std::fs::read_to_string(Path::new("fixtures/simple.js")).unwrap();
+        let tokens = tokenizer.parse(&content).tokens();
 
         let expected = vec![
             Token {
                 name: "(".to_string(),
-                range: Region::new(0, 0, Point::new(0, 0), Point::new(0, 0)),
+                location: Region::new(0, 0, Point::new(0, 0), Point::new(0, 0)),
             },
             Token {
                 name: "program".to_string(),
-                range: Region::new(0, 0, Point::new(0, 0), Point::new(0, 0)),
+                location: Region::new(0, 0, Point::new(0, 0), Point::new(0, 0)),
             },
             Token {
                 name: "(".to_string(),
-                range: Region::new(0, 9, Point::new(0, 0), Point::new(0, 9)),
+                location: Region::new(0, 9, Point::new(0, 0), Point::new(0, 9)),
             },
             Token {
                 name: "function_declaration".to_string(),
-                range: Region::new(0, 9, Point::new(0, 0), Point::new(0, 9)),
+                location: Region::new(0, 9, Point::new(0, 0), Point::new(0, 9)),
             },
             Token {
                 name: "(".to_string(),
-                range: Region::new(9, 12, Point::new(0, 9), Point::new(0, 12)),
+                location: Region::new(9, 12, Point::new(0, 9), Point::new(0, 12)),
             },
             Token {
                 name: "identifier".to_string(),
-                range: Region::new(9, 12, Point::new(0, 9), Point::new(0, 12)),
+                location: Region::new(9, 12, Point::new(0, 9), Point::new(0, 12)),
             },
             Token {
                 name: ")".to_string(),
-                range: Region::new(9, 12, Point::new(0, 9), Point::new(0, 12)),
+                location: Region::new(9, 12, Point::new(0, 9), Point::new(0, 12)),
             },
             Token {
                 name: "(".to_string(),
-                range: Region::new(12, 14, Point::new(0, 12), Point::new(0, 14)),
+                location: Region::new(12, 14, Point::new(0, 12), Point::new(0, 14)),
             },
             Token {
                 name: "formal_parameters".to_string(),
-                range: Region::new(12, 14, Point::new(0, 12), Point::new(0, 14)),
+                location: Region::new(12, 14, Point::new(0, 12), Point::new(0, 14)),
             },
             Token {
                 name: ")".to_string(),
-                range: Region::new(12, 14, Point::new(0, 12), Point::new(0, 14)),
+                location: Region::new(12, 14, Point::new(0, 12), Point::new(0, 14)),
             },
             Token {
                 name: "(".to_string(),
-                range: Region::new(15, 21, Point::new(0, 15), Point::new(1, 4)),
+                location: Region::new(15, 21, Point::new(0, 15), Point::new(1, 4)),
             },
             Token {
                 name: "statement_block".to_string(),
-                range: Region::new(15, 21, Point::new(0, 15), Point::new(1, 4)),
+                location: Region::new(15, 21, Point::new(0, 15), Point::new(1, 4)),
             },
             Token {
                 name: "(".to_string(),
-                range: Region::new(21, 28, Point::new(1, 4), Point::new(1, 11)),
+                location: Region::new(21, 28, Point::new(1, 4), Point::new(1, 11)),
             },
             Token {
                 name: "return_statement".to_string(),
-                range: Region::new(21, 28, Point::new(1, 4), Point::new(1, 11)),
+                location: Region::new(21, 28, Point::new(1, 4), Point::new(1, 11)),
             },
             Token {
                 name: "(".to_string(),
-                range: Region::new(28, 29, Point::new(1, 11), Point::new(1, 12)),
+                location: Region::new(28, 29, Point::new(1, 11), Point::new(1, 12)),
             },
             Token {
                 name: "string".to_string(),
-                range: Region::new(28, 29, Point::new(1, 11), Point::new(1, 12)),
+                location: Region::new(28, 29, Point::new(1, 11), Point::new(1, 12)),
             },
             Token {
                 name: "(".to_string(),
-                range: Region::new(29, 32, Point::new(1, 12), Point::new(1, 15)),
+                location: Region::new(29, 32, Point::new(1, 12), Point::new(1, 15)),
             },
             Token {
                 name: "string_fragment".to_string(),
-                range: Region::new(29, 32, Point::new(1, 12), Point::new(1, 15)),
+                location: Region::new(29, 32, Point::new(1, 12), Point::new(1, 15)),
             },
             Token {
                 name: ")".to_string(),
-                range: Region::new(29, 32, Point::new(1, 12), Point::new(1, 15)),
+                location: Region::new(29, 32, Point::new(1, 12), Point::new(1, 15)),
             },
             Token {
                 name: ")".to_string(),
-                range: Region::new(28, 29, Point::new(1, 11), Point::new(1, 12)),
+                location: Region::new(28, 29, Point::new(1, 11), Point::new(1, 12)),
             },
             Token {
                 name: ")".to_string(),
-                range: Region::new(21, 28, Point::new(1, 4), Point::new(1, 11)),
+                location: Region::new(21, 28, Point::new(1, 4), Point::new(1, 11)),
             },
             Token {
                 name: ")".to_string(),
-                range: Region::new(15, 21, Point::new(0, 15), Point::new(1, 4)),
+                location: Region::new(15, 21, Point::new(0, 15), Point::new(1, 4)),
             },
             Token {
                 name: ")".to_string(),
-                range: Region::new(0, 9, Point::new(0, 0), Point::new(0, 9)),
+                location: Region::new(0, 9, Point::new(0, 0), Point::new(0, 9)),
             },
             Token {
                 name: ")".to_string(),
-                range: Region::new(0, 0, Point::new(0, 0), Point::new(0, 0)),
+                location: Region::new(0, 0, Point::new(0, 0), Point::new(0, 0)),
             },
         ];
 

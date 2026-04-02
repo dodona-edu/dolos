@@ -1,8 +1,6 @@
 use crate::collections::pair_array::PairArray;
 use crate::collections::pair_bitmap::PairBitmap;
-use crate::report::AnalysisResult;
-use crate::suffixtree::maximal_match::StartPosition;
-use crate::suffixtree::types::SymbolType;
+use crate::suffixtree::types::{AnalysisResult, Match, StartPosition, SymbolType};
 
 /// Collects and processes matches found during tree traversal
 pub struct MatchCollector<'a> {
@@ -12,6 +10,8 @@ pub struct MatchCollector<'a> {
     longest_fragments: PairArray<usize>,
     /// Bitmap tracking which positions have been covered by matches, per word pair
     overlap_bitmap: PairBitmap,
+    /// Per-pair list of maximal exact matches (only when fragment storage is enabled).
+    matches: Option<PairArray<Vec<Match>>>,
 }
 
 impl<'a> MatchCollector<'a> {
@@ -19,13 +19,14 @@ impl<'a> MatchCollector<'a> {
     ///
     /// Initializes the longest-fragment tracker and overlap bitmap with sizes
     /// derived from the length of each word.
-    pub fn new(words: &'a [Vec<SymbolType>]) -> Self {
+    pub fn new(words: &'a [Vec<SymbolType>], keep_fragments: bool) -> Self {
         let word_lengths: Vec<usize> = words.iter().map(|w| w.len()).collect();
 
         Self {
             words,
             longest_fragments: PairArray::new(words.len(), 0),
             overlap_bitmap: PairBitmap::new(word_lengths.as_slice()),
+            matches: keep_fragments.then(|| PairArray::new(words.len(), Vec::new())),
         }
     }
 
@@ -49,6 +50,14 @@ impl<'a> MatchCollector<'a> {
             sp2.start,
             effective_length,
         );
+
+        if let Some(m) = self.matches.as_mut() {
+            m.get_mut(sp1.word_index, sp2.word_index).push(Match::new(
+                sp1.clone(),
+                sp2.clone(),
+                effective_length,
+            ));
+        }
     }
 
     /// Calculate the effective length of a match.
@@ -84,6 +93,7 @@ impl<'a> MatchCollector<'a> {
         AnalysisResult {
             similarities,
             longest_fragments: self.longest_fragments,
+            matches: self.matches,
         }
     }
 

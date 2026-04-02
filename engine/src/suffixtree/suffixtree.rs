@@ -1,7 +1,7 @@
-use crate::report::AnalysisResult;
 use crate::suffixtree::maximal_match::MaximalMatchAnalyzer;
 use crate::suffixtree::node::Node;
 use crate::suffixtree::tree_builder::UkkonenBuilder;
+use crate::suffixtree::types::AnalysisResult;
 use crate::suffixtree::types::SymbolType;
 
 /// A generalized suffix tree implementation.
@@ -27,8 +27,9 @@ impl SuffixTree {
         &self,
         words: &[Vec<SymbolType>],
         min_match_length: usize,
+        keep_fragments: bool,
     ) -> AnalysisResult {
-        MaximalMatchAnalyzer::new(self, words, min_match_length).analyze()
+        MaximalMatchAnalyzer::new(self, words, min_match_length, keep_fragments).analyze()
     }
 }
 

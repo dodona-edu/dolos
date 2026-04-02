@@ -2,7 +2,7 @@ use crate::file::File;
 use crate::language::Language;
 use crate::report::Report;
 use crate::suffixtree::suffixtree::SuffixTree;
-use crate::winnowing::fingerprints::{Fingerprint, Winnow};
+use crate::winnowing::fingerprints::{Fingerprints, Winnow};
 use crate::winnowing::tokenizer::{Tokenizer, Tokens};
 use std::path::PathBuf;
 use std::rc::Rc;
@@ -12,10 +12,9 @@ pub struct Index {
     pub w: usize,
     min_match_length: usize,
     pub files: Vec<Rc<File>>,
-    data: Vec<Vec<Fingerprint>>,
+    fingerprints: Vec<Fingerprints>,
     pub language: Language,
     tokenizer: Tokenizer,
-    tree: Option<SuffixTree>,
 }
 
 impl Index {
@@ -25,10 +24,9 @@ impl Index {
             w,
             min_match_length,
             files: Vec::new(),
-            data: Vec::new(),
+            fingerprints: Vec::new(),
             tokenizer: Tokenizer::new(language),
             language,
-            tree: None,
         }
     }
 
@@ -37,12 +35,18 @@ impl Index {
             panic!("Language does not match")
         }
 
-        self.data
-            .push(self.tokenizer.parse(&path).tokens().winnow(self.k, self.w));
+        let content = std::fs::read_to_string(&path).expect("should be able to read file");
+        let fingerprints = self
+            .tokenizer
+            .parse(&content)
+            .tokens()
+            .winnow(self.k, self.w);
+        self.fingerprints.push(fingerprints);
 
         let file = Rc::new(File {
             path,
             language: self.language,
+            content: Some(content),
         });
 
         self.files.push(file);
@@ -52,15 +56,22 @@ impl Index {
         for path in paths {
             self.tokenize_file(path);
         }
-        self.tree = Some(SuffixTree::new(&self.data));
     }
 
     /// Consume the index and produce a report.
     pub fn build_report(self) -> Report {
-        let tree = self
-            .tree
-            .expect("add_files must be called before build_report");
-        let result = tree.analyze(&self.data, self.min_match_length);
-        Report::from(result, self.files)
+        let keep_fragments = self.files.len() == 2;
+
+        // Separate hashes from locations by consuming the fingerprints.
+        let (hashes, locations): (Vec<Vec<_>>, Vec<Vec<_>>) = self
+            .fingerprints
+            .into_iter()
+            .map(|f| (f.hashes, f.locations))
+            .unzip();
+
+        let tree = SuffixTree::new(&hashes);
+        let result = tree.analyze(&hashes, self.min_match_length, keep_fragments);
+        let locations = keep_fragments.then_some(locations);
+        Report::from(result, self.files, locations)
     }
 }

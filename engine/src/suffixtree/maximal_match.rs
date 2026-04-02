@@ -1,20 +1,11 @@
-use crate::report::AnalysisResult;
 use crate::suffixtree::match_collector::MatchCollector;
 use crate::suffixtree::node::Node;
 use crate::suffixtree::suffixtree::SuffixTree;
-use crate::suffixtree::types::{SENTINEL_SYMBOL, SymbolType};
+use crate::suffixtree::types::AnalysisResult;
+use crate::suffixtree::types::{SENTINEL_SYMBOL, StartPosition, SymbolType};
 use std::collections::HashMap;
 
 type LeftMap = HashMap<SymbolType, Vec<StartPosition>>;
-
-/// Represents a starting position of a match in a word.
-#[derive(Debug, Clone)]
-pub struct StartPosition {
-    /// Index of the word this position belongs to.
-    pub word_index: usize,
-    /// Offset within the word where the match starts.
-    pub start: usize,
-}
 
 /// Analyzer for finding maximal exact matches in a generalized suffix tree.
 ///
@@ -30,6 +21,8 @@ pub struct MaximalMatchAnalyzer<'a> {
     words: &'a [Vec<SymbolType>],
     /// Only matches of at least this many tokens are considered
     min_match_length: usize,
+    /// Whether to keep fragments of all the similar matches.
+    pub keep_fragments: bool,
 }
 
 impl<'a> MaximalMatchAnalyzer<'a> {
@@ -44,11 +37,13 @@ impl<'a> MaximalMatchAnalyzer<'a> {
         tree: &'a SuffixTree,
         words: &'a [Vec<SymbolType>],
         min_match_length: usize,
+        keep_fragments: bool,
     ) -> Self {
         Self {
             tree,
             words,
             min_match_length,
+            keep_fragments,
         }
     }
 
@@ -59,7 +54,7 @@ impl<'a> MaximalMatchAnalyzer<'a> {
     /// [`AnalysisResult`] containing per-pair similarity scores and longest
     /// fragment lengths.
     pub fn analyze(&self) -> AnalysisResult {
-        let mut collector = MatchCollector::new(self.words);
+        let mut collector = MatchCollector::new(self.words, self.keep_fragments);
 
         // Find all maximal pairs starting from the root
         self.find_maximal_pairs(0, 0, &mut collector);
@@ -264,7 +259,7 @@ mod tests {
         let words = vec![str_to_nodes("ABC"), str_to_nodes("ABC")];
 
         let tree = SuffixTree::new(&words);
-        let analyzer = MaximalMatchAnalyzer::new(&tree, &words, 1);
+        let analyzer = MaximalMatchAnalyzer::new(&tree, &words, 1, false);
         let result = analyzer.analyze();
 
         // Both words are identical, so the similarity should be 1.0
@@ -277,7 +272,7 @@ mod tests {
         let words = vec![str_to_nodes("ABC"), str_to_nodes("DEF")];
 
         let tree = SuffixTree::new(&words);
-        let analyzer = MaximalMatchAnalyzer::new(&tree, &words, 1);
+        let analyzer = MaximalMatchAnalyzer::new(&tree, &words, 1, false);
         let result = analyzer.analyze();
 
         // No overlap
@@ -290,7 +285,7 @@ mod tests {
         let words = vec![str_to_nodes("ABCDEF"), str_to_nodes("XYZABC")];
 
         let tree = SuffixTree::new(&words);
-        let analyzer = MaximalMatchAnalyzer::new(&tree, &words, 1);
+        let analyzer = MaximalMatchAnalyzer::new(&tree, &words, 1, false);
         let result = analyzer.analyze();
 
         // "ABC" is shared
@@ -307,7 +302,7 @@ mod tests {
         ];
 
         let tree = SuffixTree::new(&words);
-        let analyzer = MaximalMatchAnalyzer::new(&tree, &words, 1);
+        let analyzer = MaximalMatchAnalyzer::new(&tree, &words, 1, false);
         let result = analyzer.analyze();
 
         // Word 0 and 1 share "ABC"
@@ -327,7 +322,7 @@ mod tests {
 
         let tree = SuffixTree::new(&words);
         // With min_match_length = 5, "ABC" (length 3) should not be counted
-        let analyzer = MaximalMatchAnalyzer::new(&tree, &words, 5);
+        let analyzer = MaximalMatchAnalyzer::new(&tree, &words, 5, false);
         let result = analyzer.analyze();
 
         assert_eq!(*result.longest_fragments.get(0, 1), 0);

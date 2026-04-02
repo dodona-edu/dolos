@@ -1,5 +1,8 @@
+#[cfg(test)]
+use serde::{Deserialize, Serialize};
 use tree_sitter;
 
+#[cfg_attr(test, derive(Serialize, Deserialize))]
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Point {
     pub row: usize,
@@ -20,6 +23,7 @@ impl From<tree_sitter::Point> for Point {
 
 /// A range of positions in a multi-line text document, both in terms of bytes
 /// and of rows and columns.
+#[cfg_attr(test, derive(Serialize, Deserialize))]
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Region {
     pub start_byte: usize,
@@ -40,5 +44,15 @@ impl Region {
 
     pub fn is_empty(&self) -> bool {
         self.start_byte == self.end_byte && self.start_point == self.end_point
+    }
+
+    /// Create a region that spans from the start of `first` to the end of `last`.
+    pub fn span(first: &Region, last: &Region) -> Self {
+        Region::new(
+            first.start_byte,
+            last.end_byte,
+            first.start_point,
+            last.end_point,
+        )
     }
 }

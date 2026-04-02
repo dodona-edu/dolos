@@ -7,6 +7,8 @@ edition = "2024"
 
 [dependencies]
 clap = { version = "4.5.53", features = ["derive"] }
+colored = "3"
+terminal_size = "0.4"
 tree-sitter = "=0.26.6"
 tree-sitter-java = "=0.23.5"
 tree-sitter-c = "0.24.1"
@@ -17,3 +19,4 @@ tree-sitter-language = "0.1.7"
 [dev-dependencies]
 serde_any = "0.5"
 rand = "0.10.0"
+serde = "1.0.228"
