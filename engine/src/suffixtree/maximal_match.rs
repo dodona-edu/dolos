@@ -39,12 +39,7 @@ impl<'a> MaximalMatchAnalyzer<'a> {
         min_match_length: usize,
         keep_fragments: bool,
     ) -> Self {
-        Self {
-            tree,
-            words,
-            min_match_length,
-            keep_fragments,
-        }
+        Self { tree, words, min_match_length, keep_fragments }
     }
 
     /// Perform the full MEM analysis and return pairwise similarity results.
@@ -90,10 +85,7 @@ impl<'a> MaximalMatchAnalyzer<'a> {
                 let mut map = HashMap::new();
                 map.insert(
                     left_symbol,
-                    vec![StartPosition {
-                        start: start_index,
-                        word_index,
-                    }],
+                    vec![StartPosition { start: start_index, word_index }],
                 );
                 map
             })

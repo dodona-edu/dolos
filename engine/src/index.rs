@@ -43,11 +43,7 @@ impl Index {
             .winnow(self.k, self.w);
         self.fingerprints.push(fingerprints);
 
-        let file = Rc::new(File {
-            path,
-            language: self.language,
-            content: Some(content),
-        });
+        let file = Rc::new(File { path, language: self.language, content: Some(content) });
 
         self.files.push(file);
     }

@@ -30,13 +30,7 @@ impl Node {
         link: Option<NodeIndex>,
         word_indices: Option<HashSet<usize>>,
     ) -> Node {
-        Node {
-            range,
-            children,
-            parent,
-            link,
-            word_indices,
-        }
+        Node { range, children, parent, link, word_indices }
     }
 
     pub fn create_leaf(range: Range, parent: NodeIndex) -> Node {
@@ -85,11 +79,7 @@ pub struct Range {
 impl Range {
     /// Creates a new range.
     pub fn new(start: usize, end: usize, word_index: usize) -> Self {
-        Range {
-            start,
-            end,
-            word: word_index,
-        }
+        Range { start, end, word: word_index }
     }
     /// Returns the length of the range.
     pub fn length(&self) -> usize {

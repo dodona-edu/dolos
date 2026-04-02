@@ -9,10 +9,7 @@ impl<T: Clone> PairArray<T> {
     /// Creates a new `PairArray` with the given size, initialized with the default value.
     pub fn new(size: usize, default: T) -> Self {
         let data_size = size * (size - 1) / 2;
-        Self {
-            data: vec![default; data_size],
-            size,
-        }
+        Self { data: vec![default; data_size], size }
     }
 
     /// Creates a `PairArray` from a pre-initialized vector.

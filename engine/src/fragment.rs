@@ -66,14 +66,8 @@ mod tests {
             Region::new(431, 444, Point::new(21, 0), Point::new(22, 12)),
         ];
         let m = Match::new(
-            StartPosition {
-                word_index: 1,
-                start: 0,
-            },
-            StartPosition {
-                word_index: 0,
-                start: 0,
-            },
+            StartPosition { word_index: 1, start: 0 },
+            StartPosition { word_index: 0, start: 0 },
             2,
         );
 

@@ -36,18 +36,9 @@ impl Report {
         files: Vec<Rc<File>>,
         locations: Option<Vec<Vec<Region>>>,
     ) -> Report {
-        let AnalysisResult {
-            similarities,
-            longest_fragments,
-            matches,
-        } = analysis_result;
+        let AnalysisResult { similarities, longest_fragments, matches } = analysis_result;
         let fragments = Self::resolve_fragments(matches, locations);
-        Report {
-            similarities,
-            longest_fragments,
-            files,
-            fragments,
-        }
+        Report { similarities, longest_fragments, files, fragments }
     }
 
     /// Resolve raw matches + locations into sorted [`Fragment`] lists.
@@ -125,11 +116,7 @@ mod tests {
         similarities.set(0, 1, 0.5);
         let mut longest_fragments = PairArray::new(2, 0);
         longest_fragments.set(0, 1, 3);
-        AnalysisResult {
-            similarities,
-            longest_fragments,
-            matches,
-        }
+        AnalysisResult { similarities, longest_fragments, matches }
     }
 
     // ── Report / Pair iteration tests ────────────────────────────────
@@ -152,14 +139,8 @@ mod tests {
             0,
             1,
             vec![Match::new(
-                StartPosition {
-                    word_index: 0,
-                    start: 0,
-                },
-                StartPosition {
-                    word_index: 1,
-                    start: 0,
-                },
+                StartPosition { word_index: 0, start: 0 },
+                StartPosition { word_index: 1, start: 0 },
                 2,
             )],
         );
@@ -193,25 +174,13 @@ mod tests {
             1,
             vec![
                 Match::new(
-                    StartPosition {
-                        word_index: 0,
-                        start: 2,
-                    },
-                    StartPosition {
-                        word_index: 1,
-                        start: 0,
-                    },
+                    StartPosition { word_index: 0, start: 2 },
+                    StartPosition { word_index: 1, start: 0 },
                     1,
                 ),
                 Match::new(
-                    StartPosition {
-                        word_index: 0,
-                        start: 0,
-                    },
-                    StartPosition {
-                        word_index: 1,
-                        start: 2,
-                    },
+                    StartPosition { word_index: 0, start: 0 },
+                    StartPosition { word_index: 1, start: 2 },
                     1,
                 ),
             ],

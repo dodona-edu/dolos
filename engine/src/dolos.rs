@@ -13,11 +13,7 @@ pub struct DolosConfig {
 
 impl Default for DolosConfig {
     fn default() -> Self {
-        DolosConfig {
-            k: 23,
-            w: 17,
-            min_match_length: 1,
-        }
+        DolosConfig { k: 23, w: 17, min_match_length: 1 }
     }
 }
 

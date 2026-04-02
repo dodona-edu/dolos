@@ -40,27 +40,18 @@ fn recursive_add<'a: 'b, 'b>(node: Node<'a>, tokens: &mut Vec<Token>, cursor: &m
     let range = Region::new(
         node.start_byte(),
         end_byte,
-        Point::from(node.start_position()),
-        Point::from(end_point),
+        node.start_position().into(),
+        end_point.into(),
     );
 
-    tokens.push(Token {
-        name: "(".to_string(),
-        location: range,
-    });
-    tokens.push(Token {
-        name: node.kind().to_string(),
-        location: range,
-    });
+    tokens.push(Token { name: "(".to_string(), location: range });
+    tokens.push(Token { name: node.kind().to_string(), location: range });
 
     for child in children {
         recursive_add(child, tokens, cursor);
     }
 
-    tokens.push(Token {
-        name: ")".to_string(),
-        location: range,
-    });
+    tokens.push(Token { name: ")".to_string(), location: range });
 }
 
 pub trait Tokens {

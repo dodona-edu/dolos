@@ -34,12 +34,7 @@ pub struct Region {
 
 impl Region {
     pub fn new(start_byte: usize, end_byte: usize, start_point: Point, end_point: Point) -> Self {
-        Region {
-            start_byte,
-            end_byte,
-            start_point,
-            end_point,
-        }
+        Region { start_byte, end_byte, start_point, end_point }
     }
 
     pub fn is_empty(&self) -> bool {

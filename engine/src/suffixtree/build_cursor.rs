@@ -36,11 +36,7 @@ impl<'a> BuildCursor<'a> {
 
     /// Creates a new cursor at the root of the tree.
     pub fn new(tree: &'a mut SuffixTree) -> BuildCursor<'a> {
-        BuildCursor {
-            node_index: 0,
-            index: 0,
-            tree,
-        }
+        BuildCursor { node_index: 0, index: 0, tree }
     }
 
     /// Try to progress by consuming `next_symbol`
@@ -267,21 +263,13 @@ mod tests {
         control_tree.arena[0].add_child(67, 2);
         control_tree.arena[3].add_child(67, 1);
 
-        let mut cursor = BuildCursor {
-            node_index: 1,
-            index: 1,
-            tree: &mut tree,
-        };
+        let mut cursor = BuildCursor { node_index: 1, index: 1, tree: &mut tree };
         let words = vec![str_to_nodes("ACAB")];
         cursor.split_edge(&words);
 
         assert_eq!(
             cursor,
-            BuildCursor {
-                node_index: 3,
-                index: 1,
-                tree: &mut control_tree,
-            }
+            BuildCursor { node_index: 3, index: 1, tree: &mut control_tree }
         )
     }
 }

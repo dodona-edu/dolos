@@ -14,9 +14,7 @@ pub struct SuffixTree {
 impl SuffixTree {
     /// Creates a new `SuffixTree` from the given words, building it immediately.
     pub(crate) fn new(words: &[Vec<SymbolType>]) -> Self {
-        let mut tree = SuffixTree {
-            arena: vec![Node::create_root()],
-        };
+        let mut tree = SuffixTree { arena: vec![Node::create_root()] };
         UkkonenBuilder::new().add_words(words, &mut tree);
         tree
     }
