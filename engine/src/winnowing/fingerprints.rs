@@ -48,10 +48,7 @@ impl Winnow for Vec<Token> {
         }
 
         let mut record = |min_index: usize, window: &[usize]| {
-            let kgram = self
-                .windows(k)
-                .nth(min_index + 1 - k)
-                .expect("incorrect kgram index");
+            let kgram = &self[min_index + 1 - k..min_index + 1];
             hashes.push(window[min_index % w]);
             locations.push(region_from_kgram(kgram));
         };
@@ -87,67 +84,45 @@ mod tests {
     use crate::language::Language;
     use crate::winnowing::region::{Point, Region};
     use crate::winnowing::tokenizer::{Tokenizer, Tokens};
+    use rstest::rstest;
     use std::path::Path;
 
-    const TEST_K_W: [(usize, usize); 3] = [(17, 23), (3, 5), (16, 8)];
-
-    fn match_hashes(expected: &[Fingerprint], actual: &[Fingerprint]) {
-        let mut length = 0;
-        for (i, fingerprint) in actual.iter().enumerate() {
-            assert_eq!(
-                *fingerprint, expected[i],
-                "Mismatch: {:?} and {:?}",
-                fingerprint, expected[i]
-            );
-            length = i;
-        }
-        assert_eq!(length + 1, expected.len(), "Too few winnowed tokens");
-    }
-
-    #[test]
-    fn test_tokenization_and_winnowing() {
+    #[rstest]
+    #[case::k_3_w_5(3, 5)]
+    #[case::k_16_w_8(16, 8)]
+    #[case::k_17_w_23(17, 23)]
+    fn test_winnowing(#[case] k: usize, #[case] w: usize) {
         let mut tokenizer = Tokenizer::new(Language::Javascript);
 
-        for (k, w) in TEST_K_W {
-            let expected_hashes: Vec<usize> =
-                serde_any::from_file(format!("fixtures/sample.winnowk{}w{}.hashes.json", k, w))
-                    .unwrap();
-            let expected_locations: Vec<Region> =
-                serde_any::from_file(format!("fixtures/sample.winnowk{}w{}.locations.json", k, w))
-                    .unwrap();
+        let expected_hashes: Vec<usize> =
+            serde_any::from_file(format!("fixtures/sample.winnowk{}w{}.hashes.json", k, w))
+                .unwrap();
+        let expected_locations: Vec<Region> =
+            serde_any::from_file(format!("fixtures/sample.winnowk{}w{}.locations.json", k, w))
+                .unwrap();
 
-            let content = std::fs::read_to_string(Path::new("fixtures/sample1.js")).unwrap();
-            let result = tokenizer.parse(&content).tokens().winnow(k, w);
+        let content = std::fs::read_to_string(Path::new("fixtures/sample1.js")).unwrap();
+        let result = tokenizer.parse(&content).tokens().winnow(k, w);
 
-            assert_eq!(result.locations, expected_locations);
-            match_hashes(&expected_hashes, &result.hashes);
-        }
-    }
+        assert_eq!(
+            result.hashes.len(),
+            expected_hashes.len(),
+            "Too few winnowed tokens"
+        );
 
-    #[test]
-    fn test_winnowing() {
-        let range = Region {
-            start_byte: 0,
-            end_byte: 1,
-            start_point: Point::new(0, 0),
-            end_point: Point::new(0, 1),
-        };
-        let token_names: Vec<String> = serde_any::from_file("fixtures/sample.tokens.json").unwrap();
-        let mut tokens = Vec::new();
-        for i in 0..token_names.len() {
-            tokens.push(Token {
-                name: token_names[i].to_string(),
-                location: range,
-            });
-        }
+        assert_eq!(result.hashes.len(), result.locations.len());
 
-        for (k, w) in TEST_K_W {
-            let expected: Vec<usize> =
-                serde_any::from_file(format!("fixtures/sample.winnowk{}w{}.hashes.json", k, w))
-                    .unwrap();
-
-            let result = tokens.winnow(k, w);
-            match_hashes(&expected, &result.hashes);
+        for i in 0..result.hashes.len() {
+            assert_eq!(
+                result.hashes[i], expected_hashes[i],
+                "Mismatch: {:?} and {:?}",
+                result.hashes[i], expected_hashes[i]
+            );
+            assert_eq!(
+                result.locations[i], expected_locations[i],
+                "Mismatch: {:?} and {:?}",
+                result.locations[i], expected_locations[i]
+            );
         }
     }
 }
