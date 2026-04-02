@@ -82,7 +82,7 @@ impl Winnow for Vec<Token> {
 mod tests {
     use super::*;
     use crate::language::Language;
-    use crate::winnowing::region::{Point, Region};
+    use crate::winnowing::region::Region;
     use crate::winnowing::tokenizer::{Tokenizer, Tokens};
     use rstest::rstest;
     use std::path::Path;
