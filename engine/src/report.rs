@@ -37,33 +37,34 @@ impl Report {
         locations: Option<Vec<Vec<Region>>>,
     ) -> Report {
         let AnalysisResult { similarities, longest_fragments, matches } = analysis_result;
-        let fragments = Self::resolve_fragments(matches, locations);
+        let fragments = matches
+            .zip(locations)
+            .map(|(m, l)| Self::resolve_fragments(m, l));
         Report { similarities, longest_fragments, files, fragments }
     }
 
     /// Resolve raw matches + locations into sorted [`Fragment`] lists.
     fn resolve_fragments(
-        raw_matches: Option<PairArray<Vec<Match>>>,
-        locations: Option<Vec<Vec<Region>>>,
-    ) -> Option<PairArray<Vec<Fragment>>> {
-        let (raw, locs) = match (raw_matches, locations) {
-            (Some(m), Some(l)) => (m, l),
-            _ => return None,
-        };
+        raw_matches: PairArray<Vec<Match>>,
+        locations: Vec<Vec<Region>>,
+    ) -> PairArray<Vec<Fragment>> {
+        let mut fragments = PairArray::new(raw_matches.size(), Vec::new());
 
-        let size = raw.size();
-        let mut fragments = PairArray::new(size, Vec::new());
-
-        for (left, right, pair_matches) in raw.iter_pairs() {
+        for (left, right, pair_matches) in raw_matches.iter_pairs() {
             let mut resolved: Vec<Fragment> = pair_matches
                 .iter()
-                .map(|m| Fragment::resolve(m, left, right, &locs[left], &locs[right]))
+                .map(|m| Fragment::resolve(m, &locations[left], &locations[right]))
                 .collect();
-            resolved.sort_by_key(|f| f.left_region.start_point.row);
+            resolved.sort_by_key(|f| {
+                (
+                    f.left_region.start_point.row,
+                    f.left_region.start_point.column,
+                )
+            });
             fragments.set(left, right, resolved);
         }
 
-        Some(fragments)
+        fragments
     }
 
     /// Iterates over every unordered pair of files, yielding a [`Pair`] with
@@ -88,7 +89,7 @@ impl Report {
 mod tests {
     use super::*;
     use crate::language::Language;
-    use crate::suffixtree::types::{Match, StartPosition};
+    use crate::suffixtree::types::Match;
     use crate::winnowing::region::Point;
     use std::path::PathBuf;
 
@@ -138,11 +139,7 @@ mod tests {
         match_array.set(
             0,
             1,
-            vec![Match::new(
-                StartPosition { word_index: 0, start: 0 },
-                StartPosition { word_index: 1, start: 0 },
-                2,
-            )],
+            vec![Match { left_start: 0, right_start: 0, length: 2 }],
         );
 
         let locations = vec![
@@ -173,16 +170,8 @@ mod tests {
             0,
             1,
             vec![
-                Match::new(
-                    StartPosition { word_index: 0, start: 2 },
-                    StartPosition { word_index: 1, start: 0 },
-                    1,
-                ),
-                Match::new(
-                    StartPosition { word_index: 0, start: 0 },
-                    StartPosition { word_index: 1, start: 2 },
-                    1,
-                ),
+                Match { left_start: 2, right_start: 0, length: 1 },
+                Match { left_start: 0, right_start: 2, length: 1 },
             ],
         );
 

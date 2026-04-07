@@ -4,13 +4,6 @@ use crate::winnowing::tokenizer::Token;
 
 pub type Fingerprint = usize;
 
-/// A set of winnowed fingerprints for a single file, pairing each hash with
-/// the source region of the k-gram it was derived from.
-pub struct Fingerprints {
-    pub hashes: Vec<Fingerprint>,
-    pub locations: Vec<Region>,
-}
-
 fn region_from_kgram(kgram: &[Token]) -> Region {
     let first = &kgram[0];
     let last = &kgram[kgram.len() - 1];
@@ -28,7 +21,12 @@ pub trait Winnow {
     ///
     /// Code based on pseudocode from http://theory.stanford.edu/~aiken/publications/papers/sigmod03.pdf
     ///
-    fn winnow(&self, k: usize, w: usize) -> Fingerprints;
+    fn winnow(
+        &self,
+        k: usize,
+        w: usize,
+        keep_location: bool,
+    ) -> (Vec<Fingerprint>, Option<Vec<Region>>);
 }
 
 impl Winnow for Vec<Token> {
@@ -37,11 +35,16 @@ impl Winnow for Vec<Token> {
     ///
     /// Code based on pseudocode from http://theory.stanford.edu/~aiken/publications/papers/sigmod03.pdf
     ///
-    fn winnow(&self, k: usize, w: usize) -> Fingerprints {
+    fn winnow(
+        &self,
+        k: usize,
+        w: usize,
+        keep_location: bool,
+    ) -> (Vec<Fingerprint>, Option<Vec<Region>>) {
         let mut rolling = RollingHash::new(k);
         let mut window = vec![usize::MAX; w];
         let mut hashes: Vec<Fingerprint> = Vec::new();
-        let mut locations: Vec<Region> = Vec::new();
+        let mut locations: Option<Vec<Region>> = keep_location.then_some(Vec::new());
 
         for token in self.iter().take(k - 1) {
             rolling.next_hash(hash_token(&token.name));
@@ -50,7 +53,9 @@ impl Winnow for Vec<Token> {
         let mut record = |min_index: usize, window: &[usize]| {
             let kgram = &self[min_index + 1 - k..min_index + 1];
             hashes.push(window[min_index % w]);
-            locations.push(region_from_kgram(kgram));
+            if let Some(locs) = locations.as_mut() {
+                locs.push(region_from_kgram(kgram));
+            }
         };
 
         let mut min_index = 0;
@@ -74,7 +79,7 @@ impl Winnow for Vec<Token> {
             }
         }
 
-        Fingerprints { hashes, locations }
+        (hashes, locations)
     }
 }
 
@@ -102,26 +107,27 @@ mod tests {
                 .unwrap();
 
         let content = std::fs::read_to_string(Path::new("fixtures/sample1.js")).unwrap();
-        let result = tokenizer.parse(&content).tokens().winnow(k, w);
+        let (hashes, locations) = tokenizer.parse(&content).tokens().winnow(k, w, true);
+
+        let locations = locations.expect("Locations should be present");
 
         assert_eq!(
-            result.hashes.len(),
+            hashes.len(),
             expected_hashes.len(),
             "Too few winnowed tokens"
         );
+        assert_eq!(hashes.len(), locations.len());
 
-        assert_eq!(result.hashes.len(), result.locations.len());
-
-        for i in 0..result.hashes.len() {
+        for i in 0..hashes.len() {
             assert_eq!(
-                result.hashes[i], expected_hashes[i],
+                hashes[i], expected_hashes[i],
                 "Mismatch: {:?} and {:?}",
-                result.hashes[i], expected_hashes[i]
+                hashes[i], expected_hashes[i]
             );
             assert_eq!(
-                result.locations[i], expected_locations[i],
+                locations[i], expected_locations[i],
                 "Mismatch: {:?} and {:?}",
-                result.locations[i], expected_locations[i]
+                locations[i], expected_locations[i]
             );
         }
     }

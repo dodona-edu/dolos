@@ -10,8 +10,11 @@ pub(super) type NodeIndex = usize;
 pub(super) type SymbolType = usize;
 
 /// Represents a starting position of a match in a word.
+///
+/// Internal to the suffix-tree module; public consumers use [`Match`] which
+/// stores only the normalised start offsets.
 #[derive(Debug, Clone)]
-pub struct StartPosition {
+pub(super) struct StartPosition {
     /// Index of the word this position belongs to.
     pub word_index: usize,
     /// Offset within the word where the match starts.
@@ -19,17 +22,18 @@ pub struct StartPosition {
 }
 
 /// A maximal exact match between two positions in (possibly different) words.
+///
+/// `left_start` and `right_start` are offsets into the fingerprint arrays of
+/// the left (smaller-index) and right (larger-index) files respectively.
+/// The owning [`PairArray`] tracks *which* files the pair refers to.
 #[derive(Debug, Clone)]
 pub struct Match {
-    pub pos1: StartPosition,
-    pub pos2: StartPosition,
+    /// Start offset in the left file's fingerprint array.
+    pub left_start: usize,
+    /// Start offset in the right file's fingerprint array.
+    pub right_start: usize,
+    /// Number of consecutive matching fingerprints.
     pub length: usize,
-}
-
-impl Match {
-    pub fn new(pos1: StartPosition, pos2: StartPosition, length: usize) -> Match {
-        Match { pos1, pos2, length }
-    }
 }
 
 /// Result of the suffix-tree analysis containing similarity metrics for all

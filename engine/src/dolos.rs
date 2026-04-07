@@ -26,7 +26,14 @@ impl Dolos {
         let first = paths.first().expect("no paths given");
         let language = Language::guess_from_path(first).expect("lang");
 
-        let mut index = Index::new(config.k, config.w, config.min_match_length, language);
+        let keep_fragments: bool = paths.len() == 2;
+        let mut index = Index::new(
+            config.k,
+            config.w,
+            keep_fragments,
+            config.min_match_length,
+            language,
+        );
         index.add_files(paths);
         Dolos { index }
     }

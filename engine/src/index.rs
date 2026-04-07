@@ -2,7 +2,8 @@ use crate::file::File;
 use crate::language::Language;
 use crate::report::Report;
 use crate::suffixtree::suffixtree::SuffixTree;
-use crate::winnowing::fingerprints::{Fingerprints, Winnow};
+use crate::winnowing::fingerprints::{Fingerprint, Winnow};
+use crate::winnowing::region::Region;
 use crate::winnowing::tokenizer::{Tokenizer, Tokens};
 use std::path::PathBuf;
 use std::rc::Rc;
@@ -10,21 +11,31 @@ use std::rc::Rc;
 pub struct Index {
     pub k: usize,
     pub w: usize,
+    pub keep_fragments: bool,
     min_match_length: usize,
     pub files: Vec<Rc<File>>,
-    fingerprints: Vec<Fingerprints>,
+    hashes: Vec<Vec<Fingerprint>>,
+    locations: Option<Vec<Vec<Region>>>,
     pub language: Language,
     tokenizer: Tokenizer,
 }
 
 impl Index {
-    pub fn new(k: usize, w: usize, min_match_length: usize, language: Language) -> Self {
+    pub fn new(
+        k: usize,
+        w: usize,
+        keep_fragments: bool,
+        min_match_length: usize,
+        language: Language,
+    ) -> Self {
         Index {
             k,
             w,
+            keep_fragments,
             min_match_length,
             files: Vec::new(),
-            fingerprints: Vec::new(),
+            hashes: Vec::new(),
+            locations: keep_fragments.then_some(Vec::new()),
             tokenizer: Tokenizer::new(language),
             language,
         }
@@ -36,14 +47,22 @@ impl Index {
         }
 
         let content = std::fs::read_to_string(&path).expect("should be able to read file");
-        let fingerprints = self
-            .tokenizer
-            .parse(&content)
-            .tokens()
-            .winnow(self.k, self.w);
-        self.fingerprints.push(fingerprints);
+        let (hashes, locations) =
+            self.tokenizer
+                .parse(&content)
+                .tokens()
+                .winnow(self.k, self.w, self.keep_fragments);
 
-        let file = Rc::new(File { path, language: self.language, content: Some(content) });
+        self.hashes.push(hashes);
+        if let Some(locs) = self.locations.as_mut() {
+            locs.push(locations.expect("locations should be present when keep_fragments is true"));
+        }
+
+        let file = Rc::new(File {
+            path,
+            language: self.language,
+            content: self.keep_fragments.then_some(content),
+        });
 
         self.files.push(file);
     }
@@ -56,18 +75,8 @@ impl Index {
 
     /// Consume the index and produce a report.
     pub fn build_report(self) -> Report {
-        let keep_fragments = self.files.len() == 2;
-
-        // Separate hashes from locations by consuming the fingerprints.
-        let (hashes, locations): (Vec<Vec<_>>, Vec<Vec<_>>) = self
-            .fingerprints
-            .into_iter()
-            .map(|f| (f.hashes, f.locations))
-            .unzip();
-
-        let tree = SuffixTree::new(&hashes);
-        let result = tree.analyze(&hashes, self.min_match_length, keep_fragments);
-        let locations = keep_fragments.then_some(locations);
-        Report::from(result, self.files, locations)
+        let tree = SuffixTree::new(&self.hashes);
+        let result = tree.analyze(&self.hashes, self.min_match_length, self.keep_fragments);
+        Report::from(result, self.files, self.locations)
     }
 }

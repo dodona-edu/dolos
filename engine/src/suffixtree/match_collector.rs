@@ -1,5 +1,6 @@
 use crate::collections::pair_array::PairArray;
 use crate::collections::pair_bitmap::PairBitmap;
+use crate::collections::utils::ordered_pair_with;
 use crate::suffixtree::types::{AnalysisResult, Match, StartPosition, SymbolType};
 
 /// Collects and processes matches found during tree traversal
@@ -52,11 +53,13 @@ impl<'a> MatchCollector<'a> {
         );
 
         if let Some(m) = self.matches.as_mut() {
-            m.get_mut(sp1.word_index, sp2.word_index).push(Match::new(
-                sp1.clone(),
-                sp2.clone(),
-                effective_length,
-            ));
+            let (_, _, left_start, right_start) =
+                ordered_pair_with(sp1.word_index, sp2.word_index, sp1.start, sp2.start);
+            m.get_mut(sp1.word_index, sp2.word_index).push(Match {
+                left_start,
+                right_start,
+                length: effective_length,
+            });
         }
     }
 
