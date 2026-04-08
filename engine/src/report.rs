@@ -94,7 +94,7 @@ mod tests {
     use std::path::PathBuf;
 
     fn make_region(start_row: usize, end_row: usize) -> Region {
-        Region::new(0, 10, Point::new(start_row, 0), Point::new(end_row, 0))
+        Region::new(Point::new(start_row, 0), Point::new(end_row, 0))
     }
 
     fn two_files() -> Vec<Rc<File>> {

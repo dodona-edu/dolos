@@ -39,19 +39,19 @@ mod tests {
     #[test]
     fn resolve_maps_match_to_regions() {
         let left_locs = vec![
-            Region::new(210, 220, Point::new(10, 0), Point::new(10, 10)),
-            Region::new(221, 234, Point::new(11, 0), Point::new(12, 12)),
+            Region::new(Point::new(10, 0), Point::new(10, 10)),
+            Region::new(Point::new(11, 0), Point::new(12, 12)),
         ];
         let right_locs = vec![
-            Region::new(420, 430, Point::new(20, 0), Point::new(20, 10)),
-            Region::new(431, 444, Point::new(21, 0), Point::new(22, 12)),
+            Region::new(Point::new(20, 0), Point::new(20, 10)),
+            Region::new(Point::new(21, 0), Point::new(22, 12)),
         ];
         let m = Match { left_start: 0, right_start: 0, length: 2 };
 
         let frag = Fragment::resolve(&m, &left_locs, &right_locs);
 
-        let expected_left_region = Region::new(210, 234, Point::new(10, 0), Point::new(12, 12));
-        let expected_right_region = Region::new(420, 444, Point::new(20, 0), Point::new(22, 12));
+        let expected_left_region = Region::new(Point::new(10, 0), Point::new(12, 12));
+        let expected_right_region = Region::new(Point::new(20, 0), Point::new(22, 12));
 
         assert_eq!(frag.left_region, expected_left_region);
         assert_eq!(frag.right_region, expected_right_region);

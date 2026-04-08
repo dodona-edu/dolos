@@ -35,18 +35,11 @@ impl Tokenizer {
 fn recursive_add<'a: 'b, 'b>(node: Node<'a>, tokens: &mut Vec<Token>, cursor: &mut TreeCursor<'b>) {
     let children = node.named_children(cursor).collect::<Vec<_>>();
 
-    let (end_point, end_byte) = children
+    let end_point = children
         .first()
-        .map_or((node.end_position(), node.end_byte()), |c| {
-            (c.start_position(), c.start_byte())
-        });
+        .map_or(node.end_position(), |c| c.start_position());
 
-    let range = Region::new(
-        node.start_byte(),
-        end_byte,
-        node.start_position().into(),
-        end_point.into(),
-    );
+    let range = Region::new(node.start_position().into(), end_point.into());
 
     tokens.push(Token { name: "(".to_string(), location: range });
     tokens.push(Token { name: node.kind().to_string(), location: range });
@@ -87,8 +80,8 @@ mod tests {
         let mut tokenizer = Tokenizer::new(Language::Javascript);
         let actual = tokenizer.parse("1").tokens();
 
-        let r00 = Region::new(0, 0, Point::new(0, 0), Point::new(0, 0));
-        let r01 = Region::new(0, 1, Point::new(0, 0), Point::new(0, 1));
+        let r00 = Region::new(Point::new(0, 0), Point::new(0, 0));
+        let r01 = Region::new(Point::new(0, 0), Point::new(0, 1));
 
         let expected = vec![
             Token { name: "(".to_string(), location: r00 },

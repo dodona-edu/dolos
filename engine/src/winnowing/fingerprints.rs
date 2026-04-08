@@ -7,12 +7,7 @@ pub type Fingerprint = usize;
 fn region_from_kgram(kgram: &[Token]) -> Region {
     let first = &kgram[0];
     let last = &kgram[kgram.len() - 1];
-    Region::new(
-        first.location.start_byte,
-        last.location.end_byte,
-        first.location.start_point,
-        last.location.end_point,
-    )
+    Region::new(first.location.start_point, last.location.end_point)
 }
 
 pub trait Winnow {

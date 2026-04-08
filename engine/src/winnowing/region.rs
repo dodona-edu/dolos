@@ -26,28 +26,21 @@ impl From<tree_sitter::Point> for Point {
 #[cfg_attr(test, derive(Serialize, Deserialize))]
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Region {
-    pub start_byte: usize,
-    pub end_byte: usize,
-    pub start_point: Point,
-    pub end_point: Point,
+    pub start_point: Point, // inclusive
+    pub end_point: Point,   // exclusive
 }
 
 impl Region {
-    pub fn new(start_byte: usize, end_byte: usize, start_point: Point, end_point: Point) -> Self {
-        Region { start_byte, end_byte, start_point, end_point }
+    pub fn new(start_point: Point, end_point: Point) -> Self {
+        Region { start_point, end_point }
     }
 
     pub fn is_empty(&self) -> bool {
-        self.start_byte == self.end_byte && self.start_point == self.end_point
+        self.start_point == self.end_point
     }
 
     /// Create a region that spans from the start of `first` to the end of `last`.
     pub fn span(first: &Region, last: &Region) -> Self {
-        Region::new(
-            first.start_byte,
-            last.end_byte,
-            first.start_point,
-            last.end_point,
-        )
+        Region::new(first.start_point, last.end_point)
     }
 }
