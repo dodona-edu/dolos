@@ -9,11 +9,13 @@ use std::io;
 pub struct TerminalWriter;
 
 /// Get the half-width for each side of the side-by-side display.
+/// We subtract 6 instead of the bare 3-char separator to add a small safety
+/// margin for terminals that report a slightly larger width than they render.
 fn column_width() -> usize {
     terminal_size::terminal_size()
-        .map(|(w, _)| (w.0 as usize).saturating_sub(3) / 2)
+        .map(|(w, _)| (w.0 as usize).saturating_sub(10) / 2)
         .unwrap_or(60)
-        .min(120)
+        .min(100)
 }
 
 impl OutputWriter for TerminalWriter {
@@ -122,17 +124,23 @@ impl TerminalWriter {
             .to_string()
             .len();
 
-        // Side-by-side lines
-        for i in 0..left_display.len().max(right_display.len()) {
-            let left_col = left_display
-                .get(i)
-                .map(|dl| Self::format_line(dl, left_num_width, col_width - left_num_width - 1))
-                .unwrap_or_else(|| " ".repeat(col_width));
-            let right_col = right_display
-                .get(i)
-                .map(|dl| Self::format_line(dl, right_num_width, col_width - right_num_width - 1))
-                .unwrap_or_default();
+        let left_code_width = col_width - left_num_width - 1;
+        let right_code_width = col_width - right_num_width - 1;
 
+        // Pre-render each DisplayLine to (possibly multiple) wrapped visual rows.
+        let left_rows: Vec<String> = left_display
+            .iter()
+            .flat_map(|dl| Self::format_line(dl, left_num_width, left_code_width))
+            .collect();
+        let right_rows: Vec<String> = right_display
+            .iter()
+            .flat_map(|dl| Self::format_line(dl, right_num_width, right_code_width))
+            .collect();
+
+        let blank_line = " ".repeat(col_width);
+        for i in 0..left_rows.len().max(right_rows.len()) {
+            let left_col = left_rows.get(i).unwrap_or(&blank_line);
+            let right_col = right_rows.get(i).unwrap_or(&blank_line);
             println!("{}   {}", left_col, right_col);
         }
     }
@@ -173,52 +181,58 @@ impl TerminalWriter {
         result
     }
 
-    /// Truncate `text` to `width` characters, replacing the last 3 with `...`
-    /// when truncated, then pad with spaces to exactly `width` characters.
-    fn render_code(text: &str, width: usize) -> String {
-        const ELLIPSIS: &str = "...";
-        if text.chars().count() > width {
-            let keep = width.saturating_sub(ELLIPSIS.len());
-            let truncated: String = text.chars().take(keep).collect();
-            format!("{truncated}{ELLIPSIS}")
-        } else {
-            format!("{text:<width$}")
-        }
-    }
-
-    /// Format a single display line into a fixed-width string with line number,
-    /// optionally wrapped in colour when `is_match` is true.
+    /// Format a single display line into one or more fixed-width visual rows,
+    /// wrapping long code at `code_width` byte-aligned char boundaries.
     ///
-    /// When only part of the line is matched (column-level precision), only that
-    /// portion is highlighted in red; the rest of the line is dimmed.
-    fn format_line(dl: &DisplayLine, num_width: usize, code_width: usize) -> String {
-        let line_num = format!("{:>num_width$}", dl.line_number);
-        let text = Self::render_code(dl.code, code_width);
+    /// Continuation rows are indented by the same leading whitespace as the
+    /// original line so that wrapped content stays visually aligned with the
+    /// first row's non-whitespace start. Each visual row is exactly
+    /// `num_width + 1 + code_width` characters wide.
+    fn format_line(dl: &DisplayLine, num_width: usize, code_width: usize) -> Vec<String> {
+        let mut offset = 0;
+        let mut rows = Vec::new();
 
-        if !dl.is_match {
-            return format!("{line_num} {text}").dimmed().to_string();
+        while offset < dl.code.len() {
+            let end = (offset + code_width).min(dl.code.len());
+            let chunk = &dl.code[offset..end];
+
+            let num_prefix = format!(
+                "{:>num_width$}",
+                if offset == 0 {
+                    dl.line_number.to_string()
+                } else {
+                    "|".to_string()
+                }
+            );
+            let padded = format!("{:<code_width$}", chunk);
+
+            if dl.is_match {
+                let hl_start = dl
+                    .highlight_start_col
+                    .expect("a match should have highlighting")
+                    .saturating_sub(offset)
+                    .min(chunk.len());
+                let hl_end = dl
+                    .highlight_end_col
+                    .expect("a match should have highlighting")
+                    .saturating_sub(offset)
+                    .min(chunk.len());
+
+                rows.push(format!(
+                    "{} {}{}{}",
+                    num_prefix.dimmed(),
+                    padded[..hl_start].dimmed(),
+                    padded[hl_start..hl_end].red(),
+                    padded[hl_end..].dimmed()
+                ));
+            } else {
+                rows.push(format!("{num_prefix} {padded}").dimmed().to_string());
+            }
+
+            offset = end;
         }
 
-        // Text may be shortened due to terminal size
-        let hl_start = dl
-            .highlight_start_col
-            .expect("a match should have highlighting")
-            .min(text.len() - 1);
-        let hl_end = dl
-            .highlight_end_col
-            .expect("a match should have highlighting")
-            .min(text.len());
-
-        let before = &text[..hl_start];
-        let matched = &text[hl_start..hl_end];
-        let after = &text[hl_end..];
-        format!(
-            "{} {}{}{}",
-            line_num.dimmed(),
-            before.dimmed(),
-            matched.red(),
-            after.dimmed(),
-        )
+        rows
     }
 }
 
