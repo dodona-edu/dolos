@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use tree_sitter;
 
 #[cfg_attr(test, derive(Serialize, Deserialize))]
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Point {
     pub row: usize,
     pub column: usize,

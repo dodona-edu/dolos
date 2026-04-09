@@ -4,9 +4,36 @@ use crate::winnowing::tokenizer::Token;
 
 pub type Fingerprint = usize;
 
+/// Computes the source region spanned by a kgram.
 fn region_from_kgram(kgram: &[Token]) -> Region {
-    let first = &kgram[0];
-    let last = &kgram[kgram.len() - 1];
+    // The tokenizer serializes each AST node as `( node_kind <child tokens> )`.
+    // All three synthetic tokens (`(`, node kind, `)`) share the same location:
+    // from the node's start up to the *first child's* start (not the node's end).
+    //
+    // Two consequences for picking the start and end of the region:
+    //
+    // * **Start**: A `)` token closes a node that *opened earlier* in the token
+    //   stream, so its `start_point` is the one it was created with — potentially
+    //   far before the kgram begins. Using it would make the highlighted region
+    //   cover child tokens that are not part of this kgram. We therefore filter
+    //   out `)` tokens and take the minimum `start_point` among the rest.
+    //   If the kgram consists entirely of `)` tokens, we fall back to `last`,
+    //   producing a zero-width region at the end of the kgram.
+    //
+    // * **End**: Each node's location only reaches as far as its *first child's*
+    //   start (see the tokenizer), so a `)` at the end of a kgram has an
+    //   `end_point` that falls short of where the child tokens end. We therefore
+    //   take the maximum `end_point` across all tokens to reach the true end of
+    //   the kgram's content.
+    let last = kgram
+        .iter()
+        .max_by_key(|t| t.location.end_point)
+        .expect("kgram is non-empty");
+    let first = kgram
+        .iter()
+        .filter(|t| t.name != ")")
+        .min_by_key(|t| t.location.start_point)
+        .unwrap_or(last);
     Region::new(first.location.start_point, last.location.end_point)
 }
 
