@@ -1,7 +1,7 @@
 use crate::report::AnalysisResult;
 use crate::suffixtree::match_collector::MatchCollector;
 use crate::suffixtree::node::Node;
-use crate::suffixtree::suffixtree::SuffixTree;
+use crate::suffixtree::tree::SuffixTree;
 use crate::suffixtree::types::{SENTINEL_SYMBOL, SymbolType};
 use std::collections::HashMap;
 
@@ -131,7 +131,7 @@ impl<'a> MaximalMatchAnalyzer<'a> {
         for (key, mut positions) in other {
             target
                 .entry(key)
-                .or_insert_with(Vec::new)
+                .or_default()
                 .append(&mut positions);
         }
     }
@@ -256,8 +256,8 @@ impl<'a> MaximalMatchAnalyzer<'a> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::suffixtree::suffixtree::SuffixTree;
-    use crate::suffixtree::suffixtree::suffixtree_test_utils::str_to_nodes;
+    use crate::suffixtree::tree::SuffixTree;
+    use crate::suffixtree::tree::suffixtree_test_utils::str_to_nodes;
 
     #[test]
     fn test_identical_words() {

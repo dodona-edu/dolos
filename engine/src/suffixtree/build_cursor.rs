@@ -1,5 +1,5 @@
 use crate::suffixtree::node::{Node, Range};
-use crate::suffixtree::suffixtree::SuffixTree;
+use crate::suffixtree::tree::SuffixTree;
 use crate::suffixtree::types::{NodeIndex, SENTINEL_SYMBOL, SymbolType};
 use std::cmp::min;
 
@@ -81,11 +81,9 @@ impl<'a> BuildCursor<'a> {
     pub fn return_one_symbol(&mut self) {
         self.index -= 1;
 
-        if self.index == 0 {
-            if let Some(parent) = self.tree.arena[self.node_index].parent {
-                self.node_index = parent;
-                self.index = self.tree.arena[self.node_index].range.length();
-            }
+        if self.index == 0 && let Some(parent) = self.tree.arena[self.node_index].parent {
+            self.node_index = parent;
+            self.index = self.tree.arena[self.node_index].range.length();
         }
     }
 
@@ -238,8 +236,8 @@ impl<'a> BuildCursor<'a> {
 mod tests {
     use crate::suffixtree::build_cursor::BuildCursor;
     use crate::suffixtree::node::{Node, Range};
-    use crate::suffixtree::suffixtree::SuffixTree;
-    use crate::suffixtree::suffixtree::suffixtree_test_utils::str_to_nodes;
+    use crate::suffixtree::tree::SuffixTree;
+    use crate::suffixtree::tree::suffixtree_test_utils::str_to_nodes;
 
     #[test]
     fn test_split_edge() {
