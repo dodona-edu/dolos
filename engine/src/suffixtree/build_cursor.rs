@@ -81,7 +81,9 @@ impl<'a> BuildCursor<'a> {
     pub fn return_one_symbol(&mut self) {
         self.index -= 1;
 
-        if self.index == 0 && let Some(parent) = self.tree.arena[self.node_index].parent {
+        if self.index == 0
+            && let Some(parent) = self.tree.arena[self.node_index].parent
+        {
             self.node_index = parent;
             self.index = self.tree.arena[self.node_index].range.length();
         }

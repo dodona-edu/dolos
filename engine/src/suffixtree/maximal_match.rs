@@ -129,10 +129,7 @@ impl<'a> MaximalMatchAnalyzer<'a> {
         }
 
         for (key, mut positions) in other {
-            target
-                .entry(key)
-                .or_default()
-                .append(&mut positions);
+            target.entry(key).or_default().append(&mut positions);
         }
     }
 
