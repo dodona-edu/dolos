@@ -29,7 +29,7 @@ impl PairBitmap {
     pub fn new(lengths: &[usize]) -> Self {
         let size = lengths.len();
 
-        let word_counts: Vec<usize> = lengths.iter().map(|&len| (len + 63) / 64).collect();
+        let word_counts: Vec<usize> = lengths.iter().map(|&len| len.div_ceil(64)).collect();
 
         let mut prefix_word_sums = vec![0usize; size + 1];
         for i in 0..size {
