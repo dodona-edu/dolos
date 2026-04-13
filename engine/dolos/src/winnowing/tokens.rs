@@ -56,7 +56,7 @@ impl Winnow for Vec<Token> {
 mod tests {
     use super::*;
     use crate::tokenizer::{Tokenizer, Tokens};
-    use dolos_grammars::Language;
+    use tree_sitter_grammars::Language;
     use std::path::Path;
     use tree_sitter::{Point, Range};
 

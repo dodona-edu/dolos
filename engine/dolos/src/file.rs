@@ -2,7 +2,7 @@ use std::fmt;
 use std::hash::{Hash, Hasher};
 use std::path::{Path, PathBuf};
 
-use dolos_grammars::Language;
+use tree_sitter_grammars::Language;
 
 pub struct File {
     pub path: PathBuf,

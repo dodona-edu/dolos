@@ -3,7 +3,7 @@ use crate::report::Report;
 use crate::suffixtree::tree::SuffixTree;
 use crate::tokenizer::{Tokenizer, Tokens};
 use crate::winnowing::tokens::{Fingerprint, Winnow};
-use dolos_grammars::Language;
+use tree_sitter_grammars::Language;
 use std::path::PathBuf;
 use std::rc::Rc;
 

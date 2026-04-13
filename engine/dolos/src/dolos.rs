@@ -1,6 +1,6 @@
 use crate::index::Index;
 use crate::report::Report;
-use dolos_grammars::Language;
+use tree_sitter_grammars::{guess_grammar_from_path};
 use std::fmt;
 use std::path::PathBuf;
 
@@ -28,7 +28,7 @@ pub struct Dolos {
 impl Dolos {
     pub fn from_paths(paths: Vec<PathBuf>, config: DolosConfig) -> Self {
         let first = paths.first().expect("no paths given");
-        let language = Language::guess_from_path(first).expect("lang");
+        let language = guess_grammar_from_path(first).expect("lang");
 
         let mut index = Index::new(config.k, config.w, config.min_match_length, language);
         index.add_files(paths);
