@@ -1,7 +1,7 @@
 use crate::fragment::Fragment;
 use crate::report::Pair;
 use crate::winnowing::region::Region;
-use crate::writer::output_writer::OutputWriter;
+use crate::writer::output::OutputWriter;
 use colored::Colorize;
 use std::io;
 
