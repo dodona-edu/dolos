@@ -218,9 +218,16 @@ name = "dolos"
 version = "0.1.0"
 dependencies = [
  "clap",
+ "dolos-grammars",
  "rand",
  "serde_any",
  "tree-sitter",
+]
+
+[[package]]
+name = "dolos-grammars"
+version = "0.1.0"
+dependencies = [
  "tree-sitter-bash",
  "tree-sitter-c",
  "tree-sitter-c-sharp",

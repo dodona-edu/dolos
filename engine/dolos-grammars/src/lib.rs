@@ -63,6 +63,7 @@ impl Language {
             "jl" => Self::Julia,
             "kt" | "kts" => Self::Kotlin,
             "lua" => Self::Lua,
+            "mo" => Self::Modelica,
             "ml" => Self::Ocaml,
             "pl" | "pm" | "t" => Self::Perl,
             "php" | "php3" | "php4" | "php5" | "php7" | "phps" | "phpt" | "phtml" => Self::Php,

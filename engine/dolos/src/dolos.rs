@@ -1,6 +1,6 @@
 use crate::index::Index;
-use crate::language::Language;
 use crate::report::Report;
+use dolos_grammars::Language;
 use std::fmt;
 use std::path::PathBuf;
 

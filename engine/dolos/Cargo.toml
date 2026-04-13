@@ -1,0 +1,13 @@
+[package]
+name = "dolos"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+clap = { version = "4.5.53", features = ["derive"] }
+tree-sitter = "=0.26.6"
+dolos-grammars = { path = "../dolos-grammars" }
+
+[dev-dependencies]
+serde_any = "0.5"
+rand = "0.10.0"

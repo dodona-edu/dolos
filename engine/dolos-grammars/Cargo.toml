@@ -1,0 +1,37 @@
+[package]
+name = "dolos-grammars"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+tree-sitter-language = "0.1.7"
+
+# Tree sitter language grammar dependencies
+tree-sitter-bash = "0.25.1"
+tree-sitter-c = "0.24.1"
+tree-sitter-cpp = "0.23.4"
+tree-sitter-c-sharp = "0.23.1"
+tree-sitter-python = "=0.25"
+tree-sitter-php = "0.24.2"
+tree-sitter-ocaml = "0.24.2"
+tree-sitter-java = "=0.23.5"
+tree-sitter-javascript = "=0.25.0"
+tree-sitter-elm = "5.9.0"
+tree-sitter-go = "0.25.0"
+tree-sitter-groovy = "0.1.2"
+tree-sitter-r = "1.2.0"
+tree-sitter-rust = "0.24.1"
+tree-sitter-scala = "0.25.0"
+tree-sitter-sequel = "0.3.11"
+tree-sitter-typescript = "0.23.2"
+tree-sitter-verilog = "1.0.3"
+tree-sitter-dart = "0.1.0"
+tree-sitter-elixir = "0.3.5"
+tree-sitter-haskell = "0.23.1"
+tree-sitter-julia = "0.23.1"
+tree-sitter-kotlin-sg = "0.4.0"
+tree-sitter-lua = "0.5.0"
+tree-sitter-perl = "1.1.2"
+tree-sitter-ruby = "0.23.1"
+tree-sitter-swift = "0.7.1"
+tree-sitter-modelica = { git = "https://github.com/milachae/tree-sitter-modelica.git" }

@@ -1,5 +1,5 @@
 use crate::file::File;
-use crate::language::Language;
+use dolos_grammars::Language;
 use std::path::Path;
 
 use tree_sitter::{Node, Parser, Range, Tree, TreeCursor};
