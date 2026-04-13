@@ -71,7 +71,7 @@ pub fn guess_grammar_from_ext(ext: &OsStr) -> Option<Language> {
         "v" | "vh" => Language::Verilog,
         _ => return None,
     }
-        .into()
+    .into()
 }
 
 pub fn guess_grammar_from_name(name: &str) -> Option<Language> {
@@ -111,7 +111,6 @@ pub fn guess_grammar_from_name(name: &str) -> Option<Language> {
 }
 
 impl Language {
-    
     pub fn matches(&self, path: &Path) -> bool {
         if let Some(lang) = guess_grammar_from_path(path) {
             return self == &lang;
@@ -160,14 +159,32 @@ mod tests {
 
     #[test]
     fn test_from_ext() {
-        assert_eq!(guess_grammar_from_ext(OsStr::new("sh")), Some(Language::Bash));
-        assert_eq!(guess_grammar_from_ext(OsStr::new("bash")), Some(Language::Bash));
+        assert_eq!(
+            guess_grammar_from_ext(OsStr::new("sh")),
+            Some(Language::Bash)
+        );
+        assert_eq!(
+            guess_grammar_from_ext(OsStr::new("bash")),
+            Some(Language::Bash)
+        );
         assert_eq!(guess_grammar_from_ext(OsStr::new("c")), Some(Language::C));
         assert_eq!(guess_grammar_from_ext(OsStr::new("h")), Some(Language::C));
-        assert_eq!(guess_grammar_from_ext(OsStr::new("cpp")), Some(Language::Cpp));
-        assert_eq!(guess_grammar_from_ext(OsStr::new("hpp")), Some(Language::Cpp));
-        assert_eq!(guess_grammar_from_ext(OsStr::new("cc")), Some(Language::Cpp));
-        assert_eq!(guess_grammar_from_ext(OsStr::new("py")), Some(Language::Python));
+        assert_eq!(
+            guess_grammar_from_ext(OsStr::new("cpp")),
+            Some(Language::Cpp)
+        );
+        assert_eq!(
+            guess_grammar_from_ext(OsStr::new("hpp")),
+            Some(Language::Cpp)
+        );
+        assert_eq!(
+            guess_grammar_from_ext(OsStr::new("cc")),
+            Some(Language::Cpp)
+        );
+        assert_eq!(
+            guess_grammar_from_ext(OsStr::new("py")),
+            Some(Language::Python)
+        );
         assert_eq!(
             guess_grammar_from_ext(OsStr::new("py3")),
             Some(Language::Python)
@@ -176,16 +193,34 @@ mod tests {
             guess_grammar_from_ext(OsStr::new("js")),
             Some(Language::Javascript)
         );
-        assert_eq!(guess_grammar_from_ext(OsStr::new("java")), Some(Language::Java));
-        assert_eq!(guess_grammar_from_ext(OsStr::new("rs")), Some(Language::Rust));
-        assert_eq!(guess_grammar_from_ext(OsStr::new("rlib")), Some(Language::Rust));
+        assert_eq!(
+            guess_grammar_from_ext(OsStr::new("java")),
+            Some(Language::Java)
+        );
+        assert_eq!(
+            guess_grammar_from_ext(OsStr::new("rs")),
+            Some(Language::Rust)
+        );
+        assert_eq!(
+            guess_grammar_from_ext(OsStr::new("rlib")),
+            Some(Language::Rust)
+        );
         assert_eq!(
             guess_grammar_from_ext(OsStr::new("ts")),
             Some(Language::Typescript)
         );
-        assert_eq!(guess_grammar_from_ext(OsStr::new("tsx")), Some(Language::Tsx));
-        assert_eq!(guess_grammar_from_ext(OsStr::new("rb")), Some(Language::Ruby));
-        assert_eq!(guess_grammar_from_ext(OsStr::new("rbw")), Some(Language::Ruby));
+        assert_eq!(
+            guess_grammar_from_ext(OsStr::new("tsx")),
+            Some(Language::Tsx)
+        );
+        assert_eq!(
+            guess_grammar_from_ext(OsStr::new("rb")),
+            Some(Language::Ruby)
+        );
+        assert_eq!(
+            guess_grammar_from_ext(OsStr::new("rbw")),
+            Some(Language::Ruby)
+        );
         assert_eq!(guess_grammar_from_ext(OsStr::new("go")), Some(Language::Go));
     }
 
@@ -197,7 +232,10 @@ mod tests {
 
     #[test]
     fn test_from_ext_insensitive() {
-        assert_eq!(guess_grammar_from_ext(OsStr::new("JAVA")), Some(Language::Java));
+        assert_eq!(
+            guess_grammar_from_ext(OsStr::new("JAVA")),
+            Some(Language::Java)
+        );
     }
 
     #[test]
@@ -238,9 +276,15 @@ mod tests {
     fn test_guess_from_name() {
         assert_eq!(guess_grammar_from_name("python"), Some(Language::Python));
         assert_eq!(guess_grammar_from_name("py"), Some(Language::Python));
-        assert_eq!(guess_grammar_from_name("javascript"), Some(Language::Javascript));
+        assert_eq!(
+            guess_grammar_from_name("javascript"),
+            Some(Language::Javascript)
+        );
         assert_eq!(guess_grammar_from_name("js"), Some(Language::Javascript));
-        assert_eq!(guess_grammar_from_name("typescript"), Some(Language::Typescript));
+        assert_eq!(
+            guess_grammar_from_name("typescript"),
+            Some(Language::Typescript)
+        );
         assert_eq!(guess_grammar_from_name("ts"), Some(Language::Typescript));
         assert_eq!(guess_grammar_from_name("rust"), Some(Language::Rust));
         assert_eq!(guess_grammar_from_name("go"), Some(Language::Go));
@@ -252,7 +296,10 @@ mod tests {
         assert_eq!(guess_grammar_from_name("csharp"), Some(Language::CSharp));
         assert_eq!(guess_grammar_from_name("c++"), Some(Language::Cpp));
         assert_eq!(guess_grammar_from_name("cpp"), Some(Language::Cpp));
-        assert_eq!(guess_grammar_from_name("modelica"), Some(Language::Modelica));
+        assert_eq!(
+            guess_grammar_from_name("modelica"),
+            Some(Language::Modelica)
+        );
         assert_eq!(guess_grammar_from_name("unknown"), None);
     }
 

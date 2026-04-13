@@ -3,9 +3,9 @@ use crate::report::Report;
 use crate::suffixtree::tree::SuffixTree;
 use crate::tokenizer::{Tokenizer, Tokens};
 use crate::winnowing::tokens::{Fingerprint, Winnow};
-use tree_sitter_grammars::Language;
 use std::path::PathBuf;
 use std::rc::Rc;
+use tree_sitter_grammars::Language;
 
 pub struct Index {
     pub k: usize,

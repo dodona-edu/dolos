@@ -56,9 +56,9 @@ impl Winnow for Vec<Token> {
 mod tests {
     use super::*;
     use crate::tokenizer::{Tokenizer, Tokens};
-    use tree_sitter_grammars::Language;
     use std::path::Path;
     use tree_sitter::{Point, Range};
+    use tree_sitter_grammars::Language;
 
     const TEST_K_W: [(usize, usize); 3] = [(17, 23), (3, 5), (16, 8)];
 

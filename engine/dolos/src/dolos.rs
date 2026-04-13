@@ -1,8 +1,8 @@
 use crate::index::Index;
 use crate::report::Report;
-use tree_sitter_grammars::{guess_grammar_from_path};
 use std::fmt;
 use std::path::PathBuf;
+use tree_sitter_grammars::guess_grammar_from_path;
 
 /// Configuration for a Dolos analysis run.
 pub struct DolosConfig {
