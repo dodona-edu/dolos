@@ -36,6 +36,7 @@ tree-sitter-lua = "0.5.0"
 tree-sitter-perl = "1.1.2"
 tree-sitter-ruby = "0.23.1"
 tree-sitter-swift = "0.7.1"
+tree-sitter-modelica = { git = "https://github.com/milachae/tree-sitter-modelica.git" }
 
 [dev-dependencies]
 serde_any = "0.5"
