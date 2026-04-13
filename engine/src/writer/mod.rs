@@ -1,5 +1,5 @@
 mod csv_writer;
 mod terminal_writer;
-mod writer;
+mod output_writer;
 
-pub use writer::{OutputWriter, Writer};
+pub use output_writer::{OutputWriter, Writer};

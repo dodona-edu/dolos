@@ -1,5 +1,5 @@
 use crate::report::Pair;
-use crate::writer::writer::OutputWriter;
+use crate::writer::output_writer::OutputWriter;
 use std::fs::File;
 use std::io;
 use std::io::{BufWriter, Write};

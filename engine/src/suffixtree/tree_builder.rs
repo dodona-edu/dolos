@@ -1,5 +1,5 @@
 use crate::suffixtree::build_cursor::BuildCursor;
-use crate::suffixtree::suffixtree::SuffixTree;
+use crate::suffixtree::tree::SuffixTree;
 use crate::suffixtree::types::{NodeIndex, SymbolType};
 
 /// A builder that implements Ukkonen's algorithm for linear-time suffix tree construction.
@@ -47,8 +47,9 @@ impl UkkonenBuilder {
         let mut num_leaves = 0;
         for j in 1..=end_index {
             let mut prev_internal_node: Option<NodeIndex> = None;
+            let num_leaves_copy = num_leaves; // take copy since we cannot change the value that is used in the loop header itself
             // skip the first num_leaves leaves since this is rule 1 and can be skipped
-            for _ in num_leaves..j {
+            for _ in num_leaves_copy..j {
                 // if there is a previous internal node AND we are at a node with the cursor
                 if let Some(prev_internal_node_index) = prev_internal_node
                     && cursor.at_node()

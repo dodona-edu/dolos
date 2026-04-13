@@ -1,7 +1,7 @@
 use crate::file::File;
 use crate::language::Language;
 use crate::report::Report;
-use crate::suffixtree::suffixtree::SuffixTree;
+use crate::suffixtree::tree::SuffixTree;
 use crate::winnowing::fingerprints::{Fingerprint, Winnow};
 use crate::winnowing::region::Region;
 use crate::winnowing::tokenizer::{Tokenizer, Tokens};

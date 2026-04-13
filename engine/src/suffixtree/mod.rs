@@ -7,6 +7,6 @@ mod build_cursor;
 mod match_collector;
 mod maximal_match;
 mod node;
-pub(crate) mod suffixtree;
+pub(crate) mod tree;
 mod tree_builder;
 pub mod types;

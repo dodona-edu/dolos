@@ -33,7 +33,7 @@ impl SuffixTree {
 
 #[cfg(test)]
 pub mod suffixtree_test_utils {
-    use crate::suffixtree::suffixtree::SuffixTree;
+    use crate::suffixtree::tree::SuffixTree;
     use crate::suffixtree::types::SymbolType;
 
     pub fn str_to_nodes(s: &str) -> Vec<SymbolType> {
@@ -114,8 +114,8 @@ pub mod suffixtree_test_utils {
 #[cfg(test)]
 mod tests_single_word {
     use crate::suffixtree::node::{Node, Range};
-    use crate::suffixtree::suffixtree::SuffixTree;
-    use crate::suffixtree::suffixtree::suffixtree_test_utils::{str_to_nodes, test_all_substrings};
+    use crate::suffixtree::tree::SuffixTree;
+    use crate::suffixtree::tree::suffixtree_test_utils::{str_to_nodes, test_all_substrings};
     use crate::suffixtree::types::{SENTINEL_SYMBOL, SymbolType};
     use std::collections::{HashMap, HashSet};
 
@@ -310,8 +310,8 @@ mod tests_single_word {
 #[cfg(test)]
 mod tests_multiple_words {
     use crate::suffixtree::node::{Node, Range};
-    use crate::suffixtree::suffixtree::SuffixTree;
-    use crate::suffixtree::suffixtree::suffixtree_test_utils::{str_to_nodes, test_all_substrings};
+    use crate::suffixtree::tree::SuffixTree;
+    use crate::suffixtree::tree::suffixtree_test_utils::{str_to_nodes, test_all_substrings};
     use crate::suffixtree::types::{SENTINEL_SYMBOL, SymbolType};
     use rand::{RngExt, SeedableRng, rngs::StdRng};
     use std::collections::{HashMap, HashSet};

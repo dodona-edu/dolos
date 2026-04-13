@@ -1,7 +1,7 @@
 use crate::fragment::Fragment;
 use crate::report::Pair;
 use crate::winnowing::region::Region;
-use crate::writer::writer::OutputWriter;
+use crate::writer::output_writer::OutputWriter;
 use colored::Colorize;
 use std::io;
 
@@ -162,20 +162,18 @@ impl TerminalWriter {
         let display_end = end_row + context_after; // inclusive
 
         let mut result = Vec::new();
-        for row in display_start..=display_end {
-            let is_match = row >= start_row && row <= end_row;
+        for (i, line) in lines[display_start..=display_end].iter().enumerate() {
+            let is_match = i >= start_row && i <= end_row;
 
-            let hl_start = (row == start_row).then_some(start_col).unwrap_or(0);
-            let hl_end = (row == end_row)
-                .then_some(end_col)
-                .unwrap_or(lines[row].len());
+            let hl_start = if i == start_row { start_col } else { 0 };
+            let hl_end = if i == end_row { end_col } else { line.len() };
 
             result.push(DisplayLine {
-                line_number: row + 1,
-                code: lines[row],
+                line_number: i + 1,
+                code: line,
                 is_match,
-                highlight_start_col: is_match.then(|| hl_start),
-                highlight_end_col: is_match.then(|| hl_end),
+                highlight_start_col: is_match.then_some(hl_start),
+                highlight_end_col: is_match.then_some(hl_end),
             });
         }
         result
