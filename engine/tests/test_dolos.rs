@@ -6,15 +6,20 @@ fn test_similarity_fixtures() {
 
     let report = Dolos::from_paths(paths, DolosConfig::default()).build_report();
     let pair = report.iter_pairs().next().expect("should have one pair");
-    let expected = 0.4803921568627451_f64;
+    let m = pair.metrics;
+
     let epsilon = 1e-9_f64;
     assert!(
-        (pair.similarity - expected).abs() < epsilon,
-        "similarity {} not within {} of expected {}",
-        pair.similarity,
+        (m.similarity - 0.4803921568627451_f64).abs() < epsilon,
+        "similarity {} not within {} of expected 0.4803921568627451",
+        m.similarity,
         epsilon,
-        expected
     );
+    assert_eq!(m.total_left, 96, "total_left");
+    assert_eq!(m.total_right, 108, "total_right");
+    assert_eq!(m.overlap_left, 50, "overlap_left");
+    assert_eq!(m.overlap_right, 48, "overlap_right");
+    assert_eq!(m.longest_fragment, 21, "longest_fragment");
 }
 
 #[test]
@@ -50,4 +55,17 @@ fn test_three_files_no_fragments() {
             "fragments should be None when more than 2 files are given"
         );
     }
+}
+#[test]
+fn print_all_metrics() {
+    let paths = vec!["fixtures/sample1.js".into(), "fixtures/sample2.js".into()];
+    let report = Dolos::from_paths(paths, DolosConfig::default()).build_report();
+    let pair = report.iter_pairs().next().unwrap();
+    let m = pair.metrics;
+    println!("similarity:       {:?}", m.similarity);
+    println!("total_left:       {:?}", m.total_left);
+    println!("total_right:      {:?}", m.total_right);
+    println!("overlap_left:     {:?}", m.overlap_left);
+    println!("overlap_right:    {:?}", m.overlap_right);
+    println!("longest_fragment: {:?}", m.longest_fragment);
 }

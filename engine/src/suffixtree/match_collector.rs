@@ -1,7 +1,7 @@
 use crate::collections::pair_array::PairArray;
 use crate::collections::pair_bitmap::PairBitmap;
 use crate::collections::utils::ordered_pair_with;
-use crate::suffixtree::types::{AnalysisResult, Match, StartPosition, SymbolType};
+use crate::suffixtree::types::{AnalysisResult, Match, PairMetrics, StartPosition, SymbolType};
 
 /// Collects and processes matches found during tree traversal
 pub struct MatchCollector<'a> {
@@ -87,46 +87,54 @@ impl<'a> MatchCollector<'a> {
 
     /// Consume the collector and build the final [`AnalysisResult`].
     ///
-    /// Computes pairwise similarity scores from the overlap bitmap and packages
-    /// them together with the longest-fragment results.
+    /// Computes all per-pair metrics from the overlap bitmap and longest-fragment
+    /// tracker, packaging them into a single `PairArray<PairMetrics>`.
     pub(crate) fn into_result(self) -> AnalysisResult {
-        let num_words = self.longest_fragments.size();
-        let similarities = self.calculate_similarities(num_words);
-
         AnalysisResult {
-            similarities,
-            longest_fragments: self.longest_fragments,
+            metrics: self.build_metrics(),
             matches: self.matches,
         }
     }
 
-    /// Calculate pairwise similarity scores for all word pairs.
+    /// Build per-pair [`PairMetrics`] for all word pairs.
     ///
     /// For each pair `(i1, i2)` the similarity is defined as:
     ///
     /// ```text
-    /// similarity = total_overlap / (len(i1) + len(i2))
+    /// similarity = (overlap_left + overlap_right) / (total_left + total_right)
     /// ```
     ///
-    /// where `total_overlap` is the number of positions covered by at least one
+    /// where the overlaps are the number of positions covered by at least one
     /// shared match (as tracked by the overlap bitmap).
-    fn calculate_similarities(&self, num_words: usize) -> PairArray<f64> {
-        let mut similarities = PairArray::new(num_words, 0.0);
+    fn build_metrics(&self) -> PairArray<PairMetrics> {
+        let mut metrics = PairArray::new(self.words.len(), PairMetrics::default());
 
-        for i1 in 0..num_words {
-            for i2 in (i1 + 1)..num_words {
-                let total_overlap = self.overlap_bitmap.count_ones_pair(i1, i2);
-                let total_length = self.words[i1].len() + self.words[i2].len();
+        for i1 in 0..self.words.len() {
+            for i2 in (i1 + 1)..self.words.len() {
+                let total_left = self.words[i1].len();
+                let total_right = self.words[i2].len();
+                let overlap_left = self.overlap_bitmap.count_ones(i1, i2, i1);
+                let overlap_right = self.overlap_bitmap.count_ones(i1, i2, i2);
+                let total_overlap = overlap_left + overlap_right;
+                let total_length = total_left + total_right;
 
                 let similarity = if total_length == 0 {
                     0.0
                 } else {
                     total_overlap as f64 / total_length as f64
                 };
-                similarities.set(i1, i2, similarity);
+
+                metrics.set(i1, i2, PairMetrics {
+                    similarity,
+                    total_left,
+                    total_right,
+                    overlap_left,
+                    overlap_right,
+                    longest_fragment: *self.longest_fragments.get(i1, i2),
+                });
             }
         }
 
-        similarities
+        metrics
     }
 }

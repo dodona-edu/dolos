@@ -1,7 +1,7 @@
 use crate::collections::pair_array::PairArray;
 use crate::file::File;
 use crate::fragment::Fragment;
-use crate::suffixtree::types::{AnalysisResult, Match};
+use crate::suffixtree::types::{AnalysisResult, Match, PairMetrics};
 use crate::winnowing::region::Region;
 use std::rc::Rc;
 
@@ -9,17 +9,15 @@ use std::rc::Rc;
 pub struct Pair<'a> {
     pub left_file: &'a File,
     pub right_file: &'a File,
-    pub similarity: f64,
-    pub longest_fragment: usize,
+    /// All per-pair metrics (similarity, totals, overlaps, longest fragment).
+    pub metrics: &'a PairMetrics,
     /// Resolved source-line fragments, present when fragment storage was enabled.
     pub fragments: Option<&'a [Fragment]>,
 }
 
 pub struct Report {
-    /// Similarity scores between pairs of inputs (indexed as [i1][i2] where i1 < i2).
-    similarities: PairArray<f64>,
-    /// Length of the longest common substring between pairs.
-    longest_fragments: PairArray<usize>,
+    /// All per-pair metrics produced by the suffix-tree analysis.
+    metrics: PairArray<PairMetrics>,
     files: Vec<Rc<File>>,
     /// Resolved per-pair fragments, produced at construction time from raw
     /// matches and locations, which are then dropped.
@@ -36,11 +34,11 @@ impl Report {
         files: Vec<Rc<File>>,
         locations: Option<Vec<Vec<Region>>>,
     ) -> Report {
-        let AnalysisResult { similarities, longest_fragments, matches } = analysis_result;
+        let AnalysisResult { metrics, matches } = analysis_result;
         let fragments = matches
             .zip(locations)
             .map(|(m, l)| Self::resolve_fragments(m, l));
-        Report { similarities, longest_fragments, files, fragments }
+        Report { metrics, files, fragments }
     }
 
     /// Resolve raw matches + locations into sorted [`Fragment`] lists.
@@ -68,18 +66,16 @@ impl Report {
     }
 
     /// Iterates over every unordered pair of files, yielding a [`Pair`] with
-    /// precomputed similarity, longest-fragment, and resolved fragments.
+    /// precomputed metrics and resolved fragments.
     pub fn iter_pairs(&self) -> impl Iterator<Item = Pair<'_>> {
         let files = self.files.as_slice();
-        let longest_fragments = &self.longest_fragments;
         let fragments = self.fragments.as_ref();
-        self.similarities
+        self.metrics
             .iter_pairs()
-            .map(move |(left, right, similarity)| Pair {
+            .map(move |(left, right, metrics)| Pair {
                 left_file: &files[left],
                 right_file: &files[right],
-                similarity: *similarity,
-                longest_fragment: *longest_fragments.get(left, right),
+                metrics,
                 fragments: fragments.map(|f| f.get(left, right).as_slice()),
             })
     }
@@ -113,11 +109,16 @@ mod tests {
     }
 
     fn base_analysis(matches: Option<PairArray<Vec<Match>>>) -> AnalysisResult {
-        let mut similarities = PairArray::new(2, 0.0);
-        similarities.set(0, 1, 0.5);
-        let mut longest_fragments = PairArray::new(2, 0);
-        longest_fragments.set(0, 1, 3);
-        AnalysisResult { similarities, longest_fragments, matches }
+        let mut metrics = PairArray::new(2, PairMetrics::default());
+        metrics.set(0, 1, PairMetrics {
+            similarity: 0.5,
+            total_left: 10,
+            total_right: 10,
+            overlap_left: 5,
+            overlap_right: 5,
+            longest_fragment: 3,
+        });
+        AnalysisResult { metrics, matches }
     }
 
     // ── Report / Pair iteration tests ────────────────────────────────
@@ -128,8 +129,12 @@ mod tests {
         let pairs: Vec<_> = report.iter_pairs().collect();
 
         assert_eq!(pairs.len(), 1);
-        assert_eq!(pairs[0].similarity, 0.5);
-        assert_eq!(pairs[0].longest_fragment, 3);
+        assert_eq!(pairs[0].metrics.similarity, 0.5);
+        assert_eq!(pairs[0].metrics.longest_fragment, 3);
+        assert_eq!(pairs[0].metrics.total_left, 10);
+        assert_eq!(pairs[0].metrics.total_right, 10);
+        assert_eq!(pairs[0].metrics.overlap_left, 5);
+        assert_eq!(pairs[0].metrics.overlap_right, 5);
         assert!(pairs[0].fragments.is_none());
     }
 

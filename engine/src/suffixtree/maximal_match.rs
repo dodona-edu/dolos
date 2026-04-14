@@ -249,9 +249,14 @@ mod tests {
         let analyzer = MaximalMatchAnalyzer::new(&tree, &words, 1, false);
         let result = analyzer.analyze();
 
+        let m = result.metrics.get(0, 1);
         // Both words are identical, so the similarity should be 1.0
-        assert_eq!(*result.similarities.get(0, 1), 1.0);
-        assert_eq!(*result.longest_fragments.get(0, 1), 3); // "ABC" without the $
+        assert_eq!(m.similarity, 1.0);
+        assert_eq!(m.longest_fragment, 3); // "ABC" without the $
+        assert_eq!(m.total_left, 3);
+        assert_eq!(m.total_right, 3);
+        assert_eq!(m.overlap_left, 3);
+        assert_eq!(m.overlap_right, 3);
     }
 
     #[test]
@@ -262,9 +267,12 @@ mod tests {
         let analyzer = MaximalMatchAnalyzer::new(&tree, &words, 1, false);
         let result = analyzer.analyze();
 
+        let m = result.metrics.get(0, 1);
         // No overlap
-        assert_eq!(*result.similarities.get(0, 1), 0.0);
-        assert_eq!(*result.longest_fragments.get(0, 1), 0);
+        assert_eq!(m.similarity, 0.0);
+        assert_eq!(m.longest_fragment, 0);
+        assert_eq!(m.overlap_left, 0);
+        assert_eq!(m.overlap_right, 0);
     }
 
     #[test]
@@ -275,9 +283,14 @@ mod tests {
         let analyzer = MaximalMatchAnalyzer::new(&tree, &words, 1, false);
         let result = analyzer.analyze();
 
+        let m = result.metrics.get(0, 1);
         // "ABC" is shared
-        assert_eq!(*result.longest_fragments.get(0, 1), 3);
-        assert_eq!(*result.similarities.get(0, 1), 0.5);
+        assert_eq!(m.longest_fragment, 3);
+        assert_eq!(m.similarity, 0.5);
+        assert_eq!(m.total_left, 6);
+        assert_eq!(m.total_right, 6);
+        assert_eq!(m.overlap_left, 3);
+        assert_eq!(m.overlap_right, 3);
     }
 
     #[test]
@@ -293,14 +306,17 @@ mod tests {
         let result = analyzer.analyze();
 
         // Word 0 and 1 share "ABC"
-        assert_eq!(*result.longest_fragments.get(0, 1), 3);
-        assert_eq!(*result.similarities.get(0, 1), 0.75);
+        let m01 = result.metrics.get(0, 1);
+        assert_eq!(m01.longest_fragment, 3);
+        assert_eq!(m01.similarity, 0.75);
         // Word 0 and 2 share nothing
-        assert_eq!(*result.longest_fragments.get(0, 2), 0);
-        assert_eq!(*result.similarities.get(0, 2), 0.0);
+        let m02 = result.metrics.get(0, 2);
+        assert_eq!(m02.longest_fragment, 0);
+        assert_eq!(m02.similarity, 0.0);
         // Word 1 and 2 share nothing
-        assert_eq!(*result.longest_fragments.get(1, 2), 0);
-        assert_eq!(*result.similarities.get(1, 2), 0.0);
+        let m12 = result.metrics.get(1, 2);
+        assert_eq!(m12.longest_fragment, 0);
+        assert_eq!(m12.similarity, 0.0);
     }
 
     #[test]
@@ -312,6 +328,6 @@ mod tests {
         let analyzer = MaximalMatchAnalyzer::new(&tree, &words, 5, false);
         let result = analyzer.analyze();
 
-        assert_eq!(*result.longest_fragments.get(0, 1), 0);
+        assert_eq!(result.metrics.get(0, 1).longest_fragment, 0);
     }
 }
