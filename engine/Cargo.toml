@@ -14,4 +14,4 @@ tree-sitter-language = "0.1.7"
 
 [dev-dependencies]
 serde_any = "0.5"
-rand = "0.10.0"
+rand = "0.10.1"
