@@ -1,3 +1,5 @@
+use crate::collections::utils::ordered_pair;
+
 /// A symmetric pair array that stores values for pairs (i, j) where i < j.
 #[derive(Debug)]
 pub struct PairArray<T> {
@@ -9,10 +11,7 @@ impl<T: Clone> PairArray<T> {
     /// Creates a new `PairArray` with the given size, initialized with the default value.
     pub fn new(size: usize, default: T) -> Self {
         let data_size = size * (size - 1) / 2;
-        Self {
-            data: vec![default; data_size],
-            size,
-        }
+        Self { data: vec![default; data_size], size }
     }
 
     /// Creates a `PairArray` from a pre-initialized vector.
@@ -28,7 +27,7 @@ impl<T: Clone> PairArray<T> {
         assert_ne!(i1, i2);
         assert!(i1 < self.size, "Invalid input index 1");
         assert!(i2 < self.size, "Invalid input index 2");
-        let (min, max) = if i1 < i2 { (i1, i2) } else { (i2, i1) };
+        let (min, max) = ordered_pair(i1, i2);
         // Formula for upper triangular index
         min * (2 * self.size - min - 1) / 2 + (max - min - 1)
     }
