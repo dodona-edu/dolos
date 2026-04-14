@@ -110,14 +110,18 @@ mod tests {
 
     fn base_analysis(matches: Option<PairArray<Vec<Match>>>) -> AnalysisResult {
         let mut metrics = PairArray::new(2, PairMetrics::default());
-        metrics.set(0, 1, PairMetrics {
-            similarity: 0.5,
-            total_left: 10,
-            total_right: 10,
-            overlap_left: 5,
-            overlap_right: 5,
-            longest_fragment: 3,
-        });
+        metrics.set(
+            0,
+            1,
+            PairMetrics {
+                similarity: 0.5,
+                total_left: 10,
+                total_right: 10,
+                overlap_left: 5,
+                overlap_right: 5,
+                longest_fragment: 3,
+            },
+        );
         AnalysisResult { metrics, matches }
     }
 

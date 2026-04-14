@@ -90,10 +90,7 @@ impl<'a> MatchCollector<'a> {
     /// Computes all per-pair metrics from the overlap bitmap and longest-fragment
     /// tracker, packaging them into a single `PairArray<PairMetrics>`.
     pub(crate) fn into_result(self) -> AnalysisResult {
-        AnalysisResult {
-            metrics: self.build_metrics(),
-            matches: self.matches,
-        }
+        AnalysisResult { metrics: self.build_metrics(), matches: self.matches }
     }
 
     /// Build per-pair [`PairMetrics`] for all word pairs.
@@ -124,14 +121,18 @@ impl<'a> MatchCollector<'a> {
                     total_overlap as f64 / total_length as f64
                 };
 
-                metrics.set(i1, i2, PairMetrics {
-                    similarity,
-                    total_left,
-                    total_right,
-                    overlap_left,
-                    overlap_right,
-                    longest_fragment: *self.longest_fragments.get(i1, i2),
-                });
+                metrics.set(
+                    i1,
+                    i2,
+                    PairMetrics {
+                        similarity,
+                        total_left,
+                        total_right,
+                        overlap_left,
+                        overlap_right,
+                        longest_fragment: *self.longest_fragments.get(i1, i2),
+                    },
+                );
             }
         }
 
