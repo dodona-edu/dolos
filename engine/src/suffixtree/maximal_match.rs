@@ -250,9 +250,8 @@ mod tests {
         let result = analyzer.analyze();
 
         let m = result.metrics.get(0, 1);
-        // Both words are identical, so the similarity should be 1.0
         assert_eq!(m.similarity, 1.0);
-        assert_eq!(m.longest_fragment, 3); // "ABC" without the $
+        assert_eq!(m.longest_fragment, 3);
         assert_eq!(m.total_left, 3);
         assert_eq!(m.total_right, 3);
         assert_eq!(m.overlap_left, 3);
@@ -268,9 +267,10 @@ mod tests {
         let result = analyzer.analyze();
 
         let m = result.metrics.get(0, 1);
-        // No overlap
         assert_eq!(m.similarity, 0.0);
         assert_eq!(m.longest_fragment, 0);
+        assert_eq!(m.total_left, 3);
+        assert_eq!(m.total_right, 3);
         assert_eq!(m.overlap_left, 0);
         assert_eq!(m.overlap_right, 0);
     }

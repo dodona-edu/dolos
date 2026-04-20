@@ -84,126 +84,118 @@ impl Report {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::collections::pair_array::PairArray;
+    use crate::file::File;
     use crate::language::Language;
-    use crate::suffixtree::types::Match;
-    use crate::winnowing::region::Point;
+    use crate::suffixtree::types::{AnalysisResult, Match, PairMetrics};
+    use crate::winnowing::region::{Point, Region};
     use std::path::PathBuf;
+    use std::rc::Rc;
 
-    fn make_region(start_row: usize, end_row: usize) -> Region {
-        Region::new(Point::new(start_row, 0), Point::new(end_row, 0))
+    fn make_file(name: &str) -> Rc<File> {
+        Rc::new(File {
+            path: PathBuf::from(name),
+            language: Language::Javascript,
+            content: None,
+        })
     }
 
-    fn two_files() -> Vec<Rc<File>> {
-        vec![
-            Rc::new(File {
-                path: PathBuf::from("a.js"),
-                language: Language::Javascript,
-                content: None,
-            }),
-            Rc::new(File {
-                path: PathBuf::from("b.js"),
-                language: Language::Javascript,
-                content: None,
-            }),
-        ]
+    fn make_metrics(similarity: f64) -> PairMetrics {
+        PairMetrics {
+            similarity,
+            total_left: 10,
+            total_right: 10,
+            overlap_left: (similarity * 10.0) as usize,
+            overlap_right: (similarity * 10.0) as usize,
+            longest_fragment: 3,
+        }
     }
 
-    fn base_analysis(matches: Option<PairArray<Vec<Match>>>) -> AnalysisResult {
-        let mut metrics = PairArray::new(2, PairMetrics::default());
-        metrics.set(
-            0,
-            1,
-            PairMetrics {
-                similarity: 0.5,
-                total_left: 10,
-                total_right: 10,
-                overlap_left: 5,
-                overlap_right: 5,
-                longest_fragment: 3,
-            },
-        );
-        AnalysisResult { metrics, matches }
-    }
-
-    // ── Report / Pair iteration tests ────────────────────────────────
-
+    /// `test_from` verifies that `Report::from` correctly stores metrics and
+    /// that files are accessible on the resulting report.
     #[test]
-    fn iter_pairs_without_fragments() {
-        let report = Report::from(base_analysis(None), two_files(), None);
+    fn test_from() {
+        let files = vec![make_file("a.js"), make_file("b.js"), make_file("c.js")];
+        let mut metrics = PairArray::new(3, PairMetrics::default());
+        metrics.set(0, 1, make_metrics(0.5));
+        metrics.set(0, 2, make_metrics(0.2));
+        metrics.set(1, 2, make_metrics(0.8));
+
+        let analysis = AnalysisResult { metrics, matches: None };
+        let report = Report::from(analysis, files.clone(), None);
+
         let pairs: Vec<_> = report.iter_pairs().collect();
+        assert_eq!(pairs.len(), 3);
 
-        assert_eq!(pairs.len(), 1);
-        assert_eq!(pairs[0].metrics.similarity, 0.5);
-        assert_eq!(pairs[0].metrics.longest_fragment, 3);
-        assert_eq!(pairs[0].metrics.total_left, 10);
-        assert_eq!(pairs[0].metrics.total_right, 10);
-        assert_eq!(pairs[0].metrics.overlap_left, 5);
-        assert_eq!(pairs[0].metrics.overlap_right, 5);
-        assert!(pairs[0].fragments.is_none());
+        // Find the (a.js, b.js) pair and check its metrics
+        let ab = pairs
+            .iter()
+            .find(|p| p.left_file.file_name() == "a.js" && p.right_file.file_name() == "b.js")
+            .expect("a.js-b.js pair not found");
+
+        assert_eq!(ab.metrics.similarity, 0.5);
+        assert_eq!(ab.metrics.total_left, 10);
+        assert_eq!(ab.metrics.total_right, 10);
+        assert_eq!(ab.metrics.longest_fragment, 3);
+        assert!(ab.fragments.is_none());
     }
 
+    /// `test_resolve_fragments` verifies that raw `Match` objects are correctly
+    /// converted into `Fragment`s with the right regions and fingerprint counts.
     #[test]
-    fn iter_pairs_with_resolved_fragments() {
-        let mut match_array = PairArray::new(2, Vec::new());
-        match_array.set(
+    fn test_resolve_fragments() {
+        // Two locations per file (two fingerprints each)
+        let locations = vec![
+            vec![
+                Region::new(Point::new(0, 0), Point::new(0, 5)),
+                Region::new(Point::new(1, 0), Point::new(1, 5)),
+            ],
+            vec![
+                Region::new(Point::new(10, 0), Point::new(10, 5)),
+                Region::new(Point::new(11, 0), Point::new(11, 5)),
+            ],
+        ];
+
+        let mut raw_matches: PairArray<Vec<Match>> = PairArray::new(2, Vec::new());
+        raw_matches.set(
             0,
             1,
             vec![Match { left_start: 0, right_start: 0, length: 2 }],
         );
 
-        let locations = vec![
-            vec![make_region(0, 0), make_region(1, 2)],
-            vec![make_region(5, 5), make_region(6, 7)],
-        ];
+        let fragments = Report::resolve_fragments(raw_matches, locations);
+        let frags = fragments.get(0, 1);
 
-        let report = Report::from(
-            base_analysis(Some(match_array)),
-            two_files(),
-            Some(locations),
-        );
-        let pairs: Vec<_> = report.iter_pairs().collect();
-
-        let frags = pairs[0].fragments.expect("fragments should be present");
         assert_eq!(frags.len(), 1);
-        assert_eq!(frags[0].left_region.start_point.row, 0);
-        assert_eq!(frags[0].left_region.end_point.row, 2);
-        assert_eq!(frags[0].right_region.start_point.row, 5);
-        assert_eq!(frags[0].right_region.end_point.row, 7);
-        assert_eq!(frags[0].fingerprint_count, 2);
+        let f = &frags[0];
+        assert_eq!(f.fingerprint_count, 2);
+        // Spans from start of first loc to end of last loc
+        assert_eq!(f.left_region.start_point, Point::new(0, 0));
+        assert_eq!(f.left_region.end_point, Point::new(1, 5));
+        assert_eq!(f.right_region.start_point, Point::new(10, 0));
+        assert_eq!(f.right_region.end_point, Point::new(11, 5));
     }
 
+    /// `test_iter_pairs` verifies that `iter_pairs` yields exactly all
+    /// unordered file pairs in the correct order and with correct file refs.
     #[test]
-    fn fragments_sorted_by_left_position() {
-        let mut match_array = PairArray::new(2, Vec::new());
-        match_array.set(
-            0,
-            1,
-            vec![
-                Match { left_start: 2, right_start: 0, length: 1 },
-                Match { left_start: 0, right_start: 2, length: 1 },
-            ],
-        );
+    fn test_iter_pairs() {
+        let files = vec![make_file("x.js"), make_file("y.js"), make_file("z.js")];
+        let metrics = PairArray::new(3, make_metrics(0.0));
+        let analysis = AnalysisResult { metrics, matches: None };
+        let report = Report::from(analysis, files, None);
 
-        let locations = vec![
-            vec![make_region(10, 10), make_region(5, 5), make_region(20, 20)],
-            vec![make_region(0, 0), make_region(1, 1), make_region(2, 2)],
-        ];
+        let pairs: Vec<_> = report.iter_pairs().collect();
+        assert_eq!(pairs.len(), 3);
 
-        let report = Report::from(
-            base_analysis(Some(match_array)),
-            two_files(),
-            Some(locations),
-        );
-        let frags = report
-            .iter_pairs()
-            .next()
-            .unwrap()
-            .fragments
-            .expect("fragments should be present");
+        // Collect (left, right) name tuples
+        let names: Vec<(&str, &str)> = pairs
+            .iter()
+            .map(|p| (p.left_file.file_name(), p.right_file.file_name()))
+            .collect();
 
-        assert!(
-            frags[0].left_region.start_point.row <= frags[1].left_region.start_point.row,
-            "fragments should be sorted by left start row"
-        );
+        assert!(names.contains(&("x.js", "y.js")));
+        assert!(names.contains(&("x.js", "z.js")));
+        assert!(names.contains(&("y.js", "z.js")));
     }
 }

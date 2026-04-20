@@ -86,9 +86,6 @@ impl<'a> MatchCollector<'a> {
     }
 
     /// Consume the collector and build the final [`AnalysisResult`].
-    ///
-    /// Computes all per-pair metrics from the overlap bitmap and longest-fragment
-    /// tracker, packaging them into a single `PairArray<PairMetrics>`.
     pub(crate) fn into_result(self) -> AnalysisResult {
         AnalysisResult { metrics: self.build_metrics(), matches: self.matches }
     }
@@ -101,8 +98,8 @@ impl<'a> MatchCollector<'a> {
     /// similarity = (overlap_left + overlap_right) / (total_left + total_right)
     /// ```
     ///
-    /// where the overlaps are the number of positions covered by at least one
-    /// shared match (as tracked by the overlap bitmap).
+    /// Where the overlaps are the number of positions covered by at least one
+    /// shared match.
     fn build_metrics(&self) -> PairArray<PairMetrics> {
         let mut metrics = PairArray::new(self.words.len(), PairMetrics::default());
 

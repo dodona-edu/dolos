@@ -12,7 +12,7 @@ pub(super) type SymbolType = usize;
 /// Represents a starting position of a match in a word.
 ///
 /// Internal to the suffix-tree module; public consumers use [`Match`] which
-/// stores only the normalised start offsets.
+/// stores only the normalized start offsets.
 #[derive(Debug, Clone)]
 pub(super) struct StartPosition {
     /// Index of the word this position belongs to.
