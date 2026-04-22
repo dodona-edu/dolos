@@ -88,10 +88,10 @@ impl Report {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::language::Language;
     use crate::suffixtree::types::Match;
     use crate::winnowing::region::Point;
     use std::path::PathBuf;
+    use tree_sitter_grammars::Language;
 
     fn make_region(start_row: usize, end_row: usize) -> Region {
         Region::new(Point::new(start_row, 0), Point::new(end_row, 0))

@@ -1,10 +1,9 @@
-use crate::language::Language;
-
 use crate::winnowing::region::Region;
 use tree_sitter::{Node, Parser, Tree, TreeCursor};
 
 #[cfg(test)]
 use serde::{Deserialize, Serialize};
+use tree_sitter_grammars::Language;
 
 #[cfg_attr(test, derive(Serialize, Deserialize))]
 #[derive(Debug, PartialEq, Clone)]
