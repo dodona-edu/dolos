@@ -6,7 +6,7 @@ edition = "2024"
 [dependencies]
 clap = { version = "4.5.53", features = ["derive"] }
 tree-sitter = "=0.26.6"
-tree-sitter-grammars = { path = "../tree-sitter-grammars" }
+tree-sitter-grammars = { path = "../tree-sitter-grammars", features = ["all-languages"] }
 
 [dev-dependencies]
 serde_any = "0.5"

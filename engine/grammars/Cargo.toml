@@ -3,35 +3,101 @@ name = "tree-sitter-grammars"
 version = "0.1.0"
 edition = "2024"
 
+[features]
+all-languages = [
+    "lang-bash",
+    "lang-c",
+    "lang-cpp",
+    "lang-csharp",
+    "lang-dart",
+    "lang-elixir",
+    "lang-elm",
+    "lang-go",
+    "lang-groovy",
+    "lang-haskell",
+    "lang-java",
+    "lang-javascript",
+    "lang-julia",
+    "lang-kotlin",
+    "lang-lua",
+    "lang-modelica",
+    "lang-ocaml",
+    "lang-perl",
+    "lang-php",
+    "lang-python",
+    "lang-r",
+    "lang-ruby",
+    "lang-rust",
+    "lang-scala",
+    "lang-sql",
+    "lang-swift",
+    "lang-tsx",
+    "lang-typescript",
+    "lang-verilog",
+]
+lang-bash = ["dep:tree-sitter-bash"]
+lang-c = ["dep:tree-sitter-c"]
+lang-cpp = ["dep:tree-sitter-cpp"]
+lang-csharp = ["dep:tree-sitter-c-sharp"]
+lang-dart = ["dep:tree-sitter-dart"]
+lang-elixir = ["dep:tree-sitter-elixir"]
+lang-elm = ["dep:tree-sitter-elm"]
+lang-go = ["dep:tree-sitter-go"]
+lang-groovy = ["dep:tree-sitter-groovy"]
+lang-haskell = ["dep:tree-sitter-haskell"]
+lang-java = ["dep:tree-sitter-java"]
+lang-javascript = ["dep:tree-sitter-javascript"]
+lang-julia = ["dep:tree-sitter-julia"]
+lang-kotlin = ["dep:tree-sitter-kotlin"]
+lang-lua = ["dep:tree-sitter-lua"]
+lang-modelica = ["dep:tree-sitter-modelica"]
+lang-ocaml = ["dep:tree-sitter-ocaml"]
+lang-perl = ["dep:tree-sitter-perl"]
+lang-php = ["dep:tree-sitter-php"]
+lang-python = ["dep:tree-sitter-python"]
+lang-r = ["dep:tree-sitter-r"]
+lang-ruby = ["dep:tree-sitter-ruby"]
+lang-rust = ["dep:tree-sitter-rust"]
+lang-scala = ["dep:tree-sitter-scala"]
+lang-sql = ["dep:tree-sitter-sequel"]
+lang-swift = ["dep:tree-sitter-swift"]
+lang-tsx = ["dep:tree-sitter-typescript"]
+lang-typescript = ["dep:tree-sitter-typescript"]
+lang-verilog = ["dep:tree-sitter-verilog"]
+
 [dependencies]
 tree-sitter-language = "0.1.7"
 
-# Tree sitter language grammar dependencies
-tree-sitter-bash = "0.25.1"
-tree-sitter-c = "0.24.1"
-tree-sitter-cpp = "0.23.4"
-tree-sitter-c-sharp = "0.23.1"
-tree-sitter-python = "=0.25"
-tree-sitter-php = "0.24.2"
-tree-sitter-ocaml = "0.24.2"
-tree-sitter-java = "=0.23.5"
-tree-sitter-javascript = "=0.25.0"
-tree-sitter-elm = "5.9.0"
-tree-sitter-go = "0.25.0"
-tree-sitter-groovy = "0.1.2"
-tree-sitter-r = "1.2.0"
-tree-sitter-rust = "0.24.1"
-tree-sitter-scala = "0.25.0"
-tree-sitter-sequel = "0.3.11"
-tree-sitter-typescript = "0.23.2"
-tree-sitter-verilog = "1.0.3"
-tree-sitter-dart = "0.1.0"
-tree-sitter-elixir = "0.3.5"
-tree-sitter-haskell = "0.23.1"
-tree-sitter-julia = "0.23.1"
-tree-sitter-kotlin = { git = "https://github.com/fwcd/tree-sitter-kotlin.git" }
-tree-sitter-lua = "0.5.0"
-tree-sitter-perl = "1.1.2"
-tree-sitter-ruby = "0.23.1"
-tree-sitter-swift = "0.7.1"
-tree-sitter-modelica = { git = "https://github.com/milachae/tree-sitter-modelica.git" }
+# Tree sitter language grammar dependencies (all optional, enabled via features)
+tree-sitter-bash = { version = "0.25.1", optional = true }
+tree-sitter-c = { version = "0.24.1", optional = true }
+tree-sitter-c-sharp = { version = "0.23.1", optional = true }
+tree-sitter-cpp = { version = "0.23.4", optional = true }
+tree-sitter-dart = { version = "0.1.0", optional = true }
+tree-sitter-elixir = { version = "0.3.5", optional = true }
+tree-sitter-elm = { version = "5.9.0", optional = true }
+tree-sitter-go = { version = "0.25.0", optional = true }
+tree-sitter-groovy = { version = "0.1.2", optional = true }
+tree-sitter-haskell = { version = "0.23.1", optional = true }
+tree-sitter-java = { version = "=0.23.5", optional = true }
+tree-sitter-javascript = { version = "=0.25.0", optional = true }
+tree-sitter-julia = { version = "0.23.1", optional = true }
+tree-sitter-kotlin = { git = "https://github.com/fwcd/tree-sitter-kotlin.git", optional = true }
+tree-sitter-lua = { version = "0.5.0", optional = true }
+tree-sitter-modelica = { git = "https://github.com/OpenModelica/tree-sitter-modelica.git", optional = true }
+tree-sitter-ocaml = { version = "0.24.2", optional = true }
+tree-sitter-perl = { version = "1.1.2", optional = true }
+tree-sitter-php = { version = "0.24.2", optional = true }
+tree-sitter-python = { version = "=0.25", optional = true }
+tree-sitter-r = { version = "1.2.0", optional = true }
+tree-sitter-ruby = { version = "0.23.1", optional = true }
+tree-sitter-rust = { version = "0.24.1", optional = true }
+tree-sitter-scala = { version = "0.26.0", optional = true }
+tree-sitter-sequel = { version = "0.3.11", optional = true }
+tree-sitter-swift = { version = "0.7.1", optional = true }
+tree-sitter-typescript = { version = "0.23.2", optional = true }
+tree-sitter-verilog = { version = "1.0.3", optional = true }
+
+[[test]]
+name = "test_grammar"
+required-features = ["all-languages"]
