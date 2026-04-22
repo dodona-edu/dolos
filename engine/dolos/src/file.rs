@@ -1,19 +1,17 @@
 use std::fmt;
 use std::hash::{Hash, Hasher};
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
 use tree_sitter_grammars::Language;
 
 pub struct File {
     pub path: PathBuf,
     pub language: Language,
+    /// Source text, stored when fragment display is needed.
+    pub content: Option<String>,
 }
 
 impl File {
-    pub fn read<P: AsRef<Path>>(path: P) -> std::io::Result<String> {
-        std::fs::read_to_string(path)
-    }
-
     pub fn file_name(&self) -> &str {
         self.path
             .as_path()

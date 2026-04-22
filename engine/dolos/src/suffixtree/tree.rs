@@ -1,7 +1,7 @@
-use crate::report::AnalysisResult;
 use crate::suffixtree::maximal_match::MaximalMatchAnalyzer;
 use crate::suffixtree::node::Node;
 use crate::suffixtree::tree_builder::UkkonenBuilder;
+use crate::suffixtree::types::AnalysisResult;
 use crate::suffixtree::types::SymbolType;
 
 /// A generalized suffix tree implementation.
@@ -14,9 +14,7 @@ pub struct SuffixTree {
 impl SuffixTree {
     /// Creates a new `SuffixTree` from the given words, building it immediately.
     pub(crate) fn new(words: &[Vec<SymbolType>]) -> Self {
-        let mut tree = SuffixTree {
-            arena: vec![Node::create_root()],
-        };
+        let mut tree = SuffixTree { arena: vec![Node::create_root()] };
         UkkonenBuilder::new().add_words(words, &mut tree);
         tree
     }
@@ -27,8 +25,9 @@ impl SuffixTree {
         &self,
         words: &[Vec<SymbolType>],
         min_match_length: usize,
+        keep_fragments: bool,
     ) -> AnalysisResult {
-        MaximalMatchAnalyzer::new(self, words, min_match_length).analyze()
+        MaximalMatchAnalyzer::new(self, words, min_match_length, keep_fragments).analyze()
     }
 }
 

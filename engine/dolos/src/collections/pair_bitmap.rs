@@ -1,3 +1,5 @@
+use crate::collections::utils::{ordered_pair, ordered_pair_with};
+
 /// A flat bitmap for tracking per-pair bit coverage across N items.
 ///
 /// Stores two bit-vectors per unordered pair (i, j), packed into a single
@@ -61,11 +63,7 @@ impl PairBitmap {
     /// Equivalent to calling `mark(i, j, i, start_i, len)` and
     /// `mark(i, j, j, start_j, len)`.
     pub fn mark_pair(&mut self, i: usize, j: usize, start_i: usize, start_j: usize, length: usize) {
-        let (min, max, start_min, start_max) = if i < j {
-            (i, j, start_i, start_j)
-        } else {
-            (j, i, start_j, start_i)
-        };
+        let (min, max, start_min, start_max) = ordered_pair_with(i, j, start_i, start_j);
 
         let base = self.pair_word_offset(min, max);
         let words1_count = self.word_counts[min];
@@ -77,7 +75,7 @@ impl PairBitmap {
     /// Count the number of set bits for item `item` in the pair `(i, j)`.
     pub fn count_ones(&self, i: usize, j: usize, item: usize) -> usize {
         debug_assert!(item == i || item == j);
-        let (min, max) = if i < j { (i, j) } else { (j, i) };
+        let (min, max) = ordered_pair(i, j);
 
         let base = self.pair_word_offset(min, max);
         let (offset, count) = if item == min {
@@ -91,7 +89,7 @@ impl PairBitmap {
 
     /// Count the total number of set bits across both items in a pair.
     pub fn count_ones_pair(&self, i: usize, j: usize) -> usize {
-        let (min, max) = if i < j { (i, j) } else { (j, i) };
+        let (min, max) = ordered_pair(i, j);
         let base = self.pair_word_offset(min, max);
         let total_words = self.word_counts[min] + self.word_counts[max];
 

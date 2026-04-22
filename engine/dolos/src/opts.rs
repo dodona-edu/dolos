@@ -13,7 +13,6 @@ pub struct Opts {
 pub enum OutputFormat {
     Csv,
     Terminal,
-    Console,
 }
 
 #[derive(Subcommand, Debug)]

@@ -4,10 +4,14 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-clap = { version = "4.5.53", features = ["derive"] }
-tree-sitter = "=0.26.6"
+clap = { version = "4.6.1", features = ["derive"] }
+colored = "3.1.1"
+terminal_size = "0.4.4"
+tree-sitter = "=0.26.8"
 tree-sitter-grammars = { path = "../tree-sitter-grammars", features = ["all-languages"] }
 
 [dev-dependencies]
 serde_any = "0.5"
-rand = "0.10.0"
+rand = "0.10.1"
+serde = "1.0.228"
+rstest = "0.26.1"

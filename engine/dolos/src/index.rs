@@ -1,8 +1,9 @@
 use crate::file::File;
 use crate::report::Report;
 use crate::suffixtree::tree::SuffixTree;
-use crate::tokenizer::{Tokenizer, Tokens};
-use crate::winnowing::tokens::{Fingerprint, Winnow};
+use crate::winnowing::fingerprints::{Fingerprint, Winnow};
+use crate::winnowing::region::Region;
+use crate::winnowing::tokenizer::{Tokenizer, Tokens};
 use std::path::PathBuf;
 use std::rc::Rc;
 use tree_sitter_grammars::Language;
@@ -10,25 +11,33 @@ use tree_sitter_grammars::Language;
 pub struct Index {
     pub k: usize,
     pub w: usize,
+    pub keep_fragments: bool,
     min_match_length: usize,
     pub files: Vec<Rc<File>>,
-    data: Vec<Vec<Fingerprint>>,
+    hashes: Vec<Vec<Fingerprint>>,
+    locations: Option<Vec<Vec<Region>>>,
     pub language: Language,
     tokenizer: Tokenizer,
-    tree: Option<SuffixTree>,
 }
 
 impl Index {
-    pub fn new(k: usize, w: usize, min_match_length: usize, language: Language) -> Self {
+    pub fn new(
+        k: usize,
+        w: usize,
+        keep_fragments: bool,
+        min_match_length: usize,
+        language: Language,
+    ) -> Self {
         Index {
             k,
             w,
+            keep_fragments,
             min_match_length,
             files: Vec::new(),
-            data: Vec::new(),
+            hashes: Vec::new(),
+            locations: keep_fragments.then_some(Vec::new()),
             tokenizer: Tokenizer::new(language),
             language,
-            tree: None,
         }
     }
 
@@ -37,12 +46,22 @@ impl Index {
             panic!("Language does not match")
         }
 
-        self.data
-            .push(self.tokenizer.parse(&path).tokens().winnow(self.k, self.w));
+        let content = std::fs::read_to_string(&path).expect("should be able to read file");
+        let (hashes, locations) =
+            self.tokenizer
+                .parse(&content)
+                .tokens()
+                .winnow(self.k, self.w, self.keep_fragments);
+
+        self.hashes.push(hashes);
+        if let Some(locs) = self.locations.as_mut() {
+            locs.push(locations.expect("locations should be present when keep_fragments is true"));
+        }
 
         let file = Rc::new(File {
             path,
             language: self.language,
+            content: self.keep_fragments.then_some(content),
         });
 
         self.files.push(file);
@@ -52,15 +71,12 @@ impl Index {
         for path in paths {
             self.tokenize_file(path);
         }
-        self.tree = Some(SuffixTree::new(&self.data));
     }
 
     /// Consume the index and produce a report.
     pub fn build_report(self) -> Report {
-        let tree = self
-            .tree
-            .expect("add_files must be called before build_report");
-        let result = tree.analyze(&self.data, self.min_match_length);
-        Report::from(result, self.files)
+        let tree = SuffixTree::new(&self.hashes);
+        let result = tree.analyze(&self.hashes, self.min_match_length, self.keep_fragments);
+        Report::from(result, self.files, self.locations)
     }
 }
