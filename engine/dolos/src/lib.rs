@@ -3,7 +3,6 @@ pub mod dolos;
 pub mod file;
 pub mod fragment;
 pub mod index;
-pub mod language;
 pub mod opts;
 pub mod report;
 pub mod suffixtree;

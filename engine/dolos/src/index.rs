@@ -1,5 +1,4 @@
 use crate::file::File;
-use crate::language::Language;
 use crate::report::Report;
 use crate::suffixtree::tree::SuffixTree;
 use crate::winnowing::fingerprints::{Fingerprint, Winnow};
@@ -7,6 +6,7 @@ use crate::winnowing::region::Region;
 use crate::winnowing::tokenizer::{Tokenizer, Tokens};
 use std::path::PathBuf;
 use std::rc::Rc;
+use tree_sitter_grammars::Language;
 
 pub struct Index {
     pub k: usize,

@@ -108,11 +108,11 @@ impl Winnow for Vec<Token> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::language::Language;
     use crate::winnowing::region::Region;
     use crate::winnowing::tokenizer::{Tokenizer, Tokens};
     use rstest::rstest;
     use std::path::Path;
+    use tree_sitter_grammars::Language;
 
     #[rstest]
     #[case::k_3_w_5(3, 5)]

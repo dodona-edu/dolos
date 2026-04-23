@@ -1,8 +1,8 @@
 use crate::index::Index;
-use crate::language::Language;
 use crate::report::Report;
 use std::fmt;
 use std::path::PathBuf;
+use tree_sitter_grammars::guess_grammar_from_path;
 
 /// Configuration for a Dolos analysis run.
 pub struct DolosConfig {
@@ -24,7 +24,7 @@ pub struct Dolos {
 impl Dolos {
     pub fn from_paths(paths: Vec<PathBuf>, config: DolosConfig) -> Self {
         let first = paths.first().expect("no paths given");
-        let language = Language::guess_from_path(first).expect("lang");
+        let language = guess_grammar_from_path(first).expect("lang");
 
         let keep_fragments: bool = paths.len() == 2;
         let mut index = Index::new(

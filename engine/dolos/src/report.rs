@@ -86,11 +86,11 @@ mod tests {
     use super::*;
     use crate::collections::pair_array::PairArray;
     use crate::file::File;
-    use crate::language::Language;
     use crate::suffixtree::types::{AnalysisResult, Match, PairMetrics};
     use crate::winnowing::region::{Point, Region};
     use std::path::PathBuf;
     use std::rc::Rc;
+    use tree_sitter_grammars::Language;
 
     fn make_file(name: &str) -> Rc<File> {
         Rc::new(File {
