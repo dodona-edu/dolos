@@ -1,2 +1,3 @@
 #!/usr/bin/env sh
 cargo fmt -- --check
+cargo clippy --features all-languages -- -D warnings
