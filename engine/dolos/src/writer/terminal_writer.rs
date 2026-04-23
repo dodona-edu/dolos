@@ -20,12 +20,17 @@ fn column_width() -> usize {
 
 impl OutputWriter for TerminalWriter {
     fn write_pair(&mut self, pair: &Pair) -> io::Result<()> {
+        let m = pair.metrics;
         println!(
-            "{} - {} (sim: {:.2}%, longest: {})",
+            "{} - {} (sim: {:.2}%, longest: {}, left: {}/{}, right: {}/{})",
             pair.left_file.file_name(),
             pair.right_file.file_name(),
-            pair.similarity * 100.0,
-            pair.longest_fragment
+            m.similarity * 100.0,
+            m.longest_fragment,
+            m.overlap_left,
+            m.total_left,
+            m.overlap_right,
+            m.total_right,
         );
 
         if pair.fragments.is_some() {

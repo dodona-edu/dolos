@@ -16,7 +16,10 @@ impl CsvWriter {
         std::fs::create_dir_all(&output_destination)?;
         let csv_path = output_destination.join("similarities.csv");
         let mut writer = BufWriter::new(File::create(csv_path)?);
-        writeln!(writer, "file1,file2,similarity,longest")?;
+        writeln!(
+            writer,
+            "file1,file2,similarity,longest,totalLeft,totalRight,overlapLeft,overlapRight"
+        )?;
         Ok(Self { writer })
     }
 }
@@ -25,11 +28,15 @@ impl OutputWriter for CsvWriter {
     fn write_pair(&mut self, pair: &Pair) -> io::Result<()> {
         writeln!(
             self.writer,
-            "{},{},{},{}",
+            "{},{},{},{},{},{},{},{}",
             pair.left_file.file_name(),
             pair.right_file.file_name(),
-            pair.similarity,
-            pair.longest_fragment
+            pair.metrics.similarity,
+            pair.metrics.longest_fragment,
+            pair.metrics.total_left,
+            pair.metrics.total_right,
+            pair.metrics.overlap_left,
+            pair.metrics.overlap_right,
         )
     }
 
