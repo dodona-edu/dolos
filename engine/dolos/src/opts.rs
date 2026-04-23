@@ -38,7 +38,7 @@ pub struct IndexArgs {
         short = 'k',
         long,
         default_value = "23",
-        long_help = "The length of each kgram fragment. (default: 23)"
+        long_help = "The length of each kgram fragment."
     )]
     pub kgram_length: usize,
 
@@ -46,7 +46,7 @@ pub struct IndexArgs {
         short = 'w',
         long,
         default_value = "17",
-        long_help = "The size of the window that will be used (in kgrams). (default: 17)"
+        long_help = "The size of the window that will be used (in kgrams)."
     )]
     pub kgrams_in_window: usize,
 
@@ -60,7 +60,7 @@ pub struct IndexArgs {
     #[arg(
         short = 'm',
         long,
-        long_help = "The -m option sets the maximum number of times a given fingerprint may appear before it is ignored. A code fragment that appears in many programs is probably legitimate sharing and not the result of plagiarism. With -m N any fingerprint appearing in more than N programs is filtered out. This option has precedence over the -M option, which is set to 0.9 by default."
+        long_help = "The -m option sets the maximum number of times a given fingerprint may appear before it is ignored. A code fragment that appears in many programs is probably legitimate sharing and not the result of plagiarism. With -m N any fingerprint appearing in more than N programs is filtered out. This option has precedence over the -M option."
     )]
     pub max_fingerprint_count: Option<usize>,
 
@@ -83,7 +83,7 @@ pub struct IndexArgs {
         short = 's',
         long,
         default_value = "0",
-        long_help = "The minimum amount of kgrams a fragment should contain. Every fragment with less kgrams then the specified amount is filtered out. (default: 0)"
+        long_help = "The minimum amount of kgrams a fragment should contain. Every fragment with less kgrams then the specified amount is filtered out."
     )]
     pub min_fragment_length: usize,
 
@@ -108,7 +108,7 @@ pub struct ReportArgs {
     #[arg(
         long,
         value_enum,
-        long_help = "Which field to sort the pairs by. Options are: similarity, total overlap, and longest fragment (default: \"total overlap\")"
+        long_help = "Which field to sort the pairs by. Options are: similarity, total overlap, and longest fragment."
     )]
     pub sort_by: Option<PairSortBy>,
 
@@ -116,7 +116,7 @@ pub struct ReportArgs {
         short = 'b',
         long,
         value_enum,
-        long_help = "How to sort the fragments by the amount of matches, only applicable in terminal comparison output. The options are: 'kgrams ascending', 'kgrams descending' and 'file order' (default: \"file order\")"
+        long_help = "How to sort the fragments by the amount of matches, only applicable in terminal comparison output. The options are: 'kgrams ascending', 'kgrams descending' and 'file order'."
     )]
     pub fragment_sort_by: Option<FragmentSortBy>,
 }
@@ -130,7 +130,7 @@ pub struct OutputArgs {
     )]
     pub name: Option<String>,
 
-    #[arg(value_enum, short = 'f', long, default_value_t = OutputFormat::Terminal, long_help = "Specifies what format the output should be in, current options are: terminal/console, csv, html/web. (default: \"terminal\")")]
+    #[arg(value_enum, short = 'f', long, default_value_t = OutputFormat::Terminal, long_help = "Specifies what format the output should be in, current options are: terminal/console, csv, html/web.")]
     pub output_format: OutputFormat,
 
     #[arg(
