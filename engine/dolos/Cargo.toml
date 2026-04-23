@@ -3,12 +3,75 @@ name = "dolos"
 version = "0.1.0"
 edition = "2024"
 
+[features]
+default = ["all-languages"]
+all-languages = [
+    "lang-bash",
+    "lang-c",
+    "lang-cpp",
+    "lang-csharp",
+    "lang-dart",
+    "lang-elixir",
+    "lang-elm",
+    "lang-go",
+    "lang-groovy",
+    "lang-haskell",
+    "lang-java",
+    "lang-javascript",
+    "lang-julia",
+    "lang-kotlin",
+    "lang-lua",
+    "lang-modelica",
+    "lang-ocaml",
+    "lang-perl",
+    "lang-php",
+    "lang-python",
+    "lang-r",
+    "lang-ruby",
+    "lang-rust",
+    "lang-scala",
+    "lang-sql",
+    "lang-swift",
+    "lang-tsx",
+    "lang-typescript",
+    "lang-verilog",
+]
+lang-bash = ["tree-sitter-grammars/lang-bash"]
+lang-c = ["tree-sitter-grammars/lang-c"]
+lang-cpp = ["tree-sitter-grammars/lang-cpp"]
+lang-csharp = ["tree-sitter-grammars/lang-csharp"]
+lang-dart = ["tree-sitter-grammars/lang-dart"]
+lang-elixir = ["tree-sitter-grammars/lang-elixir"]
+lang-elm = ["tree-sitter-grammars/lang-elm"]
+lang-go = ["tree-sitter-grammars/lang-go"]
+lang-groovy = ["tree-sitter-grammars/lang-groovy"]
+lang-haskell = ["tree-sitter-grammars/lang-haskell"]
+lang-java = ["tree-sitter-grammars/lang-java"]
+lang-javascript = ["tree-sitter-grammars/lang-javascript"]
+lang-julia = ["tree-sitter-grammars/lang-julia"]
+lang-kotlin = ["tree-sitter-grammars/lang-kotlin"]
+lang-lua = ["tree-sitter-grammars/lang-lua"]
+lang-modelica = ["tree-sitter-grammars/lang-modelica"]
+lang-ocaml = ["tree-sitter-grammars/lang-ocaml"]
+lang-perl = ["tree-sitter-grammars/lang-perl"]
+lang-php = ["tree-sitter-grammars/lang-php"]
+lang-python = ["tree-sitter-grammars/lang-python"]
+lang-r = ["tree-sitter-grammars/lang-r"]
+lang-ruby = ["tree-sitter-grammars/lang-ruby"]
+lang-rust = ["tree-sitter-grammars/lang-rust"]
+lang-scala = ["tree-sitter-grammars/lang-scala"]
+lang-sql = ["tree-sitter-grammars/lang-sql"]
+lang-swift = ["tree-sitter-grammars/lang-swift"]
+lang-tsx = ["tree-sitter-grammars/lang-tsx"]
+lang-typescript = ["tree-sitter-grammars/lang-typescript"]
+lang-verilog = ["tree-sitter-grammars/lang-verilog"]
+
 [dependencies]
 clap = { version = "4.6.1", features = ["derive"] }
 colored = "3.1.1"
 terminal_size = "0.4.4"
 tree-sitter = "=0.26.8"
-tree-sitter-grammars = { path = "../tree-sitter-grammars", features = ["all-languages"] }
+tree-sitter-grammars = { path = "../tree-sitter-grammars" }
 
 [dev-dependencies]
 serde_any = "0.5"
