@@ -12,7 +12,7 @@ pub(super) type SymbolType = usize;
 /// Represents a starting position of a match in a word.
 ///
 /// Internal to the suffix-tree module; public consumers use [`Match`] which
-/// stores only the normalised start offsets.
+/// stores only the normalized start offsets.
 #[derive(Debug, Clone)]
 pub(super) struct StartPosition {
     /// Index of the word this position belongs to.
@@ -36,14 +36,28 @@ pub struct Match {
     pub length: usize,
 }
 
-/// Result of the suffix-tree analysis containing similarity metrics for all
-/// input pairs.
+/// Per-pair metrics produced by the suffix-tree analysis.
+#[derive(Debug, Clone, Default)]
+pub struct PairMetrics {
+    /// Jaccard-style similarity: `(overlap_left + overlap_right) / (total_left + total_right)`.
+    pub similarity: f64,
+    /// Total number of fingerprints in the left file.
+    pub total_left: usize,
+    /// Total number of fingerprints in the right file.
+    pub total_right: usize,
+    /// Number of fingerprints in the left file covered by at least one match.
+    pub overlap_left: usize,
+    /// Number of fingerprints in the right file covered by at least one match.
+    pub overlap_right: usize,
+    /// Length of the longest common substring (in fingerprints).
+    pub longest_fragment: usize,
+}
+
+/// Result of the suffix-tree analysis containing all per-pair metrics.
 #[derive(Debug)]
 pub struct AnalysisResult {
-    /// Similarity scores between pairs of inputs (indexed as [i1][i2] where i1 < i2).
-    pub similarities: PairArray<f64>,
-    /// Length of the longest common substring between pairs.
-    pub longest_fragments: PairArray<usize>,
+    /// All per-pair metrics (similarity, totals, overlaps, longest fragment).
+    pub metrics: PairArray<PairMetrics>,
     /// Raw matches from the suffix tree (consumed during report construction).
     pub matches: Option<PairArray<Vec<Match>>>,
 }

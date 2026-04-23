@@ -4,11 +4,16 @@ use crate::collections::utils::ordered_pair;
 #[derive(Debug)]
 pub struct PairArray<T> {
     data: Vec<T>,
+    /// The number of elements being pairwise matched. For `n` elements there
+    /// are `n * (n - 1) / 2` unique unordered pairs stored in `data`.
     size: usize,
 }
 
 impl<T: Clone> PairArray<T> {
-    /// Creates a new `PairArray` with the given size, initialized with the default value.
+    /// Creates a new `PairArray` for `size` elements, initializing every pair's
+    /// value to `default`. `size` is the number of elements being pairwise
+    /// matched. For `n` elements there are `n * (n - 1) / 2` unique unordered pairs
+    /// stored.
     pub fn new(size: usize, default: T) -> Self {
         let data_size = size * (size - 1) / 2;
         Self { data: vec![default; data_size], size }
@@ -49,7 +54,7 @@ impl<T: Clone> PairArray<T> {
         self.data[idx] = value;
     }
 
-    /// Returns the size of the array (number of inputs).
+    /// Returns the number of elements being pairwise matched.
     #[inline]
     pub fn size(&self) -> usize {
         self.size
