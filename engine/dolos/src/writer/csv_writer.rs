@@ -5,16 +5,21 @@ use std::io;
 use std::io::{BufWriter, Write};
 use std::path::PathBuf;
 
-/// CSV writer that outputs similarity results to a CSV file.
+/// CSV writer that outputs similarity results to a `pairs.csv` file inside a
+/// named report directory.
 pub struct CsvWriter {
     writer: BufWriter<File>,
 }
 
 impl CsvWriter {
-    /// Create a new CSV writer that writes to "similarities.csv" in the specified directory.
-    pub(super) fn new(output_destination: PathBuf) -> io::Result<Self> {
-        std::fs::create_dir_all(&output_destination)?;
-        let csv_path = output_destination.join("similarities.csv");
+    /// Create a new CSV writer.
+    ///
+    /// Creates `{output_destination}/{name}/pairs.csv`, along with all required
+    /// parent directories.
+    pub(super) fn new(output_destination: PathBuf, name: &str) -> io::Result<Self> {
+        let report_dir = output_destination.join(name);
+        std::fs::create_dir_all(&report_dir)?;
+        let csv_path = report_dir.join("pairs.csv");
         let mut writer = BufWriter::new(File::create(csv_path)?);
         writeln!(
             writer,

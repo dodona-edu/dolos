@@ -1,4 +1,4 @@
-use crate::opts::{OutputArgs, OutputFormat};
+use crate::opts::{OutputFormat, ResolvedOutputConfig};
 use crate::report::{Pair, Report};
 use crate::writer::csv_writer::CsvWriter;
 use crate::writer::terminal_writer::TerminalWriter;
@@ -11,7 +11,7 @@ pub trait OutputWriter {
 
     /// Write all pairs to the output.
     fn write_report(&mut self, report: &Report) -> io::Result<()> {
-        for pair in report.iter_pairs() {
+        for pair in report.all_pairs() {
             self.write_pair(&pair)?;
         }
         Ok(())
@@ -38,9 +38,12 @@ pub enum Writer {
 
 impl Writer {
     /// Create a new writer based on the specified format.
-    pub fn new(output_args: OutputArgs) -> io::Result<Self> {
-        match output_args.output_format {
-            OutputFormat::Csv => Ok(Writer::Csv(CsvWriter::new(output_args.output_destination)?)),
+    pub fn new(config: ResolvedOutputConfig) -> io::Result<Self> {
+        match config.output_format {
+            OutputFormat::Csv => Ok(Writer::Csv(CsvWriter::new(
+                config.output_destination,
+                &config.name,
+            )?)),
             OutputFormat::Terminal | OutputFormat::Console => Ok(Writer::Terminal(TerminalWriter)),
             OutputFormat::Html | OutputFormat::Web => todo!("HTML output not yet implemented"),
         }

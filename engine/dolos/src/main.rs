@@ -1,6 +1,6 @@
 use clap::Parser;
-use dolos::dolos::{Dolos, DolosConfig};
-use dolos::opts::{Command, Opts};
+use dolos::dolos::Dolos;
+use dolos::opts::{Command, Opts, Resolve};
 use dolos::writer::{OutputWriter, Writer};
 use std::fs;
 use std::path::PathBuf;
@@ -13,10 +13,12 @@ fn main() -> std::io::Result<()> {
     match opts.command {
         Command::Run { files, run_args } => {
             let paths = get_file_paths(files)?;
-            let dolos = Dolos::from_paths(paths, DolosConfig::default());
-            let report = dolos.build_report();
+            let resolved = run_args.resolve(&paths);
 
-            Writer::new(run_args.output_args)?.write_and_finish(&report)?;
+            let dolos = Dolos::from_paths(paths, resolved.index_config);
+            let report = dolos.build_report(resolved.report_config);
+
+            Writer::new(resolved.output_config)?.write_and_finish(&report)?;
         }
     }
     Ok(())

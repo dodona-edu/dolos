@@ -14,16 +14,17 @@ pub struct Token {
 
 pub struct Tokenizer {
     pub language: Language,
+    pub include_comments: bool,
     parser: Parser,
 }
 
 impl Tokenizer {
-    pub fn new(language: Language) -> Self {
+    pub fn new(language: Language, include_comments: bool) -> Self {
         let mut parser = Parser::new();
         parser
             .set_language(&language.tree_sitter_language().into())
             .expect("set language");
-        Tokenizer { language, parser }
+        Tokenizer { language, include_comments, parser }
     }
 
     pub fn parse(&mut self, content: &str) -> Tree {
@@ -31,8 +32,18 @@ impl Tokenizer {
     }
 }
 
-fn recursive_add<'a: 'b, 'b>(node: Node<'a>, tokens: &mut Vec<Token>, cursor: &mut TreeCursor<'b>) {
-    let children = node.named_children(cursor).collect::<Vec<_>>();
+fn recursive_add<'a: 'b, 'b>(
+    node: Node<'a>,
+    tokens: &mut Vec<Token>,
+    cursor: &mut TreeCursor<'b>,
+    include_comments: bool,
+) {
+    // Skip comment nodes when include_comments is false
+    if !include_comments && node.kind().to_lowercase().contains("comment") {
+        return;
+    }
+
+    let children = node.named_children(cursor).collect::<Vec<Node>>();
 
     let end_point = children
         .first()
@@ -44,14 +55,14 @@ fn recursive_add<'a: 'b, 'b>(node: Node<'a>, tokens: &mut Vec<Token>, cursor: &m
     tokens.push(Token { name: node.kind().to_string(), location: range });
 
     for child in children {
-        recursive_add(child, tokens, cursor);
+        recursive_add(child, tokens, cursor, include_comments);
     }
 
     tokens.push(Token { name: ")".to_string(), location: range });
 }
 
 pub trait Tokens {
-    fn tokens(&self) -> Vec<Token>;
+    fn tokens(&self, include_comments: bool) -> Vec<Token>;
 }
 
 impl Tokens for Tree {
@@ -59,11 +70,11 @@ impl Tokens for Tree {
     /// into a sequence of tokens. Special tokens '(' and ')' are inserted to
     /// represent descending into and ascending from the tree, respectively.
     /// Each token's range corresponds exactly to the token name itself.
-    fn tokens(&self) -> Vec<Token> {
+    /// When `include_comments` is false, comment nodes are filtered out.
+    fn tokens(&self, include_comments: bool) -> Vec<Token> {
         let mut cursor = self.walk();
         let mut tokens = Vec::new();
-
-        recursive_add(cursor.node(), &mut tokens, &mut cursor);
+        recursive_add(cursor.node(), &mut tokens, &mut cursor, include_comments);
         tokens
     }
 }
@@ -76,8 +87,8 @@ mod tests {
 
     #[test]
     fn test_tokenize_simple() {
-        let mut tokenizer = Tokenizer::new(Language::Javascript);
-        let actual = tokenizer.parse("1").tokens();
+        let mut tokenizer = Tokenizer::new(Language::Javascript, false);
+        let actual = tokenizer.parse("1").tokens(false);
 
         let r00 = Region::new(Point::new(0, 0), Point::new(0, 0));
         let r01 = Region::new(Point::new(0, 0), Point::new(0, 1));
@@ -100,9 +111,9 @@ mod tests {
     #[test]
     fn test_tokenize_large() {
         let expected: Vec<Token> = serde_any::from_file("fixtures/sample.tokens.json").unwrap();
-        let mut tokenizer = Tokenizer::new(Language::Javascript);
+        let mut tokenizer = Tokenizer::new(Language::Javascript, false);
         let content = std::fs::read_to_string(Path::new("fixtures/sample1.js")).unwrap();
-        let actual = tokenizer.parse(&content).tokens();
+        let actual = tokenizer.parse(&content).tokens(false);
         assert_eq!(actual, expected);
     }
 }

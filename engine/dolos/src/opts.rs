@@ -1,6 +1,7 @@
+use chrono::Utc;
 use clap::{Parser, Subcommand};
-
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
+use tree_sitter_grammars::{Language, guess_grammar_from_name, guess_grammar_from_path};
 
 #[derive(Parser, Debug)]
 #[clap(author, version, about, long_about = None)]
@@ -80,31 +81,23 @@ pub struct IndexArgs {
     pub ignore: Option<PathBuf>,
 
     #[arg(
-        short = 's',
-        long,
-        default_value = "0",
-        long_help = "The minimum amount of kgrams a fragment should contain. Every fragment with less kgrams then the specified amount is filtered out."
-    )]
-    pub min_fragment_length: usize,
-
-    #[arg(
         short = 'C',
         long,
         default_value = "false",
         long_help = "Include the comments during the tokenization process."
     )]
     pub include_comments: bool,
+
+    #[arg(
+        short = 'c',
+        long,
+        long_help = "Keep the matching fragments even when analysing more than two files."
+    )]
+    pub compare: bool,
 }
 
 #[derive(Parser, Debug)]
 pub struct ReportArgs {
-    #[arg(
-        short = 'S',
-        long,
-        long_help = "The minimum similarity between two files. Must be a value between 0 and 1"
-    )]
-    pub min_similarity: Option<f64>,
-
     #[arg(
         long,
         value_enum,
@@ -140,20 +133,6 @@ pub struct OutputArgs {
         long_help = "Path where to write the output report to. This has no effect when the output format is set to 'terminal'."
     )]
     pub output_destination: PathBuf,
-
-    #[arg(
-        short = 'L',
-        long,
-        long_help = "Specifies how many matching file pairs are shown in the result. All pairs are shown when this option is omitted."
-    )]
-    pub limit_results: Option<usize>,
-
-    #[arg(
-        short = 'c',
-        long,
-        long_help = "Print a comparison of the matching fragments even if analysing more than two files. Only valid when the output is set to 'terminal' or 'console'."
-    )]
-    pub compare: bool,
 
     #[arg(
         short = 'p',
@@ -201,3 +180,137 @@ pub enum Command {
         run_args: RunArgs,
     },
 }
+
+// ---------------------------------------------------------------------------
+// Resolved config structs — all fields that could be derived from the context are resolved.
+// ---------------------------------------------------------------------------
+
+/// Fully resolved index configuration produced from [`IndexArgs`] + file context.
+pub struct ResolvedIndexConfig {
+    pub kgram_length: usize,
+    pub kgrams_in_window: usize,
+    pub language: Language,
+    pub keep_fragments: bool,
+    pub include_comments: bool,
+    pub max_fingerprint_count: Option<usize>,
+    pub max_fingerprint_percentage: Option<f64>,
+    pub ignore: Option<PathBuf>,
+}
+
+/// Fully-resolved output configuration produced from [`OutputArgs`] + file context.
+pub struct ResolvedOutputConfig {
+    /// Full report directory name: `dolos-report-{timestamp}-{base}`.
+    pub name: String,
+    pub output_format: OutputFormat,
+    pub output_destination: PathBuf,
+    pub port: u16,
+    pub host: String,
+    pub no_open: bool,
+}
+
+/// Resolved counterpart of [`ReportArgs`].
+/// No context-dependent fields, but kept consistent with the other resolved structs.
+pub struct ResolvedReportArgs {
+    pub sort_by: Option<PairSortBy>,
+    pub fragment_sort_by: Option<FragmentSortBy>,
+}
+
+/// Resolved counterpart of [`RunArgs`].
+pub struct ResolvedRunArgs {
+    pub index_config: ResolvedIndexConfig,
+    pub report_config: ResolvedReportArgs,
+    pub output_config: ResolvedOutputConfig,
+}
+
+// ---------------------------------------------------------------------------
+// Resolution trait + impls
+// ---------------------------------------------------------------------------
+
+pub trait Resolve<T> {
+    fn resolve(self, paths: &[PathBuf]) -> T;
+}
+
+impl Resolve<ResolvedIndexConfig> for IndexArgs {
+    fn resolve(self, paths: &[PathBuf]) -> ResolvedIndexConfig {
+        let language = match self.language.as_deref() {
+            Some(s) => guess_grammar_from_name(s).expect("Unknown language"),
+            None => {
+                let first = paths.first().expect("no paths given");
+                guess_grammar_from_path(first)
+                    .expect("Could not detect language from file extension")
+            }
+        };
+
+        ResolvedIndexConfig {
+            kgram_length: self.kgram_length,
+            kgrams_in_window: self.kgrams_in_window,
+            keep_fragments: paths.len() == 2 || self.compare,
+            language,
+            include_comments: self.include_comments,
+            max_fingerprint_count: self.max_fingerprint_count,
+            max_fingerprint_percentage: self.max_fingerprint_percentage,
+            ignore: self.ignore,
+        }
+    }
+}
+
+impl Resolve<ResolvedOutputConfig> for OutputArgs {
+    fn resolve(self, paths: &[PathBuf]) -> ResolvedOutputConfig {
+        let name = self.name.unwrap_or_else(|| derive_report_name(paths));
+
+        ResolvedOutputConfig {
+            name,
+            output_format: self.output_format,
+            output_destination: self.output_destination,
+            port: self.port,
+            host: self.host,
+            no_open: self.no_open,
+        }
+    }
+}
+
+impl Resolve<ResolvedReportArgs> for ReportArgs {
+    fn resolve(self, _paths: &[PathBuf]) -> ResolvedReportArgs {
+        ResolvedReportArgs {
+            sort_by: self.sort_by,
+            fragment_sort_by: self.fragment_sort_by,
+        }
+    }
+}
+
+impl Resolve<ResolvedRunArgs> for RunArgs {
+    fn resolve(self, paths: &[PathBuf]) -> ResolvedRunArgs {
+        ResolvedRunArgs {
+            index_config: self.index_args.resolve(paths),
+            report_config: self.report_args.resolve(paths),
+            output_config: self.output_args.resolve(paths),
+        }
+    }
+}
+
+/// Derives the full report directory name from file context.
+///
+/// Format: `dolos-report-{RFC3339_timestamp}-{base}`
+///
+/// Base name precedence:
+/// - Single path → file stem (no extension)
+/// - Two or more paths → `"{first_stem}--{second_stem}"`
+/// - No paths → `"unknown"`
+fn derive_report_name(paths: &[PathBuf]) -> String {
+    let timestamp = Utc::now().format("%Y%m%dT%H%M%S%.3fZ").to_string();
+    let base = match paths {
+        [single] => file_stem(single),
+        [first, second, ..] => format!("{}--{}", file_stem(first), file_stem(second)),
+        _ => "unknown".to_string(),
+    };
+    format!("dolos-report-{timestamp}-{base}")
+}
+
+fn file_stem(path: &Path) -> String {
+    path.file_stem()
+        .and_then(|s| s.to_str())
+        .unwrap_or("unknown")
+        .to_string()
+}
+
+// ---------------------------------------------------------------------------

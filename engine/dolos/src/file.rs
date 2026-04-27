@@ -2,11 +2,8 @@ use std::fmt;
 use std::hash::{Hash, Hasher};
 use std::path::PathBuf;
 
-use tree_sitter_grammars::Language;
-
 pub struct File {
     pub path: PathBuf,
-    pub language: Language,
     /// Source text, stored when fragment display is needed.
     pub content: Option<String>,
 }

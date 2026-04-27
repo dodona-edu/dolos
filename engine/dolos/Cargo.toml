@@ -66,6 +66,7 @@ lang-typescript = ["tree-sitter-grammars/lang-typescript"]
 lang-verilog = ["tree-sitter-grammars/lang-verilog"]
 
 [dependencies]
+chrono = { version = "0.4.44", features = ["clock", "std"] }
 clap = { version = "4.6.1", features = ["derive"] }
 colored = "3.1.1"
 terminal_size = "0.4.4"
