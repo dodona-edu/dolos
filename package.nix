@@ -31,6 +31,15 @@ buildNpmPackage rec {
   buildInputs = [ unzip ];
 
   buildPhase = ''
+    # npmConfigHook only patches the root node_modules; after the TypeScript
+    # version bump npm stopped fully hoisting tsc, so workspace-local
+    # node_modules/.bin directories also need their shebangs fixed.
+    for dir in core parsers lib web cli; do
+      if [ -d "$dir/node_modules" ]; then
+        patchShebangs "$dir/node_modules"
+      fi
+    done
+
     # Build each needed workspace
     for dir in core parsers lib web cli; do
         echo "Building dolos-$dir"
