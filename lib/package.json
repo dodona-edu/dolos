@@ -26,14 +26,14 @@
     "access": "public"
   },
   "devDependencies": {
-    "@ava/typescript": "6.0.0",
+    "@ava/typescript": "7.0.0",
     "@types/d3-dsv": "3.0.7",
     "@types/node": "^25.0.0",
     "ava": "7.0.0",
     "typescript-eslint": "^8.57.1" ,
     "eslint": "^10.0.3",
     "@eslint/js": "^10.0.1",
-    "typescript": "6.0.2"
+    "typescript": "6.0.3"
   },
   "dependencies": {
     "@dodona/dolos-parsers": "1.4.1",
