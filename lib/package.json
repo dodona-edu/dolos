@@ -36,7 +36,6 @@
     "typescript": "6.0.3"
   },
   "dependencies": {
-    "@dodona/dolos-parsers": "1.4.1",
     "@dodona/dolos-core": "1.2.1",
     "d3-dsv": "^3.0.1",
     "tree-sitter": "^0.25.0"

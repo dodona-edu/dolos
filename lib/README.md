@@ -11,6 +11,13 @@ Visit [dolos.ugent.be](https://dolos.ugent.be) for more information.
 npm install @dodona/dolos-lib
 ```
 
+By default, the library tries to use the parsers provided by `@dodona/dolos-parsers`, which must be installed separately:
+```
+npm install @dodona/dolos-parsers
+```
+
+If a parser for a specific language is not available in `@dodona/dolos-parsers`, or if the package is not installed, the library will automatically fall back to using the corresponding `tree-sitter-<language>` package instead.
+
 ### Node & Web environments
 
 **Required:** Node.js, Python 3 and a compiler (GCC)
