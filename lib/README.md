@@ -11,7 +11,7 @@ Visit [dolos.ugent.be](https://dolos.ugent.be) for more information.
 npm install @dodona/dolos-lib
 ```
 
-By default, the library uses parsers provided by `@dodona/dolos-parsers`. You can install them with:
+By default, the library tries to use the parsers provided by `@dodona/dolos-parsers`, which must be installed separately:
 ```
 npm install @dodona/dolos-parsers
 ```
