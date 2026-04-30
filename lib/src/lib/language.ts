@@ -41,8 +41,12 @@ export class ProgrammingLanguage extends Language {
 
   public async loadLanguageModule(): Promise<TreeSitterLanguage> {
     if (this.languageModule === undefined) {
-      // @ts-ignore
-      this.languageModule = (await import("@dodona/dolos-parsers")).default[this.name];
+
+      try {
+        // @ts-ignore
+        this.languageModule = (await import("@dodona/dolos-parsers")).default[this.name];
+      } catch { /* empty */ }
+
       this.languageModule ||= (await import(`tree-sitter-${this.name}`)).default;
       if (this.languageModule === undefined) {
         throw new LanguageError(
