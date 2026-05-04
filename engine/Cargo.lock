@@ -960,9 +960,9 @@ dependencies = [
 
 [[package]]
 name = "tree-sitter-c-sharp"
-version = "0.23.1"
+version = "0.23.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "67f06accca7b45351758663b8215089e643d53bd9a660ce0349314263737fcb0"
+checksum = "c1aac67f1ad71de1d6d39708d34811081c26dfa495658de6c14c34200849357c"
 dependencies = [
  "cc",
  "tree-sitter-language",
@@ -980,9 +980,9 @@ dependencies = [
 
 [[package]]
 name = "tree-sitter-dart"
-version = "0.1.0"
+version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bba6bf8675e6fe92ba6da371a5497ee5df2a04d2c503e3599c8ad771f6f1faec"
+checksum = "325dd1e24ee9ee21111e9c43680ae7d6010aaa9f282b048a99b9c7163c1cf553"
 dependencies = [
  "cc",
  "tree-sitter-language",
@@ -1106,7 +1106,7 @@ dependencies = [
 [[package]]
 name = "tree-sitter-kotlin"
 version = "0.4.0"
-source = "git+https://github.com/fwcd/tree-sitter-kotlin.git#55622a49bd59ca42cec5c01ba5251bb4da9b8930"
+source = "git+https://github.com/fwcd/tree-sitter-kotlin.git#68f564d46c5a137f412d4a7497a0212a4a81655d"
 dependencies = [
  "cc",
  "tree-sitter-language",
@@ -1200,9 +1200,9 @@ dependencies = [
 
 [[package]]
 name = "tree-sitter-rust"
-version = "0.24.1"
+version = "0.24.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f715f73a0687261ddb686f0d64a1e5af57bd199c4d12be5fdda6676ce1885bf9"
+checksum = "439e577dbe07423ec2582ac62c7531120dbfccfa6e5f92406f93dd271a120e45"
 dependencies = [
  "cc",
  "tree-sitter-language",
