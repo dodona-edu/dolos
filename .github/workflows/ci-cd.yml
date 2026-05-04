@@ -29,7 +29,7 @@ jobs:
       - name: Checkout 🛎️
         uses: actions/checkout@v6
       - name: Setup Ruby 📚
-        uses: ruby/setup-ruby@v1.305.0
+        uses: ruby/setup-ruby@v1.306.0
         with:
           working-directory: api/
           bundler-cache: true
@@ -47,7 +47,7 @@ jobs:
       - name: Checkout 🛎️
         uses: actions/checkout@v6
       - name: Setup Ruby 📚
-        uses: ruby/setup-ruby@v1.305.0
+        uses: ruby/setup-ruby@v1.306.0
         with:
           working-directory: api/
           bundler-cache: true
