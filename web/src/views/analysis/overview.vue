@@ -360,7 +360,7 @@ const calculateBinColor = (x0: number, x1: number): string => {
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 8px !important;
+    border-radius: 8px;
     position: relative;
     overflow: hidden;
     z-index: 1;

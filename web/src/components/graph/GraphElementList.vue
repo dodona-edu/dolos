@@ -111,7 +111,7 @@ watch(
     tr {
       &:hover {
         cursor: pointer;
-        background-color: rgba(0, 0, 0, 0.03) !important;
+        background-color: rgba(0, 0, 0, 0.03);
       }
     }
   }
