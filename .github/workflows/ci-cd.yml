@@ -29,7 +29,7 @@ jobs:
       - name: Checkout 🛎️
         uses: actions/checkout@v6
       - name: Setup Ruby 📚
-        uses: ruby/setup-ruby@v1.305.0
+        uses: ruby/setup-ruby@v1.306.0
         with:
           working-directory: api/
           bundler-cache: true
@@ -47,7 +47,7 @@ jobs:
       - name: Checkout 🛎️
         uses: actions/checkout@v6
       - name: Setup Ruby 📚
-        uses: ruby/setup-ruby@v1.305.0
+        uses: ruby/setup-ruby@v1.306.0
         with:
           working-directory: api/
           bundler-cache: true
@@ -561,7 +561,7 @@ jobs:
 
       - name: Draft release
         id: create_release
-        uses: release-drafter/release-drafter@v7
+        uses: release-drafter/release-drafter@v7.2.1
         with:
           name: ${{ steps.parse_tag.outputs.version }}
           tag: ${{ steps.parse_tag.outputs.version }}
