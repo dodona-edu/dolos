@@ -5,4 +5,4 @@ export BASE_URL="https://dolos.ugent.be/server"
 
 rm -r dist/*
 npm run build:server
-rsync -glpPrtvz --delete dist/ dolos:dolos/server/
+rsync -glpPrtvz -e 'ssh -p 4840' --delete dist/ dodona@dolos.ugent.be:dolos/server/
