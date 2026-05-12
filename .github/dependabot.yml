@@ -161,6 +161,9 @@ updates:
       interval: "weekly"
     cooldown:
       default-days: 5
+    allow:
+      - update-types:
+          - "version-update:semver-major"
     groups:
       github-actions-security:
         applies-to: security-updates
