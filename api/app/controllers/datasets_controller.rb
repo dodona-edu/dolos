@@ -10,6 +10,6 @@ class DatasetsController < ApplicationController
 
   # Use callbacks to share common setup or constraints between actions.
   def set_dataset
-    @dataset = Dataset.find(params[:id])
+    @dataset = Dataset.find(params.expect(:id))
   end
 end

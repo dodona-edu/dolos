@@ -33,7 +33,7 @@ class ReportsController < ApplicationController
 
   # Use callbacks to share common setup or constraints between actions.
   def set_report
-    @report = Report.find(params[:id])
+    @report = Report.find(params.expect(:id))
   end
 
   def dataset_params
