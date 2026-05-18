@@ -29,7 +29,7 @@ interface Props {
 
 interface Selection {
   match: Fragment | null | string;
-  range: monaco.IRange | null;
+  range: monaco.IRange;
   isWholeLine: boolean;
 }
 
@@ -71,11 +71,11 @@ const hoveringMatch = useVModel(props, "hoveringMatch", emit);
 // Editor template ref
 const editorElem = ref();
 // Monaco editor
-const editor = shallowRef<monaco.editor.IEditorOverrideServices>();
+const editor = shallowRef<monaco.editor.IStandaloneCodeEditor>();
 // List of selections
 const selections = ref<Selection[]>([]);
 // Monaco editor decorations
-const decorations = shallowRef([]);
+const decorations = shallowRef<monaco.editor.IEditorDecorationsCollection>();
 
 // Get the match at a given editor position.
 // Will use the smallest match at the given position.
@@ -207,9 +207,7 @@ const areMatchesEqual = (match1: Fragment | null, match2: Fragment | null) => {
 // Initialize the editor decorations
 const initializeDecorations = (): void => {
   // Convert the selections into Monaco decorations.
-  decorations.value = editor.value?.deltaDecorations(
-    decorations.value,
-    selections.value.map((selection) => {
+  const decorationOptions = selections.value.map((selection) => {
       const match = selection.match;
       let classname = "highlight-match";
       if (typeof match !== "string") {
@@ -237,8 +235,13 @@ const initializeDecorations = (): void => {
           },
         },
       };
-    })
-  );
+    });
+
+  if (decorations.value) {
+    decorations.value.set(decorationOptions);
+  } else {
+    decorations.value = editor.value?.createDecorationsCollection(decorationOptions);
+  }
 };
 
 // Initialize the editor.
@@ -335,7 +338,8 @@ const destroy = (): void => {
   editor.value?.dispose();
 
   // Clear the decorations & selections.
-  decorations.value = [];
+  decorations.value?.clear();
+  decorations.value = undefined;
   selections.value = [];
 };
 

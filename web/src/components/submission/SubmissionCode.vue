@@ -18,7 +18,7 @@ const metadata = useMetadataStore();
 // Editor template ref
 const editorElem = ref();
 // Monaco editor
-const editor = shallowRef<monaco.editor.IEditorOverrideServices>();
+const editor = shallowRef<monaco.editor.IStandaloneCodeEditor>();
 
 // Initialize the editor.
 const initialize = (): void => {

@@ -19,6 +19,7 @@ const app = createApp(App);
 // Create the plugins
 const vuetify = createVuetify({
   theme: {
+    defaultTheme: "light",
     themes: {
       light: {
         colors: {

@@ -400,7 +400,7 @@ watch(
 .upload {
   &-stepper {
     :deep(.v-stepper__content) {
-      padding: 0 !important;
+      padding: 0;
     }
   }
 }

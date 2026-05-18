@@ -12,16 +12,9 @@
   &:hover {
     td {
       cursor: pointer;
-      background-color: rgba(0, 0, 0, 0.03) !important;
+      background-color: rgba(0, 0, 0, 0.03);
     }
   }
-}
-
-// Fix padding of data table footer.
-// This will probably be fixed natively in Vuetify 3 in the future.
-.v-data-table-footer {
-  margin-bottom: 0.5rem;
-  margin-top: 0.5rem;
 }
 
 // D3 re-usable graph styles.
