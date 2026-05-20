@@ -69,7 +69,7 @@ lang-verilog = ["tree-sitter-grammars/lang-verilog"]
 clap = { version = "4.6.1", features = ["derive"] }
 colored = "3.1.1"
 terminal_size = "0.4.4"
-tree-sitter = "=0.26.8"
+tree-sitter = "=0.26.9"
 tree-sitter-grammars = { path = "../tree-sitter-grammars" }
 
 [dev-dependencies]
