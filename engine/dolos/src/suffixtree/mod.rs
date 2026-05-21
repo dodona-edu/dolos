@@ -1,6 +1,6 @@
-//! A generalized suffix tree implementation for finding matches between multiple words.
+//! A generalized suffix tree implementation for finding matches between multiple sequences.
 //!
-//! This module provides a suffix tree that can be built from multiple words
+//! This module provides a suffix tree that can be built from multiple sequences
 //! and used to find maximal matches, calculate similarities, and search for patterns.
 
 mod build_cursor;

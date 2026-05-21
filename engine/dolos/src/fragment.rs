@@ -46,7 +46,7 @@ mod tests {
             Region::new(Point::new(20, 0), Point::new(20, 10)),
             Region::new(Point::new(21, 0), Point::new(22, 12)),
         ];
-        let m = Match { left_start: 0, right_start: 0, length: 2 };
+        let m = Match { left_start: 0, right_start: 0, length: 2, ignored: false };
 
         let frag = Fragment::resolve(&m, &left_locs, &right_locs);
 

@@ -4,7 +4,7 @@ use std::collections::{HashMap, HashSet};
 /// Represents a node in the suffix tree.
 #[derive(Debug, PartialEq)]
 pub struct Node {
-    /// The range of symbols this node represents in one of the words.
+    /// The range of symbols this node represents in one of the sequences.
     pub range: Range,
     /// The index of the parent node in the arena.
     pub parent: Option<NodeIndex>,
@@ -12,8 +12,10 @@ pub struct Node {
     pub link: Option<NodeIndex>,
     /// Map of children nodes indexed by the first symbol of their edge.
     pub children: Option<HashMap<SymbolType, NodeIndex>>,
-    /// Indices of words that have a suffix ending at this leaf node.
-    pub word_indices: Option<HashSet<usize>>,
+    /// Indices of sequences that have a suffix ending at this leaf node.
+    pub sequence_indices: Option<HashSet<usize>>,
+    /// Whether this node is part of the ignored sequence list.
+    pub ignore: bool,
 }
 
 impl Node {
@@ -28,14 +30,27 @@ impl Node {
         parent: Option<NodeIndex>,
         children: Option<HashMap<SymbolType, NodeIndex>>,
         link: Option<NodeIndex>,
-        word_indices: Option<HashSet<usize>>,
+        sequence_indices: Option<HashSet<usize>>,
     ) -> Node {
-        Node { range, children, parent, link, word_indices }
+        Node {
+            range,
+            children,
+            parent,
+            link,
+            sequence_indices,
+            ignore: false,
+        }
     }
 
     pub fn create_leaf(range: Range, parent: NodeIndex) -> Node {
-        let word = range.word;
-        Node::new(range, Some(parent), None, None, Some(HashSet::from([word])))
+        let sequence = range.sequence_index;
+        Node::new(
+            range,
+            Some(parent),
+            None,
+            None,
+            Some(HashSet::from([sequence])),
+        )
     }
 
     /// Creates an internal node with a single child.
@@ -65,21 +80,21 @@ impl Node {
     }
 }
 
-/// Represents a range of symbols in a word.
+/// Represents a range of symbols in a sequence.
 #[derive(Debug, PartialEq)]
 pub struct Range {
     /// The start index of the range (inclusive).
     pub start: usize,
     /// The end index of the range (exclusive).
     pub end: usize,
-    /// The index of the word this range belongs to.
-    pub word: usize,
+    /// The index of the sequence this range belongs to.
+    pub sequence_index: usize,
 }
 
 impl Range {
     /// Creates a new range.
-    pub fn new(start: usize, end: usize, word_index: usize) -> Self {
-        Range { start, end, word: word_index }
+    pub fn new(start: usize, end: usize, sequence_index: usize) -> Self {
+        Range { start, end, sequence_index }
     }
     /// Returns the length of the range.
     pub fn length(&self) -> usize {

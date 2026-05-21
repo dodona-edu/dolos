@@ -61,15 +61,14 @@ pub struct IndexArgs {
     #[arg(
         short = 'm',
         long,
-        long_help = "The -m option sets the maximum number of times a given fingerprint may appear before it is ignored. A code fragment that appears in many programs is probably legitimate sharing and not the result of plagiarism. With -m N any fingerprint appearing in more than N programs is filtered out. This option has precedence over the -M option."
+        long_help = "The -m option sets the maximum number of times a given fingerprint may appear before it is ignored. A code fragment that appears in many programs is probably legitimate sharing and not the result of plagiarism. With -m N any fingerprint appearing in more than N programs is filtered out. The more restrictive rule between -m and -M takes precedence."
     )]
     pub max_fingerprint_count: Option<usize>,
 
     #[arg(
         short = 'M',
         long,
-        default_value = "0.9",
-        long_help = "The -M option sets how many percent of the files the fingerprint may appear in before it is ignored. A fingerprint that appears in many programs is probably a legitimate fingerprint and not the result of plagiarism. With -M N any fingerprint appearing in more than N percent of the files is filtered out. Must be a value between 0 and 1. This option is ignored when comparing only two files, because each match appear in 100% of the files"
+        long_help = "The -M option sets how many percent of the files the fingerprint may appear in before it is ignored. A fingerprint that appears in many programs is probably a legitimate fingerprint and not the result of plagiarism. With -M N any fingerprint appearing in more than N percent of the files is filtered out. Must be a value between 0 and 1. The more restrictive rule between -m and -M takes precedence."
     )]
     pub max_fingerprint_percentage: Option<f64>,
 
@@ -94,6 +93,14 @@ pub struct IndexArgs {
         long_help = "Keep the matching fragments even when analysing more than two files."
     )]
     pub compare: bool,
+
+    #[arg(
+        short = 's',
+        long,
+        default_value = "1",
+        long_help = "The minimum length (in fingerprints) a match must have to be registered."
+    )]
+    pub min_length_match: usize,
 }
 
 #[derive(Parser, Debug)]
@@ -186,19 +193,19 @@ pub enum Command {
 // ---------------------------------------------------------------------------
 
 /// Fully resolved index configuration produced from [`IndexArgs`] + file context.
-pub struct ResolvedIndexConfig {
+pub struct IndexConfig {
     pub kgram_length: usize,
     pub kgrams_in_window: usize,
     pub language: Language,
     pub keep_fragments: bool,
     pub include_comments: bool,
-    pub max_fingerprint_count: Option<usize>,
-    pub max_fingerprint_percentage: Option<f64>,
+    pub max_fingerprint_file_count: Option<usize>,
     pub ignore: Option<PathBuf>,
+    pub min_length_match: usize,
 }
 
 /// Fully-resolved output configuration produced from [`OutputArgs`] + file context.
-pub struct ResolvedOutputConfig {
+pub struct OutputConfig {
     /// Full report directory name: `dolos-report-{timestamp}-{base}`.
     pub name: String,
     pub output_format: OutputFormat,
@@ -210,16 +217,16 @@ pub struct ResolvedOutputConfig {
 
 /// Resolved counterpart of [`ReportArgs`].
 /// No context-dependent fields, but kept consistent with the other resolved structs.
-pub struct ResolvedReportArgs {
+pub struct ReportConfig {
     pub sort_by: Option<PairSortBy>,
     pub fragment_sort_by: Option<FragmentSortBy>,
 }
 
 /// Resolved counterpart of [`RunArgs`].
 pub struct ResolvedRunArgs {
-    pub index_config: ResolvedIndexConfig,
-    pub report_config: ResolvedReportArgs,
-    pub output_config: ResolvedOutputConfig,
+    pub index_config: IndexConfig,
+    pub report_config: ReportConfig,
+    pub output_config: OutputConfig,
 }
 
 // ---------------------------------------------------------------------------
@@ -230,8 +237,8 @@ pub trait Resolve<T> {
     fn resolve(self, paths: &[PathBuf]) -> T;
 }
 
-impl Resolve<ResolvedIndexConfig> for IndexArgs {
-    fn resolve(self, paths: &[PathBuf]) -> ResolvedIndexConfig {
+impl Resolve<IndexConfig> for IndexArgs {
+    fn resolve(self, paths: &[PathBuf]) -> IndexConfig {
         let language = match self.language.as_deref() {
             Some(s) => guess_grammar_from_name(s).expect("Unknown language"),
             None => {
@@ -241,24 +248,39 @@ impl Resolve<ResolvedIndexConfig> for IndexArgs {
             }
         };
 
-        ResolvedIndexConfig {
+        let file_count = paths.len();
+        // Compute both thresholds independently, then take the more restrictive
+        // (lower) of the two.
+        let from_count = self.max_fingerprint_count;
+        let from_percentage = self
+            .max_fingerprint_percentage
+            .map(|pct| (file_count as f64 * pct).floor() as usize);
+
+        let max_fingerprint_file_count = match (from_count, from_percentage) {
+            (Some(a), Some(b)) => Some(a.min(b)),
+            (Some(a), None) => Some(a),
+            (None, Some(b)) => Some(b),
+            (None, None) => None,
+        };
+
+        IndexConfig {
             kgram_length: self.kgram_length,
             kgrams_in_window: self.kgrams_in_window,
             keep_fragments: paths.len() == 2 || self.compare,
             language,
             include_comments: self.include_comments,
-            max_fingerprint_count: self.max_fingerprint_count,
-            max_fingerprint_percentage: self.max_fingerprint_percentage,
+            max_fingerprint_file_count,
             ignore: self.ignore,
+            min_length_match: self.min_length_match,
         }
     }
 }
 
-impl Resolve<ResolvedOutputConfig> for OutputArgs {
-    fn resolve(self, paths: &[PathBuf]) -> ResolvedOutputConfig {
+impl Resolve<OutputConfig> for OutputArgs {
+    fn resolve(self, paths: &[PathBuf]) -> OutputConfig {
         let name = self.name.unwrap_or_else(|| derive_report_name(paths));
 
-        ResolvedOutputConfig {
+        OutputConfig {
             name,
             output_format: self.output_format,
             output_destination: self.output_destination,
@@ -269,9 +291,9 @@ impl Resolve<ResolvedOutputConfig> for OutputArgs {
     }
 }
 
-impl Resolve<ResolvedReportArgs> for ReportArgs {
-    fn resolve(self, _paths: &[PathBuf]) -> ResolvedReportArgs {
-        ResolvedReportArgs {
+impl Resolve<ReportConfig> for ReportArgs {
+    fn resolve(self, _paths: &[PathBuf]) -> ReportConfig {
+        ReportConfig {
             sort_by: self.sort_by,
             fragment_sort_by: self.fragment_sort_by,
         }
@@ -288,7 +310,7 @@ impl Resolve<ResolvedRunArgs> for RunArgs {
     }
 }
 
-/// Derives the full report directory name from file context.
+/// Derives the full report directory name from the file context.
 ///
 /// Format: `dolos-report-{RFC3339_timestamp}-{base}`
 ///
@@ -312,5 +334,3 @@ fn file_stem(path: &Path) -> String {
         .unwrap_or("unknown")
         .to_string()
 }
-
-// ---------------------------------------------------------------------------

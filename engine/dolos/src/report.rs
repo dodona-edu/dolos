@@ -1,7 +1,7 @@
 use crate::collections::pair_array::PairArray;
 use crate::file::File;
 use crate::fragment::Fragment;
-use crate::opts::{FragmentSortBy, PairSortBy, ResolvedReportArgs};
+use crate::opts::{FragmentSortBy, PairSortBy, ReportConfig};
 use crate::suffixtree::types::{AnalysisResult, Match, PairMetrics};
 use crate::winnowing::region::Region;
 use std::cmp::Reverse;
@@ -24,7 +24,7 @@ pub struct Report {
     /// Resolved per-pair fragments, produced at construction time from raw
     /// matches and locations, which are then dropped.
     fragments: Option<PairArray<Vec<Fragment>>>,
-    config: ResolvedReportArgs,
+    config: ReportConfig,
 }
 
 impl Report {
@@ -36,7 +36,7 @@ impl Report {
         analysis_result: AnalysisResult,
         files: Vec<Rc<File>>,
         locations: Option<Vec<Vec<Region>>>,
-        config: ResolvedReportArgs,
+        config: ReportConfig,
     ) -> Report {
         let AnalysisResult { metrics, matches } = analysis_result;
         let fragment_sort_by = config.fragment_sort_by.clone();
@@ -130,14 +130,14 @@ mod tests {
     use super::*;
     use crate::collections::pair_array::PairArray;
     use crate::file::File;
-    use crate::opts::{FragmentSortBy, PairSortBy, ResolvedReportArgs};
+    use crate::opts::{FragmentSortBy, PairSortBy, ReportConfig};
     use crate::suffixtree::types::{AnalysisResult, Match, PairMetrics};
     use crate::winnowing::region::{Point, Region};
     use std::path::PathBuf;
     use std::rc::Rc;
 
-    fn default_config() -> ResolvedReportArgs {
-        ResolvedReportArgs { sort_by: None, fragment_sort_by: None }
+    fn default_config() -> ReportConfig {
+        ReportConfig { sort_by: None, fragment_sort_by: None }
     }
 
     fn make_file(name: &str) -> Rc<File> {
@@ -204,7 +204,7 @@ mod tests {
         raw_matches.set(
             0,
             1,
-            vec![Match { left_start: 0, right_start: 0, length: 2 }],
+            vec![Match { left_start: 0, right_start: 0, length: 2, ignored: false }],
         );
 
         let fragments = Report::resolve_fragments(raw_matches, locations, &None);
@@ -254,7 +254,7 @@ mod tests {
         metrics.set(1, 2, make_metrics(0.8));
 
         let analysis = AnalysisResult { metrics, matches: None };
-        let config = ResolvedReportArgs {
+        let config = ReportConfig {
             sort_by: Some(PairSortBy::Similarity),
             fragment_sort_by: None,
         };
@@ -287,12 +287,12 @@ mod tests {
             0,
             1,
             vec![
-                Match { left_start: 0, right_start: 0, length: 1 },
-                Match { left_start: 1, right_start: 1, length: 2 },
+                Match { left_start: 0, right_start: 0, length: 1, ignored: false },
+                Match { left_start: 1, right_start: 1, length: 2, ignored: false },
             ],
         );
 
-        let config = ResolvedReportArgs {
+        let config = ReportConfig {
             sort_by: None,
             fragment_sort_by: Some(FragmentSortBy::KgramsDescending),
         };

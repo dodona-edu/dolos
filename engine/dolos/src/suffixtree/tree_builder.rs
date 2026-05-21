@@ -10,17 +10,17 @@ impl UkkonenBuilder {
         Self
     }
 
-    pub(crate) fn add_words(&self, words: &[Vec<SymbolType>], tree: &mut SuffixTree) {
+    pub(crate) fn add_sequences(&self, sequences: &[Vec<SymbolType>], tree: &mut SuffixTree) {
         let mut cursor = BuildCursor::new(tree);
-        for i in 0..words.len() {
-            self.build_single_word(words, i, &mut cursor);
+        for i in 0..sequences.len() {
+            self.build_single_sequence(sequences, i, &mut cursor);
             cursor.reset();
         }
     }
 
-    /// Builds the suffix tree for a single word using Ukkonen's algorithm.
+    /// Builds the suffix tree for a single sequence using Ukkonen's algorithm.
     ///
-    /// This method processes the word symbol by symbol and performs implicit
+    /// This method processes the sequence symbol by symbol and performs implicit
     /// suffix extensions based on three main rules:
     ///
     /// 1. **Rule 1: Extension of existing leaves**. When a leaf node is reached, it
@@ -36,14 +36,14 @@ impl UkkonenBuilder {
     ///
     /// The algorithm also utilizes suffix links to navigate quickly between related nodes,
     /// ensuring linear-time construction.
-    fn build_single_word(
+    fn build_single_sequence(
         &self,
-        words: &[Vec<SymbolType>],
-        current_word_index: usize,
+        sequences: &[Vec<SymbolType>],
+        current_sequence_index: usize,
         cursor: &mut BuildCursor,
     ) {
-        let current_word = &words[current_word_index];
-        let end_index = current_word.len() + 1; // +1 for the virtual end-of-word sentinel
+        let current_sequence = &sequences[current_sequence_index];
+        let end_index = current_sequence.len() + 1; // +1 for the virtual end-of-sequence sentinel
         let mut num_leaves = 0;
         for j in 1..=end_index {
             let mut prev_internal_node: Option<NodeIndex> = None;
@@ -58,13 +58,13 @@ impl UkkonenBuilder {
                     prev_internal_node = None;
                 }
 
-                if cursor.next(j - 1, current_word_index, words) {
+                if cursor.next(j - 1, current_sequence_index, sequences) {
                     if j == end_index {
                         // in a leaf
-                        cursor.add_word_index(current_word_index);
+                        cursor.add_sequence_index(current_sequence_index);
                         // Return one symbol, because we are simulating that it does not yet know the end symbol
                         cursor.return_one_symbol();
-                        cursor.follow_link(j - 1, current_word_index, words);
+                        cursor.follow_link(j - 1, current_sequence_index, sequences);
                         continue;
                     } else {
                         break; // rule 3 : do nothing + show stopper
@@ -73,17 +73,17 @@ impl UkkonenBuilder {
 
                 // rule 2: split edge if needed and add leaf
                 if !cursor.at_node() {
-                    let new_internal_node_index = cursor.split_edge(words);
+                    let new_internal_node_index = cursor.split_edge(sequences);
                     if let Some(prev_current_node_index) = prev_internal_node {
                         cursor.add_link(prev_current_node_index, new_internal_node_index);
                     }
                     prev_internal_node = Some(new_internal_node_index);
                 }
-                cursor.add_leaf_from_position(j - 1, current_word_index, words);
+                cursor.add_leaf_from_position(j - 1, current_sequence_index, sequences);
                 num_leaves += 1;
 
                 // follow the suffix link since the extension is complete
-                cursor.follow_link(j - 1, current_word_index, words);
+                cursor.follow_link(j - 1, current_sequence_index, sequences);
             }
         }
     }

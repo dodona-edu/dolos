@@ -1,4 +1,4 @@
-use crate::opts::{OutputFormat, ResolvedOutputConfig};
+use crate::opts::{OutputConfig, OutputFormat};
 use crate::report::{Pair, Report};
 use crate::writer::csv_writer::CsvWriter;
 use crate::writer::terminal_writer::TerminalWriter;
@@ -38,7 +38,7 @@ pub enum Writer {
 
 impl Writer {
     /// Create a new writer based on the specified format.
-    pub fn new(config: ResolvedOutputConfig) -> io::Result<Self> {
+    pub fn new(config: OutputConfig) -> io::Result<Self> {
         match config.output_format {
             OutputFormat::Csv => Ok(Writer::Csv(CsvWriter::new(
                 config.output_destination,
