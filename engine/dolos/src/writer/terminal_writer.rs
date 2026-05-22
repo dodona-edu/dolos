@@ -3,7 +3,7 @@ use crate::report::Pair;
 use crate::winnowing::region::Region;
 use crate::writer::output::OutputWriter;
 use colored::Colorize;
-use std::io;
+use std::io::Result;
 
 /// Terminal writer that outputs similarity results to stdout.
 pub struct TerminalWriter;
@@ -19,7 +19,7 @@ fn column_width() -> usize {
 }
 
 impl OutputWriter for TerminalWriter {
-    fn write_pair(&mut self, pair: &Pair) -> io::Result<()> {
+    fn write_pair(&mut self, pair: &Pair) -> Result<()> {
         let m = pair.metrics;
         println!(
             "{} - {} (sim: {:.2}%, longest: {}, left: {}/{}, right: {}/{})",
@@ -40,7 +40,7 @@ impl OutputWriter for TerminalWriter {
         Ok(())
     }
 
-    fn finish(self) -> io::Result<()> {
+    fn finish(self) -> Result<()> {
         Ok(())
     }
 }
