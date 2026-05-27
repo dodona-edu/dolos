@@ -11,17 +11,6 @@ pub struct File {
     pub content: Option<String>,
 }
 
-impl File {
-    pub fn file_name(&self) -> &str {
-        self.path
-            .as_path()
-            .file_name()
-            .expect("should be a file")
-            .to_str()
-            .expect("should be valid UTF-8")
-    }
-}
-
 impl Hash for File {
     fn hash<H>(&self, state: &mut H)
     where

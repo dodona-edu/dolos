@@ -36,8 +36,8 @@ impl OutputWriter for CsvWriter {
         let m = pair.metrics;
         self.writer
             .serialize((
-                pair.left_file.file_name(),
-                pair.right_file.file_name(),
+                pair.left_file.path.display().to_string(),
+                pair.right_file.path.display().to_string(),
                 m.similarity,
                 m.longest_fragment,
                 m.total_left,
