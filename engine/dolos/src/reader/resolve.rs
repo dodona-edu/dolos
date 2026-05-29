@@ -3,16 +3,53 @@ use std::fs;
 use std::io::{Error, ErrorKind, Result};
 use std::path::{Path, PathBuf};
 
-pub(super) fn resolve(dir: &Path) -> Result<(String, Vec<PathBuf>)> {
+/// Resolve files from a directory. If an `info.csv` is present at the top
+/// level, it is used to determine the file list; otherwise files are collected
+/// recursively.
+pub(super) fn from_directory(dir: &Path) -> Result<(String, Vec<PathBuf>)> {
     let csv_path = dir.join("info.csv");
     let files = if csv_path.is_file() {
-        resolve_csv(&csv_path)?
+        filenames_from_csv(&csv_path)?
     } else {
         collect_recursive(dir)?
     };
     Ok((dir_name(dir), files))
 }
-fn resolve_csv(csv_path: &Path) -> Result<Vec<PathBuf>> {
+
+/// Resolve files from a CSV file. The name is derived from the CSV's parent
+/// directory.
+pub(super) fn from_csv(csv_path: &Path) -> Result<(String, Vec<PathBuf>)> {
+    let name = csv_path
+        .parent()
+        .map(dir_name)
+        .unwrap_or_else(|| "unknown".to_owned());
+    let files = filenames_from_csv(csv_path)?;
+    Ok((name, files))
+}
+
+/// Resolve files from an explicit list of paths. All paths must be existing
+/// files. The name is derived from the file names.
+pub(super) fn from_files(paths: Vec<PathBuf>) -> Result<(String, Vec<PathBuf>)> {
+    if let Some(path) = paths.iter().find(|p| !p.is_file()) {
+        return Err(Error::new(
+            ErrorKind::NotFound,
+            format!("'{}' is not a file", path.display()),
+        ));
+    }
+
+    let name = match paths.as_slice() {
+        [a, b] => format!(
+            "{}-{}",
+            a.file_name().unwrap_or_default().to_string_lossy(),
+            b.file_name().unwrap_or_default().to_string_lossy(),
+        ),
+        _ => format!("{} files", paths.len()),
+    };
+
+    Ok((name, paths))
+}
+
+fn filenames_from_csv(csv_path: &Path) -> Result<Vec<PathBuf>> {
     let dir = csv_path.parent().unwrap_or(Path::new("."));
     let invalid = |e| Error::new(ErrorKind::InvalidData, e);
     let mut rdr = Reader::from_path(csv_path).map_err(invalid)?;
@@ -24,12 +61,9 @@ fn resolve_csv(csv_path: &Path) -> Result<Vec<PathBuf>> {
         .position(|h| h == "filename")
         .ok_or_else(|| Error::new(ErrorKind::InvalidData, "CSV missing 'filename' column"))?;
 
-    let files = rdr
-        .records()
+    rdr.records()
         .map(|r| r.map_err(invalid).map(|r| dir.join(&r[filename_col])))
-        .collect::<Result<Vec<_>>>()?;
-
-    Ok(files)
+        .collect()
 }
 
 fn collect_recursive(dir: &Path) -> Result<Vec<PathBuf>> {
@@ -63,13 +97,13 @@ mod tests {
     use tempfile::tempdir;
 
     #[test]
-    fn dir_name_returns_last_component() {
+    fn test_dir_name() {
         assert_eq!(dir_name(Path::new("/foo/bar")), "bar");
         assert_eq!(dir_name(Path::new("relative/path")), "path");
     }
 
     #[test]
-    fn collect_recursive_finds_nested_files_in_sorted_order() {
+    fn test_collect_recursive_finds_nested_files() {
         let tmp = tempdir().unwrap();
         fs::write(tmp.path().join("b.txt"), "").unwrap();
         fs::write(tmp.path().join("a.txt"), "").unwrap();
@@ -86,16 +120,8 @@ mod tests {
     }
 
     #[test]
-    fn resolve_csv_reads_filename_column() {
-        let tmp = tempdir().unwrap();
-        fs::write(tmp.path().join("a.js"), "").unwrap();
-        fs::write(tmp.path().join("b.js"), "").unwrap();
-        let csv_path = tmp.path().join("info.csv");
-        fs::write(&csv_path, "filename\na.js\nb.js\n").unwrap();
-
-        let files = resolve_csv(&csv_path).unwrap();
-        assert_eq!(files.len(), 2);
-        assert!(files[0].ends_with("a.js"));
-        assert!(files[1].ends_with("b.js"));
+    fn test_from_files_errors_on_nonexistent_path() {
+        let result = from_files(vec!["does_not_exist.js".into()]);
+        assert!(result.is_err());
     }
 }

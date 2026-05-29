@@ -1,5 +1,5 @@
 mod archive;
 mod dataset;
-mod directory;
+mod resolve;
 
 pub use dataset::Dataset;
