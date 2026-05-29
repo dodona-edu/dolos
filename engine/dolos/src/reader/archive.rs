@@ -35,27 +35,22 @@ enum Format {
 }
 
 impl Format {
-    fn extensions(self) -> &'static [&'static str] {
-        match self {
-            Self::Zip => &[".zip"],
-            Self::Tar => &[".tar"],
-            Self::TarGz => &[".tar.gz", ".tgz"],
-            Self::TarBz2 => &[".tar.bz2", ".tbz2", ".tbz"],
-        }
-    }
+    /// Ordered longest-first so `.tar.gz` is matched before `.gz`, etc.
+    const EXTENSIONS: &'static [(&'static str, Self)] = &[
+        (".tar.gz", Self::TarGz),
+        (".tar.bz2", Self::TarBz2),
+        (".tgz", Self::TarGz),
+        (".tbz2", Self::TarBz2),
+        (".tbz", Self::TarBz2),
+        (".zip", Self::Zip),
+        (".tar", Self::Tar),
+    ];
 
-    /// Returns the detected format and the matched extension.
     fn detect(path: &Path) -> Option<(Self, &'static str)> {
         let name = path.file_name()?.to_string_lossy().to_lowercase();
-        [Self::TarGz, Self::TarBz2, Self::Zip, Self::Tar]
-            .into_iter()
-            .find_map(|f| {
-                f.extensions()
-                    .iter()
-                    .copied()
-                    .find(|&e| name.ends_with(e))
-                    .map(|e| (f, e))
-            })
+        Self::EXTENSIONS
+            .iter()
+            .find_map(|(ext, fmt)| name.ends_with(ext).then_some((*fmt, *ext)))
     }
 
     fn extract(self, src: &Path, dest: &Path) -> Result<()> {
