@@ -23,8 +23,8 @@ impl OutputWriter for TerminalWriter {
         let m = pair.metrics;
         println!(
             "{} - {} (sim: {:.2}%, longest: {}, left: {}/{}, right: {}/{})",
-            pair.left_file.path.display(),
-            pair.right_file.path.display(),
+            pair.left_file.relative_path.display(),
+            pair.right_file.relative_path.display(),
             m.similarity * 100.0,
             m.longest_fragment,
             m.overlap_left,
@@ -87,8 +87,8 @@ impl TerminalWriter {
         println!();
         println!(
             " {:<width$}   {}",
-            pair.left_file.path.display().to_string().bold(),
-            pair.right_file.path.display().to_string().bold(),
+            pair.left_file.relative_path.display().to_string().bold(),
+            pair.right_file.relative_path.display().to_string().bold(),
             width = col_width,
         );
         println!();

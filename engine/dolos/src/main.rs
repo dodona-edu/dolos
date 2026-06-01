@@ -13,7 +13,7 @@ fn main() -> Result<()> {
     match opts.command {
         Command::Run { files, output_format, output_destination } => {
             let dataset = Dataset::create(files)?;
-            let dolos = Dolos::from_paths(dataset.files, DolosConfig::default());
+            let dolos = Dolos::from_file_set(dataset.file_set, DolosConfig::default());
             let report = dolos.build_report();
 
             Writer::new(output_format, output_destination)?.write_and_finish(&report)?;

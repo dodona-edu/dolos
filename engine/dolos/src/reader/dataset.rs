@@ -1,17 +1,20 @@
+use crate::file::FileSet;
 use std::io::{Error, ErrorKind, Result};
 use std::path::{Path, PathBuf};
 use tempfile::TempDir;
 
 use super::{archive, resolve};
 
-/// A named collection of file paths ready for analysis.
+/// A named collection of source files ready for analysis.
 ///
-/// When created from an archive, the extracted files live inside a temporary
-/// directory. `_temp_dir` keeps that directory alive for the lifetime of the
-/// `Dataset`; it is deleted automatically when the `Dataset` is dropped.
+/// `file_set` holds the base directory and the paths relative to it.
+/// The relative paths are also the display paths used in the output.
+///
+/// When created from an archive, `_temp_dir` keeps the extracted directory
+/// alive for the lifetime of the `Dataset`.
 pub struct Dataset {
     pub name: String,
-    pub files: Vec<PathBuf>,
+    pub file_set: FileSet,
     _temp_dir: Option<TempDir>,
 }
 
@@ -37,21 +40,30 @@ impl Dataset {
 
     fn from_multi_path(paths: Vec<PathBuf>) -> Result<Self> {
         let (name, files) = resolve::from_files(paths)?;
-        Ok(Self { name, files, _temp_dir: None })
+        // No shared root — base_dir is empty, so joining is a no-op.
+        Ok(Self {
+            name,
+            file_set: FileSet::new(PathBuf::new(), files),
+            _temp_dir: None,
+        })
     }
 
     fn from_single_path(path: &Path) -> Result<Self> {
         if path.is_dir() {
             let (name, files) = resolve::from_directory(path)?;
-            Ok(Self { name, files, _temp_dir: None })
+            Ok(Self { name, file_set: FileSet::new(path, files), _temp_dir: None })
         } else if path.extension().is_some_and(|ext| ext == "csv") {
             let (name, files) = resolve::from_csv(path)?;
-            Ok(Self { name, files, _temp_dir: None })
+            Ok(Self {
+                name,
+                file_set: FileSet::new(path.parent().unwrap_or(Path::new(".")), files),
+                _temp_dir: None,
+            })
         } else if let Some(extracted) = archive::try_extract(path)? {
             let (_, files) = resolve::from_directory(extracted.temp_dir.path())?;
             Ok(Self {
                 name: extracted.name,
-                files,
+                file_set: FileSet::new(extracted.temp_dir.path(), files),
                 _temp_dir: Some(extracted.temp_dir),
             })
         } else {
@@ -89,7 +101,7 @@ mod tests {
         ])
         .unwrap();
         assert_eq!(dataset.name, "sample1.js-sample2.js");
-        assert_eq!(dataset.files.len(), 2);
+        assert_eq!(dataset.file_set.relative_paths.len(), 2);
     }
 
     #[test]
@@ -101,19 +113,17 @@ mod tests {
         ])
         .unwrap();
         assert_eq!(dataset.name, "3 files");
-        assert_eq!(dataset.files.len(), 3);
+        assert_eq!(dataset.file_set.relative_paths.len(), 3);
     }
 
     #[test]
     fn test_dataset_from_single_directory() {
         let dataset = Dataset::create(vec!["fixtures/reader".into()]).unwrap();
         assert_eq!(dataset.name, "reader");
+        assert_eq!(dataset.file_set.base_dir, PathBuf::from("fixtures/reader"));
         assert_eq!(
-            dataset.files,
-            vec![
-                PathBuf::from("fixtures/reader/sample1.js"),
-                PathBuf::from("fixtures/reader/sample2.js"),
-            ]
+            dataset.file_set.relative_paths,
+            vec![PathBuf::from("sample1.js"), PathBuf::from("sample2.js"),]
         );
     }
 
@@ -121,12 +131,10 @@ mod tests {
     fn test_dataset_from_csv() {
         let dataset = Dataset::create(vec!["fixtures/reader/info.csv".into()]).unwrap();
         assert_eq!(dataset.name, "reader");
+        assert_eq!(dataset.file_set.base_dir, PathBuf::from("fixtures/reader"));
         assert_eq!(
-            dataset.files,
-            vec![
-                PathBuf::from("fixtures/reader/sample1.js"),
-                PathBuf::from("fixtures/reader/sample2.js"),
-            ]
+            dataset.file_set.relative_paths,
+            vec![PathBuf::from("sample1.js"), PathBuf::from("sample2.js"),]
         );
     }
 
@@ -139,12 +147,11 @@ mod tests {
         let dataset = Dataset::create(vec![path.into()]).unwrap();
         assert_eq!(dataset.name, "reader");
 
-        // Files live under a randomized temp path; check by suffix.
-        let mut files = dataset.files.clone();
+        let mut files = dataset.file_set.relative_paths.clone();
         files.sort();
         assert_eq!(files.len(), 2);
-        assert!(files[0].ends_with("sample1.js"));
-        assert!(files[1].ends_with("sample2.js"));
+        assert_eq!(files[0], PathBuf::from("sample1.js"));
+        assert_eq!(files[1], PathBuf::from("sample2.js"));
     }
 
     #[test]
@@ -155,8 +162,13 @@ mod tests {
         ])
         .unwrap();
         assert_eq!(dataset.name, "sample1.js-sample2.js");
-        let solution: Vec<PathBuf> =
-            vec!["fixtures/sample1.js".into(), "fixtures/sample2.js".into()];
-        assert_eq!(dataset.files, solution);
+        assert_eq!(dataset.file_set.base_dir, PathBuf::new());
+        assert_eq!(
+            dataset.file_set.relative_paths,
+            vec![
+                PathBuf::from("fixtures/sample1.js"),
+                PathBuf::from("fixtures/sample2.js"),
+            ]
+        );
     }
 }

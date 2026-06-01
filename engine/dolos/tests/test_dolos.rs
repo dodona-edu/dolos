@@ -1,10 +1,21 @@
 use dolos::dolos::{Dolos, DolosConfig};
+use dolos::file::FileSet;
+use std::path::PathBuf;
+
+fn file_set(paths: &[&str]) -> FileSet {
+    FileSet {
+        base_dir: PathBuf::new(),
+        relative_paths: paths.iter().map(PathBuf::from).collect(),
+    }
+}
 
 #[test]
 fn test_pair_metrics() {
-    let paths = vec!["fixtures/sample1.js".into(), "fixtures/sample2.js".into()];
-
-    let report = Dolos::from_paths(paths, DolosConfig::default()).build_report();
+    let report = Dolos::from_file_set(
+        file_set(&["fixtures/sample1.js", "fixtures/sample2.js"]),
+        DolosConfig::default(),
+    )
+    .build_report();
     let metrics = report
         .iter_pairs()
         .next()
@@ -21,30 +32,36 @@ fn test_pair_metrics() {
 
 #[test]
 fn test_two_files_have_fragments() {
-    let paths = vec!["fixtures/sample1.js".into(), "fixtures/sample2.js".into()];
-    let report = Dolos::from_paths(paths, DolosConfig::default()).build_report();
+    let report = Dolos::from_file_set(
+        file_set(&["fixtures/sample1.js", "fixtures/sample2.js"]),
+        DolosConfig::default(),
+    )
+    .build_report();
 
     for pair in report.iter_pairs() {
         assert!(
             pair.fragments.is_some(),
-            "fragments should be None when more than 2 files are given"
+            "fragments should be present for 2 files"
         );
     }
 }
 
 #[test]
 fn test_three_files_no_fragments() {
-    let paths = vec![
-        "fixtures/sample1.js".into(),
-        "fixtures/sample2.js".into(),
-        "fixtures/simple.js".into(),
-    ];
-    let report = Dolos::from_paths(paths, DolosConfig::default()).build_report();
+    let report = Dolos::from_file_set(
+        file_set(&[
+            "fixtures/sample1.js",
+            "fixtures/sample2.js",
+            "fixtures/simple.js",
+        ]),
+        DolosConfig::default(),
+    )
+    .build_report();
 
     for pair in report.iter_pairs() {
         assert!(
             pair.fragments.is_none(),
-            "fragments should be None when more than 2 files are given"
+            "fragments should be None for more than 2 files"
         );
     }
 }

@@ -1,10 +1,10 @@
-use crate::file::File;
+use crate::file::{File, FileSet};
 use crate::report::Report;
 use crate::suffixtree::tree::SuffixTree;
 use crate::winnowing::fingerprints::{Fingerprint, Winnow};
 use crate::winnowing::region::Region;
 use crate::winnowing::tokenizer::{Tokenizer, Tokens};
-use std::path::PathBuf;
+use std::path::Path;
 use std::rc::Rc;
 use tree_sitter_grammars::Language;
 
@@ -41,12 +41,13 @@ impl Index {
         }
     }
 
-    pub fn tokenize_file(&mut self, path: PathBuf) {
-        if !self.language.matches(&path) {
+    pub fn tokenize_file(&mut self, base_dir: &Path, relative: &Path) {
+        if !self.language.matches(relative) {
             panic!("Language does not match")
         }
 
-        let content = std::fs::read_to_string(&path).expect("should be able to read file");
+        let content =
+            std::fs::read_to_string(base_dir.join(relative)).expect("should be able to read file");
         let (hashes, locations) =
             self.tokenizer
                 .parse(&content)
@@ -59,7 +60,7 @@ impl Index {
         }
 
         let file = Rc::new(File {
-            path,
+            relative_path: relative.to_path_buf(),
             language: self.language,
             content: self.keep_fragments.then_some(content),
         });
@@ -67,9 +68,9 @@ impl Index {
         self.files.push(file);
     }
 
-    pub fn add_files(&mut self, paths: Vec<PathBuf>) {
-        for path in paths {
-            self.tokenize_file(path);
+    pub fn add_files(&mut self, file_set: FileSet) {
+        for relative in file_set.relative_paths {
+            self.tokenize_file(&file_set.base_dir, &relative);
         }
     }
 

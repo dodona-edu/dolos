@@ -94,7 +94,7 @@ mod tests {
 
     fn make_file(name: &str) -> Rc<File> {
         Rc::new(File {
-            path: PathBuf::from(name),
+            relative_path: PathBuf::from(name),
             language: Language::Javascript,
             content: None,
         })
