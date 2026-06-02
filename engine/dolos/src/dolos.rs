@@ -1,7 +1,7 @@
+use crate::file::FileSet;
 use crate::index::Index;
 use crate::report::Report;
 use std::fmt;
-use std::path::PathBuf;
 use tree_sitter_grammars::guess_grammar_from_path;
 
 /// Configuration for a Dolos analysis run.
@@ -22,11 +22,12 @@ pub struct Dolos {
 }
 
 impl Dolos {
-    pub fn from_paths(paths: Vec<PathBuf>, config: DolosConfig) -> Self {
-        let first = paths.first().expect("no paths given");
-        let language = guess_grammar_from_path(first).expect("lang");
+    pub fn from_file_set(file_set: FileSet, config: DolosConfig) -> Self {
+        let language =
+            guess_grammar_from_path(file_set.relative_paths.first().expect("no files given"))
+                .expect("lang");
 
-        let keep_fragments: bool = paths.len() == 2;
+        let keep_fragments = file_set.relative_paths.len() == 2;
         let mut index = Index::new(
             config.k,
             config.w,
@@ -34,7 +35,7 @@ impl Dolos {
             config.min_match_length,
             language,
         );
-        index.add_files(paths);
+        index.add_files(file_set);
         Dolos { index }
     }
 
