@@ -3,7 +3,7 @@ use crate::report::Pair;
 use crate::winnowing::region::Region;
 use crate::writer::output::OutputWriter;
 use colored::Colorize;
-use std::io;
+use std::io::Result;
 
 /// Terminal writer that outputs similarity results to stdout.
 pub struct TerminalWriter;
@@ -19,12 +19,12 @@ fn column_width() -> usize {
 }
 
 impl OutputWriter for TerminalWriter {
-    fn write_pair(&mut self, pair: &Pair) -> io::Result<()> {
+    fn write_pair(&mut self, pair: &Pair) -> Result<()> {
         let m = pair.metrics;
         println!(
             "{} - {} (sim: {:.2}%, longest: {}, left: {}/{}, right: {}/{})",
-            pair.left_file.file_name(),
-            pair.right_file.file_name(),
+            pair.left_file.relative_path.display(),
+            pair.right_file.relative_path.display(),
             m.similarity * 100.0,
             m.longest_fragment,
             m.overlap_left,
@@ -40,7 +40,7 @@ impl OutputWriter for TerminalWriter {
         Ok(())
     }
 
-    fn finish(self) -> io::Result<()> {
+    fn finish(self) -> Result<()> {
         Ok(())
     }
 }
@@ -87,8 +87,8 @@ impl TerminalWriter {
         println!();
         println!(
             " {:<width$}   {}",
-            pair.left_file.path.display().to_string().bold(),
-            pair.right_file.path.display().to_string().bold(),
+            pair.left_file.relative_path.display().to_string().bold(),
+            pair.right_file.relative_path.display().to_string().bold(),
             width = col_width,
         );
         println!();

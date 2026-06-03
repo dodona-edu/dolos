@@ -67,10 +67,16 @@ lang-verilog = ["tree-sitter-grammars/lang-verilog"]
 
 [dependencies]
 chrono = { version = "0.4.44", features = ["clock", "std"] }
+bzip2 = "0.6.1"
+flate2 = "1.1.9"
+tar = "0.4.46"
+zip = "8.6.0"
+csv = "1.4.0"
+tempfile = "3.27.0"
 clap = { version = "4.6.1", features = ["derive"] }
 colored = "3.1.1"
 terminal_size = "0.4.4"
-tree-sitter = "=0.26.8"
+tree-sitter = "=0.26.9"
 tree-sitter-grammars = { path = "../tree-sitter-grammars" }
 
 [dev-dependencies]

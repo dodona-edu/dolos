@@ -1,4 +1,5 @@
 use crate::file::File;
+use crate::file::FileSet;
 use crate::opts::{IndexConfig, ReportConfig};
 use crate::report::Report;
 use crate::suffixtree::tree::SuffixTree;
@@ -6,7 +7,7 @@ use crate::winnowing::fingerprints::{Fingerprint, Winnow};
 use crate::winnowing::region::Region;
 use crate::winnowing::tokenizer::{Tokenizer, Tokens};
 use std::fmt;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::rc::Rc;
 
 pub struct Dolos {
@@ -19,7 +20,7 @@ pub struct Dolos {
 }
 
 impl Dolos {
-    pub fn from_paths(paths: Vec<PathBuf>, config: IndexConfig) -> Self {
+    pub fn from_file_set(file_set: FileSet, config: IndexConfig) -> Self {
         let tokenizer = Tokenizer::new(config.language, config.include_comments);
         let locations = config.keep_fragments.then_some(Vec::new());
         let mut dolos = Dolos {
@@ -30,7 +31,7 @@ impl Dolos {
             locations,
             tokenizer,
         };
-        dolos.add_files(paths);
+        dolos.add_files(file_set);
 
         // Ignore file is added after all regular files, so its word index is
         // always >= regular_word_count.
@@ -61,14 +62,15 @@ impl Dolos {
     ///
     /// The file is added to `self.files`, its fingerprints to `self.hashes`, and
     /// (when `keep_fragments` is set) its locations to `self.locations`.
-    fn add_file(&mut self, path: PathBuf) {
+    fn add_file(&mut self, base_dir: &Path, relative: &Path) {
         assert!(
-            self.config.language.matches(&path),
+            self.config.language.matches(relative),
             "Language does not match file: {}",
-            path.display()
+            relative.display()
         );
 
-        let content = std::fs::read_to_string(&path).expect("should be able to read file");
+        let content =
+            std::fs::read_to_string(base_dir.join(relative)).expect("should be able to read file");
         let (hashes, locations) = self.fingerprint(&content, self.config.keep_fragments);
 
         self.hashes.push(hashes);
@@ -76,7 +78,7 @@ impl Dolos {
             locs.push(locations.expect("locations should be present when keep_fragments is true"));
         }
         self.files.push(Rc::new(File {
-            path,
+            relative_path: relative.to_path_buf(),
             content: self.config.keep_fragments.then_some(content),
         }));
     }
@@ -93,9 +95,9 @@ impl Dolos {
         self.ignore_hashes.push(hashes);
     }
 
-    fn add_files(&mut self, paths: Vec<PathBuf>) {
-        for path in paths {
-            self.add_file(path);
+    fn add_files(&mut self, file_set: FileSet) {
+        for relative in file_set.relative_paths {
+            self.add_file(&file_set.base_dir, &relative);
         }
     }
 

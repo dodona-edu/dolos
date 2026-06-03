@@ -141,7 +141,7 @@ mod tests {
     }
 
     fn make_file(name: &str) -> Rc<File> {
-        Rc::new(File { path: PathBuf::from(name), content: None })
+        Rc::new(File { relative_path: PathBuf::from(name), content: None })
     }
 
     fn make_metrics(similarity: f64) -> PairMetrics {
@@ -174,7 +174,7 @@ mod tests {
         // Find the (a.js, b.js) pair and check its metrics
         let ab = pairs
             .iter()
-            .find(|p| p.left_file.file_name() == "a.js" && p.right_file.file_name() == "b.js")
+            .find(|p| p.left_file == files[0].as_ref() && p.right_file == files[1].as_ref())
             .expect("a.js-b.js pair not found");
 
         assert_eq!(ab.metrics.similarity, 0.5);
@@ -227,20 +227,15 @@ mod tests {
         let files = vec![make_file("x.js"), make_file("y.js"), make_file("z.js")];
         let metrics = PairArray::new(3, make_metrics(0.0));
         let analysis = AnalysisResult { metrics, matches: None };
-        let report = Report::from(analysis, files, None, default_config());
+        let report = Report::from(analysis, files.clone(), None, default_config());
 
         let pairs = report.all_pairs();
         assert_eq!(pairs.len(), 3);
 
-        // Collect (left, right) name tuples
-        let names: Vec<(&str, &str)> = pairs
-            .iter()
-            .map(|p| (p.left_file.file_name(), p.right_file.file_name()))
-            .collect();
-
-        assert!(names.contains(&("x.js", "y.js")));
-        assert!(names.contains(&("x.js", "z.js")));
-        assert!(names.contains(&("y.js", "z.js")));
+        let pair_files: Vec<_> = pairs.iter().map(|p| (p.left_file, p.right_file)).collect();
+        assert!(pair_files.contains(&(files[0].as_ref(), files[1].as_ref())));
+        assert!(pair_files.contains(&(files[0].as_ref(), files[2].as_ref())));
+        assert!(pair_files.contains(&(files[1].as_ref(), files[2].as_ref())));
     }
 
     /// `test_sort_by_similarity` verifies that `sort_by: Similarity` yields pairs

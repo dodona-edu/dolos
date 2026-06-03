@@ -3,6 +3,7 @@ pub mod dolos;
 pub mod file;
 pub mod fragment;
 pub mod opts;
+pub mod reader;
 pub mod report;
 pub mod suffixtree;
 pub mod winnowing;

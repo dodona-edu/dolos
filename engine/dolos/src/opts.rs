@@ -1,6 +1,6 @@
-use chrono::Utc;
+use crate::reader::Dataset;
 use clap::{Parser, Subcommand};
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use tree_sitter_grammars::{Language, guess_grammar_from_name, guess_grammar_from_path};
 
 #[derive(Parser, Debug)]
@@ -234,21 +234,25 @@ pub struct ResolvedRunArgs {
 // ---------------------------------------------------------------------------
 
 pub trait Resolve<T> {
-    fn resolve(self, paths: &[PathBuf]) -> T;
+    fn resolve(self, dataset: &Dataset) -> T;
 }
 
 impl Resolve<IndexConfig> for IndexArgs {
-    fn resolve(self, paths: &[PathBuf]) -> IndexConfig {
+    fn resolve(self, dataset: &Dataset) -> IndexConfig {
         let language = match self.language.as_deref() {
             Some(s) => guess_grammar_from_name(s).expect("Unknown language"),
             None => {
-                let first = paths.first().expect("no paths given");
+                let first = dataset
+                    .file_set
+                    .relative_paths
+                    .first()
+                    .expect("no paths given");
                 guess_grammar_from_path(first)
                     .expect("Could not detect language from file extension")
             }
         };
 
-        let file_count = paths.len();
+        let file_count = dataset.file_set.relative_paths.len();
         // Compute both thresholds independently, then take the more restrictive
         // (lower) of the two.
         let from_count = self.max_fingerprint_count;
@@ -266,7 +270,7 @@ impl Resolve<IndexConfig> for IndexArgs {
         IndexConfig {
             kgram_length: self.kgram_length,
             kgrams_in_window: self.kgrams_in_window,
-            keep_fragments: paths.len() == 2 || self.compare,
+            keep_fragments: dataset.file_set.relative_paths.len() == 2 || self.compare,
             language,
             include_comments: self.include_comments,
             max_fingerprint_file_count,
@@ -277,8 +281,8 @@ impl Resolve<IndexConfig> for IndexArgs {
 }
 
 impl Resolve<OutputConfig> for OutputArgs {
-    fn resolve(self, paths: &[PathBuf]) -> OutputConfig {
-        let name = self.name.unwrap_or_else(|| derive_report_name(paths));
+    fn resolve(self, dataset: &Dataset) -> OutputConfig {
+        let name = dataset.name.clone();
 
         OutputConfig {
             name,
@@ -292,7 +296,7 @@ impl Resolve<OutputConfig> for OutputArgs {
 }
 
 impl Resolve<ReportConfig> for ReportArgs {
-    fn resolve(self, _paths: &[PathBuf]) -> ReportConfig {
+    fn resolve(self, _paths: &Dataset) -> ReportConfig {
         ReportConfig {
             sort_by: self.sort_by,
             fragment_sort_by: self.fragment_sort_by,
@@ -301,36 +305,11 @@ impl Resolve<ReportConfig> for ReportArgs {
 }
 
 impl Resolve<ResolvedRunArgs> for RunArgs {
-    fn resolve(self, paths: &[PathBuf]) -> ResolvedRunArgs {
+    fn resolve(self, paths: &Dataset) -> ResolvedRunArgs {
         ResolvedRunArgs {
             index_config: self.index_args.resolve(paths),
             report_config: self.report_args.resolve(paths),
             output_config: self.output_args.resolve(paths),
         }
     }
-}
-
-/// Derives the full report directory name from the file context.
-///
-/// Format: `dolos-report-{RFC3339_timestamp}-{base}`
-///
-/// Base name precedence:
-/// - Single path → file stem (no extension)
-/// - Two or more paths → `"{first_stem}--{second_stem}"`
-/// - No paths → `"unknown"`
-fn derive_report_name(paths: &[PathBuf]) -> String {
-    let timestamp = Utc::now().format("%Y%m%dT%H%M%S%.3fZ").to_string();
-    let base = match paths {
-        [single] => file_stem(single),
-        [first, second, ..] => format!("{}--{}", file_stem(first), file_stem(second)),
-        _ => "unknown".to_string(),
-    };
-    format!("dolos-report-{timestamp}-{base}")
-}
-
-fn file_stem(path: &Path) -> String {
-    path.file_stem()
-        .and_then(|s| s.to_str())
-        .unwrap_or("unknown")
-        .to_string()
 }
