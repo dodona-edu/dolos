@@ -50,7 +50,7 @@
     "typescript": "^6.0.3",
     "unique-names-generator": "^4.7.1",
     "unplugin-vue-components": "^32.0.0",
-    "vite": "^7.3.3",
+    "vite": "^8.0.14",
     "vite-plugin-comlink": "^5.1.0",
     "vite-plugin-vuetify": "^2.1.1",
     "vue": "^3.5.15",
