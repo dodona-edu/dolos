@@ -1,17 +1,20 @@
-use crate::file::File;
-use crate::file::FileSet;
-use crate::opts::{IndexConfig, ReportConfig};
+use crate::config::{IndexConfig, ReportConfig};
+use crate::file::{File, FileSet};
+use crate::opts::DolosConfig;
+use crate::reader::Dataset;
 use crate::report::Report;
 use crate::suffixtree::tree::SuffixTree;
 use crate::winnowing::fingerprints::{Fingerprint, Winnow};
 use crate::winnowing::region::Region;
 use crate::winnowing::tokenizer::{Tokenizer, Tokens};
 use std::fmt;
+use std::io::Result;
 use std::path::{Path, PathBuf};
 use std::rc::Rc;
 
 pub struct Dolos {
-    config: IndexConfig,
+    report_config: ReportConfig,
+    index_config: IndexConfig,
     files: Vec<Rc<File>>,
     hashes: Vec<Vec<Fingerprint>>,
     ignore_hashes: Vec<Vec<Fingerprint>>,
@@ -20,28 +23,43 @@ pub struct Dolos {
 }
 
 impl Dolos {
-    pub fn from_file_set(file_set: FileSet, config: IndexConfig) -> Self {
-        let tokenizer = Tokenizer::new(config.language, config.include_comments);
-        let locations = config.keep_fragments.then_some(Vec::new());
+    /// Create a new `Dolos` analysis from a list of input paths and index arguments.
+    ///
+    /// Accepted inputs for `files`:
+    /// - **Multiple paths** → treated as individual files.
+    /// - **One directory** → files collected recursively.
+    /// - **One CSV file** → file list read from the `filename` column.
+    /// - **One archive** → extracted and treated as a directory.
+    pub fn new(files: Vec<PathBuf>, config: DolosConfig) -> Result<Self> {
+        let dataset = Dataset::create(files)?;
+        let report_config = ReportConfig::from_config(&config, dataset.name);
+        let index_config = IndexConfig::from_config(&config, &dataset.file_set);
+
+        let tokenizer = Tokenizer::new(index_config.language, index_config.include_comments);
+        let locations = index_config.keep_fragments.then_some(Vec::new());
+
         let mut dolos = Dolos {
-            config,
+            report_config,
+            index_config,
             files: Vec::new(),
             hashes: Vec::new(),
             ignore_hashes: Vec::new(),
             locations,
             tokenizer,
         };
-        dolos.add_files(file_set);
+
+        dolos.add_files(dataset.file_set);
 
         // Ignore file is added after all regular files, so its word index is
         // always >= regular_word_count.
-        if let Some(ignore_path) = dolos.config.ignore.clone() {
+        if let Some(ignore_path) = dolos.index_config.ignore.clone() {
             dolos.add_ignore_file(ignore_path);
         }
-        dolos
+
+        Ok(dolos)
     }
 
-    /// Parse `content` into a fingerprint sequence (and optionally per-fingerprint`
+    /// Parse `content` into a fingerprint sequence (and optionally per-fingerprint
     /// source locations when `keep_locations` is `true`).
     fn fingerprint(
         &mut self,
@@ -52,8 +70,8 @@ impl Dolos {
             .parse(content)
             .tokens(self.tokenizer.include_comments)
             .winnow(
-                self.config.kgram_length,
-                self.config.kgrams_in_window,
+                self.index_config.kgram_length,
+                self.index_config.kgrams_in_window,
                 keep_locations,
             )
     }
@@ -63,15 +81,20 @@ impl Dolos {
     /// The file is added to `self.files`, its fingerprints to `self.hashes`, and
     /// (when `keep_fragments` is set) its locations to `self.locations`.
     fn add_file(&mut self, base_dir: &Path, relative: &Path) {
-        assert!(
-            self.config.language.matches(relative),
-            "Language does not match file: {}",
-            relative.display()
-        );
+        // Only enforce the language-extension match when the language was
+        // auto-detected.  If the user explicitly specified the language, they
+        // know what they want (e.g., files exported without an extension).
+        if !self.index_config.language_user_specified {
+            assert!(
+                self.index_config.language.matches(relative),
+                "Language does not match file: {}",
+                relative.display()
+            );
+        }
 
         let content =
             std::fs::read_to_string(base_dir.join(relative)).expect("should be able to read file");
-        let (hashes, locations) = self.fingerprint(&content, self.config.keep_fragments);
+        let (hashes, locations) = self.fingerprint(&content, self.index_config.keep_fragments);
 
         self.hashes.push(hashes);
         if let Some(locs) = self.locations.as_mut() {
@@ -79,7 +102,7 @@ impl Dolos {
         }
         self.files.push(Rc::new(File {
             relative_path: relative.to_path_buf(),
-            content: self.config.keep_fragments.then_some(content),
+            content: self.index_config.keep_fragments.then_some(content),
         }));
     }
 
@@ -101,24 +124,28 @@ impl Dolos {
         }
     }
 
-    pub fn build_report(self, report_config: ReportConfig) -> Report {
+    /// Run the suffix-tree analysis and build a [`Report`].
+    pub fn build_report(self) -> Report {
         let mut tree = SuffixTree::build(&self.hashes);
         tree.add_ignored_sequences(&self.hashes, &self.ignore_hashes);
+        let exclude_ignored = self.index_config.max_fingerprint_file_count.is_some()
+            || !self.ignore_hashes.is_empty();
         let result = tree.analyze(
             &self.hashes,
-            self.config.min_length_match,
-            self.config.keep_fragments,
-            self.config.max_fingerprint_file_count.is_some() || !self.ignore_hashes.is_empty(),
-            self.config.max_fingerprint_file_count,
+            self.index_config.min_length_match,
+            self.index_config.keep_fragments,
+            exclude_ignored,
+            self.index_config.max_fingerprint_file_count,
         );
-        Report::from(result, self.files, self.locations, report_config)
+        Report::new(result, self.files, self.locations, self.report_config)
     }
 }
 
 impl fmt::Debug for Dolos {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
         fmt.debug_struct("Dolos")
-            .field("language", &self.config.language)
+            .field("name", &self.report_config.name)
+            .field("language", &self.index_config.language)
             .field("files", &self.files)
             .finish()
     }

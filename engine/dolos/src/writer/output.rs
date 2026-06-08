@@ -12,8 +12,8 @@ pub trait OutputWriter {
 
     /// Write all pairs to the output.
     fn write_report(&mut self, report: &Report) -> Result<()> {
-        for pair in report.all_pairs() {
-            self.write_pair(&pair)?;
+        for pair in &report.pairs {
+            self.write_pair(pair)?;
         }
         Ok(())
     }
@@ -38,12 +38,12 @@ pub enum Writer {
 }
 
 impl Writer {
-    /// Create a new writer based on the specified format.
-    pub fn new(config: OutputConfig) -> io::Result<Self> {
-        match config.output_format {
+    /// Create a new writer based on the specified output arguments.
+    pub fn new(args: OutputConfig, report: &Report) -> io::Result<Self> {
+        match args.output_format {
             OutputFormat::Csv => Ok(Writer::Csv(Box::new(CsvWriter::new(
-                config.output_destination,
-                &config.name,
+                args.output_destination,
+                &report.name,
             )?))),
             OutputFormat::Terminal | OutputFormat::Console => Ok(Writer::Terminal(TerminalWriter)),
             OutputFormat::Html | OutputFormat::Web => todo!("HTML output not yet implemented"),

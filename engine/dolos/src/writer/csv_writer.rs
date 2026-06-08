@@ -37,7 +37,7 @@ impl CsvWriter {
 
 impl OutputWriter for CsvWriter {
     fn write_pair(&mut self, pair: &Pair) -> Result<()> {
-        let m = pair.metrics;
+        let m = &pair.metrics;
         self.writer
             .serialize((
                 pair.left_file.relative_path.display().to_string(),

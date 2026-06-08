@@ -20,7 +20,7 @@ fn column_width() -> usize {
 
 impl OutputWriter for TerminalWriter {
     fn write_pair(&mut self, pair: &Pair) -> Result<()> {
-        let m = pair.metrics;
+        let m = &pair.metrics;
         println!(
             "{} - {} (sim: {:.2}%, longest: {}, left: {}/{}, right: {}/{})",
             pair.left_file.relative_path.display(),
@@ -66,7 +66,7 @@ impl TerminalWriter {
     // ── Fragment rendering ───────────────────────────────────────────────
 
     fn write_fragments(pair: &Pair) {
-        let fragments = pair.fragments.expect("missing fragments for pair");
+        let fragments = pair.fragments.as_ref().expect("missing fragments for pair");
 
         let left_lines: Vec<&str> = pair
             .left_file
@@ -106,7 +106,7 @@ impl TerminalWriter {
         }
     }
 
-    /// Write a single fragment as a side-by-side coloured block.
+    /// Write a single fragment as a side-by-side colored block.
     fn write_fragment(
         frag: &Fragment,
         left_lines: &[&str],
@@ -168,13 +168,14 @@ impl TerminalWriter {
 
         let mut result = Vec::new();
         for (i, line) in lines[display_start..=display_end].iter().enumerate() {
-            let is_match = i >= start_row && i <= end_row;
+            let row = display_start + i;
+            let is_match = row >= start_row && row <= end_row;
 
-            let hl_start = if i == start_row { start_col } else { 0 };
-            let hl_end = if i == end_row { end_col } else { line.len() };
+            let hl_start = if row == start_row { start_col } else { 0 };
+            let hl_end = if row == end_row { end_col } else { line.len() };
 
             result.push(DisplayLine {
-                line_number: i + 1,
+                line_number: row + 1,
                 code: line,
                 is_match,
                 highlight_start_col: is_match.then_some(hl_start),
@@ -195,7 +196,7 @@ impl TerminalWriter {
         let mut offset = 0;
         let mut rows = Vec::new();
 
-        while offset < dl.code.len() {
+        while rows.is_empty() || offset < dl.code.len() {
             let end = (offset + code_width).min(dl.code.len());
             let chunk = &dl.code[offset..end];
 
@@ -289,5 +290,41 @@ mod tests {
         assert!(!display[4].is_match);
         assert_eq!(display[4].highlight_start_col, None);
         assert_eq!(display[4].highlight_end_col, None);
+    }
+
+    #[test]
+    fn test_collect_display_lines_mid_file() {
+        // Regression: when the match is not at the top of the file, line numbers
+        // must reflect the actual file row, not the slice-local index.
+        let lines = vec!["l0", "l1", "l2", "l3", "l4", "l5"];
+        // Match at rows 3-4 (0-based): display_start = 2, display_end = 5.
+        let region = Region::new(Point::new(3, 1), Point::new(4, 2));
+        let display = TerminalWriter::collect_display_lines(&lines, &region);
+
+        assert_eq!(display.len(), 4);
+
+        // row 2 — context before: file line 3 (1-based)
+        assert_eq!(display[0].line_number, 3);
+        assert_eq!(display[0].code, "l2");
+        assert!(!display[0].is_match);
+
+        // row 3 — match start: file line 4
+        assert_eq!(display[1].line_number, 4);
+        assert_eq!(display[1].code, "l3");
+        assert!(display[1].is_match);
+        assert_eq!(display[1].highlight_start_col, Some(1));
+        assert_eq!(display[1].highlight_end_col, Some(2));
+
+        // row 4 — match end: file line 5
+        assert_eq!(display[2].line_number, 5);
+        assert_eq!(display[2].code, "l4");
+        assert!(display[2].is_match);
+        assert_eq!(display[2].highlight_start_col, Some(0));
+        assert_eq!(display[2].highlight_end_col, Some(2));
+
+        // row 5 — context after: file line 6
+        assert_eq!(display[3].line_number, 6);
+        assert_eq!(display[3].code, "l5");
+        assert!(!display[3].is_match);
     }
 }

@@ -1,4 +1,5 @@
 pub mod collections;
+pub mod config;
 pub mod dolos;
 pub mod file;
 pub mod fragment;

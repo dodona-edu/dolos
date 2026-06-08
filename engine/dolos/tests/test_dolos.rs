@@ -1,42 +1,21 @@
 use dolos::dolos::Dolos;
-use dolos::file::FileSet;
-use dolos::opts::{IndexConfig, ReportConfig};
+use dolos::opts::DolosConfig;
 use std::path::PathBuf;
-use tree_sitter_grammars::Language;
 
-fn default_config() -> IndexConfig {
-    IndexConfig {
-        kgram_length: 23,
-        kgrams_in_window: 17,
-        language: Language::Javascript,
-        keep_fragments: false,
-        include_comments: false,
-        max_fingerprint_file_count: None,
-        ignore: None,
-        min_length_match: 1,
-    }
-}
-
-fn default_report_config() -> ReportConfig {
-    ReportConfig { sort_by: None, fragment_sort_by: None }
-}
-
-fn file_set(paths: &[&str]) -> FileSet {
-    FileSet {
-        base_dir: PathBuf::new(),
-        relative_paths: paths.iter().map(PathBuf::from).collect(),
-    }
+fn js_files(names: &[&str]) -> Vec<PathBuf> {
+    names.iter().map(|&s| PathBuf::from(s)).collect()
 }
 
 #[test]
 fn test_pair_metrics() {
-    let report = Dolos::from_file_set(
-        file_set(&["fixtures/sample1.js", "fixtures/sample2.js"]),
-        IndexConfig { keep_fragments: true, ..default_config() },
+    let report = Dolos::new(
+        js_files(&["fixtures/sample1.js", "fixtures/sample2.js"]),
+        DolosConfig::default(),
     )
-    .build_report(default_report_config());
+    .unwrap()
+    .build_report();
 
-    let metrics = report.all_pairs()[0].metrics;
+    let metrics = &report.pairs[0].metrics;
 
     assert_eq!(metrics.similarity, 0.4803921568627451);
     assert_eq!(metrics.total_left, 96);
@@ -48,33 +27,36 @@ fn test_pair_metrics() {
 
 #[test]
 fn test_two_files_have_fragments() {
-    let report = Dolos::from_file_set(
-        file_set(&["fixtures/sample1.js", "fixtures/sample2.js"]),
-        IndexConfig { keep_fragments: true, ..default_config() },
+    // With exactly two files, fragments are kept automatically.
+    let report = Dolos::new(
+        js_files(&["fixtures/sample1.js", "fixtures/sample2.js"]),
+        DolosConfig::default(),
     )
-    .build_report(default_report_config());
+    .unwrap()
+    .build_report();
 
-    for pair in report.all_pairs() {
+    for pair in &report.pairs {
         assert!(
             pair.fragments.is_some(),
-            "fragments should be None when more than 2 files are given"
+            "fragments should be present when exactly 2 files are given"
         );
     }
 }
 
 #[test]
 fn test_three_files_no_fragments() {
-    let report = Dolos::from_file_set(
-        file_set(&[
+    let report = Dolos::new(
+        js_files(&[
             "fixtures/sample1.js",
             "fixtures/sample2.js",
             "fixtures/simple.js",
         ]),
-        default_config(),
+        DolosConfig::default(),
     )
-    .build_report(default_report_config());
+    .unwrap()
+    .build_report();
 
-    for pair in report.all_pairs() {
+    for pair in &report.pairs {
         assert!(
             pair.fragments.is_none(),
             "fragments should be None when more than 2 files are given"
@@ -92,23 +74,25 @@ fn test_three_files_no_fragments() {
 /// than without the ignored file.
 #[test]
 fn test_ignore() {
-    let file_set = file_set(&["fixtures/sample1.js", "fixtures/sample2.js"]);
+    let files = js_files(&["fixtures/sample1.js", "fixtures/sample2.js"]);
 
-    let similarity_without_ignore = Dolos::from_file_set(file_set.clone(), default_config())
-        .build_report(default_report_config())
-        .all_pairs()[0]
+    let similarity_without_ignore = Dolos::new(files.clone(), DolosConfig::default())
+        .unwrap()
+        .build_report()
+        .pairs[0]
         .metrics
         .similarity;
 
-    let similarity_with_ignore = Dolos::from_file_set(
-        file_set,
-        IndexConfig {
+    let similarity_with_ignore = Dolos::new(
+        files,
+        DolosConfig {
             ignore: Some("fixtures/sample_ignore.js".into()),
-            ..default_config()
+            ..DolosConfig::default()
         },
     )
-    .build_report(default_report_config())
-    .all_pairs()[0]
+    .unwrap()
+    .build_report()
+    .pairs[0]
         .metrics
         .similarity;
 
