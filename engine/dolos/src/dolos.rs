@@ -1,6 +1,6 @@
+use crate::config::DolosConfig;
 use crate::config::{IndexConfig, ReportConfig};
 use crate::file::{File, FileSet};
-use crate::opts::DolosConfig;
 use crate::reader::Dataset;
 use crate::report::Report;
 use crate::suffixtree::tree::SuffixTree;

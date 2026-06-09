@@ -1,3 +1,4 @@
+use crate::config::{DolosConfig, FragmentSortBy, PairSortBy};
 use clap::{Args, Parser, Subcommand};
 use std::path::PathBuf;
 use tree_sitter_grammars::{Language, guess_grammar_from_name};
@@ -8,66 +9,14 @@ fn parse_language(s: &str) -> Result<Language, String> {
     guess_grammar_from_name(s).ok_or_else(|| format!("unknown language: '{s}'"))
 }
 
-fn parse_percentage(s: &str) -> Result<f64, String> {
-    let v: f64 = s
-        .parse()
-        .map_err(|_| format!("'{s}' is not a valid number"))?;
-    if (0.0..=1.0).contains(&v) {
-        Ok(v)
-    } else {
-        Err(format!("must be between 0 and 1 (got {v})"))
-    }
-}
+// ── DolosArgs ────────────────────────────────────────────────────────────────
 
-fn parse_nonzero_usize(s: &str) -> Result<usize, String> {
-    let v: usize = s
-        .parse()
-        .map_err(|_| format!("'{s}' is not a valid integer"))?;
-    if v > 0 {
-        Ok(v)
-    } else {
-        Err(format!("must be at least 1 (got {v})"))
-    }
-}
-
-fn parse_nonzero_u16(s: &str) -> Result<u16, String> {
-    let v: u16 = s
-        .parse()
-        .map_err(|_| format!("'{s}' is not a valid port number (1–65535)"))?;
-    if v > 0 {
-        Ok(v)
-    } else {
-        Err("port must be at least 1".to_string())
-    }
-}
-
-// ── Sort enums ───────────────────────────────────────────────────────────────
-
-#[derive(Debug, Clone, clap::ValueEnum)]
-pub enum PairSortBy {
-    Similarity,
-    TotalOverlap,
-    LongestFragment,
-}
-
-#[derive(Debug, Clone, clap::ValueEnum)]
-pub enum FragmentSortBy {
-    KgramsAscending,
-    KgramsDescending,
-    FileOrder,
-}
-
-// ── DolosConfig ──────────────────────────────────────────────────────────────
-
-/// Configuration for a Dolos analysis run.
+/// Raw CLI arguments for a Dolos analysis run.
 ///
-/// Holds all analysis options and report-sort options.
-/// Use [`DolosConfig::default()`] as a starting point and override fields as needed.
-///
-/// When using Dolos as a CLI, this struct is parsed directly from command-line arguments.
-/// When using Dolos as a library, construct it with a struct literal or `Default`.
+/// Clap parses this struct directly from command-line arguments. To use
+/// Dolos as a library, use [`DolosConfig::builder()`] instead.
 #[derive(Debug, Clone, Args)]
-pub struct DolosConfig {
+pub struct DolosArgs {
     #[arg(
         short = 'n',
         long,
@@ -79,7 +28,6 @@ pub struct DolosConfig {
         short = 'k',
         long,
         default_value = "23",
-        value_parser = parse_nonzero_usize,
         long_help = "The length of each kgram fragment. Must be at least 1."
     )]
     pub kgram_length: usize,
@@ -88,7 +36,6 @@ pub struct DolosConfig {
         short = 'w',
         long,
         default_value = "17",
-        value_parser = parse_nonzero_usize,
         long_help = "The size of the window that will be used (in kgrams). Must be at least 1."
     )]
     pub kgrams_in_window: usize,
@@ -104,7 +51,6 @@ pub struct DolosConfig {
     #[arg(
         short = 'm',
         long,
-        value_parser = parse_nonzero_usize,
         long_help = "Maximum number of times a fingerprint may appear before it is ignored. \
                      A fingerprint appearing in many files is probably legitimate sharing, not plagiarism. \
                      The more restrictive rule between -m and -M takes precedence. Must be at least 1."
@@ -114,7 +60,6 @@ pub struct DolosConfig {
     #[arg(
         short = 'M',
         long,
-        value_parser = parse_percentage,
         long_help = "Maximum percentage of files a fingerprint may appear in before it is ignored (0–1). \
                      The more restrictive rule between -m and -M takes precedence."
     )]
@@ -146,7 +91,6 @@ pub struct DolosConfig {
         short = 's',
         long,
         default_value = "1",
-        value_parser = parse_nonzero_usize,
         long_help = "Minimum length (in fingerprints) a match must have to be registered. Must be at least 1."
     )]
     pub min_length_match: usize,
@@ -167,22 +111,40 @@ pub struct DolosConfig {
     pub fragment_sort_by: Option<FragmentSortBy>,
 }
 
-impl Default for DolosConfig {
-    fn default() -> Self {
-        Self {
-            name: None,
-            kgram_length: 23,
-            kgrams_in_window: 17,
-            language: None,
-            max_fingerprint_count: None,
-            max_fingerprint_percentage: None,
-            ignore: None,
-            include_comments: false,
-            compare: false,
-            min_length_match: 1,
-            sort_by: None,
-            fragment_sort_by: None,
+impl TryFrom<DolosArgs> for DolosConfig {
+    type Error = std::io::Error;
+
+    fn try_from(a: DolosArgs) -> std::io::Result<Self> {
+        let mut b = DolosConfig::builder()
+            .kgram_length(a.kgram_length)?
+            .kgrams_in_window(a.kgrams_in_window)?
+            .include_comments(a.include_comments)
+            .compare(a.compare)
+            .min_length_match(a.min_length_match)?;
+
+        if let Some(v) = a.name {
+            b = b.name(v);
         }
+        if let Some(v) = a.language {
+            b = b.language(v);
+        }
+        if let Some(v) = a.max_fingerprint_count {
+            b = b.max_fingerprint_count(v)?;
+        }
+        if let Some(v) = a.max_fingerprint_percentage {
+            b = b.max_fingerprint_percentage(v)?;
+        }
+        if let Some(v) = a.ignore {
+            b = b.ignore(v);
+        }
+        if let Some(v) = a.sort_by {
+            b = b.sort_by(v);
+        }
+        if let Some(v) = a.fragment_sort_by {
+            b = b.fragment_sort_by(v);
+        }
+
+        Ok(b.build())
     }
 }
 
@@ -198,7 +160,7 @@ pub enum OutputFormat {
 }
 
 #[derive(Args, Debug)]
-pub struct OutputConfig {
+pub struct OutputArgs {
     #[arg(
         value_enum,
         short = 'f',
@@ -220,7 +182,6 @@ pub struct OutputConfig {
         short = 'p',
         long,
         default_value = "3000",
-        value_parser = parse_nonzero_u16,
         long_help = "Port for the web server. Must be between 1 and 65535."
     )]
     pub port: u16,
@@ -259,9 +220,9 @@ pub enum Command {
         files: Vec<PathBuf>,
 
         #[clap(flatten)]
-        config: DolosConfig,
+        dolos_args: DolosArgs,
 
         #[clap(flatten)]
-        output_args: OutputConfig,
+        output_args: OutputArgs,
     },
 }

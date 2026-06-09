@@ -1,5 +1,5 @@
+use dolos::config::DolosConfig;
 use dolos::dolos::Dolos;
-use dolos::opts::DolosConfig;
 use std::path::PathBuf;
 
 fn js_files(names: &[&str]) -> Vec<PathBuf> {
@@ -85,10 +85,9 @@ fn test_ignore() {
 
     let similarity_with_ignore = Dolos::new(
         files,
-        DolosConfig {
-            ignore: Some("fixtures/sample_ignore.js".into()),
-            ..DolosConfig::default()
-        },
+        DolosConfig::builder()
+            .ignore("fixtures/sample_ignore.js")
+            .build(),
     )
     .unwrap()
     .build_report()

@@ -1,8 +1,8 @@
 use crate::collections::pair_array::PairArray;
 use crate::config::ReportConfig;
+use crate::config::{FragmentSortBy, PairSortBy};
 use crate::file::File;
 use crate::fragment::Fragment;
-use crate::opts::{FragmentSortBy, PairSortBy};
 use crate::suffixtree::types::{AnalysisResult, Match, PairMetrics};
 use crate::winnowing::region::Region;
 use std::cmp::Reverse;
@@ -129,8 +129,8 @@ mod tests {
     use super::*;
     use crate::collections::pair_array::PairArray;
     use crate::config::ReportConfig;
+    use crate::config::{FragmentSortBy, PairSortBy};
     use crate::file::File;
-    use crate::opts::{FragmentSortBy, PairSortBy};
     use crate::suffixtree::types::{AnalysisResult, Match, PairMetrics};
     use crate::winnowing::region::{Point, Region};
     use std::path::PathBuf;
