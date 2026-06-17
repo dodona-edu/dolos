@@ -104,6 +104,17 @@ mod tests {
     }
 
     #[test]
+    fn mark_sweep() {
+        for length in [63, 64, 65] {
+            for start in 0..128 {
+                let mut buf = BitVec::new(3);
+                buf.mark(0, start, length);
+                assert_eq!(buf.count_ones(0, 3), length);
+            }
+        }
+    }
+
+    #[test]
     fn mask_range_full() {
         assert_eq!(BitVec::mask_range(0, 64), u64::MAX);
     }
