@@ -109,7 +109,7 @@ mod tests {
         let dataset = Dataset::create(vec![
             "fixtures/sample1.js".into(),
             "fixtures/sample2.js".into(),
-            "fixtures/simple.js".into(),
+            "fixtures/sample3.js".into(),
         ])
         .unwrap();
         assert_eq!(dataset.name, "3 files");

@@ -82,6 +82,8 @@ impl Tokens for Tree {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::winnowing::fingerprints::Winnow;
+    use crate::winnowing::hashes::{RollingHash, hash_token};
     use crate::winnowing::region::Point;
     use std::path::Path;
 
@@ -115,5 +117,44 @@ mod tests {
         let content = std::fs::read_to_string(Path::new("fixtures/sample1.js")).unwrap();
         let actual = tokenizer.parse(&content).tokens(false);
         assert_eq!(actual, expected);
+    }
+
+    /// Regenerate the golden JSON fixtures from the current `fixtures/sample1.js`.
+    /// Run with `cargo test --features all-languages -- --ignored regen_golden_fixtures`.
+    #[test]
+    #[ignore = "only run to regenerate sample fixtures after changing fixtures/sample1.js"]
+    fn generate_sample_fixtures() {
+        fn write<T: serde::Serialize>(path: impl AsRef<Path>, value: &T) {
+            serde_any::to_file_pretty(path, value).unwrap();
+        }
+
+        let mut tokenizer = Tokenizer::new(Language::Javascript, false);
+        let content = std::fs::read_to_string("fixtures/sample1.js").unwrap();
+        let tokens = tokenizer.parse(&content).tokens(false);
+
+        write("fixtures/sample.tokens.json", &tokens);
+
+        let hashes: Vec<_> = tokens.iter().map(|t| hash_token(&t.name)).collect();
+        write("fixtures/sample.hashes.json", &hashes);
+
+        for k in [3, 17] {
+            let mut rolling = RollingHash::new(k);
+            let rolling_hashes: Vec<_> = hashes.iter().map(|&h| rolling.next_hash(h)).collect();
+
+            write(format!("fixtures/sample.rolling{k}.json"), &rolling_hashes);
+        }
+
+        for (k, w) in [(3, 5), (16, 8), (17, 23)] {
+            let (hashes, locations) = tokens.clone().winnow(k, w, true);
+
+            write(
+                format!("fixtures/sample.winnowk{k}w{w}.hashes.json"),
+                &hashes,
+            );
+            write(
+                format!("fixtures/sample.winnowk{k}w{w}.locations.json"),
+                &locations.unwrap(),
+            );
+        }
     }
 }

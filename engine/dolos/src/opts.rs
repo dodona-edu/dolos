@@ -3,13 +3,9 @@ use clap::{Args, Parser, Subcommand};
 use std::path::PathBuf;
 use tree_sitter_grammars::{Language, guess_grammar_from_name};
 
-// ── Value parsers ────────────────────────────────────────────────────────────
-
 fn parse_language(s: &str) -> Result<Language, String> {
     guess_grammar_from_name(s).ok_or_else(|| format!("unknown language: '{s}'"))
 }
-
-// ── DolosArgs ────────────────────────────────────────────────────────────────
 
 /// Raw CLI arguments for a Dolos analysis run.
 ///
@@ -51,7 +47,7 @@ pub struct DolosArgs {
     #[arg(
         short = 'm',
         long,
-        long_help = "Maximum number of times a fingerprint may appear before it is ignored. \
+        long_help = "Maximum number of files a fingerprint may appear before it is ignored. \
                      A fingerprint appearing in many files is probably legitimate sharing, not plagiarism. \
                      The more restrictive rule between -m and -M takes precedence. Must be at least 1."
     )]
@@ -148,8 +144,6 @@ impl TryFrom<DolosArgs> for DolosConfig {
     }
 }
 
-// ── OutputArgs ───────────────────────────────────────────────────────────────
-
 #[derive(Debug, Clone, clap::ValueEnum, PartialEq)]
 pub enum OutputFormat {
     Csv,
@@ -202,8 +196,6 @@ pub struct OutputArgs {
     pub no_open: bool,
 }
 
-// ── Top-level CLI ─────────────────────────────────────────────────────────────
-
 #[derive(Parser, Debug)]
 #[clap(author, version, about, long_about = None)]
 pub struct Opts {
@@ -225,4 +217,94 @@ pub enum Command {
         #[clap(flatten)]
         output_args: OutputArgs,
     },
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Build a full `dolos run a.js b.js [extra...]` argv and attempt to parse it.
+    fn parse(extra: &[&str]) -> Result<Opts, clap::Error> {
+        let mut args = vec!["dolos", "run", "a.js", "b.js"];
+        args.extend_from_slice(extra);
+        Opts::try_parse_from(args)
+    }
+
+    /// Parse options then convert `DolosArgs` to `DolosConfig`.
+    ///
+    /// Panics if clap rejects the argv; only builder validation is expected
+    /// to produce an `Err` here.
+    fn config(extra: &[&str]) -> std::io::Result<DolosConfig> {
+        match parse(extra).unwrap().command {
+            Command::Run { dolos_args, .. } => dolos_args.try_into(),
+        }
+    }
+
+    #[test]
+    fn test_default() {
+        let cfg = config(&[]).unwrap();
+        assert_eq!(cfg.kgram_length, 23);
+        assert_eq!(cfg.kgrams_in_window, 17);
+        assert_eq!(cfg.min_length_match, 1);
+        assert!(!cfg.include_comments);
+        assert!(!cfg.compare);
+        assert!(cfg.max_fingerprint_count.is_none());
+        assert!(cfg.max_fingerprint_percentage.is_none());
+        assert!(cfg.language.is_none());
+        assert!(cfg.sort_by.is_none());
+        assert!(cfg.fragment_sort_by.is_none());
+    }
+
+    #[test]
+    fn test_update_options() {
+        #[rustfmt::skip]
+        let cfg = config(&[
+            "-k", "10",
+            "-w", "5",
+            "-s", "10",
+            "-m", "2",
+            "-M", "0.9",
+            "-n", "custom",
+            "-l", "javascript",
+            "--sort-by", "similarity",
+            "-b", "kgrams-ascending",
+            "-C",
+            "-c",
+        ])
+        .unwrap();
+
+        assert_eq!(cfg.kgram_length, 10);
+        assert_eq!(cfg.kgrams_in_window, 5);
+        assert_eq!(cfg.min_length_match, 10);
+        assert_eq!(cfg.max_fingerprint_count, Some(2));
+        assert_eq!(cfg.max_fingerprint_percentage, Some(0.9));
+        assert!(cfg.include_comments);
+        assert!(cfg.compare);
+        assert_eq!(cfg.name, Some("custom".to_string()));
+        assert!(cfg.language.is_some());
+        assert!(cfg.sort_by.is_some());
+        assert!(cfg.fragment_sort_by.is_some());
+    }
+
+    #[test]
+    fn test_errors() {
+        assert!(config(&["-k", "0"]).is_err(), "-k 0 must be rejected");
+        assert!(config(&["-w", "0"]).is_err(), "-w 0 must be rejected");
+        assert!(config(&["-s", "0"]).is_err(), "-s 0 must be rejected");
+        assert!(config(&["-m", "0"]).is_err(), "-m 0 must be rejected");
+        assert!(config(&["-M", "1.5"]).is_err(), "-M 1.5 must be rejected");
+        assert!(
+            parse(&["-l", "notalang"]).is_err(),
+            "-l notalang should fail"
+        );
+        assert!(
+            parse(&["--sort-by", "bogus"]).is_err(),
+            "--sort-by bogus should fail"
+        );
+        // No input files → clap requires at least one
+        assert!(
+            Opts::try_parse_from(["dolos", "run"]).is_err(),
+            "missing files should fail"
+        );
+    }
 }
