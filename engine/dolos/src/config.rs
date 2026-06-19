@@ -131,7 +131,7 @@ impl DolosConfigBuilder {
         (0.0..=1.0).contains(&v).then_some(v).ok_or_else(|| {
             std::io::Error::new(
                 std::io::ErrorKind::InvalidInput,
-                format!("{field} must be between 0 and 1 (got {v})"),
+                format!("{field} must be a decimal between 0 and 1 (got {v})"),
             )
         })
     }

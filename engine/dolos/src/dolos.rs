@@ -35,7 +35,7 @@ impl Dolos {
         let report_config = ReportConfig::from_config(&config, dataset.name);
         let index_config = IndexConfig::from_config(&config, &dataset.file_set);
 
-        let tokenizer = Tokenizer::new(index_config.language, index_config.include_comments);
+        let tokenizer = Tokenizer::new(index_config.language);
         let locations = index_config.keep_fragments.then_some(Vec::new());
 
         let mut dolos = Dolos {
@@ -68,7 +68,7 @@ impl Dolos {
     ) -> (Vec<Fingerprint>, Option<Vec<Region>>) {
         self.tokenizer
             .parse(content)
-            .tokens(self.tokenizer.include_comments)
+            .tokens(self.index_config.include_comments)
             .winnow(
                 self.index_config.kgram_length,
                 self.index_config.kgrams_in_window,

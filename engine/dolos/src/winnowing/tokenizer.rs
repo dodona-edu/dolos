@@ -13,18 +13,16 @@ pub struct Token {
 }
 
 pub struct Tokenizer {
-    pub language: Language,
-    pub include_comments: bool,
     parser: Parser,
 }
 
 impl Tokenizer {
-    pub fn new(language: Language, include_comments: bool) -> Self {
+    pub fn new(language: Language) -> Self {
         let mut parser = Parser::new();
         parser
             .set_language(&language.tree_sitter_language().into())
             .expect("set language");
-        Tokenizer { language, include_comments, parser }
+        Tokenizer { parser }
     }
 
     pub fn parse(&mut self, content: &str) -> Tree {
@@ -89,7 +87,7 @@ mod tests {
 
     #[test]
     fn test_tokenize_simple() {
-        let mut tokenizer = Tokenizer::new(Language::Javascript, false);
+        let mut tokenizer = Tokenizer::new(Language::Javascript);
         let actual = tokenizer.parse("1").tokens(false);
 
         let r00 = Region::new(Point::new(0, 0), Point::new(0, 0));
@@ -113,7 +111,7 @@ mod tests {
     #[test]
     fn test_tokenize_large() {
         let expected: Vec<Token> = serde_any::from_file("fixtures/sample.tokens.json").unwrap();
-        let mut tokenizer = Tokenizer::new(Language::Javascript, false);
+        let mut tokenizer = Tokenizer::new(Language::Javascript);
         let content = std::fs::read_to_string(Path::new("fixtures/sample1.js")).unwrap();
         let actual = tokenizer.parse(&content).tokens(false);
         assert_eq!(actual, expected);
@@ -128,7 +126,7 @@ mod tests {
             serde_any::to_file_pretty(path, value).unwrap();
         }
 
-        let mut tokenizer = Tokenizer::new(Language::Javascript, false);
+        let mut tokenizer = Tokenizer::new(Language::Javascript);
         let content = std::fs::read_to_string("fixtures/sample1.js").unwrap();
         let tokens = tokenizer.parse(&content).tokens(false);
 

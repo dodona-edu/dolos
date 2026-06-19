@@ -119,7 +119,7 @@ mod tests {
     #[case::k_16_w_8(16, 8)]
     #[case::k_17_w_23(17, 23)]
     fn test_winnowing(#[case] k: usize, #[case] w: usize) {
-        let mut tokenizer = Tokenizer::new(Language::Javascript, false);
+        let mut tokenizer = Tokenizer::new(Language::Javascript);
 
         let expected_hashes: Vec<usize> =
             serde_any::from_file(format!("fixtures/sample.winnowk{}w{}.hashes.json", k, w))
