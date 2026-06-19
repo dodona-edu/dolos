@@ -79,6 +79,7 @@ pub struct DolosArgs {
     #[arg(
         short = 'c',
         long,
+        default_value = "false",
         long_help = "Keep matching fragments even when analysing more than two files."
     )]
     pub compare: bool,
@@ -112,11 +113,11 @@ impl TryFrom<DolosArgs> for DolosConfig {
 
     fn try_from(a: DolosArgs) -> std::io::Result<Self> {
         let mut b = DolosConfig::builder()
-            .kgram_length(a.kgram_length)?
-            .kgrams_in_window(a.kgrams_in_window)?
+            .kgram_length(a.kgram_length)
+            .kgrams_in_window(a.kgrams_in_window)
             .include_comments(a.include_comments)
             .compare(a.compare)
-            .min_length_match(a.min_length_match)?;
+            .min_length_match(a.min_length_match);
 
         if let Some(v) = a.name {
             b = b.name(v);
@@ -125,10 +126,10 @@ impl TryFrom<DolosArgs> for DolosConfig {
             b = b.language(v);
         }
         if let Some(v) = a.max_fingerprint_count {
-            b = b.max_fingerprint_count(v)?;
+            b = b.max_fingerprint_count(v);
         }
         if let Some(v) = a.max_fingerprint_percentage {
-            b = b.max_fingerprint_percentage(v)?;
+            b = b.max_fingerprint_percentage(v);
         }
         if let Some(v) = a.ignore {
             b = b.ignore(v);
@@ -140,7 +141,7 @@ impl TryFrom<DolosArgs> for DolosConfig {
             b = b.fragment_sort_by(v);
         }
 
-        Ok(b.build())
+        b.build()
     }
 }
 

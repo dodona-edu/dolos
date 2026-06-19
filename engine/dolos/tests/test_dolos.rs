@@ -1,6 +1,5 @@
 use dolos::config::{DolosConfig, PairSortBy};
 use dolos::dolos::Dolos;
-use dolos::report::Pair;
 use rstest::rstest;
 use std::path::PathBuf;
 
@@ -56,14 +55,14 @@ fn is_sorted_desc<T, K: PartialOrd>(items: &[T], key: impl Fn(&T) -> K) -> bool 
 /// Verifies the similarity produced by various configurations. Each row in the
 /// table is the single source of truth for that config's expected output.
 #[rstest]
-#[case(SAMPLE12, DolosConfig::default(), 0.4803921568627451)]
-#[case(SAMPLE12, DolosConfig::builder().kgram_length(10).unwrap().build(), 0.6842105263157895)]
-#[case(SAMPLE12, DolosConfig::builder().kgrams_in_window(5).unwrap().build(), 0.479020979020979)]
-#[case(SAMPLE12, DolosConfig::builder().include_comments(true).build(), 0.47619047619047616)]
-#[case(SAMPLE12, DolosConfig::builder().min_length_match(10).unwrap().build(), 0.20588235294117646)]
-#[case::count(SAMPLE123, DolosConfig::builder().max_fingerprint_count(2).unwrap().build(), 0.03636363636363636)]
-#[case::percentage(SAMPLE123, DolosConfig::builder().max_fingerprint_percentage(0.7).unwrap().build(), 0.03636363636363636)]
-#[case::ignore(SAMPLE12, DolosConfig::builder().ignore("fixtures/sample_ignore.js").build(), 0.45077720207253885)]
+#[case::default(SAMPLE12, DolosConfig::default(), 0.4803921568627451)]
+#[case::kgram_length(SAMPLE12, DolosConfig::builder().kgram_length(10).build().unwrap(), 0.6842105263157895)]
+#[case::kgrams_in_window(SAMPLE12, DolosConfig::builder().kgrams_in_window(5).build().unwrap(), 0.479020979020979)]
+#[case::include_comments(SAMPLE12, DolosConfig::builder().include_comments(true).build().unwrap(), 0.47619047619047616)]
+#[case::min_length_match(SAMPLE12, DolosConfig::builder().min_length_match(10).build().unwrap(), 0.20588235294117646)]
+#[case::max_fingerprint_count(SAMPLE123, DolosConfig::builder().max_fingerprint_count(2).build().unwrap(), 0.03636363636363636)]
+#[case::max_fingerprint_percentage(SAMPLE123, DolosConfig::builder().max_fingerprint_percentage(0.7).build().unwrap(), 0.03636363636363636)]
+#[case::ignore(SAMPLE12, DolosConfig::builder().ignore("fixtures/sample_ignore.js").build().unwrap(), 0.45077720207253885)]
 fn test_similarities(
     #[case] files: &[&str],
     #[case] config: DolosConfig,
@@ -112,7 +111,7 @@ fn test_three_files_no_fragments() {
 fn test_sort_by(#[case] sort_by: PairSortBy) {
     let report = Dolos::new(
         to_path_buf(SAMPLE123),
-        DolosConfig::builder().sort_by(sort_by.clone()).build(),
+        DolosConfig::builder().sort_by(sort_by).build().unwrap(),
     )
     .unwrap()
     .build_report();
