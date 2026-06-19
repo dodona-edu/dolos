@@ -278,7 +278,7 @@ impl IndexConfig {
     fn resolve_max_fingerprint_count(config: &DolosConfig, file_count: usize) -> Option<usize> {
         let from_percentage = config
             .max_fingerprint_percentage
-            .map(|pct| (file_count as f64 * pct).floor() as usize);
+            .map(|pct| (file_count as f64 * pct).ceil() as usize);
         [config.max_fingerprint_count, from_percentage]
             .into_iter()
             .flatten()

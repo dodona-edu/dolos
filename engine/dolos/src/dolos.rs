@@ -8,7 +8,7 @@ use crate::winnowing::fingerprints::{Fingerprint, Winnow};
 use crate::winnowing::region::Region;
 use crate::winnowing::tokenizer::{Tokenizer, Tokens};
 use std::fmt;
-use std::io::Result;
+use std::io::{Error, ErrorKind, Result};
 use std::path::{Path, PathBuf};
 use std::rc::Rc;
 
@@ -48,12 +48,12 @@ impl Dolos {
             tokenizer,
         };
 
-        dolos.add_files(dataset.file_set);
+        dolos.add_files(dataset.file_set)?;
 
         // Ignore file is added after all regular files, so its word index is
         // always >= regular_word_count.
         if let Some(ignore_path) = dolos.index_config.ignore.clone() {
-            dolos.add_ignore_file(ignore_path);
+            dolos.add_ignore_file(ignore_path)?;
         }
 
         Ok(dolos)
@@ -80,20 +80,20 @@ impl Dolos {
     ///
     /// The file is added to `self.files`, its fingerprints to `self.hashes`, and
     /// (when `keep_fragments` is set) its locations to `self.locations`.
-    fn add_file(&mut self, base_dir: &Path, relative: &Path) {
+    fn add_file(&mut self, base_dir: &Path, relative: &Path) -> Result<()> {
         // Only enforce the language-extension match when the language was
         // auto-detected.  If the user explicitly specified the language, they
         // know what they want (e.g., files exported without an extension).
-        if !self.index_config.language_user_specified {
-            assert!(
-                self.index_config.language.matches(relative),
-                "Language does not match file: {}",
-                relative.display()
-            );
+        if !self.index_config.language_user_specified
+            && !self.index_config.language.matches(relative)
+        {
+            return Err(Error::new(
+                ErrorKind::InvalidInput,
+                format!("Language does not match file: {}", relative.display()),
+            ));
         }
 
-        let content =
-            std::fs::read_to_string(base_dir.join(relative)).expect("should be able to read file");
+        let content = std::fs::read_to_string(base_dir.join(relative))?;
         let (hashes, locations) = self.fingerprint(&content, self.index_config.keep_fragments);
 
         self.hashes.push(hashes);
@@ -104,6 +104,7 @@ impl Dolos {
             relative_path: relative.to_path_buf(),
             content: self.index_config.keep_fragments.then_some(content),
         }));
+        Ok(())
     }
 
     /// Tokenize a template/ignore file and append its fingerprints to the hash
@@ -111,17 +112,23 @@ impl Dolos {
     ///
     /// Ignore files are never added to `self.files` or `self.locations`: they
     /// do not appear in the report, and no fragment resolution is needed for them.
-    fn add_ignore_file(&mut self, path: PathBuf) {
-        let content = std::fs::read_to_string(&path)
-            .unwrap_or_else(|_| panic!("Could not read ignore file: {}", path.display()));
+    fn add_ignore_file(&mut self, path: PathBuf) -> Result<()> {
+        let content = std::fs::read_to_string(&path).map_err(|e| {
+            Error::new(
+                e.kind(),
+                format!("Could not read ignore file '{}': {}", path.display(), e),
+            )
+        })?;
         let (hashes, _) = self.fingerprint(&content, false);
         self.ignore_hashes.push(hashes);
+        Ok(())
     }
 
-    fn add_files(&mut self, file_set: FileSet) {
+    fn add_files(&mut self, file_set: FileSet) -> Result<()> {
         for relative in file_set.relative_paths {
-            self.add_file(&file_set.base_dir, &relative);
+            self.add_file(&file_set.base_dir, &relative)?;
         }
+        Ok(())
     }
 
     /// Run the suffix-tree analysis and build a [`Report`].
