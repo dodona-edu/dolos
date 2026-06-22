@@ -43,6 +43,7 @@ impl Writer {
             OutputFormat::Csv => Ok(Writer::Csv(Box::new(CsvWriter::new(
                 args.output_destination,
                 &report.metadata,
+                &report.files,
             )?))),
             OutputFormat::Terminal | OutputFormat::Console => Ok(Writer::Terminal(TerminalWriter)),
             OutputFormat::Html | OutputFormat::Web => todo!("HTML output not yet implemented"),

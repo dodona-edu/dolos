@@ -7,7 +7,7 @@ pub struct File {
     pub id: usize,
     pub relative_path: PathBuf,
     /// Source text, stored when fragment display is needed.
-    pub content: Option<String>,
+    pub content: String,
 }
 
 impl Hash for File {

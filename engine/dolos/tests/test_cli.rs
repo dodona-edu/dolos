@@ -48,6 +48,7 @@ fn smoke_csv_output() {
 
     assert!(report_dir.join("pairs.csv").exists());
     assert!(report_dir.join("metadata.csv").exists());
+    assert!(report_dir.join("files.csv").exists());
 }
 
 // ── Error surfacing ───────────────────────────────────────────────────────────

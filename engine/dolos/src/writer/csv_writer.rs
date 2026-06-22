@@ -1,11 +1,14 @@
+use crate::file::File as SourceFile;
 use crate::metadata::Metadata;
 use crate::report::Pair;
 use crate::writer::output::OutputWriter;
 use std::fs::File;
 use std::io::{Error, Result};
 use std::path::PathBuf;
+use std::rc::Rc;
 
 const METADATA_HEADER: &[&str] = &["property", "value"];
+const FILES_HEADER: &[&str] = &["id", "path", "content"];
 
 const PAIRS_HEADER: &[&str] = &[
     "file1",
@@ -27,9 +30,14 @@ impl CsvWriter {
     /// Create a new CSV writer.
     ///
     /// Creates `{output_destination}/dolos-report-{time}-{reportName}/` along
-    /// with all required parent directories, writes `metadata.csv` in one shot,
-    /// and opens a streamed `pairs.csv` for the pair rows.
-    pub(super) fn new(output_destination: PathBuf, metadata: &Metadata) -> Result<Self> {
+    /// with all required parent directories, writes `metadata.csv` and
+    /// `files.csv` in one shot each, and opens a streamed `pairs.csv` for the
+    /// pair rows.
+    pub(super) fn new(
+        output_destination: PathBuf,
+        metadata: &Metadata,
+        files: &[Rc<SourceFile>],
+    ) -> Result<Self> {
         let report_dir = output_destination.join(report_dir_name(metadata));
         std::fs::create_dir_all(&report_dir)?;
 
@@ -38,6 +46,12 @@ impl CsvWriter {
             csv::Writer::from_path(report_dir.join("metadata.csv")).map_err(Error::other)?;
         write_metadata(&mut meta, metadata)?;
         meta.flush().map_err(Error::other)?;
+
+        // files.csv — fully known up front, written in one shot.
+        let mut files_writer =
+            csv::Writer::from_path(report_dir.join("files.csv")).map_err(Error::other)?;
+        write_files(&mut files_writer, files)?;
+        files_writer.flush().map_err(Error::other)?;
 
         // pairs.csv — streamed per pair via write_pair.
         let mut writer =
@@ -107,7 +121,24 @@ fn write_metadata(
     Ok(())
 }
 
-/// Unwrap an optional metadata field, returning an empty string when absent.
+fn write_files(
+    writer: &mut csv::Writer<impl std::io::Write>,
+    files: &[Rc<SourceFile>],
+) -> Result<()> {
+    writer.write_record(FILES_HEADER).map_err(Error::other)?;
+    for file in files {
+        writer
+            .write_record([
+                file.id.to_string(),
+                file.relative_path.display().to_string(),
+                file.content.clone(),
+            ])
+            .map_err(Error::other)?;
+    }
+    Ok(())
+}
+
+/// Unwrap an optional metadata field, returning `"null"` when absent.
 fn optional(value: Option<String>) -> String {
-    value.unwrap_or("null".into())
+    value.unwrap_or_else(|| "null".to_string())
 }

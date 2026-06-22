@@ -176,7 +176,11 @@ mod tests {
     }
 
     fn make_file(id: usize, name: &str) -> Rc<File> {
-        Rc::new(File { id, relative_path: PathBuf::from(name), content: None })
+        Rc::new(File {
+            id,
+            relative_path: PathBuf::from(name),
+            content: "".to_string(),
+        })
     }
 
     fn make_metrics(similarity: f64) -> PairMetrics {

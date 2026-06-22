@@ -98,7 +98,7 @@ impl Dolos {
         self.files.push(Rc::new(File {
             id,
             relative_path: relative.to_path_buf(),
-            content: self.metadata.include_fragments.then_some(content),
+            content,
         }));
         Ok(())
     }
