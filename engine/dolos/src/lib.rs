@@ -3,6 +3,7 @@ pub mod config;
 pub mod dolos;
 pub mod file;
 pub mod fragment;
+pub mod metadata;
 pub mod opts;
 pub mod reader;
 pub mod report;

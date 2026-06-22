@@ -1,8 +1,8 @@
 use crate::collections::pair_array::PairArray;
-use crate::config::ReportConfig;
 use crate::config::{FragmentSortBy, PairSortBy};
 use crate::file::File;
 use crate::fragment::Fragment;
+use crate::metadata::Metadata;
 use crate::suffixtree::types::{AnalysisResult, Match, PairMetrics};
 use crate::winnowing::region::Region;
 use std::cmp::Reverse;
@@ -18,7 +18,7 @@ pub struct Pair {
 }
 
 pub struct Report {
-    pub name: String,
+    pub metadata: Metadata,
     pub pairs: Vec<Pair>,
 }
 
@@ -31,12 +31,12 @@ impl Report {
         analysis_result: AnalysisResult,
         files: Vec<Rc<File>>,
         locations: Option<Vec<Vec<Region>>>,
-        report_config: ReportConfig,
+        metadata: Metadata,
     ) -> Report {
         let AnalysisResult { metrics, matches } = analysis_result;
         let mut frags = matches
             .zip(locations)
-            .map(|(m, l)| Self::resolve_fragments(m, l, &report_config.fragment_sort_by));
+            .map(|(m, l)| Self::resolve_fragments(m, l, &metadata.fragment_sort_by));
 
         let mut pairs: Vec<Pair> = metrics
             .iter_pairs()
@@ -50,9 +50,9 @@ impl Report {
             })
             .collect();
 
-        sort_pairs(&mut pairs, &report_config.sort_by);
+        sort_pairs(&mut pairs, &metadata.sort_by);
 
-        Report { name: report_config.name, pairs }
+        Report { metadata, pairs }
     }
 
     /// Resolve raw matches + locations into [`Fragment`] lists, sorted according
@@ -128,13 +128,36 @@ fn sort_pairs(pairs: &mut [Pair], sort_by: &Option<PairSortBy>) {
 mod tests {
     use super::*;
     use crate::collections::pair_array::PairArray;
-    use crate::config::ReportConfig;
     use crate::config::{FragmentSortBy, PairSortBy};
     use crate::file::File;
+    use crate::metadata::Metadata;
     use crate::suffixtree::types::{AnalysisResult, Match, PairMetrics};
     use crate::winnowing::region::{Point, Region};
+    use chrono::Utc;
     use std::path::PathBuf;
     use std::rc::Rc;
+    use tree_sitter_grammars::Language;
+
+    fn make_metadata(
+        sort_by: Option<PairSortBy>,
+        fragment_sort_by: Option<FragmentSortBy>,
+    ) -> Metadata {
+        Metadata {
+            report_name: "test".to_string(),
+            created_at: Utc::now(),
+            sort_by,
+            fragment_sort_by,
+            kgram_length: 23,
+            kgrams_in_window: 17,
+            language: Language::Javascript,
+            language_detected: true,
+            include_comments: false,
+            include_fragments: true,
+            min_length_match: 1,
+            max_fingerprint_file_count: None,
+            ignore: None,
+        }
+    }
 
     fn make_report(
         analysis: AnalysisResult,
@@ -147,7 +170,7 @@ mod tests {
             analysis,
             files,
             locations,
-            ReportConfig { name: "test".to_string(), sort_by, fragment_sort_by },
+            make_metadata(sort_by, fragment_sort_by),
         )
     }
 
