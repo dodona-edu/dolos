@@ -11,8 +11,10 @@ const METADATA_HEADER: &[&str] = &["property", "value"];
 const FILES_HEADER: &[&str] = &["id", "path", "content"];
 
 const PAIRS_HEADER: &[&str] = &[
-    "file1",
-    "file2",
+    "file1_id",
+    "file1_path",
+    "file2_id",
+    "file2_path",
     "similarity",
     "longest",
     "totalLeft",
@@ -66,7 +68,9 @@ impl OutputWriter for CsvWriter {
         let m = &pair.metrics;
         self.writer
             .serialize((
+                pair.left_file.id.to_string(),
                 pair.left_file.relative_path.display().to_string(),
+                pair.right_file.id.to_string(),
                 pair.right_file.relative_path.display().to_string(),
                 m.similarity,
                 m.longest_fragment,
