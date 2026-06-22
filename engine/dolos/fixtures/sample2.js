@@ -1,4 +1,5 @@
 class Pearson {
+  // Initialiseer de hashfunctie met een vervangingstabel en combinatiefunctie.
   constructor(tabel, combineer) {
     this.combineer = combineer || ((h, v) => (h ^ v) % 256);
     this.tabel = tabel || [...Array(256).keys()].reverse();
@@ -8,12 +9,14 @@ class Pearson {
     }
   }
 
+  // Bereken de hashwaarde van een string via de vervangingstabel.
   hash(s) {
     return [...s].reduce((h, c) => this.tabel[this.combineer(h, c.charCodeAt(0))], 0);
   }
 }
 
 class Blok {
+  // Maak een nieuw blok aan en bereken direct de hashwaarde.
   constructor(hasher, parent, datum) {
     this.hasher = hasher || new Pearson();
     this.parent = parent || null;
@@ -35,6 +38,7 @@ class Blok {
     throw "AssertionError: can't set attribute";
   }
 
+  // Geef de hash van het ouderblok terug, of nul voor het genesisblok.
   get vorige_hash() {
     return this.parent ? this.parent.hash : 0;
   }
@@ -43,10 +47,12 @@ class Blok {
     throw "AssertionError: can't set attribute";
   }
 
+  // Voeg een nieuw blok met de gegeven datum toe aan het einde van de keten.
   toevoegen(s) {
     return new Blok(this.hasher, this, s);
   }
 
+  // Controleer recursief of elk blok in de keten een geldige hashwaarde heeft.
   is_geldig() {
     const verwacht = this.hasher.hash(`${this.index}${this.datum}${this.vorige_hash}`);
     if (this.hash !== verwacht) return false;

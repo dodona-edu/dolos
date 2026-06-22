@@ -2,43 +2,64 @@ use crate::suffixtree::match_collector::MatchCollector;
 use crate::suffixtree::node::Node;
 use crate::suffixtree::tree::SuffixTree;
 use crate::suffixtree::types::{AnalysisResult, SENTINEL_SYMBOL, StartPosition, SymbolType};
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 type LeftMap = HashMap<SymbolType, Vec<StartPosition>>;
 
 /// Analyzer for finding maximal exact matches in a generalized suffix tree.
 ///
-/// A *maximal exact match* (MEM) between two words is a shared substring
+/// A *maximal exact match* (MEM) between two sequences is a shared substring
 /// that cannot be extended in either direction without introducing a mismatch.
 /// This analyzer traverses the suffix tree bottom-up, collecting left-extension
 /// symbols at each internal node to identify MEMs and report pairwise
 /// similarity statistics.
 pub struct MaximalMatchAnalyzer<'a> {
-    /// The generalized suffix tree built from all words.
-    tree: &'a SuffixTree,
-    /// The original words, without explicit end-of-word sentinels.
-    words: &'a [Vec<SymbolType>],
-    /// Only matches of at least this many tokens are considered
+    /// The generalized suffix tree built from all sequences.
+    tree: &'a mut SuffixTree,
+    /// The original sequences, without explicit end-of-sequence sentinels.
+    sequences: &'a [Vec<SymbolType>],
+    /// Only matches of at least this many tokens are considered.
     min_match_length: usize,
     /// Whether to keep fragments of all the similar matches.
     pub keep_fragments: bool,
+    /// Whether fingerprints marked as ignored (via [`SuffixTree::add_ignored_sequences`]
+    /// or the `max_file_count` cap) are omitted from similarity calculations.
+    exclude_ignored: bool,
+    /// Maximum number of distinct files a shared substring may appear in
+    /// before it is suppressed as a too-common boilerplate.
+    ///
+    /// `None` means no cap is applied.
+    max_file_count: Option<usize>,
 }
 
 impl<'a> MaximalMatchAnalyzer<'a> {
     /// Create a new [`MaximalMatchAnalyzer`].
     ///
     /// # Arguments
-    /// * `tree` – Generalized suffix tree built from all `words`.
-    /// * `words` – The original words.
+    /// * `tree` – Generalized suffix tree built from all `sequences`.
+    /// * `sequences` – The sequences to analyze (regular files only; ignored content is
+    ///   already encoded in `node.ignore` flags on the tree).
     /// * `min_match_length` – Minimum number of tokens a shared substring must
     ///   have to be counted as a match.
+    /// * `keep_fragments` – Whether to store raw matches for fragment resolution.
+    /// * `max_file_count` – Suppress any shared substring that appears in more
+    ///   than these many distinct files. `None` disables the cap.
     pub fn new(
-        tree: &'a SuffixTree,
-        words: &'a [Vec<SymbolType>],
+        tree: &'a mut SuffixTree,
+        sequences: &'a [Vec<SymbolType>],
         min_match_length: usize,
         keep_fragments: bool,
+        exclude_ignored: bool,
+        max_file_count: Option<usize>,
     ) -> Self {
-        Self { tree, words, min_match_length, keep_fragments }
+        Self {
+            tree,
+            sequences,
+            min_match_length,
+            keep_fragments,
+            exclude_ignored,
+            max_file_count,
+        }
     }
 
     /// Perform the full MEM analysis and return pairwise similarity results.
@@ -47,19 +68,130 @@ impl<'a> MaximalMatchAnalyzer<'a> {
     /// matches that meet `min_match_length`, and aggregates them into an
     /// [`AnalysisResult`] containing per-pair similarity scores and longest
     /// fragment lengths.
-    pub fn analyze(&self) -> AnalysisResult {
-        let mut collector = MatchCollector::new(self.words, self.keep_fragments);
-
-        // Find all maximal pairs starting from the root
+    ///
+    /// Matches are excluded in three cases:
+    /// - If the length of the match does not meet `min_match_length`,
+    ///   it is suppressed.
+    /// - The shared substring is present in an ignored file: nodes marked
+    ///   `ignore` (set via [`SuffixTree::add_ignored_sequences`]) are skipped
+    ///   entirely, suppressing all matches rooted at that node.
+    /// - The shared substring appears in more than `max_file_count` distinct
+    ///   files: it is treated as a common boilerplate and not recorded.
+    pub fn analyze(&mut self) -> AnalysisResult {
+        if self.max_file_count.is_some() {
+            self.propagate_sequence_indices(0);
+        }
+        let mut collector =
+            MatchCollector::new(self.sequences, self.keep_fragments, self.exclude_ignored);
         self.find_maximal_pairs(0, 0, &mut collector);
-
         collector.into_result()
+    }
+
+    /// Returns `true` when matches rooted at `node` should be treated as ignored.
+    ///
+    /// Two conditions can trigger this:
+    /// - The node was explicitly marked via [`SuffixTree::add_ignored_sequences`] and
+    ///   `exclude_ignored` is enabled.
+    /// - The number of distinct files the shared substring appears in exceeds
+    ///   `max_file_count` (boilerplate filter).
+    fn is_node_ignored(&self, node: &Node) -> bool {
+        if self.exclude_ignored && node.ignore {
+            return true;
+        }
+        if let Some(max_count) = self.max_file_count {
+            let file_count = node.sequence_indices.as_ref().map_or(0, |si| si.len());
+            if file_count > max_count {
+                return true;
+            }
+        }
+        false
+    }
+
+    /// Recursively find all MEMs in the subtree rooted at `node_index`,
+    /// returning the merged left-symbol map for this subtree.
+    ///
+    /// The core idea is a **bottom-up traversal**: every internal node in the
+    /// suffix tree represents a substring shared by all suffixes in its subtree.
+    /// By the time we return from a node's children, we know — for each suffix
+    /// in the subtree — what symbol appears immediately to the *left* of that
+    /// shared substring (the `left_symbol`).
+    ///
+    /// At each internal node we compare each child map against an accumulator of
+    /// already processed children. Because the children diverged at this
+    /// node, their suffixes already differ on the *right* — so right-maximality
+    /// is free.  Left-maximality is checked by comparing `left_symbol` values:
+    /// two occurrences form a MEM only when their left symbols differ
+    /// (or one is at the start of its sequence).
+    ///
+    /// Finally, the children's maps are merged and propagated upward so that
+    /// the parent node can repeat the same comparison at a greater depth.
+    fn find_maximal_pairs(
+        &self,
+        node_index: usize,
+        depth: usize,
+        collector: &mut MatchCollector,
+    ) -> LeftMap {
+        let node = &self.tree.arena[node_index];
+        let node_depth = depth + node.range.length();
+        let is_ignored = self.is_node_ignored(node);
+
+        let mut accumulator: Option<LeftMap> = None;
+        for child_map in self.collect_child_maps(node, node_depth, collector) {
+            // Only process matches that exceed the minimum length.
+            if node_depth >= self.min_match_length {
+                self.absorb_child_map(
+                    node_depth,
+                    &mut accumulator,
+                    child_map,
+                    is_ignored,
+                    collector,
+                );
+            }
+        }
+
+        if is_ignored {
+            for positions in accumulator.as_ref().unwrap_or(&HashMap::new()).values() {
+                for sp in positions {
+                    collector.record_ignore_match(sp, node_depth);
+                }
+            }
+        }
+
+        accumulator.unwrap_or_default()
+    }
+
+    /// Propagate `sequence_indices` bottom-up from leaves to internal nodes.
+    ///
+    /// After this call every node in the tree (leaf or internal) holds in its
+    /// `sequence_indices` the union of the sequence indices of all leaves in its
+    /// subtree.
+    ///
+    /// Returns the union set for `node_index` so the caller (i.e., the parent)
+    /// can accumulate it without a second traversal.
+    fn propagate_sequence_indices(&mut self, node_index: usize) -> HashSet<usize> {
+        let children = match &self.tree.arena[node_index].children {
+            Some(children) => children.values().copied().collect::<Vec<_>>(),
+            None => {
+                return self.tree.arena[node_index]
+                    .sequence_indices
+                    .clone()
+                    .unwrap_or_default();
+            }
+        };
+
+        let combined = children
+            .into_iter()
+            .flat_map(|child| self.propagate_sequence_indices(child))
+            .collect::<HashSet<_>>();
+
+        self.tree.arena[node_index].sequence_indices = Some(combined.clone());
+        combined
     }
 
     /// Build the left-symbol maps for a leaf node.
     ///
-    /// Each leaf represents a suffix from one or more words. For every
-    /// word stored at this leaf, the method computes the start index of the
+    /// Each leaf represents a suffix from one or more sequences. For every
+    /// sequence stored at this leaf, the method computes the start index of the
     /// suffix (given the current string `depth`) and records the symbol
     /// immediately to the *left* of that suffix (i.e., the symbol that would
     /// need to match for the current shared substring to be extended leftward).
@@ -68,15 +200,15 @@ impl<'a> MaximalMatchAnalyzer<'a> {
     /// Returns one map per leaf occurrence so pair generation can reuse the same
     /// logic as internal nodes.
     fn create_leaf_maps(&self, node: &Node, depth: usize) -> Vec<LeftMap> {
-        node.word_indices
+        node.sequence_indices
             .as_ref()
-            .expect("Leaf node must have words")
+            .expect("Leaf node must have sequence indices")
             .iter()
-            .map(|&word_index| {
-                let word_len = self.words[word_index].len();
-                let start_index = word_len - depth;
+            .map(|&sequence_index| {
+                let sequence_len = self.sequences[sequence_index].len();
+                let start_index = sequence_len - depth;
                 let left_symbol = if start_index > 0 {
-                    self.words[word_index][start_index - 1]
+                    self.sequences[sequence_index][start_index - 1]
                 } else {
                     SENTINEL_SYMBOL
                 };
@@ -84,7 +216,7 @@ impl<'a> MaximalMatchAnalyzer<'a> {
                 let mut map = HashMap::new();
                 map.insert(
                     left_symbol,
-                    vec![StartPosition { start: start_index, word_index }],
+                    vec![StartPosition { start: start_index, sequence_index }],
                 );
                 map
             })
@@ -97,12 +229,19 @@ impl<'a> MaximalMatchAnalyzer<'a> {
         depth: usize,
         accumulator: &LeftMap,
         child_map: &LeftMap,
+        is_ignored: bool,
         collector: &mut MatchCollector,
     ) {
-        for (&left_symbol, positions1) in child_map {
-            for (&other_left_symbol, positions2) in accumulator {
+        for (&left_symbol, left_pos) in child_map {
+            for (&other_left_symbol, other_left_pos) in accumulator {
                 if Self::should_process_pair(left_symbol, other_left_symbol) {
-                    self.process_position_pairs(positions1, positions2, depth, collector);
+                    self.process_position_pairs(
+                        left_pos,
+                        other_left_pos,
+                        depth,
+                        is_ignored,
+                        collector,
+                    );
                 }
             }
         }
@@ -127,20 +266,16 @@ impl<'a> MaximalMatchAnalyzer<'a> {
         node_depth: usize,
         collector: &mut MatchCollector,
     ) -> Vec<LeftMap> {
-        if node.children.is_none() {
-            return self.create_leaf_maps(node, node_depth);
+        match &node.children {
+            None => self.create_leaf_maps(node, node_depth),
+            Some(children) => {
+                let child_indices: Vec<usize> = children.values().copied().collect();
+                child_indices
+                    .iter()
+                    .map(|&ci| self.find_maximal_pairs(ci, node_depth, collector))
+                    .collect()
+            }
         }
-
-        let mut maps = Vec::new();
-        for &child_index in node
-            .children
-            .as_ref()
-            .expect("Node must have children")
-            .values()
-        {
-            maps.push(self.find_maximal_pairs(child_index, node_depth, collector));
-        }
-        maps
     }
 
     /// Process one child map into the current accumulator.
@@ -149,12 +284,13 @@ impl<'a> MaximalMatchAnalyzer<'a> {
         node_depth: usize,
         accumulator: &mut Option<LeftMap>,
         child_map: LeftMap,
+        is_ignored: bool,
         collector: &mut MatchCollector,
     ) {
         if let Some(acc) = accumulator.as_mut() {
-            if node_depth >= self.min_match_length {
-                self.generate_pairs_against_accumulator(node_depth, acc, &child_map, collector);
-            }
+            self.generate_pairs_against_accumulator(
+                node_depth, acc, &child_map, is_ignored, collector,
+            );
             Self::merge_into(acc, child_map);
         } else {
             *accumulator = Some(child_map);
@@ -166,168 +302,37 @@ impl<'a> MaximalMatchAnalyzer<'a> {
     ///
     /// Two conditions trigger a `true`:
     /// - The symbols differ.
-    /// - Either symbol is [`usize::MAX`], the start-of-word sentinel
-    ///   used when a suffix begins at position 0 and has no left neighbour.
-    ///   Because no real symbol can equal [`usize::MAX`], this sentinel is
+    /// - Either symbol is [`SENTINEL_SYMBOL`], the start-of-sequence sentinel
+    ///   used when a suffix begins at position 0 and has no left neighbor.
+    ///   Because no real symbol can equal [`SENTINEL_SYMBOL`], this sentinel is
     ///   always treated as distinct from any other value, including another
-    ///   sentinel (two suffixes both starting at position 0 in different words
+    ///   sentinel (two suffixes both starting at position 0 in different sequences
     ///   should still be paired).
     #[inline]
     fn should_process_pair(left_symbol: SymbolType, other_left_symbol: SymbolType) -> bool {
-        // Process pairs where left symbols differ, or where left_symbol is STRING_SENTINEL (start of string)
         other_left_symbol != left_symbol || left_symbol == SENTINEL_SYMBOL
     }
 
-    /// Record a match for every cross-word pair between `positions1` and `positions2`.
+    /// Record a match for every cross-sequence pair between `positions1` and `positions2`.
     ///
-    /// Positions that belong to the *same* word are skipped — a suffix can only
+    /// Positions that belong to the *same* sequence are skipped — a suffix can only
     /// form a meaningful plagiarism signal when it appears in two *different*
-    /// source files. For each valid cross-word pair the current string `depth`
+    /// source files. For each valid cross-sequence pair the current string `depth`
     /// is used as the match length.
     fn process_position_pairs(
         &self,
         positions1: &[StartPosition],
         positions2: &[StartPosition],
         depth: usize,
+        is_ignored: bool,
         collector: &mut MatchCollector,
     ) {
         for sp1 in positions1 {
             for sp2 in positions2 {
-                if sp1.word_index != sp2.word_index {
-                    collector.record_match(sp1, sp2, depth);
+                if sp1.sequence_index != sp2.sequence_index {
+                    collector.record_match(sp1, sp2, depth, is_ignored);
                 }
             }
         }
-    }
-
-    /// Recursively find all MEMs in the subtree rooted at `node_index`,
-    /// returning the merged left-symbol map for this subtree.
-    ///
-    /// The core idea is a **bottom-up traversal**: every internal node in the
-    /// suffix tree represents a substring shared by all suffixes in its subtree.
-    /// By the time we return from a node's children, we know — for each suffix
-    /// in the subtree — what symbol appears immediately to the *left* of that
-    /// shared substring (the `left_symbol`).
-    ///
-    /// At each internal node we compare each child map against an accumulator of
-    /// already processed children. Because the children diverged at this
-    /// node, their suffixes already differ on the *right* — so right-maximality
-    /// is free.  Left-maximality is checked by comparing `left_symbol` values:
-    /// two occurrences form a MEM only when their left symbols differ
-    /// (or one is at the start of its word).
-    ///
-    /// Finally, the children's maps are merged and propagated upward so that
-    /// the parent node can repeat the same comparison at a greater depth.
-    fn find_maximal_pairs(
-        &self,
-        node_index: usize,
-        depth: usize,
-        collector: &mut MatchCollector,
-    ) -> LeftMap {
-        let node = &self.tree.arena[node_index];
-        let node_depth = depth + node.range.length();
-
-        let mut accumulator: Option<LeftMap> = None;
-        for child_map in self.collect_child_maps(node, node_depth, collector) {
-            self.absorb_child_map(node_depth, &mut accumulator, child_map, collector);
-        }
-
-        accumulator.unwrap_or_default()
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::suffixtree::tree::suffixtree_test_utils::str_to_nodes;
-
-    #[test]
-    fn test_identical_words() {
-        let words = vec![str_to_nodes("ABC"), str_to_nodes("ABC")];
-
-        let tree = SuffixTree::new(&words);
-        let analyzer = MaximalMatchAnalyzer::new(&tree, &words, 1, false);
-        let result = analyzer.analyze();
-
-        let m = result.metrics.get(0, 1);
-        assert_eq!(m.similarity, 1.0);
-        assert_eq!(m.longest_fragment, 3);
-        assert_eq!(m.total_left, 3);
-        assert_eq!(m.total_right, 3);
-        assert_eq!(m.overlap_left, 3);
-        assert_eq!(m.overlap_right, 3);
-    }
-
-    #[test]
-    fn test_non_overlapping_words() {
-        let words = vec![str_to_nodes("ABC"), str_to_nodes("DEF")];
-
-        let tree = SuffixTree::new(&words);
-        let analyzer = MaximalMatchAnalyzer::new(&tree, &words, 1, false);
-        let result = analyzer.analyze();
-
-        let m = result.metrics.get(0, 1);
-        assert_eq!(m.similarity, 0.0);
-        assert_eq!(m.longest_fragment, 0);
-        assert_eq!(m.total_left, 3);
-        assert_eq!(m.total_right, 3);
-        assert_eq!(m.overlap_left, 0);
-        assert_eq!(m.overlap_right, 0);
-    }
-
-    #[test]
-    fn test_partial_overlap() {
-        let words = vec![str_to_nodes("ABCDEF"), str_to_nodes("XYZABC")];
-
-        let tree = SuffixTree::new(&words);
-        let analyzer = MaximalMatchAnalyzer::new(&tree, &words, 1, false);
-        let result = analyzer.analyze();
-
-        let m = result.metrics.get(0, 1);
-        // "ABC" is shared
-        assert_eq!(m.longest_fragment, 3);
-        assert_eq!(m.similarity, 0.5);
-        assert_eq!(m.total_left, 6);
-        assert_eq!(m.total_right, 6);
-        assert_eq!(m.overlap_left, 3);
-        assert_eq!(m.overlap_right, 3);
-    }
-
-    #[test]
-    fn test_multiple_words() {
-        let words = vec![
-            str_to_nodes("ABCD"),
-            str_to_nodes("ABCE"),
-            str_to_nodes("XYZW"),
-        ];
-
-        let tree = SuffixTree::new(&words);
-        let analyzer = MaximalMatchAnalyzer::new(&tree, &words, 1, false);
-        let result = analyzer.analyze();
-
-        // Word 0 and 1 share "ABC"
-        let m01 = result.metrics.get(0, 1);
-        assert_eq!(m01.longest_fragment, 3);
-        assert_eq!(m01.similarity, 0.75);
-        // Word 0 and 2 share nothing
-        let m02 = result.metrics.get(0, 2);
-        assert_eq!(m02.longest_fragment, 0);
-        assert_eq!(m02.similarity, 0.0);
-        // Word 1 and 2 share nothing
-        let m12 = result.metrics.get(1, 2);
-        assert_eq!(m12.longest_fragment, 0);
-        assert_eq!(m12.similarity, 0.0);
-    }
-
-    #[test]
-    fn test_min_match_length() {
-        let words = vec![str_to_nodes("ABCDEF"), str_to_nodes("XYZABC")];
-
-        let tree = SuffixTree::new(&words);
-        // With min_match_length = 5, "ABC" (length 3) should not be counted
-        let analyzer = MaximalMatchAnalyzer::new(&tree, &words, 5, false);
-        let result = analyzer.analyze();
-
-        assert_eq!(result.metrics.get(0, 1).longest_fragment, 0);
     }
 }

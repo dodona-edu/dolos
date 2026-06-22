@@ -13,3 +13,4 @@ target/
 
 ### Output files ###
 *.csv
+dolos-report-*/

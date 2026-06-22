@@ -79,7 +79,6 @@ fn collect_recursive(dir: &Path) -> Result<Vec<PathBuf>> {
             }
         }
     }
-    files.sort();
     Ok(files)
 }
 

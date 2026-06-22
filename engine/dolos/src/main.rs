@@ -1,22 +1,16 @@
 use clap::Parser;
-use dolos::dolos::{Dolos, DolosConfig};
+use dolos::dolos::Dolos;
 use dolos::opts::{Command, Opts};
-use dolos::reader::Dataset;
 use dolos::writer::{OutputWriter, Writer};
 use std::io::Result;
 
-///
-/// Main function
 fn main() -> Result<()> {
     let opts = Opts::parse();
 
     match opts.command {
-        Command::Run { files, output_format, output_destination } => {
-            let dataset = Dataset::create(files)?;
-            let dolos = Dolos::from_file_set(dataset.file_set, DolosConfig::default());
-            let report = dolos.build_report();
-
-            Writer::new(output_format, output_destination)?.write_and_finish(&report)?;
+        Command::Run { files, dolos_args: config, output_args } => {
+            let report = Dolos::new(files, config.try_into()?)?.build_report();
+            Writer::new(output_args, &report)?.write_and_finish(&report)?;
         }
     }
     Ok(())

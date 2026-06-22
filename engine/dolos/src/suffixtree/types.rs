@@ -1,27 +1,27 @@
 use crate::collections::pair_array::PairArray;
 
-/// Sentinel symbol used to mark the end of words.
+/// Sentinel symbol used to mark the end of sequences.
 pub(crate) const SENTINEL_SYMBOL: SymbolType = usize::MAX;
 
 /// Type that represents the index of a node in the arena part of the tree.
 pub(super) type NodeIndex = usize;
 
-/// Type that represents a single symbol in a word.
+/// Type that represents a single symbol in a sequence.
 pub(super) type SymbolType = usize;
 
-/// Represents a starting position of a match in a word.
+/// Represents a starting position of a match in a sequence.
 ///
 /// Internal to the suffix-tree module; public consumers use [`Match`] which
 /// stores only the normalized start offsets.
 #[derive(Debug, Clone)]
 pub(super) struct StartPosition {
-    /// Index of the word this position belongs to.
-    pub word_index: usize,
-    /// Offset within the word where the match starts.
+    /// Index of the sequence this position belongs to.
+    pub sequence_index: usize,
+    /// Offset within the sequence where the match starts.
     pub start: usize,
 }
 
-/// A maximal exact match between two positions in (possibly different) words.
+/// A maximal exact match between two positions in (possibly different) sequences.
 ///
 /// `left_start` and `right_start` are offsets into the fingerprint arrays of
 /// the left (smaller-index) and right (larger-index) files respectively.
@@ -34,6 +34,11 @@ pub struct Match {
     pub right_start: usize,
     /// Number of consecutive matching fingerprints.
     pub length: usize,
+    /// Whether this match comes from an ignored or too-common substring.
+    ///
+    /// Ignored matches are excluded from similarity and `longest_fragment`
+    /// metrics but are still stored so callers can inspect or visualise them.
+    pub ignored: bool,
 }
 
 /// Per-pair metrics produced by the suffix-tree analysis.

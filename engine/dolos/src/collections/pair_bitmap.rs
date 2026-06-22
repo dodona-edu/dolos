@@ -1,9 +1,11 @@
+use crate::collections::bit_vec::BitVec;
 use crate::collections::utils::{ordered_pair, ordered_pair_with};
+use crate::collections::word_slice::WordSlice;
 
 /// A flat bitmap for tracking per-pair bit coverage across N items.
 ///
 /// Stores two bit-vectors per unordered pair (i, j), packed into a single
-/// contiguous `Vec<u64>`. This avoids the overhead of individual heap
+/// contiguous [`BitVec`]. This avoids the overhead of individual heap
 /// allocations per pair. Pair offsets are computed in O(1) from O(N)
 /// precomputed metadata rather than storing O(N²) offsets.
 ///
@@ -15,8 +17,8 @@ use crate::collections::utils::{ordered_pair, ordered_pair_with};
 ///
 /// Pairs are ordered row-major: (0,1), (0,2), ..., (0,N-1), (1,2), ..., (N-2,N-1).
 pub struct PairBitmap {
-    /// All bit data packed contiguously.
-    words: Vec<u64>,
+    /// Underlying packed bit storage.
+    buf: BitVec,
     /// `ceil(lengths[k] / 64)` for each item k.
     word_counts: Vec<usize>,
     /// `prefix_word_sums[k] = sum of word_counts[0..k]`.
@@ -48,43 +50,31 @@ impl PairBitmap {
                 cumulative += row_words;
             }
         }
-        let total_words = cumulative;
 
         Self {
-            words: vec![0u64; total_words],
+            buf: BitVec::new(cumulative),
             word_counts,
             prefix_word_sums,
             row_offsets,
         }
     }
 
-    /// Convenience: mark both sides of a pair at once.
+    /// Mark both sides of a pair at once.
     ///
-    /// Equivalent to calling `mark(i, j, i, start_i, len)` and
-    /// `mark(i, j, j, start_j, len)`.
+    /// Sets bits `[start_i, start_i + length)` for item `i` and
+    /// `[start_j, start_j + length)` for item `j` in the pair `(i, j)`.
     pub fn mark_pair(&mut self, i: usize, j: usize, start_i: usize, start_j: usize, length: usize) {
         let (min, max, start_min, start_max) = ordered_pair_with(i, j, start_i, start_j);
-
         let base = self.pair_word_offset(min, max);
-        let words1_count = self.word_counts[min];
-
-        Self::fill_bit_range(&mut self.words, base, start_min, length);
-        Self::fill_bit_range(&mut self.words, base + words1_count, start_max, length);
+        self.buf.mark(base, start_min, length);
+        self.buf
+            .mark(base + self.word_counts[min], start_max, length);
     }
 
     /// Count the number of set bits for item `item` in the pair `(i, j)`.
     pub fn count_ones(&self, i: usize, j: usize, item: usize) -> usize {
-        debug_assert!(item == i || item == j);
-        let (min, max) = ordered_pair(i, j);
-
-        let base = self.pair_word_offset(min, max);
-        let (offset, count) = if item == min {
-            (base, self.word_counts[min])
-        } else {
-            (base + self.word_counts[min], self.word_counts[max])
-        };
-
-        Self::popcount(&self.words[offset..offset + count])
+        let (word_base, word_count) = self.item_word_range(i, j, item);
+        self.buf.count_ones(word_base, word_count)
     }
 
     /// Count the total number of set bits across both items in a pair.
@@ -93,68 +83,37 @@ impl PairBitmap {
         let base = self.pair_word_offset(min, max);
         let total_words = self.word_counts[min] + self.word_counts[max];
 
-        Self::popcount(&self.words[base..(base + total_words)])
+        self.buf.count_ones(base, total_words)
+    }
+
+    /// Return a [`WordSlice`] view over the packed `u64` words for `item`
+    /// within the pair `(i, j)`.
+    pub fn words_for(&self, i: usize, j: usize, item: usize) -> WordSlice<'_> {
+        let (word_base, word_count) = self.item_word_range(i, j, item);
+        self.buf.words_slice(word_base, word_count)
     }
 
     // ── private helpers ──────────────────────────────────────────────
 
-    /// Compute the word offset for pair (i, j) where i < j in O(1).
+    /// Return the `(word_base, word_count)` for `item` within the pair `(i, j)`.
+    fn item_word_range(&self, i: usize, j: usize, item: usize) -> (usize, usize) {
+        debug_assert!(item == i || item == j);
+        let (min, max) = ordered_pair(i, j);
+        let base = self.pair_word_offset(min, max);
+        if item == min {
+            (base, self.word_counts[min])
+        } else {
+            (base + self.word_counts[min], self.word_counts[max])
+        }
+    }
+
+    /// Compute the word offset for pair (i, j) in O(1), where i < j.
     #[inline]
     fn pair_word_offset(&self, i: usize, j: usize) -> usize {
         debug_assert!(i < j);
         self.row_offsets[i]
             + (j - i - 1) * self.word_counts[i]
             + (self.prefix_word_sums[j] - self.prefix_word_sums[i + 1])
-    }
-
-    /// Count set bits in a word slice.
-    #[inline]
-    fn popcount(words: &[u64]) -> usize {
-        words.iter().map(|&w| w.count_ones() as usize).sum()
-    }
-
-    /// Set bits `[start, start + length)` in the flat word buffer starting at
-    /// `word_base`.
-    fn fill_bit_range(words: &mut [u64], word_base: usize, start: usize, length: usize) {
-        if length == 0 {
-            return;
-        }
-
-        let end = start + length;
-        let first_word = start / 64;
-        let last_word = (end - 1) / 64;
-        let start_bit = start % 64;
-
-        if first_word == last_word {
-            let end_bit = end - first_word * 64;
-            let mask = Self::mask_range(start_bit, end_bit);
-            words[word_base + first_word] |= mask;
-        } else {
-            // First partial word: set bits [start_bit, 64)
-            words[word_base + first_word] |= !0u64 << start_bit;
-
-            // Full middle words
-            words[(word_base + first_word + 1)..(word_base + last_word)].fill(!0u64);
-
-            // Last partial word: set bits [0, end_bit)
-            let end_bit = end % 64;
-            if end_bit == 0 {
-                words[word_base + last_word] = !0u64;
-            } else {
-                words[word_base + last_word] |= (1u64 << end_bit) - 1;
-            }
-        }
-    }
-
-    /// Create a bitmask for bits `[low, high)` within a single u64 word.
-    #[inline]
-    fn mask_range(low: usize, high: usize) -> u64 {
-        let upper = if high >= 64 {
-            !0u64
-        } else {
-            (1u64 << high) - 1
-        };
-        upper & (!0u64 << low)
     }
 }
 
@@ -203,7 +162,6 @@ mod tests {
 
     #[test]
     fn test_cross_word_boundary() {
-        // Length > 64 to force multiple u64 words
         let mut bm = PairBitmap::new(&[128, 128]);
         bm.mark_pair(0, 1, 60, 60, 10); // crosses the 64-bit boundary
 
@@ -221,10 +179,8 @@ mod tests {
     #[test]
     fn test_reversed_pair_order() {
         let mut bm = PairBitmap::new(&[10, 10]);
-        // Pass pair in reversed order (1, 0) instead of (0, 1)
         bm.mark_pair(1, 0, 2, 3, 4);
 
-        // Should still work correctly
         assert_eq!(bm.count_ones(0, 1, 0), 4);
         assert_eq!(bm.count_ones(0, 1, 1), 4);
     }

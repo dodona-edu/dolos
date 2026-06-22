@@ -6,7 +6,7 @@ pub type Fingerprint = usize;
 
 /// Computes the source region spanned by a kgram.
 fn region_from_kgram(kgram: &[Token]) -> Region {
-    // The tokenizer serializes each AST node as `( node_kind <child tokens> )`.
+    // The tokenizer serializes each AST node as `(node_kind <child tokens>)`.
     // All three synthetic tokens (`(`, node kind, `)`) share the same location:
     // from the node's start up to the *first child's* start (not the node's end).
     //
@@ -129,7 +129,7 @@ mod tests {
                 .unwrap();
 
         let content = std::fs::read_to_string(Path::new("fixtures/sample1.js")).unwrap();
-        let (hashes, locations) = tokenizer.parse(&content).tokens().winnow(k, w, true);
+        let (hashes, locations) = tokenizer.parse(&content).tokens(false).winnow(k, w, true);
 
         let locations = locations.expect("Locations should be present");
 

@@ -17,20 +17,20 @@ pub struct BuildCursor<'a> {
 impl<'a> BuildCursor<'a> {
     #[inline]
     fn virtual_edge_len(&self, node: &Node) -> usize {
-        node.range.length() + usize::from(node.word_indices.is_some())
+        node.range.length() + usize::from(node.sequence_indices.is_some())
     }
 
-    /// Returns the symbol at `index_in_word` in `words[current_word_index]`, with a virtual
-    /// end-of-word sentinel at position `len`.
+    /// Returns the symbol at `index_in_sequence` in `sequences[current_sequence_index]`, with a
+    /// virtual end-of-sequence sentinel at position `len`.
     fn symbol_at(
-        words: &[Vec<SymbolType>],
-        current_word_index: usize,
-        index_in_word: usize,
+        sequences: &[Vec<SymbolType>],
+        current_sequence_index: usize,
+        index_in_sequence: usize,
     ) -> SymbolType {
-        if index_in_word == words[current_word_index].len() {
+        if index_in_sequence == sequences[current_sequence_index].len() {
             SENTINEL_SYMBOL
         } else {
-            words[current_word_index][index_in_word]
+            sequences[current_sequence_index][index_in_sequence]
         }
     }
 
@@ -39,22 +39,23 @@ impl<'a> BuildCursor<'a> {
         BuildCursor { node_index: 0, index: 0, tree }
     }
 
-    /// Try to progress by consuming `next_symbol`
-    /// Returns `true` if this succeeds, `false` otherwise;
+    /// Try to progress by consuming `next_symbol`.
+    /// Returns `true` if this succeeds, `false` otherwise.
     pub fn next(
         &mut self,
-        index_in_word: usize,
-        current_word_index: usize,
-        words: &[Vec<SymbolType>],
+        index_in_sequence: usize,
+        current_sequence_index: usize,
+        sequences: &[Vec<SymbolType>],
     ) -> bool {
-        let next_symbol = BuildCursor::symbol_at(words, current_word_index, index_in_word);
+        let next_symbol =
+            BuildCursor::symbol_at(sequences, current_sequence_index, index_in_sequence);
 
         let current_node = &self.tree.arena[self.node_index];
 
         if self.index < self.virtual_edge_len(current_node) {
             let edge_symbol = BuildCursor::symbol_at(
-                words,
-                current_node.range.word,
+                sequences,
+                current_node.range.sequence_index,
                 current_node.range.start + self.index,
             );
             if edge_symbol == next_symbol {
@@ -85,33 +86,33 @@ impl<'a> BuildCursor<'a> {
         }
     }
 
-    /// Reset the cursor to the root of the tree
+    /// Reset the cursor to the root of the tree.
     pub fn reset(&mut self) {
         self.index = 0;
         self.node_index = 0;
     }
 
-    /// Returns true if the cursor is positioned at a node and not somewhere in an edge
+    /// Returns true if the cursor is positioned at a node and not somewhere in an edge.
     pub fn at_node(&self) -> bool {
         self.index == self.virtual_edge_len(&self.tree.arena[self.node_index])
     }
 
-    /// Adds a link from the `receiver` node to the `link_to` node
+    /// Adds a link from the `receiver` node to the `link_to` node.
     pub fn add_link(&mut self, receiver: NodeIndex, link_to: NodeIndex) {
         self.tree.arena[receiver].link = Some(link_to);
     }
 
-    /// Adds a word index to the current node's set of word indices.
-    pub fn add_word_index(&mut self, word_index: usize) {
+    /// Adds a sequence index to the current node's set of sequence indices.
+    pub fn add_sequence_index(&mut self, sequence_index: usize) {
         self.tree.arena[self.node_index]
-            .word_indices
+            .sequence_indices
             .as_mut()
-            .expect("Cannot add a word index to a node without word indices")
-            .insert(word_index);
+            .expect("Cannot add a sequence index to a node without sequence indices")
+            .insert(sequence_index);
     }
 
-    /// Split edge implementation for Ukkonen
-    pub fn split_edge(&mut self, words: &[Vec<SymbolType>]) -> NodeIndex {
+    /// Split edge implementation for Ukkonen.
+    pub fn split_edge(&mut self, sequences: &[Vec<SymbolType>]) -> NodeIndex {
         // first get the index where the next node will be inserted, do this before we have a mutable borrow
         let new_internal_node_index_in_arena = self.tree.arena.len();
         // create the new node
@@ -121,14 +122,17 @@ impl<'a> BuildCursor<'a> {
             .parent
             .expect("Current node should have a parent");
 
-        let split_symbol =
-            BuildCursor::symbol_at(words, current_node.range.word, new_internal_node_end);
+        let split_symbol = BuildCursor::symbol_at(
+            sequences,
+            current_node.range.sequence_index,
+            new_internal_node_end,
+        );
 
         let new_internal_node = Node::create_internal_node_with_child(
             Range::new(
                 current_node.range.start,
                 new_internal_node_end,
-                current_node.range.word,
+                current_node.range.sequence_index,
             ),
             parent_index_in_arena,
             split_symbol,
@@ -142,8 +146,8 @@ impl<'a> BuildCursor<'a> {
         let parent = &mut self.tree.arena[parent_index_in_arena];
         parent.add_child(
             BuildCursor::symbol_at(
-                words,
-                new_internal_node.range.word,
+                sequences,
+                new_internal_node.range.sequence_index,
                 new_internal_node.range.start,
             ),
             new_internal_node_index_in_arena,
@@ -155,33 +159,33 @@ impl<'a> BuildCursor<'a> {
         new_internal_node_index_in_arena
     }
 
-    /// Add a leaf with a suffix index used in the Ukkonen implementation
+    /// Add a leaf with a suffix index used in the Ukkonen implementation.
     pub fn add_leaf_from_position(
         &mut self,
         j: usize,
-        word_index: usize,
-        words: &[Vec<SymbolType>],
+        sequence_index: usize,
+        sequences: &[Vec<SymbolType>],
     ) {
         let new_leaf = Node::create_leaf(
-            Range::new(j, words[word_index].len(), word_index),
+            Range::new(j, sequences[sequence_index].len(), sequence_index),
             self.node_index,
         );
 
         let new_leaf_position_in_arena = self.tree.arena.len();
         let current_node = &mut self.tree.arena[self.node_index];
         current_node.add_child(
-            BuildCursor::symbol_at(words, word_index, j),
+            BuildCursor::symbol_at(sequences, sequence_index, j),
             new_leaf_position_in_arena,
         );
         self.tree.arena.push(new_leaf);
     }
 
-    /// Follow the suffix link during the Ukkonen algorithm
+    /// Follow the suffix link during the Ukkonen algorithm.
     pub fn follow_link(
         &mut self,
-        mut index_in_word: usize,
-        word_index: usize,
-        words: &[Vec<SymbolType>],
+        mut index_in_sequence: usize,
+        sequence_index: usize,
+        sequences: &[Vec<SymbolType>],
     ) {
         if self.node_index == 0 || self.index == 0 {
             return;
@@ -195,11 +199,11 @@ impl<'a> BuildCursor<'a> {
                 // the parent is the root
                 self.node_index = 0;
                 distance_left_to_walk = self.index - 1;
-                index_in_word -= self.index - 1;
+                index_in_sequence -= self.index - 1;
             } else {
                 // follow link
                 distance_left_to_walk = self.index; // distance before following the link
-                index_in_word -= self.index;
+                index_in_sequence -= self.index;
                 let parent_node = &self.tree.arena[parent_index];
                 self.node_index = parent_node.link.expect("Parent must have a suffix link");
             }
@@ -214,17 +218,21 @@ impl<'a> BuildCursor<'a> {
         while distance_left_to_walk > 0 {
             // move to child
             self.node_index = *current_node
-                .get_child(BuildCursor::symbol_at(words, word_index, index_in_word))
+                .get_child(BuildCursor::symbol_at(
+                    sequences,
+                    sequence_index,
+                    index_in_sequence,
+                ))
                 .expect("Child must exist during tree traversal");
             current_node = &self.tree.arena[self.node_index];
 
             // walk as far as possible on the current edge
             let current_advance = min(
-                current_node.range.length() + usize::from(current_node.word_indices.is_some()),
+                current_node.range.length() + usize::from(current_node.sequence_indices.is_some()),
                 distance_left_to_walk,
             );
             distance_left_to_walk -= current_advance;
-            index_in_word += current_advance;
+            index_in_sequence += current_advance;
             self.index = current_advance;
         }
     }
@@ -264,8 +272,8 @@ mod tests {
         control_tree.arena[3].add_child(67, 1);
 
         let mut cursor = BuildCursor { node_index: 1, index: 1, tree: &mut tree };
-        let words = vec![str_to_nodes("ACAB")];
-        cursor.split_edge(&words);
+        let sequences = vec![str_to_nodes("ACAB")];
+        cursor.split_edge(&sequences);
 
         assert_eq!(
             cursor,

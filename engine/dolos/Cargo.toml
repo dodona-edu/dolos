@@ -66,6 +66,7 @@ lang-typescript = ["tree-sitter-grammars/lang-typescript"]
 lang-verilog = ["tree-sitter-grammars/lang-verilog"]
 
 [dependencies]
+chrono = { version = "0.4.44", features = ["clock", "std"] }
 bzip2 = "0.6.1"
 flate2 = "1.1.9"
 tar = "0.4.46"
@@ -83,3 +84,6 @@ serde_any = "0.5"
 rand = "0.10.1"
 serde = "1.0.228"
 rstest = "0.26.1"
+assert_cmd = "2.2.2"
+predicates = "3.1.4"
+tempfile = "3.27.0"

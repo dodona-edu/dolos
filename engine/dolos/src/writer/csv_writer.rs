@@ -21,10 +21,14 @@ pub struct CsvWriter {
 }
 
 impl CsvWriter {
-    /// Create a new CSV writer that writes to "similarities.csv" in the specified directory.
-    pub(super) fn new(output_destination: PathBuf) -> Result<Self> {
-        std::fs::create_dir_all(&output_destination)?;
-        let csv_path = output_destination.join("similarities.csv");
+    /// Create a new CSV writer.
+    ///
+    /// Creates `{output_destination}/{name}/pairs.csv`, along with all required
+    /// parent directories.
+    pub(super) fn new(output_destination: PathBuf, name: &str) -> Result<Self> {
+        let report_dir = output_destination.join(name);
+        std::fs::create_dir_all(&report_dir)?;
+        let csv_path = report_dir.join("pairs.csv");
         let mut writer = csv::Writer::from_path(&csv_path).map_err(Error::other)?;
         writer.write_record(HEADER).map_err(Error::other)?;
         Ok(Self { writer })
@@ -33,7 +37,7 @@ impl CsvWriter {
 
 impl OutputWriter for CsvWriter {
     fn write_pair(&mut self, pair: &Pair) -> Result<()> {
-        let m = pair.metrics;
+        let m = &pair.metrics;
         self.writer
             .serialize((
                 pair.left_file.relative_path.display().to_string(),

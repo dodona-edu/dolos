@@ -1,9 +1,9 @@
-use crate::opts::OutputFormat;
+use crate::opts::{OutputArgs, OutputFormat};
 use crate::report::{Pair, Report};
 use crate::writer::csv_writer::CsvWriter;
 use crate::writer::terminal_writer::TerminalWriter;
+use std::io;
 use std::io::Result;
-use std::path::PathBuf;
 
 /// Trait for writing similarity analysis results in different formats.
 pub trait OutputWriter {
@@ -12,8 +12,8 @@ pub trait OutputWriter {
 
     /// Write all pairs to the output.
     fn write_report(&mut self, report: &Report) -> Result<()> {
-        for pair in report.iter_pairs() {
-            self.write_pair(&pair)?;
+        for pair in &report.pairs {
+            self.write_pair(pair)?;
         }
         Ok(())
     }
@@ -38,11 +38,15 @@ pub enum Writer {
 }
 
 impl Writer {
-    /// Create a new writer based on the specified format.
-    pub fn new(format: OutputFormat, output_destination: PathBuf) -> Result<Self> {
-        match format {
-            OutputFormat::Csv => Ok(Writer::Csv(Box::new(CsvWriter::new(output_destination)?))),
-            OutputFormat::Terminal => Ok(Writer::Terminal(TerminalWriter)),
+    /// Create a new writer based on the specified output arguments.
+    pub fn new(args: OutputArgs, report: &Report) -> io::Result<Self> {
+        match args.output_format {
+            OutputFormat::Csv => Ok(Writer::Csv(Box::new(CsvWriter::new(
+                args.output_destination,
+                &report.name,
+            )?))),
+            OutputFormat::Terminal | OutputFormat::Console => Ok(Writer::Terminal(TerminalWriter)),
+            OutputFormat::Html | OutputFormat::Web => todo!("HTML output not yet implemented"),
         }
     }
 }

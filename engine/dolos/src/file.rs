@@ -2,11 +2,8 @@ use std::fmt;
 use std::hash::{Hash, Hasher};
 use std::path::PathBuf;
 
-use tree_sitter_grammars::Language;
-
 pub struct File {
     pub relative_path: PathBuf,
-    pub language: Language,
     /// Source text, stored when fragment display is needed.
     pub content: Option<String>,
 }
@@ -50,6 +47,7 @@ impl fmt::Debug for File {
 
 /// A set of source files to analyze: a base directory and paths relative to it.
 /// The relative paths serve as display paths in the output.
+#[derive(Debug, Clone)]
 pub struct FileSet {
     pub base_dir: PathBuf,
     pub relative_paths: Vec<PathBuf>,
