@@ -77,7 +77,7 @@ impl Dolos {
     ///
     /// The file is added to `self.files`, its fingerprints to `self.hashes`, and
     /// (when `keep_fragments` is set) its locations to `self.locations`.
-    fn add_file(&mut self, base_dir: &Path, relative: &Path) -> Result<()> {
+    fn add_file(&mut self, id: usize, base_dir: &Path, relative: &Path) -> Result<()> {
         // Only enforce the language-extension match when the language was
         // auto-detected.  If the user explicitly specified the language, they
         // know what they want (e.g., files exported without an extension).
@@ -96,6 +96,7 @@ impl Dolos {
             locs.push(locations.expect("locations should be present when keep_fragments is true"));
         }
         self.files.push(Rc::new(File {
+            id,
             relative_path: relative.to_path_buf(),
             content: self.metadata.include_fragments.then_some(content),
         }));
@@ -120,8 +121,8 @@ impl Dolos {
     }
 
     fn add_files(&mut self, file_set: FileSet) -> Result<()> {
-        for relative in file_set.relative_paths {
-            self.add_file(&file_set.base_dir, &relative)?;
+        for (id, relative) in file_set.relative_paths.iter().enumerate() {
+            self.add_file(id, &file_set.base_dir, relative)?;
         }
         Ok(())
     }

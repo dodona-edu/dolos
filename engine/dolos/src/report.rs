@@ -19,6 +19,7 @@ pub struct Pair {
 
 pub struct Report {
     pub metadata: Metadata,
+    pub files: Vec<Rc<File>>,
     pub pairs: Vec<Pair>,
 }
 
@@ -52,7 +53,7 @@ impl Report {
 
         sort_pairs(&mut pairs, &metadata.sort_by);
 
-        Report { metadata, pairs }
+        Report { metadata, files, pairs }
     }
 
     /// Resolve raw matches + locations into [`Fragment`] lists, sorted according
@@ -174,8 +175,8 @@ mod tests {
         )
     }
 
-    fn make_file(name: &str) -> Rc<File> {
-        Rc::new(File { relative_path: PathBuf::from(name), content: None })
+    fn make_file(id: usize, name: &str) -> Rc<File> {
+        Rc::new(File { id, relative_path: PathBuf::from(name), content: None })
     }
 
     fn make_metrics(similarity: f64) -> PairMetrics {
@@ -193,7 +194,11 @@ mod tests {
     /// that files are accessible on the resulting report.
     #[test]
     fn test_from() {
-        let files = vec![make_file("a.js"), make_file("b.js"), make_file("c.js")];
+        let files = vec![
+            make_file(0, "a.js"),
+            make_file(1, "b.js"),
+            make_file(2, "c.js"),
+        ];
         let mut metrics = PairArray::new(3, PairMetrics::default());
         metrics.set(0, 1, make_metrics(0.5));
         metrics.set(0, 2, make_metrics(0.2));
@@ -261,7 +266,11 @@ mod tests {
     /// unordered file pairs in the correct order and with correct file refs.
     #[test]
     fn test_all_pairs() {
-        let files = vec![make_file("x.js"), make_file("y.js"), make_file("z.js")];
+        let files = vec![
+            make_file(0, "x.js"),
+            make_file(1, "y.js"),
+            make_file(2, "z.js"),
+        ];
         let metrics = PairArray::new(3, make_metrics(0.0));
         let analysis = AnalysisResult { metrics, matches: None };
         let report = make_report(analysis, files.clone(), None, None, None);
@@ -282,7 +291,11 @@ mod tests {
     /// in descending similarity order.
     #[test]
     fn test_sort_by_similarity() {
-        let files = vec![make_file("a.js"), make_file("b.js"), make_file("c.js")];
+        let files = vec![
+            make_file(0, "a.js"),
+            make_file(1, "b.js"),
+            make_file(2, "c.js"),
+        ];
         let mut metrics = PairArray::new(3, PairMetrics::default());
         metrics.set(0, 1, make_metrics(0.5));
         metrics.set(0, 2, make_metrics(0.2));
@@ -325,7 +338,7 @@ mod tests {
         };
         let report = make_report(
             analysis,
-            vec![make_file("a.js"), make_file("b.js")],
+            vec![make_file(0, "a.js"), make_file(1, "b.js")],
             Some(locations),
             None,
             Some(FragmentSortBy::KgramsDescending),

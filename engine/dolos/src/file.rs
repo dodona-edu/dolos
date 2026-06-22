@@ -3,6 +3,8 @@ use std::hash::{Hash, Hasher};
 use std::path::PathBuf;
 
 pub struct File {
+    /// Zero-based index assigned in the order the file was added to the analysis.
+    pub id: usize,
     pub relative_path: PathBuf,
     /// Source text, stored when fragment display is needed.
     pub content: Option<String>,
