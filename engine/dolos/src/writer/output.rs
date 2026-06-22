@@ -2,7 +2,6 @@ use crate::opts::{OutputArgs, OutputFormat};
 use crate::report::{Pair, Report};
 use crate::writer::csv_writer::CsvWriter;
 use crate::writer::terminal_writer::TerminalWriter;
-use std::io;
 use std::io::Result;
 
 /// Trait for writing similarity analysis results in different formats.
@@ -39,11 +38,11 @@ pub enum Writer {
 
 impl Writer {
     /// Create a new writer based on the specified output arguments.
-    pub fn new(args: OutputArgs, report: &Report) -> io::Result<Self> {
+    pub fn new(args: OutputArgs, report: &Report) -> Result<Self> {
         match args.output_format {
             OutputFormat::Csv => Ok(Writer::Csv(Box::new(CsvWriter::new(
                 args.output_destination,
-                &report.metadata.report_name,
+                &report.metadata,
             )?))),
             OutputFormat::Terminal | OutputFormat::Console => Ok(Writer::Terminal(TerminalWriter)),
             OutputFormat::Html | OutputFormat::Web => todo!("HTML output not yet implemented"),

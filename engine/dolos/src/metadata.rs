@@ -45,7 +45,7 @@ impl Metadata {
         let max_fingerprint_file_count = Self::resolve_max_fingerprint_count(config, file_count);
 
         Metadata {
-            report_name: config.name.clone().unwrap_or(dataset.name.clone()),
+            report_name: config.name.clone().unwrap_or_else(|| dataset.name.clone()),
             created_at: Utc::now(),
             sort_by: config.sort_by,
             fragment_sort_by: config.fragment_sort_by,

@@ -35,7 +35,19 @@ fn smoke_csv_output() {
     )
     .assert()
     .success();
-    assert!(tmp.path().join("report").join("pairs.csv").exists());
+
+    let report_dir = std::fs::read_dir(tmp.path())
+        .unwrap()
+        .map(|e| e.unwrap().path())
+        .find(|p| {
+            p.file_name()
+                .and_then(|n| n.to_str())
+                .is_some_and(|s| s.starts_with("dolos-report-"))
+        })
+        .expect("report directory not created");
+
+    assert!(report_dir.join("pairs.csv").exists());
+    assert!(report_dir.join("metadata.csv").exists());
 }
 
 // ── Error surfacing ───────────────────────────────────────────────────────────
