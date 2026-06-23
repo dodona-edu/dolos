@@ -32,7 +32,13 @@ export interface D3ForceGraph {
 export function useD3ForceGraph(options: D3ForceGraphOptions): D3ForceGraph {
   const data = new Data();
   const context: CanvasRenderingContext2D = document.createElement("canvas").getContext("2d")!;
+
+  const seed = 0.42;
+  const random = d3.randomNormal.source(d3.randomLcg(seed))(0, 1);
+
   const simulation = createSimulation(context, data);
+
+
   const selectedNode = shallowRef();
   const selectedGroup = shallowRef();
 

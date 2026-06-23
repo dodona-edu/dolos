@@ -17,6 +17,7 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:visual": "playwright test",
     "lint": "eslint . --fix",
     "check": "vue-tsc --noEmit && eslint . --fix"
   },
@@ -24,6 +25,7 @@
     "@babel/types": "^7.24.7",
     "@dodona/dolos-core": "1.2.1",
     "@mdi/font": "7.4.47",
+    "@playwright/test": "1.54.1",
     "@types/d3": "7.4.3",
     "@types/luxon": "^3.4.2",
     "@types/node": "^25.6.0",
