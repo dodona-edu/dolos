@@ -29,7 +29,7 @@ type Route = {
 };
 
 const ROUTES: Route[] = [
-  { name: "01-overview", hash: "#/" },
+  { name: "01-overview", hash: "#/", ready: ".hero-title" },
   { name: "02-pairs", hash: "#/pairs" },
   { name: "03-pair", hash: "#/pairs/48730", ready: ".monaco-editor", maxDiffPixelRatio: 0.05 },
   { name: "04-submissions", hash: "#/submissions" },

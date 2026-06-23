@@ -471,6 +471,87 @@ jobs:
           cd web/
           npm run lint
 
+  web-test:
+    name: "Web 🌐 - test 🧪"
+    runs-on: ubuntu-latest
+    needs: install-deps
+    strategy:
+      matrix:
+        node: [ "22" ]
+      fail-fast: false
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v6
+
+      - name: Setup Node 📚
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Fetch Dependencies ⚡️
+        id: cache-dependencies
+        uses: actions/cache@v5
+        with:
+          path: |
+            ${{ github.workspace }}/node_modules
+            ${{ github.workspace }}/*/node_modules
+            ${{ github.workspace }}/parsers/build
+          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('./package-lock.json', './package.json', './*/package.json', './parsers/binding.gyp', './.gitmodules') }}
+
+      - name: Check if cache was hit 🔎
+        if: steps.cache-dependencies.outputs.cache-hit != 'true'
+        run: |
+          echo "Should have hit cache"
+          false
+
+      - name: Build core 🔧
+        run: |
+          cd core/
+          npm run build
+
+      - name: Test 🧪
+        run: |
+          cd web/
+          npm run test
+
+  web-visual-test:
+    name: "Web 🌐 - visual tests 📸"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v6
+
+      # Provide Playwright's browser (Firefox) through Nix, exactly as locally.
+      # The flake's devshell pins it via flake.lock, so CI renders identically
+      # to `nix develop` on a developer machine and the committed baselines
+      # hold. Keep @playwright/test in web/package.json pinned to the same
+      # version as the nixpkgs playwright-driver (see shell.nix).
+      - name: Install Nix ❄️
+        uses: cachix/install-nix-action@v30
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+
+      # Run everything inside the devshell so PLAYWRIGHT_BROWSERS_PATH and the
+      # skip-validation flags are set. Native build scripts (parsers) are
+      # skipped: building/previewing web only needs JS deps.
+      - name: Visual regression tests 📸
+        run: |
+          nix develop --command bash -c '
+            npm ci --ignore-scripts
+            npm run build --workspace=@dodona/dolos-core
+            cd web
+            npx playwright test
+          '
+
+      - name: Upload Playwright report 📤
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: web/playwright-report/
+          retention-days: 14
+
   docs:
     name: "Docs 📑"
     runs-on: ubuntu-latest

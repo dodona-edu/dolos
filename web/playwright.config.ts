@@ -37,9 +37,12 @@ export default defineConfig({
     { name: "firefox", use: { ...devices["Desktop Firefox"] } },
   ],
   webServer: {
-    command: "npm run dev",
+    // Serve a production build rather than the dev server: the bundle is fully
+    // compiled and static, so routes paint immediately (no on-demand Vite
+    // compilation) and screenshots are stable without warm-up tricks.
+    command: "npm run build && npm run preview",
     url: "http://localhost:8080",
     reuseExistingServer: !process.env.CI,
-    timeout: 120_000,
+    timeout: 240_000,
   },
 });
