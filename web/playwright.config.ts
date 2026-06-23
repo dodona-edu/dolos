@@ -14,8 +14,12 @@ export default defineConfig({
   testDir: "./tests/visual",
   // The report is large; hydration + heavy views (graph) take a while.
   timeout: 180_000,
-  fullyParallel: false,
-  workers: 1,
+  // Each route test is independent (its own page + fresh navigation), so they
+  // run in parallel. Workers scale with the host's core count (single-core CI
+  // → 1 worker, so this only speeds up local dev); the 50% leaves headroom for
+  // the vite build/preview server. Screenshots are worker-count-independent.
+  fullyParallel: true,
+  workers: "50%",
   reporter: [["list"], ["html", { open: "never" }]],
   // Visual-regression defaults. Baselines live next to the spec in
   // tests/visual/*-snapshots/ and are committed; a run fails (with an
@@ -40,7 +44,9 @@ export default defineConfig({
     // Serve a production build rather than the dev server: the bundle is fully
     // compiled and static, so routes paint immediately (no on-demand Vite
     // compilation) and screenshots are stable without warm-up tricks.
-    command: "npm run build && npm run preview",
+    // `vite build` directly (not `npm run build`) to skip the vue-tsc typecheck
+    // — that is already covered by the web-lint / web-build-deploy jobs.
+    command: "npx vite build && npm run preview",
     url: "http://localhost:8080",
     reuseExistingServer: !process.env.CI,
     timeout: 240_000,

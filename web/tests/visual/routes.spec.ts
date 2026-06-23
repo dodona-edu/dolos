@@ -15,8 +15,6 @@ import { test, expect, Page } from "@playwright/test";
  *
  * IDs below come from the real report in public/data.
  */
-test.describe.configure({ mode: "serial" });
-
 type Route = {
   name: string;
   hash: string;

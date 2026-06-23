@@ -532,6 +532,15 @@ jobs:
           extra_nix_config: |
             experimental-features = nix-command flakes
 
+      # Cache the Nix store (devshell closure incl. the Playwright browsers)
+      # keyed on flake.lock, so warm runs skip the ~40s download from
+      # cache.nixos.org. The key changes only when the pinned inputs change.
+      - name: Cache Nix store 📦
+        uses: nix-community/cache-nix-action@v6
+        with:
+          primary-key: nix-${{ runner.os }}-${{ hashFiles('flake.lock') }}
+          restore-prefixes-first-match: nix-${{ runner.os }}-
+
       # Run everything inside the devshell so PLAYWRIGHT_BROWSERS_PATH and the
       # skip-validation flags are set. Native build scripts (parsers) are
       # skipped: building/previewing web only needs JS deps.
