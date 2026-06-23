@@ -1,5 +1,4 @@
-use dolos::config::{DolosConfig, PairSortBy};
-use dolos::dolos::Dolos;
+use dolos::{Dolos, DolosConfig, PairSortBy};
 use rstest::rstest;
 use std::path::PathBuf;
 

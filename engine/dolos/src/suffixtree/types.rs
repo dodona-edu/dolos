@@ -1,20 +1,20 @@
 use crate::collections::pair_array::PairArray;
 
 /// Sentinel symbol used to mark the end of sequences.
-pub(crate) const SENTINEL_SYMBOL: SymbolType = usize::MAX;
+pub const SENTINEL_SYMBOL: SymbolType = usize::MAX;
 
 /// Type that represents the index of a node in the arena part of the tree.
-pub(super) type NodeIndex = usize;
+pub type NodeIndex = usize;
 
 /// Type that represents a single symbol in a sequence.
-pub(super) type SymbolType = usize;
+pub type SymbolType = usize;
 
 /// Represents a starting position of a match in a sequence.
 ///
 /// Internal to the suffix-tree module; public consumers use [`Match`] which
 /// stores only the normalized start offsets.
 #[derive(Debug, Clone)]
-pub(super) struct StartPosition {
+pub struct StartPosition {
     /// Index of the sequence this position belongs to.
     pub sequence_index: usize,
     /// Offset within the sequence where the match starts.

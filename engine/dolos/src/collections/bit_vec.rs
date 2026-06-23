@@ -1,18 +1,18 @@
 use crate::collections::word_slice::WordSlice;
 
 /// A flat, contiguous buffer of `u64` words with bit-level set and count operations.
-pub(crate) struct BitVec {
+pub struct BitVec {
     words: Vec<u64>,
 }
 
 impl BitVec {
     /// Allocate `total_words` zero-initialised words.
-    pub(crate) fn new(total_words: usize) -> Self {
+    pub fn new(total_words: usize) -> Self {
         Self { words: vec![0u64; total_words] }
     }
 
     /// Set bits `[start, start + length)` starting at word offset `word_base`.
-    pub(crate) fn mark(&mut self, word_base: usize, start: usize, length: usize) {
+    pub fn mark(&mut self, word_base: usize, start: usize, length: usize) {
         if length == 0 {
             return;
         }
@@ -36,16 +36,13 @@ impl BitVec {
     }
 
     /// Return the `u64` word slice for `word_count` words starting at `word_base`.
-    pub(crate) fn words_slice(&self, word_base: usize, word_count: usize) -> WordSlice<'_> {
+    pub fn words_slice(&self, word_base: usize, word_count: usize) -> WordSlice<'_> {
         WordSlice::new(&self.words[word_base..word_base + word_count])
     }
 
     /// Count set bits in `word_count` words starting at `word_base`.
-    pub(crate) fn count_ones(&self, word_base: usize, word_count: usize) -> usize {
-        self.words[word_base..word_base + word_count]
-            .iter()
-            .map(|&w| w.count_ones() as usize)
-            .sum()
+    pub fn count_ones(&self, word_base: usize, word_count: usize) -> usize {
+        self.words_slice(word_base, word_count).count_ones()
     }
 
     /// Create a bitmask for bits `[low, high)` within a single `u64` word.

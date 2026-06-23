@@ -7,12 +7,12 @@ use tar::Archive;
 use tempfile::{TempDir, tempdir};
 use zip::ZipArchive;
 
-pub(super) struct ExtractionResult {
+pub struct ExtractionResult {
     pub name: String,
     pub temp_dir: TempDir,
 }
 
-pub(super) fn try_extract(path: &Path) -> Result<Option<ExtractionResult>> {
+pub fn try_extract(path: &Path) -> Result<Option<ExtractionResult>> {
     let Some((format, ext)) = Format::detect(path) else {
         return Ok(None);
     };

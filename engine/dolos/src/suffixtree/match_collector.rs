@@ -48,7 +48,7 @@ impl<'a> MatchCollector<'a> {
     /// are not double-counted, and stores the match when fragment storage is
     /// enabled. When `is_ignored` is `false` the longest-fragment tracker is
     /// updated; ignored matches are excluded from that metric.
-    pub(crate) fn record_match(
+    pub fn record_match(
         &mut self,
         sp1: &StartPosition,
         sp2: &StartPosition,
@@ -82,7 +82,7 @@ impl<'a> MatchCollector<'a> {
     ///
     /// This is called for every position under an ignored tree node so that
     /// [`build_metrics`] can subtract them from the total and overlap counts.
-    pub(crate) fn record_ignore_match(&mut self, sp: &StartPosition, length: usize) {
+    pub fn record_ignore_match(&mut self, sp: &StartPosition, length: usize) {
         self.ignore_bitmap
             .as_mut()
             .expect("ignore tracking not enabled")
@@ -98,7 +98,7 @@ impl<'a> MatchCollector<'a> {
     }
 
     /// Consume the collector and build the final [`AnalysisResult`].
-    pub(crate) fn into_result(self) -> AnalysisResult {
+    pub fn into_result(self) -> AnalysisResult {
         AnalysisResult { metrics: self.build_metrics(), matches: self.matches }
     }
 

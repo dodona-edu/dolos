@@ -73,17 +73,7 @@ impl PairBitmap {
 
     /// Count the number of set bits for item `item` in the pair `(i, j)`.
     pub fn count_ones(&self, i: usize, j: usize, item: usize) -> usize {
-        let (word_base, word_count) = self.item_word_range(i, j, item);
-        self.buf.count_ones(word_base, word_count)
-    }
-
-    /// Count the total number of set bits across both items in a pair.
-    pub fn count_ones_pair(&self, i: usize, j: usize) -> usize {
-        let (min, max) = ordered_pair(i, j);
-        let base = self.pair_word_offset(min, max);
-        let total_words = self.word_counts[min] + self.word_counts[max];
-
-        self.buf.count_ones(base, total_words)
+        self.words_for(i, j, item).count_ones()
     }
 
     /// Return a [`WordSlice`] view over the packed `u64` words for `item`
@@ -130,7 +120,6 @@ mod tests {
         assert_eq!(bm.count_ones(0, 1, 0), 4);
         // item 1: bits 3..7 set → 4 ones
         assert_eq!(bm.count_ones(0, 1, 1), 4);
-        assert_eq!(bm.count_ones_pair(0, 1), 8);
     }
 
     #[test]
@@ -173,7 +162,8 @@ mod tests {
     fn test_empty_mark() {
         let mut bm = PairBitmap::new(&[10, 10]);
         bm.mark_pair(0, 1, 0, 0, 0);
-        assert_eq!(bm.count_ones_pair(0, 1), 0);
+        assert_eq!(bm.count_ones(0, 1, 0), 0);
+        assert_eq!(bm.count_ones(0, 1, 1), 0);
     }
 
     #[test]

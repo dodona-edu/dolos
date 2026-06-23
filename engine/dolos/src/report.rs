@@ -3,7 +3,7 @@ use crate::config::ReportConfig;
 use crate::config::{FragmentSortBy, PairSortBy};
 use crate::file::File;
 use crate::fragment::Fragment;
-use crate::suffixtree::types::{AnalysisResult, Match, PairMetrics};
+use crate::suffixtree::{AnalysisResult, Match, PairMetrics};
 use crate::winnowing::region::Region;
 use std::cmp::Reverse;
 use std::rc::Rc;
@@ -27,7 +27,7 @@ impl Report {
     ///
     /// The raw matches and locations are consumed to produce resolved
     /// [`Fragment`]s, which are then sorted and stored alongside the pair metrics.
-    pub(crate) fn new(
+    pub fn new(
         analysis_result: AnalysisResult,
         files: Vec<Rc<File>>,
         locations: Option<Vec<Vec<Region>>>,
@@ -131,7 +131,7 @@ mod tests {
     use crate::config::ReportConfig;
     use crate::config::{FragmentSortBy, PairSortBy};
     use crate::file::File;
-    use crate::suffixtree::types::{AnalysisResult, Match, PairMetrics};
+    use crate::suffixtree::{AnalysisResult, Match, PairMetrics};
     use crate::winnowing::region::{Point, Region};
     use std::path::PathBuf;
     use std::rc::Rc;

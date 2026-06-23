@@ -3,7 +3,7 @@ use crate::config::{IndexConfig, ReportConfig};
 use crate::file::{File, FileSet};
 use crate::reader::Dataset;
 use crate::report::Report;
-use crate::suffixtree::tree::SuffixTree;
+use crate::suffixtree::SuffixTree;
 use crate::winnowing::fingerprints::{Fingerprint, Winnow};
 use crate::winnowing::region::Region;
 use crate::winnowing::tokenizer::{Tokenizer, Tokens};

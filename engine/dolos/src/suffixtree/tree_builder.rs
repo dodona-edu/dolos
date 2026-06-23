@@ -6,11 +6,11 @@ use crate::suffixtree::types::{NodeIndex, SymbolType};
 pub struct UkkonenBuilder;
 
 impl UkkonenBuilder {
-    pub(crate) fn new() -> Self {
+    pub fn new() -> Self {
         Self
     }
 
-    pub(crate) fn add_sequences(&self, sequences: &[Vec<SymbolType>], tree: &mut SuffixTree) {
+    pub fn add_sequences(&self, sequences: &[Vec<SymbolType>], tree: &mut SuffixTree) {
         let mut cursor = BuildCursor::new(tree);
         for i in 0..sequences.len() {
             self.build_single_sequence(sequences, i, &mut cursor);

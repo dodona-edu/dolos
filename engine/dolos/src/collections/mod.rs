@@ -1,4 +1,4 @@
-pub(crate) mod bit_vec;
+mod bit_vec;
 pub mod pair_array;
 pub mod pair_bitmap;
 pub mod utils;

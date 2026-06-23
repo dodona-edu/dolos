@@ -7,6 +7,9 @@ mod build_cursor;
 mod match_collector;
 mod maximal_match;
 mod node;
-pub(crate) mod tree;
+mod tree;
 mod tree_builder;
-pub mod types;
+mod types;
+
+pub use tree::SuffixTree;
+pub use types::{AnalysisResult, Match, PairMetrics};

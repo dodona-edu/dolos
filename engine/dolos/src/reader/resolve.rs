@@ -6,7 +6,7 @@ use std::path::{Path, PathBuf};
 /// Resolve files from a directory. If an `info.csv` is present at the top
 /// level, it is used to determine the file list; otherwise files are collected
 /// recursively.
-pub(super) fn from_directory(dir: &Path) -> Result<(String, Vec<PathBuf>)> {
+pub fn from_directory(dir: &Path) -> Result<(String, Vec<PathBuf>)> {
     let csv_path = dir.join("info.csv");
     let files = if csv_path.is_file() {
         filenames_from_csv(&csv_path)?
@@ -18,7 +18,7 @@ pub(super) fn from_directory(dir: &Path) -> Result<(String, Vec<PathBuf>)> {
 
 /// Resolve files from a CSV file. The name is derived from the CSV's parent
 /// directory.
-pub(super) fn from_csv(csv_path: &Path) -> Result<(String, Vec<PathBuf>)> {
+pub fn from_csv(csv_path: &Path) -> Result<(String, Vec<PathBuf>)> {
     let name = csv_path
         .parent()
         .map(dir_name)
@@ -29,7 +29,7 @@ pub(super) fn from_csv(csv_path: &Path) -> Result<(String, Vec<PathBuf>)> {
 
 /// Resolve files from an explicit list of paths. All paths must be existing
 /// files. The name is derived from the file names.
-pub(super) fn from_files(paths: Vec<PathBuf>) -> Result<(String, Vec<PathBuf>)> {
+pub fn from_files(paths: Vec<PathBuf>) -> Result<(String, Vec<PathBuf>)> {
     if let Some(path) = paths.iter().find(|p| !p.is_file()) {
         return Err(Error::new(
             ErrorKind::NotFound,

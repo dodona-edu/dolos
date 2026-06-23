@@ -28,7 +28,7 @@ pub enum FragmentSortBy {
 ///
 /// # Example
 /// ```no_run
-/// use dolos::config::DolosConfig;
+/// use dolos::DolosConfig;
 ///
 /// let config = DolosConfig::builder()
 ///     .kgram_length(23)
@@ -88,7 +88,7 @@ impl Default for DolosConfig {
 ///
 /// # Example
 /// ```no_run
-/// use dolos::config::DolosConfig;
+/// use dolos::DolosConfig;
 ///
 /// let config = DolosConfig::builder()
 ///     .kgram_length(50)

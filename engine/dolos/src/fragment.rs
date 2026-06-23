@@ -1,4 +1,4 @@
-use crate::suffixtree::types::Match;
+use crate::suffixtree::Match;
 use crate::winnowing::region::Region;
 
 /// A resolved code fragment: the source regions that correspond to one
@@ -16,7 +16,7 @@ pub struct Fragment {
 impl Fragment {
     /// Resolve a raw [`Match`] into a [`Fragment`] using per-file fingerprint
     /// location arrays.
-    pub(crate) fn resolve(m: &Match, left_locs: &[Region], right_locs: &[Region]) -> Self {
+    pub fn resolve(m: &Match, left_locs: &[Region], right_locs: &[Region]) -> Self {
         Fragment {
             left_region: Region::span(
                 &left_locs[m.left_start],

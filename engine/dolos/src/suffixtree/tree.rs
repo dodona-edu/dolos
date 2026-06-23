@@ -8,12 +8,12 @@ use crate::suffixtree::types::SymbolType;
 #[derive(Debug, PartialEq)]
 pub struct SuffixTree {
     /// Arena containing all nodes in the tree. The root is always at index 0.
-    pub(crate) arena: Vec<Node>,
+    pub arena: Vec<Node>,
 }
 
 impl SuffixTree {
     /// Creates a new `SuffixTree` from the given sequences, building it immediately.
-    pub(crate) fn build(sequences: &[Vec<SymbolType>]) -> Self {
+    pub fn build(sequences: &[Vec<SymbolType>]) -> Self {
         let mut tree = SuffixTree { arena: vec![Node::create_root()] };
         UkkonenBuilder::new().add_sequences(sequences, &mut tree);
         tree
@@ -30,7 +30,7 @@ impl SuffixTree {
     ///   calculations.
     /// * `max_file_count` — suppress substrings that appear in more than these many distinct
     ///   files (boilerplate filter). `None` disables the cap.
-    pub(crate) fn analyze(
+    pub fn analyze(
         &mut self,
         sequences: &[Vec<SymbolType>],
         min_match_length: usize,
@@ -51,7 +51,7 @@ impl SuffixTree {
 
     /// Mark all nodes in the tree that are reachable by any suffix of any
     /// ignored sequence as `ignore = true`.
-    pub(crate) fn add_ignored_sequences(
+    pub fn add_ignored_sequences(
         &mut self,
         sequences: &[Vec<SymbolType>],
         ignored_sequences: &[Vec<SymbolType>],
