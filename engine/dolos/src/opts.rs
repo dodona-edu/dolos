@@ -168,10 +168,12 @@ pub struct OutputArgs {
     #[arg(
         short = 'o',
         long,
-        default_value = ".",
-        long_help = "Path where to write the output report to. Has no effect for terminal output."
+        long_help = "Directory to write the report into. The CSV files are written directly here. \
+                     Errors if the directory already exists. Defaults to an auto-named \
+                     `dolos-report-<timestamp>-<name>` directory in the current directory. \
+                     Has no effect for terminal output."
     )]
-    pub output_destination: PathBuf,
+    pub output_destination: Option<PathBuf>,
 
     #[arg(
         short = 'p',

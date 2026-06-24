@@ -24,17 +24,39 @@ fn smoke_terminal() {
 #[test]
 fn smoke_csv_output() {
     let tmp = TempDir::new().unwrap();
+    // -o is the exact report directory; it must not exist yet.
+    let report_dir = tmp.path().join("report");
     #[rustfmt::skip]
     dolos_run(
         &[SAMPLE1, SAMPLE2],
         &[
             "-f", "csv",
             "-n", "report",
-            "-o", tmp.path().to_str().unwrap(),
+            "-o", report_dir.to_str().unwrap(),
         ],
     )
     .assert()
     .success();
+
+    // Files are written directly into the given directory, no subfolder.
+    assert!(report_dir.join("pairs.csv").exists());
+    assert!(report_dir.join("metadata.csv").exists());
+    assert!(report_dir.join("files.csv").exists());
+    assert!(report_dir.join("fragments.csv").exists());
+}
+
+#[test]
+fn csv_output_default_destination() {
+    let tmp = TempDir::new().unwrap();
+    // Absolute fixture paths so they still resolve after changing the cwd.
+    let manifest = env!("CARGO_MANIFEST_DIR");
+    let sample1 = format!("{manifest}/{SAMPLE1}");
+    let sample2 = format!("{manifest}/{SAMPLE2}");
+    // No -o: an auto-named `dolos-report-*` directory is created in the cwd.
+    dolos_run(&[&sample1, &sample2], &["-f", "csv"])
+        .current_dir(tmp.path())
+        .assert()
+        .success();
 
     let report_dir = std::fs::read_dir(tmp.path())
         .unwrap()
@@ -50,6 +72,19 @@ fn smoke_csv_output() {
     assert!(report_dir.join("metadata.csv").exists());
     assert!(report_dir.join("files.csv").exists());
     assert!(report_dir.join("fragments.csv").exists());
+}
+
+#[test]
+fn csv_output_errors_when_directory_exists() {
+    let tmp = TempDir::new().unwrap();
+    // The destination already exists, so the run must fail.
+    dolos_run(
+        &[SAMPLE1, SAMPLE2],
+        &["-f", "csv", "-o", tmp.path().to_str().unwrap()],
+    )
+    .assert()
+    .failure()
+    .stderr(predicate::str::contains("already exists"));
 }
 
 // ── Error surfacing ───────────────────────────────────────────────────────────

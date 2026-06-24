@@ -3,7 +3,7 @@ use crate::metadata::Metadata;
 use crate::report::Pair;
 use crate::writer::output::OutputWriter;
 use std::fs::File;
-use std::io::{Error, Result};
+use std::io::{Error, ErrorKind, Result};
 use std::path::PathBuf;
 use std::rc::Rc;
 
@@ -43,17 +43,28 @@ pub struct CsvWriter {
 impl CsvWriter {
     /// Create a new CSV writer.
     ///
-    /// Creates `{output_destination}/dolos-report-{time}-{reportName}/` along
-    /// with all required parent directories, writes `metadata.csv` and
-    /// `files.csv` in one shot each, and opens a streamed `pairs.csv` (and
-    /// optionally `fragments.csv` when `metadata.include_fragments` is set) for
-    /// the pair rows.
+    /// The report's CSV files are written directly into `output_destination`
+    /// when given, or into an auto-named `dolos-report-{time}-{reportName}/`
+    /// directory in the current directory when it is `None`. The directory must
+    /// not yet exist. Writes `metadata.csv` and `files.csv` in one shot
+    /// each, and opens a streamed `pairs.csv` (and optionally `fragments.csv`
+    /// when `metadata.include_fragments` is set) for the pair rows.
     pub(super) fn new(
-        output_destination: PathBuf,
+        output_destination: Option<PathBuf>,
         metadata: &Metadata,
         files: &[Rc<SourceFile>],
     ) -> Result<Self> {
-        let report_dir = output_destination.join(report_dir_name(metadata));
+        let report_dir =
+            output_destination.unwrap_or_else(|| PathBuf::from(report_dir_name(metadata)));
+        if report_dir.exists() {
+            return Err(Error::new(
+                ErrorKind::AlreadyExists,
+                format!(
+                    "Directory {} already exists. Please specify a different output destination.",
+                    report_dir.display()
+                ),
+            ));
+        }
         std::fs::create_dir_all(&report_dir)?;
 
         // metadata.csv — fully known up front, written in one shot.
@@ -144,8 +155,17 @@ fn report_dir_name(metadata: &Metadata) -> String {
     format!(
         "dolos-report-{}-{}",
         metadata.created_at.format("%Y%m%dT%H%M%S%3fZ"),
-        metadata.report_name,
+        sanitize_name(&metadata.report_name),
     )
+}
+
+/// Sanitize a report name for use in a directory name: spaces become dashes and
+/// any character that is not ASCII alphanumeric or `-` is dropped.
+fn sanitize_name(name: &str) -> String {
+    name.chars()
+        .map(|c| if c == ' ' { '-' } else { c })
+        .filter(|c| c.is_ascii_alphanumeric() || *c == '-')
+        .collect()
 }
 
 fn write_metadata(
