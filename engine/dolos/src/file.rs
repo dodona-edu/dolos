@@ -1,11 +1,14 @@
 use std::fmt;
 use std::hash::{Hash, Hasher};
 use std::path::PathBuf;
+use tree_sitter_grammars::{Language, guess_grammar_from_path};
 
 pub struct File {
+    /// Zero-based index assigned in the order the file was added to the analysis.
+    pub id: usize,
     pub relative_path: PathBuf,
-    /// Source text, stored when fragment display is needed.
-    pub content: Option<String>,
+    /// Full source text of the file.
+    pub content: String,
 }
 
 impl Hash for File {
@@ -64,5 +67,13 @@ impl FileSet {
             .map(|p| p.strip_prefix(&base_dir).unwrap_or(&p).to_path_buf())
             .collect();
         Self { base_dir, relative_paths }
+    }
+
+    /// Guess the tokenization language from the first file's extension.
+    /// Returns `None` when there are no files or the extension is unknown.
+    pub fn detect_language(&self) -> Option<Language> {
+        self.relative_paths
+            .first()
+            .and_then(|path| guess_grammar_from_path(path))
     }
 }

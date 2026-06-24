@@ -1,6 +1,6 @@
 use crate::config::DolosConfig;
-use crate::config::{IndexConfig, ReportConfig};
 use crate::file::{File, FileSet};
+use crate::metadata::Metadata;
 use crate::reader::Dataset;
 use crate::report::Report;
 use crate::suffixtree::tree::SuffixTree;
@@ -13,8 +13,7 @@ use std::path::{Path, PathBuf};
 use std::rc::Rc;
 
 pub struct Dolos {
-    report_config: ReportConfig,
-    index_config: IndexConfig,
+    metadata: Metadata,
     files: Vec<Rc<File>>,
     hashes: Vec<Vec<Fingerprint>>,
     ignore_hashes: Vec<Vec<Fingerprint>>,
@@ -32,15 +31,13 @@ impl Dolos {
     /// - **One archive** → extracted and treated as a directory.
     pub fn new(files: Vec<PathBuf>, config: DolosConfig) -> Result<Self> {
         let dataset = Dataset::create(files)?;
-        let report_config = ReportConfig::from_config(&config, dataset.name);
-        let index_config = IndexConfig::from_config(&config, &dataset.file_set);
+        let metadata = Metadata::from_config(&config, &dataset);
 
-        let tokenizer = Tokenizer::new(index_config.language);
-        let locations = index_config.keep_fragments.then_some(Vec::new());
+        let tokenizer = Tokenizer::new(metadata.language);
+        let locations = metadata.include_fragments.then_some(Vec::new());
 
         let mut dolos = Dolos {
-            report_config,
-            index_config,
+            metadata,
             files: Vec::new(),
             hashes: Vec::new(),
             ignore_hashes: Vec::new(),
@@ -52,7 +49,7 @@ impl Dolos {
 
         // Ignore file is added after all regular files, so its word index is
         // always >= regular_word_count.
-        if let Some(ignore_path) = dolos.index_config.ignore.clone() {
+        if let Some(ignore_path) = dolos.metadata.ignore.clone() {
             dolos.add_ignore_file(ignore_path)?;
         }
 
@@ -68,10 +65,10 @@ impl Dolos {
     ) -> (Vec<Fingerprint>, Option<Vec<Region>>) {
         self.tokenizer
             .parse(content)
-            .tokens(self.index_config.include_comments)
+            .tokens(self.metadata.include_comments)
             .winnow(
-                self.index_config.kgram_length,
-                self.index_config.kgrams_in_window,
+                self.metadata.kgram_length,
+                self.metadata.kgrams_in_window,
                 keep_locations,
             )
     }
@@ -80,13 +77,11 @@ impl Dolos {
     ///
     /// The file is added to `self.files`, its fingerprints to `self.hashes`, and
     /// (when `keep_fragments` is set) its locations to `self.locations`.
-    fn add_file(&mut self, base_dir: &Path, relative: &Path) -> Result<()> {
+    fn add_file(&mut self, id: usize, base_dir: &Path, relative: &Path) -> Result<()> {
         // Only enforce the language-extension match when the language was
         // auto-detected.  If the user explicitly specified the language, they
         // know what they want (e.g., files exported without an extension).
-        if !self.index_config.language_user_specified
-            && !self.index_config.language.matches(relative)
-        {
+        if !self.metadata.language_detected && !self.metadata.language.matches(relative) {
             return Err(Error::new(
                 ErrorKind::InvalidInput,
                 format!("Language does not match file: {}", relative.display()),
@@ -94,15 +89,16 @@ impl Dolos {
         }
 
         let content = std::fs::read_to_string(base_dir.join(relative))?;
-        let (hashes, locations) = self.fingerprint(&content, self.index_config.keep_fragments);
+        let (hashes, locations) = self.fingerprint(&content, self.metadata.include_fragments);
 
         self.hashes.push(hashes);
         if let Some(locs) = self.locations.as_mut() {
             locs.push(locations.expect("locations should be present when keep_fragments is true"));
         }
         self.files.push(Rc::new(File {
+            id,
             relative_path: relative.to_path_buf(),
-            content: self.index_config.keep_fragments.then_some(content),
+            content,
         }));
         Ok(())
     }
@@ -125,8 +121,8 @@ impl Dolos {
     }
 
     fn add_files(&mut self, file_set: FileSet) -> Result<()> {
-        for relative in file_set.relative_paths {
-            self.add_file(&file_set.base_dir, &relative)?;
+        for (id, relative) in file_set.relative_paths.iter().enumerate() {
+            self.add_file(id, &file_set.base_dir, relative)?;
         }
         Ok(())
     }
@@ -135,24 +131,24 @@ impl Dolos {
     pub fn build_report(self) -> Report {
         let mut tree = SuffixTree::build(&self.hashes);
         tree.add_ignored_sequences(&self.hashes, &self.ignore_hashes);
-        let exclude_ignored = self.index_config.max_fingerprint_file_count.is_some()
-            || !self.ignore_hashes.is_empty();
+        let exclude_ignored =
+            self.metadata.max_fingerprint_file_count.is_some() || !self.ignore_hashes.is_empty();
         let result = tree.analyze(
             &self.hashes,
-            self.index_config.min_length_match,
-            self.index_config.keep_fragments,
+            self.metadata.min_length_match,
+            self.metadata.include_fragments,
             exclude_ignored,
-            self.index_config.max_fingerprint_file_count,
+            self.metadata.max_fingerprint_file_count,
         );
-        Report::new(result, self.files, self.locations, self.report_config)
+        Report::new(result, self.files, self.locations, self.metadata)
     }
 }
 
 impl fmt::Debug for Dolos {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
         fmt.debug_struct("Dolos")
-            .field("name", &self.report_config.name)
-            .field("language", &self.index_config.language)
+            .field("name", &self.metadata.report_name)
+            .field("language", &self.metadata.language)
             .field("files", &self.files)
             .finish()
     }
