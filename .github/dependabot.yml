@@ -18,6 +18,23 @@ updates:
         patterns:
           - "*"
 
+  # Root - NPM (workspaces lockfile)
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    cooldown:
+      default-days: 5
+    groups:
+      root-dependencies-security:
+        applies-to: security-updates
+        patterns:
+          - "*"
+      root-dependencies-version:
+        applies-to: version-updates
+        patterns:
+          - "*"
+
   # CLI - NPM
   - package-ecosystem: "npm"
     directory: "/cli"
