@@ -152,25 +152,8 @@ fn write_metadata(
     writer: &mut csv::Writer<impl std::io::Write>,
     metadata: &Metadata,
 ) -> Result<()> {
-    #[rustfmt::skip]
-    let rows: [(&str, String); 13] = [
-        ("reportName", metadata.report_name.clone()),
-        ("createdAt", metadata.created_at.to_rfc3339()),
-        ("language", format!("{:?}", metadata.language)),
-        ("languageDetected", metadata.language_detected.to_string()),
-        ("kgramLength", metadata.kgram_length.to_string()),
-        ("kgramsInWindow", metadata.kgrams_in_window.to_string()),
-        ("minLengthMatch", metadata.min_length_match.to_string()),
-        ("includeComments", metadata.include_comments.to_string()),
-        ("includeFragments", metadata.include_fragments.to_string()),
-        ("maxFingerprintFileCount", optional(metadata.max_fingerprint_file_count.map(|v| v.to_string()))),
-        ("sortBy", optional(metadata.sort_by.map(|s| format!("{s:?}")))),
-        ("fragmentSortBy", optional(metadata.fragment_sort_by.map(|s| format!("{s:?}")))),
-        ("ignore", optional(metadata.ignore.as_ref().map(|p| p.display().to_string()))),
-    ];
-
     writer.write_record(METADATA_HEADER).map_err(Error::other)?;
-    for (property, value) in &rows {
+    for (property, value) in &metadata.properties() {
         writer
             .write_record([*property, value])
             .map_err(Error::other)?;
@@ -193,9 +176,4 @@ fn write_files(
             .map_err(Error::other)?;
     }
     Ok(())
-}
-
-/// Unwrap an optional metadata field, returning `"null"` when absent.
-fn optional(value: Option<String>) -> String {
-    value.unwrap_or_else(|| "null".to_string())
 }

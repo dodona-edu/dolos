@@ -1,9 +1,8 @@
 use crate::config::{DolosConfig, FragmentSortBy, PairSortBy};
-use crate::file::FileSet;
 use crate::reader::Dataset;
 use chrono::{DateTime, Utc};
 use std::path::PathBuf;
-use tree_sitter_grammars::{Language, guess_grammar_from_path};
+use tree_sitter_grammars::Language;
 
 /// The resolved configuration for one analysis run.
 ///
@@ -40,9 +39,19 @@ impl Metadata {
     /// the dataset's file set for language detection and file-count limits.
     pub fn from_config(config: &DolosConfig, dataset: &Dataset) -> Metadata {
         let file_count = dataset.file_set.relative_paths.len();
-        let (language, language_detected) =
-            Self::resolve_language(config.language, &dataset.file_set);
-        let max_fingerprint_file_count = Self::resolve_max_fingerprint_count(config, file_count);
+        let (language, language_detected) = match config.language {
+            // The user-supplied language wins; when absent, the language is
+            // guessed from the first file's extension.
+            Some(lang) => (lang, false),
+            None => (
+                dataset
+                    .file_set
+                    .detect_language()
+                    .expect("Could not detect language from file extension"),
+                true,
+            ),
+        };
+        let max_fingerprint_file_count = config.max_fingerprint_file_count(file_count);
 
         Metadata {
             report_name: config.name.clone().unwrap_or_else(|| dataset.name.clone()),
@@ -61,31 +70,29 @@ impl Metadata {
         }
     }
 
-    /// Determine which language to use for tokenization.
-    ///
-    /// The user-supplied language wins; when absent, the language is guessed
-    /// from the first file's extension. Returns `(language, language_detected)`
-    /// where `language_detected` is `true` when the language was auto-detected.
-    fn resolve_language(user_language: Option<Language>, file_set: &FileSet) -> (Language, bool) {
-        if let Some(lang) = user_language {
-            return (lang, false);
-        }
-        let first = file_set.relative_paths.first().expect("no paths given");
-        let lang =
-            guess_grammar_from_path(first).expect("Could not detect language from file extension");
-        (lang, true)
+    /// The metadata fields as `(property, value)` pairs, in the order they are
+    /// written to `metadata.csv`. Optional fields render as `"null"` when absent.
+    #[rustfmt::skip]
+    pub fn properties(&self) -> [(&'static str, String); 13] {
+        [
+            ("reportName", self.report_name.clone()),
+            ("createdAt", self.created_at.to_rfc3339()),
+            ("language", format!("{:?}", self.language)),
+            ("languageDetected", self.language_detected.to_string()),
+            ("kgramLength", self.kgram_length.to_string()),
+            ("kgramsInWindow", self.kgrams_in_window.to_string()),
+            ("minLengthMatch", self.min_length_match.to_string()),
+            ("includeComments", self.include_comments.to_string()),
+            ("includeFragments", self.include_fragments.to_string()),
+            ("maxFingerprintFileCount", optional(self.max_fingerprint_file_count.map(|v| v.to_string()))),
+            ("sortBy", optional(self.sort_by.map(|s| format!("{s:?}")))),
+            ("fragmentSortBy", optional(self.fragment_sort_by.map(|s| format!("{s:?}")))),
+            ("ignore", optional(self.ignore.as_ref().map(|p| p.display().to_string()))),
+        ]
     }
+}
 
-    /// Compute the maximum number of files a fingerprint may appear in before
-    /// it is ignored, taking the more restrictive of the absolute count (`-m`)
-    /// and the percentage-based limit (`-M`).
-    fn resolve_max_fingerprint_count(config: &DolosConfig, file_count: usize) -> Option<usize> {
-        let from_percentage = config
-            .max_fingerprint_percentage
-            .map(|pct| (file_count as f64 * pct).round() as usize);
-        [config.max_fingerprint_count, from_percentage]
-            .into_iter()
-            .flatten()
-            .min()
-    }
+/// Render an optional metadata field, returning `"null"` when absent.
+fn optional(value: Option<String>) -> String {
+    value.unwrap_or_else(|| "null".to_string())
 }
