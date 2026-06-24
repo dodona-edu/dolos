@@ -1,8 +1,6 @@
-use crate::fragment::Fragment;
-use crate::report::Pair;
-use crate::winnowing::region::Region;
 use crate::writer::output::OutputWriter;
 use colored::Colorize;
+use dolos::{Fragment, Pair, Region};
 use std::io::Result;
 
 /// Terminal writer that outputs similarity results to stdout.
@@ -245,7 +243,7 @@ impl TerminalWriter {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::winnowing::region::Point;
+    use dolos::Point;
 
     #[test]
     fn test_collect_display_lines_with_context() {

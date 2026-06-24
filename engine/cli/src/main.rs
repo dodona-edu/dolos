@@ -1,15 +1,13 @@
-use crate::Dolos;
 use crate::opts::{Command, Opts};
 use crate::writer::{OutputWriter, Writer};
 use clap::Parser;
+use dolos::Dolos;
 use std::io::Result;
 
-/// Parse command-line arguments and run the Dolos CLI.
-///
-/// This is the entry point used by the `dolos` binary: it parses the process
-/// arguments, builds the analysis report, and writes it in the requested
-/// output format.
-pub fn run() -> Result<()> {
+mod opts;
+mod writer;
+
+fn main() -> Result<()> {
     let opts = Opts::parse();
 
     match opts.command {

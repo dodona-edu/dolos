@@ -4,14 +4,14 @@ use tree_sitter_grammars::{Language, guess_grammar_from_path};
 
 // ── Sort enums ───────────────────────────────────────────────────────────────
 
-#[derive(Debug, Clone, Copy, clap::ValueEnum)]
+#[derive(Debug, Clone, Copy)]
 pub enum PairSortBy {
     Similarity,
     TotalOverlap,
     LongestFragment,
 }
 
-#[derive(Debug, Clone, Copy, clap::ValueEnum)]
+#[derive(Debug, Clone, Copy)]
 pub enum FragmentSortBy {
     KgramsAscending,
     KgramsDescending,

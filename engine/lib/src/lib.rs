@@ -1,17 +1,13 @@
-mod cli;
 mod collections;
 mod config;
 mod dolos;
 mod file;
 mod fragment;
-mod opts;
 mod reader;
 mod report;
 mod suffixtree;
 mod winnowing;
-mod writer;
 
-pub use cli::run;
 pub use config::{DolosConfig, DolosConfigBuilder, FragmentSortBy, PairSortBy};
 pub use dolos::Dolos;
 pub use file::File;

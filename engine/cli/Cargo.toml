@@ -1,0 +1,21 @@
+[package]
+name = "dolos-cli"
+version = "0.1.0"
+edition = "2024"
+
+[[bin]]
+name = "dolos"
+path = "src/main.rs"
+
+[dependencies]
+dolos-lib = { path = "../dolos-lib", features = ["all-languages"] }
+clap = { version = "4.6.1", features = ["derive"] }
+colored = "3.1.1"
+terminal_size = "0.4.4"
+csv = "1.4.0"
+tree-sitter-grammars = { path = "../tree-sitter-grammars" }
+
+[dev-dependencies]
+assert_cmd = "2.2.2"
+predicates = "3.1.4"
+tempfile = "3.27.0"

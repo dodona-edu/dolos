@@ -1,5 +1,5 @@
-use crate::report::Pair;
 use crate::writer::output::OutputWriter;
+use dolos::Pair;
 use std::fs::File;
 use std::io::{Error, Result};
 use std::path::PathBuf;

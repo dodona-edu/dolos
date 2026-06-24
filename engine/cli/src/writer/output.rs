@@ -1,7 +1,7 @@
 use crate::opts::{OutputArgs, OutputFormat};
-use crate::report::{Pair, Report};
 use crate::writer::csv_writer::CsvWriter;
 use crate::writer::terminal_writer::TerminalWriter;
+use dolos::{Pair, Report};
 use std::io;
 use std::io::Result;
 

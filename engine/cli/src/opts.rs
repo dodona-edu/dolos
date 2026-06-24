@@ -1,10 +1,32 @@
-use crate::config::{DolosConfig, FragmentSortBy, PairSortBy};
 use clap::{Args, Parser, Subcommand};
+use dolos::{DolosConfig, FragmentSortBy, PairSortBy};
 use std::path::PathBuf;
 use tree_sitter_grammars::{Language, guess_grammar_from_name};
 
 fn parse_language(s: &str) -> Result<Language, String> {
     guess_grammar_from_name(s).ok_or_else(|| format!("unknown language: '{s}'"))
+}
+
+fn parse_pair_sort_by(s: &str) -> Result<PairSortBy, String> {
+    match s {
+        "similarity" => Ok(PairSortBy::Similarity),
+        "total-overlap" => Ok(PairSortBy::TotalOverlap),
+        "longest-fragment" => Ok(PairSortBy::LongestFragment),
+        _ => Err(format!(
+            "unknown sort-by value: '{s}' (valid: similarity, total-overlap, longest-fragment)"
+        )),
+    }
+}
+
+fn parse_fragment_sort_by(s: &str) -> Result<FragmentSortBy, String> {
+    match s {
+        "kgrams-ascending" => Ok(FragmentSortBy::KgramsAscending),
+        "kgrams-descending" => Ok(FragmentSortBy::KgramsDescending),
+        "file-order" => Ok(FragmentSortBy::FileOrder),
+        _ => Err(format!(
+            "unknown fragment-sort-by value: '{s}' (valid: kgrams-ascending, kgrams-descending, file-order)"
+        )),
+    }
 }
 
 /// Raw CLI arguments for a Dolos analysis run.
@@ -94,7 +116,7 @@ pub struct DolosArgs {
 
     #[arg(
         long,
-        value_enum,
+        value_parser = parse_pair_sort_by,
         long_help = "Sort pairs by: similarity, total-overlap, or longest-fragment."
     )]
     pub sort_by: Option<PairSortBy>,
@@ -102,7 +124,7 @@ pub struct DolosArgs {
     #[arg(
         short = 'b',
         long,
-        value_enum,
+        value_parser = parse_fragment_sort_by,
         long_help = "Sort fragments within each pair by: kgrams-ascending, kgrams-descending, or file-order."
     )]
     pub fragment_sort_by: Option<FragmentSortBy>,
