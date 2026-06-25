@@ -37,15 +37,13 @@ export function createSimulation(context: CanvasRenderingContext2D, data: Data):
     .distance(link => distanceMin + (distanceMax * (1 - link.similarity)));
 
   const seed = 0.42;
-  const rng = d3.randomNormal.source(d3.randomLcg(seed))(0, 1);
-
   const simulation = d3
     .forceSimulation<D3Node, D3Edge>(data.nodes)
     .force("link", forceLink)
     .force("charge", d3.forceManyBody().strength(-100))
     .force("compact_x", d3.forceX())
     .force("compact_y", d3.forceY())
-    .randomSource(rng);
+    .randomSource(d3.randomLcg(seed));
 
   simulation.on("tick", redraw);
 

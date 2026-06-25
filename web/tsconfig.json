@@ -27,10 +27,5 @@
     "src/**/*.vue",
     "vite.config.ts",
     "package.json"
-  ],
-  "exclude": [
-    "src/**/*.test.ts",
-    "src/**/*.spec.ts",
-    "src/test/**"
   ]
 }

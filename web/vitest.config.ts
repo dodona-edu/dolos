@@ -3,8 +3,8 @@ import { fileURLToPath, URL } from "node:url";
 
 // Standalone Vitest config. We intentionally do NOT load the app's Vite
 // plugins (Vuetify, Comlink, auto-import): the regression suite targets pure
-// logic and only needs path-alias resolution. Component/visual checks live in
-// Storybook instead.
+// logic and only needs path-alias resolution. Visual checks live in the
+// Playwright harness (tests/visual/) instead.
 export default defineConfig({
   resolve: {
     alias: {
