@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { parseCsv } from "@/api/utils";
+import { parseCsv, parsePairs } from "@/api/utils";
 import { shallowRef, computed } from "vue";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
 import {
@@ -70,33 +70,6 @@ export const usePairStore = defineStore("pairs", () => {
   type DataWorker = typeof import("../../api/workers/data.worker");
   const dataWorker = new ComlinkWorker<DataWorker>((new URL("../../api/workers/data.worker.ts", import.meta.url)));
 
-  // Parse the pairs from a CSV string.
-  function parse(pairData: any[], files: File[]): Pair[] {
-    const pairs: Pair[] = [];
-    for (const row of pairData) {
-      const id = parseInt(row.id);
-      const similarity = parseFloat(row.similarity);
-      const longestFragment = parseFloat(row.longestFragment);
-      const totalOverlap = parseFloat(row.totalOverlap);
-      const leftCovered = parseFloat(row.leftCovered);
-      const rightCovered = parseFloat(row.rightCovered);
-      pairs[id] = {
-        id,
-        similarity,
-        longestFragment,
-        totalOverlap,
-        leftFile: files[parseInt(row.leftFileId)],
-        rightFile: files[parseInt(row.rightFileId)],
-        fragments: null,
-        leftCovered,
-        rightCovered,
-        leftIgnoredKgrams: [],
-        rightIgnoredKgrams: [],
-      };
-    }
-    return pairs;
-  }
-
   // Fetch the pairs from the CSV file.
   async function fetch(): Promise<any[]> {
     const url = dataUrl.value + "/pairs.csv";
@@ -110,7 +83,7 @@ export const usePairStore = defineStore("pairs", () => {
       throw new Error("The file store must be hydrated before the pair store.");
     }
 
-    pairsById.value = parse(await fetch(), fileStore.filesActiveById);
+    pairsById.value = parsePairs(await fetch(), fileStore.filesActiveById);
     hydrated.value = true;
   }
 

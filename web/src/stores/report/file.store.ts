@@ -1,10 +1,9 @@
 import { defineStore } from "pinia";
 import { shallowRef, computed, nextTick, watch, ref, ComputedRef } from "vue";
-import { File, Label, Legend, Pair } from "@/api/models";
+import { File, Legend, Pair } from "@/api/models";
 import { useSettingsStore, usePairStore } from "@/stores/report";
 import { useAppMode } from "@/composables";
-import { names, animals, uniqueNamesGenerator } from "unique-names-generator";
-import { commonFilenamePrefix, parseCsv } from "@/api/utils";
+import { parseCsv, parseFiles } from "@/api/utils";
 import {
   FileInterestingnessCalculator,
   FileScoring,
@@ -35,34 +34,6 @@ export const useFileStore = defineStore("file", () => {
   const filesActiveList = computed<File[]>(() =>
     Object.values(filesActiveById.value)
   );
-
-  const defaultLabel: Label = {
-    name: "No label",
-    color: "#666",
-    selected: true,
-    pseudoLabel: "No label",
-    originalLabel: "No label",
-  };
-  const colorCategory20 = [
-    "#1f77b4",
-    "#ff7f0e",
-    "#2ca02c",
-    "#d62728",
-    "#9467bd",
-    "#8c564b",
-    "#e377c2",
-    "#bcbd22",
-    "#17becf",
-    "#aec7e8",
-    "#ffbb78",
-    "#98df8a",
-    "#ff9896",
-    "#c5b0d5",
-    "#c49c94",
-    "#f7b6d2",
-    "#dbdb8d",
-    "#9edae5",
-  ];
 
   const legend = ref<Legend>({});
   const labels = computed(() => Object.values(legend.value).reverse());
@@ -107,7 +78,7 @@ export const useFileStore = defineStore("file", () => {
   // Functions
 
   async function hydrate(): Promise<void> {
-    const parsed = parse(await fetch());
+    const parsed = parseFiles(await fetch());
     filesById.value = parsed.files;
     filesActiveById.value = parsed.files;
     ignoredFile.value = parsed.ignoredFile;
@@ -122,124 +93,6 @@ export const useFileStore = defineStore("file", () => {
     url: string = dataUrl.value + "/files.csv"
   ): Promise<any[]> {
     return await parseCsv(url);
-  }
-
-  // Parse the files from a CSV string.
-  function parse(fileData: any[]): {
-    ignoredFile?: File;
-    files: File[];
-    labels: Legend;
-    hasLabels: boolean;
-    hasUnlabeled: boolean;
-    hasTimestamps: boolean;
-  } {
-    const randomNameGenerator = (): string =>
-      uniqueNamesGenerator({
-        dictionaries: [names],
-        length: 1,
-      });
-
-    const randomLabelGenerator = (): string =>
-      uniqueNamesGenerator({
-        dictionaries: [animals],
-        style: "capital",
-        length: 1,
-      });
-
-    const timeOffset = Math.random() * 1000 * 60 * 60 * 24 * 20;
-
-    const files: File[] = [];
-    const labels: Legend = {};
-    let ignoredFile;
-    let hasLabels = false;
-    let hasUnlabeled = false;
-    let hasTimestamps = false;
-
-    for (const row of fileData) {
-      const file = row as File;
-      const filePathSplit = row.path.split(".");
-      const filePathExtension = filePathSplit[filePathSplit.length - 1];
-      const extra = JSON.parse(row.extra || "{}");
-      extra.timestamp = extra.createdAt && new Date(extra.createdAt);
-      hasTimestamps = hasTimestamps || !!extra.timestamp;
-      file.ignored = row.ignored == "true"
-      file.extra = extra;
-      file.ast = JSON.parse(row.ast);
-      file.mapping = JSON.parse(row.mapping);
-      file.astAndMappingLoaded = true;
-      file.amountOfKgrams = file.amountOfKgrams || file.ast.length;
-
-      if (extra.labels && extra.labels.length > 0) {
-        hasLabels = true;
-        let label = labels[extra.labels];
-        if (!label) {
-          label = {
-            name: extra.labels,
-            selected: true,
-            originalLabel: extra.labels,
-            // These will be filled later
-            color: "",
-            pseudoLabel: "",
-          };
-          labels[extra.labels] = label;
-        }
-        file.label = label;
-      } else {
-        hasUnlabeled = true;
-        file.label = defaultLabel;
-      }
-
-      // Store pseudo details.
-      const pseudoName = randomNameGenerator();
-      const pseudoPath = `${pseudoName}.${filePathExtension}`;
-      file.pseudo = {
-        path: pseudoPath,
-        shortPath: pseudoPath,
-        fullName: pseudoName,
-        timestamp: extra.timestamp
-          ? new Date(extra.timestamp.getTime() - timeOffset)
-          : undefined,
-      };
-
-      // Store original details.
-      file.original = {
-        path: row.path,
-        shortPath: "",
-        fullName: extra.fullName,
-        timestamp: extra.timestamp,
-        labels: extra.labels,
-      };
-
-      if (!file.ignored) {
-        files[file.id] = file;
-      } else {
-        ignoredFile = file;
-      }
-    }
-
-    // Find the common path in the files.
-    const commonPath = commonFilenamePrefix(Object.values(files),);
-
-    const commonPathLength = commonPath.length;
-    for (const file of Object.values(files)) {
-      file.shortPath = file.path.substring(commonPathLength);
-      file.original.shortPath = file.shortPath;
-    }
-
-    // To achieve consistent colors and random names, sort the labels by original name.
-    const sortedLabels = Object.values(labels).sort((a, b) =>
-      a.name.localeCompare(b.name)
-    );
-    for (let i = 0; i < sortedLabels.length; i++) {
-      sortedLabels[i].color = colorCategory20[i % colorCategory20.length];
-      sortedLabels[i].pseudoLabel = randomLabelGenerator();
-    }
-
-    if (hasUnlabeled) {
-      labels[defaultLabel.name] = defaultLabel;
-    }
-
-    return { files, ignoredFile, labels, hasLabels, hasUnlabeled, hasTimestamps };
   }
 
   // Anonymize the data.
