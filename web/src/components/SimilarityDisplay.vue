@@ -27,7 +27,7 @@
 </template>
 
 <script lang="ts" setup>
-import { useApiStore } from "@/api/stores";
+import { useSettingsStore } from "@/stores/report";
 import { computed } from "vue";
 
 interface Props {
@@ -45,7 +45,7 @@ const props = withDefaults(defineProps<Props>(), {
   progress: false,
   dense: false,
 });
-const apiStore = useApiStore();
+const apiStore = useSettingsStore();
 
 // Convert the similarity value into a percentage.
 const value = computed(() => {

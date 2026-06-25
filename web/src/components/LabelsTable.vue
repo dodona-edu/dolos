@@ -51,7 +51,7 @@
 </template>
 
 <script lang="ts" setup>
-import { useFileStore } from "@/api/stores";
+import { useFileStore } from "@/stores/report";
 import { storeToRefs } from "pinia";
 
 interface Props {

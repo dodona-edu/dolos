@@ -47,7 +47,7 @@
 <script lang="ts" setup>
 import { computed } from "vue";
 import { storeToRefs } from "pinia";
-import { useFileStore } from "@/api/stores";
+import { useFileStore } from "@/stores/report";
 import { useRouteQuery } from "@vueuse/router";
 
 const fileStore = useFileStore();

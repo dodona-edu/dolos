@@ -89,7 +89,7 @@
 
 <script lang="ts" setup>
 import { computed } from "vue";
-import { useFileStore, usePairStore } from "@/api/stores";
+import { useFileStore, usePairStore } from "@/stores/report";
 import { File } from "@/api/models";
 import { storeToRefs } from "pinia";
 import { useRouter } from "vue-router";

@@ -39,7 +39,7 @@
 
 <script lang="ts" setup>
 import { computed } from "vue";
-import { usePairStore } from "@/api/stores";
+import { usePairStore } from "@/stores/report";
 import { getClusterElementsArray } from "@/util/clustering-algorithms/ClusterFunctions";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
 import { useRouter } from "vue-router";

@@ -40,7 +40,7 @@ import { File } from "@/api/models";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
 import { getClusterElementsArray } from "@/util/clustering-algorithms/ClusterFunctions";
 import { timestampSort } from "@/util/SortingFunctions";
-import { useFileStore } from "@/api/stores";
+import { useFileStore } from "@/stores/report";
 import { storeToRefs } from "pinia";
 
 interface Props {

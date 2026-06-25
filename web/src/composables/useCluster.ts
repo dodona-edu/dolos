@@ -1,7 +1,7 @@
 import { ComputedRef, computed, unref } from "vue";
 import { MaybeRef } from "@/util/Types";
 import { File, Pair } from "@/api/models";
-import { usePairStore } from "@/api/stores";
+import { usePairStore } from "@/stores/report";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
 import {
   getAverageClusterSimilarity,

@@ -23,14 +23,14 @@
 
 <script lang="ts" setup>
 import { storeToRefs } from "pinia";
-import { useApiStore } from "@/api/stores";
+import { useSettingsStore } from "@/stores/report";
 
 interface Props {
   compact?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {});
-const { cutoff, cutoffDefault } = storeToRefs(useApiStore());
+const { cutoff, cutoffDefault } = storeToRefs(useSettingsStore());
 
 // Reset the cutoff to the default value.
 const resetCutoff = (): void => {

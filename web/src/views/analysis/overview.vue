@@ -238,13 +238,13 @@ import { storeToRefs } from "pinia";
 import { Pair } from "@/api/models";
 import { DateTime } from "luxon";
 import {
-  useApiStore,
+  useSettingsStore,
   useFileStore,
   usePairStore,
   useMetadataStore,
-} from "@/api/stores";
+} from "@/stores/report";
 
-const apiStore = useApiStore();
+const apiStore = useSettingsStore();
 const fileStore = useFileStore();
 const pairStore = usePairStore();
 const metadataStore = useMetadataStore();

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { useApiStore, useFileStore } from "@/api/stores";
+import { useSettingsStore, useFileStore } from "@/stores/report";
 import { useVModel } from "@vueuse/core";
 import { storeToRefs } from "pinia";
 
@@ -10,7 +10,7 @@ interface Props {
 const props = defineProps<Props>();
 const open = useVModel(props, "modelValue");
 
-const api = useApiStore();
+const api = useSettingsStore();
 const files = useFileStore();
 const { isAnonymous } = storeToRefs(api);
 const { hasLabels } = storeToRefs(files);
