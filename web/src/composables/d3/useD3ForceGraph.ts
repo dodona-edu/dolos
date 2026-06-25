@@ -13,7 +13,7 @@ import {
 
 export { Node, Edge, Group };
 
-export interface D3ForceGraphOptions {
+interface D3ForceGraphOptions {
   nodeSize: Ref<number>,
   container: ShallowRef<HTMLElement | undefined>;
   nodeTooltip: Ref<boolean>;
@@ -22,7 +22,7 @@ export interface D3ForceGraphOptions {
   height: Ref<number>,
 }
 
-export interface D3ForceGraph {
+interface D3ForceGraph {
   update(nodes: Node[], edges: Edge[], clusters: Group[]): void;
   paused: ShallowRef<boolean>;
   selectedNode: ShallowRef<Node | undefined>;

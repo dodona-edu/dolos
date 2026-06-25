@@ -12,7 +12,7 @@ import {
 /**
  * Return type for the composable.
  */
-export interface UseClusterReturn {
+interface UseClusterReturn {
   clusterFiles: ComputedRef<File[]>;
   clusterFilesSet: ComputedRef<Set<File>>;
   clusterPairs: ComputedRef<Pair[]>;
