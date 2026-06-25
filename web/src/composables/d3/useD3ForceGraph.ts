@@ -1,6 +1,6 @@
 import type {  Edge, Node, D3Node, Group } from "@/composables/d3/graph/data";
 import { onMounted, onUnmounted, ShallowRef, Ref, shallowRef } from "vue";
-import { useDebounceFn } from "@vueuse/core";
+import { useDebounceFn, useEventListener } from "@vueuse/core";
 import * as d3 from "d3";
 import { Data } from "@/composables/d3/graph/data";
 import { createSimulation } from "@/composables/d3/graph/simulation";
@@ -67,7 +67,10 @@ export function useD3ForceGraph(options: D3ForceGraphOptions): D3ForceGraph {
     simulation.redraw();
   };
 
-  window.addEventListener("resize", useDebounceFn(resize, 200));
+  // useEventListener removes the listener automatically when the component's
+  // effect scope is disposed (unmount), so the graph view can mount/unmount
+  // repeatedly without leaking listeners (and the captured simulation/canvas).
+  useEventListener(window, "resize", useDebounceFn(resize, 200));
 
   // Add the graph to the container.
   onMounted(() => {

@@ -100,8 +100,9 @@ export function useD3Tooltip(options: UseD3TooltipOptions = {}): UseD3TooltipRet
     moveTo(0, 0);
   };
 
-  // Hide the tooltip on unmount.
-  onUnmounted(() => onMouseOut());
+  // Remove the appended tooltip nodes on unmount; otherwise every mount/unmount
+  // of a tooltip-using component leaves an orphaned <div> in the parent.
+  onUnmounted(() => parent.remove());
 
   return {
     tooltip,
