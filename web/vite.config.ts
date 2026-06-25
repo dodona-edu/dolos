@@ -49,6 +49,9 @@ export default defineConfig((): UserConfig => {
     server: {
       port: 8080
     },
+    preview: {
+      port: 8080
+    },
     build: {
       target: "esnext"
     }

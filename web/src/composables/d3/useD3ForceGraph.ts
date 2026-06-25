@@ -4,6 +4,7 @@ import { useDebounceFn } from "@vueuse/core";
 import * as d3 from "d3";
 import { Data } from "@/composables/d3/graph/data";
 import { createSimulation } from "@/composables/d3/graph/simulation";
+import { seedClusterLayout } from "@/composables/d3/graph/layout";
 import {
   createDrag,
   createSelect,
@@ -32,14 +33,26 @@ export interface D3ForceGraph {
 export function useD3ForceGraph(options: D3ForceGraphOptions): D3ForceGraph {
   const data = new Data();
   const context: CanvasRenderingContext2D = document.createElement("canvas").getContext("2d")!;
+
   const simulation = createSimulation(context, data);
+
+
   const selectedNode = shallowRef();
   const selectedGroup = shallowRef();
+  let seeded = false;
 
   // This function will update the (initially empty) selection of nodes and edges to represent
   // the given files and pairs.
   const update = (nodes: Node[], edges: Edge[], groups: Group[]): void => {
     data.update(nodes, edges, groups);
+    // On the first render, seed deterministic cluster-grouped start positions
+    // before the simulation assigns its own (origin phyllotaxis), so the layout
+    // settles reproducibly. Later updates keep the existing layout and let any
+    // newly added nodes slot into it.
+    if (!seeded) {
+      seedClusterLayout(data);
+      seeded = true;
+    }
     simulation.nodes(data.nodes);
     simulation.links(data.edges);
     simulation.reheat();
