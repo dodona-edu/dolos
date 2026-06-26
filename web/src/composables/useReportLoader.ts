@@ -1,8 +1,10 @@
-import { shallowRef, watch } from "vue";
+import { watch } from "vue";
+import { storeToRefs } from "pinia";
 import { useAppMode } from "@/composables";
 import {
   useFileStore,
   useKgramStore,
+  useLoaderStore,
   useMetadataStore,
   usePairStore,
   useSettingsStore,
@@ -10,13 +12,9 @@ import {
 import { guessSimilarityThreshold } from "@/api/utils";
 
 /**
- * Orchestrates the sequential hydration of the per-report data stores and
- * exposes the loading state consumed by the analysis layout.
- *
- * This is a composable (not a store) — it is called once from analysis.vue,
- * owns the load sequence, and returns reactive loading state local to that
- * layout. The underlying data stores are Pinia singletons; this composable
- * merely drives them.
+ * Orchestrates the sequential hydration of the per-report data stores.
+ * Loading state is kept in useLoaderStore so that other operations
+ * (e.g. anonymize in file.store) can also show the loading overlay.
  */
 export function useReportLoader() {
   const fileStore = useFileStore();
@@ -24,10 +22,8 @@ export function useReportLoader() {
   const metadataStore = useMetadataStore();
   const pairStore = usePairStore();
   const settingsStore = useSettingsStore();
-
-  const loading = shallowRef(true);
-  const loadingText = shallowRef("Loading...");
-  const error = shallowRef<Error | string | undefined>();
+  const loaderStore = useLoaderStore();
+  const { loading, loadingText, error } = storeToRefs(loaderStore);
 
   const hydrate = async (): Promise<void> => {
     loading.value = true;

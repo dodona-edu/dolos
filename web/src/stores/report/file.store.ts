@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import { shallowRef, computed, nextTick, watch, ref, ComputedRef } from "vue";
 import { File, Legend, Pair } from "@/api/models";
-import { useSettingsStore, usePairStore } from "@/stores/report";
+import { useLoaderStore, useSettingsStore, usePairStore } from "@/stores/report";
 import { useAppMode } from "@/composables";
 import { parseCsv, parseFiles } from "@/api/utils";
 import {
@@ -15,6 +15,7 @@ import {
  */
 export const useFileStore = defineStore("file", () => {
   // Stores
+  const loaderStore = useLoaderStore();
   const settingsStore = useSettingsStore();
   const pairStore = usePairStore();
   const { dataUrl } = useAppMode();
@@ -97,6 +98,8 @@ export const useFileStore = defineStore("file", () => {
 
   // Anonymize the data.
   function anonymize(): void {
+    loaderStore.loading = true;
+    loaderStore.loadingText = "Anonymizing files...";
     const isAnonymous = settingsStore.isAnonymous;
 
     // Update the files.
@@ -128,6 +131,7 @@ export const useFileStore = defineStore("file", () => {
       filesById.value = { ...filesById.value };
       pairStore.pairs = { ...pairStore.pairs };
       legend.value = { ...legend.value };
+      loaderStore.loading = false;
     });
   }
 
