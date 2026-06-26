@@ -52,10 +52,10 @@ export const useKgramStore = defineStore("kgrams", () => {
 
   // Reference to other stores.
   const fileStore = useFileStore();
+  const { dataUrl } = useAppMode();
 
   // Fetch the k-grams from the CSV file.
   async function fetch(): Promise<any[]> {
-    const { dataUrl } = useAppMode();
     const url = dataUrl.value + "/kgrams.csv";
     return await parseCsv(url);
   }
