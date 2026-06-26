@@ -45,7 +45,7 @@ const props = withDefaults(defineProps<Props>(), {
   progress: false,
   dense: false,
 });
-const apiStore = useSettingsStore();
+const settingsStore = useSettingsStore();
 
 // Convert the similarity value into a percentage.
 const value = computed(() => {
@@ -54,7 +54,7 @@ const value = computed(() => {
 
 // Determine the color of the similarity value.
 const color = computed(() => {
-  if (props.dimBelowCutoff && props.similarity < apiStore.cutoff) {
+  if (props.dimBelowCutoff && props.similarity < settingsStore.cutoff) {
     return "grey";
   } else if (props.similarity < 0.5 && !props.dimBelowCutoff) {
     return "success";
