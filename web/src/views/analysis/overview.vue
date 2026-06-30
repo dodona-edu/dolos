@@ -325,6 +325,9 @@ const calculateBinColor = (x0: number, x1: number): string => {
 </script>
 
 <style lang="scss" scoped>
+@use 'sass:map';
+@use 'vuetify/settings' as vuetify;
+
 .hero {
   &-title {
     text-transform: capitalize;
@@ -404,12 +407,28 @@ const calculateBinColor = (x0: number, x1: number): string => {
     font-weight: 500;
   }
 
-  // Let the labels table grow to fill the remaining card height.
+  // The labels table can be tall (many labels). Take it out of normal flow so
+  // its content does NOT dictate the card/row height — the row height is driven
+  // by the three stat cards instead, and this card stretches to match. The
+  // table (absolutely positioned) then fills the leftover space this box
+  // flex-grows into, and scrolls internally once it overflows.
   &-labels {
-    display: flex;
-    flex-direction: column;
-    flex: 1 1 auto;
+    position: relative;
+    flex: 1 1 0;
     min-height: 0;
+
+    :deep(.labels) {
+      position: absolute;
+      inset: 0;
+    }
+
+    // Below the md breakpoint the columns stack, so there is no sibling column
+    // to stretch this card against and the flex-basis:0 box would collapse to
+    // nothing. Give it a real height to fall back on.
+    @media (max-width: (map.get(vuetify.$grid-breakpoints, 'md') - 0.02)) {
+      flex: none;
+      height: 300px;
+    }
   }
 
   &-actions {
