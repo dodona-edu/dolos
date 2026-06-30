@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { shallowRef, computed, nextTick, watch, ref, ComputedRef } from "vue";
+import { shallowRef, computed, watch, ref, ComputedRef } from "vue";
 import { File, Legend, Pair } from "@/api/models";
 import { useLoaderStore, useSettingsStore, usePairStore } from "@/stores/report";
 import { useAppMode } from "@/composables";
@@ -9,6 +9,18 @@ import {
   FileScoring,
   SimilarityScore,
 } from "@/util/FileInterestingness";
+
+/**
+ * Resolve after the browser has painted the next frame. nextTick/microtasks
+ * run *before* paint, so they can't reveal a loading overlay ahead of
+ * main-thread-blocking work; waiting two animation frames guarantees one
+ * real painted frame in between.
+ */
+function nextPaint(): Promise<void> {
+  return new Promise(resolve =>
+    requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
+  );
+}
 
 /**
  * Store containing the file data & helper functions.
@@ -97,12 +109,17 @@ export const useFileStore = defineStore("file", () => {
   }
 
   // Anonymize the data.
-  function anonymize(): void {
+  async function anonymize(): Promise<void> {
     loaderStore.loading = true;
     loaderStore.loadingText = "Anonymizing files...";
+
+    // Wait for the browser to actually paint the loading overlay before the
+    // synchronous loops below block the main thread.
+    // FIXME: https://github.com/dodona-edu/dolos/issues/1891
+    await nextPaint();
+
     const isAnonymous = settingsStore.isAnonymous;
 
-    // Update the files.
     for (const file of Object.values(filesById.value)) {
       if (isAnonymous) {
         file.path = file.pseudo.path;
@@ -121,18 +138,15 @@ export const useFileStore = defineStore("file", () => {
       label.name = isAnonymous ? label.pseudoLabel : label.originalLabel;
     }
 
-    // Update the pairs.
     for (const pair of Object.values<Pair>(pairStore.pairs)) {
       pair.leftFile = filesById.value[pair.leftFile.id];
       pair.rightFile = filesById.value[pair.rightFile.id];
     }
 
-    nextTick(() => {
-      filesById.value = { ...filesById.value };
-      pairStore.pairs = { ...pairStore.pairs };
-      legend.value = { ...legend.value };
-      loaderStore.loading = false;
-    });
+    filesById.value = { ...filesById.value };
+    pairStore.pairs = { ...pairStore.pairs };
+    legend.value = { ...legend.value };
+    loaderStore.loading = false;
   }
 
   // Labels can be toggled on and off, requires the active files to be recalculated.
