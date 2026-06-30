@@ -24,6 +24,16 @@ type Route = {
   canvas?: boolean;
   /** Per-route tolerance override for inherently noisier views. */
   maxDiffPixelRatio?: number;
+  /**
+   * JSON returned for the upload-mode `GET ${VITE_API_URL}/reports/:id` request
+   * (share view). Stubbed via page.route() so no API server is needed.
+   */
+  stubReport?: Record<string, unknown>;
+  /**
+   * This route is expected to render a terminal `<page-error>` (e.g. the share
+   * view on a failed report), so don't assert that no error is shown.
+   */
+  expectError?: boolean;
 };
 
 const ROUTES: Route[] = [
@@ -35,6 +45,23 @@ const ROUTES: Route[] = [
   { name: "06-graph", hash: "#/graph", canvas: true },
   { name: "07-clusters", hash: "#/clusters" },
   { name: "08-cluster", hash: "#/clusters/0" },
+  // Upload-mode views (reachable at #/upload in the analysis build). The upload
+  // form makes no request on mount; the share view fetches one report, stubbed
+  // to a terminal "failed" status so it settles on a stable <page-error>.
+  { name: "09-upload", hash: "#/upload", ready: ".hero-title" },
+  {
+    name: "10-share",
+    hash: "#/upload/share/stub-report",
+    expectError: true,
+    stubReport: {
+      id: "stub-report",
+      name: "Stubbed shared report",
+      created_at: "2024-01-01T00:00:00.000Z",
+      status: "failed",
+      url: "http://stub.local/api/reports/stub-report",
+      error: "This report could not be loaded (stubbed for visual testing).",
+    },
+  },
 ];
 
 /** Cheap rolling signature of the canvas pixels (strided for speed). */
@@ -62,12 +89,29 @@ async function waitForCanvasStable(page: Page): Promise<void> {
 }
 
 async function gotoRoute(page: Page, route: Route): Promise<void> {
+  // The upload-mode views talk to the API server; stub every report request so
+  // no backend is needed. Harmless for analysis routes, which load their data
+  // from public/data (never /reports) and so never trigger this handler.
+  await page.route("**/reports/**", (apiRoute) =>
+    apiRoute.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify(route.stubReport ?? {}),
+    })
+  );
+
   await page.goto(`/${route.hash}`);
   // The analysis layout shows <page-loading class="page-loading"> until every
   // store is hydrated; wait for it to disappear.
   await page.locator(".page-loading").waitFor({ state: "detached", timeout: 120_000 });
-  // Surface a hydration failure clearly instead of a blank screenshot.
-  await expect(page.locator(".page-error"), `route ${route.hash} errored`).toHaveCount(0);
+  if (route.expectError) {
+    // This route intentionally lands on an error page (e.g. the share view on a
+    // failed report); wait for it instead of asserting it's absent.
+    await page.locator(".page-error").first().waitFor({ state: "visible", timeout: 60_000 });
+  } else {
+    // Surface a hydration failure clearly instead of a blank screenshot.
+    await expect(page.locator(".page-error"), `route ${route.hash} errored`).toHaveCount(0);
+  }
 
   if (route.ready) {
     await page.locator(route.ready).first().waitFor({ state: "visible", timeout: 60_000 });

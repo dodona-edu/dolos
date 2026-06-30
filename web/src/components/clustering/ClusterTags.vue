@@ -1,5 +1,5 @@
 <template>
-  <div ref="listElement" class="fill-width" />
+  <div ref="listElement" class="w-100" />
 </template>
 
 <script lang="ts" setup>

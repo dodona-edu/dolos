@@ -20,16 +20,14 @@
               </span>
             </template>
 
-            <div class="submission-path">
-              <span>{{ item.path }}</span>
-            </div>
+            <span>{{ item.path }}</span>
           </v-tooltip>
         </div>
       </div>
     </template>
 
     <template #item.label="{ item }">
-      <div class="submission-label">
+      <div class="d-flex align-center ga-2">
         <label-dot :label="item.label.name" :color="item.label.color" />
         <label-text :label="item.label.name" colored />
       </div>
@@ -199,13 +197,3 @@ const rowClicked = (e: Event, value: any): void => {
 };
 </script>
 
-<style lang="scss" scoped>
-.submission {
-  &-label,
-  &-path {
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
-  }
-}
-</style>
