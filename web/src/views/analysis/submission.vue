@@ -172,7 +172,7 @@
 <script lang="ts" setup>
 import { computed } from "vue";
 import { File } from "@/api/models";
-import { useFileStore, usePairStore } from "@/api/stores";
+import { useFileStore, usePairStore } from "@/stores/report";
 import { useCluster } from "@/composables";
 import { storeToRefs } from "pinia";
 import { useRoute, useRouter } from "vue-router";

@@ -14,7 +14,7 @@ import {
   computed,
 } from "vue";
 import { storeToRefs } from "pinia";
-import { useApiStore } from "@/api/stores";
+import { useSettingsStore } from "@/stores/report";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
 import { File } from "@/api/models";
 import { useCluster, useD3Tooltip, usePartialLegend } from "@/composables";
@@ -45,7 +45,7 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits(["filedata", "click:node"]);
 
 const { clusterFiles } = useCluster(toRef(props, "cluster"));
-const { cutoffDebounced } = storeToRefs(useApiStore());
+const { cutoffDebounced } = storeToRefs(useSettingsStore());
 const legend = usePartialLegend(clusterFiles);
 
 // Timeseries template ref.

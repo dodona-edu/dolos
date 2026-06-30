@@ -44,7 +44,7 @@ import { shallowRef, computed } from "vue";
 import { storeToRefs } from "pinia";
 import { File } from "@/api/models";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
-import { useFileStore, usePairStore } from "@/api/stores";
+import { useFileStore, usePairStore } from "@/stores/report";
 import { useRoute } from "vue-router";
 
 const route = useRoute();

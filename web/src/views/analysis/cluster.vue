@@ -127,7 +127,7 @@
 </template>
 
 <script lang="ts" setup>
-import { useFileStore, usePairStore } from "@/api/stores";
+import { useFileStore, usePairStore } from "@/stores/report";
 import { File } from "@/api/models";
 import { useCluster, usePartialLegend } from "@/composables";
 import { storeToRefs } from "pinia";

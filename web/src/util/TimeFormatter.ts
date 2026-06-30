@@ -29,7 +29,7 @@ export function formatLongDateTime(date: Date | string): string {
  * Convert a Date object to milliseconds part for D3.
  * @param date Date object to convert
  */
-export function formatMillisecondPart(date: Date): string {
+function formatMillisecondPart(date: Date): string {
   return `.${DateTime.fromJSDate(date).toFormat("SSS")}`;
 }
 
@@ -37,7 +37,7 @@ export function formatMillisecondPart(date: Date): string {
  * Covert a Date object to seconds part for D3.
  * @param date Date object to convert
  */
-export function formatSecondPart(date: Date): string {
+function formatSecondPart(date: Date): string {
   return `:${DateTime.fromJSDate(date).toFormat("ss")}`;
 }
 
@@ -45,7 +45,7 @@ export function formatSecondPart(date: Date): string {
  * Convert a Date object to minutes part for D3.
  * @param date Date object to convert
  */
-export function formatMinutePart(date: Date): string {
+function formatMinutePart(date: Date): string {
   const minuteParts = DateTime.fromJSDate(date).toLocaleParts({
     hour: "numeric",
     minute: "2-digit",
@@ -61,7 +61,7 @@ export function formatMinutePart(date: Date): string {
  * Convert a Date object to hours part.
  * @param date Date object to convert
  */
-export function formatHourPart(date: Date): string {
+function formatHourPart(date: Date): string {
   const hourParts = DateTime.fromJSDate(date).toLocaleParts({
     hour: "2-digit",
     minute: "2-digit",
@@ -77,7 +77,7 @@ export function formatHourPart(date: Date): string {
  * Convert a Date object to days part for D3.
  * @param date Date object to convert
  */
-export function formatDayPart(date: Date): string {
+function formatDayPart(date: Date): string {
   return DateTime.fromJSDate(date).toLocaleString({
     day: "numeric",
     month: "short",
@@ -88,7 +88,7 @@ export function formatDayPart(date: Date): string {
  * Convert a Date object to months part for D3.
  * @param date Date object to convert
  */
-export function formatMonthPart(date: Date): string {
+function formatMonthPart(date: Date): string {
   return DateTime.fromJSDate(date).toLocaleString({
     month: "short",
   });
@@ -98,7 +98,7 @@ export function formatMonthPart(date: Date): string {
  * Convert a Date object to years part for D3.
  * @param date Date object to convert
  */
-export function formatYearPart(date: Date): string {
+function formatYearPart(date: Date): string {
   return DateTime.fromJSDate(date).toLocaleString({
     year: "numeric",
   });

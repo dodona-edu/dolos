@@ -136,7 +136,7 @@
 import { computed } from "vue";
 import { useAppMode } from "@/composables";
 import { useVModel } from "@vueuse/core";
-import { usePairStore } from "@/api/stores";
+import { usePairStore } from "@/stores/report";
 import { useDisplay } from "vuetify";
 import packageJson from "../../../package.json";
 

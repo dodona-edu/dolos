@@ -21,14 +21,12 @@
 
 <script lang="ts" setup>
 import { shallowRef } from "vue";
-import { storeToRefs } from "pinia";
-import { useApiStore } from "@/api/stores";
+import { useReportLoader } from "@/composables";
 import { useBreadcrumbStore } from "@/stores";
 import { useDisplay } from "vuetify";
 
 const display = useDisplay();
-const api = useApiStore();
-const { loading, error, loadingText } = storeToRefs(api);
+const { loading, error, loadingText, hydrate } = useReportLoader();
 
 // If the drawer is open/closed.
 const drawer = shallowRef(display.lgAndUp.value);
@@ -36,7 +34,7 @@ const drawer = shallowRef(display.lgAndUp.value);
 const settings = shallowRef(false);
 
 // Hydrate all the stores (fetch all the data).
-api.hydrate();
+hydrate();
 
 // Hydrate the breadcrumbs store.
 useBreadcrumbStore();

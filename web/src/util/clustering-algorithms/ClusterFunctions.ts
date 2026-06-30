@@ -42,24 +42,6 @@ export function getClusteringGraph(
   return map;
 }
 
-export function getClusterElementsSorted(cluster: Cluster): File[] {
-  const array = getClusterElementsArray(cluster);
-  const graph = getClusteringGraph(cluster);
-
-  const getAverageSimilarity = (f: File): number => {
-    const fGraph = graph.get(f.id);
-    if (!fGraph) return 0;
-    return fGraph.reduce((a, b) => a + b.similarity, 0) / fGraph.length;
-  };
-
-  // Cache weights for use in sort function (for efficiency reasons)
-  const weights = new Map(array.map(f => [f.id, getAverageSimilarity(f)]));
-
-  const sortf = (a: File, b: File): number => (weights.get(a.id) ?? 0) - (weights.get(b.id) ?? 0);
-
-  return array.sort(sortf);
-}
-
 export function getClusterIntersect(cluster1: Cluster, cluster2: Cluster): Cluster {
   return new Set(Array.from(cluster1).filter(c => cluster2.has(c)));
 }

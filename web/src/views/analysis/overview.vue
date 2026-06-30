@@ -131,7 +131,7 @@
             <div class="stat-card-value">{{ clustering.length }}</div>
             <div class="stat-card-subtitle text-medium-emphasis">
               Based on the current threshold ({{
-                (apiStore.cutoff * 100).toFixed(0)
+                (settingsStore.cutoff * 100).toFixed(0)
               }}%)
             </div>
           </div>
@@ -166,7 +166,7 @@
               field="similarity"
               :ticks="20"
               :calculate-bin-color="calculateBinColor"
-              :line-value="apiStore.cutoff"
+              :line-value="settingsStore.cutoff"
               line-text="Threshold"
             />
           </v-card-text>
@@ -238,13 +238,13 @@ import { storeToRefs } from "pinia";
 import { Pair } from "@/api/models";
 import { DateTime } from "luxon";
 import {
-  useApiStore,
+  useSettingsStore,
   useFileStore,
   usePairStore,
   useMetadataStore,
-} from "@/api/stores";
+} from "@/stores/report";
 
-const apiStore = useApiStore();
+const settingsStore = useSettingsStore();
 const fileStore = useFileStore();
 const pairStore = usePairStore();
 const metadataStore = useMetadataStore();
@@ -319,7 +319,7 @@ const clustersCount = computed(() => sortedClustering.value.length);
 const calculateBinColor = (x0: number, x1: number): string => {
   // If the x1 coordinate is below the threshold return an greyed out color.
   // x1 represents the end value of the bin.
-  return x1 <= apiStore.cutoff ? "rgba(25, 118, 210, 0.25)" : "#1976D2";
+  return x1 <= settingsStore.cutoff ? "rgba(25, 118, 210, 0.25)" : "#1976D2";
 };
 
 </script>

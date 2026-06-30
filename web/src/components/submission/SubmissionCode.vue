@@ -6,7 +6,7 @@
 import { onMounted, onUnmounted, ref, shallowRef } from "vue";
 import * as monaco from "monaco-editor";
 import { File } from "@/api/models";
-import { useMetadataStore } from "@/api/stores";
+import { useMetadataStore } from "@/stores/report";
 
 interface Props {
   file: File;
