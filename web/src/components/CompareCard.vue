@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="heading">
+    <div class="pb-4">
       <h2 class="heading-title">
         Comparing {{ activePair.leftFile.shortPath }} with
         {{ activePair.rightFile.shortPath }}

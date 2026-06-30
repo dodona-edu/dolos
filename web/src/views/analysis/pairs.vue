@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-row class="heading" align="center">
+    <v-row class="pb-4" align="center">
       <v-col cols="12" md="6">
         <h2 class="heading-title">
           File pairs
