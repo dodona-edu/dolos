@@ -68,3 +68,12 @@ const { hasLabels } = storeToRefs(files);
     </v-card-text>
   </v-navigation-drawer>
 </template>
+
+<style lang="scss" scoped>
+// Stack the drawer content as a flex column so the labels table (flex: 1) can
+// grow to fill the remaining height below the fixed settings sections.
+:deep(.v-navigation-drawer__content) {
+  display: flex;
+  flex-direction: column;
+}
+</style>
