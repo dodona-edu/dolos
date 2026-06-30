@@ -66,20 +66,8 @@ impl TerminalWriter {
     fn write_fragments(pair: &Pair) {
         let fragments = pair.fragments.as_ref().expect("missing fragments for pair");
 
-        let left_lines: Vec<&str> = pair
-            .left_file
-            .content
-            .as_ref()
-            .expect("missing source content for left file")
-            .lines()
-            .collect();
-        let right_lines: Vec<&str> = pair
-            .right_file
-            .content
-            .as_ref()
-            .expect("missing source content for right file")
-            .lines()
-            .collect();
+        let left_lines: Vec<&str> = pair.left_file.content.lines().collect();
+        let right_lines: Vec<&str> = pair.right_file.content.lines().collect();
 
         let col_width = column_width();
         println!();

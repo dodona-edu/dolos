@@ -1,8 +1,8 @@
 use crate::collections::pair_array::PairArray;
-use crate::config::ReportConfig;
 use crate::config::{FragmentSortBy, PairSortBy};
 use crate::file::File;
 use crate::fragment::Fragment;
+use crate::metadata::Metadata;
 use crate::suffixtree::{AnalysisResult, Match, PairMetrics};
 use crate::winnowing::region::Region;
 use std::cmp::Reverse;
@@ -18,7 +18,8 @@ pub struct Pair {
 }
 
 pub struct Report {
-    pub name: String,
+    pub metadata: Metadata,
+    pub files: Vec<Rc<File>>,
     pub pairs: Vec<Pair>,
 }
 
@@ -31,12 +32,12 @@ impl Report {
         analysis_result: AnalysisResult,
         files: Vec<Rc<File>>,
         locations: Option<Vec<Vec<Region>>>,
-        report_config: ReportConfig,
+        metadata: Metadata,
     ) -> Report {
         let AnalysisResult { metrics, matches } = analysis_result;
         let mut frags = matches
             .zip(locations)
-            .map(|(m, l)| Self::resolve_fragments(m, l, &report_config.fragment_sort_by));
+            .map(|(m, l)| Self::resolve_fragments(m, l, &metadata.fragment_sort_by));
 
         let mut pairs: Vec<Pair> = metrics
             .iter_pairs()
@@ -50,9 +51,9 @@ impl Report {
             })
             .collect();
 
-        sort_pairs(&mut pairs, &report_config.sort_by);
+        sort_pairs(&mut pairs, &metadata.sort_by);
 
-        Report { name: report_config.name, pairs }
+        Report { metadata, files, pairs }
     }
 
     /// Resolve raw matches + locations into [`Fragment`] lists, sorted according
@@ -128,13 +129,36 @@ fn sort_pairs(pairs: &mut [Pair], sort_by: &Option<PairSortBy>) {
 mod tests {
     use super::*;
     use crate::collections::pair_array::PairArray;
-    use crate::config::ReportConfig;
     use crate::config::{FragmentSortBy, PairSortBy};
     use crate::file::File;
+    use crate::metadata::Metadata;
     use crate::suffixtree::{AnalysisResult, Match, PairMetrics};
     use crate::winnowing::region::{Point, Region};
+    use chrono::Utc;
     use std::path::PathBuf;
     use std::rc::Rc;
+    use tree_sitter_grammars::Language;
+
+    fn make_metadata(
+        sort_by: Option<PairSortBy>,
+        fragment_sort_by: Option<FragmentSortBy>,
+    ) -> Metadata {
+        Metadata {
+            report_name: "test".to_string(),
+            created_at: Utc::now(),
+            sort_by,
+            fragment_sort_by,
+            kgram_length: 23,
+            kgrams_in_window: 17,
+            language: Language::Javascript,
+            language_detected: true,
+            include_comments: false,
+            include_fragments: true,
+            min_length_match: 1,
+            max_fingerprint_file_count: None,
+            ignore: None,
+        }
+    }
 
     fn make_report(
         analysis: AnalysisResult,
@@ -147,12 +171,16 @@ mod tests {
             analysis,
             files,
             locations,
-            ReportConfig { name: "test".to_string(), sort_by, fragment_sort_by },
+            make_metadata(sort_by, fragment_sort_by),
         )
     }
 
-    fn make_file(name: &str) -> Rc<File> {
-        Rc::new(File { relative_path: PathBuf::from(name), content: None })
+    fn make_file(id: usize, name: &str) -> Rc<File> {
+        Rc::new(File {
+            id,
+            relative_path: PathBuf::from(name),
+            content: "".to_string(),
+        })
     }
 
     fn make_metrics(similarity: f64) -> PairMetrics {
@@ -170,7 +198,11 @@ mod tests {
     /// that files are accessible on the resulting report.
     #[test]
     fn test_from() {
-        let files = vec![make_file("a.js"), make_file("b.js"), make_file("c.js")];
+        let files = vec![
+            make_file(0, "a.js"),
+            make_file(1, "b.js"),
+            make_file(2, "c.js"),
+        ];
         let mut metrics = PairArray::new(3, PairMetrics::default());
         metrics.set(0, 1, make_metrics(0.5));
         metrics.set(0, 2, make_metrics(0.2));
@@ -238,7 +270,11 @@ mod tests {
     /// unordered file pairs in the correct order and with correct file refs.
     #[test]
     fn test_all_pairs() {
-        let files = vec![make_file("x.js"), make_file("y.js"), make_file("z.js")];
+        let files = vec![
+            make_file(0, "x.js"),
+            make_file(1, "y.js"),
+            make_file(2, "z.js"),
+        ];
         let metrics = PairArray::new(3, make_metrics(0.0));
         let analysis = AnalysisResult { metrics, matches: None };
         let report = make_report(analysis, files.clone(), None, None, None);
@@ -259,7 +295,11 @@ mod tests {
     /// in descending similarity order.
     #[test]
     fn test_sort_by_similarity() {
-        let files = vec![make_file("a.js"), make_file("b.js"), make_file("c.js")];
+        let files = vec![
+            make_file(0, "a.js"),
+            make_file(1, "b.js"),
+            make_file(2, "c.js"),
+        ];
         let mut metrics = PairArray::new(3, PairMetrics::default());
         metrics.set(0, 1, make_metrics(0.5));
         metrics.set(0, 2, make_metrics(0.2));
@@ -302,7 +342,7 @@ mod tests {
         };
         let report = make_report(
             analysis,
-            vec![make_file("a.js"), make_file("b.js")],
+            vec![make_file(0, "a.js"), make_file(1, "b.js")],
             Some(locations),
             None,
             Some(FragmentSortBy::KgramsDescending),
