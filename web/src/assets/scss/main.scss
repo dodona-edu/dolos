@@ -6,14 +6,11 @@
   padding-bottom: 1rem;
 }
 
-// Add background color to clickable table rows.
-// This will probably be added natively in Vuetify 3 in the future.
+// Vuetify 4 sets cursor:pointer on clickable rows natively, but does not add a
+// hover background, so we provide that here.
 .v-data-table__tr--clickable {
-  &:hover {
-    td {
-      cursor: pointer;
-      background-color: rgba(0, 0, 0, 0.03);
-    }
+  &:hover td {
+    background-color: rgba(0, 0, 0, 0.03);
   }
 }
 
