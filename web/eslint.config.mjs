@@ -6,11 +6,12 @@ import tseslint from 'typescript-eslint';
 import pluginVuetify from 'eslint-plugin-vuetify'
 
 export default [
+  { ignores: ['dist/**'] },
   { files: ['**/*.{js,mjs,cjs,ts,vue}'] },
   { languageOptions: { globals: globals.browser } },
   pluginJs.configs.recommended,
   ...tseslint.configs.recommended,
-  ...pluginVue.configs['flat/recommended'],
+  ...pluginVue.configs['flat/essential'],
   {
     files: ['**/*.vue'],
     languageOptions: {

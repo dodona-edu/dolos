@@ -18,8 +18,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:visual": "playwright test",
-    "lint": "eslint . --fix",
-    "check": "vue-tsc --noEmit && eslint . --fix"
+    "lint": "eslint .",
+    "check": "vue-tsc --noEmit && eslint ."
   },
   "devDependencies": {
     "@babel/types": "^7.24.7",
