@@ -404,6 +404,14 @@ const calculateBinColor = (x0: number, x1: number): string => {
     font-weight: 500;
   }
 
+  // Let the labels table grow to fill the remaining card height.
+  &-labels {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+
   &-actions {
     flex: 1;
     display: flex;
