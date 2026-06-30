@@ -6,21 +6,24 @@ A Rust implementation of the [Dolos](https://github.com/dodona-edu/dolos) source
 
 ## Workspace crates
 
-- **[`dolos`](./dolos/)** — the Rust CLI for running similarity analyses on source code files.
+- **[`dolos-cli`](./dolos-cli/)** — the Rust CLI (the `dolos` binary) for running similarity analyses on source code files.
+- **[`dolos-lib`](./dolos-lib/)** — the core library (`dolos`) implementing tokenization, suffix-tree construction, and the pairwise similarity metrics. The per-language feature flags live here.
 - **[`tree-sitter-grammars`](./tree-sitter-grammars/)** — a unified crate that bundles tree-sitter grammar bindings for 29 programming languages behind a single ergonomic API. See its [README](./tree-sitter-grammars/README.md) for details.
 
 ## Building
 
-Requires a recent stable Rust toolchain. To build with support for all languages:
+Requires a recent stable Rust toolchain. To build the CLI (which bundles support for all languages):
 
 ```sh
-cargo build --features all-languages
+cargo build -p dolos-cli
 ```
 
-To build with only specific languages:
+The per-language feature flags are defined on `dolos-lib`. To depend on the
+library with only specific languages, enable the corresponding features:
 
 ```sh
-cargo build --features lang-python,lang-javascript
+# In your Cargo.toml
+dolos-lib = { path = "../dolos-lib", default-features = false, features = ["lang-python", "lang-javascript"] }
 ```
 
 ## Usage

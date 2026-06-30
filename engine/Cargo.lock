@@ -437,24 +437,34 @@ dependencies = [
 ]
 
 [[package]]
-name = "dolos"
+name = "dolos-cli"
 version = "0.1.0"
 dependencies = [
  "assert_cmd",
- "bzip2",
- "chrono",
  "clap",
  "colored",
  "csv",
- "flate2",
+ "dolos-lib",
  "predicates",
+ "tempfile",
+ "terminal_size",
+ "tree-sitter-grammars",
+]
+
+[[package]]
+name = "dolos-lib"
+version = "0.1.0"
+dependencies = [
+ "bzip2",
+ "chrono",
+ "csv",
+ "flate2",
  "rand",
  "rstest",
  "serde",
  "serde_any",
  "tar",
  "tempfile",
- "terminal_size",
  "tree-sitter",
  "tree-sitter-grammars",
  "zip",
