@@ -24,7 +24,3 @@ const goAndHide = () => {
     <v-chip color="default" variant="outlined" :href="surveyLink" :onclick="goAndHide"><b>Take the survey!</b></v-chip>
   </v-alert>
 </template>
-
-<style scoped lang="scss">
-
-</style>
