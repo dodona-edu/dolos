@@ -1,7 +1,7 @@
 <template>
   <div>
     <SurveyAlert></SurveyAlert>
-    <div class="hero">
+    <div class="pb-4">
       <h2 v-if="reportName" class="hero-title">
         {{ reportName }}
       </h2>
@@ -326,8 +326,6 @@ const calculateBinColor = (x0: number, x1: number): string => {
 
 <style lang="scss" scoped>
 .hero {
-  padding-bottom: 1rem;
-
   &-title {
     text-transform: capitalize;
     font-size: 2.5rem;

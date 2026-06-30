@@ -2,7 +2,7 @@
   <div class="similarity-setting">
     <label v-if="!compact" class="text-medium-emphasis">Threshold ≥ {{ (cutoff * 100).toFixed(0) }}%</label>
 
-    <div class="similarity-setting-actions">
+    <div class="d-flex justify-space-between align-center ga-2">
       <span v-if="props.compact">
         {{ (cutoff * 100).toFixed(0) }}%
       </span>
@@ -45,13 +45,6 @@ const resetCutoff = (): void => {
   label {
     font-size: 0.9rem;
     font-weight: normal;
-  }
-
-  &-actions {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 0.5rem;
   }
 }
 </style>
