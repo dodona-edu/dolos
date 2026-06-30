@@ -62,11 +62,6 @@ const files = computed(() => {
   );
 });
 
-// Row cursor
-const rowCursor = computed(() => {
-  return props.clickable ? "pointer" : "default";
-});
-
 watch(
   () => props.selectedFiles,
   () => {
@@ -90,30 +85,9 @@ watch(
     white-space: nowrap;
   }
 
-  &-row {
-    cursor: v-bind("rowCursor");
-    transition: background-color 0.15s ease;
-
-    &.selected {
-      background-color: #f0f0f0;
-    }
-
-    &-label {
-      background-color: grey;
-      width: 10px;
-      height: 10px;
-      display: block;
-      border-radius: 50%;
-    }
-  }
-
-  &-body {
-    tr {
-      &:hover {
-        cursor: pointer;
-        background-color: rgba(0, 0, 0, 0.03);
-      }
-    }
+  &-body tr:hover {
+    cursor: pointer;
+    background-color: rgba(0, 0, 0, 0.03);
   }
 }
 </style>
