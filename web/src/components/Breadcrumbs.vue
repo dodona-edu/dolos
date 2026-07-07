@@ -1,7 +1,7 @@
 <template>
-  <div class="breadcrumbs">
+  <div class="d-flex align-center ga-1">
     <v-btn color="primary" variant="text" icon="mdi-chevron-left" size="x-small" exact :to="backItem" />
-    <v-breadcrumbs class="breadcrumbs-items" :items="items" />
+    <v-breadcrumbs class="pa-0" :items="items" color="primary" />
   </div>
 </template>
 
@@ -60,18 +60,3 @@ const backItem = computed(() => {
 });
 </script>
 
-<style lang="scss" scoped>
-.breadcrumbs {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-
-  :deep(a) {
-    color: rgb(var(--v-theme-primary));
-  }
-
-  &-items {
-    padding: 0;
-  }
-}
-</style>

@@ -50,5 +50,9 @@ export default defineConfig({
     url: "http://localhost:8080",
     reuseExistingServer: !process.env.CI,
     timeout: 240_000,
+    // Give the build a known API origin so the upload-mode views' requests have
+    // a stable, interceptable URL. No real server runs at this address — the
+    // visual spec stubs every `**/reports/**` request via page.route().
+    env: { VITE_API_URL: "http://stub.local/api" },
   },
 });
