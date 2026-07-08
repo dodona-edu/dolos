@@ -521,4 +521,22 @@ mod tests_ignored {
         assert_eq!(m12.total_right, 3);
         assert_eq!(m12.total_left, 3);
     }
+
+    #[test]
+    fn test_ignored_frequency() {
+        // `X` (= 0) appears in all four files, so under `cap = 2` every match of
+        // it must be ignored — including the `X` shared by `WX`/`VX` as an exact
+        // trailing suffix, which is emitted at a pure-sentinel leaf.
+        let seqs = vec![vec![0, 1], vec![0, 2], vec![3, 0], vec![4, 0]];
+        let mut tree = SuffixTree::build(&seqs);
+        let result = tree.analyze(&seqs, 1, true, true, Some(2));
+        for (i, j, matches) in result.matches.as_ref().unwrap().iter_pairs() {
+            for m in matches {
+                assert!(
+                    m.ignored,
+                    "Match {m:?} between sequences {i} and {j} should be ignored"
+                );
+            }
+        }
+    }
 }

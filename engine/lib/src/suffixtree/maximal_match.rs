@@ -94,17 +94,37 @@ impl<'a> MaximalMatchAnalyzer<'a> {
     ///   `exclude_ignored` is enabled.
     /// - The number of distinct files the shared substring appears in exceeds
     ///   `max_file_count` (boilerplate filter).
-    fn is_node_ignored(&self, node: &Node) -> bool {
+    fn is_node_ignored(&self, node_index: usize) -> bool {
+        let node = &self.tree.arena[node_index];
         if self.exclude_ignored && node.ignore {
             return true;
         }
         if let Some(max_count) = self.max_file_count {
-            let file_count = node.sequence_indices.as_ref().map_or(0, |si| si.len());
+            let file_count = self.substring_file_count(node);
             if file_count > max_count {
                 return true;
             }
         }
         false
+    }
+
+    /// Number of distinct files the substring represented by `node` appears in.
+    ///
+    /// When a substring `X` lives in a leaf that only represents a sentinel character,
+    /// the file count can be found in the parent of this leaf.
+    fn substring_file_count(&self, node: &Node) -> usize {
+        let count_node = if node.children.is_none() && node.range.length() == 0 {
+            // A pure-sentinel leaf: parent is always Some (only the root has no
+            // parent, and the root is never a leaf).
+            let parent = node.parent.expect("a sentinel leaf always has a parent");
+            &self.tree.arena[parent]
+        } else {
+            node
+        };
+        count_node
+            .sequence_indices
+            .as_ref()
+            .map_or(0, |si| si.len())
     }
 
     /// Recursively find all MEMs in the subtree rooted at `node_index`,
@@ -133,7 +153,7 @@ impl<'a> MaximalMatchAnalyzer<'a> {
     ) -> LeftMap {
         let node = &self.tree.arena[node_index];
         let node_depth = depth + node.range.length();
-        let is_ignored = self.is_node_ignored(node);
+        let is_ignored = self.is_node_ignored(node_index);
 
         let mut accumulator: Option<LeftMap> = None;
         for child_map in self.collect_child_maps(node, node_depth, collector) {
