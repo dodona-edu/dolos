@@ -539,4 +539,23 @@ mod tests_ignored {
             }
         }
     }
+
+    #[test]
+    fn test_ignored_template() {
+        // `X` (= 0) is a template substring, so every match of it must be
+        // ignored — including the `X` shared by `WX`/`VX` as an exact trailing
+        // suffix, which is emitted at a pure-sentinel leaf (issue #43).
+        let seqs = vec![vec![0, 1], vec![0, 2], vec![3, 0], vec![4, 0]];
+        let mut tree = SuffixTree::build(&seqs);
+        tree.add_ignored_sequences(&seqs, &[vec![0]]);
+        let result = tree.analyze(&seqs, 1, true, true, None);
+        for (i, j, matches) in result.matches.as_ref().unwrap().iter_pairs() {
+            for m in matches {
+                assert!(
+                    m.ignored,
+                    "Match {m:?} between sequences {i} and {j} should be ignored"
+                );
+            }
+        }
+    }
 }
