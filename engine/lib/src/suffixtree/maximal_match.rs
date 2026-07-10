@@ -95,12 +95,12 @@ impl<'a> MaximalMatchAnalyzer<'a> {
     /// - The number of distinct files the shared substring appears in exceeds
     ///   `max_file_count` (boilerplate filter).
     fn is_node_ignored(&self, node_index: usize) -> bool {
-        let node = &self.tree.arena[node_index];
+        let node = self.substring_node(node_index);
         if self.exclude_ignored && node.ignore {
             return true;
         }
         if let Some(max_count) = self.max_file_count {
-            let file_count = self.substring_file_count(node);
+            let file_count = node.sequence_indices.as_ref().map_or(0, |si| si.len());
             if file_count > max_count {
                 return true;
             }
@@ -108,23 +108,20 @@ impl<'a> MaximalMatchAnalyzer<'a> {
         false
     }
 
-    /// Number of distinct files the substring represented by `node` appears in.
+    /// The node whose substring a match emitted at `node_index` represents.
     ///
-    /// When a substring `X` lives in a leaf that only represents a sentinel character,
-    /// the file count can be found in the parent of this leaf.
-    fn substring_file_count(&self, node: &Node) -> usize {
-        let count_node = if node.children.is_none() && node.range.length() == 0 {
+    /// A pure-sentinel leaf adds no real symbols, so its match substring — and
+    /// therefore its `ignore` flag and file count — is that of its parent.
+    fn substring_node(&self, node_index: usize) -> &Node {
+        let node = &self.tree.arena[node_index];
+        if node.children.is_none() && node.range.length() == 0 {
             // A pure-sentinel leaf: parent is always Some (only the root has no
             // parent, and the root is never a leaf).
             let parent = node.parent.expect("a sentinel leaf always has a parent");
             &self.tree.arena[parent]
         } else {
             node
-        };
-        count_node
-            .sequence_indices
-            .as_ref()
-            .map_or(0, |si| si.len())
+        }
     }
 
     /// Recursively find all MEMs in the subtree rooted at `node_index`,
