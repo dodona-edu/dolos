@@ -70,7 +70,7 @@ jobs:
           submodules: true
       - name: Cache npm dependencies
         id: cache-dependencies
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: |
             ${{ github.workspace }}/node_modules
@@ -109,7 +109,7 @@ jobs:
 
       - name: Fetch Dependencies ⚡️
         id: cache-dependencies
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: |
             ${{ github.workspace }}/node_modules
@@ -147,7 +147,7 @@ jobs:
 
       - name: Fetch Dependencies ⚡️
         id: cache-dependencies
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: |
             ${{ github.workspace }}/node_modules
@@ -185,7 +185,7 @@ jobs:
 
       - name: Fetch Dependencies ⚡️
         id: cache-dependencies
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: |
             ${{ github.workspace }}/node_modules
@@ -224,7 +224,7 @@ jobs:
 
       - name: Fetch Dependencies ⚡️
         id: cache-dependencies
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: |
             ${{ github.workspace }}/node_modules
@@ -264,7 +264,7 @@ jobs:
 
       - name: Fetch Dependencies ⚡️
         id: cache-dependencies
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: |
             ${{ github.workspace }}/node_modules
@@ -305,7 +305,7 @@ jobs:
 
       - name: Fetch Dependencies ⚡️
         id: cache-dependencies
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: |
             ${{ github.workspace }}/node_modules
@@ -343,7 +343,7 @@ jobs:
 
       - name: Fetch Dependencies ⚡️
         id: cache-dependencies
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: |
             ${{ github.workspace }}/node_modules
@@ -384,7 +384,7 @@ jobs:
 
       - name: Fetch Dependencies ⚡️
         id: cache-dependencies
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: |
             ${{ github.workspace }}/node_modules
@@ -452,7 +452,7 @@ jobs:
 
       - name: Fetch Dependencies ⚡️
         id: cache-dependencies
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: |
             ${{ github.workspace }}/node_modules
@@ -490,7 +490,7 @@ jobs:
 
       - name: Fetch Dependencies ⚡️
         id: cache-dependencies
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: |
             ${{ github.workspace }}/node_modules
@@ -631,7 +631,7 @@ jobs:
 
       - name: Fetch Dependencies ⚡️
         id: cache-dependencies
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: |
             ${{ github.workspace }}/node_modules
