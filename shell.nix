@@ -10,11 +10,8 @@ pkgs.devshell.mkShell {
     nixpkgs-fmt
     docker
     docker-compose
-    # Browsers for the web package's Playwright visual harness. On NixOS the
-    # npm-downloaded browser binaries can't run (missing FHS libs), so we use
-    # the nixpkgs-provided browsers and point Playwright at them via the env
-    # vars below. Keep @playwright/test in web/package.json pinned to the same
-    # version as this driver (currently 1.54.1) or the browser lookup fails.
+    # Note that the Nix playwright driver version and the npm @playwright/test
+    # package need to stay in sync, hence the version check at shell start.
     playwright-driver.browsers
   ];
   env = [
@@ -34,5 +31,25 @@ pkgs.devshell.mkShell {
       name = "PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD";
       value = "1";
     }
+    {
+      name = "PLAYWRIGHT_NIX_VERSION";
+      value = pkgs.playwright-driver.version;
+    }
   ];
+  devshell.startup.playwright-version-check.text = ''
+    pw=$(find "$PRJ_ROOT" -maxdepth 5 \
+        -path '*/node_modules/@playwright/test/package.json' \
+        -not -path '*/.git/*' 2>/dev/null | head -n1)
+
+    if [ -z "$pw" ]; then
+      echo "ℹ️  @playwright/test not installed yet — install, then re-enter the shell with 'direnv reload'"
+    else
+      npmVer=$(node -p "require('$pw').version" 2>/dev/null)
+      if [ "$npmVer" != "$PLAYWRIGHT_NIX_VERSION" ]; then
+        echo "⚠️  playwright mismatch: nix=$PLAYWRIGHT_NIX_VERSION npm=$npmVer"
+        echo "    fix: npm --workspace=web install -D -E @playwright/test@$PLAYWRIGHT_NIX_VERSION"
+        echo
+      fi
+    fi
+  '';
 }
