@@ -8,7 +8,7 @@
           :previous-fallback-to="{ name: 'Submissions' }"
         />
 
-        <div class="heading">
+        <div class="pb-4">
           <h2 class="heading-title">
             Submission by {{ file.extra.fullName ?? file.shortPath }}
           </h2>

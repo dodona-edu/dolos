@@ -1,5 +1,5 @@
 <template>
-  <v-table class="labels" height="300px" fixed-header density="compact">
+  <v-table class="labels" fixed-header density="compact">
     <thead class="labels-table-header">
       <tr>
         <th>Label</th>
@@ -64,6 +64,15 @@ const { labels, labelFilesCount, hasLabels } = storeToRefs(fileStore);
 </script>
 
 <style lang="scss" scoped>
+// Fill the height of the (flex-column) parent instead of a fixed height.
+// v-table is itself a flex column whose __wrapper already scrolls (flex: 1 1
+// auto; overflow: auto), so growing the table makes the body scroll under the
+// fixed header.
+.labels {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
 .labels-table-header {
   z-index: 2;
 }

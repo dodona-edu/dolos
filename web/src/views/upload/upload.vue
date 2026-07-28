@@ -7,7 +7,7 @@ const search = ref("");
 
 <template>
   <div>
-    <div class="hero">
+    <div class="pb-4">
       <h2 class="hero-title">DOLOS</h2>
       <div class="hero-subtitle text-medium-emphasis">
         Source code plagiarism detection
@@ -33,7 +33,7 @@ const search = ref("");
 
                 <v-col cols="12" md="6">
                   <v-text-field
-                      class="search-text-field"
+                      class="mx-4"
                       v-model="search"
                       prepend-inner-icon="mdi-magnify"
                       label="Search"
@@ -70,8 +70,6 @@ const search = ref("");
 
 <style lang="scss" scoped>
 .hero {
-  padding-bottom: 1rem;
-
   &-title {
     font-size: 2.5rem;
   }
@@ -79,9 +77,5 @@ const search = ref("");
   &-subtitle {
     font-size: 1.25rem;
   }
-}
-
-.search-text-field {
-  margin: 0 16px;
 }
 </style>
