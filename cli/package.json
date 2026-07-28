@@ -36,6 +36,7 @@
   },
   "dependencies": {
     "@dodona/dolos-lib": "3.5.1",
+    "@dodona/dolos-parsers": "1.4.1",
     "@dodona/dolos-web": "2.9.3",
     "chalk": "^5.6.2",
     "cliui": "^9.0.1",
