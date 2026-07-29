@@ -18,7 +18,9 @@ updates:
         patterns:
           - "*"
 
-  # Root - NPM (workspaces lockfile)
+  # Root - NPM
+  # The npm workspaces share the root package-lock.json. Keep one update entry
+  # here so Dependabot updates workspace manifests and their lockfile together.
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
@@ -31,40 +33,6 @@ updates:
         patterns:
           - "*"
       root-dependencies-version:
-        applies-to: version-updates
-        patterns:
-          - "*"
-
-  # CLI - NPM
-  - package-ecosystem: "npm"
-    directory: "/cli"
-    schedule:
-      interval: "weekly"
-    cooldown:
-      default-days: 5
-    groups:
-      cli-dependencies-security:
-        applies-to: security-updates
-        patterns:
-          - "*"
-      cli-dependencies-version:
-        applies-to: version-updates
-        patterns:
-          - "*"
-
-  # Core - NPM
-  - package-ecosystem: "npm"
-    directory: "/core"
-    schedule:
-      interval: "weekly"
-    cooldown:
-      default-days: 5
-    groups:
-      core-dependencies-security:
-        applies-to: security-updates
-        patterns:
-          - "*"
-      core-dependencies-version:
         applies-to: version-updates
         patterns:
           - "*"
@@ -82,57 +50,6 @@ updates:
         patterns:
           - "*"
       docs-dependencies-version:
-        applies-to: version-updates
-        patterns:
-          - "*"
-
-  # Lib - NPM
-  - package-ecosystem: "npm"
-    directory: "/lib"
-    schedule:
-      interval: "weekly"
-    cooldown:
-      default-days: 5
-    groups:
-      lib-dependencies-security:
-        applies-to: security-updates
-        patterns:
-          - "*"
-      lib-dependencies-version:
-        applies-to: version-updates
-        patterns:
-          - "*"
-
-  # Parsers - NPM
-  - package-ecosystem: "npm"
-    directory: "/parsers"
-    schedule:
-      interval: "weekly"
-    cooldown:
-      default-days: 5
-    groups:
-      parsers-dependencies-security:
-        applies-to: security-updates
-        patterns:
-          - "*"
-      parsers-dependencies-version:
-        applies-to: version-updates
-        patterns:
-          - "*"
-
-  # Web - NPM
-  - package-ecosystem: "npm"
-    directory: "/web"
-    schedule:
-      interval: "weekly"
-    cooldown:
-      default-days: 5
-    groups:
-      web-dependencies-security:
-        applies-to: security-updates
-        patterns:
-          - "*"
-      web-dependencies-version:
         applies-to: version-updates
         patterns:
           - "*"
