@@ -13,8 +13,6 @@ buildNpmPackage rec {
 
   npmWorkspace="cli";
 
-  npmFlags = [ "--legacy-peer-deps" ];
-
   makeWrapperArgs = "--prefix PATH : ${lib.makeBinPath [ unzip ]}";
 
   makeCacheWritable = true;
