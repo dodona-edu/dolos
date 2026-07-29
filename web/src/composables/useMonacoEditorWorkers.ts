@@ -1,6 +1,6 @@
 import { onMounted } from "vue";
 
-import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
+import EditorWorker from "monaco-editor/editor/editor.worker.js?worker";
 
 export function useMonacoEditorWorkers() {
   onMounted(() => {
