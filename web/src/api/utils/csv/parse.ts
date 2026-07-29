@@ -1,23 +1,15 @@
-import { parse, ParseRemoteConfig } from "papaparse";
+import { ParseRemoteConfig } from "papaparse";
+
+type CsvWorker = typeof import("../../workers/csv.worker");
+
+const csvWorker = new ComlinkWorker<CsvWorker>(
+  new URL("../../workers/csv.worker.ts", import.meta.url)
+);
 
 /**
- * Parse a CSV string into an array of objects.
+ * Parse a remote CSV file into an array of objects.
  * @param url URL of the CSV file.
  */
 export function parseCsv<T>(url: string, options?: ParseRemoteConfig<T>): Promise<T[]> {
-  return new Promise<T[]>((resolve, reject) => {
-    parse(url, {
-      ...options,
-      download: true,
-      header: true,
-      worker: true,
-      skipEmptyLines: true,
-      complete: (results) => {
-        resolve(results?.data as T[]);
-      },
-      error: (error) => {
-        reject(error);
-      },
-    });
-  });
+  return csvWorker.parseCsv(url, options) as Promise<T[]>;
 }
