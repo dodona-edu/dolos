@@ -31,7 +31,7 @@
 
 <script lang="ts" setup>
 import { shallowRef, onMounted, watchEffect, computed } from "vue";
-import { usePairStore, useMetadataStore } from "@/api/stores";
+import { usePairStore, useMetadataStore } from "@/stores/report";
 import { Pair } from "@/api/models";
 import { useRoute } from "vue-router";
 

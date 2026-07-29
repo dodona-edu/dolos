@@ -53,7 +53,9 @@ export async function serve(reportDir: string, options: ServeOptions): Promise<v
       }
     } catch (e) {
       error(e.message);
-      throw new Error(`The given path '${reportDir}' does not seem like a Dolos report.`);
+      throw new Error(`The given path '${reportDir}' does not seem like a Dolos report.`, {
+        cause: e
+      });
     }
     await runServer(reportDir, options);
   });

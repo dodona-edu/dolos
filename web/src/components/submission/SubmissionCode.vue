@@ -6,7 +6,7 @@
 import { onMounted, onUnmounted, ref, shallowRef } from "vue";
 import * as monaco from "monaco-editor";
 import { File } from "@/api/models";
-import { useMetadataStore } from "@/api/stores";
+import { useMetadataStore } from "@/stores/report";
 
 interface Props {
   file: File;
@@ -18,7 +18,7 @@ const metadata = useMetadataStore();
 // Editor template ref
 const editorElem = ref();
 // Monaco editor
-const editor = shallowRef<monaco.editor.IEditorOverrideServices>();
+const editor = shallowRef<monaco.editor.IStandaloneCodeEditor>();
 
 // Initialize the editor.
 const initialize = (): void => {

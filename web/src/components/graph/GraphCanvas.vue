@@ -38,7 +38,7 @@ import { storeToRefs } from "pinia";
 import { File, Legend, Pair } from "@/api/models";
 import { Clustering, Cluster } from "@/util/clustering-algorithms/ClusterTypes";
 import { useD3ForceGraph, Node, Edge, Group } from "@/composables/d3/useD3ForceGraph";
-import { useApiStore, useFileStore } from "@/api/stores";
+import { useSettingsStore, useFileStore } from "@/stores/report";
 
 interface Props {
   showSingletons: boolean;
@@ -74,7 +74,7 @@ const width = computed<number>(() => props.width ?? containerSize.width.value);
 const height = computed<number>(() => props.height ?? containerSize.height.value);
 
 const fileStore = useFileStore();
-const { cutoffDebounced } = storeToRefs(useApiStore());
+const { cutoffDebounced } = storeToRefs(useSettingsStore());
 
 const graph = useD3ForceGraph({
   container: container,

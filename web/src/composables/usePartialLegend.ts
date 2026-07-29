@@ -2,7 +2,7 @@ import { storeToRefs } from "pinia";
 import { WritableComputedRef, computed, unref } from "vue";
 import { MaybeRef } from "@/util/Types";
 import { File, Legend } from "@/api/models";
-import { useFileStore } from "@/api/stores";
+import { useFileStore } from "@/stores/report";
 
 /**
  * Create a partial legend for the given files.

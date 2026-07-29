@@ -1,9 +1,10 @@
 import type {  Edge, Node, D3Node, Group } from "@/composables/d3/graph/data";
 import { onMounted, onUnmounted, ShallowRef, Ref, shallowRef } from "vue";
-import { useDebounceFn } from "@vueuse/core";
+import { useDebounceFn, useEventListener } from "@vueuse/core";
 import * as d3 from "d3";
 import { Data } from "@/composables/d3/graph/data";
 import { createSimulation } from "@/composables/d3/graph/simulation";
+import { seedClusterLayout } from "@/composables/d3/graph/layout";
 import {
   createDrag,
   createSelect,
@@ -12,7 +13,7 @@ import {
 
 export { Node, Edge, Group };
 
-export interface D3ForceGraphOptions {
+interface D3ForceGraphOptions {
   nodeSize: Ref<number>,
   container: ShallowRef<HTMLElement | undefined>;
   nodeTooltip: Ref<boolean>;
@@ -21,7 +22,7 @@ export interface D3ForceGraphOptions {
   height: Ref<number>,
 }
 
-export interface D3ForceGraph {
+interface D3ForceGraph {
   update(nodes: Node[], edges: Edge[], clusters: Group[]): void;
   paused: ShallowRef<boolean>;
   selectedNode: ShallowRef<Node | undefined>;
@@ -32,14 +33,26 @@ export interface D3ForceGraph {
 export function useD3ForceGraph(options: D3ForceGraphOptions): D3ForceGraph {
   const data = new Data();
   const context: CanvasRenderingContext2D = document.createElement("canvas").getContext("2d")!;
+
   const simulation = createSimulation(context, data);
+
+
   const selectedNode = shallowRef();
   const selectedGroup = shallowRef();
+  let seeded = false;
 
   // This function will update the (initially empty) selection of nodes and edges to represent
   // the given files and pairs.
   const update = (nodes: Node[], edges: Edge[], groups: Group[]): void => {
     data.update(nodes, edges, groups);
+    // On the first render, seed deterministic cluster-grouped start positions
+    // before the simulation assigns its own (origin phyllotaxis), so the layout
+    // settles reproducibly. Later updates keep the existing layout and let any
+    // newly added nodes slot into it.
+    if (!seeded) {
+      seedClusterLayout(data);
+      seeded = true;
+    }
     simulation.nodes(data.nodes);
     simulation.links(data.edges);
     simulation.reheat();
@@ -54,7 +67,10 @@ export function useD3ForceGraph(options: D3ForceGraphOptions): D3ForceGraph {
     simulation.redraw();
   };
 
-  window.addEventListener("resize", useDebounceFn(resize, 200));
+  // useEventListener removes the listener automatically when the component's
+  // effect scope is disposed (unmount), so the graph view can mount/unmount
+  // repeatedly without leaking listeners (and the captured simulation/canvas).
+  useEventListener(window, "resize", useDebounceFn(resize, 200));
 
   // Add the graph to the container.
   onMounted(() => {

@@ -1,6 +1,6 @@
 import { Label, Selection } from "@/api/models";
 
-export interface FileIndeterminate {
+interface FileIndeterminate {
   id: number;
   path: string;
   shortPath: string;

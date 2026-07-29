@@ -27,25 +27,3 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {});
 </script>
 
-<style lang="scss" scoped>
-.graph-list {
-  max-height: v-bind("props.maxHeight");
-
-  &-row {
-    cursor: pointer;
-    transition: background-color 0.15s ease;
-
-    &.selected {
-      background-color: #f0f0f0;
-    }
-
-    &-label {
-      background-color: grey;
-      width: 10px;
-      height: 10px;
-      display: block;
-      border-radius: 50%;
-    }
-  }
-}
-</style>

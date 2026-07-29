@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { usePairStore } from "@/api/stores";
+import { usePairStore } from "@/stores/report";
 import Overview from "./overview.vue";
 import Pair from "./pair.vue";
 

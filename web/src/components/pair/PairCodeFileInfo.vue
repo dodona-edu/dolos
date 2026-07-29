@@ -47,7 +47,7 @@
 
 <script lang="ts" setup>
 import { File } from "@/api/models";
-import { useFileStore } from "@/api/stores";
+import { useFileStore } from "@/stores/report";
 import { storeToRefs } from "pinia";
 import { computed } from "vue";
 

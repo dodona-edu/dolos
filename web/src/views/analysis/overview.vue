@@ -1,7 +1,7 @@
 <template>
   <div>
     <SurveyAlert></SurveyAlert>
-    <div class="hero">
+    <div class="pb-4">
       <h2 v-if="reportName" class="hero-title">
         {{ reportName }}
       </h2>
@@ -131,7 +131,7 @@
             <div class="stat-card-value">{{ clustering.length }}</div>
             <div class="stat-card-subtitle text-medium-emphasis">
               Based on the current threshold ({{
-                (apiStore.cutoff * 100).toFixed(0)
+                (settingsStore.cutoff * 100).toFixed(0)
               }}%)
             </div>
           </div>
@@ -166,7 +166,7 @@
               field="similarity"
               :ticks="20"
               :calculate-bin-color="calculateBinColor"
-              :line-value="apiStore.cutoff"
+              :line-value="settingsStore.cutoff"
               line-text="Threshold"
             />
           </v-card-text>
@@ -238,13 +238,13 @@ import { storeToRefs } from "pinia";
 import { Pair } from "@/api/models";
 import { DateTime } from "luxon";
 import {
-  useApiStore,
+  useSettingsStore,
   useFileStore,
   usePairStore,
   useMetadataStore,
-} from "@/api/stores";
+} from "@/stores/report";
 
-const apiStore = useApiStore();
+const settingsStore = useSettingsStore();
 const fileStore = useFileStore();
 const pairStore = usePairStore();
 const metadataStore = useMetadataStore();
@@ -319,15 +319,16 @@ const clustersCount = computed(() => sortedClustering.value.length);
 const calculateBinColor = (x0: number, x1: number): string => {
   // If the x1 coordinate is below the threshold return an greyed out color.
   // x1 represents the end value of the bin.
-  return x1 <= apiStore.cutoff ? "rgba(25, 118, 210, 0.25)" : "#1976D2";
+  return x1 <= settingsStore.cutoff ? "rgba(25, 118, 210, 0.25)" : "#1976D2";
 };
 
 </script>
 
 <style lang="scss" scoped>
-.hero {
-  padding-bottom: 1rem;
+@use 'sass:map';
+@use 'vuetify/settings' as vuetify;
 
+.hero {
   &-title {
     text-transform: capitalize;
     font-size: 2.5rem;
@@ -360,7 +361,7 @@ const calculateBinColor = (x0: number, x1: number): string => {
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 8px !important;
+    border-radius: 8px;
     position: relative;
     overflow: hidden;
     z-index: 1;
@@ -404,6 +405,30 @@ const calculateBinColor = (x0: number, x1: number): string => {
   &-subtitle {
     font-size: 1rem;
     font-weight: 500;
+  }
+
+  // The labels table can be tall (many labels). Take it out of normal flow so
+  // its content does NOT dictate the card/row height — the row height is driven
+  // by the three stat cards instead, and this card stretches to match. The
+  // table (absolutely positioned) then fills the leftover space this box
+  // flex-grows into, and scrolls internally once it overflows.
+  &-labels {
+    position: relative;
+    flex: 1 1 0;
+    min-height: 0;
+
+    :deep(.labels) {
+      position: absolute;
+      inset: 0;
+    }
+
+    // Below the md breakpoint the columns stack, so there is no sibling column
+    // to stretch this card against and the flex-basis:0 box would collapse to
+    // nothing. Give it a real height to fall back on.
+    @media (max-width: (map.get(vuetify.$grid-breakpoints, 'md') - 0.02)) {
+      flex: none;
+      height: 300px;
+    }
   }
 
   &-actions {

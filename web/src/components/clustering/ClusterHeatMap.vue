@@ -8,7 +8,7 @@
 <script lang="ts" setup>
 import { shallowRef, computed, watch, onMounted, toRef } from "vue";
 import { storeToRefs } from "pinia";
-import { useFileStore, usePairStore, useApiStore } from "@/api/stores";
+import { useFileStore, usePairStore, useSettingsStore } from "@/stores/report";
 import { useCluster, useD3Tooltip } from "@/composables";
 import { Pair, File } from "@/api/models";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
@@ -26,7 +26,7 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {});
 const router = useRouter();
 const { filesActiveById } = storeToRefs(useFileStore());
-const { cutoff, cutoffDebounced } = storeToRefs(useApiStore());
+const { cutoff, cutoffDebounced } = storeToRefs(useSettingsStore());
 const { pairsActiveList } = storeToRefs(usePairStore());
 const { clusterFiles } = useCluster(toRef(props, "cluster"));
 

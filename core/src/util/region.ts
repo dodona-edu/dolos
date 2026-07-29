@@ -139,12 +139,10 @@ export class Region {
         // If we used to be covered by the source region (hasStarted) and by no child regions (stack size == 0)
         // then this region is 'good'.
         if(stack.size == 0 && hasStarted) {
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           return new Region(...firstPoint!, ...p);
         }
 
         // Register that the current region is covered by a child
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         stack.add(pointMap.get(p)!);
 
       } else {
@@ -160,7 +158,6 @@ export class Region {
     }
 
     if(stack.size == 0) {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       return new Region(...firstPoint!, ...endPoint);
     } else {
       return null;

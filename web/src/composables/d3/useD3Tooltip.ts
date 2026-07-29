@@ -1,7 +1,7 @@
 import * as d3 from "d3";
 import { onUnmounted } from "vue";
 
-export interface UseD3TooltipOptions {
+interface UseD3TooltipOptions {
   // If the tooltip should be relative to the target element.
   relativeToTarget?: boolean;
   // If the tooltip should be relative to the mouse.
@@ -9,7 +9,7 @@ export interface UseD3TooltipOptions {
   parent?: HTMLElement;
 }
 
-export interface UseD3TooltipReturn {
+interface UseD3TooltipReturn {
   tooltip: d3.Selection<HTMLDivElement, unknown, HTMLElement, any>;
   show: (value: string) => void;
   hide: () => void;
@@ -100,8 +100,9 @@ export function useD3Tooltip(options: UseD3TooltipOptions = {}): UseD3TooltipRet
     moveTo(0, 0);
   };
 
-  // Hide the tooltip on unmount.
-  onUnmounted(() => onMouseOut());
+  // Remove the appended tooltip nodes on unmount; otherwise every mount/unmount
+  // of a tooltip-using component leaves an orphaned <div> in the parent.
+  onUnmounted(() => parent.remove());
 
   return {
     tooltip,

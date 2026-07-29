@@ -40,7 +40,7 @@ import { File } from "@/api/models";
 import { Cluster } from "@/util/clustering-algorithms/ClusterTypes";
 import { getClusterElementsArray } from "@/util/clustering-algorithms/ClusterFunctions";
 import { timestampSort } from "@/util/SortingFunctions";
-import { useFileStore } from "@/api/stores";
+import { useFileStore } from "@/stores/report";
 import { storeToRefs } from "pinia";
 
 interface Props {
@@ -60,11 +60,6 @@ const files = computed(() => {
   return getClusterElementsArray(props.cluster).sort(
     timestampSort<File>((f) => f.extra.timestamp || new Date())
   );
-});
-
-// Row cursor
-const rowCursor = computed(() => {
-  return props.clickable ? "pointer" : "default";
 });
 
 watch(
@@ -90,30 +85,9 @@ watch(
     white-space: nowrap;
   }
 
-  &-row {
-    cursor: v-bind("rowCursor");
-    transition: background-color 0.15s ease;
-
-    &.selected {
-      background-color: #f0f0f0;
-    }
-
-    &-label {
-      background-color: grey;
-      width: 10px;
-      height: 10px;
-      display: block;
-      border-radius: 50%;
-    }
-  }
-
-  &-body {
-    tr {
-      &:hover {
-        cursor: pointer;
-        background-color: rgba(0, 0, 0, 0.03) !important;
-      }
-    }
+  &-body tr:hover {
+    cursor: pointer;
+    background-color: rgba(0, 0, 0, 0.03);
   }
 }
 </style>

@@ -107,7 +107,7 @@ export interface Group {
   nodeIds: number[];
 }
 
-export class D3Group implements Group {
+class D3Group implements Group {
   id: number;
   nodeIds: number[] = [];
   nodes: D3Node[] = [];

@@ -1,6 +1,6 @@
 <template>
   <div class="submissions">
-    <v-row class="heading" align="center">
+    <v-row class="pb-4" align="center">
       <v-col cols="12" md="6">
         <h2 class="heading-title">
           Clusters
@@ -18,7 +18,7 @@
 </template>
 
 <script lang="ts" setup>
-import { usePairStore } from "@/api/stores";
+import { usePairStore } from "@/stores/report";
 import { storeToRefs } from "pinia";
 
 const pairStore = usePairStore();

@@ -8,7 +8,7 @@
           :previous-fallback-to="{ name: 'Submissions' }"
         />
 
-        <div class="heading">
+        <div class="pb-4">
           <h2 class="heading-title">
             Submission by {{ file.extra.fullName ?? file.shortPath }}
           </h2>
@@ -172,7 +172,7 @@
 <script lang="ts" setup>
 import { computed } from "vue";
 import { File } from "@/api/models";
-import { useFileStore, usePairStore } from "@/api/stores";
+import { useFileStore, usePairStore } from "@/stores/report";
 import { useCluster } from "@/composables";
 import { storeToRefs } from "pinia";
 import { useRoute, useRouter } from "vue-router";

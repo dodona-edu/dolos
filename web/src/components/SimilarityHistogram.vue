@@ -3,7 +3,7 @@
 </template>
 
 <script lang="ts" setup>
-import { useFileStore } from "@/api/stores";
+import { useFileStore } from "@/stores/report";
 import { useD3Tooltip } from "@/composables";
 import { useElementSize } from "@vueuse/core";
 import { storeToRefs } from "pinia";

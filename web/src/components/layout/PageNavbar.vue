@@ -71,7 +71,7 @@
 import { useVModel } from "@vueuse/core";
 import { storeToRefs } from "pinia";
 import { useReportsStore } from "@/stores";
-import { useMetadataStore } from "@/api/stores";
+import { useMetadataStore } from "@/stores/report";
 import { ref } from "vue";
 import { computed } from "vue";
 import { useDisplay } from "vuetify";

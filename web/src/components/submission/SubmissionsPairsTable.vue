@@ -16,7 +16,7 @@
     </template>
 
     <template #item.label="{ item }">
-      <span class="submission-label">
+      <span class="d-flex align-center ga-2">
         <label-dot :label="item.label.name" :color="item.label.color" />
         <label-text :label="item.label.name" />
       </span>
@@ -89,7 +89,7 @@
 
 <script lang="ts" setup>
 import { computed } from "vue";
-import { useFileStore, usePairStore } from "@/api/stores";
+import { useFileStore, usePairStore } from "@/stores/report";
 import { File } from "@/api/models";
 import { storeToRefs } from "pinia";
 import { useRouter } from "vue-router";
@@ -209,12 +209,3 @@ const rowClicked = (e: Event, value: any) => {
 };
 </script>
 
-<style lang="scss" scoped>
-.submission {
-  &-label {
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
-  }
-}
-</style>

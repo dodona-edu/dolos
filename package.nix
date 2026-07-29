@@ -5,11 +5,11 @@
 }:
 buildNpmPackage rec {
   pname = "dolos";
-  version = "2.9.2";
+  version = "2.9.3";
 
   src = ./.;
 
-  npmDepsHash = "sha256-Mfhzj28+NIYBN8nQ9lN/dhVJDH+xIgkENkLsM9OOmlY=";
+  npmDepsHash = "sha256-FWOEULM0LsGrgGtu/InU1DulMhniEg2VNtREwsURQtw=";
 
   npmWorkspace="cli";
 
@@ -31,6 +31,15 @@ buildNpmPackage rec {
   buildInputs = [ unzip ];
 
   buildPhase = ''
+    # npmConfigHook only patches the root node_modules; after the TypeScript
+    # version bump npm stopped fully hoisting tsc, so workspace-local
+    # node_modules/.bin directories also need their shebangs fixed.
+    for dir in core parsers lib web cli; do
+      if [ -d "$dir/node_modules" ]; then
+        patchShebangs "$dir/node_modules"
+      fi
+    done
+
     # Build each needed workspace
     for dir in core parsers lib web cli; do
         echo "Building dolos-$dir"
@@ -53,6 +62,25 @@ buildNpmPackage rec {
             cp "$dir/$file" "$dest"
         done < <(${jq}/bin/jq --raw-output '.[0].files | map(.path | select(. | startswith("node_modules/") | not)) | join("\n")' <<< "$(npm_config_cache="$HOME/.npm" npm pack --json --dry-run --loglevel=warn --no-foreground-scripts --workspace="$dir")")
     done
+
+    # Some CLI runtime dependencies can remain workspace-local and not be present
+    # in the packaged node_modules tree (e.g. cliui after version bumps).
+    # Copy any missing modules from cli/node_modules into the final package.
+    if [ -d cli/node_modules ]; then
+      for module in cli/node_modules/* cli/node_modules/@*/*; do
+        if [ ! -e "$module" ]; then
+          continue
+        fi
+        rel=$(printf '%s' "$module" | sed 's#^cli/node_modules/##')
+        dest="$packageOut/node_modules/$rel"
+        if [ -e "$dest" ]; then
+          continue
+        fi
+        mkdir -p "$(dirname "$dest")"
+        cp -rL "$module" "$dest"
+      done
+    fi
+
     # dolos-parsers does not include the built parsers with npm pack, copy them
     cp -r parsers/build "$packageOut/node_modules/@dodona/dolos-parsers"
   '';

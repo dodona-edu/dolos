@@ -1,6 +1,6 @@
 import { UploadReportStatus } from "./UploadReportStatus";
 
-export type UploadReport = {
+type UploadReport = {
   name: string;
   date: string;
   status: UploadReportStatus;
