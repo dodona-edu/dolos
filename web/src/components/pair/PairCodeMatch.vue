@@ -3,7 +3,7 @@
     <pair-code-match-editor
       v-model:hoveringMatch="hoveringMatch"
       v-model:selectedMatch="selectedMatch"
-      class="fill-height fill-width"
+      class="fill-height w-100"
       side="left"
       :pair="pair"
       :metadata="props.metadata"
@@ -11,7 +11,7 @@
     <pair-code-match-editor
       v-model:selectedMatch="selectedMatch"
       v-model:hoveringMatch="hoveringMatch"
-      class="fill-height fill-width"
+      class="fill-height w-100"
       side="right"
       :pair="pair"
       :metadata="props.metadata"

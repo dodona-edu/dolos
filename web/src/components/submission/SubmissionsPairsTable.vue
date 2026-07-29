@@ -16,7 +16,7 @@
     </template>
 
     <template #item.label="{ item }">
-      <span class="submission-label">
+      <span class="d-flex align-center ga-2">
         <label-dot :label="item.label.name" :color="item.label.color" />
         <label-text :label="item.label.name" />
       </span>
@@ -209,12 +209,3 @@ const rowClicked = (e: Event, value: any) => {
 };
 </script>
 
-<style lang="scss" scoped>
-.submission {
-  &-label {
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
-  }
-}
-</style>

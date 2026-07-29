@@ -396,21 +396,3 @@ watch(
   </v-card>
 </template>
 
-<style lang="scss" scoped>
-.upload {
-  &-stepper {
-    :deep(.v-stepper__content) {
-      padding: 0;
-    }
-  }
-}
-
-.info-list {
-  &-item {
-    display: flex;
-    gap: 0.5rem;
-    width: 100%;
-  }
-}
-
-</style>

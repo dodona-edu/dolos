@@ -61,7 +61,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: [ "20", "22" ]
+        node: [ "22", "24" ]
       fail-fast: false
     steps:
       - name: Checkout 🛎️
@@ -70,7 +70,7 @@ jobs:
           submodules: true
       - name: Cache npm dependencies
         id: cache-dependencies
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: |
             ${{ github.workspace }}/node_modules
@@ -80,7 +80,7 @@ jobs:
 
       - name: Setup Node 📚
         if: steps.cache-dependencies.outputs.cache-hit != 'true'
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: ${{ matrix.node }}
 
@@ -94,7 +94,7 @@ jobs:
     needs: install-deps
     strategy:
       matrix:
-        node:  [ "20", "22" ]
+        node:  [ "22", "24" ]
       fail-fast: false
     steps:
       - name: Checkout 🛎️
@@ -103,13 +103,13 @@ jobs:
           submodules: true
 
       - name: Setup Node 📚
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: ${{ matrix.node }}
 
       - name: Fetch Dependencies ⚡️
         id: cache-dependencies
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: |
             ${{ github.workspace }}/node_modules
@@ -134,20 +134,20 @@ jobs:
     needs: install-deps
     strategy:
       matrix:
-        node: [ "22" ]
+        node: [ "24" ]
       fail-fast: false
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v7
 
       - name: Setup Node 📚
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: ${{ matrix.node }}
 
       - name: Fetch Dependencies ⚡️
         id: cache-dependencies
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: |
             ${{ github.workspace }}/node_modules
@@ -172,20 +172,20 @@ jobs:
     needs: install-deps
     strategy:
       matrix:
-        node: [ "20", "22" ]
+        node: [ "22", "24" ]
       fail-fast: false
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v7
 
       - name: Setup Node 📚
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: ${{ matrix.node }}
 
       - name: Fetch Dependencies ⚡️
         id: cache-dependencies
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: |
             ${{ github.workspace }}/node_modules
@@ -211,20 +211,20 @@ jobs:
     needs: install-deps
     strategy:
       matrix:
-        node: [ "22" ]
+        node: [ "24" ]
       fail-fast: false
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v7
 
       - name: Setup Node 📚
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: ${{ matrix.node }}
 
       - name: Fetch Dependencies ⚡️
         id: cache-dependencies
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: |
             ${{ github.workspace }}/node_modules
@@ -249,7 +249,7 @@ jobs:
     needs: install-deps
     strategy:
       matrix:
-        node: [ "20", "22" ]
+        node: [ "22", "24" ]
       fail-fast: false
     steps:
       - name: Checkout 🛎️
@@ -258,13 +258,13 @@ jobs:
           submodules: true
 
       - name: Setup Node 📚
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: ${{ matrix.node }}
 
       - name: Fetch Dependencies ⚡️
         id: cache-dependencies
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: |
             ${{ github.workspace }}/node_modules
@@ -290,7 +290,7 @@ jobs:
     needs: install-deps
     strategy:
       matrix:
-        node: [ "20", "22" ]
+        node: [ "22", "24" ]
       fail-fast: false
     steps:
       - name: Checkout 🛎️
@@ -299,13 +299,13 @@ jobs:
           submodules: true
 
       - name: Setup Node 📚
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: ${{ matrix.node }}
 
       - name: Fetch Dependencies ⚡️
         id: cache-dependencies
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: |
             ${{ github.workspace }}/node_modules
@@ -330,20 +330,20 @@ jobs:
     needs: install-deps
     strategy:
       matrix:
-        node: [ "22" ]
+        node: [ "24" ]
       fail-fast: false
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v7
 
       - name: Setup Node 📚
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: ${{ matrix.node }}
 
       - name: Fetch Dependencies ⚡️
         id: cache-dependencies
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: |
             ${{ github.workspace }}/node_modules
@@ -369,7 +369,7 @@ jobs:
     needs: install-deps
     strategy:
       matrix:
-        node: [ "22" ]
+        node: [ "24" ]
       fail-fast: false
     steps:
       - name: Checkout 🛎️
@@ -378,13 +378,13 @@ jobs:
           submodules: true
 
       - name: Setup Node 📚
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: ${{ matrix.node }}
 
       - name: Fetch Dependencies ⚡️
         id: cache-dependencies
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: |
             ${{ github.workspace }}/node_modules
@@ -439,20 +439,20 @@ jobs:
     needs: install-deps
     strategy:
       matrix:
-        node: [ "22" ]
+        node: [ "24" ]
       fail-fast: false
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v7
 
       - name: Setup Node 📚
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: ${{ matrix.node }}
 
       - name: Fetch Dependencies ⚡️
         id: cache-dependencies
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: |
             ${{ github.workspace }}/node_modules
@@ -477,20 +477,20 @@ jobs:
     needs: install-deps
     strategy:
       matrix:
-        node: [ "22" ]
+        node: [ "24" ]
       fail-fast: false
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v7
 
       - name: Setup Node 📚
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: ${{ matrix.node }}
 
       - name: Fetch Dependencies ⚡️
         id: cache-dependencies
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: |
             ${{ github.workspace }}/node_modules
@@ -567,14 +567,14 @@ jobs:
     needs: install-deps
     strategy:
       matrix:
-        node:  [ "22" ]
+        node:  [ "24" ]
       fail-fast: false
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v7
 
       - name: Setup Node 📚
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: ${{ matrix.node }}
 
@@ -613,7 +613,7 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/v')
     strategy:
       matrix:
-        node:  [ "22" ]
+        node:  [ "24" ]
       fail-fast: false
     permissions:
       contents: write
@@ -625,13 +625,13 @@ jobs:
           submodules: true
 
       - name: Setup Node 📚
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: ${{ matrix.node }}
 
       - name: Fetch Dependencies ⚡️
         id: cache-dependencies
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: |
             ${{ github.workspace }}/node_modules
@@ -730,11 +730,11 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: [ "22" ]
+        node: [ "24" ]
       fail-fast: false
     steps:
       - name: Setup Node 📚
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: ${{ matrix.node }}
 
@@ -826,7 +826,7 @@ jobs:
           submodules: true
 
       - name: Setup Node 📚
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: ${{ matrix.node }}
 
