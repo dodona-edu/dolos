@@ -1,3 +1,7 @@
 #!/usr/bin/env sh
-cargo fmt -- --check
-cargo clippy --features all-languages -- -D warnings
+failed=0
+
+cargo fmt --all -- --check || failed=1
+cargo clippy --workspace --all-targets --features all-languages -- -D warnings || failed=1
+
+exit "$failed"
