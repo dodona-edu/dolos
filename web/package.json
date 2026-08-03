@@ -25,7 +25,7 @@
     "@babel/types": "^8.0.4",
     "@dodona/dolos-core": "1.2.1",
     "@mdi/font": "7.4.47",
-    "@playwright/test": "1.62.0",
+    "@playwright/test": "1.61.1",
     "@types/d3": "7.4.3",
     "@types/luxon": "^3.4.2",
     "@types/node": "^26.1.1",
