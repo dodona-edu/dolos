@@ -1,5 +1,6 @@
 { lib
 , buildNpmPackage
+, importNpmLock
 , jq
 , unzip
 }:
@@ -9,7 +10,7 @@ buildNpmPackage rec {
 
   src = ./.;
 
-  npmDepsHash = "sha256-a+9VvtFob76qidYVnDXZ5W6zAfzOHEK25PiUCsEtm1U=";
+  npmDepsHash = "sha256-TBUyZ/JBG/6UIylH4tn/t78Ox1EC8OsDWIdHkN72lfk=";
 
   npmWorkspace="cli";
 
