@@ -54,7 +54,7 @@ impl<'a> MatchCollector<'a> {
             let (_, _, left_start, right_start) =
                 ordered_pair_with(sp1.sequence_index, sp2.sequence_index, sp1.start, sp2.start);
             m.get_mut(sp1.sequence_index, sp2.sequence_index)
-                .push(Match { left_start, right_start, length, ignored: false });
+                .push(Match { left_start, right_start, length });
         }
     }
 

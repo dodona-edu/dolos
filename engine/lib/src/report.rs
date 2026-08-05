@@ -250,7 +250,7 @@ mod tests {
         raw_matches.set(
             0,
             1,
-            vec![Match { left_start: 0, right_start: 0, length: 2, ignored: false }],
+            vec![Match { left_start: 0, right_start: 0, length: 2 }],
         );
 
         let fragments = Report::resolve_fragments(raw_matches, locations, &None);
@@ -331,8 +331,8 @@ mod tests {
             0,
             1,
             vec![
-                Match { left_start: 0, right_start: 0, length: 1, ignored: false },
-                Match { left_start: 1, right_start: 1, length: 2, ignored: false },
+                Match { left_start: 0, right_start: 0, length: 1 },
+                Match { left_start: 1, right_start: 1, length: 2 },
             ],
         );
 

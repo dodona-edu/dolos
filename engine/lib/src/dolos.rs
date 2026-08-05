@@ -134,8 +134,6 @@ impl Dolos {
             &self.hashes,
             self.metadata.min_length_match,
             self.metadata.include_fragments,
-            &self.ignore_hashes,
-            self.metadata.max_fingerprint_file_count,
         );
         Report::new(result, self.files, self.locations, self.metadata)
     }

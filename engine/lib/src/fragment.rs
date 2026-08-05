@@ -11,11 +11,6 @@ pub struct Fragment {
     pub right_region: Region,
     /// Number of fingerprints in this match.
     pub fingerprint_count: usize,
-    /// Whether this fragment comes from an ignored or too-common substring.
-    ///
-    /// Ignored fragments are excluded from similarity and `longest_fragment`
-    /// metrics but are still reported so callers can inspect or visualise them.
-    pub ignored: bool,
 }
 
 impl Fragment {
@@ -32,7 +27,6 @@ impl Fragment {
                 &right_locs[m.right_start + m.length - 1],
             ),
             fingerprint_count: m.length,
-            ignored: m.ignored,
         }
     }
 }
@@ -52,7 +46,7 @@ mod tests {
             Region::new(Point::new(20, 0), Point::new(20, 10)),
             Region::new(Point::new(21, 0), Point::new(22, 12)),
         ];
-        let m = Match { left_start: 0, right_start: 0, length: 2, ignored: false };
+        let m = Match { left_start: 0, right_start: 0, length: 2 };
 
         let frag = Fragment::resolve(&m, &left_locs, &right_locs);
 
@@ -62,17 +56,5 @@ mod tests {
         assert_eq!(frag.left_region, expected_left_region);
         assert_eq!(frag.right_region, expected_right_region);
         assert_eq!(frag.fingerprint_count, 2);
-        assert!(!frag.ignored);
-    }
-
-    #[test]
-    fn resolve_propagates_ignored_flag() {
-        let left_locs = vec![Region::new(Point::new(0, 0), Point::new(0, 5))];
-        let right_locs = vec![Region::new(Point::new(1, 0), Point::new(1, 5))];
-        let m = Match { left_start: 0, right_start: 0, length: 1, ignored: true };
-
-        let frag = Fragment::resolve(&m, &left_locs, &right_locs);
-
-        assert!(frag.ignored);
     }
 }

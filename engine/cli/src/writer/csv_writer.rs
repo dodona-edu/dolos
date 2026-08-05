@@ -19,7 +19,6 @@ const FRAGMENTS_HEADER: &[&str] = &[
     "file2_start_point",
     "file2_end_point",
     "fingerprint_count",
-    "ignored",
 ];
 const PAIRS_HEADER: &[&str] = &[
     "file1_id",
@@ -136,7 +135,6 @@ impl OutputWriter for CsvWriter {
                         format!("{}:{}", right_start.row, right_start.column),
                         format!("{}:{}", right_end.row, right_end.column),
                         fragment.fingerprint_count.to_string(),
-                        fragment.ignored.to_string(),
                     ])
                     .map_err(Error::other)?;
             }
