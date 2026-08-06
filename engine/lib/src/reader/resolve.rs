@@ -111,10 +111,11 @@ mod tests {
         fs::write(sub.join("c.txt"), "").unwrap();
 
         let files = collect_recursive(tmp.path()).unwrap();
-        let names: Vec<_> = files
+        let mut names: Vec<_> = files
             .iter()
             .map(|p| p.file_name().unwrap().to_str().unwrap())
             .collect();
+        names.sort();
         assert_eq!(names, ["a.txt", "b.txt", "c.txt"]);
     }
 
