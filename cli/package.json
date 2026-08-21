@@ -29,7 +29,7 @@
   },
   "devDependencies": {
     "@types/node": "^26.2.0",
-    "typescript-eslint": "^8.66.0" ,
+    "typescript-eslint": "^8.67.0" ,
     "eslint": "^10.8.1",
     "@eslint/js": "^10.0.1",
     "typescript": "7.0.2"
@@ -41,7 +41,7 @@
     "cliui": "^9.0.1",
     "commander": "^15.0.0",
     "csv-stringify": "^6.8.3",
-    "open": "^11.0.0",
+    "open": "^11.0.1",
     "tree-sitter": "^0.25.1"
   },
   "bugs": {
