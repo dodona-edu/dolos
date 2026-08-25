@@ -63,7 +63,7 @@ group :development do
   # gem "spring"
   gem 'annotaterb', '~> 4.24' # Remove workaround in lib/tasks/annotate.rb when https://github.com/ctran/annotate_models/issues/696 is fixed
   gem 'rubocop-minitest', '~> 0.40.0'
-  gem 'rubocop-rails', '~> 2.36'
+  gem 'rubocop-rails', '~> 2.37'
 end
 
 # Use Capistrano for deployment
