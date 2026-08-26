@@ -1484,9 +1484,9 @@ dependencies = [
 
 [[package]]
 name = "tree-sitter"
-version = "0.26.12"
+version = "0.26.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "83c567a8e18ae93f20982c90370b16fd24023aeaf52f6052b96957ab253a0fec"
+checksum = "17ebdd3a5a7e28a1890b876fdbd0c3c0fe0a6336cffaa104f11b9f720c9daa29"
 dependencies = [
  "cc",
  "regex",
@@ -1689,7 +1689,7 @@ dependencies = [
 [[package]]
 name = "tree-sitter-modelica"
 version = "0.2.2"
-source = "git+https://github.com/OpenModelica/tree-sitter-modelica.git#9c2840152acf8debac7532c555a6e5f028e42158"
+source = "git+https://github.com/OpenModelica/tree-sitter-modelica.git#96eebbdcc6a2a05c0d5769a2c4cf23eb84ac7bed"
 dependencies = [
  "cc",
  "tree-sitter-language",
