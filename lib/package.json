@@ -30,8 +30,8 @@
     "@types/d3-dsv": "3.0.7",
     "@types/node": "^26.2.0",
     "ava": "8.0.1",
-    "typescript-eslint": "^8.66.0" ,
-    "eslint": "^10.8.1",
+    "typescript-eslint": "^8.67.0" ,
+    "eslint": "^10.9.0",
     "@eslint/js": "^10.0.1",
     "typescript": "7.0.2"
   },
