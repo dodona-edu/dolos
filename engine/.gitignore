@@ -14,3 +14,6 @@ target/
 ### Output files ###
 *.csv
 dolos-report-*/
+
+### Claude ###
+CLAUDE.local.md
