@@ -129,16 +129,11 @@ impl Dolos {
 
     /// Run the suffix-tree analysis and build a [`Report`].
     pub fn build_report(self) -> Report {
-        let mut tree = SuffixTree::build(&self.hashes);
-        tree.add_ignored_sequences(&self.hashes, &self.ignore_hashes);
-        let exclude_ignored =
-            self.metadata.max_fingerprint_file_count.is_some() || !self.ignore_hashes.is_empty();
+        let tree = SuffixTree::build(&self.hashes);
         let result = tree.analyze(
             &self.hashes,
             self.metadata.min_length_match,
             self.metadata.include_fragments,
-            exclude_ignored,
-            self.metadata.max_fingerprint_file_count,
         );
         Report::new(result, self.files, self.locations, self.metadata)
     }

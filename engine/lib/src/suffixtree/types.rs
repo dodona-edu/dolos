@@ -34,11 +34,6 @@ pub struct Match {
     pub right_start: usize,
     /// Number of consecutive matching fingerprints.
     pub length: usize,
-    /// Whether this match comes from an ignored or too-common substring.
-    ///
-    /// Ignored matches are excluded from similarity and `longest_fragment`
-    /// metrics but are still stored so callers can inspect or visualise them.
-    pub ignored: bool,
 }
 
 /// Per-pair metrics produced by the suffix-tree analysis.

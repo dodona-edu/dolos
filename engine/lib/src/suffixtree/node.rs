@@ -14,8 +14,6 @@ pub struct Node {
     pub children: Option<HashMap<SymbolType, NodeIndex>>,
     /// Indices of sequences that have a suffix ending at this leaf node.
     pub sequence_indices: Option<HashSet<usize>>,
-    /// Whether this node is part of the ignored sequence list.
-    pub ignore: bool,
 }
 
 impl Node {
@@ -32,14 +30,7 @@ impl Node {
         link: Option<NodeIndex>,
         sequence_indices: Option<HashSet<usize>>,
     ) -> Node {
-        Node {
-            range,
-            children,
-            parent,
-            link,
-            sequence_indices,
-            ignore: false,
-        }
+        Node { range, children, parent, link, sequence_indices }
     }
 
     pub fn create_leaf(range: Range, parent: NodeIndex) -> Node {

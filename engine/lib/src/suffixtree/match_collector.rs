@@ -1,7 +1,6 @@
 use crate::collections::pair_array::PairArray;
 use crate::collections::pair_bitmap::PairBitmap;
 use crate::collections::utils::ordered_pair_with;
-use crate::collections::vec_bitmap::VecBitmap;
 use crate::suffixtree::types::{AnalysisResult, Match, PairMetrics, StartPosition, SymbolType};
 
 /// Collects and processes matches found during tree traversal.
@@ -12,11 +11,6 @@ pub struct MatchCollector<'a> {
     longest_fragments: PairArray<usize>,
     /// Bitmap tracking which positions have been covered by matches, per sequence pair.
     overlap_bitmap: PairBitmap,
-    /// Bitmap tracking which positions belong to ignored substrings, per sequence.
-    ///
-    /// Only present when `exclude_ignored` is `true`. Used in [`build_metrics`]
-    /// to subtract ignored positions from totals and to mask the overlap counts.
-    ignore_bitmap: Option<VecBitmap>,
     /// Per-pair list of maximal exact matches (only when fragment storage is enabled).
     matches: Option<PairArray<Vec<Match>>>,
 }
@@ -26,18 +20,13 @@ impl<'a> MatchCollector<'a> {
     ///
     /// Initializes the longest-fragment tracker and overlap bitmap with sizes
     /// derived from the length of each sequence.
-    pub fn new(
-        sequences: &'a [Vec<SymbolType>],
-        keep_fragments: bool,
-        exclude_ignored: bool,
-    ) -> Self {
+    pub fn new(sequences: &'a [Vec<SymbolType>], keep_fragments: bool) -> Self {
         let sequence_lengths: Vec<usize> = sequences.iter().map(|s| s.len()).collect();
 
         Self {
             sequences,
             longest_fragments: PairArray::new(sequences.len(), 0),
             overlap_bitmap: PairBitmap::new(sequence_lengths.as_slice()),
-            ignore_bitmap: exclude_ignored.then(|| VecBitmap::new(sequence_lengths.as_slice())),
             matches: keep_fragments.then(|| PairArray::new(sequences.len(), Vec::new())),
         }
     }
@@ -45,23 +34,14 @@ impl<'a> MatchCollector<'a> {
     /// Record a maximal match between two positions.
     ///
     /// Marks the covered positions in the overlap bitmap so overlapping matches
-    /// are not double-counted, and stores the match when fragment storage is
-    /// enabled. When `is_ignored` is `false` the longest-fragment tracker is
-    /// updated; ignored matches are excluded from that metric.
-    pub fn record_match(
-        &mut self,
-        sp1: &StartPosition,
-        sp2: &StartPosition,
-        length: usize,
-        is_ignored: bool,
-    ) {
+    /// are not double-counted, updates the longest-fragment tracker, and stores
+    /// the match when fragment storage is enabled.
+    pub fn record_match(&mut self, sp1: &StartPosition, sp2: &StartPosition, length: usize) {
         if length == 0 {
             return;
         }
 
-        if !is_ignored {
-            self.update_longest_fragment(sp1.sequence_index, sp2.sequence_index, length);
-        }
+        self.update_longest_fragment(sp1.sequence_index, sp2.sequence_index, length);
         self.overlap_bitmap.mark_pair(
             sp1.sequence_index,
             sp2.sequence_index,
@@ -74,19 +54,8 @@ impl<'a> MatchCollector<'a> {
             let (_, _, left_start, right_start) =
                 ordered_pair_with(sp1.sequence_index, sp2.sequence_index, sp1.start, sp2.start);
             m.get_mut(sp1.sequence_index, sp2.sequence_index)
-                .push(Match { left_start, right_start, length, ignored: is_ignored });
+                .push(Match { left_start, right_start, length });
         }
-    }
-
-    /// Mark the positions covered by an ignored substring in the ignore bitmap.
-    ///
-    /// This is called for every position under an ignored tree node so that
-    /// [`build_metrics`] can subtract them from the total and overlap counts.
-    pub fn record_ignore_match(&mut self, sp: &StartPosition, length: usize) {
-        self.ignore_bitmap
-            .as_mut()
-            .expect("ignore tracking not enabled")
-            .mark(sp.sequence_index, sp.start, length);
     }
 
     /// Update the longest fragment for a pair if the new length exceeds the current maximum.
@@ -100,29 +69,6 @@ impl<'a> MatchCollector<'a> {
     /// Consume the collector and build the final [`AnalysisResult`].
     pub fn into_result(self) -> AnalysisResult {
         AnalysisResult { metrics: self.build_metrics(), matches: self.matches }
-    }
-
-    /// Compute coverage counts for a single sequence pair `(i1, i2)`.
-    ///
-    /// Returns `(total_left, total_right, overlap_left, overlap_right)`.
-    /// When an ignore bitmap is present, ignored positions are subtracted from
-    /// totals and masked out of the overlap counts.
-    fn pair_coverage(&self, i1: usize, i2: usize) -> (usize, usize, usize, usize) {
-        if let Some(ignore) = &self.ignore_bitmap {
-            (
-                self.sequences[i1].len() - ignore.count_ones(i1),
-                self.sequences[i2].len() - ignore.count_ones(i2),
-                (self.overlap_bitmap.words_for(i1, i2, i1) & !ignore.words_for(i1)).count_ones(),
-                (self.overlap_bitmap.words_for(i1, i2, i2) & !ignore.words_for(i2)).count_ones(),
-            )
-        } else {
-            (
-                self.sequences[i1].len(),
-                self.sequences[i2].len(),
-                self.overlap_bitmap.count_ones(i1, i2, i1),
-                self.overlap_bitmap.count_ones(i1, i2, i2),
-            )
-        }
     }
 
     /// Build per-pair [`PairMetrics`] for all sequence pairs.
@@ -140,8 +86,10 @@ impl<'a> MatchCollector<'a> {
 
         for i1 in 0..self.sequences.len() {
             for i2 in (i1 + 1)..self.sequences.len() {
-                let (total_left, total_right, overlap_left, overlap_right) =
-                    self.pair_coverage(i1, i2);
+                let total_left = self.sequences[i1].len();
+                let total_right = self.sequences[i2].len();
+                let overlap_left = self.overlap_bitmap.count_ones(i1, i2, i1);
+                let overlap_right = self.overlap_bitmap.count_ones(i1, i2, i2);
 
                 let total_overlap = overlap_left + overlap_right;
                 let total_length = total_left + total_right;

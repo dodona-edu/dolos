@@ -25,80 +25,13 @@ impl SuffixTree {
     /// * `sequences` — fingerprint sequences for the files being analyzed.
     /// * `min_match_length` — minimum shared substring length to record as a match.
     /// * `keep_fragments` — when `true`, raw matches are retained for fragment resolution.
-    /// * `exclude_ignored` — when `true`, fingerprints marked as ignored (via
-    ///   [`add_ignored_sequences`] or the `max_file_count` cap) are omitted from similarity
-    ///   calculations.
-    /// * `max_file_count` — suppress substrings that appear in more than these many distinct
-    ///   files (boilerplate filter). `None` disables the cap.
     pub fn analyze(
-        &mut self,
+        &self,
         sequences: &[Vec<SymbolType>],
         min_match_length: usize,
         keep_fragments: bool,
-        exclude_ignored: bool,
-        max_file_count: Option<usize>,
     ) -> AnalysisResult {
-        MaximalMatchAnalyzer::new(
-            self,
-            sequences,
-            min_match_length,
-            keep_fragments,
-            exclude_ignored,
-            max_file_count,
-        )
-        .analyze()
-    }
-
-    /// Mark all nodes in the tree that are reachable by any suffix of any
-    /// ignored sequence as `ignore = true`.
-    pub fn add_ignored_sequences(
-        &mut self,
-        sequences: &[Vec<SymbolType>],
-        ignored_sequences: &[Vec<SymbolType>],
-    ) {
-        for ignored_sequence in ignored_sequences {
-            self.mark_substrings(sequences, ignored_sequence);
-        }
-    }
-
-    /// Mark all tree nodes reachable by any suffix of `sequence`.
-    fn mark_substrings(&mut self, sequences: &[Vec<SymbolType>], sequence: &[SymbolType]) {
-        for start in 0..sequence.len() {
-            self.mark_sequence(sequences, &sequence[start..]);
-        }
-    }
-
-    /// Walk `sequence` through the tree, marking each node whose full incoming
-    /// edge is consumed by the sequence.
-    fn mark_sequence(&mut self, sequences: &[Vec<SymbolType>], sequence: &[SymbolType]) {
-        let mut seq_pos = 0;
-        let mut node_idx = 0; // root: range.length() == 0, always at a node boundary
-
-        while seq_pos < sequence.len() {
-            // Descend to the child whose edge starts with the next unmatched symbol.
-            let Some(&child_idx) = self.arena[node_idx].get_child(sequence[seq_pos]) else {
-                return; // no matching child — sequence not in tree
-            };
-            node_idx = child_idx;
-
-            let node = &self.arena[node_idx];
-            let edge_len = node.range.length();
-
-            if sequence.len() - seq_pos < edge_len {
-                return;
-            }
-
-            let seq_chunk = &sequence[seq_pos..seq_pos + edge_len];
-            let edge_chunk =
-                &sequences[node.range.sequence_index][node.range.start..node.range.end];
-
-            if seq_chunk != edge_chunk {
-                return;
-            }
-
-            self.arena[node_idx].ignore = true;
-            seq_pos += edge_len;
-        }
+        MaximalMatchAnalyzer::new(self, sequences, min_match_length, keep_fragments).analyze()
     }
 }
 
@@ -169,17 +102,6 @@ pub mod suffixtree_test_utils {
         }
 
         suffix_indices_list
-    }
-
-    /// Returns `true` if the node reached by following `pattern` in the tree has `ignore = true`.
-    pub fn node_is_ignored(
-        tree: &SuffixTree,
-        sequences: &[Vec<SymbolType>],
-        pattern: &[SymbolType],
-    ) -> bool {
-        search_pattern(tree, sequences, pattern)
-            .map(|idx| tree.arena[idx].ignore)
-            .unwrap_or(false)
     }
 
     pub fn test_all_substrings(tree: &SuffixTree, sequences: &[Vec<SymbolType>]) {
@@ -361,8 +283,8 @@ mod tests_analysis {
     use crate::suffixtree::types::{AnalysisResult, SymbolType};
 
     fn analyze(sequences: &[Vec<SymbolType>], min_match_length: usize) -> AnalysisResult {
-        let mut tree = SuffixTree::build(sequences);
-        tree.analyze(sequences, min_match_length, false, false, None)
+        let tree = SuffixTree::build(sequences);
+        tree.analyze(sequences, min_match_length, false)
     }
 
     #[test]
@@ -433,129 +355,5 @@ mod tests_analysis {
         // "ABC" has length 3, which is below min_match_length 5 → not counted
         let sequences = vec![str_to_nodes("ABCDEF"), str_to_nodes("XYZABC")];
         assert_eq!(analyze(&sequences, 5).metrics.get(0, 1).longest_fragment, 0);
-    }
-}
-
-#[cfg(test)]
-mod tests_ignored {
-    use crate::suffixtree::tree::SuffixTree;
-    use crate::suffixtree::tree::suffixtree_test_utils::{node_is_ignored, str_to_nodes};
-
-    #[test]
-    fn test_ignored_nodes_in_tree() {
-        let sequences = vec![str_to_nodes("XYABZ"), str_to_nodes("XYCDZ")];
-        let ignored_sequences = vec![str_to_nodes("XY")];
-
-        let mut tree = SuffixTree::build(&sequences);
-        tree.add_ignored_sequences(&sequences, &ignored_sequences);
-
-        // Substrings of the ignored sequence must be marked.
-        assert!(node_is_ignored(&tree, &sequences, &str_to_nodes("XY")));
-        assert!(node_is_ignored(&tree, &sequences, &str_to_nodes("Y")));
-
-        // Nodes that are not substrings of the ignored sequence must not be marked.
-        assert!(!node_is_ignored(&tree, &sequences, &str_to_nodes("ABZ")));
-        assert!(!node_is_ignored(&tree, &sequences, &str_to_nodes("CDZ")));
-        assert!(!node_is_ignored(&tree, &sequences, &str_to_nodes("XYABZ")));
-        assert!(!node_is_ignored(&tree, &sequences, &str_to_nodes("XYCDZ")));
-    }
-
-    #[test]
-    fn test_ignored_excluded_from_metrics() {
-        // "XY" is ignored; "Z" (length 1) is the only remaining shared fragment.
-        let sequences = vec![str_to_nodes("XYABZ"), str_to_nodes("XYCDZ")];
-        let ignored_sequences = vec![str_to_nodes("XY")];
-
-        let mut tree = SuffixTree::build(&sequences);
-        tree.add_ignored_sequences(&sequences, &ignored_sequences);
-
-        // keep_fragments = true so we can inspect Match::ignored flags.
-        let result = tree.analyze(&sequences, 1, true, true, None);
-
-        let m = result.metrics.get(0, 1);
-        // Only "Z" contributes — "XY" must not inflate longest_fragment.
-        assert_eq!(m.longest_fragment, 1);
-        // Each sequence has 5 tokens; 2 ("XY") are ignored → effective length 3.
-        assert_eq!(m.total_left, 3);
-        assert_eq!(m.total_right, 3);
-        assert_eq!(m.overlap_left, 1);
-        assert_eq!(m.overlap_right, 1);
-
-        // Stored matches must carry the correct ignored flag.
-        let pair_matches = result.matches.as_ref().unwrap().get(0, 1);
-        let ignored_match = pair_matches.iter().find(|m| m.length == 2);
-        let non_ignored_match = pair_matches.iter().find(|m| m.length == 1);
-        assert!(matches!(ignored_match, Some(m) if m.ignored));
-        assert!(matches!(non_ignored_match, Some(m) if !m.ignored));
-    }
-
-    #[test]
-    fn test_ignore_frequent_fingerprints() {
-        let sequences = vec![
-            str_to_nodes("XYABZ"),
-            str_to_nodes("XYCDZ"),
-            str_to_nodes("XYEFD"),
-        ];
-        let mut tree = SuffixTree::build(&sequences);
-        let result = tree.analyze(&sequences, 1, false, true, Some(2));
-
-        let m01 = result.metrics.get(0, 1);
-        let m02 = result.metrics.get(0, 2);
-        let m12 = result.metrics.get(1, 2);
-
-        assert_eq!(m01.longest_fragment, 1);
-        assert_eq!(m01.overlap_right, 1);
-        assert_eq!(m01.overlap_left, 1);
-        assert_eq!(m01.total_right, 3);
-        assert_eq!(m01.total_left, 3);
-
-        assert_eq!(m02.longest_fragment, 0);
-        assert_eq!(m02.overlap_right, 0);
-        assert_eq!(m02.overlap_left, 0);
-        assert_eq!(m02.total_right, 3);
-        assert_eq!(m02.total_left, 3);
-
-        assert_eq!(m12.longest_fragment, 1);
-        assert_eq!(m12.overlap_right, 1);
-        assert_eq!(m12.overlap_left, 1);
-        assert_eq!(m12.total_right, 3);
-        assert_eq!(m12.total_left, 3);
-    }
-
-    #[test]
-    fn test_ignored_frequency() {
-        // `X` (= 0) appears in all four files, so under `cap = 2` every match of
-        // it must be ignored — including the `X` shared by `WX`/`VX` as an exact
-        // trailing suffix, which is emitted at a pure-sentinel leaf.
-        let seqs = vec![vec![0, 1], vec![0, 2], vec![3, 0], vec![4, 0]];
-        let mut tree = SuffixTree::build(&seqs);
-        let result = tree.analyze(&seqs, 1, true, true, Some(2));
-        for (i, j, matches) in result.matches.as_ref().unwrap().iter_pairs() {
-            for m in matches {
-                assert!(
-                    m.ignored,
-                    "Match {m:?} between sequences {i} and {j} should be ignored"
-                );
-            }
-        }
-    }
-
-    #[test]
-    fn test_ignored_template() {
-        // `X` (= 0) is a template substring, so every match of it must be
-        // ignored — including the `X` shared by `WX`/`VX` as an exact trailing
-        // suffix, which is emitted at a pure-sentinel leaf (issue #43).
-        let seqs = vec![vec![0, 1], vec![0, 2], vec![3, 0], vec![4, 0]];
-        let mut tree = SuffixTree::build(&seqs);
-        tree.add_ignored_sequences(&seqs, &[vec![0]]);
-        let result = tree.analyze(&seqs, 1, true, true, None);
-        for (i, j, matches) in result.matches.as_ref().unwrap().iter_pairs() {
-            for m in matches {
-                assert!(
-                    m.ignored,
-                    "Match {m:?} between sequences {i} and {j} should be ignored"
-                );
-            }
-        }
     }
 }
