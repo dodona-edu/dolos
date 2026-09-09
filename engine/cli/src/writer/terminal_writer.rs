@@ -142,7 +142,9 @@ impl TerminalWriter {
     /// context line before and after (when available).
     fn collect_display_lines<'a>(lines: &'a [&str], region: &Region) -> Vec<DisplayLine<'a>> {
         let start_row = region.start_point.row;
-        let end_row = region.end_point.row;
+        // `end_point` is exclusive, so a region that reaches the end of the
+        // file names the row after the last line.
+        let end_row = region.end_point.row.min(lines.len() - 1);
         let start_col = region.start_point.column;
         let end_col = region.end_point.column;
 
@@ -158,7 +160,12 @@ impl TerminalWriter {
             let is_match = row >= start_row && row <= end_row;
 
             let hl_start = if row == start_row { start_col } else { 0 };
-            let hl_end = if row == end_row { end_col } else { line.len() };
+            // A clamped end row keeps the highlight up to the line end.
+            let hl_end = if row == region.end_point.row {
+                end_col
+            } else {
+                line.len()
+            };
 
             result.push(DisplayLine {
                 line_number: row + 1,

@@ -5,35 +5,12 @@ use crate::winnowing::tokenizer::Token;
 pub type Fingerprint = usize;
 
 /// Computes the source region spanned by a kgram.
+///
+/// The token locations advance through the file, so the kgram starts at its
+/// first token and ends at its last.
 fn region_from_kgram(kgram: &[Token]) -> Region {
-    // The tokenizer serializes each AST node as `(node_kind <child tokens>)`.
-    // All three synthetic tokens (`(`, node kind, `)`) share the same location:
-    // from the node's start up to the *first child's* start (not the node's end).
-    //
-    // Two consequences for picking the start and end of the region:
-    //
-    // * **Start**: A `)` token closes a node that *opened earlier* in the token
-    //   stream, so its `start_point` is the one it was created with — potentially
-    //   far before the kgram begins. Using it would make the highlighted region
-    //   cover child tokens that are not part of this kgram. We therefore filter
-    //   out `)` tokens and take the minimum `start_point` among the rest.
-    //   If the kgram consists entirely of `)` tokens, we fall back to `last`,
-    //   producing a zero-width region at the end of the kgram.
-    //
-    // * **End**: Each node's location only reaches as far as its *first child's*
-    //   start (see the tokenizer), so a `)` at the end of a kgram has an
-    //   `end_point` that falls short of where the child tokens end. We therefore
-    //   take the maximum `end_point` across all tokens to reach the true end of
-    //   the kgram's content.
-    let last = kgram
-        .iter()
-        .max_by_key(|t| t.location.end_point)
-        .expect("kgram is non-empty");
-    let first = kgram
-        .iter()
-        .filter(|t| t.name != ")")
-        .min_by_key(|t| t.location.start_point)
-        .unwrap_or(last);
+    let first = kgram.first().expect("kgram is non-empty");
+    let last = kgram.last().expect("kgram is non-empty");
     Region::new(first.location.start_point, last.location.end_point)
 }
 
@@ -150,6 +127,35 @@ mod tests {
                 locations[i], expected_locations[i],
                 "Mismatch: {:?} and {:?}",
                 locations[i], expected_locations[i]
+            );
+        }
+    }
+
+    #[rstest]
+    #[case::k_3_w_5(3, 5)]
+    #[case::k_16_w_8(16, 8)]
+    #[case::k_17_w_23(17, 23)]
+    fn test_locations_advance_through_the_file(#[case] k: usize, #[case] w: usize) {
+        // Fragment::resolve spans a run of these locations, so each one must be
+        // well formed and no location may start before the one before it.
+        let mut tokenizer = Tokenizer::new(Language::Javascript);
+        let content = std::fs::read_to_string(Path::new("fixtures/sample1.js")).unwrap();
+        let (_, locations) = tokenizer.parse(&content).tokens(false).winnow(k, w, true);
+        let locations = locations.expect("Locations should be present");
+
+        for location in &locations {
+            assert!(
+                location.start_point <= location.end_point,
+                "backwards region {location:?}"
+            );
+        }
+        for pair in locations.windows(2) {
+            assert!(
+                pair[0].start_point <= pair[1].start_point
+                    && pair[0].end_point <= pair[1].end_point,
+                "{:?} does not advance to {:?}",
+                pair[0],
+                pair[1]
             );
         }
     }

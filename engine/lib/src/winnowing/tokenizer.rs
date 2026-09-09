@@ -43,20 +43,23 @@ fn recursive_add<'a: 'b, 'b>(
 
     let children = node.named_children(cursor).collect::<Vec<Node>>();
 
-    let end_point = children
+    // `(` and the node kind open the node. They cover the text from the node
+    // start up to the first named child.
+    let open_end = children
         .first()
         .map_or(node.end_position(), |c| c.start_position());
+    let open = Region::new(node.start_position().into(), open_end.into());
 
-    let range = Region::new(node.start_position().into(), end_point.into());
-
-    tokens.push(Token { name: "(".to_string(), location: range });
-    tokens.push(Token { name: node.kind().to_string(), location: range });
+    tokens.push(Token { name: "(".to_string(), location: open });
+    tokens.push(Token { name: node.kind().to_string(), location: open });
 
     for child in children {
         recursive_add(child, tokens, cursor, include_comments);
     }
 
-    tokens.push(Token { name: ")".to_string(), location: range });
+    // `)` closes the node, so it is empty and sits at the node end.
+    let close = Region::new(node.end_position().into(), node.end_position().into());
+    tokens.push(Token { name: ")".to_string(), location: close });
 }
 
 pub trait Tokens {
@@ -67,7 +70,8 @@ impl Tokens for Tree {
     /// Serializes all named nodes in Tree-sitter's Concrete Syntax Tree (CST)
     /// into a sequence of tokens. Special tokens '(' and ')' are inserted to
     /// represent descending into and ascending from the tree, respectively.
-    /// Each token's range corresponds exactly to the token name itself.
+    /// A '(' token covers the node up to its first named child, a ')' token is
+    /// an empty region at the node end.
     /// When `include_comments` is false, comment nodes are filtered out.
     fn tokens(&self, include_comments: bool) -> Vec<Token> {
         let mut cursor = self.walk();
@@ -92,6 +96,8 @@ mod tests {
 
         let r00 = Region::new(Point::new(0, 0), Point::new(0, 0));
         let r01 = Region::new(Point::new(0, 0), Point::new(0, 1));
+        // Every node of `1` ends at column 1, so every `)` is empty there.
+        let close = Region::new(Point::new(0, 1), Point::new(0, 1));
 
         let expected = vec![
             Token { name: "(".to_string(), location: r00 },
@@ -100,12 +106,31 @@ mod tests {
             Token { name: "expression_statement".to_string(), location: r00 },
             Token { name: "(".to_string(), location: r01 },
             Token { name: "number".to_string(), location: r01 },
-            Token { name: ")".to_string(), location: r01 },
-            Token { name: ")".to_string(), location: r00 },
-            Token { name: ")".to_string(), location: r00 },
+            Token { name: ")".to_string(), location: close },
+            Token { name: ")".to_string(), location: close },
+            Token { name: ")".to_string(), location: close },
         ];
 
         assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn test_token_locations_advance_through_the_file() {
+        // region_from_kgram takes the start of the first token of a kgram and
+        // the end of the last one, which needs a stream in source order.
+        let mut tokenizer = Tokenizer::new(Language::Javascript);
+        let content = std::fs::read_to_string(Path::new("fixtures/sample1.js")).unwrap();
+        let tokens = tokenizer.parse(&content).tokens(false);
+
+        for pair in tokens.windows(2) {
+            assert!(
+                pair[0].location.start_point <= pair[1].location.start_point
+                    && pair[0].location.end_point <= pair[1].location.end_point,
+                "{:?} does not advance to {:?}",
+                pair[0],
+                pair[1]
+            );
+        }
     }
 
     #[test]
