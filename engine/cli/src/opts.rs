@@ -90,8 +90,9 @@ pub struct DolosArgs {
     #[arg(
         short = 'M',
         long,
-        long_help = "Maximum percentage of files a fingerprint may appear in before it is ignored (0–1). \
-                     The more restrictive rule between -m and -M takes precedence."
+        long_help = "Maximum percentage of files a fingerprint may appear in before it is ignored (0–1), \
+                     rounded to the nearest integer. The more restrictive rule between -m and -M takes precedence. \
+                     A limit resolving to less than one file is raised to one."
     )]
     pub max_fingerprint_percentage: Option<f64>,
 

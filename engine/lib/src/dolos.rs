@@ -1,5 +1,6 @@
 use crate::config::DolosConfig;
 use crate::file::{File, FileSet};
+use crate::ignore;
 use crate::metadata::Metadata;
 use crate::reader::Dataset;
 use crate::report::Report;
@@ -47,8 +48,6 @@ impl Dolos {
 
         dolos.add_files(dataset.file_set)?;
 
-        // Ignore file is added after all regular files, so its word index is
-        // always >= regular_word_count.
         if let Some(ignore_path) = dolos.metadata.ignore.clone() {
             dolos.add_ignore_file(ignore_path)?;
         }
@@ -129,9 +128,15 @@ impl Dolos {
 
     /// Run the suffix-tree analysis and build a [`Report`].
     pub fn build_report(self) -> Report {
+        let ignored = ignore::classify(
+            &self.hashes,
+            &self.ignore_hashes,
+            self.metadata.max_fingerprint_file_count,
+        );
         let tree = SuffixTree::build(&self.hashes);
         let result = tree.analyze(
             &self.hashes,
+            &ignored,
             self.metadata.min_length_match,
             self.metadata.include_fragments,
         );

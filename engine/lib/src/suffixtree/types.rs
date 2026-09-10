@@ -21,6 +21,16 @@ pub struct StartPosition {
     pub start: usize,
 }
 
+impl StartPosition {
+    /// The same position moved `delta` fingerprints forward.
+    pub fn shifted(&self, delta: usize) -> Self {
+        Self {
+            sequence_index: self.sequence_index,
+            start: self.start + delta,
+        }
+    }
+}
+
 /// A maximal exact match between two positions in (possibly different) sequences.
 ///
 /// `left_start` and `right_start` are offsets into the fingerprint arrays of
@@ -41,9 +51,9 @@ pub struct Match {
 pub struct PairMetrics {
     /// Jaccard-style similarity: `(overlap_left + overlap_right) / (total_left + total_right)`.
     pub similarity: f64,
-    /// Total number of fingerprints in the left file.
+    /// Number of fingerprints in the left file, excluding ignored ones.
     pub total_left: usize,
-    /// Total number of fingerprints in the right file.
+    /// Number of fingerprints in the right file, excluding ignored ones.
     pub total_right: usize,
     /// Number of fingerprints in the left file covered by at least one match.
     pub overlap_left: usize,

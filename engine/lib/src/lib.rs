@@ -3,6 +3,7 @@ mod config;
 mod dolos;
 mod file;
 mod fragment;
+mod ignore;
 mod metadata;
 mod reader;
 mod report;

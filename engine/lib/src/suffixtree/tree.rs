@@ -1,3 +1,4 @@
+use crate::ignore::IgnoredFingerprints;
 use crate::suffixtree::maximal_match::MaximalMatchAnalyzer;
 use crate::suffixtree::node::Node;
 use crate::suffixtree::tree_builder::UkkonenBuilder;
@@ -23,15 +24,19 @@ impl SuffixTree {
     /// similarity and longest-fragment results.
     ///
     /// * `sequences` — fingerprint sequences for the files being analyzed.
+    /// * `ignored` — which fingerprint positions are ignored; matches are split
+    ///   at those positions before being recorded.
     /// * `min_match_length` — minimum shared substring length to record as a match.
     /// * `keep_fragments` — when `true`, raw matches are retained for fragment resolution.
     pub fn analyze(
         &self,
         sequences: &[Vec<SymbolType>],
+        ignored: &IgnoredFingerprints,
         min_match_length: usize,
         keep_fragments: bool,
     ) -> AnalysisResult {
-        MaximalMatchAnalyzer::new(self, sequences, min_match_length, keep_fragments).analyze()
+        MaximalMatchAnalyzer::new(self, sequences, ignored, min_match_length, keep_fragments)
+            .analyze()
     }
 }
 
@@ -278,82 +283,145 @@ mod tests_build_multiple_sequences {
 
 #[cfg(test)]
 mod tests_analysis {
+    use crate::ignore::classify;
     use crate::suffixtree::tree::SuffixTree;
     use crate::suffixtree::tree::suffixtree_test_utils::str_to_nodes;
     use crate::suffixtree::types::{AnalysisResult, SymbolType};
 
-    fn analyze(sequences: &[Vec<SymbolType>], min_match_length: usize) -> AnalysisResult {
-        let tree = SuffixTree::build(sequences);
-        tree.analyze(sequences, min_match_length, false)
+    /// Analyze `files` (one symbol per byte), ignoring every fingerprint that
+    /// occurs in `template`.
+    fn analyze(files: &[&str], template: &[&str], min_match_length: usize) -> AnalysisResult {
+        let sequences: Vec<Vec<SymbolType>> = files.iter().map(|f| str_to_nodes(f)).collect();
+        let template: Vec<Vec<SymbolType>> = template.iter().map(|f| str_to_nodes(f)).collect();
+        let ignored = classify(&sequences, &template, None);
+        SuffixTree::build(&sequences).analyze(&sequences, &ignored, min_match_length, true)
+    }
+
+    /// The stored matches of one pair as `(left_start, right_start, length)`,
+    /// sorted so the assertions do not depend on traversal order.
+    fn matches(result: &AnalysisResult, i: usize, j: usize) -> Vec<(usize, usize, usize)> {
+        let mut found: Vec<(usize, usize, usize)> = result
+            .matches
+            .as_ref()
+            .expect("fragments are kept")
+            .get(i, j)
+            .iter()
+            .map(|m| (m.left_start, m.right_start, m.length))
+            .collect();
+        found.sort_unstable();
+        found
     }
 
     #[test]
-    fn test_identical_sequences() {
-        let sequences = vec![str_to_nodes("ABC"), str_to_nodes("ABC")];
-        let result = analyze(&sequences, 1);
+    fn identical_sequences_overlap_completely() {
+        let result = analyze(&["ABC", "ABC"], &[], 1);
+
+        assert_eq!(matches(&result, 0, 1), vec![(0, 0, 3)]);
         let m = result.metrics.get(0, 1);
         assert_eq!(m.similarity, 1.0);
         assert_eq!(m.longest_fragment, 3);
-        assert_eq!(m.total_left, 3);
-        assert_eq!(m.total_right, 3);
-        assert_eq!(m.overlap_left, 3);
-        assert_eq!(m.overlap_right, 3);
+        assert_eq!((m.total_left, m.total_right), (3, 3));
+        assert_eq!((m.overlap_left, m.overlap_right), (3, 3));
     }
 
     #[test]
-    fn test_non_overlapping_sequences() {
-        let sequences = vec![str_to_nodes("ABC"), str_to_nodes("DEF")];
-        let result = analyze(&sequences, 1);
+    fn disjoint_sequences_share_nothing() {
+        let result = analyze(&["ABC", "DEF"], &[], 1);
+
+        assert!(matches(&result, 0, 1).is_empty());
         let m = result.metrics.get(0, 1);
         assert_eq!(m.similarity, 0.0);
         assert_eq!(m.longest_fragment, 0);
-        assert_eq!(m.overlap_left, 0);
-        assert_eq!(m.overlap_right, 0);
+        assert_eq!((m.overlap_left, m.overlap_right), (0, 0));
     }
 
     #[test]
-    fn test_partial_overlapping_sequences() {
-        // "ABC" is the only shared fragment
-        let sequences = vec![str_to_nodes("ABCDEF"), str_to_nodes("XYZABC")];
-        let result = analyze(&sequences, 1);
+    fn a_shared_fragment_is_found_at_differing_offsets() {
+        let result = analyze(&["ABCDEF", "XYZABC"], &[], 1);
+
+        assert_eq!(matches(&result, 0, 1), vec![(0, 3, 3)]);
         let m = result.metrics.get(0, 1);
-        assert_eq!(m.longest_fragment, 3);
         assert_eq!(m.similarity, 0.5);
-        assert_eq!(m.total_left, 6);
-        assert_eq!(m.total_right, 6);
-        assert_eq!(m.overlap_left, 3);
-        assert_eq!(m.overlap_right, 3);
+        assert_eq!(m.longest_fragment, 3);
+        assert_eq!((m.overlap_left, m.overlap_right), (3, 3));
     }
 
     #[test]
-    fn test_three_sequence() {
-        let sequences = vec![
-            str_to_nodes("ABCD"),
-            str_to_nodes("ABCE"),
-            str_to_nodes("XYZW"),
-        ];
-        let result = analyze(&sequences, 1);
+    fn every_pair_is_scored_separately() {
+        let result = analyze(&["ABCD", "ABCE", "XYZW"], &[], 1);
 
-        // Sequences 0 and 1 share "ABC"
-        let m01 = result.metrics.get(0, 1);
-        assert_eq!(m01.longest_fragment, 3);
-        assert_eq!(m01.similarity, 0.75);
-
-        // Sequences 0 and 2 share nothing
-        let m02 = result.metrics.get(0, 2);
-        assert_eq!(m02.longest_fragment, 0);
-        assert_eq!(m02.similarity, 0.0);
-
-        // Sequences 1 and 2 share nothing
-        let m12 = result.metrics.get(1, 2);
-        assert_eq!(m12.longest_fragment, 0);
-        assert_eq!(m12.similarity, 0.0);
+        // Only the first two sequences share anything: "ABC".
+        assert_eq!(result.metrics.get(0, 1).longest_fragment, 3);
+        assert_eq!(result.metrics.get(0, 1).similarity, 0.75);
+        assert_eq!(result.metrics.get(0, 2).similarity, 0.0);
+        assert_eq!(result.metrics.get(1, 2).similarity, 0.0);
     }
 
     #[test]
-    fn test_matches_below_min_length() {
-        // "ABC" has length 3, which is below min_match_length 5 → not counted
-        let sequences = vec![str_to_nodes("ABCDEF"), str_to_nodes("XYZABC")];
-        assert_eq!(analyze(&sequences, 5).metrics.get(0, 1).longest_fragment, 0);
+    fn matches_below_the_minimum_length_are_dropped() {
+        let result = analyze(&["ABCDEF", "XYZABC"], &[], 5);
+
+        assert!(matches(&result, 0, 1).is_empty());
+        assert_eq!(result.metrics.get(0, 1).longest_fragment, 0);
+    }
+
+    // ── Ignoring ──────────────────────────────────────────────────────
+
+    #[test]
+    fn an_ignored_position_splits_a_match_in_two() {
+        // "ABXCD" matches at offset 0 in the left file and offset 1 in the
+        // right one; the ignored X cuts that single raw match into "AB" and
+        // "CD", each keeping its own offset in both files.
+        let result = analyze(&["ABXCD", "QABXCD"], &["X"], 1);
+
+        assert_eq!(matches(&result, 0, 1), vec![(0, 1, 2), (3, 4, 2)]);
+        let m = result.metrics.get(0, 1);
+        assert_eq!(m.longest_fragment, 2);
+        assert_eq!((m.total_left, m.total_right), (4, 5));
+        assert_eq!((m.overlap_left, m.overlap_right), (4, 4));
+        assert_eq!(m.similarity, 8.0 / 9.0);
+    }
+
+    #[test]
+    fn an_ignored_tail_truncates_a_match() {
+        let result = analyze(&["ABCD", "ABCD"], &["CD"], 1);
+
+        assert_eq!(matches(&result, 0, 1), vec![(0, 0, 2)]);
+        let m = result.metrics.get(0, 1);
+        assert_eq!(m.longest_fragment, 2);
+        assert_eq!((m.total_left, m.total_right), (2, 2));
+    }
+
+    #[test]
+    fn a_core_without_a_node_of_its_own_is_recovered() {
+        let result = analyze(&["ABBC", "ABBC"], &["A", "C"], 1);
+
+        assert_eq!(
+            matches(&result, 0, 1),
+            vec![(1, 1, 2), (1, 2, 1), (2, 1, 1)]
+        );
+        assert_eq!(result.metrics.get(0, 1).longest_fragment, 2);
+    }
+
+    #[test]
+    fn the_minimum_length_applies_per_run() {
+        let result = analyze(&["ABXBC", "ABXBC"], &["X"], 3);
+
+        assert!(matches(&result, 0, 1).is_empty());
+        let m = result.metrics.get(0, 1);
+        assert_eq!(m.similarity, 0.0);
+        assert_eq!((m.total_left, m.total_right), (4, 4));
+        assert_eq!((m.overlap_left, m.overlap_right), (0, 0));
+    }
+
+    #[test]
+    fn fully_ignored_files_have_no_similarity() {
+        // Both denominators collapse to zero.
+        let result = analyze(&["XX", "X"], &["X"], 1);
+
+        assert!(matches(&result, 0, 1).is_empty());
+        let m = result.metrics.get(0, 1);
+        assert_eq!(m.similarity, 0.0);
+        assert_eq!((m.total_left, m.total_right), (0, 0));
     }
 }

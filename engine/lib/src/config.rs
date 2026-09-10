@@ -56,10 +56,10 @@ impl DolosConfig {
         DolosConfigBuilder::default()
     }
 
-    /// Compute the maximum number of files a fingerprint may appear in before
-    /// it is ignored, taking the more restrictive of the absolute count
-    /// (`max_fingerprint_count`) and the percentage-based limit
-    /// (`max_fingerprint_percentage`) for the given file count.
+    /// The maximum number of files a fingerprint may appear in before it is
+    /// ignored: the more restrictive of `max_fingerprint_count` and
+    /// `max_fingerprint_percentage` over `file_count`, and never below 1.
+    /// `None` when neither limit is set.
     pub fn max_fingerprint_file_count(&self, file_count: usize) -> Option<usize> {
         let from_percentage = self
             .max_fingerprint_percentage
@@ -68,6 +68,7 @@ impl DolosConfig {
             .into_iter()
             .flatten()
             .min()
+            .map(|cap| cap.max(1))
     }
 }
 
@@ -249,6 +250,16 @@ mod tests {
                 .build()
                 .is_err()
         );
+    }
+
+    #[test]
+    fn percentage_cap_never_drops_below_one() {
+        let config = DolosConfig::builder()
+            .max_fingerprint_percentage(0.1)
+            .build()
+            .unwrap();
+
+        assert_eq!(config.max_fingerprint_file_count(3), Some(1));
     }
 
     #[test]

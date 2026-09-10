@@ -1,3 +1,4 @@
+use crate::ignore::IgnoredFingerprints;
 use crate::suffixtree::match_collector::MatchCollector;
 use crate::suffixtree::node::Node;
 use crate::suffixtree::tree::SuffixTree;
@@ -22,6 +23,8 @@ pub struct MaximalMatchAnalyzer<'a> {
     min_match_length: usize,
     /// Whether to keep fragments of all the similar matches.
     pub keep_fragments: bool,
+    /// Which fingerprint positions are ignored; forwarded to the collector.
+    ignored: &'a IgnoredFingerprints,
 }
 
 impl<'a> MaximalMatchAnalyzer<'a> {
@@ -30,16 +33,18 @@ impl<'a> MaximalMatchAnalyzer<'a> {
     /// # Arguments
     /// * `tree` – Generalized suffix tree built from all `sequences`.
     /// * `sequences` – The sequences to analyze.
+    /// * `ignored` – Which fingerprint positions are ignored.
     /// * `min_match_length` – Minimum number of tokens a shared substring must
     ///   have to be counted as a match.
     /// * `keep_fragments` – Whether to store raw matches for fragment resolution.
     pub fn new(
         tree: &'a SuffixTree,
         sequences: &'a [Vec<SymbolType>],
+        ignored: &'a IgnoredFingerprints,
         min_match_length: usize,
         keep_fragments: bool,
     ) -> Self {
-        Self { tree, sequences, min_match_length, keep_fragments }
+        Self { tree, sequences, ignored, min_match_length, keep_fragments }
     }
 
     /// Perform the full MEM analysis and return pairwise similarity results.
@@ -52,7 +57,12 @@ impl<'a> MaximalMatchAnalyzer<'a> {
     /// A match is suppressed only when its length does not meet
     /// `min_match_length`.
     pub fn analyze(&mut self) -> AnalysisResult {
-        let mut collector = MatchCollector::new(self.sequences, self.keep_fragments);
+        let mut collector = MatchCollector::new(
+            self.sequences,
+            self.ignored,
+            self.min_match_length,
+            self.keep_fragments,
+        );
         self.find_maximal_pairs(0, 0, &mut collector);
         collector.into_result()
     }
@@ -86,7 +96,6 @@ impl<'a> MaximalMatchAnalyzer<'a> {
 
         let mut accumulator: Option<LeftMap> = None;
         for child_map in self.collect_child_maps(node, node_depth, collector) {
-            // Only process matches that exceed the minimum length.
             if node_depth >= self.min_match_length {
                 self.absorb_child_map(node_depth, &mut accumulator, child_map, collector);
             }
