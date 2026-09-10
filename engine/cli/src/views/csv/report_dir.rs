@@ -1,6 +1,6 @@
 use dolos::Metadata;
 use std::io::{Error, ErrorKind, Result};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 /// A created, empty directory that holds the files of one report.
 pub struct ReportDirectory {
@@ -29,6 +29,10 @@ impl ReportDirectory {
         }
         std::fs::create_dir_all(&path)?;
         Ok(Self { path })
+    }
+
+    pub fn path(&self) -> &Path {
+        &self.path
     }
 
     /// The full path of `file_name` inside this directory.

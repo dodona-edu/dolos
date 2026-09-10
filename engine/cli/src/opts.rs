@@ -213,6 +213,7 @@ pub struct OutputArgs {
         short = 'p',
         long,
         default_value = "3000",
+        value_parser = clap::value_parser!(u16).range(1..),
         long_help = "Port for the web server. Must be between 1 and 65535."
     )]
     pub port: u16,
@@ -225,12 +226,8 @@ pub struct OutputArgs {
     )]
     pub host: String,
 
-    #[arg(
-        long,
-        default_value = "false",
-        long_help = "Do not automatically open the browser for web output."
-    )]
-    pub no_open: bool,
+    #[arg(long, long_help = "Open the browser for web output.")]
+    pub open_browser: bool,
 }
 
 #[derive(Parser, Debug)]
@@ -274,6 +271,15 @@ mod tests {
     fn config(extra: &[&str]) -> std::io::Result<DolosConfig> {
         match parse(extra).unwrap().command {
             Command::Run { dolos_args, .. } => dolos_args.try_into(),
+        }
+    }
+
+    /// Parse options and return the `OutputArgs`.
+    ///
+    /// Panics if clap rejects the argv.
+    fn output(extra: &[&str]) -> OutputArgs {
+        match parse(extra).unwrap().command {
+            Command::Run { output_args, .. } => output_args,
         }
     }
 
@@ -343,5 +349,29 @@ mod tests {
             Opts::try_parse_from(["dolos", "run"]).is_err(),
             "missing files should fail"
         );
+    }
+
+    #[test]
+    fn test_output_options() {
+        let default = output(&[]);
+        assert_eq!(default.output_format, OutputFormat::Terminal);
+        assert_eq!(default.port, 3000);
+        assert_eq!(default.host, "localhost");
+        assert!(!default.open_browser);
+
+        #[rustfmt::skip]
+        let args = output(&[
+            "-f", "web",
+            "-p", "8080",
+            "-H", "0.0.0.0",
+            "--open-browser",
+        ]);
+
+        assert_eq!(args.output_format, OutputFormat::Web);
+        assert_eq!(args.port, 8080);
+        assert_eq!(args.host, "0.0.0.0");
+        assert!(args.open_browser);
+
+        assert!(parse(&["-p", "0"]).is_err(), "-p 0 must be rejected");
     }
 }

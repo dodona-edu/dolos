@@ -1,6 +1,7 @@
 use crate::opts::{OutputArgs, OutputFormat};
 use crate::views::csv::CsvView;
 use crate::views::terminal::TerminalView;
+use crate::views::web::WebView;
 use dolos::Report;
 use std::io::Result;
 
@@ -16,6 +17,12 @@ pub fn show(args: OutputArgs, report: &Report) -> Result<()> {
     match args.output_format {
         OutputFormat::Csv => CsvView::new(args.output_destination).show(report),
         OutputFormat::Terminal | OutputFormat::Console => TerminalView.show(report),
-        OutputFormat::Html | OutputFormat::Web => todo!("web output not yet implemented"),
+        OutputFormat::Html | OutputFormat::Web => WebView::new(
+            args.output_destination,
+            args.host,
+            args.port,
+            args.open_browser,
+        )
+        .show(report),
     }
 }
