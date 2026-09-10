@@ -65,7 +65,7 @@ impl Report {
         locations: Vec<Vec<Region>>,
         fragment_sort_by: &Option<FragmentSortBy>,
     ) -> PairArray<Vec<Fragment>> {
-        let mut fragments = PairArray::new(raw_matches.size(), Vec::new());
+        let mut fragments = PairArray::new(raw_matches.item_count(), Vec::new());
 
         for (left, right, pair_matches) in raw_matches.iter_pairs() {
             let mut resolved: Vec<Fragment> = pair_matches

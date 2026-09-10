@@ -73,7 +73,7 @@ impl<'a> MatchCollector<'a> {
 
     /// Build per-pair [`PairMetrics`] for all sequence pairs.
     ///
-    /// For each pair `(i1, i2)` the similarity is defined as:
+    /// For each pair `(i, j)` the similarity is defined as:
     ///
     /// ```text
     /// similarity = (overlap_left + overlap_right) / (total_left + total_right)
@@ -84,12 +84,12 @@ impl<'a> MatchCollector<'a> {
     fn build_metrics(&self) -> PairArray<PairMetrics> {
         let mut metrics = PairArray::new(self.sequences.len(), PairMetrics::default());
 
-        for i1 in 0..self.sequences.len() {
-            for i2 in (i1 + 1)..self.sequences.len() {
-                let total_left = self.sequences[i1].len();
-                let total_right = self.sequences[i2].len();
-                let overlap_left = self.overlap_bitmap.count_ones(i1, i2, i1);
-                let overlap_right = self.overlap_bitmap.count_ones(i1, i2, i2);
+        for i in 0..self.sequences.len() {
+            for j in (i + 1)..self.sequences.len() {
+                let total_left = self.sequences[i].len();
+                let total_right = self.sequences[j].len();
+                let overlap_left = self.overlap_bitmap.item(i, j, i).count_ones();
+                let overlap_right = self.overlap_bitmap.item(i, j, j).count_ones();
 
                 let total_overlap = overlap_left + overlap_right;
                 let total_length = total_left + total_right;
@@ -101,15 +101,15 @@ impl<'a> MatchCollector<'a> {
                 };
 
                 metrics.set(
-                    i1,
-                    i2,
+                    i,
+                    j,
                     PairMetrics {
                         similarity,
                         total_left,
                         total_right,
                         overlap_left,
                         overlap_right,
-                        longest_fragment: *self.longest_fragments.get(i1, i2),
+                        longest_fragment: *self.longest_fragments.get(i, j),
                     },
                 );
             }

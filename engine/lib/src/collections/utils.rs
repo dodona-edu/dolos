@@ -2,21 +2,21 @@
 ///
 /// Returns `(min, max)` such that `min <= max`.
 #[inline]
-pub fn ordered_pair(a: usize, b: usize) -> (usize, usize) {
-    if a < b { (a, b) } else { (b, a) }
+pub fn ordered_pair(i: usize, j: usize) -> (usize, usize) {
+    if i < j { (i, j) } else { (j, i) }
 }
 
 /// Order a pair of indices so the smaller comes first, carrying along
 /// associated values in the same order.
 ///
-/// Given indices `(a, b)` with associated values `(va, vb)`, returns
+/// Given indices `(i, j)` with associated values `(vi, vj)`, returns
 /// `(min_idx, max_idx, val_of_min, val_of_max)`.
 #[inline]
-pub fn ordered_pair_with<T>(a: usize, b: usize, va: T, vb: T) -> (usize, usize, T, T) {
-    if a < b {
-        (a, b, va, vb)
+pub fn ordered_pair_with<T>(i: usize, j: usize, vi: T, vj: T) -> (usize, usize, T, T) {
+    if i < j {
+        (i, j, vi, vj)
     } else {
-        (b, a, vb, va)
+        (j, i, vj, vi)
     }
 }
 
