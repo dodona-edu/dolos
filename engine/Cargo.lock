@@ -2089,8 +2089,8 @@ dependencies = [
 
 [[package]]
 name = "tree-sitter-modelica"
-version = "0.2.3"
-source = "git+https://github.com/OpenModelica/tree-sitter-modelica.git#ee57ebfeedc515933d1dc4d41a5bc6af2f092afa"
+version = "0.3.0"
+source = "git+https://github.com/OpenModelica/tree-sitter-modelica.git#aa3ea6b659827969c81d8febca37e08d36307a3a"
 dependencies = [
  "cc",
  "tree-sitter-language",
