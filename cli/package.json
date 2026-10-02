@@ -28,20 +28,20 @@
     "access": "public"
   },
   "devDependencies": {
-    "@types/node": "^26.2.0",
-    "typescript-eslint": "^8.67.0" ,
-    "eslint": "^10.9.0",
+    "@types/node": "^26.6.3",
+    "typescript-eslint": "^8.70.1" ,
+    "eslint": "^10.11.0",
     "@eslint/js": "^10.0.1",
     "typescript": "7.0.2"
   },
   "dependencies": {
     "@dodona/dolos-lib": "3.5.1",
     "@dodona/dolos-web": "2.9.3",
-    "chalk": "^6.0.0",
+    "chalk": "^6.0.1",
     "cliui": "^9.0.1",
     "commander": "^15.0.0",
-    "csv-stringify": "^6.8.3",
-    "open": "^11.0.1",
+    "csv-stringify": "^6.9.0",
+    "open": "^11.0.4",
     "tree-sitter": "^0.25.1"
   },
   "bugs": {
