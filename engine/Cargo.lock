@@ -512,6 +512,7 @@ dependencies = [
  "dolos-lib",
  "open",
  "predicates",
+ "serde",
  "tempfile",
  "terminal_size",
  "tokio",
