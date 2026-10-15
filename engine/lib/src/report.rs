@@ -151,7 +151,6 @@ mod tests {
             kgram_length: 23,
             kgrams_in_window: 17,
             language: Language::Javascript,
-            language_detected: true,
             include_comments: false,
             include_fragments: true,
             min_length_match: 1,

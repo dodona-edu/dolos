@@ -1,7 +1,9 @@
+use std::collections::HashMap;
 use std::fmt;
 use std::hash::{Hash, Hasher};
+use std::io::{Error, ErrorKind, Result};
 use std::path::PathBuf;
-use tree_sitter_grammars::{Language, guess_grammar_from_path};
+use tree_sitter_grammars::Language;
 
 pub struct File {
     /// Zero-based index assigned in the order the file was added to the analysis.
@@ -69,11 +71,94 @@ impl FileSet {
         Self { base_dir, relative_paths }
     }
 
-    /// Guess the tokenization language from the first file's extension.
-    /// Returns `None` when there are no files or the extension is unknown.
-    pub fn detect_language(&self) -> Option<Language> {
-        self.relative_paths
-            .first()
-            .and_then(|path| guess_grammar_from_path(path))
+    /// Detect the language that the most file extensions belong to.
+    ///
+    /// # Errors
+    /// Fails when no file has a known extension, or when several languages share the highest count.
+    pub fn detect_language(&self) -> Result<Language> {
+        let mut counts: HashMap<Language, usize> = HashMap::new();
+        for path in &self.relative_paths {
+            for language in Language::from_path(path) {
+                *counts.entry(language).or_default() += 1;
+            }
+        }
+
+        let Some(&max) = counts.values().max() else {
+            return Err(Error::new(
+                ErrorKind::InvalidInput,
+                "Could not detect the language: no file has a known extension. Specify the language explicitly.",
+            ));
+        };
+
+        let mut winners: Vec<Language> = counts
+            .into_iter()
+            .filter(|&(_, count)| count == max)
+            .map(|(language, _)| language)
+            .collect();
+        winners.sort();
+        match winners[..] {
+            [language] => Ok(language),
+            _ => Err(Error::new(
+                ErrorKind::InvalidInput,
+                format!(
+                    "Could not detect the language: {winners:?} each match {max} files. Specify the language explicitly."
+                ),
+            )),
+        }
+    }
+
+    /// Keep only the files whose extension belongs to `language`.
+    pub fn retain_language(&mut self, language: Language) {
+        self.relative_paths.retain(|path| language.matches(path));
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::FileSet;
+    use rstest::rstest;
+    use std::path::PathBuf;
+    use tree_sitter_grammars::Language;
+
+    fn file_set(paths: &[&str]) -> FileSet {
+        FileSet::new("", paths.iter().map(PathBuf::from).collect())
+    }
+
+    #[rstest]
+    #[case::cpp_with_headers(&["a.cpp", "b.cpp", "c.cpp", "d.cpp", "a.h", "b.h", "c.h"], Language::Cpp)]
+    #[case::c_with_headers(&["a.c", "b.c", "a.h", "b.h", "c.h"], Language::C)]
+    #[case::unknown_majority(&["a.py", "b.py", "x.md", "y.md", "z.md"], Language::Python)]
+    #[case::no_extension(&["Makefile", "a.py"], Language::Python)]
+    fn detect_language_picks_majority(#[case] paths: &[&str], #[case] expected: Language) {
+        assert_eq!(file_set(paths).detect_language().unwrap(), expected);
+    }
+
+    #[test]
+    fn detect_language_rejects_a_tie() {
+        let err = file_set(&["a.h", "b.h", "c.h"])
+            .detect_language()
+            .unwrap_err();
+        assert!(err.to_string().contains("[C, Cpp]"), "{err}");
+    }
+
+    #[test]
+    fn detect_language_rejects_unknown_extensions() {
+        let err = file_set(&["README.md", "Makefile"])
+            .detect_language()
+            .unwrap_err();
+        assert!(
+            err.to_string().contains("no file has a known extension"),
+            "{err}"
+        );
+    }
+
+    #[test]
+    fn retain_language_keeps_matching_files() {
+        let mut files = file_set(&["a.cpp", "README.md", "b.h", ".gitignore", "Makefile"]);
+        files.retain_language(Language::Cpp);
+        assert_eq!(
+            files.relative_paths,
+            [PathBuf::from("a.cpp"), PathBuf::from("b.h")]
+        );
     }
 }

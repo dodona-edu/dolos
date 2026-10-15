@@ -18,10 +18,6 @@ pub struct Metadata {
     pub kgrams_in_window: usize,
     /// The language used for tokenization.
     pub language: Language,
-    /// `true` when the language was auto-detected from the file extension;
-    /// `false` when the user specified it (in which case file extensions are
-    /// not enforced to match).
-    pub language_detected: bool,
     pub include_comments: bool,
     /// Whether per-pair code fragments were computed (`true` for exactly 2
     /// files or when `--compare` was passed).
@@ -35,22 +31,9 @@ pub struct Metadata {
 }
 
 impl Metadata {
-    /// Resolve the user-facing [`DolosConfig`] into the run metadata, using
-    /// the dataset's file set for language detection and file-count limits.
+    /// Resolve the user-facing [`DolosConfig`] and the [`Dataset`] into the run metadata.
     pub fn from_config(config: &DolosConfig, dataset: &Dataset) -> Metadata {
         let file_count = dataset.file_set.relative_paths.len();
-        let (language, language_detected) = match config.language {
-            // The user-supplied language wins; when absent, the language is
-            // guessed from the first file's extension.
-            Some(lang) => (lang, false),
-            None => (
-                dataset
-                    .file_set
-                    .detect_language()
-                    .expect("Could not detect language from file extension"),
-                true,
-            ),
-        };
         let max_fingerprint_file_count = config.max_fingerprint_file_count(file_count);
 
         Metadata {
@@ -60,8 +43,7 @@ impl Metadata {
             fragment_sort_by: config.fragment_sort_by,
             kgram_length: config.kgram_length,
             kgrams_in_window: config.kgrams_in_window,
-            language,
-            language_detected,
+            language: dataset.language,
             include_comments: config.include_comments,
             include_fragments: file_count == 2 || config.compare,
             min_length_match: config.min_length_match,
@@ -73,12 +55,11 @@ impl Metadata {
     /// The metadata fields as `(property, value)` pairs, in the order they are
     /// written to `metadata.csv`. Optional fields render as `"null"` when absent.
     #[rustfmt::skip]
-    pub fn properties(&self) -> [(&'static str, String); 13] {
+    pub fn properties(&self) -> [(&'static str, String); 12] {
         [
             ("reportName", self.report_name.clone()),
             ("createdAt", self.created_at.to_rfc3339()),
             ("language", format!("{:?}", self.language)),
-            ("languageDetected", self.language_detected.to_string()),
             ("kgramLength", self.kgram_length.to_string()),
             ("kgramsInWindow", self.kgrams_in_window.to_string()),
             ("minLengthMatch", self.min_length_match.to_string()),

@@ -28,25 +28,27 @@ pub fn from_csv(csv_path: &Path) -> Result<(String, Vec<PathBuf>)> {
 }
 
 /// Resolve files from an explicit list of paths. All paths must be existing
-/// files. The name is derived from the file names.
-pub fn from_files(paths: Vec<PathBuf>) -> Result<(String, Vec<PathBuf>)> {
+/// files.
+pub fn from_files(paths: Vec<PathBuf>) -> Result<Vec<PathBuf>> {
     if let Some(path) = paths.iter().find(|p| !p.is_file()) {
         return Err(Error::new(
             ErrorKind::NotFound,
             format!("'{}' is not a file", path.display()),
         ));
     }
+    Ok(paths)
+}
 
-    let name = match paths.as_slice() {
+/// Name a list of files: `a.js-b.js` for two files, `N files` otherwise.
+pub fn files_name(paths: &[PathBuf]) -> String {
+    match paths {
         [a, b] => format!(
             "{}-{}",
             a.file_name().unwrap_or_default().to_string_lossy(),
             b.file_name().unwrap_or_default().to_string_lossy(),
         ),
         _ => format!("{} files", paths.len()),
-    };
-
-    Ok((name, paths))
+    }
 }
 
 fn filenames_from_csv(csv_path: &Path) -> Result<Vec<PathBuf>> {

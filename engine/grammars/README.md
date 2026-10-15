@@ -32,9 +32,9 @@ individual `tree-sitter-*` crates.
 | Perl       | `lang-perl`        | `.pl`, `.pm`, `.t`                              | `perl`                    |
 | PHP        | `lang-php`         | `.php`, `.php3`, `.php4`, `.php5`, `.php7`, `.phps`, `.phpt`, `.phtml` | `php`                     |
 | Python     | `lang-python`      | `.py`, `.py3`                                   | `python`, `py`            |
-| R          | `lang-r`           | `.r`, `.rdata`, `.rds`, `.rda`                  | `r`                       |
+| R          | `lang-r`           | `.r`                                            | `r`                       |
 | Ruby       | `lang-ruby`        | `.rb`, `.rbw`                                   | `ruby`                    |
-| Rust       | `lang-rust`        | `.rs`, `.rlib`                                  | `rust`                    |
+| Rust       | `lang-rust`        | `.rs`                                           | `rust`                    |
 | Scala      | `lang-scala`       | `.scala`, `.sc`                                 | `scala`                   |
 | SQL        | `lang-sql`         | `.sql`                                          | `sql`                     |
 | Swift      | `lang-swift`       | `.swift`                                        | `swift`                   |
@@ -67,31 +67,19 @@ tree-sitter-grammars = { version = "0.1", features = ["all-languages"] }
 
 ```rust
 use std::path::Path;
-use tree_sitter_grammars::guess_grammar_from_path;
+use tree_sitter_grammars::Language;
 
-let lang = guess_grammar_from_path(Path::new("main.py"))
-    .expect("unsupported file extension");
-
-let ts_lang = lang.tree_sitter_language();
-```
-
-### Resolve from an extension
-
-```rust
-use std::ffi::OsStr;
-use tree_sitter_grammars::guess_grammar_from_ext;
-
-if let Some(lang) = guess_grammar_from_ext(OsStr::new("ts")) {
-    let ts_lang = lang.tree_sitter_language();
-}
+// `.h` returns both C and C++; most extensions return one language.
+let langs = Language::from_path(Path::new("main.py"));
+let ts_lang = langs.first().expect("unsupported file extension").tree_sitter_language();
 ```
 
 ### Resolve from a language name
 
 ```rust
-use tree_sitter_grammars::guess_grammar_from_name;
+use tree_sitter_grammars::Language;
 
-if let Some(lang) = guess_grammar_from_name("golang") {
+if let Some(lang) = Language::from_name("golang") {
     let ts_lang = lang.tree_sitter_language();
 }
 ```

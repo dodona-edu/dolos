@@ -1,18 +1,18 @@
 //! Tree-sitter grammar bindings for a wide range of programming languages.
 //!
-//! Provides a unified [`Language`] enum and helper functions to resolve a
-//! [`tree_sitter_language::LanguageFn`] from a file path, file extension, or
-//! language name string.
+//! Provides a [`Language`] enum that maps language names and file extensions to a
+//! [`tree_sitter_language::LanguageFn`].
 //!
 //! For installation instructions, the full list of supported languages, and
-//! usage examples, see the [README](https://github.com/your-org/dolos-rs/tree/main/tree-sitter-grammars).
+//! usage examples, see the [README](https://github.com/dodona-edu/dolos-rs/tree/main/tree-sitter-grammars).
 
 use std::ffi::OsStr;
 use std::path::Path;
+use tree_sitter_language::LanguageFn;
 
 /// An enum with all the supported programming languages.
 /// Each variant is only available if the corresponding `lang-*` feature is enabled.
-#[derive(Debug, Eq, PartialEq, Clone, Copy)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Clone, Copy)]
 pub enum Language {
     #[cfg(feature = "lang-bash")]
     Bash,
@@ -74,278 +74,294 @@ pub enum Language {
     Verilog,
 }
 
-/// Infer a [`Language`] from the extension of the given file path.
-///
-/// The extension is extracted with [`Path::extension`] and forwarded to
-/// [`guess_grammar_from_ext`]. Panics if the path has no extension.
-///
-/// # Examples
-///
-/// ```rust,ignore
-/// use std::path::Path;
-/// use tree_sitter_grammars::guess_grammar_from_path;
-///
-/// assert!(guess_grammar_from_path(Path::new("main.py")).is_some());
-/// assert!(guess_grammar_from_path(Path::new("unknown.xyz")).is_none());
-/// ```
-pub fn guess_grammar_from_path(path: &Path) -> Option<Language> {
-    guess_grammar_from_ext(path.extension().expect("file has no extension"))
-}
-
-/// Infer a [`Language`] from a raw file extension.
-///
-/// The comparison is **case-insensitive**. Returns `None` if the extension is
-/// not recognized or if the corresponding `lang-*` feature is not enabled.
-///
-/// # Examples
-///
-/// ```rust,ignore
-/// use std::ffi::OsStr;
-/// use tree_sitter_grammars::guess_grammar_from_ext;
-/// use tree_sitter_grammars::Language;
-///
-/// assert_eq!(guess_grammar_from_ext(OsStr::new("py")), Some(Language::Python));
-/// assert_eq!(guess_grammar_from_ext(OsStr::new("xyz")), None);
-/// ```
-pub fn guess_grammar_from_ext(ext: &OsStr) -> Option<Language> {
-    match ext.to_ascii_lowercase().to_str()? {
-        #[cfg(feature = "lang-bash")]
-        "sh" | "bash" => Some(Language::Bash),
-        #[cfg(feature = "lang-c")]
-        "c" | "h" => Some(Language::C),
-        #[cfg(feature = "lang-cpp")]
-        "cpp" | "hpp" | "cc" | "cp" | "cxx" | "c++" | "hh" | "hxx" | "h++" => Some(Language::Cpp),
-        #[cfg(feature = "lang-csharp")]
-        "cs" | "csx" => Some(Language::CSharp),
-        #[cfg(feature = "lang-dart")]
-        "dart" => Some(Language::Dart),
-        #[cfg(feature = "lang-elixir")]
-        "ex" | "exs" => Some(Language::Elixir),
-        #[cfg(feature = "lang-elm")]
-        "elm" => Some(Language::Elm),
-        #[cfg(feature = "lang-go")]
-        "go" => Some(Language::Go),
-        #[cfg(feature = "lang-groovy")]
-        "groovy" | "gvy" | "gy" | "gsh" => Some(Language::Groovy),
-        #[cfg(feature = "lang-haskell")]
-        "hs" | "lhs" => Some(Language::Haskell),
-        #[cfg(feature = "lang-java")]
-        "java" => Some(Language::Java),
-        #[cfg(feature = "lang-javascript")]
-        "js" => Some(Language::Javascript),
-        #[cfg(feature = "lang-julia")]
-        "jl" => Some(Language::Julia),
-        #[cfg(feature = "lang-kotlin")]
-        "kt" | "kts" => Some(Language::Kotlin),
-        #[cfg(feature = "lang-lua")]
-        "lua" => Some(Language::Lua),
-        #[cfg(feature = "lang-modelica")]
-        "mo" => Some(Language::Modelica),
-        #[cfg(feature = "lang-ocaml")]
-        "ml" => Some(Language::Ocaml),
-        #[cfg(feature = "lang-perl")]
-        "pl" | "pm" | "t" => Some(Language::Perl),
-        #[cfg(feature = "lang-php")]
-        "php" | "php3" | "php4" | "php5" | "php7" | "phps" | "phpt" | "phtml" => {
-            Some(Language::Php)
-        }
-        #[cfg(feature = "lang-python")]
-        "py" | "py3" => Some(Language::Python),
-        #[cfg(feature = "lang-r")]
-        "r" | "rdata" | "rds" | "rda" => Some(Language::R),
-        #[cfg(feature = "lang-ruby")]
-        "rb" | "rbw" => Some(Language::Ruby),
-        #[cfg(feature = "lang-rust")]
-        "rs" | "rlib" => Some(Language::Rust),
-        #[cfg(feature = "lang-scala")]
-        "scala" | "sc" => Some(Language::Scala),
-        #[cfg(feature = "lang-sql")]
-        "sql" => Some(Language::Sql),
-        #[cfg(feature = "lang-swift")]
-        "swift" => Some(Language::Swift),
-        #[cfg(feature = "lang-typescript")]
-        "ts" => Some(Language::Typescript),
-        #[cfg(feature = "lang-tsx")]
-        "tsx" => Some(Language::Tsx),
-        #[cfg(feature = "lang-verilog")]
-        "v" | "vh" => Some(Language::Verilog),
-        _ => None,
-    }
-}
-
-/// Infer a [`Language`] from a human-readable language name.
-///
-/// Common aliases are accepted (e.g. `"js"` for JavaScript, `"golang"` for
-/// Go, `"py"` for Python). The comparison is **case-insensitive**. Returns
-/// `None` if the name is not recognized or if the corresponding `lang-*`
-/// feature is not enabled.
-///
-/// # Examples
-///
-/// ```rust,ignore
-/// use tree_sitter_grammars::guess_grammar_from_name;
-/// use tree_sitter_grammars::Language;
-///
-/// assert_eq!(guess_grammar_from_name("python"), Some(Language::Python));
-/// assert_eq!(guess_grammar_from_name("golang"), Some(Language::Go));
-/// assert_eq!(guess_grammar_from_name("unknown"), None);
-/// ```
-pub fn guess_grammar_from_name(name: &str) -> Option<Language> {
-    match name.to_ascii_lowercase().as_str() {
-        #[cfg(feature = "lang-bash")]
-        "bash" | "shell" | "sh" => Some(Language::Bash),
-        #[cfg(feature = "lang-c")]
-        "c" => Some(Language::C),
-        #[cfg(feature = "lang-cpp")]
-        "c++" | "cpp" => Some(Language::Cpp),
-        #[cfg(feature = "lang-csharp")]
-        "c#" | "csharp" => Some(Language::CSharp),
-        #[cfg(feature = "lang-dart")]
-        "dart" => Some(Language::Dart),
-        #[cfg(feature = "lang-elixir")]
-        "elixir" => Some(Language::Elixir),
-        #[cfg(feature = "lang-elm")]
-        "elm" => Some(Language::Elm),
-        #[cfg(feature = "lang-go")]
-        "go" | "golang" => Some(Language::Go),
-        #[cfg(feature = "lang-groovy")]
-        "groovy" => Some(Language::Groovy),
-        #[cfg(feature = "lang-haskell")]
-        "haskell" => Some(Language::Haskell),
-        #[cfg(feature = "lang-java")]
-        "java" => Some(Language::Java),
-        #[cfg(feature = "lang-javascript")]
-        "javascript" | "js" => Some(Language::Javascript),
-        #[cfg(feature = "lang-julia")]
-        "julia" => Some(Language::Julia),
-        #[cfg(feature = "lang-kotlin")]
-        "kotlin" => Some(Language::Kotlin),
-        #[cfg(feature = "lang-lua")]
-        "lua" => Some(Language::Lua),
-        #[cfg(feature = "lang-modelica")]
-        "modelica" => Some(Language::Modelica),
-        #[cfg(feature = "lang-ocaml")]
-        "ocaml" => Some(Language::Ocaml),
-        #[cfg(feature = "lang-perl")]
-        "perl" => Some(Language::Perl),
-        #[cfg(feature = "lang-php")]
-        "php" => Some(Language::Php),
-        #[cfg(feature = "lang-python")]
-        "python" | "py" => Some(Language::Python),
-        #[cfg(feature = "lang-r")]
-        "r" => Some(Language::R),
-        #[cfg(feature = "lang-ruby")]
-        "ruby" => Some(Language::Ruby),
-        #[cfg(feature = "lang-rust")]
-        "rust" => Some(Language::Rust),
-        #[cfg(feature = "lang-scala")]
-        "scala" => Some(Language::Scala),
-        #[cfg(feature = "lang-sql")]
-        "sql" => Some(Language::Sql),
-        #[cfg(feature = "lang-swift")]
-        "swift" => Some(Language::Swift),
-        #[cfg(feature = "lang-typescript")]
-        "typescript" | "ts" => Some(Language::Typescript),
-        #[cfg(feature = "lang-tsx")]
-        "tsx" => Some(Language::Tsx),
-        #[cfg(feature = "lang-verilog")]
-        "verilog" => Some(Language::Verilog),
-        _ => None,
-    }
+/// The names, file extensions and tree-sitter grammar of one language.
+struct Grammar {
+    /// Lowercase names and aliases, such as `"golang"`.
+    names: &'static [&'static str],
+    /// Lowercase file extensions, without the dot.
+    extensions: &'static [&'static str],
+    tree_sitter: LanguageFn,
 }
 
 impl Language {
-    /// Returns `true` if the file at `path` is written in this language,
-    /// determined by the file extension.
-    ///
-    /// # Examples
-    ///
-    /// ```rust,ignore
-    /// use std::path::Path;
-    /// use tree_sitter_grammars::Language;
-    ///
-    /// assert!(Language::Python.matches(Path::new("script.py")));
-    /// assert!(!Language::Python.matches(Path::new("main.rs")));
-    /// ```
-    pub fn matches(&self, path: &Path) -> bool {
-        if let Some(lang) = guess_grammar_from_path(path) {
-            return self == &lang;
-        };
-        false
+    /// Every language with an enabled `lang-*` feature.
+    pub const ALL: &'static [Language] = &[
+        #[cfg(feature = "lang-bash")]
+        Language::Bash,
+        #[cfg(feature = "lang-c")]
+        Language::C,
+        #[cfg(feature = "lang-cpp")]
+        Language::Cpp,
+        #[cfg(feature = "lang-csharp")]
+        Language::CSharp,
+        #[cfg(feature = "lang-dart")]
+        Language::Dart,
+        #[cfg(feature = "lang-elixir")]
+        Language::Elixir,
+        #[cfg(feature = "lang-elm")]
+        Language::Elm,
+        #[cfg(feature = "lang-go")]
+        Language::Go,
+        #[cfg(feature = "lang-groovy")]
+        Language::Groovy,
+        #[cfg(feature = "lang-haskell")]
+        Language::Haskell,
+        #[cfg(feature = "lang-java")]
+        Language::Java,
+        #[cfg(feature = "lang-javascript")]
+        Language::Javascript,
+        #[cfg(feature = "lang-julia")]
+        Language::Julia,
+        #[cfg(feature = "lang-kotlin")]
+        Language::Kotlin,
+        #[cfg(feature = "lang-lua")]
+        Language::Lua,
+        #[cfg(feature = "lang-modelica")]
+        Language::Modelica,
+        #[cfg(feature = "lang-ocaml")]
+        Language::Ocaml,
+        #[cfg(feature = "lang-perl")]
+        Language::Perl,
+        #[cfg(feature = "lang-php")]
+        Language::Php,
+        #[cfg(feature = "lang-python")]
+        Language::Python,
+        #[cfg(feature = "lang-r")]
+        Language::R,
+        #[cfg(feature = "lang-ruby")]
+        Language::Ruby,
+        #[cfg(feature = "lang-rust")]
+        Language::Rust,
+        #[cfg(feature = "lang-scala")]
+        Language::Scala,
+        #[cfg(feature = "lang-sql")]
+        Language::Sql,
+        #[cfg(feature = "lang-swift")]
+        Language::Swift,
+        #[cfg(feature = "lang-typescript")]
+        Language::Typescript,
+        #[cfg(feature = "lang-tsx")]
+        Language::Tsx,
+        #[cfg(feature = "lang-verilog")]
+        Language::Verilog,
+    ];
+
+    /// The language with the name or alias `name`, ignoring case.
+    pub fn from_name(name: &str) -> Option<Language> {
+        Self::ALL
+            .iter()
+            .copied()
+            .find(|language| contains_ignoring_case(language.grammar().names, name))
     }
 
-    /// Returns the underlying [`tree_sitter_language::LanguageFn`] for this
-    /// language, which can be passed directly to `tree_sitter::Parser::set_language`.
+    /// The languages that use the extension of `path`, ignoring case.
     ///
-    /// # Examples
-    ///
-    /// ```rust,ignore
-    /// use tree_sitter::Parser;
-    /// use tree_sitter_grammars::Language;
-    ///
-    /// let mut parser = Parser::new();
-    /// parser.set_language(&Language::Python.tree_sitter_language().into()).unwrap();
-    /// ```
-    pub fn tree_sitter_language(self) -> tree_sitter_language::LanguageFn {
+    /// Returns an empty list when the path has no extension or the extension is unknown.
+    pub fn from_path(path: &Path) -> Vec<Language> {
+        Self::ALL
+            .iter()
+            .copied()
+            .filter(|language| language.matches(path))
+            .collect()
+    }
+
+    /// Returns `true` if the extension of `path` belongs to this language, ignoring case.
+    pub fn matches(self, path: &Path) -> bool {
+        path.extension()
+            .and_then(OsStr::to_str)
+            .is_some_and(|ext| contains_ignoring_case(self.grammar().extensions, ext))
+    }
+
+    /// The grammar to pass to `tree_sitter::Parser::set_language`.
+    pub fn tree_sitter_language(self) -> LanguageFn {
+        self.grammar().tree_sitter
+    }
+
+    fn grammar(self) -> Grammar {
         match self {
             #[cfg(feature = "lang-bash")]
-            Language::Bash => tree_sitter_bash::LANGUAGE,
+            Language::Bash => Grammar {
+                names: &["bash", "shell", "sh"],
+                extensions: &["sh", "bash"],
+                tree_sitter: tree_sitter_bash::LANGUAGE,
+            },
             #[cfg(feature = "lang-c")]
-            Language::C => tree_sitter_c::LANGUAGE,
+            Language::C => Grammar {
+                names: &["c"],
+                extensions: &["c", "h"],
+                tree_sitter: tree_sitter_c::LANGUAGE,
+            },
             #[cfg(feature = "lang-cpp")]
-            Language::Cpp => tree_sitter_cpp::LANGUAGE,
+            Language::Cpp => Grammar {
+                names: &["c++", "cpp"],
+                extensions: &[
+                    "cpp", "hpp", "cc", "cp", "cxx", "c++", "h", "hh", "hxx", "h++",
+                ],
+                tree_sitter: tree_sitter_cpp::LANGUAGE,
+            },
             #[cfg(feature = "lang-csharp")]
-            Language::CSharp => tree_sitter_c_sharp::LANGUAGE,
+            Language::CSharp => Grammar {
+                names: &["c#", "csharp"],
+                extensions: &["cs", "csx"],
+                tree_sitter: tree_sitter_c_sharp::LANGUAGE,
+            },
             #[cfg(feature = "lang-dart")]
-            Language::Dart => tree_sitter_dart::LANGUAGE,
+            Language::Dart => Grammar {
+                names: &["dart"],
+                extensions: &["dart"],
+                tree_sitter: tree_sitter_dart::LANGUAGE,
+            },
             #[cfg(feature = "lang-elixir")]
-            Language::Elixir => tree_sitter_elixir::LANGUAGE,
+            Language::Elixir => Grammar {
+                names: &["elixir"],
+                extensions: &["ex", "exs"],
+                tree_sitter: tree_sitter_elixir::LANGUAGE,
+            },
             #[cfg(feature = "lang-elm")]
-            Language::Elm => tree_sitter_elm::LANGUAGE,
+            Language::Elm => Grammar {
+                names: &["elm"],
+                extensions: &["elm"],
+                tree_sitter: tree_sitter_elm::LANGUAGE,
+            },
             #[cfg(feature = "lang-go")]
-            Language::Go => tree_sitter_go::LANGUAGE,
+            Language::Go => Grammar {
+                names: &["go", "golang"],
+                extensions: &["go"],
+                tree_sitter: tree_sitter_go::LANGUAGE,
+            },
             #[cfg(feature = "lang-groovy")]
-            Language::Groovy => tree_sitter_groovy::LANGUAGE,
+            Language::Groovy => Grammar {
+                names: &["groovy"],
+                extensions: &["groovy", "gvy", "gy", "gsh"],
+                tree_sitter: tree_sitter_groovy::LANGUAGE,
+            },
             #[cfg(feature = "lang-haskell")]
-            Language::Haskell => tree_sitter_haskell::LANGUAGE,
+            Language::Haskell => Grammar {
+                names: &["haskell"],
+                extensions: &["hs", "lhs"],
+                tree_sitter: tree_sitter_haskell::LANGUAGE,
+            },
             #[cfg(feature = "lang-java")]
-            Language::Java => tree_sitter_java::LANGUAGE,
+            Language::Java => Grammar {
+                names: &["java"],
+                extensions: &["java"],
+                tree_sitter: tree_sitter_java::LANGUAGE,
+            },
             #[cfg(feature = "lang-javascript")]
-            Language::Javascript => tree_sitter_javascript::LANGUAGE,
+            Language::Javascript => Grammar {
+                names: &["javascript", "js"],
+                extensions: &["js"],
+                tree_sitter: tree_sitter_javascript::LANGUAGE,
+            },
             #[cfg(feature = "lang-julia")]
-            Language::Julia => tree_sitter_julia::LANGUAGE,
+            Language::Julia => Grammar {
+                names: &["julia"],
+                extensions: &["jl"],
+                tree_sitter: tree_sitter_julia::LANGUAGE,
+            },
             #[cfg(feature = "lang-kotlin")]
-            Language::Kotlin => tree_sitter_kotlin::LANGUAGE,
+            Language::Kotlin => Grammar {
+                names: &["kotlin"],
+                extensions: &["kt", "kts"],
+                tree_sitter: tree_sitter_kotlin::LANGUAGE,
+            },
             #[cfg(feature = "lang-lua")]
-            Language::Lua => tree_sitter_lua::LANGUAGE,
+            Language::Lua => Grammar {
+                names: &["lua"],
+                extensions: &["lua"],
+                tree_sitter: tree_sitter_lua::LANGUAGE,
+            },
             #[cfg(feature = "lang-modelica")]
-            Language::Modelica => tree_sitter_modelica::LANGUAGE,
+            Language::Modelica => Grammar {
+                names: &["modelica"],
+                extensions: &["mo"],
+                tree_sitter: tree_sitter_modelica::LANGUAGE,
+            },
             #[cfg(feature = "lang-ocaml")]
-            Language::Ocaml => tree_sitter_ocaml::LANGUAGE_OCAML,
+            Language::Ocaml => Grammar {
+                names: &["ocaml"],
+                extensions: &["ml"],
+                tree_sitter: tree_sitter_ocaml::LANGUAGE_OCAML,
+            },
             #[cfg(feature = "lang-perl")]
-            Language::Perl => tree_sitter_perl::LANGUAGE,
+            Language::Perl => Grammar {
+                names: &["perl"],
+                extensions: &["pl", "pm", "t"],
+                tree_sitter: tree_sitter_perl::LANGUAGE,
+            },
             #[cfg(feature = "lang-php")]
-            Language::Php => tree_sitter_php::LANGUAGE_PHP,
+            Language::Php => Grammar {
+                names: &["php"],
+                extensions: &[
+                    "php", "php3", "php4", "php5", "php7", "phps", "phpt", "phtml",
+                ],
+                tree_sitter: tree_sitter_php::LANGUAGE_PHP,
+            },
             #[cfg(feature = "lang-python")]
-            Language::Python => tree_sitter_python::LANGUAGE,
+            Language::Python => Grammar {
+                names: &["python", "py"],
+                extensions: &["py", "py3"],
+                tree_sitter: tree_sitter_python::LANGUAGE,
+            },
             #[cfg(feature = "lang-r")]
-            Language::R => tree_sitter_r::LANGUAGE,
+            Language::R => Grammar {
+                names: &["r"],
+                extensions: &["r"],
+                tree_sitter: tree_sitter_r::LANGUAGE,
+            },
             #[cfg(feature = "lang-ruby")]
-            Language::Ruby => tree_sitter_ruby::LANGUAGE,
+            Language::Ruby => Grammar {
+                names: &["ruby"],
+                extensions: &["rb", "rbw"],
+                tree_sitter: tree_sitter_ruby::LANGUAGE,
+            },
             #[cfg(feature = "lang-rust")]
-            Language::Rust => tree_sitter_rust::LANGUAGE,
+            Language::Rust => Grammar {
+                names: &["rust"],
+                extensions: &["rs"],
+                tree_sitter: tree_sitter_rust::LANGUAGE,
+            },
             #[cfg(feature = "lang-scala")]
-            Language::Scala => tree_sitter_scala::LANGUAGE,
+            Language::Scala => Grammar {
+                names: &["scala"],
+                extensions: &["scala", "sc"],
+                tree_sitter: tree_sitter_scala::LANGUAGE,
+            },
             #[cfg(feature = "lang-sql")]
-            Language::Sql => tree_sitter_sequel::LANGUAGE,
+            Language::Sql => Grammar {
+                names: &["sql"],
+                extensions: &["sql"],
+                tree_sitter: tree_sitter_sequel::LANGUAGE,
+            },
             #[cfg(feature = "lang-swift")]
-            Language::Swift => tree_sitter_swift::LANGUAGE,
+            Language::Swift => Grammar {
+                names: &["swift"],
+                extensions: &["swift"],
+                tree_sitter: tree_sitter_swift::LANGUAGE,
+            },
             #[cfg(feature = "lang-typescript")]
-            Language::Typescript => tree_sitter_typescript::LANGUAGE_TYPESCRIPT,
+            Language::Typescript => Grammar {
+                names: &["typescript", "ts"],
+                extensions: &["ts"],
+                tree_sitter: tree_sitter_typescript::LANGUAGE_TYPESCRIPT,
+            },
             #[cfg(feature = "lang-tsx")]
-            Language::Tsx => tree_sitter_typescript::LANGUAGE_TSX,
+            Language::Tsx => Grammar {
+                names: &["tsx"],
+                extensions: &["tsx"],
+                tree_sitter: tree_sitter_typescript::LANGUAGE_TSX,
+            },
             #[cfg(feature = "lang-verilog")]
-            Language::Verilog => tree_sitter_verilog::LANGUAGE,
+            Language::Verilog => Grammar {
+                names: &["verilog"],
+                extensions: &["v", "vh"],
+                tree_sitter: tree_sitter_verilog::LANGUAGE,
+            },
         }
     }
+}
+
+/// Returns `true` if `values` contains `value`, ignoring ASCII case.
+fn contains_ignoring_case(values: &[&str], value: &str) -> bool {
+    values.iter().any(|known| known.eq_ignore_ascii_case(value))
 }

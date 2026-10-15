@@ -9,7 +9,7 @@ use crate::winnowing::fingerprints::{Fingerprint, Winnow};
 use crate::winnowing::region::Region;
 use crate::winnowing::tokenizer::{Tokenizer, Tokens};
 use std::fmt;
-use std::io::{Error, ErrorKind, Result};
+use std::io::{Error, Result};
 use std::path::{Path, PathBuf};
 use std::rc::Rc;
 
@@ -30,8 +30,11 @@ impl Dolos {
     /// - **One directory** → files collected recursively.
     /// - **One CSV file** → file list read from the `filename` column.
     /// - **One archive** → extracted and treated as a directory.
+    ///
+    /// Only the files of the configured language are analyzed. Without a configured
+    /// language, the language that most file extensions belong to is used.
     pub fn new(files: Vec<PathBuf>, config: DolosConfig) -> Result<Self> {
-        let dataset = Dataset::create(files)?;
+        let dataset = Dataset::create(files, config.language)?;
         let metadata = Metadata::from_config(&config, &dataset);
 
         let tokenizer = Tokenizer::new(metadata.language);
@@ -77,16 +80,6 @@ impl Dolos {
     /// The file is added to `self.files`, its fingerprints to `self.hashes`, and
     /// (when `keep_fragments` is set) its locations to `self.locations`.
     fn add_file(&mut self, id: usize, base_dir: &Path, relative: &Path) -> Result<()> {
-        // Only enforce the language-extension match when the language was
-        // auto-detected.  If the user explicitly specified the language, they
-        // know what they want (e.g., files exported without an extension).
-        if !self.metadata.language_detected && !self.metadata.language.matches(relative) {
-            return Err(Error::new(
-                ErrorKind::InvalidInput,
-                format!("Language does not match file: {}", relative.display()),
-            ));
-        }
-
         let content = std::fs::read_to_string(base_dir.join(relative))?;
         let (hashes, locations) = self.fingerprint(&content, self.metadata.include_fragments);
 

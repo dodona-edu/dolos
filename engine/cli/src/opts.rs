@@ -1,10 +1,10 @@
 use clap::{Args, Parser, Subcommand};
 use dolos::{DolosConfig, FragmentSortBy, PairSortBy};
 use std::path::PathBuf;
-use tree_sitter_grammars::{Language, guess_grammar_from_name};
+use tree_sitter_grammars::Language;
 
 fn parse_language(s: &str) -> Result<Language, String> {
-    guess_grammar_from_name(s).ok_or_else(|| format!("unknown language: '{s}'"))
+    Language::from_name(s).ok_or_else(|| format!("unknown language: '{s}'"))
 }
 
 #[derive(Debug, Clone, Copy, clap::ValueEnum)]
@@ -74,7 +74,8 @@ pub struct DolosArgs {
         short = 'l',
         long,
         value_parser = parse_language,
-        long_help = "Programming language used in the submitted files. Detected automatically if not given."
+        long_help = "Programming language used in the submitted files. Detected automatically if not given. \
+                     Files without a matching extension are skipped."
     )]
     pub language: Option<Language>,
 

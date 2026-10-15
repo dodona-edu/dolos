@@ -1,4 +1,4 @@
-use dolos::{Dolos, DolosConfig, PairSortBy};
+use dolos::{Dolos, DolosConfig, Language, PairSortBy, Report};
 use rstest::rstest;
 use std::path::PathBuf;
 
@@ -15,11 +15,34 @@ const IGNORE: &str = "fixtures/sample_ignore.js";
 /// A template that shares no fingerprint with any sample, so ignoring it is a
 /// no-op.
 const IGNORE_INERT: &str = "fixtures/sample_ignore_inert.js";
+/// Two JavaScript files, one Python file and one file without a language.
+const MIXED: &[&str] = &[
+    "fixtures/sample1.js",
+    "fixtures/sample2.js",
+    "fixtures/sample1.py",
+    "fixtures/README.md",
+];
+/// As many JavaScript as Python files, so the language cannot be detected.
+const JS_AND_PY: &[&str] = &[
+    "fixtures/sample1.js",
+    "fixtures/sample2.js",
+    "fixtures/sample1.py",
+    "fixtures/sample2.py",
+];
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 fn to_path_buf(names: &[&str]) -> Vec<PathBuf> {
     names.iter().map(PathBuf::from).collect()
+}
+
+/// The paths of the files that the report analyzed.
+fn kept_paths(report: &Report) -> Vec<PathBuf> {
+    report
+        .files
+        .iter()
+        .map(|file| file.relative_path.clone())
+        .collect()
 }
 
 fn pair_sim(files: &[&str], config: DolosConfig) -> f64 {
@@ -156,4 +179,51 @@ fn test_input_modes() {
         let sim = pair_sim(&[input], DolosConfig::default());
         assert_eq!(sim, base_sim, "{input}: similarity must match baseline");
     }
+}
+
+// ── Language filtering ────────────────────────────────────────────────────────
+
+#[test]
+fn test_detected_language_skips_other_files() {
+    let report = Dolos::new(to_path_buf(MIXED), DolosConfig::default())
+        .unwrap()
+        .build_report();
+
+    assert_eq!(
+        kept_paths(&report),
+        to_path_buf(&["fixtures/sample1.js", "fixtures/sample2.js"])
+    );
+}
+
+#[test]
+fn test_tied_languages_are_ambiguous() {
+    let err = Dolos::new(to_path_buf(JS_AND_PY), DolosConfig::default()).unwrap_err();
+    assert!(err.to_string().contains("[Javascript, Python]"), "{err}");
+}
+
+#[test]
+fn test_explicit_language_skips_other_files() {
+    let config = DolosConfig::builder()
+        .language(Language::Python)
+        .build()
+        .unwrap();
+    let report = Dolos::new(to_path_buf(JS_AND_PY), config)
+        .unwrap()
+        .build_report();
+
+    assert_eq!(
+        kept_paths(&report),
+        to_path_buf(&["fixtures/sample1.py", "fixtures/sample2.py"])
+    );
+}
+
+#[test]
+fn test_too_few_files_after_filtering() {
+    let config = DolosConfig::builder()
+        .language(Language::Python)
+        .build()
+        .unwrap();
+    let err = Dolos::new(to_path_buf(MIXED), config).unwrap_err();
+
+    assert!(err.to_string().contains("at least 2 Python files"), "{err}");
 }
