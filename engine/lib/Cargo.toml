@@ -74,7 +74,7 @@ bzip2 = "0.6.1"
 csv = "1.4.0"
 flate2 = "1.1.9"
 tar = "0.4.46"
-zip = "8.6.0"
+zip = "9.0.1"
 tempfile = "3.27.0"
 tree-sitter = "=0.26.13"
 tree-sitter-grammars = { path = "../tree-sitter-grammars" }
