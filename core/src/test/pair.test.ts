@@ -135,3 +135,88 @@ test("paired occurrence merging & squashing", t => {
 
 
 
+
+function createEntry(name: string, kgramCount: number): FileEntry {
+  return {
+    kgrams: new Array<Range>(kgramCount).fill(new Range(0, 1)),
+    shared: new Set<SharedFingerprint>(),
+    ignored: new Set<SharedFingerprint>(),
+    file: createFakeFile(name),
+    isIgnored: false,
+  };
+}
+
+test("similarity subtracts every occurrence of an ignored fingerprint", t => {
+  /* Two identical files of 5 kgrams, where an ignored fingerprint (e.g. from
+   * template code) occurs 3 times in each file.
+   *
+   * idx| Left    | Right
+   * ---------------------
+   * 0  | A       | A
+   * 1  | X (ign) | X (ign)
+   * 2  | X (ign) | X (ign)
+   * 3  | X (ign) | X (ign)
+   * 4  | B       | B
+   */
+  const left = createEntry("file1.js", 5);
+  const right = createEntry("file2.js", 5);
+
+  const a = new SharedFingerprint(1, null);
+  const b = new SharedFingerprint(2, null);
+  const x = new SharedFingerprint(3, null);
+  x.ignored = true;
+
+  for (const entry of [left, right]) {
+    entry.shared.add(a);
+    entry.shared.add(b);
+    entry.ignored.add(x);
+    a.add(createOccurrence(entry, 0));
+    x.addAll([1, 2, 3].map(i => createOccurrence(entry, i)));
+    b.add(createOccurrence(entry, 4));
+  }
+
+  const pair = new Pair(left, right);
+
+  t.is(pair.leftCovered, 2);
+  t.is(pair.rightCovered, 2);
+  t.is(pair.leftIgnored, 3);
+  t.is(pair.rightIgnored, 3);
+  t.is(pair.similarity, 1.0);
+});
+
+test("similarity uses the ignored occurrences of each side", t => {
+  /* The ignored fingerprint X occurs once in the left file and 3 times in the
+   * right file. All other kgrams match.
+   *
+   * idx| Left    | Right
+   * ---------------------
+   * 0  | A       | A
+   * 1  | X (ign) | X (ign)
+   * 2  | B       | X (ign)
+   * 3  |         | X (ign)
+   * 4  |         | B
+   */
+  const left = createEntry("file1.js", 3);
+  const right = createEntry("file2.js", 5);
+
+  const a = new SharedFingerprint(1, null);
+  const b = new SharedFingerprint(2, null);
+  const x = new SharedFingerprint(3, null);
+  x.ignored = true;
+
+  for (const entry of [left, right]) {
+    entry.shared.add(a);
+    entry.shared.add(b);
+    entry.ignored.add(x);
+  }
+  a.addAll([createOccurrence(left, 0), createOccurrence(right, 0)]);
+  x.addAll([1].map(i => createOccurrence(left, i)));
+  x.addAll([1, 2, 3].map(i => createOccurrence(right, i)));
+  b.addAll([createOccurrence(left, 2), createOccurrence(right, 4)]);
+
+  const pair = new Pair(left, right);
+
+  t.is(pair.leftIgnored, 1);
+  t.is(pair.rightIgnored, 3);
+  t.is(pair.similarity, 1.0);
+});

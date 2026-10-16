@@ -429,6 +429,66 @@ test("should ignore with maxFingerprintPercentage", async t => {
   t.true(alternative_similar.similarity > 0.5, "Pairs with similar code should have a similarity above 50%");
 });
 
+test("identical files should be a full match when repeated template code is ignored", async t => {
+  const dolos = new Dolos();
+
+  // Template code with the same rows over and over: each of its fingerprints
+  // occurs many times in every submission.
+  const template = `
+  const distances = [
+    [0, 1, 2, 3, 4, 5, 6, 7],
+    [0, 1, 2, 3, 4, 5, 6, 7],
+    [0, 1, 2, 3, 4, 5, 6, 7],
+    [0, 1, 2, 3, 4, 5, 6, 7],
+    [0, 1, 2, 3, 4, 5, 6, 7],
+    [0, 1, 2, 3, 4, 5, 6, 7],
+    [0, 1, 2, 3, 4, 5, 6, 7],
+    [0, 1, 2, 3, 4, 5, 6, 7],
+  ];
+  `;
+
+  const solution = template + `
+  function shortest(from, to) {
+    let best = Infinity;
+    for (let via = 0; via < distances.length; via++) {
+      best = Math.min(best, distances[from][via] + distances[via][to]);
+    }
+    return best;
+  }
+  `;
+
+  const other = template + `
+  function total() {
+    let sum = 0;
+    for (const row of distances) {
+      for (const cell of row) {
+        sum += cell;
+      }
+    }
+    return sum;
+  }
+  `;
+
+  const report = await dolos.analyze(
+    [
+      new File("copy1.js", solution),
+      new File("copy2.js", solution),
+      new File("other.js", other),
+    ],
+    undefined,
+    new File("template.js", template)
+  );
+
+  const [copy1, copy2, unrelated] = report.files;
+  const pair = report.getPair(copy1, copy2);
+  t.true(pair.leftIgnored > 0);
+  t.true(pair.rightIgnored > 0);
+  t.is(pair.similarity, 1);
+
+  t.true(report.getPair(copy1, unrelated).similarity < 0.25, "Pairs sharing only template code should not be similar");
+  t.true(report.getPair(copy2, unrelated).similarity < 0.25, "Pairs sharing only template code should not be similar");
+});
+
 test.failing("repeating sequences should not cause too many fragments", async t => {
   const dolos = new Dolos();
 
