@@ -73,8 +73,8 @@ export class Pair extends Identifiable {
 
     this.leftCovered = left.length;
     this.rightCovered = right.length;
-    this.leftIgnored = leftEntry.ignored.size;
-    this.rightIgnored = rightEntry.ignored.size;
+    this.leftIgnored = this.countIgnoredOccurrences(leftEntry);
+    this.rightIgnored = this.countIgnoredOccurrences(rightEntry);
     this.leftTotal = leftEntry.kgrams.length;
     this.rightTotal = rightEntry.kgrams.length;
     const denominator = this.leftTotal + this.rightTotal - this.leftIgnored - this.rightIgnored;
@@ -83,6 +83,20 @@ export class Pair extends Identifiable {
     } else {
       this.similarity = 0;
     }
+  }
+
+  /**
+   * Count the kgrams of a file that belong to an ignored fingerprint.
+   *
+   * An ignored fingerprint can occur multiple times in the same file, so we
+   * count occurrences (like `kgrams.length`) instead of distinct fingerprints.
+   */
+  private countIgnoredOccurrences(entry: FileEntry): number {
+    let count = 0;
+    for (const fingerprint of entry.ignored) {
+      count += fingerprint.occurrencesOf(entry.file).length;
+    }
+    return count;
   }
 
   private longestCommonSubstring(l: Kgram[], r: Kgram[]): number {
