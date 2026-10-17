@@ -183,7 +183,7 @@ GEM
     mocha (3.1.0)
       ruby2_keywords (>= 0.0.5)
     msgpack (1.8.5)
-    multi_json (1.16.0)
+    multi_json (1.21.2)
     mysql2 (0.5.7)
       bigdecimal
     net-imap (0.6.8)
@@ -366,7 +366,7 @@ DEPENDENCIES
   tzinfo-data
 
 RUBY VERSION
-   ruby 3.4.7p58
+   ruby 3.4.9p82
 
 BUNDLED WITH
    2.3.26
