@@ -1,5 +1,6 @@
 { lib
 , buildNpmPackage
+, importNpmLock
 , jq
 , unzip
 }:
@@ -9,11 +10,9 @@ buildNpmPackage rec {
 
   src = ./.;
 
-  npmDepsHash = "sha256-a+9VvtFob76qidYVnDXZ5W6zAfzOHEK25PiUCsEtm1U=";
+  npmDepsHash = "sha256-3dA7pi4vrdLH+ic06GW2AfgRk3uIWCw6ISjM62G8CTQ=";
 
   npmWorkspace="cli";
-
-  npmFlags = [ "--legacy-peer-deps" ];
 
   makeWrapperArgs = "--prefix PATH : ${lib.makeBinPath [ unzip ]}";
 

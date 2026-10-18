@@ -10,8 +10,8 @@
   "license": "MIT",
   "type": "module",
   "devDependencies": {
-    "vitepress": "^1.6.4",
-    "@vueuse/core": "*"
+    "@vueuse/core": "*",
+    "vitepress": "^2.0.0-alpha.20"
   },
   "scripts": {
     "dev": "vitepress dev",
