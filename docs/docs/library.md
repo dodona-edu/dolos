@@ -13,6 +13,13 @@ Using `npm` to install the library, similar to [installing the CLI](/docs/instal
 npm install @dodona/dolos-lib
 ```
 
+By default, the library uses parsers provided by `@dodona/dolos-parsers`. You can install them with:
+```
+npm install @dodona/dolos-parsers
+```
+
+If a parser for a specific language is not available in `@dodona/dolos-parsers`, or if the package is not installed, the library will automatically fall back to using the corresponding `tree-sitter-<language>` package instead.
+
 ## Usage
 
 Take a look at our [example repository](https://github.com/rien/dolos-lib-example/blob/main/index.mjs)
