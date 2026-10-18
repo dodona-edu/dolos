@@ -62,8 +62,4 @@ parsers.tsx.nodeTypeInfo = require("./typescript/tsx/src/node-types.json");
 parsers.verilog = require("./build/Release/tree_sitter_verilog_binding");
 parsers.verilog.nodeTypeInfo = require("./verilog/src/node-types.json");
 
-// Converting tree-sitter 0.21 parsers is a no-op
-const convert = require("tree-sitter-compat").convertLanguage;
-for (const [key, value] of Object.entries(parsers)) {
-  module.exports[key] = convert(value);
-}
+module.exports = parsers;

@@ -8,9 +8,7 @@
     "build": "node-gyp rebuild"
   },
   "dependencies": {
-    "nan": "^2.29.0",
-    "node-addon-api": "^8.9.2",
-    "tree-sitter-compat": "0.1.7"
+    "node-addon-api": "^8.9.2"
   },
   "devDependencies": {
     "node-gyp": "^13.1.0",
