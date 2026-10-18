@@ -205,6 +205,16 @@
     };
     version = "1.1.2";
   };
+  benchmark = {
+    groups = ["default"];
+    platforms = [];
+    source = {
+      remotes = ["https://rubygems.org"];
+      sha256 = "0v1337j39w1z7x9zs4q7ag0nfv4vs4xlsjx2la0wpv8s6hig2pa6";
+      type = "gem";
+    };
+    version = "0.5.0";
+  };
   bigdecimal = {
     groups = ["default" "development" "test"];
     platforms = [];
@@ -404,15 +414,15 @@
     version = "1.11.1";
   };
   delayed_job = {
-    dependencies = ["activesupport"];
+    dependencies = ["activesupport" "benchmark" "logger"];
     groups = ["default"];
     platforms = [];
     source = {
       remotes = ["https://rubygems.org"];
-      sha256 = "1frvhp463nmng3gqxawdziwmqwnkkxlqzafnkwklk0vbci6fcha9";
+      sha256 = "1vqkfxflcxa7zyj8m3dlgqxc2f5xvrw22k482y1kk14hpdl1zp2i";
       type = "gem";
     };
-    version = "4.1.13";
+    version = "4.2.0";
   };
   delayed_job_active_record = {
     dependencies = ["activerecord" "delayed_job"];
