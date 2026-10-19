@@ -1,11 +1,11 @@
 {
   "name": "@dodona/dolos",
-  "version": "2.9.3",
+  "version": "2.10.0",
   "description": "Code similarity detection based on the Winnowing algorithm",
   "type": "module",
   "export": "./dist/index.js",
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "bin": {
     "dolos": "dist/cli.js"
@@ -35,8 +35,8 @@
     "typescript": "7.0.2"
   },
   "dependencies": {
-    "@dodona/dolos-lib": "3.5.1",
-    "@dodona/dolos-web": "2.9.3",
+    "@dodona/dolos-lib": "3.6.0",
+    "@dodona/dolos-web": "2.10.0",
     "chalk": "^6.0.1",
     "cliui": "^9.0.1",
     "commander": "^15.0.0",
