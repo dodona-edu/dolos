@@ -1,6 +1,6 @@
 {
   "name": "@dodona/dolos-lib",
-  "version": "3.5.1",
+  "version": "3.6.0",
   "exports": "./dist/index.js",
   "type": "module",
   "description": "Code similarity detection based on the Winnowing algorithm",
@@ -36,8 +36,8 @@
     "typescript": "7.0.2"
   },
   "dependencies": {
-    "@dodona/dolos-parsers": "1.4.1",
-    "@dodona/dolos-core": "1.2.1",
+    "@dodona/dolos-parsers": "1.5.0",
+    "@dodona/dolos-core": "1.2.2",
     "d3-dsv": "^3.0.1",
     "tree-sitter": "^0.25.1"
   },

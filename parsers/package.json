@@ -1,6 +1,6 @@
 {
   "name": "@dodona/dolos-parsers",
-  "version": "1.4.1",
+  "version": "1.5.0",
   "description": "Collection of tree-sitter parsers used by Dolos",
   "main": "index.js",
   "license": "MIT",
