@@ -72,6 +72,6 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/dodona-edu/dolos.git"
+    "url": "git+https://github.com/dodona-edu/dolos.git"
   }
 }
