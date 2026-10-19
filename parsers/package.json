@@ -4,6 +4,10 @@
   "description": "Collection of tree-sitter parsers used by Dolos",
   "main": "index.js",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dodona-edu/dolos.git"
+  },
   "scripts": {
     "build": "node-gyp rebuild"
   },

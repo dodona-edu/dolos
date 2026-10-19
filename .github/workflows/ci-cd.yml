@@ -618,6 +618,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+      id-token: write
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v7
@@ -687,7 +688,6 @@ jobs:
       - name: Publish @dodona/dolos-core to NPM
         uses: JS-DevTools/npm-publish@v4
         with:
-          token: ${{ secrets.NPM_AUTH_TOKEN }}
           package: ./core/package.json
           strategy: all
           access: public
@@ -695,7 +695,6 @@ jobs:
       - name: Publish @dodona/dolos-parsers to NPM
         uses: JS-DevTools/npm-publish@v4
         with:
-          token: ${{ secrets.NPM_AUTH_TOKEN }}
           package: ./parsers/package.json
           strategy: all
           access: public
@@ -703,7 +702,6 @@ jobs:
       - name: Publish @dodona/dolos-lib to NPM
         uses: JS-DevTools/npm-publish@v4
         with:
-          token: ${{ secrets.NPM_AUTH_TOKEN }}
           package: ./lib/package.json
           strategy: all
           access: public
@@ -711,7 +709,6 @@ jobs:
       - name: Publish @dodona/dolos-web to NPM
         uses: JS-DevTools/npm-publish@v4
         with:
-          token: ${{ secrets.NPM_AUTH_TOKEN }}
           package: ./web/package.json
           strategy: all
           access: public
@@ -719,7 +716,6 @@ jobs:
       - name: Publish @dodona/dolos to NPM
         uses: JS-DevTools/npm-publish@v4
         with:
-          token: ${{ secrets.NPM_AUTH_TOKEN }}
           package: ./cli/package.json
           strategy: all
           access: public
