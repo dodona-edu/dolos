@@ -23,6 +23,8 @@ pub struct Metadata {
     /// Whether per-pair code fragments were computed (`true` for exactly 2
     /// files or when `--compare` was passed).
     pub include_fragments: bool,
+    /// Whether the report carries the per-file data the analysis needs.
+    pub include_analysis_data: bool,
     pub min_length_match: usize,
     /// the maximum number of files a fingerprint may appear in before it is ignored,
     /// taking the more restrictive of the absolute count (`-m`) and percentage-based (`-M`) limits.
@@ -47,6 +49,7 @@ impl Metadata {
             language: dataset.language,
             include_comments: config.include_comments,
             include_fragments: file_count == 2 || config.compare,
+            include_analysis_data: config.include_analysis_data,
             min_length_match: config.min_length_match,
             max_fingerprint_file_count,
             ignore: config.ignore.clone(),
@@ -64,7 +67,7 @@ impl Metadata {
     /// The metadata fields as `(property, value)` pairs, in the order they are
     /// written to `metadata.csv`. Optional fields render as `"null"` when absent.
     #[rustfmt::skip]
-    pub fn properties(&self) -> [(&'static str, String); 12] {
+    pub fn properties(&self) -> [(&'static str, String); 13] {
         [
             ("reportName", self.report_name.clone()),
             ("createdAt", self.created_at.to_rfc3339()),
@@ -74,6 +77,7 @@ impl Metadata {
             ("minLengthMatch", self.min_length_match.to_string()),
             ("includeComments", self.include_comments.to_string()),
             ("includeFragments", self.include_fragments.to_string()),
+            ("includeAnalysisData", self.include_analysis_data.to_string()),
             ("maxFingerprintFileCount", optional(self.max_fingerprint_file_count.map(|v| v.to_string()))),
             ("sortBy", optional(self.sort_by.map(|s| format!("{s:?}")))),
             ("fragmentSortBy", optional(self.fragment_sort_by.map(|s| format!("{s:?}")))),

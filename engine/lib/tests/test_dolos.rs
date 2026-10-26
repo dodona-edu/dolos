@@ -1,4 +1,7 @@
-use dolos::{Dolos, DolosConfig, Language, PairSortBy, Report};
+use dolos::{
+    AnalysisData, Dolos, DolosConfig, File, Fragment, Language, PairSortBy, Point, Report,
+};
+use dolos_core::AnalysisOptions;
 use rstest::rstest;
 use std::path::PathBuf;
 
@@ -45,10 +48,14 @@ fn kept_paths(report: &Report) -> Vec<PathBuf> {
         .collect()
 }
 
-fn pair_sim(files: &[&str], config: DolosConfig) -> f64 {
-    let report = Dolos::new(to_path_buf(files), config)
+fn report(files: &[&str], config: DolosConfig) -> Report {
+    Dolos::new(to_path_buf(files), config)
         .unwrap()
-        .build_report();
+        .build_report()
+}
+
+fn pair_sim(files: &[&str], config: DolosConfig) -> f64 {
+    let report = report(files, config);
 
     report
         .pairs
@@ -105,9 +112,7 @@ fn test_similarities(
 
 #[test]
 fn test_two_files_have_fragments() {
-    let report = Dolos::new(to_path_buf(SAMPLE12), DolosConfig::default())
-        .unwrap()
-        .build_report();
+    let report = report(SAMPLE12, DolosConfig::default());
 
     for pair in &report.pairs {
         assert!(
@@ -119,9 +124,7 @@ fn test_two_files_have_fragments() {
 
 #[test]
 fn test_three_files_no_fragments() {
-    let report = Dolos::new(to_path_buf(SAMPLE123), DolosConfig::default())
-        .unwrap()
-        .build_report();
+    let report = report(SAMPLE123, DolosConfig::default());
 
     for pair in &report.pairs {
         assert!(
@@ -139,12 +142,10 @@ fn test_three_files_no_fragments() {
 #[case::total_overlap(PairSortBy::TotalOverlap)]
 #[case::longest_fragment(PairSortBy::LongestFragment)]
 fn test_sort_by(#[case] sort_by: PairSortBy) {
-    let report = Dolos::new(
-        to_path_buf(SAMPLE123),
+    let report = report(
+        SAMPLE123,
         DolosConfig::builder().sort_by(sort_by).build().unwrap(),
-    )
-    .unwrap()
-    .build_report();
+    );
 
     let ordered = match sort_by {
         PairSortBy::Similarity => is_sorted_desc(&report.pairs, |p| p.metrics.similarity),
@@ -224,4 +225,211 @@ fn test_too_few_files_after_filtering() {
     let err = Dolos::new(to_path_buf(MIXED), config).unwrap_err();
 
     assert!(err.to_string().contains("at least 2 Python files"), "{err}");
+}
+
+// ── Analysis data export ──────────────────────────────────────────────────────
+
+#[test]
+fn analysis_data_is_absent_by_default() {
+    let report = report(SAMPLE12, DolosConfig::default());
+
+    for file in &report.files {
+        assert!(
+            file.analysis_data.is_none(),
+            "analysis data must not be exported without include_analysis_data"
+        );
+    }
+}
+
+/// Every file carries its fingerprints with one region each, and nothing is
+/// ignored when no template and no cap is given.
+#[test]
+fn analysis_data_holds_a_region_per_fingerprint() {
+    let config = DolosConfig::builder()
+        .include_analysis_data(true)
+        .build()
+        .unwrap();
+    let report = report(SAMPLE123, config);
+
+    assert_eq!(report.files.len(), 3);
+    for file in &report.files {
+        let data = file
+            .analysis_data
+            .as_ref()
+            .expect("analysis data is present when include_analysis_data is set");
+
+        assert!(!data.fingerprints.is_empty());
+        assert_eq!(data.fingerprints.len(), data.regions.len());
+        assert!(data.ignored.is_empty());
+    }
+}
+
+/// A template marks the positions of its own fingerprints as ignored, and the
+/// intervals stay inside the file.
+#[test]
+fn a_template_shows_up_as_ignored_intervals() {
+    let config = DolosConfig::builder()
+        .include_analysis_data(true)
+        .ignore(IGNORE)
+        .build()
+        .unwrap();
+    let report = report(SAMPLE12, config);
+
+    for file in &report.files {
+        let data = file.analysis_data.as_ref().unwrap();
+        let ignored: usize = data.ignored.iter().map(|r| r.len()).sum();
+
+        assert!(!data.ignored.is_empty(), "the template ignores nothing");
+        assert!(ignored < data.fingerprints.len(), "everything is ignored");
+        assert!(
+            data.ignored
+                .iter()
+                .all(|r| r.end <= data.fingerprints.len())
+        );
+        // The intervals are maximal runs, so they never touch.
+        assert!(data.ignored.windows(2).all(|w| w[0].end < w[1].start));
+    }
+}
+
+/// A template that shares no fingerprint with the input ignores nothing.
+#[test]
+fn an_inert_template_ignores_nothing() {
+    let config = DolosConfig::builder()
+        .include_analysis_data(true)
+        .ignore(IGNORE_INERT)
+        .build()
+        .unwrap();
+    let report = report(SAMPLE12, config);
+
+    for file in &report.files {
+        assert!(file.analysis_data.as_ref().unwrap().ignored.is_empty());
+    }
+}
+
+// ── Replaying a pair from the exported data ───────────────────────────────────
+
+/// Three files, a cap that ignores the fingerprints shared by all of them, and
+/// the matches kept so the fragments can be compared too.
+fn replay_config() -> DolosConfig {
+    DolosConfig::builder()
+        .include_analysis_data(true)
+        .max_fingerprint_count(2)
+        .compare(true)
+        .build()
+        .unwrap()
+}
+
+/// The analysis options that produced `report`.
+fn analysis_options(report: &Report) -> AnalysisOptions {
+    AnalysisOptions {
+        min_match_length: report.metadata.min_length_match,
+        keep_matches: report.metadata.include_fragments,
+    }
+}
+
+/// Fragments in a fixed order. Tree traversal order depends on the whole
+/// corpus, so a rerun finds the same matches in another order.
+fn sorted(fragments: &[Fragment]) -> Vec<(Point, Point, usize)> {
+    let mut sorted: Vec<_> = fragments
+        .iter()
+        .map(|f| {
+            (
+                f.left_region.start_point,
+                f.right_region.start_point,
+                f.fingerprint_count,
+            )
+        })
+        .collect();
+    sorted.sort_unstable();
+    sorted
+}
+
+/// The exported analysis data of `file`.
+fn data(file: &File) -> &AnalysisData {
+    file.analysis_data
+        .as_ref()
+        .expect("analysis data is present when include_analysis_data is set")
+}
+
+/// Every pair of the report, analysed again from the two files' exported
+/// fingerprints and ignored positions, gives the metrics and the fragments of
+/// the full run.
+#[test]
+fn a_pair_replayed_from_the_exported_data_reproduces_the_run() {
+    let report = report(SAMPLE123, replay_config());
+    let options = analysis_options(&report);
+
+    // The cap must ignore something without swallowing the corpus, or this
+    // proves nothing.
+    let ignored: usize = report
+        .files
+        .iter()
+        .flat_map(|f| data(f).ignored.iter())
+        .map(|r| r.len())
+        .sum();
+    let total: usize = report
+        .files
+        .iter()
+        .map(|f| data(f).fingerprints.len())
+        .sum();
+    assert!(
+        (1..total).contains(&ignored),
+        "ignored {ignored} of {total} fingerprints"
+    );
+
+    for pair in &report.pairs {
+        let (left, right) = (data(&pair.left_file), data(&pair.right_file));
+        let sequences = vec![left.fingerprints.clone(), right.fingerprints.clone()];
+        let positions = vec![left.ignored.clone(), right.ignored.clone()];
+        let names = format!(
+            "({}, {})",
+            pair.left_file.relative_path.display(),
+            pair.right_file.relative_path.display()
+        );
+
+        let rerun = dolos_core::analyze(&sequences, Some(&positions), &options)
+            .expect("the exported data is a valid input");
+
+        assert_eq!(
+            rerun.metrics.get(0, 1),
+            &pair.metrics,
+            "metrics differ for {names}"
+        );
+
+        let replayed: Vec<Fragment> = rerun
+            .matches
+            .as_ref()
+            .expect("matches are kept")
+            .get(0, 1)
+            .iter()
+            .map(|m| Fragment::resolve(m, &left.regions, &right.regions))
+            .collect();
+        assert_eq!(
+            sorted(&replayed),
+            sorted(pair.fragments.as_ref().unwrap()),
+            "fragments differ for {names}"
+        );
+    }
+}
+
+/// The frequency cap counts the files of the whole corpus, so a rerun of two
+/// files cannot apply it again. Without the exported ignored positions the
+/// rerun gives other metrics.
+#[test]
+fn a_rerun_without_the_exported_positions_disagrees() {
+    let report = report(SAMPLE123, replay_config());
+    let options = analysis_options(&report);
+    let pair = &report.pairs[0];
+
+    let (left, right) = (data(&pair.left_file), data(&pair.right_file));
+    let sequences = vec![left.fingerprints.clone(), right.fingerprints.clone()];
+
+    let blind = dolos_core::analyze(&sequences, None, &options)
+        .expect("the exported data is a valid input");
+
+    assert_ne!(
+        blind.metrics.get(0, 1),
+        &pair.metrics,
+        "the exported ignored positions changed nothing"
+    );
 }

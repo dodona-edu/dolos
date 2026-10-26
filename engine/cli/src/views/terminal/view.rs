@@ -52,7 +52,12 @@ mod tests {
     use std::rc::Rc;
 
     fn file(id: usize, path: &str) -> Rc<File> {
-        Rc::new(File { id, relative_path: path.into(), content: String::new() })
+        Rc::new(File {
+            id,
+            relative_path: path.into(),
+            content: String::new(),
+            analysis_data: None,
+        })
     }
 
     /// The summary line reports the metrics of the pair.
