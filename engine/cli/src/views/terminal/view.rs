@@ -37,7 +37,7 @@ fn write_summary(pair: &Pair, out: &mut impl Write) -> Result<()> {
         pair.left_file.relative_path.display(),
         pair.right_file.relative_path.display(),
         m.similarity * 100.0,
-        m.longest_fragment,
+        m.longest_match,
         m.overlap_left,
         m.total_left,
         m.overlap_right,
@@ -67,7 +67,7 @@ mod tests {
                 total_right: 4,
                 overlap_left: 2,
                 overlap_right: 1,
-                longest_fragment: 3,
+                longest_match: 3,
             },
             fragments: None,
         };

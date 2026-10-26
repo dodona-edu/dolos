@@ -2,7 +2,7 @@ use crate::winnowing::hashes::{RollingHash, hash_token};
 use crate::winnowing::region::Region;
 use crate::winnowing::tokenizer::Token;
 
-pub type Fingerprint = usize;
+pub type Fingerprint = dolos_core::Symbol;
 
 /// Computes the source region spanned by a kgram.
 ///

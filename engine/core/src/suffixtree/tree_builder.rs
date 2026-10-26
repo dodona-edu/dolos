@@ -1,6 +1,7 @@
+use crate::Symbol;
 use crate::suffixtree::build_cursor::BuildCursor;
 use crate::suffixtree::tree::SuffixTree;
-use crate::suffixtree::types::{NodeIndex, SymbolType};
+use crate::suffixtree::types::NodeIndex;
 
 /// A builder that implements Ukkonen's algorithm for linear-time suffix tree construction.
 pub struct UkkonenBuilder;
@@ -10,7 +11,7 @@ impl UkkonenBuilder {
         Self
     }
 
-    pub fn add_sequences(&self, sequences: &[Vec<SymbolType>], tree: &mut SuffixTree) {
+    pub fn add_sequences(&self, sequences: &[Vec<Symbol>], tree: &mut SuffixTree) {
         let mut cursor = BuildCursor::new(tree);
         for i in 0..sequences.len() {
             self.build_single_sequence(sequences, i, &mut cursor);
@@ -38,7 +39,7 @@ impl UkkonenBuilder {
     /// ensuring linear-time construction.
     fn build_single_sequence(
         &self,
-        sequences: &[Vec<SymbolType>],
+        sequences: &[Vec<Symbol>],
         current_sequence_index: usize,
         cursor: &mut BuildCursor,
     ) {

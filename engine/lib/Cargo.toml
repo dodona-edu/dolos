@@ -2,6 +2,9 @@
 name = "dolos-lib"
 version = "0.1.0"
 edition = "2024"
+description = "A library that detects plagiarism in source code. It tokenizes files, winnows them into fingerprints and reports the similarity of every pair."
+repository = "https://github.com/dodona-edu/dolos-rs"
+license = "MIT"
 
 [lib]
 name = "dolos"
@@ -72,6 +75,7 @@ lang-verilog = ["tree-sitter-grammars/lang-verilog"]
 chrono = { version = "0.4.44", features = ["clock", "std"] }
 bzip2 = "0.6.1"
 csv = "1.4.0"
+dolos-core = { path = "../dolos-core" }
 flate2 = "1.1.9"
 tar = "0.4.46"
 zip = "9.0.1"
@@ -81,7 +85,6 @@ tree-sitter-grammars = { path = "../tree-sitter-grammars" }
 
 [dev-dependencies]
 serde_any = "0.5"
-rand = "0.10.1"
 serde = "1.0.228"
 rstest = "0.28.0"
 tempfile = "3.27.0"

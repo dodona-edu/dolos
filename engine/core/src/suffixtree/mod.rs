@@ -12,4 +12,4 @@ mod tree_builder;
 mod types;
 
 pub use tree::SuffixTree;
-pub use types::{AnalysisResult, Match, PairMetrics};
+pub use types::{AnalysisResult, Match, PairMetrics, SENTINEL_SYMBOL};

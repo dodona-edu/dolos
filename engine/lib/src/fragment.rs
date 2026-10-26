@@ -1,5 +1,5 @@
-use crate::suffixtree::Match;
 use crate::winnowing::region::Region;
+use dolos_core::Match;
 
 /// A resolved code fragment: the source regions that correspond to one
 /// maximal exact match in both files.

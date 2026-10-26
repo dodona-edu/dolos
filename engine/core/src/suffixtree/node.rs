@@ -1,4 +1,5 @@
-use crate::suffixtree::types::{NodeIndex, SymbolType};
+use crate::Symbol;
+use crate::suffixtree::types::NodeIndex;
 use std::collections::{HashMap, HashSet};
 
 /// Represents a node in the suffix tree.
@@ -11,7 +12,7 @@ pub struct Node {
     /// Suffix link to another node in the tree, used by Ukkonen's algorithm.
     pub link: Option<NodeIndex>,
     /// Map of children nodes indexed by the first symbol of their edge.
-    pub children: Option<HashMap<SymbolType, NodeIndex>>,
+    pub children: Option<HashMap<Symbol, NodeIndex>>,
     /// Indices of sequences that have a suffix ending at this leaf node.
     pub sequence_indices: Option<HashSet<usize>>,
 }
@@ -26,7 +27,7 @@ impl Node {
     pub fn new(
         range: Range,
         parent: Option<NodeIndex>,
-        children: Option<HashMap<SymbolType, NodeIndex>>,
+        children: Option<HashMap<Symbol, NodeIndex>>,
         link: Option<NodeIndex>,
         sequence_indices: Option<HashSet<usize>>,
     ) -> Node {
@@ -48,7 +49,7 @@ impl Node {
     pub fn create_internal_node_with_child(
         range: Range,
         parent: NodeIndex,
-        child_symbol: SymbolType,
+        child_symbol: Symbol,
         child_index: NodeIndex,
     ) -> Node {
         let mut node = Node::new(range, Some(parent), Some(HashMap::new()), None, None);
@@ -57,14 +58,14 @@ impl Node {
     }
 
     /// Adds a child to this node.
-    pub fn add_child(&mut self, symbol: SymbolType, child: NodeIndex) {
+    pub fn add_child(&mut self, symbol: Symbol, child: NodeIndex) {
         self.children
             .get_or_insert_with(HashMap::new)
             .insert(symbol, child);
     }
 
     /// Returns the index of the child node corresponding to the given symbol.
-    pub fn get_child(&self, symbol: SymbolType) -> Option<&NodeIndex> {
+    pub fn get_child(&self, symbol: Symbol) -> Option<&NodeIndex> {
         self.children
             .as_ref()
             .and_then(|children| children.get(&symbol))

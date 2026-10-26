@@ -73,7 +73,7 @@ impl<'a> PairRow<'a> {
             file2_id: pair.right_file.id,
             file2_path: pair.right_file.relative_path.to_string_lossy(),
             similarity: pair.metrics.similarity,
-            longest: pair.metrics.longest_fragment,
+            longest: pair.metrics.longest_match,
             total_left: pair.metrics.total_left,
             total_right: pair.metrics.total_right,
             overlap_left: pair.metrics.overlap_left,

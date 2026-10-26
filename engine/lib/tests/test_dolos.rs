@@ -151,9 +151,7 @@ fn test_sort_by(#[case] sort_by: PairSortBy) {
         PairSortBy::TotalOverlap => is_sorted_desc(&report.pairs, |p| {
             p.metrics.overlap_left + p.metrics.overlap_right
         }),
-        PairSortBy::LongestFragment => {
-            is_sorted_desc(&report.pairs, |p| p.metrics.longest_fragment)
-        }
+        PairSortBy::LongestFragment => is_sorted_desc(&report.pairs, |p| p.metrics.longest_match),
     };
     assert!(ordered, "pairs not in descending order for {sort_by:?}");
 }

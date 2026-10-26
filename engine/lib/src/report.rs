@@ -1,10 +1,9 @@
-use crate::collections::pair_array::PairArray;
 use crate::config::{FragmentSortBy, PairSortBy};
 use crate::file::File;
 use crate::fragment::Fragment;
 use crate::metadata::Metadata;
-use crate::suffixtree::{AnalysisResult, Match, PairMetrics};
 use crate::winnowing::region::Region;
+use dolos_core::{AnalysisResult, Match, PairArray, PairMetrics};
 use std::cmp::Reverse;
 use std::rc::Rc;
 
@@ -119,7 +118,7 @@ fn sort_pairs(pairs: &mut [Pair], sort_by: &Option<PairSortBy>) {
             pairs.sort_by_key(|p| Reverse(p.metrics.overlap_left + p.metrics.overlap_right));
         }
         Some(PairSortBy::LongestFragment) => {
-            pairs.sort_by_key(|p| Reverse(p.metrics.longest_fragment));
+            pairs.sort_by_key(|p| Reverse(p.metrics.longest_match));
         }
         None => {}
     }
@@ -128,13 +127,12 @@ fn sort_pairs(pairs: &mut [Pair], sort_by: &Option<PairSortBy>) {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::collections::pair_array::PairArray;
     use crate::config::{FragmentSortBy, PairSortBy};
     use crate::file::File;
     use crate::metadata::Metadata;
-    use crate::suffixtree::{AnalysisResult, Match, PairMetrics};
     use crate::winnowing::region::{Point, Region};
     use chrono::Utc;
+    use dolos_core::{AnalysisResult, Match, PairArray, PairMetrics};
     use std::path::PathBuf;
     use std::rc::Rc;
     use tree_sitter_grammars::Language;
@@ -189,7 +187,7 @@ mod tests {
             total_right: 10,
             overlap_left: (similarity * 10.0) as usize,
             overlap_right: (similarity * 10.0) as usize,
-            longest_fragment: 3,
+            longest_match: 3,
         }
     }
 
@@ -225,7 +223,7 @@ mod tests {
         assert_eq!(ab.metrics.similarity, 0.5);
         assert_eq!(ab.metrics.total_left, 10);
         assert_eq!(ab.metrics.total_right, 10);
-        assert_eq!(ab.metrics.longest_fragment, 3);
+        assert_eq!(ab.metrics.longest_match, 3);
         assert!(ab.fragments.is_none());
     }
 

@@ -1,3 +1,3 @@
 [workspace]
-members = ["dolos-lib", "dolos-cli", "tree-sitter-grammars"]
+members = ["dolos-core", "dolos-lib", "dolos-cli", "tree-sitter-grammars"]
 resolver = "2"

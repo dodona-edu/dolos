@@ -2,6 +2,9 @@
 name = "dolos-cli"
 version = "0.1.0"
 edition = "2024"
+description = "The command line interface of Dolos, a source code plagiarism detection tool."
+repository = "https://github.com/dodona-edu/dolos-rs"
+license = "MIT"
 
 [[bin]]
 name = "dolos"

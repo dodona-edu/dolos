@@ -17,13 +17,6 @@ impl<T: Clone> PairArray<T> {
         Self { data: vec![default; pair_count(item_count)], item_count }
     }
 
-    /// Creates a `PairArray` from a pre-initialized vector.
-    /// The vector must have exactly `item_count * (item_count - 1) / 2` values.
-    pub fn from_vec(data: Vec<T>, item_count: usize) -> Self {
-        debug_assert_eq!(data.len(), pair_count(item_count), "Data size mismatch");
-        Self { data, item_count }
-    }
-
     /// Converts pair indices to linear index.
     #[inline]
     fn index(&self, i: usize, j: usize) -> usize {

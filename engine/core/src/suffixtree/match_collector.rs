@@ -1,45 +1,47 @@
+use crate::Symbol;
 use crate::collections::pair_array::PairArray;
 use crate::collections::pair_bitmap::PairBitmap;
 use crate::collections::utils::ordered_pair_with;
-use crate::ignore::IgnoredFingerprints;
-use crate::suffixtree::types::{AnalysisResult, Match, PairMetrics, StartPosition, SymbolType};
+use crate::collections::vec_bitmap::VecBitmap;
+use crate::suffixtree::types::{AnalysisResult, Match, PairMetrics, StartPosition};
 
 /// Collects and processes matches found during tree traversal.
 pub struct MatchCollector<'a> {
     /// The sequences being compared.
-    sequences: &'a [Vec<SymbolType>],
-    /// Tracks the longest matching fragment length for each pair of sequences.
-    longest_fragments: PairArray<usize>,
+    sequences: &'a [Vec<Symbol>],
+    /// The set bits mark the ignored positions of each sequence. `None`
+    /// ignores nothing.
+    ignore_mask: Option<&'a VecBitmap>,
+    /// Tracks the longest match length for each pair of sequences.
+    longest_matches: PairArray<usize>,
     /// Bitmap tracking which positions have been covered by matches, per sequence pair.
     overlap_bitmap: PairBitmap,
-    /// Per-pair list of maximal exact matches (only when fragment storage is enabled).
+    /// Per-pair list of maximal exact matches (only when they are kept).
     matches: Option<PairArray<Vec<Match>>>,
     /// Shortest run worth recording.
     min_match_length: usize,
-    /// Which fingerprint positions are ignored.
-    ignored: &'a IgnoredFingerprints,
 }
 
 impl<'a> MatchCollector<'a> {
     /// Create a new `MatchCollector` for the given sequences.
     ///
-    /// Initializes the longest-fragment tracker and overlap bitmap with sizes
+    /// Initializes the longest-match tracker and overlap bitmap with sizes
     /// derived from the length of each sequence.
     pub fn new(
-        sequences: &'a [Vec<SymbolType>],
-        ignored: &'a IgnoredFingerprints,
+        sequences: &'a [Vec<Symbol>],
+        ignore_mask: Option<&'a VecBitmap>,
         min_match_length: usize,
-        keep_fragments: bool,
+        keep_matches: bool,
     ) -> Self {
         let sequence_lengths: Vec<usize> = sequences.iter().map(|s| s.len()).collect();
 
         Self {
             sequences,
-            longest_fragments: PairArray::new(sequences.len(), 0),
+            ignore_mask,
+            longest_matches: PairArray::new(sequences.len(), 0),
             overlap_bitmap: PairBitmap::new(sequence_lengths.as_slice()),
-            matches: keep_fragments.then(|| PairArray::new(sequences.len(), Vec::new())),
+            matches: keep_matches.then(|| PairArray::new(sequences.len(), Vec::new())),
             min_match_length,
-            ignored,
         }
     }
 
@@ -50,19 +52,22 @@ impl<'a> MatchCollector<'a> {
     /// deletions.
     pub fn record_match(&mut self, sp1: &StartPosition, sp2: &StartPosition, length: usize) {
         // Nothing is ignored, so the match is already a single usable run.
-        if self.ignored.is_empty() {
+        let Some(ignored) = self.ignore_mask else {
             self.record_run(sp1, sp2, length);
             return;
-        }
+        };
 
-        // Only `sp1`'s mask is walked: the two sides of an exact match hold
-        // equal values, so they are ignored at the same offsets.
-        for run in self
-            .ignored
-            .runs(sp1.sequence_index, sp1.start..sp1.start + length)
-        {
-            let delta = run.start - sp1.start;
-            self.record_run(&sp1.shifted(delta), &sp2.shifted(delta), run.len());
+        // Both sequences are walked: the caller may ignore different positions
+        // in each one, so a run is usable only where neither side is ignored.
+        for run in ignored.shared_runs(
+            sp1.sequence_index,
+            sp1.start,
+            sp2.sequence_index,
+            sp2.start,
+            length,
+            false,
+        ) {
+            self.record_run(&sp1.shifted(run.start), &sp2.shifted(run.start), run.len());
         }
     }
 
@@ -74,22 +79,22 @@ impl<'a> MatchCollector<'a> {
             return;
         }
 
-        let (file1, file2) = (sp1.sequence_index, sp2.sequence_index);
-        self.update_longest_fragment(file1, file2, length);
+        let (seq1, seq2) = (sp1.sequence_index, sp2.sequence_index);
+        self.update_longest_match(seq1, seq2, length);
         self.overlap_bitmap
-            .mark_pair(file1, file2, sp1.start, sp2.start, length);
+            .mark_pair(seq1, seq2, sp1.start, sp2.start, length);
 
         if let Some(m) = self.matches.as_mut() {
             let (_, _, left_start, right_start) =
-                ordered_pair_with(file1, file2, sp1.start, sp2.start);
-            m.get_mut(file1, file2)
+                ordered_pair_with(seq1, seq2, sp1.start, sp2.start);
+            m.get_mut(seq1, seq2)
                 .push(Match { left_start, right_start, length });
         }
     }
 
-    /// Update the longest fragment for a pair if the new length exceeds the current maximum.
-    fn update_longest_fragment(&mut self, seq1: usize, seq2: usize, length: usize) {
-        let current = self.longest_fragments.get_mut(seq1, seq2);
+    /// Update the longest match of a pair if the new length exceeds the current maximum.
+    fn update_longest_match(&mut self, seq1: usize, seq2: usize, length: usize) {
+        let current = self.longest_matches.get_mut(seq1, seq2);
         if length > *current {
             *current = length;
         }
@@ -109,14 +114,19 @@ impl<'a> MatchCollector<'a> {
     /// ```
     ///
     /// Where the overlaps are the number of positions covered by at least one
-    /// shared match, and the totals exclude ignored fingerprints.
+    /// shared match, and the totals exclude ignored positions.
     fn build_metrics(&self) -> PairArray<PairMetrics> {
         let mut metrics = PairArray::new(self.sequences.len(), PairMetrics::default());
         let totals: Vec<usize> = self
             .sequences
             .iter()
             .enumerate()
-            .map(|(seq, sequence)| sequence.len() - self.ignored.ignored_count(seq))
+            .map(|(seq, sequence)| {
+                sequence.len()
+                    - self
+                        .ignore_mask
+                        .map_or(0, |ignored| ignored.item(seq).count_ones())
+            })
             .collect();
 
         for i in 0..self.sequences.len() {
@@ -143,7 +153,7 @@ impl<'a> MatchCollector<'a> {
                         total_right,
                         overlap_left,
                         overlap_right,
-                        longest_fragment: *self.longest_fragments.get(i, j),
+                        longest_match: *self.longest_matches.get(i, j),
                     },
                 );
             }

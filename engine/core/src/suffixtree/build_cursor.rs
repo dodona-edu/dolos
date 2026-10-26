@@ -1,6 +1,7 @@
+use crate::Symbol;
 use crate::suffixtree::node::{Node, Range};
 use crate::suffixtree::tree::SuffixTree;
-use crate::suffixtree::types::{NodeIndex, SENTINEL_SYMBOL, SymbolType};
+use crate::suffixtree::types::{NodeIndex, SENTINEL_SYMBOL};
 use std::cmp::min;
 
 /// A mutable cursor used during the construction of the suffix tree.
@@ -23,10 +24,10 @@ impl<'a> BuildCursor<'a> {
     /// Returns the symbol at `index_in_sequence` in `sequences[current_sequence_index]`, with a
     /// virtual end-of-sequence sentinel at position `len`.
     fn symbol_at(
-        sequences: &[Vec<SymbolType>],
+        sequences: &[Vec<Symbol>],
         current_sequence_index: usize,
         index_in_sequence: usize,
-    ) -> SymbolType {
+    ) -> Symbol {
         if index_in_sequence == sequences[current_sequence_index].len() {
             SENTINEL_SYMBOL
         } else {
@@ -45,7 +46,7 @@ impl<'a> BuildCursor<'a> {
         &mut self,
         index_in_sequence: usize,
         current_sequence_index: usize,
-        sequences: &[Vec<SymbolType>],
+        sequences: &[Vec<Symbol>],
     ) -> bool {
         let next_symbol =
             BuildCursor::symbol_at(sequences, current_sequence_index, index_in_sequence);
@@ -112,7 +113,7 @@ impl<'a> BuildCursor<'a> {
     }
 
     /// Split edge implementation for Ukkonen.
-    pub fn split_edge(&mut self, sequences: &[Vec<SymbolType>]) -> NodeIndex {
+    pub fn split_edge(&mut self, sequences: &[Vec<Symbol>]) -> NodeIndex {
         // first get the index where the next node will be inserted, do this before we have a mutable borrow
         let new_internal_node_index_in_arena = self.tree.arena.len();
         // create the new node
@@ -164,7 +165,7 @@ impl<'a> BuildCursor<'a> {
         &mut self,
         j: usize,
         sequence_index: usize,
-        sequences: &[Vec<SymbolType>],
+        sequences: &[Vec<Symbol>],
     ) {
         let new_leaf = Node::create_leaf(
             Range::new(j, sequences[sequence_index].len(), sequence_index),
@@ -185,7 +186,7 @@ impl<'a> BuildCursor<'a> {
         &mut self,
         mut index_in_sequence: usize,
         sequence_index: usize,
-        sequences: &[Vec<SymbolType>],
+        sequences: &[Vec<Symbol>],
     ) {
         if self.node_index == 0 || self.index == 0 {
             return;
@@ -243,7 +244,7 @@ mod tests {
     use crate::suffixtree::build_cursor::BuildCursor;
     use crate::suffixtree::node::{Node, Range};
     use crate::suffixtree::tree::SuffixTree;
-    use crate::suffixtree::tree::suffixtree_test_utils::str_to_nodes;
+    use crate::suffixtree::tree::suffixtree_test_utils::str_to_symbols;
 
     #[test]
     fn test_split_edge() {
@@ -272,7 +273,7 @@ mod tests {
         control_tree.arena[3].add_child(67, 1);
 
         let mut cursor = BuildCursor { node_index: 1, index: 1, tree: &mut tree };
-        let sequences = vec![str_to_nodes("ACAB")];
+        let sequences = vec![str_to_symbols("ACAB")];
         cursor.split_edge(&sequences);
 
         assert_eq!(

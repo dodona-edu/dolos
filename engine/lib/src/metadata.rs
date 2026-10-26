@@ -1,6 +1,7 @@
 use crate::config::{DolosConfig, FragmentSortBy, PairSortBy};
 use crate::reader::Dataset;
 use chrono::{DateTime, Utc};
+use dolos_core::AnalysisOptions;
 use std::path::PathBuf;
 use tree_sitter_grammars::Language;
 
@@ -49,6 +50,14 @@ impl Metadata {
             min_length_match: config.min_length_match,
             max_fingerprint_file_count,
             ignore: config.ignore.clone(),
+        }
+    }
+
+    /// The analysis options this run uses.
+    pub(crate) fn analysis_options(&self) -> AnalysisOptions {
+        AnalysisOptions {
+            min_match_length: self.min_length_match,
+            keep_matches: self.include_fragments,
         }
     }
 

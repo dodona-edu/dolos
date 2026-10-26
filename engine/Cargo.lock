@@ -531,14 +531,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "dolos-core"
+version = "0.1.0"
+dependencies = [
+ "rand",
+]
+
+[[package]]
 name = "dolos-lib"
 version = "0.1.0"
 dependencies = [
  "bzip2",
  "chrono",
  "csv",
+ "dolos-core",
  "flate2",
- "rand",
  "rstest",
  "serde",
  "serde_any",

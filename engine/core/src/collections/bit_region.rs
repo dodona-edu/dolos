@@ -1,3 +1,5 @@
+use std::ops::Range;
+
 /// A borrowed view over one bit-vector: the packed `u64` words plus the number
 /// of bits they hold.
 ///
@@ -56,23 +58,59 @@ impl<'a> BitRegion<'a> {
         self.length - self.count_ones()
     }
 
+    /// The index of the first bit equal to `bit` in `[start, end)`, or `None`
+    /// when the range is empty or holds no such bit.
+    pub fn next_bit(self, start: usize, end: usize, bit: bool) -> Option<usize> {
+        let end = self.clamp(end);
+        if start >= end {
+            return None;
+        }
+
+        // XOR turns a search for a `0` bit into a search for a `1` bit. The
+        // range masking below happens after the flip, so a `0` bit outside
+        // `[start, end)` is never reported.
+        let flip = if bit { 0 } else { u64::MAX };
+        let last_word = (end - 1) / 64;
+        let mut word_index = start / 64;
+        // Clear the bits below `start`
+        let mut word = (self.words[word_index] ^ flip) & (u64::MAX << (start % 64));
+
+        while word == 0 && word_index < last_word {
+            word_index += 1;
+            word = self.words[word_index] ^ flip;
+        }
+
+        if word_index == last_word {
+            // Clear the bits at or beyond `end`.
+            word &= mask_range(0, end - last_word * 64);
+        }
+        (word != 0).then(|| word_index * 64 + word.trailing_zeros() as usize)
+    }
+
     /// The index of the first `1` bit in `[start, end)`, or `None` when the
     /// range is empty or holds no `1` bit.
-    ///
-    /// Scans whole `u64` words, so the cost is per word inspected rather than
-    /// per bit. `end` must not exceed [`Self::len`].
     pub fn next_one_bit(self, start: usize, end: usize) -> Option<usize> {
-        next_bit(self.words, start, self.clamp(end), 0)
+        self.next_bit(start, end, true)
     }
 
     /// The index of the first `0` bit in `[start, end)`, or `None` when the
     /// range is empty or holds no `0` bit.
-    ///
-    /// Paired with [`Self::next_one_bit`] this walks the region's alternating
-    /// runs without visiting every bit. `end` must not exceed [`Self::len`], so
-    /// the padding of the last word is never reported.
     pub fn next_zero_bit(self, start: usize, end: usize) -> Option<usize> {
-        next_bit(self.words, start, self.clamp(end), u64::MAX)
+        self.next_bit(start, end, false)
+    }
+
+    /// The maximal runs within `range`, in ascending order. `bit` selects
+    /// which value the runs hold.
+    pub fn runs(self, range: Range<usize>, bit: bool) -> impl Iterator<Item = Range<usize>> + 'a {
+        let Range { mut start, end } = range;
+
+        std::iter::from_fn(move || {
+            let run_start = self.next_bit(start, end, bit)?;
+            let run_end = self.next_bit(run_start, end, !bit).unwrap_or(end);
+
+            start = run_end;
+            Some(run_start..run_end)
+        })
     }
 
     /// The positions of the `1` bits, in ascending order.
@@ -121,40 +159,6 @@ impl<'a> BitRegionMut<'a> {
     /// Borrow the region for reading.
     pub fn as_region(&self) -> BitRegion<'_> {
         BitRegion::new(self.words, self.length)
-    }
-}
-
-/// The index of the first bit in `[start, end)` that is one after `flip` is
-/// XORed in: `0` finds a `1` bit, `u64::MAX` a `0` bit.
-///
-/// Range masking happens after the flip, so a clear-bit search never reports a
-/// bit outside `[start, end)`.
-fn next_bit(words: &[u64], start: usize, end: usize, flip: u64) -> Option<usize> {
-    if start >= end {
-        return None;
-    }
-
-    let last_word = (end - 1) / 64;
-    let mut word_index = start / 64;
-    // Clear the bits below `start`; `start % 64` is always < 64, so this shift
-    // can never overflow.
-    let mut word = (words[word_index] ^ flip) & (u64::MAX << (start % 64));
-
-    loop {
-        if word_index == last_word {
-            // Clear the bits at or beyond `end`. The argument is in `1..=64`
-            // and `mask_range(0, 64)` is `u64::MAX`, so the full-word case
-            // needs no special handling.
-            word &= mask_range(0, end - last_word * 64);
-        }
-        if word != 0 {
-            return Some(word_index * 64 + word.trailing_zeros() as usize);
-        }
-        if word_index == last_word {
-            return None;
-        }
-        word_index += 1;
-        word = words[word_index] ^ flip;
     }
 }
 
