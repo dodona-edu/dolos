@@ -79,6 +79,11 @@ Dolos is an active research project by [Team Dolos](https://dolos.ugent.be/) at 
 
 - Maertens et al. (2024) SoftwareX [doi:10.1016/j.softx.2024.101755](https://doi.org/10.1016/j.softx.2024.101755)
 
+## AI disclosure
+
+Parts of the code and documentation in this repository were written with the help of an AI coding assistant, [Claude Code](https://claude.com/claude-code).
+A human maintainer reviews these changes before they are merged.
+
 ## License
 
 Licensed under the [MIT license](./LICENSE).

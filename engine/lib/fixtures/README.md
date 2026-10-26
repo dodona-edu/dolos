@@ -4,8 +4,10 @@
 
 | File                                        | Purpose                                                                                                                                                        |
 |---------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `sample1.js`, `sample2.js` and `sample3.js` | Three implementation of the same programming problem. Used as a primary input in CLI and unit tests.                                                           |
+| `sample1.js`, `sample2.js` and `sample3.js` | Three implementations of the same programming problem. Used as a primary input in CLI and unit tests.                                                          |
 | `sample_ignore.js`                          | Shared boilerplate code that appears in the sample implementations. Used to verify that the `--ignore` option correctly excludes specified code from analysis. |
+| `sample_ignore_inert.js`                    | A template that shares no fingerprints with the samples. Used to verify that ignoring it leaves the similarity unchanged.                                       |
+| `sample1.py` and `sample2.py`               | Two Python implementations of the same problem. Used to test language detection and the filtering of input files by language.                                 |
 
 
 ## Reader directory and archives
@@ -14,11 +16,12 @@
 two files. The four archives (`reader.zip`, `reader.tar`, `reader.tar.gz`,
 `reader.tar.bz2`) each contain the same two JS files at the archive root.
 
-When `sample1.js` or `sample2.js` are updated, you need to regenerate the archives:
+When `sample1.js` or `sample2.js` are updated, you need to update `reader/` and regenerate the archives:
 
 ```sh
-cd fixtures
+cd dolos-lib/fixtures
 
+cp sample1.js sample2.js reader/
 zip reader.zip sample1.js sample2.js
 tar -cf reader.tar sample1.js sample2.js
 tar -czf reader.tar.gz sample1.js sample2.js

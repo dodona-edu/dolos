@@ -143,7 +143,7 @@ mod tests {
     }
 
     /// Regenerate the golden JSON fixtures from the current `fixtures/sample1.js`.
-    /// Run with `cargo test --features all-languages -- --ignored regen_golden_fixtures`.
+    /// Run with `cargo test --features all-languages -- --ignored generate_sample_fixtures`.
     #[test]
     #[ignore = "only run to regenerate sample fixtures after changing fixtures/sample1.js"]
     fn generate_sample_fixtures() {

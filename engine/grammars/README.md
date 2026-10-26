@@ -3,10 +3,10 @@
 A unified Rust crate that bundles tree-sitter grammar bindings for a wide range
 of programming languages behind a single, ergonomic API.
 
-It provides a [`Language`] enum and three helper functions to resolve a
-`tree_sitter_language::LanguageFn` from a file path, file extension, or
-language name string — acting as a thin, convenient wrapper around the
-individual `tree-sitter-*` crates.
+It provides a `Language` enum with helper functions to resolve a language from
+a file path or a language name string, and to get its
+`tree_sitter_language::LanguageFn` — acting as a thin, convenient wrapper
+around the individual `tree-sitter-*` crates.
 
 ## Supported languages
 
@@ -14,7 +14,7 @@ individual `tree-sitter-*` crates.
 |------------|--------------------|-------------------------------------------------|---------------------------|
 | Bash       | `lang-bash`        | `.sh`, `.bash`                                  | `bash`, `shell`, `sh`     |
 | C          | `lang-c`           | `.c`, `.h`                                      | `c`                       |
-| C++        | `lang-cpp`         | `.cpp`, `.hpp`, `.cc`, `.cp`, `.cxx`, `.c++`, `.hh`, `.hxx`, `.h++` | `c++`, `cpp`              |
+| C++        | `lang-cpp`         | `.cpp`, `.hpp`, `.cc`, `.cp`, `.cxx`, `.c++`, `.h`, `.hh`, `.hxx`, `.h++` | `c++`, `cpp`              |
 | C#         | `lang-csharp`      | `.cs`, `.csx`                                   | `c#`, `csharp`            |
 | Dart       | `lang-dart`        | `.dart`                                         | `dart`                    |
 | Elixir     | `lang-elixir`      | `.ex`, `.exs`                                   | `elixir`                  |
@@ -51,14 +51,14 @@ Add the crate to your `Cargo.toml` and enable the languages you need via `lang-*
 
 ```toml
 [dependencies]
-tree-sitter-grammars = { version = "0.1", features = ["lang-python", "lang-javascript"] }
+tree-sitter-grammars = { path = "../tree-sitter-grammars", features = ["lang-python", "lang-javascript"] }
 ```
 
 ### Enable all languages
 
 ```toml
 [dependencies]
-tree-sitter-grammars = { version = "0.1", features = ["all-languages"] }
+tree-sitter-grammars = { path = "../tree-sitter-grammars", features = ["all-languages"] }
 ```
 
 ## Usage
