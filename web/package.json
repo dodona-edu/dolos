@@ -43,7 +43,7 @@
     "eslint-plugin-vue": "^10.11.1",
     "eslint-plugin-vuetify": "^2.7.3",
     "globals": "^17.13.0",
-    "happy-dom": "^21.0.3",
+    "happy-dom": "^21.0.4",
     "luxon": "^3.4.4",
     "monaco-editor": "^0.57.0",
     "papaparse": "^5.7.0",
