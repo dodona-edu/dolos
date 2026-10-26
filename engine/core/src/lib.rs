@@ -15,6 +15,8 @@ mod collections;
 mod ignore;
 mod suffixtree;
 mod validation;
+#[cfg(feature = "wasm")]
+mod wasm;
 
 pub use analysis::{AnalysisOptions, analyze};
 pub use collections::pair_array::PairArray;

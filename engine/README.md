@@ -7,7 +7,8 @@ A Rust implementation of the [Dolos](https://github.com/dodona-edu/dolos) source
 ## Workspace crates
 
 - **[`dolos-cli`](./dolos-cli/)** — the Rust CLI (the `dolos` binary) for running similarity analyses on source code files.
-- **[`dolos-lib`](./dolos-lib/)** — the core library (`dolos`) implementing tokenization, suffix-tree construction, and the pairwise similarity metrics. The per-language feature flags live here.
+- **[`dolos-lib`](./dolos-lib/)** — the library (`dolos`) implementing tokenization, winnowing, the reader and the report. The per-language feature flags live here.
+- **[`dolos-core`](./dolos-core/)** — the pure computational core: the generalized suffix tree, the maximal-exact-match analysis and the pairwise similarity metrics. It has no dependencies, and it also builds for WebAssembly.
 - **[`tree-sitter-grammars`](./tree-sitter-grammars/)** — a unified crate that bundles tree-sitter grammar bindings for 29 programming languages behind a single ergonomic API. See its [README](./tree-sitter-grammars/README.md) for details.
 
 ## Building
@@ -39,9 +40,42 @@ dolos run file1.py file2.py file3.py
 dolos run --output-format csv --output-destination ./results/ path/to/files/
 ```
 
+## WebAssembly
+
+`dolos-core` builds for the browser, so a frontend can run the analysis itself.
+The binding is behind the opt-in `wasm` feature, so a normal build pulls none of
+its dependencies.
+
+```sh
+rustup target add wasm32-unknown-unknown
+wasm-pack build dolos-core --target bundler --release -- --features wasm
+```
+
+This writes the npm package `dolos-core` to `dolos-core/pkg/`, which git
+ignores. The package version follows the crate version.
+
+```ts
+import { analyze } from "dolos-core";
+
+// `ignored` holds the positions to leave out, one list of `{ start, end }`
+// intervals per sequence. Pass `null` to ignore nothing.
+using analysis = analyze(fingerprints, ignored, { minMatchLength: 5, keepMatches: true });
+
+const metrics = analysis.metrics(0, 1);
+const matches = analysis.matches(0, 1);
+```
+
+`Analysis` holds the result in WebAssembly memory and converts one pair per call,
+so an analysis over hundreds of files stays cheap. Release it with `free()`, or
+declare it with `using` as above.
+
+Vite 8.1 and later need no plugin. Earlier versions need
+[`vite-plugin-wasm`](https://www.npmjs.com/package/vite-plugin-wasm) and
+`build.target: "esnext"`.
+
 ## Who made this?
 
-Dolos is an active research project by [Team Dodona](https://dodona.ugent.be/en/about/) at Ghent University. If you use this software for your research, please cite:
+Dolos is an active research project by [Team Dolos](https://dolos.ugent.be/) at Ghent University. If you use this software for your research, please cite:
 
 - Maertens et al. (2024) SoftwareX [doi:10.1016/j.softx.2024.101755](https://doi.org/10.1016/j.softx.2024.101755)
 

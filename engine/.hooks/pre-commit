@@ -2,6 +2,6 @@
 failed=0
 
 cargo fmt --all -- --check || failed=1
-cargo clippy --workspace --all-targets --features all-languages -- -D warnings || failed=1
+cargo clippy --workspace --all-targets --features all-languages,wasm -- -D warnings || failed=1
 
 exit "$failed"

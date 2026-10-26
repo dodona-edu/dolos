@@ -11,6 +11,15 @@ target/
 ### VisualStudioCode ###
 .vscode/*
 
+### WebAssembly ###
+# Built by `wasm-pack build dolos-core`
+pkg/
+pkg-node/
+
+### Node ###
+# The dev tools of dolos-core/tests
+node_modules/
+
 ### Output files ###
 *.csv
 dolos-report-*/
