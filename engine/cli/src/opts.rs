@@ -297,18 +297,7 @@ mod tests {
 
     #[test]
     fn test_default() {
-        let cfg = config(&[]).unwrap();
-        assert_eq!(cfg.kgram_length, 23);
-        assert_eq!(cfg.kgrams_in_window, 17);
-        assert_eq!(cfg.min_length_match, 1);
-        assert!(!cfg.include_comments);
-        assert!(!cfg.compare);
-        assert!(!cfg.include_analysis_data);
-        assert!(cfg.max_fingerprint_count.is_none());
-        assert!(cfg.max_fingerprint_percentage.is_none());
-        assert!(cfg.language.is_none());
-        assert!(cfg.sort_by.is_none());
-        assert!(cfg.fragment_sort_by.is_none());
+        assert_eq!(config(&[]).unwrap(), DolosConfig::default());
     }
 
     #[test]
@@ -330,18 +319,22 @@ mod tests {
         ])
         .unwrap();
 
-        assert_eq!(cfg.kgram_length, 10);
-        assert_eq!(cfg.kgrams_in_window, 5);
-        assert_eq!(cfg.min_length_match, 10);
-        assert_eq!(cfg.max_fingerprint_count, Some(2));
-        assert_eq!(cfg.max_fingerprint_percentage, Some(0.9));
-        assert!(cfg.include_comments);
-        assert!(cfg.compare);
-        assert!(cfg.include_analysis_data);
-        assert_eq!(cfg.name, Some("custom".to_string()));
-        assert!(cfg.language.is_some());
-        assert!(cfg.sort_by.is_some());
-        assert!(cfg.fragment_sort_by.is_some());
+        let expected = DolosConfig::builder()
+            .kgram_length(10)
+            .kgrams_in_window(5)
+            .min_length_match(10)
+            .max_fingerprint_count(2)
+            .max_fingerprint_percentage(0.9)
+            .name("custom")
+            .language(Language::Javascript)
+            .sort_by(PairSortBy::Similarity)
+            .fragment_sort_by(FragmentSortBy::KgramsAscending)
+            .include_comments(true)
+            .compare(true)
+            .include_analysis_data(true)
+            .build()
+            .unwrap();
+        assert_eq!(cfg, expected);
     }
 
     #[test]

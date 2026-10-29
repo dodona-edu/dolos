@@ -2,14 +2,14 @@ use std::path::PathBuf;
 use tree_sitter_grammars::Language;
 // ── Sort enums ───────────────────────────────────────────────────────────────
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum PairSortBy {
     Similarity,
     TotalOverlap,
     LongestFragment,
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum FragmentSortBy {
     KgramsAscending,
     KgramsDescending,
@@ -34,21 +34,21 @@ pub enum FragmentSortBy {
 ///     .build()?;
 /// # Ok::<(), std::io::Error>(())
 /// ```
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct DolosConfig {
-    pub name: Option<String>,
-    pub kgram_length: usize,
-    pub kgrams_in_window: usize,
-    pub language: Option<Language>,
-    pub max_fingerprint_count: Option<usize>,
-    pub max_fingerprint_percentage: Option<f64>,
-    pub ignore: Option<PathBuf>,
-    pub include_comments: bool,
-    pub compare: bool,
-    pub include_analysis_data: bool,
-    pub min_length_match: usize,
-    pub sort_by: Option<PairSortBy>,
-    pub fragment_sort_by: Option<FragmentSortBy>,
+    pub(crate) name: Option<String>,
+    pub(crate) kgram_length: usize,
+    pub(crate) kgrams_in_window: usize,
+    pub(crate) language: Option<Language>,
+    pub(crate) max_fingerprint_count: Option<usize>,
+    pub(crate) max_fingerprint_percentage: Option<f64>,
+    pub(crate) ignore: Option<PathBuf>,
+    pub(crate) include_comments: bool,
+    pub(crate) compare: bool,
+    pub(crate) include_analysis_data: bool,
+    pub(crate) min_length_match: usize,
+    pub(crate) sort_by: Option<PairSortBy>,
+    pub(crate) fragment_sort_by: Option<FragmentSortBy>,
 }
 
 impl DolosConfig {
