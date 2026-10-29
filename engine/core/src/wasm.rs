@@ -28,19 +28,19 @@ impl Analysis {
     /// The number of sequences the analysis covers.
     #[wasm_bindgen(getter, js_name = sequenceCount)]
     pub fn sequence_count(&self) -> usize {
-        self.0.metrics.item_count()
+        self.0.metrics().item_count()
     }
 
     /// The number of pairs the analysis holds.
     #[wasm_bindgen(getter, js_name = pairCount)]
     pub fn pair_count(&self) -> usize {
-        self.0.metrics.pair_count()
+        self.0.metrics().pair_count()
     }
 
     /// Whether the run kept the raw matches.
     #[wasm_bindgen(getter, js_name = hasMatches)]
     pub fn has_matches(&self) -> bool {
-        self.0.matches.is_some()
+        self.0.matches().is_some()
     }
 
     /// The metrics of the pair `(left, right)`.
@@ -49,7 +49,7 @@ impl Analysis {
     pub fn metrics(&self, left: usize, right: usize) -> Result<Ts<PairMetrics>, JsError> {
         self.check_pair(left, right)?;
 
-        Ok(self.0.metrics.get(left, right).into_ts()?)
+        Ok(self.0.metrics().get(left, right).into_ts()?)
     }
 
     /// The matches of the pair `(left, right)`.
@@ -62,11 +62,7 @@ impl Analysis {
     pub fn matches(&self, left: usize, right: usize) -> Result<JsValue, JsError> {
         self.check_pair(left, right)?;
 
-        let matches = self
-            .0
-            .matches
-            .as_ref()
-            .map(|matches| matches.get(left, right));
+        let matches = self.0.matches().map(|matches| matches.get(left, right));
 
         Ok(serde_wasm_bindgen::to_value(&matches)?)
     }
@@ -81,7 +77,7 @@ impl Analysis {
             return Err(io::Error::new(io::ErrorKind::InvalidInput, message));
         }
 
-        let count = self.0.metrics.item_count();
+        let count = self.0.metrics().item_count();
         if left >= count || right >= count {
             let message = format!(
                 "pair ({left}, {right}) is out of range, the analysis has {count} sequences"

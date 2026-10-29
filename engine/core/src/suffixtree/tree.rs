@@ -324,8 +324,7 @@ mod tests_analysis {
     /// sorted so the assertions do not depend on traversal order.
     fn matches(result: &AnalysisResult, i: usize, j: usize) -> Vec<(usize, usize, usize)> {
         let mut found: Vec<(usize, usize, usize)> = result
-            .matches
-            .as_ref()
+            .matches()
             .expect("matches are kept")
             .get(i, j)
             .iter()
@@ -340,7 +339,7 @@ mod tests_analysis {
         let result = analyze(&["ABC", "ABC"], &[], 1);
 
         assert_eq!(matches(&result, 0, 1), vec![(0, 0, 3)]);
-        let m = result.metrics.get(0, 1);
+        let m = result.metrics().get(0, 1);
         assert_eq!(m.similarity, 1.0);
         assert_eq!(m.longest_match, 3);
         assert_eq!((m.total_left, m.total_right), (3, 3));
@@ -352,7 +351,7 @@ mod tests_analysis {
         let result = analyze(&["ABC", "DEF"], &[], 1);
 
         assert!(matches(&result, 0, 1).is_empty());
-        let m = result.metrics.get(0, 1);
+        let m = result.metrics().get(0, 1);
         assert_eq!(m.similarity, 0.0);
         assert_eq!(m.longest_match, 0);
         assert_eq!((m.overlap_left, m.overlap_right), (0, 0));
@@ -363,7 +362,7 @@ mod tests_analysis {
         let result = analyze(&["ABCDEF", "XYZABC"], &[], 1);
 
         assert_eq!(matches(&result, 0, 1), vec![(0, 3, 3)]);
-        let m = result.metrics.get(0, 1);
+        let m = result.metrics().get(0, 1);
         assert_eq!(m.similarity, 0.5);
         assert_eq!(m.longest_match, 3);
         assert_eq!((m.overlap_left, m.overlap_right), (3, 3));
@@ -374,10 +373,10 @@ mod tests_analysis {
         let result = analyze(&["ABCD", "ABCE", "XYZW"], &[], 1);
 
         // Only the first two sequences share anything: "ABC".
-        assert_eq!(result.metrics.get(0, 1).longest_match, 3);
-        assert_eq!(result.metrics.get(0, 1).similarity, 0.75);
-        assert_eq!(result.metrics.get(0, 2).similarity, 0.0);
-        assert_eq!(result.metrics.get(1, 2).similarity, 0.0);
+        assert_eq!(result.metrics().get(0, 1).longest_match, 3);
+        assert_eq!(result.metrics().get(0, 1).similarity, 0.75);
+        assert_eq!(result.metrics().get(0, 2).similarity, 0.0);
+        assert_eq!(result.metrics().get(1, 2).similarity, 0.0);
     }
 
     #[test]
@@ -385,7 +384,7 @@ mod tests_analysis {
         let result = analyze(&["ABCDEF", "XYZABC"], &[], 5);
 
         assert!(matches(&result, 0, 1).is_empty());
-        assert_eq!(result.metrics.get(0, 1).longest_match, 0);
+        assert_eq!(result.metrics().get(0, 1).longest_match, 0);
     }
 
     // ── Ignoring ──────────────────────────────────────────────────────
@@ -398,7 +397,7 @@ mod tests_analysis {
         let result = analyze(&["ABXCD", "QABXCD"], &["X"], 1);
 
         assert_eq!(matches(&result, 0, 1), vec![(0, 1, 2), (3, 4, 2)]);
-        let m = result.metrics.get(0, 1);
+        let m = result.metrics().get(0, 1);
         assert_eq!(m.longest_match, 2);
         assert_eq!((m.total_left, m.total_right), (4, 5));
         assert_eq!((m.overlap_left, m.overlap_right), (4, 4));
@@ -410,7 +409,7 @@ mod tests_analysis {
         let result = analyze(&["ABCD", "ABCD"], &["CD"], 1);
 
         assert_eq!(matches(&result, 0, 1), vec![(0, 0, 2)]);
-        let m = result.metrics.get(0, 1);
+        let m = result.metrics().get(0, 1);
         assert_eq!(m.longest_match, 2);
         assert_eq!((m.total_left, m.total_right), (2, 2));
     }
@@ -423,7 +422,7 @@ mod tests_analysis {
             matches(&result, 0, 1),
             vec![(1, 1, 2), (1, 2, 1), (2, 1, 1)]
         );
-        assert_eq!(result.metrics.get(0, 1).longest_match, 2);
+        assert_eq!(result.metrics().get(0, 1).longest_match, 2);
     }
 
     #[test]
@@ -431,7 +430,7 @@ mod tests_analysis {
         let result = analyze(&["ABXBC", "ABXBC"], &["X"], 3);
 
         assert!(matches(&result, 0, 1).is_empty());
-        let m = result.metrics.get(0, 1);
+        let m = result.metrics().get(0, 1);
         assert_eq!(m.similarity, 0.0);
         assert_eq!((m.total_left, m.total_right), (4, 4));
         assert_eq!((m.overlap_left, m.overlap_right), (0, 0));
@@ -443,7 +442,7 @@ mod tests_analysis {
         let result = analyze(&["XX", "X"], &["X"], 1);
 
         assert!(matches(&result, 0, 1).is_empty());
-        let m = result.metrics.get(0, 1);
+        let m = result.metrics().get(0, 1);
         assert_eq!(m.similarity, 0.0);
         assert_eq!((m.total_left, m.total_right), (0, 0));
     }

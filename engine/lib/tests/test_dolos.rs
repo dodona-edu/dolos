@@ -391,14 +391,13 @@ fn a_pair_replayed_from_the_exported_data_reproduces_the_run() {
             .expect("the exported data is a valid input");
 
         assert_eq!(
-            rerun.metrics.get(0, 1),
+            rerun.metrics().get(0, 1),
             &pair.metrics,
             "metrics differ for {names}"
         );
 
         let replayed: Vec<Fragment> = rerun
-            .matches
-            .as_ref()
+            .matches()
             .expect("matches are kept")
             .get(0, 1)
             .iter()
@@ -428,7 +427,7 @@ fn a_rerun_without_the_exported_positions_disagrees() {
         .expect("the exported data is a valid input");
 
     assert_ne!(
-        blind.metrics.get(0, 1),
+        blind.metrics().get(0, 1),
         &pair.metrics,
         "the exported ignored positions changed nothing"
     );

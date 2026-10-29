@@ -102,7 +102,7 @@ impl<'a> MatchCollector<'a> {
 
     /// Consume the collector and build the final [`AnalysisResult`].
     pub fn into_result(self) -> AnalysisResult {
-        AnalysisResult { metrics: self.build_metrics(), matches: self.matches }
+        AnalysisResult::new(self.build_metrics(), self.matches)
     }
 
     /// Build per-pair [`PairMetrics`] for all sequence pairs.

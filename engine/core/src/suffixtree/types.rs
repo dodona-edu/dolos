@@ -74,8 +74,25 @@ pub struct PairMetrics {
 /// Result of the suffix-tree analysis containing all per-pair metrics.
 #[derive(Debug)]
 pub struct AnalysisResult {
-    /// All per-pair metrics (similarity, totals, overlaps, longest match).
-    pub metrics: PairArray<PairMetrics>,
-    /// Raw matches from the suffix tree (consumed during report construction).
-    pub matches: Option<PairArray<Vec<Match>>>,
+    metrics: PairArray<PairMetrics>,
+    matches: Option<PairArray<Vec<Match>>>,
+}
+
+impl AnalysisResult {
+    pub(crate) fn new(
+        metrics: PairArray<PairMetrics>,
+        matches: Option<PairArray<Vec<Match>>>,
+    ) -> Self {
+        Self { metrics, matches }
+    }
+
+    /// The metrics of every pair.
+    pub fn metrics(&self) -> &PairArray<PairMetrics> {
+        &self.metrics
+    }
+
+    /// The maximal exact matches of every pair, or `None` when `keep_matches` was off.
+    pub fn matches(&self) -> Option<&PairArray<Vec<Match>>> {
+        self.matches.as_ref()
+    }
 }

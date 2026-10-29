@@ -39,22 +39,18 @@ impl Fragment {
 /// `locations` is indexed by file id, exactly like the sequences that were
 /// handed to the analysis.
 pub fn resolve_fragments(
-    raw_matches: PairArray<Vec<Match>>,
+    raw_matches: &PairArray<Vec<Match>>,
     locations: &[Vec<Region>],
     sort_by: &Option<FragmentSortBy>,
 ) -> PairArray<Vec<Fragment>> {
-    let mut fragments = PairArray::new(raw_matches.item_count(), Vec::new());
-
-    for (left, right, pair_matches) in raw_matches.iter_pairs() {
+    raw_matches.map(|left, right, pair_matches| {
         let mut resolved: Vec<Fragment> = pair_matches
             .iter()
             .map(|m| Fragment::resolve(m, &locations[left], &locations[right]))
             .collect();
         sort_fragments(&mut resolved, sort_by);
-        fragments.set(left, right, resolved);
-    }
-
-    fragments
+        resolved
+    })
 }
 
 /// Sort fragments in-place according to `sort_by`.
@@ -83,6 +79,7 @@ fn sort_fragments(fragments: &mut [Fragment], sort_by: &Option<FragmentSortBy>) 
 mod tests {
     use super::*;
     use crate::winnowing::region::Point;
+    use dolos_core::{AnalysisOptions, AnalysisResult};
     use rstest::rstest;
 
     #[test]
@@ -119,18 +116,19 @@ mod tests {
         ]
     }
 
+    /// The analysis of two sequences, with the matches kept.
+    fn analyze_pair(left: Vec<usize>, right: Vec<usize>) -> AnalysisResult {
+        let options = AnalysisOptions { min_match_length: 1, keep_matches: true };
+        dolos_core::analyze(&[left, right], None, &options).unwrap()
+    }
+
     /// A pair's matches become fragments spanning from the first fingerprint's
     /// region to the last one's.
     #[test]
     fn resolve_fragments_spans_every_match_of_a_pair() {
-        let mut raw_matches: PairArray<Vec<Match>> = PairArray::new(2, Vec::new());
-        raw_matches.set(
-            0,
-            1,
-            vec![Match { left_start: 0, right_start: 0, length: 2 }],
-        );
+        let result = analyze_pair(vec![1, 2], vec![1, 2]);
 
-        let fragments = resolve_fragments(raw_matches, &locations(2), &None);
+        let fragments = resolve_fragments(result.matches().unwrap(), &locations(2), &None);
         let frags = fragments.get(0, 1);
 
         assert_eq!(frags.len(), 1);
@@ -144,23 +142,25 @@ mod tests {
     #[rstest]
     #[case(Some(FragmentSortBy::KgramsAscending), vec![1, 2])]
     #[case(Some(FragmentSortBy::KgramsDescending), vec![2, 1])]
-    #[case(Some(FragmentSortBy::FileOrder), vec![1, 2])]
-    #[case(None, vec![1, 2])]
+    #[case(Some(FragmentSortBy::FileOrder), vec![2, 1])]
+    #[case(None, vec![2, 1])]
     fn resolve_fragments_sorts_as_requested(
         #[case] sort_by: Option<FragmentSortBy>,
         #[case] expected: Vec<usize>,
     ) {
-        let mut raw_matches: PairArray<Vec<Match>> = PairArray::new(2, Vec::new());
-        raw_matches.set(
-            0,
-            1,
+        // One match of length 2 at the start, one of length 1 at the end.
+        let result = analyze_pair(vec![2, 3, 9, 1], vec![2, 3, 8, 1]);
+        let mut matches = result.matches().unwrap().get(0, 1).clone();
+        matches.sort_by_key(|m| m.left_start);
+        assert_eq!(
+            matches,
             vec![
-                Match { left_start: 0, right_start: 0, length: 1 },
-                Match { left_start: 1, right_start: 1, length: 2 },
-            ],
+                Match { left_start: 0, right_start: 0, length: 2 },
+                Match { left_start: 3, right_start: 3, length: 1 },
+            ]
         );
 
-        let fragments = resolve_fragments(raw_matches, &locations(3), &sort_by);
+        let fragments = resolve_fragments(result.matches().unwrap(), &locations(4), &sort_by);
         let counts: Vec<usize> = fragments
             .get(0, 1)
             .iter()

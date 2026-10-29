@@ -8,7 +8,6 @@ use crate::report::Report;
 use crate::winnowing::fingerprints::{Fingerprint, Winnow};
 use crate::winnowing::region::Region;
 use crate::winnowing::tokenizer::{Tokenizer, Tokens};
-use dolos_core::AnalysisResult;
 use std::fmt;
 use std::io::{Error, Result};
 use std::ops::Range;
@@ -156,7 +155,7 @@ impl Dolos {
             &self.template_fingerprints,
             self.metadata.max_fingerprint_file_count,
         );
-        let AnalysisResult { metrics, matches } = dolos_core::analyze(
+        let result = dolos_core::analyze(
             &self.fingerprints,
             Some(&ignored),
             &self.metadata.analysis_options(),
@@ -166,18 +165,20 @@ impl Dolos {
              and classify indexes its own input",
         );
 
-        let fragments = matches
-            .zip(self.locations.as_deref())
-            .map(|(matches, locations)| {
-                resolve_fragments(matches, locations, &self.metadata.fragment_sort_by)
-            });
+        let fragments =
+            result
+                .matches()
+                .zip(self.locations.as_deref())
+                .map(|(matches, locations)| {
+                    resolve_fragments(matches, locations, &self.metadata.fragment_sort_by)
+                });
 
         if self.metadata.include_analysis_data {
             self.attach_analysis_data(ignored);
         }
 
         let files = self.files.into_iter().map(Rc::new).collect();
-        Report::new(metrics, fragments, files, self.metadata)
+        Report::new(result.metrics(), fragments, files, self.metadata)
     }
 }
 
