@@ -61,7 +61,7 @@ impl DolosConfig {
     /// ignored: the more restrictive of `max_fingerprint_count` and
     /// `max_fingerprint_percentage` over `file_count`, and never below 1.
     /// `None` when neither limit is set.
-    pub fn max_fingerprint_file_count(&self, file_count: usize) -> Option<usize> {
+    pub(crate) fn max_fingerprint_file_count(&self, file_count: usize) -> Option<usize> {
         let from_percentage = self
             .max_fingerprint_percentage
             .map(|pct| (file_count as f64 * pct).round() as usize);

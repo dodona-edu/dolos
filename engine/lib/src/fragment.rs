@@ -18,7 +18,7 @@ pub struct Fragment {
 impl Fragment {
     /// Resolve a raw [`Match`] into a [`Fragment`] using per-file fingerprint
     /// location arrays.
-    pub fn resolve(m: &Match, left_locs: &[Region], right_locs: &[Region]) -> Self {
+    pub(crate) fn resolve(m: &Match, left_locs: &[Region], right_locs: &[Region]) -> Self {
         Fragment {
             left_region: Region::span(
                 &left_locs[m.left_start],

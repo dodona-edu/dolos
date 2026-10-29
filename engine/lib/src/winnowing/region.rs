@@ -13,10 +13,9 @@ impl Point {
     pub fn new(row: usize, column: usize) -> Self {
         Point { row, column }
     }
-}
 
-impl From<tree_sitter::Point> for Point {
-    fn from(point: tree_sitter::Point) -> Self {
+    /// Convert a tree-sitter position.
+    pub(crate) fn from_tree_sitter(point: tree_sitter::Point) -> Self {
         Point::new(point.row, point.column)
     }
 }
@@ -35,12 +34,8 @@ impl Region {
         Region { start_point, end_point }
     }
 
-    pub fn is_empty(&self) -> bool {
-        self.start_point == self.end_point
-    }
-
     /// Create a region that spans from the start of `first` to the end of `last`.
-    pub fn span(first: &Region, last: &Region) -> Self {
+    pub(crate) fn span(first: &Region, last: &Region) -> Self {
         Region::new(first.start_point, last.end_point)
     }
 }

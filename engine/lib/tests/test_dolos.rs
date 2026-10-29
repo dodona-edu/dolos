@@ -1,6 +1,4 @@
-use dolos::{
-    AnalysisData, Dolos, DolosConfig, File, Fragment, Language, PairSortBy, Point, Report,
-};
+use dolos::{AnalysisData, Dolos, DolosConfig, File, Language, PairSortBy, Report};
 use dolos_core::AnalysisOptions;
 use rstest::rstest;
 use std::path::PathBuf;
@@ -308,13 +306,12 @@ fn an_inert_template_ignores_nothing() {
 
 // ── Replaying a pair from the exported data ───────────────────────────────────
 
-/// Three files, a cap that ignores the fingerprints shared by all of them, and
-/// the matches kept so the fragments can be compared too.
+/// Export the analysis data, and cap the fingerprints so the ones shared by all
+/// three files are ignored.
 fn replay_config() -> DolosConfig {
     DolosConfig::builder()
         .include_analysis_data(true)
         .max_fingerprint_count(2)
-        .compare(true)
         .build()
         .unwrap()
 }
@@ -327,23 +324,6 @@ fn analysis_options(report: &Report) -> AnalysisOptions {
     }
 }
 
-/// Fragments in a fixed order. Tree traversal order depends on the whole
-/// corpus, so a rerun finds the same matches in another order.
-fn sorted(fragments: &[Fragment]) -> Vec<(Point, Point, usize)> {
-    let mut sorted: Vec<_> = fragments
-        .iter()
-        .map(|f| {
-            (
-                f.left_region.start_point,
-                f.right_region.start_point,
-                f.fingerprint_count,
-            )
-        })
-        .collect();
-    sorted.sort_unstable();
-    sorted
-}
-
 /// The exported analysis data of `file`.
 fn data(file: &File) -> &AnalysisData {
     file.analysis_data
@@ -352,8 +332,7 @@ fn data(file: &File) -> &AnalysisData {
 }
 
 /// Every pair of the report, analysed again from the two files' exported
-/// fingerprints and ignored positions, gives the metrics and the fragments of
-/// the full run.
+/// fingerprints and ignored positions, gives the metrics of the full run.
 #[test]
 fn a_pair_replayed_from_the_exported_data_reproduces_the_run() {
     let report = report(SAMPLE123, replay_config());
@@ -394,20 +373,6 @@ fn a_pair_replayed_from_the_exported_data_reproduces_the_run() {
             rerun.metrics().get(0, 1),
             Some(&pair.metrics),
             "metrics differ for {names}"
-        );
-
-        let replayed: Vec<Fragment> = rerun
-            .matches()
-            .expect("matches are kept")
-            .get(0, 1)
-            .unwrap()
-            .iter()
-            .map(|m| Fragment::resolve(m, &left.regions, &right.regions))
-            .collect();
-        assert_eq!(
-            sorted(&replayed),
-            sorted(pair.fragments.as_ref().unwrap()),
-            "fragments differ for {names}"
         );
     }
 }

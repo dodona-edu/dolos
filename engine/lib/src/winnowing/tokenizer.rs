@@ -1,4 +1,4 @@
-use crate::winnowing::region::Region;
+use crate::winnowing::region::{Point, Region};
 use tree_sitter::{Node, Parser, Tree, TreeCursor};
 
 #[cfg(test)]
@@ -48,7 +48,10 @@ fn recursive_add<'a: 'b, 'b>(
     let open_end = children
         .first()
         .map_or(node.end_position(), |c| c.start_position());
-    let open = Region::new(node.start_position().into(), open_end.into());
+    let open = Region::new(
+        Point::from_tree_sitter(node.start_position()),
+        Point::from_tree_sitter(open_end),
+    );
 
     tokens.push(Token { name: "(".to_string(), location: open });
     tokens.push(Token { name: node.kind().to_string(), location: open });
@@ -58,7 +61,8 @@ fn recursive_add<'a: 'b, 'b>(
     }
 
     // `)` closes the node, so it is empty and sits at the node end.
-    let close = Region::new(node.end_position().into(), node.end_position().into());
+    let end = Point::from_tree_sitter(node.end_position());
+    let close = Region::new(end, end);
     tokens.push(Token { name: ")".to_string(), location: close });
 }
 
