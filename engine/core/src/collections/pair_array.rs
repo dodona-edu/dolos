@@ -3,7 +3,7 @@ use std::ops::{Index, IndexMut};
 use crate::collections::utils::ordered_pair;
 
 /// A symmetric pair array that stores values for pairs (i, j) where i < j.
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct PairArray<T> {
     data: Vec<T>,
     /// The number of items being pairwise matched. For `n` items there are

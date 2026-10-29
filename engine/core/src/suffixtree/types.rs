@@ -33,7 +33,7 @@ impl StartPosition {
 ///
 /// The start offsets are into the left (smaller-index) and the right
 /// (larger-index) sequence.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[cfg_attr(
     feature = "wasm",
     derive(serde::Serialize, tsify::Tsify),
@@ -72,7 +72,7 @@ pub struct PairMetrics {
 }
 
 /// Result of the suffix-tree analysis containing all per-pair metrics.
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct AnalysisResult {
     metrics: PairArray<PairMetrics>,
     matches: Option<PairArray<Vec<Match>>>,

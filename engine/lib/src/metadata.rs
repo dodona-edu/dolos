@@ -9,7 +9,7 @@ use tree_sitter_grammars::Language;
 ///
 /// Derived from the raw [`DolosConfig`] plus the dataset context. Used by the
 /// analysis algorithm and attached to every [`Report`] as its metadata record.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Metadata {
     pub report_name: String,
     pub created_at: DateTime<Utc>,

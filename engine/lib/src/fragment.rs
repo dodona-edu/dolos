@@ -5,7 +5,7 @@ use std::cmp::Reverse;
 
 /// A resolved code fragment: the source regions that correspond to one
 /// maximal exact match in both files.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Fragment {
     /// The region in the left file covered by this match.
     pub left_region: Region,

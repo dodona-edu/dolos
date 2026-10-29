@@ -7,6 +7,7 @@ use std::cmp::Reverse;
 use std::rc::Rc;
 
 /// A single file-pair result, ready for display or output.
+#[derive(Debug, Clone, PartialEq)]
 pub struct Pair {
     pub left_file: Rc<File>,
     pub right_file: Rc<File>,
@@ -15,6 +16,7 @@ pub struct Pair {
     pub fragments: Option<Vec<Fragment>>,
 }
 
+#[derive(Debug, Clone, PartialEq)]
 pub struct Report {
     pub metadata: Metadata,
     pub files: Vec<Rc<File>>,

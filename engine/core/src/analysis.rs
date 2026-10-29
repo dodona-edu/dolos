@@ -5,7 +5,7 @@ use crate::validation::validate_input;
 use std::ops::Range;
 
 /// Options controlling an `analyze` run.
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[cfg_attr(
     feature = "wasm",
     derive(serde::Deserialize, tsify::Tsify),

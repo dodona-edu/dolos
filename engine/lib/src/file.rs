@@ -8,6 +8,7 @@ use std::ops::Range;
 use std::path::PathBuf;
 use tree_sitter_grammars::Language;
 
+#[derive(Clone)]
 pub struct File {
     /// Zero-based index assigned in the order the file was added to the analysis.
     pub id: usize,
@@ -21,7 +22,7 @@ pub struct File {
 
 /// Everything the analysis engine needs for one file, exported so that a pair
 /// can be analysed again from the report alone.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct AnalysisData {
     /// The file's winnowed fingerprint sequence.
     pub fingerprints: Vec<Fingerprint>,
