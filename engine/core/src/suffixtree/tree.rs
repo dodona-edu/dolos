@@ -48,7 +48,7 @@ impl SuffixTree {
 }
 
 #[cfg(test)]
-pub mod suffixtree_test_utils {
+pub mod test_utils {
     use crate::Symbol;
     use crate::suffixtree::tree::SuffixTree;
 
@@ -113,7 +113,7 @@ pub mod suffixtree_test_utils {
         suffix_indices_list
     }
 
-    pub fn test_all_substrings(tree: &SuffixTree, sequences: &[Vec<Symbol>]) {
+    pub fn assert_contains_all_substrings(tree: &SuffixTree, sequences: &[Vec<Symbol>]) {
         for (i, sequence) in sequences.iter().enumerate() {
             for start in 0..sequence.len() {
                 for end in start + 1..=sequence.len() {
@@ -127,174 +127,13 @@ pub mod suffixtree_test_utils {
 }
 
 #[cfg(test)]
-mod tests_build_single_sequence {
-    use crate::Symbol;
-    use crate::suffixtree::node::{Node, Range};
-    use crate::suffixtree::tree::SuffixTree;
-    use crate::suffixtree::tree::suffixtree_test_utils::{str_to_symbols, test_all_substrings};
-    use crate::suffixtree::types::SENTINEL_SYMBOL;
-    use std::collections::{HashMap, HashSet};
-
-    #[test]
-    fn test_small() {
-        let sequences = vec![str_to_symbols("ABCD")];
-        let tree = SuffixTree::build(&sequences);
-        let control_tree = SuffixTree {
-            #[rustfmt::skip]
-            arena: vec![
-                Node::new(Range::new(0, 0, 0), None, Some(HashMap::from([(65, 1), (66, 2), (67, 3), (68, 4), (SENTINEL_SYMBOL, 5)])), None, None),
-                Node::new(Range::new(0, 4, 0), Some(0), None, None, Some(HashSet::from([0]))),
-                Node::new(Range::new(1, 4, 0), Some(0), None, None, Some(HashSet::from([0]))),
-                Node::new(Range::new(2, 4, 0), Some(0), None, None, Some(HashSet::from([0]))),
-                Node::new(Range::new(3, 4, 0), Some(0), None, None, Some(HashSet::from([0]))),
-                Node::new(Range::new(4, 4, 0), Some(0), None, None, Some(HashSet::from([0]))),
-            ],
-        };
-        assert_eq!(tree, control_tree);
-    }
-
-    #[test]
-    fn test_single_sequence() {
-        let sequences = vec![str_to_symbols("ACACACGT")];
-        let tree = SuffixTree::build(&sequences);
-        let control_tree = SuffixTree {
-            #[rustfmt::skip]
-            arena: vec![
-                Node::new(Range::new(0, 0, 0), None, Some(HashMap::from([(SENTINEL_SYMBOL, 13), (65, 7), (67, 9), (71, 11), (84, 12)])), None, None),
-                Node::new(Range::new(4, 8, 0), Some(3), None, None, Some(HashSet::from([0]))),
-                Node::new(Range::new(4, 8, 0), Some(5), None, None, Some(HashSet::from([0]))),
-                Node::new(Range::new(2, 4, 0), Some(7), Some(HashMap::from([(65, 1), (b'G' as Symbol, 4)])), Some(5), None),
-                Node::new(Range::new(6, 8, 0), Some(3), None, None, Some(HashSet::from([0]))),
-                Node::new(Range::new(2, 4, 0), Some(9), Some(HashMap::from([(65, 2), (b'G' as Symbol, 6)])), Some(7), None),
-                Node::new(Range::new(6, 8, 0), Some(5), None, None, Some(HashSet::from([0]))),
-                Node::new(Range::new(0, 2, 0), Some(0), Some(HashMap::from([(65, 3), (b'G' as Symbol, 8)])), Some(9), None),
-                Node::new(Range::new(6, 8, 0), Some(7), None, None, Some(HashSet::from([0]))),
-                Node::new(Range::new(1, 2, 0), Some(0), Some(HashMap::from([(65, 5), (b'G' as Symbol, 10)])), Some(0), None),
-                Node::new(Range::new(6, 8, 0), Some(9), None, None, Some(HashSet::from([0]))),
-                Node::new(Range::new(6, 8, 0), Some(0), None, None, Some(HashSet::from([0]))),
-                Node::new(Range::new(7, 8, 0), Some(0), None, None, Some(HashSet::from([0]))),
-                Node::new(Range::new(8, 8, 0), Some(0), None, None, Some(HashSet::from([0]))),
-            ],
-        };
-        assert_eq!(tree, control_tree);
-    }
-
-    #[test]
-    fn test_large_alphabet() {
-        let sequences = vec![(11500..12000).map(|i| i as Symbol).collect()];
-        let tree = SuffixTree::build(&sequences);
-        test_all_substrings(&tree, &sequences);
-    }
-}
-
-#[cfg(test)]
-mod tests_build_multiple_sequences {
-    use crate::Symbol;
-    use crate::suffixtree::node::{Node, Range};
-    use crate::suffixtree::tree::SuffixTree;
-    use crate::suffixtree::tree::suffixtree_test_utils::{str_to_symbols, test_all_substrings};
+mod tests {
+    use super::test_utils::{assert_contains_all_substrings, str_to_symbols};
+    use super::*;
+    use crate::suffixtree::node::Range;
     use crate::suffixtree::types::SENTINEL_SYMBOL;
     use rand::{RngExt, SeedableRng, rngs::StdRng};
     use std::collections::{HashMap, HashSet};
-
-    #[test]
-    fn test_two_non_overlapping_sequences() {
-        let sequences = vec![str_to_symbols("ABC"), str_to_symbols("DEF")];
-        let tree = SuffixTree::build(&sequences);
-        let control_tree = SuffixTree {
-            #[rustfmt::skip]
-            arena: vec![
-                Node::new(Range::new(0, 0, 0), None, Some(HashMap::from([(65, 1), (66, 2), (67, 3), (68, 5), (69, 6), (70, 7), (SENTINEL_SYMBOL, 4)])), None, None),
-                Node::new(Range::new(0, 3, 0), Some(0), None, None, Some(HashSet::from([0]))),
-                Node::new(Range::new(1, 3, 0), Some(0), None, None, Some(HashSet::from([0]))),
-                Node::new(Range::new(2, 3, 0), Some(0), None, None, Some(HashSet::from([0]))),
-                Node::new(Range::new(3, 3, 0), Some(0), None, None, Some(HashSet::from([0, 1]))),
-                Node::new(Range::new(0, 3, 1), Some(0), None, None, Some(HashSet::from([1]))),
-                Node::new(Range::new(1, 3, 1), Some(0), None, None, Some(HashSet::from([1]))),
-                Node::new(Range::new(2, 3, 1), Some(0), None, None, Some(HashSet::from([1]))),
-            ],
-        };
-        assert_eq!(tree, control_tree);
-    }
-
-    #[test]
-    fn test_two_overlapping_begin_sequences() {
-        let sequences = vec![str_to_symbols("XYAB"), str_to_symbols("XYCD")];
-        let tree = SuffixTree::build(&sequences);
-        let control_tree = SuffixTree {
-            #[rustfmt::skip]
-            arena: vec![
-                Node::new(Range::new(0, 0, 0), None, Some(HashMap::from([(65, 3), (66, 4), (67, 10), (68, 11), (88, 6), (89, 8), (SENTINEL_SYMBOL, 5)])), None, None),
-                Node::new(Range::new(2, 4, 0), Some(6), None, None, Some(HashSet::from([0]))),
-                Node::new(Range::new(2, 4, 0), Some(8), None, None, Some(HashSet::from([0]))),
-                Node::new(Range::new(2, 4, 0), Some(0), None, None, Some(HashSet::from([0]))),
-                Node::new(Range::new(3, 4, 0), Some(0), None, None, Some(HashSet::from([0]))),
-                Node::new(Range::new(4, 4, 0), Some(0), None, None, Some(HashSet::from([0, 1]))),
-                Node::new(Range::new(0, 2, 0), Some(0), Some(HashMap::from([(65, 1), (67, 7)])), Some(8), None),
-                Node::new(Range::new(2, 4, 1), Some(6), None, None, Some(HashSet::from([1]))),
-                Node::new(Range::new(1, 2, 0), Some(0), Some(HashMap::from([(65, 2), (67, 9)])), Some(0), None),
-                Node::new(Range::new(2, 4, 1), Some(8), None, None, Some(HashSet::from([1]))),
-                Node::new(Range::new(2, 4, 1), Some(0), None, None, Some(HashSet::from([1]))),
-                Node::new(Range::new(3, 4, 1), Some(0), None, None, Some(HashSet::from([1]))),
-            ],
-        };
-        assert_eq!(tree, control_tree);
-    }
-
-    #[test]
-    fn test_two_overlapping_end_sequences() {
-        let sequences = vec![str_to_symbols("ABXY"), str_to_symbols("CDXY")];
-        let tree = SuffixTree::build(&sequences);
-        let control_tree = SuffixTree {
-            #[rustfmt::skip]
-            arena: vec![
-                Node::new(Range::new(0, 0, 0), None, Some(HashMap::from([(65, 1), (66, 2), (67, 6), (68, 7), (88, 3), (89, 4), (SENTINEL_SYMBOL, 5)])), None, None),
-                Node::new(Range::new(0, 4, 0), Some(0), None, None, Some(HashSet::from([0]))),
-                Node::new(Range::new(1, 4, 0), Some(0), None, None, Some(HashSet::from([0]))),
-                Node::new(Range::new(2, 4, 0), Some(0), None, None, Some(HashSet::from([0, 1]))),
-                Node::new(Range::new(3, 4, 0), Some(0), None, None, Some(HashSet::from([0, 1]))),
-                Node::new(Range::new(4, 4, 0), Some(0), None, None, Some(HashSet::from([0, 1]))),
-                Node::new(Range::new(0, 4, 1), Some(0), None, None, Some(HashSet::from([1]))),
-                Node::new(Range::new(1, 4, 1), Some(0), None, None, Some(HashSet::from([1]))),
-            ],
-        };
-        assert_eq!(tree, control_tree);
-    }
-
-    #[test]
-    fn test_multiple_sequences() {
-        let sequences = vec![
-            str_to_symbols("MISSISSIPPI"),
-            str_to_symbols("BANANA"),
-            str_to_symbols("BANASSIPPI"),
-        ];
-        let tree = SuffixTree::build(&sequences);
-        test_all_substrings(&tree, &sequences);
-    }
-
-    #[test]
-    fn test_large_random() {
-        let mut rng = StdRng::seed_from_u64(42);
-        let sequences: Vec<Vec<Symbol>> = (0..50)
-            .map(|_| {
-                (0..50)
-                    .map(|_| (rng.random::<u8>() % 10 + 65) as Symbol)
-                    .collect()
-            })
-            .collect();
-        let tree = SuffixTree::build(&sequences);
-        test_all_substrings(&tree, &sequences);
-    }
-}
-
-#[cfg(test)]
-mod tests_analysis {
-    use crate::Symbol;
-    use crate::collections::vec_bitmap::VecBitmap;
-    use crate::suffixtree::tree::SuffixTree;
-    use crate::suffixtree::tree::suffixtree_test_utils::str_to_symbols;
-    use crate::suffixtree::types::AnalysisResult;
-    use std::collections::HashSet;
 
     /// Analyze `inputs` (one symbol per byte), ignoring every symbol that
     /// occurs in `template`.
@@ -336,6 +175,146 @@ mod tests_analysis {
     }
 
     #[test]
+    fn build_creates_a_leaf_per_suffix() {
+        let sequences = vec![str_to_symbols("ABCD")];
+        let tree = SuffixTree::build(&sequences);
+        let control_tree = SuffixTree {
+            #[rustfmt::skip]
+            arena: vec![
+                Node::new(Range::new(0, 0, 0), None, Some(HashMap::from([(65, 1), (66, 2), (67, 3), (68, 4), (SENTINEL_SYMBOL, 5)])), None, None),
+                Node::new(Range::new(0, 4, 0), Some(0), None, None, Some(HashSet::from([0]))),
+                Node::new(Range::new(1, 4, 0), Some(0), None, None, Some(HashSet::from([0]))),
+                Node::new(Range::new(2, 4, 0), Some(0), None, None, Some(HashSet::from([0]))),
+                Node::new(Range::new(3, 4, 0), Some(0), None, None, Some(HashSet::from([0]))),
+                Node::new(Range::new(4, 4, 0), Some(0), None, None, Some(HashSet::from([0]))),
+            ],
+        };
+        assert_eq!(tree, control_tree);
+    }
+
+    #[test]
+    fn build_shares_nodes_for_repeated_substrings() {
+        let sequences = vec![str_to_symbols("ACACACGT")];
+        let tree = SuffixTree::build(&sequences);
+        let control_tree = SuffixTree {
+            #[rustfmt::skip]
+            arena: vec![
+                Node::new(Range::new(0, 0, 0), None, Some(HashMap::from([(SENTINEL_SYMBOL, 13), (65, 7), (67, 9), (71, 11), (84, 12)])), None, None),
+                Node::new(Range::new(4, 8, 0), Some(3), None, None, Some(HashSet::from([0]))),
+                Node::new(Range::new(4, 8, 0), Some(5), None, None, Some(HashSet::from([0]))),
+                Node::new(Range::new(2, 4, 0), Some(7), Some(HashMap::from([(65, 1), (b'G' as Symbol, 4)])), Some(5), None),
+                Node::new(Range::new(6, 8, 0), Some(3), None, None, Some(HashSet::from([0]))),
+                Node::new(Range::new(2, 4, 0), Some(9), Some(HashMap::from([(65, 2), (b'G' as Symbol, 6)])), Some(7), None),
+                Node::new(Range::new(6, 8, 0), Some(5), None, None, Some(HashSet::from([0]))),
+                Node::new(Range::new(0, 2, 0), Some(0), Some(HashMap::from([(65, 3), (b'G' as Symbol, 8)])), Some(9), None),
+                Node::new(Range::new(6, 8, 0), Some(7), None, None, Some(HashSet::from([0]))),
+                Node::new(Range::new(1, 2, 0), Some(0), Some(HashMap::from([(65, 5), (b'G' as Symbol, 10)])), Some(0), None),
+                Node::new(Range::new(6, 8, 0), Some(9), None, None, Some(HashSet::from([0]))),
+                Node::new(Range::new(6, 8, 0), Some(0), None, None, Some(HashSet::from([0]))),
+                Node::new(Range::new(7, 8, 0), Some(0), None, None, Some(HashSet::from([0]))),
+                Node::new(Range::new(8, 8, 0), Some(0), None, None, Some(HashSet::from([0]))),
+            ],
+        };
+        assert_eq!(tree, control_tree);
+    }
+
+    #[test]
+    fn build_accepts_symbols_beyond_the_byte_range() {
+        let sequences = vec![(11500..12000).map(|i| i as Symbol).collect()];
+        let tree = SuffixTree::build(&sequences);
+        assert_contains_all_substrings(&tree, &sequences);
+    }
+
+    #[test]
+    fn build_keeps_disjoint_sequences_apart() {
+        let sequences = vec![str_to_symbols("ABC"), str_to_symbols("DEF")];
+        let tree = SuffixTree::build(&sequences);
+        let control_tree = SuffixTree {
+            #[rustfmt::skip]
+            arena: vec![
+                Node::new(Range::new(0, 0, 0), None, Some(HashMap::from([(65, 1), (66, 2), (67, 3), (68, 5), (69, 6), (70, 7), (SENTINEL_SYMBOL, 4)])), None, None),
+                Node::new(Range::new(0, 3, 0), Some(0), None, None, Some(HashSet::from([0]))),
+                Node::new(Range::new(1, 3, 0), Some(0), None, None, Some(HashSet::from([0]))),
+                Node::new(Range::new(2, 3, 0), Some(0), None, None, Some(HashSet::from([0]))),
+                Node::new(Range::new(3, 3, 0), Some(0), None, None, Some(HashSet::from([0, 1]))),
+                Node::new(Range::new(0, 3, 1), Some(0), None, None, Some(HashSet::from([1]))),
+                Node::new(Range::new(1, 3, 1), Some(0), None, None, Some(HashSet::from([1]))),
+                Node::new(Range::new(2, 3, 1), Some(0), None, None, Some(HashSet::from([1]))),
+            ],
+        };
+        assert_eq!(tree, control_tree);
+    }
+
+    #[test]
+    fn build_shares_a_common_prefix() {
+        let sequences = vec![str_to_symbols("XYAB"), str_to_symbols("XYCD")];
+        let tree = SuffixTree::build(&sequences);
+        let control_tree = SuffixTree {
+            #[rustfmt::skip]
+            arena: vec![
+                Node::new(Range::new(0, 0, 0), None, Some(HashMap::from([(65, 3), (66, 4), (67, 10), (68, 11), (88, 6), (89, 8), (SENTINEL_SYMBOL, 5)])), None, None),
+                Node::new(Range::new(2, 4, 0), Some(6), None, None, Some(HashSet::from([0]))),
+                Node::new(Range::new(2, 4, 0), Some(8), None, None, Some(HashSet::from([0]))),
+                Node::new(Range::new(2, 4, 0), Some(0), None, None, Some(HashSet::from([0]))),
+                Node::new(Range::new(3, 4, 0), Some(0), None, None, Some(HashSet::from([0]))),
+                Node::new(Range::new(4, 4, 0), Some(0), None, None, Some(HashSet::from([0, 1]))),
+                Node::new(Range::new(0, 2, 0), Some(0), Some(HashMap::from([(65, 1), (67, 7)])), Some(8), None),
+                Node::new(Range::new(2, 4, 1), Some(6), None, None, Some(HashSet::from([1]))),
+                Node::new(Range::new(1, 2, 0), Some(0), Some(HashMap::from([(65, 2), (67, 9)])), Some(0), None),
+                Node::new(Range::new(2, 4, 1), Some(8), None, None, Some(HashSet::from([1]))),
+                Node::new(Range::new(2, 4, 1), Some(0), None, None, Some(HashSet::from([1]))),
+                Node::new(Range::new(3, 4, 1), Some(0), None, None, Some(HashSet::from([1]))),
+            ],
+        };
+        assert_eq!(tree, control_tree);
+    }
+
+    #[test]
+    fn build_shares_a_common_suffix() {
+        let sequences = vec![str_to_symbols("ABXY"), str_to_symbols("CDXY")];
+        let tree = SuffixTree::build(&sequences);
+        let control_tree = SuffixTree {
+            #[rustfmt::skip]
+            arena: vec![
+                Node::new(Range::new(0, 0, 0), None, Some(HashMap::from([(65, 1), (66, 2), (67, 6), (68, 7), (88, 3), (89, 4), (SENTINEL_SYMBOL, 5)])), None, None),
+                Node::new(Range::new(0, 4, 0), Some(0), None, None, Some(HashSet::from([0]))),
+                Node::new(Range::new(1, 4, 0), Some(0), None, None, Some(HashSet::from([0]))),
+                Node::new(Range::new(2, 4, 0), Some(0), None, None, Some(HashSet::from([0, 1]))),
+                Node::new(Range::new(3, 4, 0), Some(0), None, None, Some(HashSet::from([0, 1]))),
+                Node::new(Range::new(4, 4, 0), Some(0), None, None, Some(HashSet::from([0, 1]))),
+                Node::new(Range::new(0, 4, 1), Some(0), None, None, Some(HashSet::from([1]))),
+                Node::new(Range::new(1, 4, 1), Some(0), None, None, Some(HashSet::from([1]))),
+            ],
+        };
+        assert_eq!(tree, control_tree);
+    }
+
+    #[test]
+    fn build_contains_every_substring() {
+        let sequences = vec![
+            str_to_symbols("MISSISSIPPI"),
+            str_to_symbols("BANANA"),
+            str_to_symbols("BANASSIPPI"),
+        ];
+        let tree = SuffixTree::build(&sequences);
+        assert_contains_all_substrings(&tree, &sequences);
+    }
+
+    #[test]
+    fn build_contains_every_substring_of_random_sequences() {
+        let mut rng = StdRng::seed_from_u64(42);
+        let sequences: Vec<Vec<Symbol>> = (0..50)
+            .map(|_| {
+                (0..50)
+                    .map(|_| (rng.random::<u8>() % 10 + 65) as Symbol)
+                    .collect()
+            })
+            .collect();
+        let tree = SuffixTree::build(&sequences);
+        assert_contains_all_substrings(&tree, &sequences);
+    }
+
+    #[test]
     fn identical_sequences_overlap_completely() {
         let result = analyze(&["ABC", "ABC"], &[], 1);
 
@@ -359,7 +338,7 @@ mod tests_analysis {
     }
 
     #[test]
-    fn a_shared_substring_is_found_at_differing_offsets() {
+    fn shared_substring_is_found_at_differing_offsets() {
         let result = analyze(&["ABCDEF", "XYZABC"], &[], 1);
 
         assert_eq!(matches(&result, 0, 1), vec![(0, 3, 3)]);
@@ -388,10 +367,8 @@ mod tests_analysis {
         assert_eq!(result.metrics().get(0, 1).unwrap().longest_match, 0);
     }
 
-    // ── Ignoring ──────────────────────────────────────────────────────
-
     #[test]
-    fn an_ignored_position_splits_a_match_in_two() {
+    fn ignored_position_splits_a_match_in_two() {
         // "ABXCD" matches at offset 0 in the left sequence and offset 1 in the
         // right one; the ignored X cuts that single raw match into "AB" and
         // "CD", each keeping its own offset in both sequences.
@@ -406,7 +383,7 @@ mod tests_analysis {
     }
 
     #[test]
-    fn an_ignored_tail_truncates_a_match() {
+    fn ignored_tail_truncates_a_match() {
         let result = analyze(&["ABCD", "ABCD"], &["CD"], 1);
 
         assert_eq!(matches(&result, 0, 1), vec![(0, 0, 2)]);
@@ -416,7 +393,7 @@ mod tests_analysis {
     }
 
     #[test]
-    fn a_core_without_a_node_of_its_own_is_recovered() {
+    fn core_without_a_node_of_its_own_is_recovered() {
         let result = analyze(&["ABBC", "ABBC"], &["A", "C"], 1);
 
         assert_eq!(
@@ -427,7 +404,7 @@ mod tests_analysis {
     }
 
     #[test]
-    fn the_minimum_length_applies_per_run() {
+    fn minimum_length_applies_per_run() {
         let result = analyze(&["ABXBC", "ABXBC"], &["X"], 3);
 
         assert!(matches(&result, 0, 1).is_empty());

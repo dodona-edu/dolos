@@ -133,7 +133,7 @@ mod tests {
     use super::*;
 
     /// An analysis over one sequence per string, one symbol per byte.
-    fn analyse(inputs: &[&str], keep_matches: bool) -> Analysis {
+    fn run_analysis(inputs: &[&str], keep_matches: bool) -> Analysis {
         let sequences: Vec<Vec<Symbol>> = inputs
             .iter()
             .map(|s| s.bytes().map(Symbol::from).collect())
@@ -143,10 +143,9 @@ mod tests {
         Analysis(crate::analyze(&sequences, None, &options).unwrap())
     }
 
-    /// Both failing index shapes reach the caller as an error.
     #[test]
     fn pair_metrics_rejects_indices_that_name_no_pair() {
-        let analysis = analyse(&["ABC", "ABC"], true);
+        let analysis = run_analysis(&["ABC", "ABC"], true);
 
         let same = analysis.pair_metrics(1, 1).unwrap_err();
         assert_eq!(same.kind(), io::ErrorKind::InvalidInput);

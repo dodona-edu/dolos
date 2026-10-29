@@ -241,13 +241,11 @@ impl<'a> BuildCursor<'a> {
 
 #[cfg(test)]
 mod tests {
-    use crate::suffixtree::build_cursor::BuildCursor;
-    use crate::suffixtree::node::{Node, Range};
-    use crate::suffixtree::tree::SuffixTree;
-    use crate::suffixtree::tree::suffixtree_test_utils::str_to_symbols;
+    use super::*;
+    use crate::suffixtree::tree::test_utils::str_to_symbols;
 
     #[test]
-    fn test_split_edge() {
+    fn split_edge_inserts_a_node_at_the_cursor() {
         let mut tree = SuffixTree {
             arena: vec![
                 Node::new(Range::new(0, 0, 0), None, None, None, None),

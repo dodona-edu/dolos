@@ -173,7 +173,7 @@ mod tests {
     }
 
     #[test]
-    fn a_mark_may_cross_a_word_boundary() {
+    fn mark_may_cross_a_word_boundary() {
         let mut bm = PairBitmap::new(&[128, 128]);
         bm.mark_pair(0, 1, 60, 60, 10);
 
@@ -182,7 +182,7 @@ mod tests {
     }
 
     #[test]
-    fn an_empty_mark_changes_nothing() {
+    fn empty_mark_changes_nothing() {
         let mut bm = PairBitmap::new(&[10, 10]);
         bm.mark_pair(0, 1, 0, 0, 0);
 
@@ -191,7 +191,7 @@ mod tests {
     }
 
     #[test]
-    fn a_reversed_pair_addresses_the_same_storage() {
+    fn reversed_pair_addresses_the_same_storage() {
         let mut bm = PairBitmap::new(&[10, 10]);
         bm.mark_pair(1, 0, 2, 3, 4);
 

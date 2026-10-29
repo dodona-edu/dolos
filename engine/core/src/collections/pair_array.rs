@@ -127,7 +127,7 @@ fn pair_indices(item_count: usize) -> impl Iterator<Item = (usize, usize)> {
 
 #[cfg(test)]
 mod tests {
-    use crate::collections::pair_array::PairArray;
+    use super::*;
 
     #[test]
     fn fewer_than_two_items_store_no_pair() {

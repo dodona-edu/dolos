@@ -25,27 +25,27 @@ mod tests {
     use super::*;
 
     #[test]
-    fn ordered_pair_already_sorted() {
+    fn ordered_pair_keeps_sorted_indices() {
         assert_eq!(ordered_pair(1, 3), (1, 3));
     }
 
     #[test]
-    fn ordered_pair_reversed() {
+    fn ordered_pair_swaps_reversed_indices() {
         assert_eq!(ordered_pair(5, 2), (2, 5));
     }
 
     #[test]
-    fn ordered_pair_equal() {
+    fn ordered_pair_keeps_equal_indices() {
         assert_eq!(ordered_pair(4, 4), (4, 4));
     }
 
     #[test]
-    fn ordered_pair_with_already_sorted() {
+    fn ordered_pair_with_keeps_sorted_indices() {
         assert_eq!(ordered_pair_with(0, 1, 10, 20), (0, 1, 10, 20));
     }
 
     #[test]
-    fn ordered_pair_with_reversed() {
+    fn ordered_pair_with_swaps_values_with_indices() {
         assert_eq!(ordered_pair_with(3, 1, 30, 10), (1, 3, 10, 30));
     }
 }

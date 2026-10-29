@@ -106,6 +106,31 @@ mod tests {
     use super::*;
     use rand::{RngExt, SeedableRng, rngs::StdRng};
 
+    /// The runs where both sides hold `bit`, one position at a time.
+    fn naive_shared_runs(
+        bm: &VecBitmap,
+        left: usize,
+        left_start: usize,
+        right: usize,
+        right_start: usize,
+        length: usize,
+        bit: bool,
+    ) -> Vec<Range<usize>> {
+        let (left_bits, right_bits) = (bm.item(left), bm.item(right));
+        let shared = |offset: usize| {
+            left_bits.get(left_start + offset) == bit && right_bits.get(right_start + offset) == bit
+        };
+
+        let mut runs: Vec<Range<usize>> = Vec::new();
+        for offset in (0..length).filter(|&offset| shared(offset)) {
+            match runs.last_mut() {
+                Some(run) if run.end == offset => run.end = offset + 1,
+                _ => runs.push(offset..offset + 1),
+            }
+        }
+        runs
+    }
+
     #[test]
     fn items_are_independent() {
         let mut bm = VecBitmap::new(&[10, 10]);
@@ -189,31 +214,6 @@ mod tests {
             bm.shared_runs(0, 2, 1, 1, 8, true).collect::<Vec<_>>(),
             vec![2..5]
         );
-    }
-
-    /// The runs where both sides hold `bit`, one position at a time.
-    fn naive_shared_runs(
-        bm: &VecBitmap,
-        left: usize,
-        left_start: usize,
-        right: usize,
-        right_start: usize,
-        length: usize,
-        bit: bool,
-    ) -> Vec<Range<usize>> {
-        let (left_bits, right_bits) = (bm.item(left), bm.item(right));
-        let shared = |offset: usize| {
-            left_bits.get(left_start + offset) == bit && right_bits.get(right_start + offset) == bit
-        };
-
-        let mut runs: Vec<Range<usize>> = Vec::new();
-        for offset in (0..length).filter(|&offset| shared(offset)) {
-            match runs.last_mut() {
-                Some(run) if run.end == offset => run.end = offset + 1,
-                _ => runs.push(offset..offset + 1),
-            }
-        }
-        runs
     }
 
     #[test]

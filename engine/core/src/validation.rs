@@ -130,7 +130,7 @@ mod tests {
         error.to_string()
     }
 
-    /// An empty ignore list, an empty range and overlapping ranges are all legal.
+    // An empty ignore list, an empty range and overlapping ranges are all legal.
     #[test]
     fn validate_input_accepts_valid_input() {
         let sequences = vec![vec![1, 2, 3, 4], vec![1, 2]];
@@ -169,8 +169,7 @@ mod tests {
         assert!(rejected.contains("minimum match length"), "{rejected}");
     }
 
-    /// A range that reaches past its sequence corrupts the totals, so it is
-    /// rejected even though the mask would accept it.
+    // The mask accepts such a range, but it corrupts the totals.
     #[test]
     fn validate_input_rejects_ignored_ranges_outside_their_sequence() {
         let sequences = vec![vec![1, 2, 3], vec![1, 2]];
@@ -190,7 +189,7 @@ mod tests {
         assert!(rejected.contains("starts after it ends"), "{rejected}");
     }
 
-    /// An empty list is not the way to ignore nothing. `None` is.
+    // `None` ignores nothing. An empty list is an error.
     #[test]
     fn validate_input_rejects_an_ignore_list_that_covers_the_wrong_number_of_sequences() {
         let sequences = vec![vec![1, 2], vec![3, 4]];
