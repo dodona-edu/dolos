@@ -2,6 +2,9 @@
 name = "tree-sitter-grammars"
 version = "0.1.0"
 edition = "2024"
+description = "Tree-sitter grammars for the programming languages that Dolos supports, one `lang-*` feature per language."
+repository = "https://github.com/dodona-edu/dolos-rs"
+license = "MIT"
 
 [features]
 all-languages = [
@@ -79,8 +82,8 @@ tree-sitter-elm = { version = "5.9.0", optional = true }
 tree-sitter-go = { version = "0.25.0", optional = true }
 tree-sitter-groovy = { version = "0.1.2", optional = true }
 tree-sitter-haskell = { version = "0.24.1", optional = true }
-tree-sitter-java = { version = "=0.23.5", optional = true }
-tree-sitter-javascript = { version = "=0.25.0", optional = true }
+tree-sitter-java = { version = "0.23.5", optional = true }
+tree-sitter-javascript = { version = "0.25.0", optional = true }
 tree-sitter-julia = { version = "0.23.1", optional = true }
 tree-sitter-kotlin = { git = "https://github.com/fwcd/tree-sitter-kotlin.git", optional = true }
 tree-sitter-lua = { version = "0.5.0", optional = true }
@@ -88,7 +91,7 @@ tree-sitter-modelica = { git = "https://github.com/OpenModelica/tree-sitter-mode
 tree-sitter-ocaml = { version = "0.26.0", optional = true }
 tree-sitter-perl = { version = "1.1.2", optional = true }
 tree-sitter-php = { version = "0.25.1", optional = true }
-tree-sitter-python = { version = "=0.25", optional = true }
+tree-sitter-python = { version = "0.25", optional = true }
 tree-sitter-r = { version = "1.2.0", optional = true }
 tree-sitter-ruby = { version = "0.23.1", optional = true }
 tree-sitter-rust = { version = "0.24.2", optional = true }
@@ -100,6 +103,7 @@ tree-sitter-verilog = { version = "1.0.3", optional = true }
 
 [dev-dependencies]
 rstest = "0.28.0"
+tree-sitter = "0.26.13"
 
 [[test]]
 name = "test_grammar"

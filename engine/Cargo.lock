@@ -2037,6 +2037,7 @@ name = "tree-sitter-grammars"
 version = "0.1.0"
 dependencies = [
  "rstest",
+ "tree-sitter",
  "tree-sitter-bash",
  "tree-sitter-c",
  "tree-sitter-c-sharp",

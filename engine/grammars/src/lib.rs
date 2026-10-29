@@ -5,6 +5,17 @@
 //!
 //! For installation instructions, the full list of supported languages, and
 //! usage examples, see the [README](https://github.com/dodona-edu/dolos-rs/tree/main/tree-sitter-grammars).
+//!
+//! # Examples
+//!
+//! ```
+//! # #[cfg(feature = "lang-python")] {
+//! use tree_sitter_grammars::Language;
+//! use std::path::Path;
+//!
+//! assert_eq!(Language::from_path(Path::new("src/main.py")), [Language::Python]);
+//! # }
+//! ```
 
 use std::ffi::OsStr;
 use std::path::Path;
@@ -85,6 +96,16 @@ struct Grammar {
 
 impl Language {
     /// Every language with an enabled `lang-*` feature.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # #[cfg(feature = "lang-python")] {
+    /// use tree_sitter_grammars::Language;
+    ///
+    /// assert!(Language::ALL.contains(&Language::Python));
+    /// # }
+    /// ```
     pub const ALL: &'static [Language] = &[
         #[cfg(feature = "lang-bash")]
         Language::Bash,
@@ -146,7 +167,25 @@ impl Language {
         Language::Verilog,
     ];
 
-    /// The language with the name or alias `name`, ignoring case.
+    /// Return the language with the name or alias `name`, ignoring case.
+    ///
+    /// Returns `None` when no enabled language has that name.
+    ///
+    /// # Parameters
+    ///
+    /// - `name`: a language name, such as `"python"`, or an alias, such as
+    ///   `"golang"`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # #[cfg(feature = "lang-go")] {
+    /// use tree_sitter_grammars::Language;
+    ///
+    /// assert_eq!(Language::from_name("GoLang"), Some(Language::Go));
+    /// assert_eq!(Language::from_name("cobol"), None);
+    /// # }
+    /// ```
     pub fn from_name(name: &str) -> Option<Language> {
         Self::ALL
             .iter()
@@ -154,9 +193,27 @@ impl Language {
             .find(|language| contains_ignoring_case(language.grammar().names, name))
     }
 
-    /// The languages that use the extension of `path`, ignoring case.
+    /// Return the languages that use the extension of `path`, ignoring case.
     ///
-    /// Returns an empty list when the path has no extension or the extension is unknown.
+    /// Several languages can share an extension, such as `.h` for C and C++.
+    /// Returns an empty list when the path has no extension or the extension is
+    /// unknown.
+    ///
+    /// # Parameters
+    ///
+    /// - `path`: a file path. Only its extension counts.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # #[cfg(feature = "lang-python")] {
+    /// use tree_sitter_grammars::Language;
+    /// use std::path::Path;
+    ///
+    /// assert_eq!(Language::from_path(Path::new("main.PY")), [Language::Python]);
+    /// assert!(Language::from_path(Path::new("Makefile")).is_empty());
+    /// # }
+    /// ```
     pub fn from_path(path: &Path) -> Vec<Language> {
         Self::ALL
             .iter()
@@ -165,14 +222,47 @@ impl Language {
             .collect()
     }
 
-    /// Returns `true` if the extension of `path` belongs to this language, ignoring case.
+    /// Return `true` if the extension of `path` belongs to this language, ignoring case.
+    ///
+    /// # Parameters
+    ///
+    /// - `path`: a file path. Only its extension counts.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # #[cfg(feature = "lang-javascript")] {
+    /// use tree_sitter_grammars::Language;
+    /// use std::path::Path;
+    ///
+    /// assert!(Language::Javascript.matches(Path::new("src/app.js")));
+    /// assert!(!Language::Javascript.matches(Path::new("src/app.ts")));
+    /// # }
+    /// ```
     pub fn matches(self, path: &Path) -> bool {
         path.extension()
             .and_then(OsStr::to_str)
             .is_some_and(|ext| contains_ignoring_case(self.grammar().extensions, ext))
     }
 
-    /// The grammar to pass to `tree_sitter::Parser::set_language`.
+    /// Return the tree-sitter grammar of this language.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # #[cfg(feature = "lang-python")] {
+    /// use tree_sitter::Parser;
+    /// use tree_sitter_grammars::Language;
+    ///
+    /// let mut parser = Parser::new();
+    /// parser.set_language(&Language::Python.tree_sitter_language().into())?;
+    ///
+    /// let tree = parser.parse("x = 1", None).ok_or("the parser returned no tree")?;
+    /// assert_eq!(tree.root_node().kind(), "module");
+    /// assert!(!tree.root_node().has_error());
+    /// # }
+    /// # Ok::<(), Box<dyn std::error::Error>>(())
+    /// ```
     pub fn tree_sitter_language(self) -> LanguageFn {
         self.grammar().tree_sitter
     }
