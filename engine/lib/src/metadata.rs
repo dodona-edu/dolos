@@ -35,7 +35,7 @@ pub struct Metadata {
 
 impl Metadata {
     /// Resolve the user-facing [`DolosConfig`] and the [`Dataset`] into the run metadata.
-    pub fn from_config(config: &DolosConfig, dataset: &Dataset) -> Metadata {
+    pub(crate) fn from_config(config: &DolosConfig, dataset: &Dataset) -> Metadata {
         let file_count = dataset.file_set.relative_paths.len();
         let max_fingerprint_file_count = config.max_fingerprint_file_count(file_count);
 

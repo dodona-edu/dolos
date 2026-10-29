@@ -10,7 +10,7 @@ use std::ops::Range;
 
 /// Pack the ranges of `ignored` into one bit-vector per sequence, sized by
 /// `lengths`. Nothing ignored means no bit-vector at all.
-pub(crate) fn ignore_ranges_to_mask(
+pub fn ignore_ranges_to_mask(
     ignored: &[Vec<Range<usize>>],
     lengths: &[usize],
 ) -> Option<VecBitmap> {

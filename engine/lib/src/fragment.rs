@@ -38,7 +38,7 @@ impl Fragment {
 ///
 /// `locations` is indexed by file id, exactly like the sequences that were
 /// handed to the analysis.
-pub(crate) fn resolve_fragments(
+pub fn resolve_fragments(
     raw_matches: PairArray<Vec<Match>>,
     locations: &[Vec<Region>],
     sort_by: &Option<FragmentSortBy>,

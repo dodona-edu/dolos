@@ -21,7 +21,7 @@ use std::ops::Range;
 ///
 /// Returns the first rule that the input breaks, as an
 /// [`ErrorKind::InvalidInput`] error.
-pub(crate) fn validate_input(
+pub fn validate_input(
     sequences: &[Vec<Symbol>],
     ignored: Option<&[Vec<Range<usize>>]>,
     options: &AnalysisOptions,
