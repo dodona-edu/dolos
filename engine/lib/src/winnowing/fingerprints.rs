@@ -98,10 +98,16 @@ mod tests {
     fn winnow_matches_the_fixture(#[case] k: usize, #[case] w: usize) {
         let mut tokenizer = Tokenizer::new(Language::Javascript);
 
-        let expected_hashes: Vec<usize> =
-            serde_any::from_file(format!("fixtures/sample.winnowk{k}w{w}.hashes.json")).unwrap();
-        let expected_locations: Vec<Region> =
-            serde_any::from_file(format!("fixtures/sample.winnowk{k}w{w}.locations.json")).unwrap();
+        let expected_hashes: Vec<usize> = serde_json::from_str(
+            &std::fs::read_to_string(format!("fixtures/sample.winnowk{k}w{w}.hashes.json"))
+                .unwrap(),
+        )
+        .unwrap();
+        let expected_locations: Vec<Region> = serde_json::from_str(
+            &std::fs::read_to_string(format!("fixtures/sample.winnowk{k}w{w}.locations.json"))
+                .unwrap(),
+        )
+        .unwrap();
 
         let content = std::fs::read_to_string(Path::new("fixtures/sample1.js")).unwrap();
         let (hashes, locations) = tokenizer.parse(&content).tokens(false).winnow(k, w, true);

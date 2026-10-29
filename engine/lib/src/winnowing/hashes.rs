@@ -98,9 +98,12 @@ mod tests {
 
     #[test]
     fn hash_token_matches_the_fixture() {
-        let tokens: Vec<Token> = serde_any::from_file("fixtures/sample.tokens.json").unwrap();
+        let tokens: Vec<Token> =
+            serde_json::from_str(&std::fs::read_to_string("fixtures/sample.tokens.json").unwrap())
+                .unwrap();
         let expected_hashes: Vec<usize> =
-            serde_any::from_file("fixtures/sample.hashes.json").unwrap();
+            serde_json::from_str(&std::fs::read_to_string("fixtures/sample.hashes.json").unwrap())
+                .unwrap();
 
         assert_eq!(tokens.len(), expected_hashes.len());
         for (token, &expected) in tokens.iter().zip(&expected_hashes) {
@@ -117,10 +120,16 @@ mod tests {
     #[case::k_3(3)]
     #[case::k_17(17)]
     fn rolling_hash_matches_the_fixture(#[case] k: usize) {
-        let tokens: Vec<Token> = serde_any::from_file("fixtures/sample.tokens.json").unwrap();
-        let token_hashes: Vec<usize> = serde_any::from_file("fixtures/sample.hashes.json").unwrap();
-        let expected_hashes: Vec<usize> =
-            serde_any::from_file(format!("fixtures/sample.rolling{k}.json")).unwrap();
+        let tokens: Vec<Token> =
+            serde_json::from_str(&std::fs::read_to_string("fixtures/sample.tokens.json").unwrap())
+                .unwrap();
+        let token_hashes: Vec<usize> =
+            serde_json::from_str(&std::fs::read_to_string("fixtures/sample.hashes.json").unwrap())
+                .unwrap();
+        let expected_hashes: Vec<usize> = serde_json::from_str(
+            &std::fs::read_to_string(format!("fixtures/sample.rolling{k}.json")).unwrap(),
+        )
+        .unwrap();
 
         assert_eq!(token_hashes.len(), expected_hashes.len());
         let mut hasher = RollingHash::new(k);
