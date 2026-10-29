@@ -47,9 +47,7 @@ impl Analysis {
     ///
     /// @throws {Error} when `left` and `right` name no pair.
     pub fn metrics(&self, left: usize, right: usize) -> Result<Ts<PairMetrics>, JsError> {
-        self.check_pair(left, right)?;
-
-        Ok(self.0.metrics().get(left, right).into_ts()?)
+        Ok(self.pair_metrics(left, right)?.into_ts()?)
     }
 
     /// The matches of the pair `(left, right)`.
@@ -60,32 +58,32 @@ impl Analysis {
     /// @throws {Error} when `left` and `right` name no pair.
     #[wasm_bindgen(unchecked_return_type = "Match[] | undefined")]
     pub fn matches(&self, left: usize, right: usize) -> Result<JsValue, JsError> {
-        self.check_pair(left, right)?;
+        // Reject indices that name no pair, also when the run kept no matches.
+        self.pair_metrics(left, right)?;
 
-        let matches = self.0.matches().map(|matches| matches.get(left, right));
+        let matches = self
+            .0
+            .matches()
+            .and_then(|matches| matches.get(left, right));
 
         Ok(serde_wasm_bindgen::to_value(&matches)?)
     }
 
-    /// Check that `(left, right)` names a pair, so no out-of-range index reaches
-    /// [`PairArray`].
-    ///
-    /// [`PairArray`]: crate::PairArray
-    fn check_pair(&self, left: usize, right: usize) -> io::Result<()> {
-        if left == right {
-            let message = format!("sequence {left} does not form a pair with itself");
-            return Err(io::Error::new(io::ErrorKind::InvalidInput, message));
-        }
-
-        let count = self.0.metrics().item_count();
-        if left >= count || right >= count {
-            let message = format!(
-                "pair ({left}, {right}) is out of range, the analysis has {count} sequences"
-            );
-            return Err(io::Error::new(io::ErrorKind::InvalidInput, message));
-        }
-
-        Ok(())
+    /// The metrics of the pair `(left, right)`, or an error when the indices
+    /// name no pair.
+    fn pair_metrics(&self, left: usize, right: usize) -> io::Result<&PairMetrics> {
+        let metrics = self.0.metrics();
+        metrics.get(left, right).ok_or_else(|| {
+            let count = metrics.item_count();
+            let message = if left == right {
+                format!("sequence {left} does not form a pair with itself")
+            } else {
+                format!(
+                    "pair ({left}, {right}) is out of range, the analysis has {count} sequences"
+                )
+            };
+            io::Error::new(io::ErrorKind::InvalidInput, message)
+        })
     }
 }
 
@@ -147,10 +145,10 @@ mod tests {
 
     /// Both failing index shapes reach the caller as an error.
     #[test]
-    fn check_pair_rejects_indices_that_name_no_pair() {
+    fn pair_metrics_rejects_indices_that_name_no_pair() {
         let analysis = analyse(&["ABC", "ABC"], true);
 
-        let same = analysis.check_pair(1, 1).unwrap_err();
+        let same = analysis.pair_metrics(1, 1).unwrap_err();
         assert_eq!(same.kind(), io::ErrorKind::InvalidInput);
         assert!(
             same.to_string()
@@ -159,7 +157,7 @@ mod tests {
         );
 
         // The first index past the last sequence, so a `>` bound would let it by.
-        let out_of_range = analysis.check_pair(0, 2).unwrap_err();
+        let out_of_range = analysis.pair_metrics(0, 2).unwrap_err();
         assert_eq!(out_of_range.kind(), io::ErrorKind::InvalidInput);
         assert!(
             out_of_range.to_string().contains("is out of range"),

@@ -129,7 +129,7 @@ mod tests {
         let result = analyze_pair(vec![1, 2], vec![1, 2]);
 
         let fragments = resolve_fragments(result.matches().unwrap(), &locations(2), &None);
-        let frags = fragments.get(0, 1);
+        let frags = fragments.get(0, 1).unwrap();
 
         assert_eq!(frags.len(), 1);
         assert_eq!(frags[0].fingerprint_count, 2);
@@ -150,7 +150,7 @@ mod tests {
     ) {
         // One match of length 2 at the start, one of length 1 at the end.
         let result = analyze_pair(vec![2, 3, 9, 1], vec![2, 3, 8, 1]);
-        let mut matches = result.matches().unwrap().get(0, 1).clone();
+        let mut matches = result.matches().unwrap().get(0, 1).unwrap().clone();
         matches.sort_by_key(|m| m.left_start);
         assert_eq!(
             matches,
@@ -163,6 +163,7 @@ mod tests {
         let fragments = resolve_fragments(result.matches().unwrap(), &locations(4), &sort_by);
         let counts: Vec<usize> = fragments
             .get(0, 1)
+            .unwrap()
             .iter()
             .map(|f| f.fingerprint_count)
             .collect();

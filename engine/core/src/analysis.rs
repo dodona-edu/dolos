@@ -47,7 +47,7 @@ pub struct AnalysisOptions {
 /// };
 ///
 /// let result = analyze(&sequences, None, &options)?;
-/// assert_eq!(result.metrics().get(0, 1).longest_match, 3);
+/// assert_eq!(result.metrics().get(0, 1).unwrap().longest_match, 3);
 /// # Ok::<(), std::io::Error>(())
 /// ```
 pub fn analyze(

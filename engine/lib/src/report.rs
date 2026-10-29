@@ -152,7 +152,7 @@ mod tests {
                     && p.right_file.as_ref() == files[1].as_ref()
             })
             .expect("a.js-b.js pair not found");
-        assert_eq!(&ab.metrics, result.metrics().get(0, 1));
+        assert_eq!(Some(&ab.metrics), result.metrics().get(0, 1));
         assert_eq!(ab.metrics.longest_match, 3);
         assert!(ab.fragments.is_none());
     }

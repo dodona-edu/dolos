@@ -392,7 +392,7 @@ fn a_pair_replayed_from_the_exported_data_reproduces_the_run() {
 
         assert_eq!(
             rerun.metrics().get(0, 1),
-            &pair.metrics,
+            Some(&pair.metrics),
             "metrics differ for {names}"
         );
 
@@ -400,6 +400,7 @@ fn a_pair_replayed_from_the_exported_data_reproduces_the_run() {
             .matches()
             .expect("matches are kept")
             .get(0, 1)
+            .unwrap()
             .iter()
             .map(|m| Fragment::resolve(m, &left.regions, &right.regions))
             .collect();
@@ -428,7 +429,7 @@ fn a_rerun_without_the_exported_positions_disagrees() {
 
     assert_ne!(
         blind.metrics().get(0, 1),
-        &pair.metrics,
+        Some(&pair.metrics),
         "the exported ignored positions changed nothing"
     );
 }
