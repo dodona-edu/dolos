@@ -126,7 +126,7 @@ mod tests {
     }
 
     #[test]
-    fn test_collect_recursive_finds_nested_files() {
+    fn collect_recursive_finds_nested_files() {
         let tmp = tempdir().unwrap();
         fs::write(tmp.path().join("b.txt"), "").unwrap();
         fs::write(tmp.path().join("a.txt"), "").unwrap();
@@ -144,8 +144,7 @@ mod tests {
     }
 
     #[test]
-    fn test_from_files_errors_on_nonexistent_path() {
-        let result = from_files(vec!["does_not_exist.js".into()]);
-        assert!(result.is_err());
+    fn from_files_rejects_a_missing_path() {
+        assert!(from_files(vec!["does_not_exist.js".into()]).is_err());
     }
 }

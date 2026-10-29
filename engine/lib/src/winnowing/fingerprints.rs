@@ -95,39 +95,26 @@ mod tests {
     #[case::k_3_w_5(3, 5)]
     #[case::k_16_w_8(16, 8)]
     #[case::k_17_w_23(17, 23)]
-    fn test_winnowing(#[case] k: usize, #[case] w: usize) {
+    fn winnow_matches_the_fixture(#[case] k: usize, #[case] w: usize) {
         let mut tokenizer = Tokenizer::new(Language::Javascript);
 
         let expected_hashes: Vec<usize> =
-            serde_any::from_file(format!("fixtures/sample.winnowk{}w{}.hashes.json", k, w))
-                .unwrap();
+            serde_any::from_file(format!("fixtures/sample.winnowk{k}w{w}.hashes.json")).unwrap();
         let expected_locations: Vec<Region> =
-            serde_any::from_file(format!("fixtures/sample.winnowk{}w{}.locations.json", k, w))
-                .unwrap();
+            serde_any::from_file(format!("fixtures/sample.winnowk{k}w{w}.locations.json")).unwrap();
 
         let content = std::fs::read_to_string(Path::new("fixtures/sample1.js")).unwrap();
         let (hashes, locations) = tokenizer.parse(&content).tokens(false).winnow(k, w, true);
 
-        let locations = locations.expect("Locations should be present");
+        let locations = locations.unwrap();
 
-        assert_eq!(
-            hashes.len(),
-            expected_hashes.len(),
-            "Too few winnowed tokens"
-        );
-        assert_eq!(hashes.len(), locations.len());
-
-        for i in 0..hashes.len() {
-            assert_eq!(
-                hashes[i], expected_hashes[i],
-                "Mismatch: {:?} and {:?}",
-                hashes[i], expected_hashes[i]
-            );
-            assert_eq!(
-                locations[i], expected_locations[i],
-                "Mismatch: {:?} and {:?}",
-                locations[i], expected_locations[i]
-            );
+        assert_eq!(hashes.len(), expected_hashes.len());
+        assert_eq!(locations.len(), expected_locations.len());
+        for (i, (hash, expected)) in hashes.iter().zip(&expected_hashes).enumerate() {
+            assert_eq!(hash, expected, "hash mismatch at index {i}");
+        }
+        for (i, (location, expected)) in locations.iter().zip(&expected_locations).enumerate() {
+            assert_eq!(location, expected, "location mismatch at index {i}");
         }
     }
 
@@ -135,13 +122,12 @@ mod tests {
     #[case::k_3_w_5(3, 5)]
     #[case::k_16_w_8(16, 8)]
     #[case::k_17_w_23(17, 23)]
-    fn test_locations_advance_through_the_file(#[case] k: usize, #[case] w: usize) {
-        // Fragment::resolve spans a run of these locations, so each one must be
-        // well formed and no location may start before the one before it.
+    fn winnow_locations_advance_through_the_file(#[case] k: usize, #[case] w: usize) {
+        // Fragment::resolve needs every location well formed (start <= end) and in order.
         let mut tokenizer = Tokenizer::new(Language::Javascript);
         let content = std::fs::read_to_string(Path::new("fixtures/sample1.js")).unwrap();
         let (_, locations) = tokenizer.parse(&content).tokens(false).winnow(k, w, true);
-        let locations = locations.expect("Locations should be present");
+        let locations = locations.unwrap();
 
         for location in &locations {
             assert!(

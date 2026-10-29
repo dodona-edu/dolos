@@ -140,10 +140,10 @@ mod tests {
     }
 
     #[rstest]
-    #[case(Some(FragmentSortBy::KgramsAscending), vec![1, 2])]
-    #[case(Some(FragmentSortBy::KgramsDescending), vec![2, 1])]
-    #[case(Some(FragmentSortBy::FileOrder), vec![2, 1])]
-    #[case(None, vec![2, 1])]
+    #[case::kgrams_ascending(Some(FragmentSortBy::KgramsAscending), vec![1, 2])]
+    #[case::kgrams_descending(Some(FragmentSortBy::KgramsDescending), vec![2, 1])]
+    #[case::file_order(Some(FragmentSortBy::FileOrder), vec![2, 1])]
+    #[case::default(None, vec![2, 1])]
     fn resolve_fragments_sorts_as_requested(
         #[case] sort_by: Option<FragmentSortBy>,
         #[case] expected: Vec<usize>,

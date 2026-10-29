@@ -212,50 +212,31 @@ impl DolosConfigBuilder {
     }
 }
 
-// ── Tests ─────────────────────────────────────────────────────────────────────
-
 #[cfg(test)]
 mod tests {
     use super::*;
+    use rstest::rstest;
 
-    #[test]
-    fn zero_kgram_length_is_rejected() {
-        assert!(DolosConfig::builder().kgram_length(0).build().is_err());
+    #[rstest]
+    #[case::zero_kgram_length(DolosConfig::builder().kgram_length(0))]
+    #[case::zero_kgrams_in_window(DolosConfig::builder().kgrams_in_window(0))]
+    #[case::zero_min_length_match(DolosConfig::builder().min_length_match(0))]
+    #[case::zero_max_fingerprint_count(DolosConfig::builder().max_fingerprint_count(0))]
+    #[case::percentage_above_one(DolosConfig::builder().max_fingerprint_percentage(1.5))]
+    #[case::percentage_below_zero(DolosConfig::builder().max_fingerprint_percentage(-0.1))]
+    fn build_rejects_out_of_range_values(#[case] builder: DolosConfigBuilder) {
+        assert!(builder.build().is_err());
     }
 
-    #[test]
-    fn zero_kgrams_in_window_is_rejected() {
-        assert!(DolosConfig::builder().kgrams_in_window(0).build().is_err());
-    }
-
-    #[test]
-    fn zero_min_length_match_is_rejected() {
-        assert!(DolosConfig::builder().min_length_match(0).build().is_err());
-    }
-
-    #[test]
-    fn zero_max_fingerprint_count_is_rejected() {
+    #[rstest]
+    #[case::zero(0.0)]
+    #[case::one(1.0)]
+    fn build_accepts_boundary_percentages(#[case] percentage: f64) {
         assert!(
             DolosConfig::builder()
-                .max_fingerprint_count(0)
+                .max_fingerprint_percentage(percentage)
                 .build()
-                .is_err()
-        );
-    }
-
-    #[test]
-    fn out_of_range_percentage_is_rejected() {
-        assert!(
-            DolosConfig::builder()
-                .max_fingerprint_percentage(1.5)
-                .build()
-                .is_err()
-        );
-        assert!(
-            DolosConfig::builder()
-                .max_fingerprint_percentage(-0.1)
-                .build()
-                .is_err()
+                .is_ok()
         );
     }
 
@@ -267,21 +248,5 @@ mod tests {
             .unwrap();
 
         assert_eq!(config.max_fingerprint_file_count(3), Some(1));
-    }
-
-    #[test]
-    fn boundary_percentages_are_accepted() {
-        assert!(
-            DolosConfig::builder()
-                .max_fingerprint_percentage(0.0)
-                .build()
-                .is_ok()
-        );
-        assert!(
-            DolosConfig::builder()
-                .max_fingerprint_percentage(1.0)
-                .build()
-                .is_ok()
-        );
     }
 }

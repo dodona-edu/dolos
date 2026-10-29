@@ -104,23 +104,19 @@ mod tests {
             .collect()
     }
 
-    // ── Document frequency ────────────────────────────────────────────
-
     #[test]
-    fn a_fingerprint_in_at_most_max_files_is_kept() {
+    fn fingerprint_in_at_most_max_files_is_kept() {
         let files = seqs(&["XA", "XB", "YC", "YD"]);
         let ignored = classify(&files, &[], Some(2));
         assert!(marked(ignored).iter().all(Vec::is_empty));
     }
 
     #[test]
-    fn a_fingerprint_in_more_than_max_files_is_ignored() {
+    fn fingerprint_in_more_than_max_files_is_ignored() {
         let files = seqs(&["XA", "XB", "XC", "YD"]);
         let ignored = classify(&files, &[], Some(2));
         assert_eq!(marked(ignored), vec![vec![0], vec![0], vec![0], vec![]]);
     }
-
-    // ── Template ───────────────────────────────────────────────────
 
     #[test]
     fn template_fingerprints_are_ignored() {
@@ -132,15 +128,12 @@ mod tests {
     }
 
     #[test]
-    fn a_template_that_matches_nothing_ignores_nothing() {
+    fn unmatched_template_ignores_nothing() {
         let files = seqs(&["ABC", "ABC"]);
         let ignored = classify(&files, &seqs(&["Z"]), None);
         assert!(marked(ignored).iter().all(Vec::is_empty));
     }
 
-    // ── Shapes ────────────────────────────────────────────────────────
-
-    /// Adjacent ignored positions become one range, separated ones do not.
     #[test]
     fn ignored_positions_are_merged_into_maximal_ranges() {
         let files = seqs(&["ABXXCDX", "AB"]);
@@ -149,15 +142,14 @@ mod tests {
     }
 
     #[test]
-    fn empty_sequences_are_handled() {
+    fn empty_sequences_have_no_ignored_positions() {
         let files = seqs(&["", "AB", ""]);
         let ignored = classify(&files, &seqs(&["A"]), None);
         assert_eq!(marked(ignored), vec![vec![], vec![0], vec![]]);
     }
 
     #[test]
-    fn no_input_at_all_is_handled() {
-        // A template without a single input file marks nothing.
+    fn no_input_files_give_no_ignored_positions() {
         let ignored = classify(&[], &seqs(&["ABC"]), Some(1));
         assert!(ignored.is_empty());
     }

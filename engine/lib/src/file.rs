@@ -134,7 +134,7 @@ impl FileSet {
 
 #[cfg(test)]
 mod tests {
-    use super::FileSet;
+    use super::*;
     use rstest::rstest;
     use std::path::PathBuf;
     use tree_sitter_grammars::Language;

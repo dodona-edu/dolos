@@ -13,17 +13,22 @@ pub struct ExtractionResult {
 }
 
 pub fn try_extract(path: &Path) -> Result<Option<ExtractionResult>> {
-    let Some((format, ext)) = Format::detect(path) else {
+    let Some((format, name)) = detect_archive(path) else {
         return Ok(None);
     };
     let temp_dir = tempdir()?;
     format.extract(path, temp_dir.path())?;
+    Ok(Some(ExtractionResult { name, temp_dir }))
+}
+
+/// Detects the archive format of `path` and its file name without the archive extension.
+fn detect_archive(path: &Path) -> Option<(Format, String)> {
+    let (format, ext) = Format::detect(path)?;
     let raw = path
         .file_name()
         .unwrap_or(path.as_os_str())
         .to_string_lossy();
-    let name = raw[..raw.len() - ext.len()].to_owned();
-    Ok(Some(ExtractionResult { name, temp_dir }))
+    Some((format, raw[..raw.len() - ext.len()].to_owned()))
 }
 
 #[derive(Clone, Copy)]
@@ -69,59 +74,31 @@ impl Format {
 
 #[cfg(test)]
 mod tests {
-    use super::Format;
-    use std::path::Path;
+    use super::*;
+    use rstest::rstest;
 
-    #[test]
-    fn detect_recognises_all_extensions() {
-        let should_match = [
-            "archive.zip",
-            "archive.ZIP",
-            "archive.tar",
-            "archive.tar.gz",
-            "archive.tgz",
-            "archive.TGZ",
-            "archive.tar.bz2",
-            "archive.tbz",
-            "archive.tbz2",
-        ];
-        for name in should_match {
-            assert!(
-                Format::detect(Path::new(name)).is_some(),
-                "should match: {name}"
-            );
-        }
+    #[rstest]
+    #[case::zip("dataset.zip")]
+    #[case::zip_uppercase("dataset.ZIP")]
+    #[case::tar("dataset.tar")]
+    #[case::tar_gz("dataset.tar.gz")]
+    #[case::tgz("dataset.tgz")]
+    #[case::tgz_uppercase("dataset.TGZ")]
+    #[case::tar_bz2("dataset.tar.bz2")]
+    #[case::tbz("dataset.tbz")]
+    #[case::tbz2("dataset.tbz2")]
+    fn detect_archive_strips_the_whole_extension(#[case] filename: &str) {
+        let (_, name) = detect_archive(Path::new(filename)).unwrap();
 
-        let should_not_match = ["file.js", "info.csv", "photo.gz", "data.bz2"];
-        for name in should_not_match {
-            assert!(
-                Format::detect(Path::new(name)).is_none(),
-                "should not match: {name}"
-            );
-        }
+        assert_eq!(name, "dataset");
     }
 
-    #[test]
-    fn detect_strips_correct_extension() {
-        let cases = [
-            ("dataset.tar.gz", "dataset"),
-            ("dataset.tgz", "dataset"),
-            ("dataset.tar.bz2", "dataset"),
-            ("dataset.tbz", "dataset"),
-            ("dataset.tbz2", "dataset"),
-            ("dataset.zip", "dataset"),
-            ("dataset.tar", "dataset"),
-        ];
-        for (filename, expected_name) in cases {
-            let path = Path::new(filename);
-            let (_, ext) =
-                Format::detect(path).unwrap_or_else(|| panic!("no match for {filename}"));
-            let raw = path.file_name().unwrap().to_string_lossy();
-            assert_eq!(
-                &raw[..raw.len() - ext.len()],
-                expected_name,
-                "failed for {filename}"
-            );
-        }
+    #[rstest]
+    #[case::js("file.js")]
+    #[case::csv("info.csv")]
+    #[case::gz("photo.gz")]
+    #[case::bz2("data.bz2")]
+    fn detect_ignores_other_extensions(#[case] filename: &str) {
+        assert!(Format::detect(Path::new(filename)).is_none());
     }
 }

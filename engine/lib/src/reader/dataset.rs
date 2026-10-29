@@ -112,34 +112,38 @@ impl Dataset {
 
 #[cfg(test)]
 mod tests {
-    use super::Dataset;
+    use super::*;
     use rstest::rstest;
-    use std::path::PathBuf;
 
     #[test]
-    fn create_errors_on_empty_input() {
+    fn create_rejects_empty_input() {
         assert!(Dataset::create(vec![], None).is_err());
     }
 
     #[test]
-    fn create_errors_on_single_regular_file() {
-        let result = Dataset::create(vec!["fixtures/sample1.js".into()], None);
-        assert!(result.is_err());
+    fn create_rejects_a_single_regular_file() {
+        assert!(Dataset::create(vec!["fixtures/sample1.js".into()], None).is_err());
     }
 
     #[test]
-    fn name_for_two_files() {
+    fn create_reads_loose_files() {
         let dataset = Dataset::create(
             vec!["fixtures/sample1.js".into(), "fixtures/sample2.js".into()],
             None,
         )
         .unwrap();
-        assert_eq!(dataset.name, "sample1.js-sample2.js");
-        assert_eq!(dataset.file_set.relative_paths.len(), 2);
+        assert_eq!(dataset.file_set.base_dir, PathBuf::new());
+        assert_eq!(
+            dataset.file_set.relative_paths,
+            vec![
+                PathBuf::from("fixtures/sample1.js"),
+                PathBuf::from("fixtures/sample2.js"),
+            ]
+        );
     }
 
     #[test]
-    fn name_for_many_files() {
+    fn create_names_many_files_by_count() {
         let dataset = Dataset::create(
             vec![
                 "fixtures/sample1.js".into(),
@@ -154,7 +158,7 @@ mod tests {
     }
 
     #[test]
-    fn name_for_files_after_filtering() {
+    fn create_names_the_files_left_after_filtering() {
         let dataset = Dataset::create(
             vec![
                 "fixtures/sample1.js".into(),
@@ -168,7 +172,7 @@ mod tests {
     }
 
     #[test]
-    fn test_dataset_from_single_directory() {
+    fn create_reads_a_directory() {
         let dataset = Dataset::create(vec!["fixtures/reader".into()], None).unwrap();
         assert_eq!(dataset.name, "reader");
         assert_eq!(dataset.file_set.base_dir, PathBuf::from("fixtures/reader"));
@@ -179,7 +183,7 @@ mod tests {
     }
 
     #[test]
-    fn test_dataset_from_csv() {
+    fn create_reads_a_csv_file() {
         let dataset = Dataset::create(vec!["fixtures/reader/info.csv".into()], None).unwrap();
         assert_eq!(dataset.name, "reader");
         assert_eq!(dataset.file_set.base_dir, PathBuf::from("fixtures/reader"));
@@ -194,32 +198,15 @@ mod tests {
     #[case::tar("fixtures/reader.tar")]
     #[case::tar_gz("fixtures/reader.tar.gz")]
     #[case::tar_bz2("fixtures/reader.tar.bz2")]
-    fn test_dataset_from_archive(#[case] path: &str) {
+    fn create_reads_an_archive(#[case] path: &str) {
         let dataset = Dataset::create(vec![path.into()], None).unwrap();
         assert_eq!(dataset.name, "reader");
 
         let mut files = dataset.file_set.relative_paths.clone();
         files.sort();
-        assert_eq!(files.len(), 2);
-        assert_eq!(files[0], PathBuf::from("sample1.js"));
-        assert_eq!(files[1], PathBuf::from("sample2.js"));
-    }
-
-    #[test]
-    fn test_dataset_from_files() {
-        let dataset = Dataset::create(
-            vec!["fixtures/sample1.js".into(), "fixtures/sample2.js".into()],
-            None,
-        )
-        .unwrap();
-        assert_eq!(dataset.name, "sample1.js-sample2.js");
-        assert_eq!(dataset.file_set.base_dir, PathBuf::new());
         assert_eq!(
-            dataset.file_set.relative_paths,
-            vec![
-                PathBuf::from("fixtures/sample1.js"),
-                PathBuf::from("fixtures/sample2.js"),
-            ]
+            files,
+            vec![PathBuf::from("sample1.js"), PathBuf::from("sample2.js")]
         );
     }
 }

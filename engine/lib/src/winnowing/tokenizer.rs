@@ -94,7 +94,7 @@ mod tests {
     use std::path::Path;
 
     #[test]
-    fn test_tokenize_simple() {
+    fn tokens_wrap_every_named_node_in_brackets() {
         let mut tokenizer = Tokenizer::new(Language::Javascript);
         let actual = tokenizer.parse("1").tokens(false);
 
@@ -119,7 +119,7 @@ mod tests {
     }
 
     #[test]
-    fn test_token_locations_advance_through_the_file() {
+    fn token_locations_advance_through_the_file() {
         // region_from_kgram takes the start of the first token of a kgram and
         // the end of the last one, which needs a stream in source order.
         let mut tokenizer = Tokenizer::new(Language::Javascript);
@@ -138,7 +138,7 @@ mod tests {
     }
 
     #[test]
-    fn test_tokenize_large() {
+    fn tokens_match_the_fixture() {
         let expected: Vec<Token> = serde_any::from_file("fixtures/sample.tokens.json").unwrap();
         let mut tokenizer = Tokenizer::new(Language::Javascript);
         let content = std::fs::read_to_string(Path::new("fixtures/sample1.js")).unwrap();
@@ -146,8 +146,7 @@ mod tests {
         assert_eq!(actual, expected);
     }
 
-    /// Regenerate the golden JSON fixtures from the current `fixtures/sample1.js`.
-    /// Run with `cargo test --features all-languages -- --ignored generate_sample_fixtures`.
+    // Run with `cargo test --features all-languages -- --ignored generate_sample_fixtures`.
     #[test]
     #[ignore = "only run to regenerate sample fixtures after changing fixtures/sample1.js"]
     fn generate_sample_fixtures() {

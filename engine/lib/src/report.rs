@@ -88,7 +88,7 @@ mod tests {
     use std::rc::Rc;
     use tree_sitter_grammars::Language;
 
-    fn make_metadata(sort_by: Option<PairSortBy>) -> Metadata {
+    fn metadata(sort_by: Option<PairSortBy>) -> Metadata {
         Metadata {
             report_name: "test".to_string(),
             created_at: Utc::now(),
@@ -106,7 +106,7 @@ mod tests {
         }
     }
 
-    fn make_file(id: usize, name: &str) -> Rc<File> {
+    fn file(id: usize, name: &str) -> Rc<File> {
         Rc::new(File {
             id,
             relative_path: PathBuf::from(name),
@@ -123,18 +123,12 @@ mod tests {
         dolos_core::analyze(&sequences, None, &options).unwrap()
     }
 
-    /// Three files give three pairs, each carrying the metrics of its own pair
-    /// and references to the right two files.
     #[test]
     fn every_pair_gets_its_own_metrics() {
-        let files = vec![
-            make_file(0, "a.js"),
-            make_file(1, "b.js"),
-            make_file(2, "c.js"),
-        ];
+        let files = vec![file(0, "a.js"), file(1, "b.js"), file(2, "c.js")];
         let result = analyze_three();
 
-        let report = Report::new(result.metrics(), None, files.clone(), make_metadata(None));
+        let report = Report::new(result.metrics(), None, files.clone(), metadata(None));
 
         assert_eq!(report.pairs.len(), 3);
         let pair_files: Vec<_> = report
@@ -159,21 +153,16 @@ mod tests {
         assert!(ab.fragments.is_none());
     }
 
-    /// `sort_by: Similarity` orders the pairs by descending similarity.
     #[test]
     fn pairs_are_sorted_by_similarity() {
-        let files = vec![
-            make_file(0, "a.js"),
-            make_file(1, "b.js"),
-            make_file(2, "c.js"),
-        ];
+        let files = vec![file(0, "a.js"), file(1, "b.js"), file(2, "c.js")];
         let result = analyze_three();
 
         let report = Report::new(
             result.metrics(),
             None,
             files,
-            make_metadata(Some(PairSortBy::Similarity)),
+            metadata(Some(PairSortBy::Similarity)),
         );
 
         let similarities: Vec<f64> = report.pairs.iter().map(|p| p.metrics.similarity).collect();
