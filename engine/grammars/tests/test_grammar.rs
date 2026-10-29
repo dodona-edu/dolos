@@ -1,78 +1,138 @@
+use rstest::rstest;
 use std::path::Path;
 use tree_sitter_grammars::Language;
 
-// Maps (extension, name, expected Language)
-const CASES: &[(&str, &str, Language)] = &[
-    ("sh", "bash", Language::Bash),
-    ("c", "c", Language::C),
-    ("cpp", "cpp", Language::Cpp),
-    ("cs", "csharp", Language::CSharp),
-    ("dart", "dart", Language::Dart),
-    ("ex", "elixir", Language::Elixir),
-    ("elm", "elm", Language::Elm),
-    ("go", "go", Language::Go),
-    ("groovy", "groovy", Language::Groovy),
-    ("hs", "haskell", Language::Haskell),
-    ("java", "java", Language::Java),
-    ("js", "javascript", Language::Javascript),
-    ("jl", "julia", Language::Julia),
-    ("kt", "kotlin", Language::Kotlin),
-    ("lua", "lua", Language::Lua),
-    ("mo", "modelica", Language::Modelica),
-    ("ml", "ocaml", Language::Ocaml),
-    ("pl", "perl", Language::Perl),
-    ("php", "php", Language::Php),
-    ("py", "python", Language::Python),
-    ("r", "r", Language::R),
-    ("rb", "ruby", Language::Ruby),
-    ("rs", "rust", Language::Rust),
-    ("scala", "scala", Language::Scala),
-    ("sql", "sql", Language::Sql),
-    ("swift", "swift", Language::Swift),
-    ("ts", "typescript", Language::Typescript),
-    ("tsx", "tsx", Language::Tsx),
-    ("v", "verilog", Language::Verilog),
-];
+#[rstest]
+#[case::bash("sh", Language::Bash)]
+#[case::c("c", Language::C)]
+#[case::cpp("cpp", Language::Cpp)]
+#[case::csharp("cs", Language::CSharp)]
+#[case::dart("dart", Language::Dart)]
+#[case::elixir("ex", Language::Elixir)]
+#[case::elm("elm", Language::Elm)]
+#[case::go("go", Language::Go)]
+#[case::groovy("groovy", Language::Groovy)]
+#[case::haskell("hs", Language::Haskell)]
+#[case::java("java", Language::Java)]
+#[case::javascript("js", Language::Javascript)]
+#[case::julia("jl", Language::Julia)]
+#[case::kotlin("kt", Language::Kotlin)]
+#[case::lua("lua", Language::Lua)]
+#[case::modelica("mo", Language::Modelica)]
+#[case::ocaml("ml", Language::Ocaml)]
+#[case::perl("pl", Language::Perl)]
+#[case::php("php", Language::Php)]
+#[case::python("py", Language::Python)]
+#[case::r("r", Language::R)]
+#[case::ruby("rb", Language::Ruby)]
+#[case::rust("rs", Language::Rust)]
+#[case::scala("scala", Language::Scala)]
+#[case::sql("sql", Language::Sql)]
+#[case::swift("swift", Language::Swift)]
+#[case::typescript("ts", Language::Typescript)]
+#[case::tsx("tsx", Language::Tsx)]
+#[case::verilog("v", Language::Verilog)]
+fn from_path_resolves_the_extension(#[case] ext: &str, #[case] lang: Language) {
+    let path = Path::new("file").with_extension(ext);
 
-#[test]
-fn test_all_languages_from_path_and_name() {
-    for (ext, name, lang) in CASES {
-        let path = Path::new("file").with_extension(ext);
-        assert_eq!(
-            Language::from_path(&path),
-            vec![*lang],
-            "path 'file.{ext}' should resolve to {lang:?}"
-        );
-        assert!(
-            lang.matches(&path),
-            "{lang:?}.matches('file.{ext}') should be true"
-        );
-        assert_eq!(
-            Language::from_name(name),
-            Some(*lang),
-            "name '{name}' should resolve to {lang:?}"
-        );
-    }
-    assert_eq!(Language::ALL.len(), CASES.len());
+    assert_eq!(Language::from_path(&path), vec![lang]);
+}
+
+#[rstest]
+#[case::bash("sh", Language::Bash)]
+#[case::c("c", Language::C)]
+#[case::cpp("cpp", Language::Cpp)]
+#[case::csharp("cs", Language::CSharp)]
+#[case::dart("dart", Language::Dart)]
+#[case::elixir("ex", Language::Elixir)]
+#[case::elm("elm", Language::Elm)]
+#[case::go("go", Language::Go)]
+#[case::groovy("groovy", Language::Groovy)]
+#[case::haskell("hs", Language::Haskell)]
+#[case::java("java", Language::Java)]
+#[case::javascript("js", Language::Javascript)]
+#[case::julia("jl", Language::Julia)]
+#[case::kotlin("kt", Language::Kotlin)]
+#[case::lua("lua", Language::Lua)]
+#[case::modelica("mo", Language::Modelica)]
+#[case::ocaml("ml", Language::Ocaml)]
+#[case::perl("pl", Language::Perl)]
+#[case::php("php", Language::Php)]
+#[case::python("py", Language::Python)]
+#[case::r("r", Language::R)]
+#[case::ruby("rb", Language::Ruby)]
+#[case::rust("rs", Language::Rust)]
+#[case::scala("scala", Language::Scala)]
+#[case::sql("sql", Language::Sql)]
+#[case::swift("swift", Language::Swift)]
+#[case::typescript("ts", Language::Typescript)]
+#[case::tsx("tsx", Language::Tsx)]
+#[case::verilog("v", Language::Verilog)]
+fn matches_accepts_the_extension(#[case] ext: &str, #[case] lang: Language) {
+    let path = Path::new("file").with_extension(ext);
+
+    assert!(lang.matches(&path));
+}
+
+#[rstest]
+#[case::bash("bash", Language::Bash)]
+#[case::c("c", Language::C)]
+#[case::cpp("cpp", Language::Cpp)]
+#[case::csharp("csharp", Language::CSharp)]
+#[case::dart("dart", Language::Dart)]
+#[case::elixir("elixir", Language::Elixir)]
+#[case::elm("elm", Language::Elm)]
+#[case::go("go", Language::Go)]
+#[case::groovy("groovy", Language::Groovy)]
+#[case::haskell("haskell", Language::Haskell)]
+#[case::java("java", Language::Java)]
+#[case::javascript("javascript", Language::Javascript)]
+#[case::julia("julia", Language::Julia)]
+#[case::kotlin("kotlin", Language::Kotlin)]
+#[case::lua("lua", Language::Lua)]
+#[case::modelica("modelica", Language::Modelica)]
+#[case::ocaml("ocaml", Language::Ocaml)]
+#[case::perl("perl", Language::Perl)]
+#[case::php("php", Language::Php)]
+#[case::python("python", Language::Python)]
+#[case::r("r", Language::R)]
+#[case::ruby("ruby", Language::Ruby)]
+#[case::rust("rust", Language::Rust)]
+#[case::scala("scala", Language::Scala)]
+#[case::sql("sql", Language::Sql)]
+#[case::swift("swift", Language::Swift)]
+#[case::typescript("typescript", Language::Typescript)]
+#[case::tsx("tsx", Language::Tsx)]
+#[case::verilog("verilog", Language::Verilog)]
+fn from_name_resolves_the_name(#[case] name: &str, #[case] lang: Language) {
+    assert_eq!(Language::from_name(name), Some(lang));
 }
 
 #[test]
-fn test_unknown_returns_nothing() {
+fn from_path_ignores_an_unknown_extension() {
     assert!(Language::from_path(Path::new("file.xyz")).is_empty());
+}
+
+#[test]
+fn from_name_ignores_an_unknown_name() {
     assert_eq!(Language::from_name("unknown"), None);
 }
 
 #[test]
-fn test_case_insensitive() {
+fn from_path_ignores_case() {
     assert_eq!(
         Language::from_path(Path::new("Main.PY")),
         vec![Language::Python]
     );
+}
+
+#[test]
+fn from_name_ignores_case() {
     assert_eq!(Language::from_name("PYTHON"), Some(Language::Python));
 }
 
 #[test]
-fn test_aliases() {
+fn from_name_accepts_aliases() {
     assert_eq!(Language::from_name("golang"), Some(Language::Go));
     assert_eq!(Language::from_name("js"), Some(Language::Javascript));
     assert_eq!(Language::from_name("ts"), Some(Language::Typescript));
@@ -84,21 +144,20 @@ fn test_aliases() {
 }
 
 #[test]
-fn test_tree_sitter_language_valid_for_all() {
+fn every_language_has_a_grammar() {
     for lang in Language::ALL {
-        // Ensure we can get a LanguageFn without panicking
-        let _lang_fn = lang.tree_sitter_language();
+        lang.tree_sitter_language();
     }
 }
 
 #[test]
-fn test_matches_false_for_wrong_lang() {
+fn matches_rejects_the_extension_of_another_language() {
     assert!(!Language::Python.matches(Path::new("main.rs")));
     assert!(!Language::Rust.matches(Path::new("script.py")));
 }
 
 #[test]
-fn test_h_maps_to_c_and_cpp() {
+fn h_extension_maps_to_c_and_cpp() {
     assert_eq!(
         Language::from_path(Path::new("LIB.H")),
         vec![Language::C, Language::Cpp]
@@ -107,7 +166,7 @@ fn test_h_maps_to_c_and_cpp() {
 }
 
 #[test]
-fn test_path_without_extension_matches_nothing() {
+fn path_without_extension_matches_nothing() {
     assert!(Language::from_path(Path::new("Makefile")).is_empty());
     assert!(Language::from_path(Path::new(".gitignore")).is_empty());
     assert!(!Language::Python.matches(Path::new("Makefile")));

@@ -98,6 +98,9 @@ tree-sitter-swift = { version = "0.7.3", optional = true }
 tree-sitter-typescript = { version = "0.23.2", optional = true }
 tree-sitter-verilog = { version = "1.0.3", optional = true }
 
+[dev-dependencies]
+rstest = "0.28.0"
+
 [[test]]
 name = "test_grammar"
 required-features = ["all-languages"]
