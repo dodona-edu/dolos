@@ -13,18 +13,14 @@ pub fn from_directory(dir: &Path) -> Result<(String, Vec<PathBuf>)> {
     } else {
         collect_recursive(dir)?
     };
-    Ok((dir_name(dir), files))
+    Ok((dir_name(dir)?, files))
 }
 
 /// Resolve files from a CSV file. The name is derived from the CSV's parent
 /// directory.
 pub fn from_csv(csv_path: &Path) -> Result<(String, Vec<PathBuf>)> {
-    let name = csv_path
-        .parent()
-        .map(dir_name)
-        .unwrap_or_else(|| "unknown".to_owned());
     let files = filenames_from_csv(csv_path)?;
-    Ok((name, files))
+    Ok((dir_name(csv_dir(csv_path))?, files))
 }
 
 /// Resolve files from an explicit list of paths. All paths must be existing
@@ -52,7 +48,7 @@ pub fn files_name(paths: &[PathBuf]) -> String {
 }
 
 fn filenames_from_csv(csv_path: &Path) -> Result<Vec<PathBuf>> {
-    let dir = csv_path.parent().unwrap_or(Path::new("."));
+    let dir = csv_dir(csv_path);
     let invalid = |e| Error::new(ErrorKind::InvalidData, e);
     let mut rdr = Reader::from_path(csv_path).map_err(invalid)?;
 
@@ -84,11 +80,27 @@ fn collect_recursive(dir: &Path) -> Result<Vec<PathBuf>> {
     Ok(files)
 }
 
-fn dir_name(dir: &Path) -> String {
-    dir.file_name()
+/// Return the directory of a CSV file, or `.` for a bare file name.
+fn csv_dir(csv_path: &Path) -> &Path {
+    match csv_path.parent() {
+        Some(dir) if !dir.as_os_str().is_empty() => dir,
+        _ => Path::new("."),
+    }
+}
+
+/// Return the last component of the canonical form of an existing directory.
+fn dir_name(dir: &Path) -> Result<String> {
+    let dir = dir.canonicalize().map_err(|e| {
+        Error::new(
+            e.kind(),
+            format!("Could not resolve directory '{}': {e}", dir.display()),
+        )
+    })?;
+    Ok(dir
+        .file_name()
         .unwrap_or(dir.as_os_str())
         .to_string_lossy()
-        .into_owned()
+        .into_owned())
 }
 
 #[cfg(test)]
@@ -97,10 +109,20 @@ mod tests {
     use std::fs;
     use tempfile::tempdir;
 
+    fn working_directory_name() -> String {
+        let cwd = std::env::current_dir().unwrap();
+        cwd.file_name().unwrap().to_string_lossy().into_owned()
+    }
+
     #[test]
-    fn test_dir_name() {
-        assert_eq!(dir_name(Path::new("/foo/bar")), "bar");
-        assert_eq!(dir_name(Path::new("relative/path")), "path");
+    fn bare_csv_path_is_named_after_the_working_directory() {
+        let name = dir_name(csv_dir(Path::new("info.csv"))).unwrap();
+        assert_eq!(name, working_directory_name());
+    }
+
+    #[test]
+    fn dot_is_named_after_the_working_directory() {
+        assert_eq!(dir_name(Path::new(".")).unwrap(), working_directory_name());
     }
 
     #[test]
