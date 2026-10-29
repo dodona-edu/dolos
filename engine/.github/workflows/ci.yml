@@ -70,7 +70,7 @@ jobs:
           tool: wasm-pack
       - run: cargo clippy --target wasm32-unknown-unknown -p dolos-core --features wasm -- -D warnings
       - run: wasm-pack build dolos-core --target nodejs --out-dir pkg-node --release -- --features wasm
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
