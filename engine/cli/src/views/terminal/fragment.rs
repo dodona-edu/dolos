@@ -212,75 +212,49 @@ mod tests {
     use super::*;
     use dolos::Point;
 
+    /// The `(line_number, code, highlight)` of every display line.
+    fn rows<'a>(display: &[DisplayLine<'a>]) -> Vec<(usize, &'a str, Option<Range<usize>>)> {
+        display
+            .iter()
+            .map(|line| (line.line_number, line.code, line.highlight.clone()))
+            .collect()
+    }
+
     #[test]
-    fn test_collect_display_lines_with_context() {
+    fn collect_display_lines_adds_a_context_line_on_each_side() {
         let lines = vec!["line0", "line1", "line2", "line3", "line4"];
-        // Match covers rows 1-3, columns 0-2 on the last row.
         let region = Region::new(Point::new(1, 0), Point::new(3, 2));
-        let display = collect_display_lines(&lines, &region);
 
-        assert_eq!(display.len(), 5);
-
-        // row 0 — context before
-        assert_eq!(display[0].line_number, 1);
-        assert_eq!(display[0].code, "line0");
-        assert_eq!(display[0].highlight, None);
-
-        // row 1 — match start (start_col = 0, full line)
-        assert_eq!(display[1].line_number, 2);
-        assert_eq!(display[1].code, "line1");
-        assert_eq!(display[1].highlight, Some(0..5));
-
-        // row 2 — match middle (full line)
-        assert_eq!(display[2].line_number, 3);
-        assert_eq!(display[2].code, "line2");
-        assert_eq!(display[2].highlight, Some(0..5));
-
-        // row 3 — match end (end_col = 2)
-        assert_eq!(display[3].line_number, 4);
-        assert_eq!(display[3].code, "line3");
-        assert_eq!(display[3].highlight, Some(0..2));
-
-        // row 4 — context after
-        assert_eq!(display[4].line_number, 5);
-        assert_eq!(display[4].code, "line4");
-        assert_eq!(display[4].highlight, None);
+        assert_eq!(
+            rows(&collect_display_lines(&lines, &region)),
+            [
+                (1, "line0", None),
+                (2, "line1", Some(0..5)),
+                (3, "line2", Some(0..5)),
+                (4, "line3", Some(0..2)),
+                (5, "line4", None),
+            ]
+        );
     }
 
     #[test]
-    fn test_collect_display_lines_mid_file() {
-        // Regression: when the match is not at the top of the file, line numbers
-        // must reflect the actual file row, not the slice-local index.
+    fn collect_display_lines_numbers_lines_by_file_row() {
         let lines = vec!["l0", "l1", "l2", "l3", "l4", "l5"];
-        // Match at rows 3-4 (0-based): display_start = 2, display_end = 5.
         let region = Region::new(Point::new(3, 1), Point::new(4, 2));
-        let display = collect_display_lines(&lines, &region);
 
-        assert_eq!(display.len(), 4);
-
-        // row 2 — context before: file line 3 (1-based)
-        assert_eq!(display[0].line_number, 3);
-        assert_eq!(display[0].code, "l2");
-        assert_eq!(display[0].highlight, None);
-
-        // row 3 — match start: file line 4
-        assert_eq!(display[1].line_number, 4);
-        assert_eq!(display[1].code, "l3");
-        assert_eq!(display[1].highlight, Some(1..2));
-
-        // row 4 — match end: file line 5
-        assert_eq!(display[2].line_number, 5);
-        assert_eq!(display[2].code, "l4");
-        assert_eq!(display[2].highlight, Some(0..2));
-
-        // row 5 — context after: file line 6
-        assert_eq!(display[3].line_number, 6);
-        assert_eq!(display[3].code, "l5");
-        assert_eq!(display[3].highlight, None);
+        assert_eq!(
+            rows(&collect_display_lines(&lines, &region)),
+            [
+                (3, "l2", None),
+                (4, "l3", Some(1..2)),
+                (5, "l4", Some(0..2)),
+                (6, "l5", None),
+            ]
+        );
     }
 
     #[test]
-    fn test_collect_display_lines_converts_byte_columns() {
+    fn collect_display_lines_converts_byte_columns() {
         // tree-sitter reports columns in bytes. "é" is two bytes, so byte
         // column 4 is character index 3.
         let lines = vec!["aéb c"];
@@ -291,7 +265,7 @@ mod tests {
     }
 
     #[test]
-    fn test_collect_display_lines_for_a_region_that_ends_at_the_end_of_file() {
+    fn collect_display_lines_accepts_a_region_that_ends_after_the_last_line() {
         // `end_point` is exclusive, so the root node ends on the row after the
         // last line.
         let lines = vec!["l0", "l1"];
@@ -304,7 +278,7 @@ mod tests {
     }
 
     #[test]
-    fn test_format_wraps_multibyte_line_on_character_boundaries() {
+    fn format_wraps_a_multibyte_line_on_character_boundaries() {
         colored::control::set_override(false);
         let line = DisplayLine { line_number: 7, code: "héllo wörld", highlight: Some(2..8) };
 
@@ -313,24 +287,28 @@ mod tests {
     }
 
     #[test]
-    fn test_tolerates_a_region_that_ends_before_it_starts() {
-        colored::control::set_override(false);
+    fn collect_display_lines_collapses_a_backwards_region_onto_its_end_row() {
         let lines = vec!["l0", "l1", "l2"];
         let region = Region::new(Point::new(2, 1), Point::new(1, 0));
-        let display = collect_display_lines(&lines, &region);
+        let backwards = Range { start: 1, end: 0 };
 
-        // The region collapses onto its end row, and nothing panics.
-        assert_eq!(display.len(), 3);
-        assert_eq!(display[1].line_number, 2);
-        assert!(display[1].highlight.is_some());
+        assert_eq!(
+            rows(&collect_display_lines(&lines, &region)),
+            [(1, "l0", None), (2, "l1", Some(backwards)), (3, "l2", None)]
+        );
+    }
 
+    #[test]
+    fn format_accepts_a_backwards_highlight() {
+        colored::control::set_override(false);
         let backwards = Range { start: 4, end: 2 };
         let line = DisplayLine { line_number: 1, code: "abcdef", highlight: Some(backwards) };
+
         assert_eq!(line.format(1, 6), vec!["1 abcdef"]);
     }
 
     #[test]
-    fn test_format_on_a_terminal_that_is_too_narrow() {
+    fn format_makes_progress_on_a_too_narrow_terminal() {
         colored::control::set_override(false);
         let line = DisplayLine { line_number: 1, code: "abcdef", highlight: Some(0..6) };
 

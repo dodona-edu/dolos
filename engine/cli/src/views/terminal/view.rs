@@ -60,9 +60,8 @@ mod tests {
         })
     }
 
-    /// The summary line reports the metrics of the pair.
     #[test]
-    fn test_write_summary() {
+    fn write_summary_reports_the_pair_metrics() {
         let pair = Pair {
             left_file: file(0, "left.js"),
             right_file: file(1, "right.js"),

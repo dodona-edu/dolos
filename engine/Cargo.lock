@@ -521,6 +521,7 @@ dependencies = [
  "dolos-lib",
  "open",
  "predicates",
+ "rstest",
  "serde",
  "tempfile",
  "terminal_size",

@@ -1,5 +1,6 @@
 use assert_cmd::Command;
 use predicates::prelude::*;
+use std::path::{Path, PathBuf};
 use tempfile::TempDir;
 
 const SAMPLE1: &str = "fixtures/sample1.js";
@@ -11,33 +12,8 @@ fn dolos_run(files: &[&str], args: &[&str]) -> Command {
     cmd
 }
 
-fn assert_csv_header(path: &std::path::Path, expected: &[&str]) {
-    assert!(path.exists(), "{} does not exist", path.display());
-    let mut reader = csv::Reader::from_path(path).unwrap();
-    assert_eq!(reader.headers().unwrap(), expected);
-}
-
-/// The `files.csv` rows, without the header.
-fn read_rows(path: &std::path::Path) -> Vec<csv::StringRecord> {
-    csv::Reader::from_path(path)
-        .unwrap()
-        .records()
-        .map(Result::unwrap)
-        .collect()
-}
-
-// ── Smoke tests ───────────────────────────────────────────────────────────────
-
-#[test]
-fn smoke_terminal() {
-    dolos_run(&[SAMPLE1, SAMPLE2], &[])
-        .assert()
-        .success()
-        .stdout(predicate::str::contains("sim:"));
-}
-
 /// Run a CSV report into a fresh directory and return that directory.
-fn csv_report(tmp: &TempDir, extra: &[&str]) -> std::path::PathBuf {
+fn csv_report(tmp: &TempDir, extra: &[&str]) -> PathBuf {
     let report_dir = tmp.path().join("report");
     #[rustfmt::skip]
     let args = [
@@ -51,9 +27,32 @@ fn csv_report(tmp: &TempDir, extra: &[&str]) -> std::path::PathBuf {
     report_dir
 }
 
+fn assert_csv_header(path: &Path, expected: &[&str]) {
+    assert!(path.exists(), "{} does not exist", path.display());
+    let mut reader = csv::Reader::from_path(path).unwrap();
+    assert_eq!(reader.headers().unwrap(), expected);
+}
+
+/// The rows of a CSV file, without the header.
+fn read_rows(path: &Path) -> Vec<csv::StringRecord> {
+    csv::Reader::from_path(path)
+        .unwrap()
+        .records()
+        .map(Result::unwrap)
+        .collect()
+}
+
+#[test]
+fn terminal_output_shows_the_similarity() {
+    dolos_run(&[SAMPLE1, SAMPLE2], &[])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("sim:"));
+}
+
 #[test]
 #[rustfmt::skip]
-fn csv_output_headers() {
+fn csv_output_writes_the_headers() {
     let tmp = TempDir::new().unwrap();
     // -o is the exact report directory; it must not exist yet.
     let report_dir = csv_report(&tmp, &[]);
@@ -74,7 +73,6 @@ fn csv_output_headers() {
     );
 }
 
-/// The analysis-data columns stay empty unless the flag is given.
 #[test]
 fn analysis_data_columns_are_empty_by_default() {
     let tmp = TempDir::new().unwrap();
@@ -87,10 +85,8 @@ fn analysis_data_columns_are_empty_by_default() {
     }
 }
 
-/// With `--include-analysis-data` every file lists its fingerprints and four
-/// region numbers per fingerprint.
 #[test]
-fn analysis_data_columns_hold_numbers() {
+fn analysis_data_columns_hold_four_region_numbers_per_fingerprint() {
     let tmp = TempDir::new().unwrap();
     let report_dir = csv_report(&tmp, &["--include-analysis-data"]);
 
@@ -111,7 +107,7 @@ fn analysis_data_columns_hold_numbers() {
 }
 
 #[test]
-fn csv_output_default_destination() {
+fn csv_output_without_destination_creates_a_report_directory() {
     let tmp = TempDir::new().unwrap();
     // Absolute fixture paths so they still resolve after changing the cwd.
     let manifest = env!("CARGO_MANIFEST_DIR");
@@ -140,7 +136,7 @@ fn csv_output_default_destination() {
 }
 
 #[test]
-fn csv_output_errors_when_directory_exists() {
+fn csv_output_rejects_an_existing_directory() {
     let tmp = TempDir::new().unwrap();
     // The destination already exists, so the run must fail.
     dolos_run(
@@ -152,10 +148,8 @@ fn csv_output_errors_when_directory_exists() {
     .stderr(predicate::str::contains("already exists"));
 }
 
-// ── Error surfacing ───────────────────────────────────────────────────────────
-
 #[test]
-fn test_errors_reach_process() {
+fn invalid_options_fail_the_process() {
     dolos_run(&[SAMPLE1, SAMPLE2], &["-k", "0"])
         .assert()
         .failure()

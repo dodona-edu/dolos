@@ -268,27 +268,23 @@ pub enum Command {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use rstest::rstest;
 
-    /// Build a full `dolos run a.js b.js [extra...]` argv and attempt to parse it.
+    /// Parse `dolos run a.js b.js [extra...]`.
     fn parse(extra: &[&str]) -> Result<Opts, clap::Error> {
         let mut args = vec!["dolos", "run", "a.js", "b.js"];
         args.extend_from_slice(extra);
         Opts::try_parse_from(args)
     }
 
-    /// Parse options then convert `DolosArgs` to `DolosConfig`.
-    ///
-    /// Panics if clap rejects the argv; only builder validation is expected
-    /// to produce an `Err` here.
+    /// The `DolosConfig` of the parsed options. Panics if clap rejects them.
     fn config(extra: &[&str]) -> std::io::Result<DolosConfig> {
         match parse(extra).unwrap().command {
             Command::Run { dolos_args, .. } => dolos_args.try_into(),
         }
     }
 
-    /// Parse options and return the `OutputArgs`.
-    ///
-    /// Panics if clap rejects the argv.
+    /// The `OutputArgs` of the parsed options. Panics if clap rejects them.
     fn output(extra: &[&str]) -> OutputArgs {
         match parse(extra).unwrap().command {
             Command::Run { output_args, .. } => output_args,
@@ -296,12 +292,12 @@ mod tests {
     }
 
     #[test]
-    fn test_default() {
+    fn run_without_options_uses_the_defaults() {
         assert_eq!(config(&[]).unwrap(), DolosConfig::default());
     }
 
     #[test]
-    fn test_update_options() {
+    fn run_options_set_the_config() {
         #[rustfmt::skip]
         let cfg = config(&[
             "-k", "10",
@@ -337,36 +333,40 @@ mod tests {
         assert_eq!(cfg, expected);
     }
 
-    #[test]
-    fn test_errors() {
-        assert!(config(&["-k", "0"]).is_err(), "-k 0 must be rejected");
-        assert!(config(&["-w", "0"]).is_err(), "-w 0 must be rejected");
-        assert!(config(&["-s", "0"]).is_err(), "-s 0 must be rejected");
-        assert!(config(&["-m", "0"]).is_err(), "-m 0 must be rejected");
-        assert!(config(&["-M", "1.5"]).is_err(), "-M 1.5 must be rejected");
-        assert!(
-            parse(&["-l", "notalang"]).is_err(),
-            "-l notalang should fail"
-        );
-        assert!(
-            parse(&["--sort-by", "bogus"]).is_err(),
-            "--sort-by bogus should fail"
-        );
-        // No input files → clap requires at least one
-        assert!(
-            Opts::try_parse_from(["dolos", "run"]).is_err(),
-            "missing files should fail"
-        );
+    #[rstest]
+    #[case::k_zero(&["-k", "0"])]
+    #[case::w_zero(&["-w", "0"])]
+    #[case::s_zero(&["-s", "0"])]
+    #[case::m_zero(&["-m", "0"])]
+    #[case::big_percentage(&["-M", "1.5"])]
+    fn config_rejects_out_of_range_values(#[case] extra: &[&str]) {
+        assert!(config(extra).is_err());
+    }
+
+    #[rstest]
+    #[case::language(&["-l", "notalang"])]
+    #[case::sort_by(&["--sort-by", "bogus"])]
+    #[case::port_zero(&["-p", "0"])]
+    fn parse_rejects_invalid_values(#[case] extra: &[&str]) {
+        assert!(parse(extra).is_err());
     }
 
     #[test]
-    fn test_output_options() {
-        let default = output(&[]);
-        assert_eq!(default.output_format, OutputFormat::Terminal);
-        assert_eq!(default.port, 3000);
-        assert_eq!(default.host, "localhost");
-        assert!(!default.open_browser);
+    fn run_without_files_is_rejected() {
+        assert!(Opts::try_parse_from(["dolos", "run"]).is_err());
+    }
 
+    #[test]
+    fn run_without_output_options_uses_the_defaults() {
+        let args = output(&[]);
+        assert_eq!(args.output_format, OutputFormat::Terminal);
+        assert_eq!(args.port, 3000);
+        assert_eq!(args.host, "localhost");
+        assert!(!args.open_browser);
+    }
+
+    #[test]
+    fn output_options_set_the_output_args() {
         #[rustfmt::skip]
         let args = output(&[
             "-f", "web",
@@ -379,7 +379,5 @@ mod tests {
         assert_eq!(args.port, 8080);
         assert_eq!(args.host, "0.0.0.0");
         assert!(args.open_browser);
-
-        assert!(parse(&["-p", "0"]).is_err(), "-p 0 must be rejected");
     }
 }
