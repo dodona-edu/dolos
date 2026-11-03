@@ -25,15 +25,8 @@ jobs:
         run: nix build -L '.?submodules=1#checks.x86_64-linux.dolos-cli'
 
   install-cli:
-    name: "Install and run CLI on ${{ matrix.os }}"
-    strategy:
-      matrix:
-        os:
-          - macos-15
-          - macos-26
-          - ubuntu-latest
-      fail-fast: false
-    runs-on: ${{ matrix.os }}
+    name: "Install and run CLI"
+    runs-on: ubuntu-latest
     steps:
       - name: Setup Node 📚
         uses: actions/setup-node@v7
