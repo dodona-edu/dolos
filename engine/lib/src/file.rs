@@ -8,20 +8,27 @@ use std::ops::Range;
 use std::path::PathBuf;
 use tree_sitter_grammars::Language;
 
+/// One input file of an analysis.
 #[derive(Clone)]
 pub struct File {
     /// Zero-based index assigned in the order the file was added to the analysis.
     pub id: usize,
+    /// The path of the file, relative to the input directory, the directory of
+    /// the CSV file or the extracted archive. A path that does not start with
+    /// that directory stays as it is, for example an absolute path in the
+    /// `filename` column of a CSV file. For separate input files, the path as
+    /// given.
     pub relative_path: PathBuf,
     /// Full source text of the file.
     pub content: String,
-    /// The data needed to rerun the analysis for this file, present when
-    /// `include_analysis_data` is set.
+    /// The data needed to rerun the analysis for this file. `Some` only when
+    /// [`include_analysis_data`](crate::DolosConfigBuilder::include_analysis_data)
+    /// is set.
     pub analysis_data: Option<AnalysisData>,
 }
 
-/// Everything the analysis engine needs for one file, exported so that a pair
-/// can be analysed again from the report alone.
+/// Everything the analysis needs for one file. With it, a pair can be analysed
+/// again from the report alone.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct AnalysisData {
     /// The file's winnowed fingerprint sequence.
@@ -41,6 +48,7 @@ impl Hash for File {
     }
 }
 
+/// Compares the [`relative_path`](File::relative_path) of the files.
 impl PartialEq for File {
     fn eq(&self, other: &Self) -> bool {
         self.relative_path == other.relative_path
@@ -55,6 +63,7 @@ impl PartialOrd for File {
     }
 }
 
+/// Orders the files by their [`relative_path`](File::relative_path).
 impl Ord for File {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
         self.relative_path.cmp(&other.relative_path)

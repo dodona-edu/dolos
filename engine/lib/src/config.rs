@@ -2,17 +2,26 @@ use std::path::PathBuf;
 use tree_sitter_grammars::Language;
 // ── Sort enums ───────────────────────────────────────────────────────────────
 
+/// The order of the pairs in a [`Report`](crate::Report), from the highest to
+/// the lowest value of a metric.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum PairSortBy {
+    /// Sort by [`PairMetrics::similarity`](crate::PairMetrics::similarity).
     Similarity,
+    /// Sort by the sum of both overlaps.
     TotalOverlap,
+    /// Sort by [`PairMetrics::longest_match`](crate::PairMetrics::longest_match).
     LongestFragment,
 }
 
+/// The order of the fragments of a [`Pair`](crate::Pair).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum FragmentSortBy {
+    /// From the fewest to the most fingerprints.
     KgramsAscending,
+    /// From the most to the fewest fingerprints.
     KgramsDescending,
+    /// By the start of the fragment in the left file.
     FileOrder,
 }
 
@@ -21,17 +30,18 @@ pub enum FragmentSortBy {
 /// Validated configuration for a Dolos analysis run.
 ///
 /// Construct via [`DolosConfig::builder()`] or [`DolosConfig::default()`].
-/// A `DolosConfig` value is always valid — construction fails rather than
-/// producing a config with out-of-range fields.
 ///
-/// # Example
-/// ```no_run
+/// # Examples
+///
+/// ```
 /// use dolos::DolosConfig;
 ///
 /// let config = DolosConfig::builder()
 ///     .kgram_length(23)
 ///     .max_fingerprint_percentage(0.8)
 ///     .build()?;
+///
+/// assert_ne!(config, DolosConfig::default());
 /// # Ok::<(), std::io::Error>(())
 /// ```
 #[derive(Debug, Clone, PartialEq)]
@@ -52,7 +62,19 @@ pub struct DolosConfig {
 }
 
 impl DolosConfig {
-    /// Create a [`DolosConfigBuilder`] pre-filled with the default values.
+    /// Create a [`DolosConfigBuilder`] that holds the default values.
+    ///
+    /// The setters of [`DolosConfigBuilder`] list the defaults.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use dolos::DolosConfig;
+    ///
+    /// let config = DolosConfig::builder().kgram_length(23).build()?;
+    /// assert_eq!(config, DolosConfig::default());
+    /// # Ok::<(), std::io::Error>(())
+    /// ```
     pub fn builder() -> DolosConfigBuilder {
         DolosConfigBuilder::default()
     }
@@ -95,18 +117,20 @@ impl Default for DolosConfig {
 
 // ── DolosConfigBuilder ───────────────────────────────────────────────────────
 
-/// Builder for [`DolosConfig`]. Get one via [`DolosConfig::builder()`].
+/// Builder for [`DolosConfig`]. Get one with [`DolosConfig::builder()`].
 ///
-/// All fields start at the same defaults that the CLI uses. Override only what
-/// you need, then call [`build`](DolosConfigBuilder::build) to validate and
-/// produce a [`DolosConfig`].
+/// All values start at the defaults that the CLI uses.
 ///
-/// # Example
-/// ```no_run
-/// use dolos::DolosConfig;
+/// # Examples
+///
+/// ```
+/// use dolos::{DolosConfig, PairSortBy};
 ///
 /// let config = DolosConfig::builder()
-///     .kgram_length(50)
+///     .kgram_length(25)
+///     .kgrams_in_window(10)
+///     .max_fingerprint_percentage(0.5)
+///     .sort_by(PairSortBy::Similarity)
 ///     .build()?;
 /// # Ok::<(), std::io::Error>(())
 /// ```
@@ -132,72 +156,187 @@ impl DolosConfigBuilder {
         )
     }
 
-    pub fn name(mut self, v: impl Into<String>) -> Self {
-        self.config.name = Some(v.into());
+    /// Set the name of the report.
+    ///
+    /// # Parameters
+    ///
+    /// - `name`: the report name. Default: the name of the input. That is the
+    ///   name of the input directory, the name of the directory that holds
+    ///   the CSV file, or the archive without its extension. For separate
+    ///   files, it is `a.js-b.js` for two files and `N files` otherwise.
+    pub fn name(mut self, name: impl Into<String>) -> Self {
+        self.config.name = Some(name.into());
         self
     }
 
-    pub fn kgram_length(mut self, v: usize) -> Self {
-        self.config.kgram_length = v;
+    /// Set the length of a k-gram. Dolos hashes every k-gram of a file.
+    ///
+    /// # Parameters
+    ///
+    /// - `length`: the number of tokens in a k-gram. Default: 23.
+    ///   [`build`](Self::build) fails when it is 0.
+    pub fn kgram_length(mut self, length: usize) -> Self {
+        self.config.kgram_length = length;
         self
     }
 
-    pub fn kgrams_in_window(mut self, v: usize) -> Self {
-        self.config.kgrams_in_window = v;
+    /// Set the winnowing window size. Dolos keeps one fingerprint per window.
+    ///
+    /// # Parameters
+    ///
+    /// - `window`: the number of k-grams in a window. Default: 17.
+    ///   [`build`](Self::build) fails when it is 0.
+    pub fn kgrams_in_window(mut self, window: usize) -> Self {
+        self.config.kgrams_in_window = window;
         self
     }
 
-    pub fn language(mut self, v: Language) -> Self {
-        self.config.language = Some(v);
+    /// Set the language of the files. [`Dolos::new`](crate::Dolos::new) skips
+    /// the files of other languages.
+    ///
+    /// # Parameters
+    ///
+    /// - `language`: the language. Default: the language that most file
+    ///   extensions belong to.
+    pub fn language(mut self, language: Language) -> Self {
+        self.config.language = Some(language);
         self
     }
 
-    pub fn max_fingerprint_count(mut self, v: usize) -> Self {
-        self.config.max_fingerprint_count = Some(v);
+    /// Ignore a fingerprint when it occurs in more than a number of files.
+    ///
+    /// With [`max_fingerprint_percentage`](Self::max_fingerprint_percentage),
+    /// the lower limit applies.
+    ///
+    /// # Parameters
+    ///
+    /// - `count`: the maximum number of files. Default: no limit.
+    ///   [`build`](Self::build) fails when it is 0.
+    pub fn max_fingerprint_count(mut self, count: usize) -> Self {
+        self.config.max_fingerprint_count = Some(count);
         self
     }
 
-    pub fn max_fingerprint_percentage(mut self, v: f64) -> Self {
-        self.config.max_fingerprint_percentage = Some(v);
+    /// Ignore a fingerprint when it occurs in more than a fraction of the files.
+    ///
+    /// The fraction is rounded to a number of files, and that number is at
+    /// least 1. With [`max_fingerprint_count`](Self::max_fingerprint_count),
+    /// the lower limit applies.
+    ///
+    /// # Parameters
+    ///
+    /// - `percentage`: the maximum fraction of the files. Default: no limit.
+    ///   [`build`](Self::build) fails when it is not between 0 and 1.
+    pub fn max_fingerprint_percentage(mut self, percentage: f64) -> Self {
+        self.config.max_fingerprint_percentage = Some(percentage);
         self
     }
 
-    pub fn ignore(mut self, v: impl Into<PathBuf>) -> Self {
-        self.config.ignore = Some(v.into());
+    /// Set a template file. Dolos ignores every fingerprint of the template
+    /// file in all files.
+    ///
+    /// # Parameters
+    ///
+    /// - `path`: the path of the template file. Default: no template file.
+    ///   [`build`](Self::build) does not check the path.
+    ///   [`Dolos::new`](crate::Dolos::new) returns an error when it cannot read
+    ///   the file.
+    pub fn ignore(mut self, path: impl Into<PathBuf>) -> Self {
+        self.config.ignore = Some(path.into());
         self
     }
 
-    pub fn include_comments(mut self, v: bool) -> Self {
-        self.config.include_comments = v;
+    /// Set whether Dolos tokenizes the comments of the files.
+    ///
+    /// # Parameters
+    ///
+    /// - `include`: `true` to tokenize comments, `false` to skip them. Default:
+    ///   `false`.
+    pub fn include_comments(mut self, include: bool) -> Self {
+        self.config.include_comments = include;
         self
     }
 
-    pub fn compare(mut self, v: bool) -> Self {
-        self.config.compare = v;
+    /// Set whether Dolos computes the fragments of every pair.
+    ///
+    /// # Parameters
+    ///
+    /// - `compare`: `true` to always compute fragments. With `false`, Dolos
+    ///   computes fragments only when there are exactly 2 files to analyze.
+    ///   Default: `false`.
+    pub fn compare(mut self, compare: bool) -> Self {
+        self.config.compare = compare;
         self
     }
 
-    pub fn include_analysis_data(mut self, v: bool) -> Self {
-        self.config.include_analysis_data = v;
+    /// Set whether the report holds the [`AnalysisData`](crate::AnalysisData)
+    /// of every file.
+    ///
+    /// # Parameters
+    ///
+    /// - `include`: `true` to fill
+    ///   [`File::analysis_data`](crate::File::analysis_data). Default: `false`.
+    pub fn include_analysis_data(mut self, include: bool) -> Self {
+        self.config.include_analysis_data = include;
         self
     }
 
-    pub fn min_length_match(mut self, v: usize) -> Self {
-        self.config.min_length_match = v;
+    /// Set the minimum length of a match. Shorter matches do not count in the
+    /// metrics.
+    ///
+    /// # Parameters
+    ///
+    /// - `length`: the minimum number of fingerprints in a match. Default: 1.
+    ///   [`build`](Self::build) fails when it is 0.
+    pub fn min_length_match(mut self, length: usize) -> Self {
+        self.config.min_length_match = length;
         self
     }
 
-    pub fn sort_by(mut self, v: PairSortBy) -> Self {
-        self.config.sort_by = Some(v);
+    /// Set the order of the pairs in the report.
+    ///
+    /// # Parameters
+    ///
+    /// - `metric`: the metric to sort by. Default: the input order of the
+    ///   files: `(0, 1)`, `(0, 2)`, ..., `(1, 2)`, ...
+    pub fn sort_by(mut self, metric: PairSortBy) -> Self {
+        self.config.sort_by = Some(metric);
         self
     }
 
-    pub fn fragment_sort_by(mut self, v: FragmentSortBy) -> Self {
-        self.config.fragment_sort_by = Some(v);
+    /// Set the order of the fragments of each pair.
+    ///
+    /// # Parameters
+    ///
+    /// - `order`: the fragment order. Default: [`FragmentSortBy::FileOrder`].
+    pub fn fragment_sort_by(mut self, order: FragmentSortBy) -> Self {
+        self.config.fragment_sort_by = Some(order);
         self
     }
 
-    /// Validate and build a [`DolosConfig`] from the current builder state.
+    /// Check the values and build the [`DolosConfig`].
+    ///
+    /// # Errors
+    ///
+    /// Returns an [`InvalidInput`](std::io::ErrorKind::InvalidInput) error for
+    /// the first rule that the values break:
+    ///
+    /// - [`kgram_length`](Self::kgram_length) is 0.
+    /// - [`kgrams_in_window`](Self::kgrams_in_window) is 0.
+    /// - [`min_length_match`](Self::min_length_match) is 0.
+    /// - [`max_fingerprint_count`](Self::max_fingerprint_count) is set to 0.
+    /// - [`max_fingerprint_percentage`](Self::max_fingerprint_percentage) is
+    ///   set to a value outside 0 to 1, or to NaN.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use dolos::DolosConfig;
+    /// use std::io::ErrorKind;
+    ///
+    /// let result = DolosConfig::builder().max_fingerprint_percentage(1.5).build();
+    /// assert_eq!(result.unwrap_err().kind(), ErrorKind::InvalidInput);
+    /// ```
     pub fn build(self) -> std::io::Result<DolosConfig> {
         Self::require_nonzero(self.config.kgram_length, "kgram_length")?;
         Self::require_nonzero(self.config.kgrams_in_window, "kgrams_in_window")?;

@@ -6,20 +6,31 @@ use dolos_core::{PairArray, PairMetrics};
 use std::cmp::Reverse;
 use std::rc::Rc;
 
-/// A single file-pair result, ready for display or output.
+/// The result of one pair of files.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Pair {
+    /// The file with the smaller id.
     pub left_file: Rc<File>,
+    /// The file with the larger id.
     pub right_file: Rc<File>,
+    /// The similarity metrics of the pair. The symbols are fingerprints.
     pub metrics: PairMetrics,
-    /// Resolved source-line fragments, present when fragment storage was enabled.
+    /// The fragments the two files share. `Some` only when
+    /// [`Metadata::include_fragments`] is `true`.
     pub fragments: Option<Vec<Fragment>>,
 }
 
+/// The result of an analysis: the files, every pair of files and the settings.
+///
+/// Get one from [`Dolos::build_report`](crate::Dolos::build_report).
 #[derive(Debug, Clone, PartialEq)]
 pub struct Report {
+    /// The settings of the analysis.
     pub metadata: Metadata,
+    /// The input files, in the order of their [`File::id`].
     pub files: Vec<Rc<File>>,
+    /// One pair for every two files, in the order of
+    /// [`sort_by`](crate::DolosConfigBuilder::sort_by).
     pub pairs: Vec<Pair>,
 }
 

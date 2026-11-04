@@ -3,8 +3,8 @@ use crate::winnowing::region::Region;
 use dolos_core::{Match, PairArray};
 use std::cmp::Reverse;
 
-/// A resolved code fragment: the source regions that correspond to one
-/// maximal exact match in both files.
+/// A code fragment that two files share: the source regions of one match in
+/// both files.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Fragment {
     /// The region in the left file covered by this match.

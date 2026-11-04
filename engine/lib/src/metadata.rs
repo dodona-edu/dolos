@@ -5,29 +5,36 @@ use dolos_core::AnalysisOptions;
 use std::path::PathBuf;
 use tree_sitter_grammars::Language;
 
-/// The resolved configuration for one analysis run.
+/// The settings of one analysis run, as [`Report::metadata`](crate::Report::metadata).
 ///
-/// Derived from the raw [`DolosConfig`] plus the dataset context. Used by the
-/// analysis algorithm and attached to every [`Report`] as its metadata record.
+/// It holds the values of the [`DolosConfig`], completed with the values that
+/// Dolos derives from the input.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Metadata {
+    /// The configured name, or the name of the input.
     pub report_name: String,
+    /// The time at which [`Dolos::new`](crate::Dolos::new) ran.
     pub created_at: DateTime<Utc>,
     pub sort_by: Option<PairSortBy>,
     pub fragment_sort_by: Option<FragmentSortBy>,
+    /// The number of tokens in a k-gram.
     pub kgram_length: usize,
+    /// The winnowing window size, in k-grams.
     pub kgrams_in_window: usize,
-    /// The language used for tokenization.
+    /// The configured or the detected language of the files.
     pub language: Language,
     pub include_comments: bool,
-    /// Whether per-pair code fragments were computed (`true` for exactly 2
-    /// files or when `--compare` was passed).
+    /// Whether the pairs carry fragments. `true` when there are exactly 2
+    /// files to analyze or when
+    /// [`compare`](crate::DolosConfigBuilder::compare) is `true`.
     pub include_fragments: bool,
-    /// Whether the report carries the per-file data the analysis needs.
+    /// Whether every file holds its [`AnalysisData`](crate::AnalysisData).
     pub include_analysis_data: bool,
+    /// The minimum length of a match, in fingerprints.
     pub min_length_match: usize,
-    /// the maximum number of files a fingerprint may appear in before it is ignored,
-    /// taking the more restrictive of the absolute count (`-m`) and percentage-based (`-M`) limits.
+    /// The maximum number of files a fingerprint may occur in before Dolos
+    /// ignores it: the lower of the count and the percentage limit, and at
+    /// least 1. `None` when neither limit is set.
     pub max_fingerprint_file_count: Option<usize>,
     /// Path to the ignore / template file, if one was provided.
     pub ignore: Option<PathBuf>,
@@ -64,8 +71,30 @@ impl Metadata {
         }
     }
 
-    /// The metadata fields as `(property, value)` pairs, in the order they are
-    /// written to `metadata.csv`. Optional fields render as `"null"` when absent.
+    /// Return the metadata as `(property, value)` pairs, in the order of
+    /// `metadata.csv`.
+    ///
+    /// The property names are in camelCase. An absent optional value is
+    /// `"null"`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # #[cfg(feature = "lang-javascript")]
+    /// # fn main() -> std::io::Result<()> {
+    /// # use dolos::{Dolos, DolosConfig};
+    /// # use std::path::Path;
+    /// # let fixtures = Path::new(env!("CARGO_MANIFEST_DIR")).join("fixtures");
+    /// # let files = vec![fixtures.join("sample1.js"), fixtures.join("sample2.js")];
+    /// let report = Dolos::new(files, DolosConfig::default())?.build_report();
+    ///
+    /// let properties = report.metadata.properties();
+    /// assert_eq!(properties[0], ("reportName", "sample1.js-sample2.js".to_string()));
+    /// # Ok(())
+    /// # }
+    /// # #[cfg(not(feature = "lang-javascript"))]
+    /// # fn main() {}
+    /// ```
     #[rustfmt::skip]
     pub fn properties(&self) -> [(&'static str, String); 13] {
         [

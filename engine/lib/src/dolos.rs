@@ -14,6 +14,7 @@ use std::ops::Range;
 use std::path::{Path, PathBuf};
 use std::rc::Rc;
 
+/// A plagiarism analysis over a set of source files.
 pub struct Dolos {
     metadata: Metadata,
     files: Vec<File>,
@@ -24,16 +25,83 @@ pub struct Dolos {
 }
 
 impl Dolos {
-    /// Create a new `Dolos` analysis from a list of input paths and index arguments.
+    /// Create an analysis: read, tokenize and fingerprint the input files.
     ///
-    /// Accepted inputs for `files`:
-    /// - **Multiple paths** → treated as individual files.
-    /// - **One directory** → files collected recursively.
-    /// - **One CSV file** → file list read from the `filename` column.
-    /// - **One archive** → extracted and treated as a directory.
+    /// Only the files of the configured language are analyzed. Without a
+    /// configured language, the language that most file extensions belong to is
+    /// used.
     ///
-    /// Only the files of the configured language are analyzed. Without a configured
-    /// language, the language that most file extensions belong to is used.
+    /// # Parameters
+    ///
+    /// - `files`: the input paths, in one of these forms:
+    ///   - **Several paths**: each path is a file to analyze.
+    ///   - **One directory**: all files under it, recursively. When the
+    ///     directory holds an `info.csv`, the files listed in its `filename`
+    ///     column instead.
+    ///   - **One CSV file**: the files listed in its `filename` column,
+    ///     relative to the directory of the CSV file.
+    ///   - **One archive** (`.zip`, `.tar`, `.tar.gz`, `.tgz`, `.tar.bz2`,
+    ///     `.tbz`, `.tbz2`): extracted, then read as a directory.
+    /// - `config`: the analysis configuration. See [`DolosConfig::builder`].
+    ///
+    /// # Errors
+    ///
+    /// Reading the input:
+    ///
+    /// - `files` is empty: [`InvalidInput`].
+    /// - Several paths: [`NotFound`] when one of them is not a regular file.
+    /// - One path that is not a directory, has no `csv` extension and has no
+    ///   archive extension: [`InvalidInput`]. This includes a path that does
+    ///   not exist.
+    /// - One CSV file, or one directory with an `info.csv`: [`InvalidData`]
+    ///   when the CSV file cannot be opened or parsed, or has no `filename`
+    ///   column. A CSV path that does not exist also gives [`InvalidData`].
+    /// - One directory: the I/O error of a failed directory read, for example
+    ///   [`PermissionDenied`].
+    /// - One archive: the I/O error when the archive cannot be opened, for
+    ///   example [`NotFound`]. For a zip archive, [`InvalidData`] when the file
+    ///   is not a zip archive and [`Other`] when an entry cannot be extracted.
+    ///   For a tar archive, the I/O error of the tar, gzip or bzip2 reader.
+    ///
+    /// Selecting the files:
+    ///
+    /// - [`InvalidInput`] when no language is configured and none can be
+    ///   detected: no file has a known extension, or several languages share
+    ///   the highest file count.
+    /// - [`InvalidInput`] when fewer than 2 files of the language remain.
+    ///
+    /// Reading the files:
+    ///
+    /// - The I/O error of a failed input file read, for example [`NotFound`]
+    ///   for a file in the `filename` column of a CSV file that does not
+    ///   exist. A file that is not valid UTF-8 gives [`InvalidData`].
+    /// - The I/O error of a failed read of the
+    ///   [`ignore`](crate::DolosConfigBuilder::ignore) file, for example
+    ///   [`NotFound`].
+    ///
+    /// [`InvalidData`]: std::io::ErrorKind::InvalidData
+    /// [`InvalidInput`]: std::io::ErrorKind::InvalidInput
+    /// [`NotFound`]: std::io::ErrorKind::NotFound
+    /// [`Other`]: std::io::ErrorKind::Other
+    /// [`PermissionDenied`]: std::io::ErrorKind::PermissionDenied
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # #[cfg(feature = "lang-javascript")]
+    /// # fn main() -> std::io::Result<()> {
+    /// use dolos::{Dolos, DolosConfig};
+    /// use std::path::Path;
+    ///
+    /// let fixtures = Path::new(env!("CARGO_MANIFEST_DIR")).join("fixtures");
+    /// let files = vec![fixtures.join("sample1.js"), fixtures.join("sample2.js")];
+    ///
+    /// let dolos = Dolos::new(files, DolosConfig::default())?;
+    /// # Ok(())
+    /// # }
+    /// # #[cfg(not(feature = "lang-javascript"))]
+    /// # fn main() {}
+    /// ```
     pub fn new(files: Vec<PathBuf>, config: DolosConfig) -> Result<Self> {
         let dataset = Dataset::create(files, config.language)?;
         let metadata = Metadata::from_config(&config, &dataset);
@@ -148,7 +216,31 @@ impl Dolos {
         }
     }
 
-    /// Run the analysis and build a [`Report`].
+    /// Compare all files pairwise and build a [`Report`].
+    ///
+    /// The report holds one [`Pair`](crate::Pair) for every pair of files. The
+    /// pairs carry fragments only when
+    /// [`Metadata::include_fragments`](crate::Metadata::include_fragments) is
+    /// `true`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # #[cfg(feature = "lang-javascript")]
+    /// # fn main() -> std::io::Result<()> {
+    /// use dolos::{Dolos, DolosConfig};
+    /// use std::path::Path;
+    ///
+    /// let fixtures = Path::new(env!("CARGO_MANIFEST_DIR")).join("fixtures");
+    /// let files = vec![fixtures.join("sample1.js"), fixtures.join("sample2.js")];
+    ///
+    /// let report = Dolos::new(files, DolosConfig::default())?.build_report();
+    /// assert_eq!(report.pairs.len(), 1);
+    /// # Ok(())
+    /// # }
+    /// # #[cfg(not(feature = "lang-javascript"))]
+    /// # fn main() {}
+    /// ```
     pub fn build_report(mut self) -> Report {
         let ignored = ignore::classify(
             &self.fingerprints,

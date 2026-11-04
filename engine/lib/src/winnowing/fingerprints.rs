@@ -2,6 +2,8 @@ use crate::winnowing::hashes::{RollingHash, hash_token};
 use crate::winnowing::region::Region;
 use crate::winnowing::tokenizer::Token;
 
+/// The hash of one k-gram that winnowing keeps. A file is a sequence of
+/// fingerprints.
 pub type Fingerprint = dolos_core::Symbol;
 
 /// Computes the source region spanned by a kgram.

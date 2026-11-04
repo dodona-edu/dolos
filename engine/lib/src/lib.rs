@@ -1,3 +1,34 @@
+//! Dolos detects plagiarism in source code.
+//!
+//! It compares every pair of files in a set and reports how similar they are.
+//! It tokenizes each file with tree-sitter and reduces it to a sequence of
+//! [`Fingerprint`]s. All metrics count fingerprints.
+//!
+//! Each supported [`Language`] is behind a `lang-*` feature. The
+//! `all-languages` feature enables all of them.
+//!
+//! # Examples
+//!
+//! ```
+//! # #[cfg(feature = "lang-javascript")]
+//! # fn main() -> std::io::Result<()> {
+//! use dolos::{Dolos, DolosConfig};
+//! use std::path::Path;
+//!
+//! let fixtures = Path::new(env!("CARGO_MANIFEST_DIR")).join("fixtures");
+//! let files = vec![fixtures.join("sample1.js"), fixtures.join("sample2.js")];
+//!
+//! let report = Dolos::new(files, DolosConfig::default())?.build_report();
+//! assert_eq!(report.pairs.len(), 1);
+//!
+//! let similarity = report.pairs[0].metrics.similarity;
+//! assert!(similarity > 0.0 && similarity <= 1.0);
+//! # Ok(())
+//! # }
+//! # #[cfg(not(feature = "lang-javascript"))]
+//! # fn main() {}
+//! ```
+
 mod config;
 mod dolos;
 mod file;
