@@ -12,15 +12,11 @@ use std::ops::Range;
 
 /// Check that [`analyze`](crate::analyze) accepts this input.
 ///
-/// There must be at least two sequences, because the analysis compares pairs.
-/// `ignored` is `None`, or one list of ranges per sequence. A range must not
-/// start after it ends, and must stay within the sequence it indexes. Empty and
-/// overlapping ranges are allowed, and the order of the ranges does not matter.
-///
 /// # Errors
 ///
-/// Returns the first rule that the input breaks, as an
-/// [`ErrorKind::InvalidInput`] error.
+/// Returns an [`ErrorKind::InvalidInput`] error for the first rule that the
+/// input breaks. The `# Errors` section of [`analyze`](crate::analyze) lists
+/// the rules.
 pub fn validate_input(
     sequences: &[Vec<Symbol>],
     ignored: Option<&[Vec<Range<usize>>]>,

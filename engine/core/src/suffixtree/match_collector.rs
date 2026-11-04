@@ -16,7 +16,7 @@ pub struct MatchCollector<'a> {
     longest_matches: PairArray<usize>,
     /// Bitmap tracking which positions have been covered by matches, per sequence pair.
     overlap_bitmap: PairBitmap,
-    /// Per-pair list of maximal exact matches (only when they are kept).
+    /// Per-pair list of recorded runs (only when they are kept).
     matches: Option<PairArray<Vec<Match>>>,
     /// Shortest run worth recording.
     min_match_length: usize,

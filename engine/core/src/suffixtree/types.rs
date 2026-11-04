@@ -29,10 +29,12 @@ impl StartPosition {
     }
 }
 
-/// A maximal exact match between two positions in (possibly different) sequences.
+/// An exact match between the two sequences of a pair: a maximal match, cut at
+/// ignored positions.
 ///
-/// The start offsets are into the left (smaller-index) and the right
-/// (larger-index) sequence.
+/// The left sequence is the one with the smaller index, the right sequence the
+/// one with the larger index. The offsets are positions in the input
+/// sequences, ignored positions included.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[cfg_attr(
     feature = "wasm",
@@ -44,11 +46,14 @@ pub struct Match {
     pub left_start: usize,
     /// Start offset in the right sequence.
     pub right_start: usize,
-    /// Number of consecutive matching symbols.
+    /// The number of consecutive matching symbols.
     pub length: usize,
 }
 
-/// Per-pair metrics produced by the suffix-tree analysis.
+/// The similarity metrics of one pair of sequences.
+///
+/// The left sequence is the one with the smaller index, the right sequence the
+/// one with the larger index. All counts are in symbols.
 #[derive(Debug, Clone, Default, PartialEq)]
 #[cfg_attr(
     feature = "wasm",
@@ -56,8 +61,8 @@ pub struct Match {
     serde(rename_all = "camelCase")
 )]
 pub struct PairMetrics {
-    /// Jaccard-style similarity: the sum of both overlaps divided by the sum
-    /// of both totals.
+    /// The sum of both overlaps divided by the sum of both totals, between 0
+    /// and 1. 0 when both totals are 0.
     pub similarity: f64,
     /// Number of symbols in the left sequence, excluding ignored ones.
     pub total_left: usize,
@@ -67,11 +72,14 @@ pub struct PairMetrics {
     pub overlap_left: usize,
     /// Number of symbols in the right sequence covered by at least one match.
     pub overlap_right: usize,
-    /// Length of the longest common substring (in symbols).
+    /// The length of the longest match. 0 when the pair has no match.
     pub longest_match: usize,
 }
 
-/// Result of the suffix-tree analysis containing all per-pair metrics.
+/// The result of [`analyze`](crate::analyze): the metrics of every pair, and
+/// optionally the matches of every pair.
+///
+/// Both are indexed by the positions of the sequences in the input.
 #[derive(Debug, Clone, PartialEq)]
 pub struct AnalysisResult {
     metrics: PairArray<PairMetrics>,
@@ -86,12 +94,37 @@ impl AnalysisResult {
         Self { metrics, matches }
     }
 
-    /// The metrics of every pair.
+    /// Returns the metrics of every pair of sequences.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use dolos_core::{AnalysisOptions, analyze};
+    /// # let options = AnalysisOptions { min_match_length: 1, keep_matches: false };
+    /// let result = analyze(&[vec![1, 2, 3], vec![1, 2, 4]], None, &options)?;
+    ///
+    /// assert_eq!(result.metrics()[(0, 1)].longest_match, 2);
+    /// # Ok::<(), std::io::Error>(())
+    /// ```
     pub fn metrics(&self) -> &PairArray<PairMetrics> {
         &self.metrics
     }
 
-    /// The maximal exact matches of every pair, or `None` when `keep_matches` was off.
+    /// Returns the matches of every pair of sequences, in no specific order.
+    /// `Some` only when [`keep_matches`](crate::AnalysisOptions::keep_matches)
+    /// is set.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use dolos_core::{AnalysisOptions, analyze};
+    /// let options = AnalysisOptions { min_match_length: 1, keep_matches: true };
+    /// let result = analyze(&[vec![1, 2, 3], vec![1, 2, 4]], None, &options)?;
+    ///
+    /// let matches = result.matches().expect("keep_matches is set");
+    /// assert_eq!(matches[(0, 1)].len(), 1);
+    /// # Ok::<(), std::io::Error>(())
+    /// ```
     pub fn matches(&self) -> Option<&PairArray<Vec<Match>>> {
         self.matches.as_ref()
     }

@@ -4,7 +4,7 @@ use crate::suffixtree::{AnalysisResult, SuffixTree};
 use crate::validation::validate_input;
 use std::ops::Range;
 
-/// Options controlling an `analyze` run.
+/// The options of an `analyze` run.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[cfg_attr(
     feature = "wasm",
@@ -12,28 +12,42 @@ use std::ops::Range;
     serde(rename_all = "camelCase")
 )]
 pub struct AnalysisOptions {
-    /// Minimum shared substring length, in symbols. At least 1.
+    /// The minimum length of a match, in symbols. Shorter matches are not
+    /// recorded and do not count in the metrics. At least 1, see `analyze`.
     pub min_match_length: usize,
-    /// Keep the raw matches of every pair.
+    /// Keep the matches of every pair in the result. Without it, the result
+    /// holds only the metrics.
     pub keep_matches: bool,
 }
 
-/// Compare all sequences pairwise. The analysis finds the maximal exact matches
-/// between every pair of sequences, and derives the similarity metrics of the pair from them.
-/// With `keep_matches`, the result also holds the matches themselves.
+/// Compare all sequences pairwise.
+///
+/// The analysis finds the exact matches between every pair of sequences: the
+/// maximal matches, cut at ignored positions. It derives the
+/// [`PairMetrics`](crate::PairMetrics) of the pair from them. With
+/// [`keep_matches`](AnalysisOptions::keep_matches), the result also holds the
+/// matches themselves.
 ///
 /// # Parameters
 ///
-/// - `sequences`: the sequences to compare. There must be at least two, and
-///   none of them may contain `usize::MAX`.
+/// - `sequences`: the sequences to compare.
 /// - `ignored`: one list of ranges per sequence, or `None` to ignore nothing.
-///   Ignored positions are excluded entirely from the analysis.
+///   A range is half-open and indexes the positions of its sequence. Ranges may
+///   be empty, overlap and come in any order. No match covers an ignored
+///   position, and ignored positions do not count in the totals.
 /// - `options`: the minimum match length, and whether to keep the matches.
 ///
 /// # Errors
 ///
 /// Returns an [`ErrorKind::InvalidInput`](std::io::ErrorKind::InvalidInput)
-/// error when the input is invalid.
+/// error for the first rule that the input breaks:
+///
+/// - `sequences` holds fewer than two sequences.
+/// - [`min_match_length`](AnalysisOptions::min_match_length) is 0.
+/// - A sequence contains `usize::MAX`.
+/// - `ignored` does not hold exactly one list per sequence.
+/// - An ignored range starts after it ends, or ends past the length of its
+///   sequence.
 ///
 /// # Examples
 ///
@@ -47,7 +61,7 @@ pub struct AnalysisOptions {
 /// };
 ///
 /// let result = analyze(&sequences, None, &options)?;
-/// assert_eq!(result.metrics().get(0, 1).unwrap().longest_match, 3);
+/// assert_eq!(result.metrics()[(0, 1)].longest_match, 3);
 /// # Ok::<(), std::io::Error>(())
 /// ```
 pub fn analyze(
