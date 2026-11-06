@@ -58,46 +58,56 @@ impl<'a> FileRow<'a> {
 }
 
 /// One row of `pairs.csv`.
+///
+/// - `id`: the index of the pair in the order (0,1), (0,2), ..., (1,2), ... of its file ids.
+///   It does not depend on `--sort-by`.
+/// - `leftFileId`, `rightFileId`: the ids of the two files in `files.csv`.
+/// - `similarity`: `totalOverlap` divided by `totalLeft + totalRight`, between 0 and 1.
+/// - `longestFragment`: the length of the longest match, in fingerprints.
+/// - `overlapLeft`, `overlapRight`: the fingerprints of each file that a match covers.
+/// - `totalLeft`, `totalRight`: the fingerprints of each file that are not ignored.
+/// - `totalOverlap`: `overlapLeft + overlapRight`.
 #[derive(Serialize)]
-pub struct PairRow<'a> {
-    file1_id: usize,
-    file1_path: Cow<'a, str>,
-    file2_id: usize,
-    file2_path: Cow<'a, str>,
+pub struct PairRow {
+    id: usize,
+    left_file_id: usize,
+    right_file_id: usize,
     similarity: f64,
-    longest: usize,
-    total_left: usize,
-    total_right: usize,
+    longest_fragment: usize,
     overlap_left: usize,
     overlap_right: usize,
+    total_left: usize,
+    total_right: usize,
+    total_overlap: usize,
 }
 
-impl<'a> PairRow<'a> {
+impl PairRow {
     pub const HEADER: [&'static str; 10] = [
-        "file1_id",
-        "file1_path",
-        "file2_id",
-        "file2_path",
+        "id",
+        "leftFileId",
+        "rightFileId",
         "similarity",
-        "longest",
-        "total_left",
-        "total_right",
-        "overlap_left",
-        "overlap_right",
+        "longestFragment",
+        "overlapLeft",
+        "overlapRight",
+        "totalLeft",
+        "totalRight",
+        "totalOverlap",
     ];
 
-    pub fn new(pair: &'a Pair) -> Self {
+    pub fn new(id: usize, pair: &Pair) -> Self {
+        let metrics = &pair.metrics;
         Self {
-            file1_id: pair.left_file.id,
-            file1_path: pair.left_file.relative_path.to_string_lossy(),
-            file2_id: pair.right_file.id,
-            file2_path: pair.right_file.relative_path.to_string_lossy(),
-            similarity: pair.metrics.similarity,
-            longest: pair.metrics.longest_match,
-            total_left: pair.metrics.total_left,
-            total_right: pair.metrics.total_right,
-            overlap_left: pair.metrics.overlap_left,
-            overlap_right: pair.metrics.overlap_right,
+            id,
+            left_file_id: pair.left_file.id,
+            right_file_id: pair.right_file.id,
+            similarity: metrics.similarity,
+            longest_fragment: metrics.longest_match,
+            overlap_left: metrics.overlap_left,
+            overlap_right: metrics.overlap_right,
+            total_left: metrics.total_left,
+            total_right: metrics.total_right,
+            total_overlap: metrics.overlap_left + metrics.overlap_right,
         }
     }
 }

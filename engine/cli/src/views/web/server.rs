@@ -69,7 +69,7 @@ mod tests {
     #[tokio::test]
     async fn router_serves_the_report_and_the_frontend() {
         let report_dir = tempfile::TempDir::new().unwrap();
-        std::fs::write(report_dir.path().join("pairs.csv"), "file1_id\n").unwrap();
+        std::fs::write(report_dir.path().join("pairs.csv"), "id\n").unwrap();
         let webroot = tempfile::TempDir::new().unwrap();
         std::fs::write(webroot.path().join("index.html"), "<html></html>").unwrap();
         let router = build_router(report_dir.path(), webroot.path());
