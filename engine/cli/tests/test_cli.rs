@@ -82,7 +82,7 @@ fn csv_output_writes_the_headers() {
     assert_csv_header(&report_dir.join("metadata.csv"), &["property", "value"]);
     assert_csv_header(
         &report_dir.join("files.csv"),
-        &["id", "path", "content", "fingerprints", "fingerprint_regions", "ignored_intervals"],
+        &["id", "path", "content", "fingerprints", "fingerprintRegions", "ignoredIntervals"],
     );
     assert_csv_header(
         &report_dir.join("pairs.csv"),
@@ -90,7 +90,7 @@ fn csv_output_writes_the_headers() {
     );
     assert_csv_header(
         &report_dir.join("fragments.csv"),
-        &["file1_id", "file1_path", "file1_start_point", "file1_end_point", "file2_id", "file2_path", "file2_start_point", "file2_end_point", "fingerprint_count"],
+        &["leftFileId", "rightFileId", "leftRegion", "rightRegion", "fingerprintCount"],
     );
 }
 
@@ -134,6 +134,25 @@ fn pairs_csv_holds_the_total_overlap() {
         number("totalOverlap"),
         number("overlapLeft") + number("overlapRight")
     );
+}
+
+#[test]
+fn fragments_csv_writes_each_region_as_four_numbers() {
+    let tmp = TempDir::new().unwrap();
+    let report_dir = csv_report(&tmp, &[]);
+
+    let region = |cell: &str| -> Vec<usize> {
+        let numbers = cell.strip_prefix('[').unwrap().strip_suffix(']').unwrap();
+        numbers.split(',').map(|n| n.parse().unwrap()).collect()
+    };
+
+    let rows = read_rows(&report_dir.join("fragments.csv"));
+    assert!(!rows.is_empty());
+    for row in rows {
+        assert_eq!((&row[0], &row[1]), ("0", "1"));
+        assert_eq!(region(&row[2]).len(), 4);
+        assert_eq!(region(&row[3]).len(), 4);
+    }
 }
 
 #[test]
