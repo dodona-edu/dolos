@@ -1,9 +1,11 @@
-//! The JavaScript binding for [`crate::analyze`].
+//! The JavaScript binding for [`crate::analyze`]: `analyze` for many
+//! sequences, `analyzePair` for exactly two.
 //!
 //! `#[wasm_bindgen]` exports only the `pub` methods of [`Analysis`], so the
 //! private ones stay callable from the native tests.
 
-use crate::{AnalysisOptions, AnalysisResult, PairMetrics, Symbol};
+use crate::{AnalysisOptions, AnalysisResult, Match, PairMetrics, Symbol};
+use serde::{Deserialize, Serialize};
 use std::io;
 use std::ops::Range;
 use tsify::{Ts, Tsify};
@@ -177,6 +179,84 @@ pub fn analyze(
         ignored.as_deref(),
         &options,
     )?))
+}
+
+/// One sequence of an `analyzePair` call.
+#[derive(Debug, Deserialize, Tsify)]
+pub struct PairSequence {
+    /// The symbols of the sequence. Every symbol is a non-negative integer
+    /// below 4294967295.
+    #[tsify(type = "number[]")]
+    fingerprints: Vec<Symbol>,
+    /// The intervals of positions to leave out. Pass `[]` to ignore nothing.
+    #[tsify(type = "Interval[]")]
+    ignored: Vec<Range<usize>>,
+}
+
+/// The options of an `analyzePair` call.
+#[derive(Debug, Deserialize, Tsify)]
+#[serde(rename_all = "camelCase")]
+pub struct PairOptions {
+    /// The minimum length of a match, in symbols. Shorter matches are not
+    /// recorded and do not count in the metrics. At least 1.
+    min_match_length: usize,
+}
+
+/// The result of an `analyzePair` call.
+#[derive(Debug, Serialize, Tsify)]
+pub struct PairResult {
+    /// The similarity, totals, overlaps and longest match of the pair.
+    metrics: PairMetrics,
+    /// The matches of the pair, sorted by `leftStart`, then `rightStart`, then
+    /// `length`. Empty when the pair has none.
+    matches: Vec<Match>,
+}
+
+/// Compare two sequences and return their metrics and matches as plain data.
+///
+/// @param left - The left sequence of the pair.
+/// @param right - The right sequence of the pair.
+/// @param options - The minimum match length.
+///
+/// @returns The metrics and the matches of the pair.
+///
+/// @throws {Error} when an argument does not match its type, or when the input
+/// breaks a rule of `analyze`. Errors name `left` as sequence 0 and `right` as
+/// sequence 1.
+///
+/// @example
+/// ```ts
+/// const { metrics, matches } = analyzePair(
+///   { fingerprints: [1, 2, 3, 4], ignored: [] },
+///   { fingerprints: [9, 2, 3, 4], ignored: [{ start: 3, end: 4 }] },
+///   { minMatchLength: 2 },
+/// );
+///
+/// console.log(metrics.longestMatch); // 2
+/// console.log(matches); // [{ leftStart: 1, rightStart: 1, length: 2 }]
+/// ```
+#[wasm_bindgen(js_name = analyzePair)]
+pub fn analyze_pair(
+    left: Ts<PairSequence>,
+    right: Ts<PairSequence>,
+    options: Ts<PairOptions>,
+) -> Result<Ts<PairResult>, JsError> {
+    let (left, right) = (left.to_rust()?, right.to_rust()?);
+    let sequences = [left.fingerprints, right.fingerprints];
+    let ignored = [left.ignored, right.ignored];
+    let options = AnalysisOptions {
+        min_match_length: options.to_rust()?.min_match_length,
+        keep_matches: true,
+    };
+
+    let result = crate::analyze(&sequences, Some(&ignored), &options)?;
+    let matches = result
+        .matches()
+        .map(|matches| matches[(0, 1)].clone())
+        .unwrap_or_default();
+    let pair = PairResult { metrics: result.metrics()[(0, 1)].clone(), matches };
+
+    Ok(pair.into_ts()?)
 }
 
 #[cfg(test)]

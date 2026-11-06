@@ -6,7 +6,7 @@
 
 import assert from "node:assert/strict";
 import {test} from "node:test";
-import {analyze, type Interval, type PairMetrics,} from "../pkg-node/dolos_core.js";
+import {analyze, analyzePair, type Interval, type PairMetrics,} from "../pkg-node/dolos_core.js";
 
 // One symbol per code unit of `text`.
 const symbols = (text: string): number[] => [...text].map((c) => c.charCodeAt(0));
@@ -69,4 +69,35 @@ test("indices that name no pair throw instead of reaching PairArray", () => {
 
   assert.throws(() => analysis.metrics(1, 1), /does not form a pair with itself/);
   assert.throws(() => analysis.metrics(0, 2), /out of range/);
+});
+
+test("analyzePair returns the metrics and matches of the pair as plain data", () => {
+  const result = analyzePair(
+    { fingerprints: symbols("ABCDE"), ignored: [] },
+    { fingerprints: symbols("ABCDE"), ignored: [{ start: 2, end: 3 }] },
+    { minMatchLength: 1 },
+  );
+
+  assert.deepEqual(result, {
+    metrics: {
+      similarity: 8 / 9,
+      totalLeft: 5,
+      totalRight: 4,
+      overlapLeft: 4,
+      overlapRight: 4,
+      longestMatch: 2,
+    },
+    matches: [
+      { leftStart: 0, rightStart: 0, length: 2 },
+      { leftStart: 3, rightStart: 3, length: 2 },
+    ],
+  });
+});
+
+test("analyzePair rejects unusable input with a catchable Error", () => {
+  const ab = { fingerprints: symbols("AB"), ignored: [] };
+
+  assert.throws(() => analyzePair(ab, ab, {minMatchLength: 0}), /minimum match length/);
+  assert.throws(() => analyzePair(ab, { fingerprints: symbols("AB"), ignored: [{ start: 1, end: 3 }] }, {minMatchLength: 1}), /reaches past its length/);
+  assert.throws(() => analyzePair(ab, { fingerprints: symbols("AB") } as typeof ab, {minMatchLength: 1}), /missing field `ignored`/);
 });

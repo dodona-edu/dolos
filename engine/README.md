@@ -69,6 +69,19 @@ const matches = analysis.matches(0, 1);
 so an analysis over hundreds of files stays cheap. Release it with `free()`, or
 declare it with `using` as above.
 
+For exactly two sequences, `analyzePair` returns the metrics and the matches as
+plain data, so there is nothing to release:
+
+```ts
+import { analyzePair } from "dolos-core";
+
+const { metrics, matches } = analyzePair(
+  { fingerprints: leftFingerprints, ignored: leftIgnored },
+  { fingerprints: rightFingerprints, ignored: rightIgnored },
+  { minMatchLength: 5 },
+);
+```
+
 Vite 8.1 and later need no plugin. Earlier versions need
 [`vite-plugin-wasm`](https://www.npmjs.com/package/vite-plugin-wasm) and
 `build.target: "esnext"`.

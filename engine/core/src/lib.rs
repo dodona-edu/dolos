@@ -5,7 +5,8 @@
 //! each pair from them. A symbol is a [`Symbol`] (`usize`) value. What it
 //! encodes is up to the caller.
 //!
-//! With the `wasm` feature, the crate also exports `analyze` to JavaScript.
+//! With the `wasm` feature, the crate also exports `analyze` and `analyzePair`
+//! to JavaScript.
 //!
 //! # Examples
 //!
