@@ -393,11 +393,17 @@ mod tests {
     fn core_without_a_node_of_its_own_is_recovered() {
         let result = analyze(&["ABBC", "ABBC"], &["A", "C"], 1);
 
-        assert_eq!(
-            matches(&result, 0, 1),
-            vec![(1, 1, 2), (1, 2, 1), (2, 1, 1)]
-        );
+        assert_eq!(matches(&result, 0, 1), vec![(1, 1, 2)]);
         assert_eq!(result.metrics().get(0, 1).unwrap().longest_match, 2);
+    }
+
+    // `(0, 2, 2)` and `(2, 0, 2)` are maximal on their own diagonal, but
+    // `(0, 0, 4)` contains them on both sides.
+    #[test]
+    fn match_inside_another_match_is_not_reported() {
+        let result = analyze(&["ABAB", "ABAB"], &[], 1);
+
+        assert_eq!(matches(&result, 0, 1), vec![(0, 0, 4)]);
     }
 
     #[test]

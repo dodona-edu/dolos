@@ -102,11 +102,12 @@ impl<'a> MatchCollector<'a> {
     /// Consume the collector and build the final [`AnalysisResult`].
     ///
     /// The matches of each pair are sorted by left start, right start and
-    /// length.
+    /// length. A match that another match of the pair contains is removed.
     pub fn into_result(mut self) -> AnalysisResult {
         if let Some(matches) = self.matches.as_mut() {
             for (_, _, pair_matches) in matches.iter_pairs_mut() {
                 pair_matches.sort_unstable_by_key(|m| (m.left_start, m.right_start, m.length));
+                remove_contained(pair_matches);
             }
         }
         AnalysisResult::new(self.build_metrics(), self.matches)
@@ -159,4 +160,29 @@ impl<'a> MatchCollector<'a> {
             }
         })
     }
+}
+
+/// Remove every match that another match contains on both sides.
+///
+/// `matches` must be sorted by left start, then right start, with at most one
+/// match per pair of start positions.
+fn remove_contained(matches: &mut Vec<Match>) {
+    // The kept matches that end in the left sequence after the start of `m`.
+    let mut open: Vec<Match> = Vec::new();
+    matches.retain(|m| {
+        open.retain(|n| n.left_start + n.length > m.left_start);
+        let contained = open.iter().any(|n| contains(n, m));
+        if !contained {
+            open.push(*m);
+        }
+        !contained
+    });
+}
+
+/// Whether `outer` contains `inner` in the left and in the right sequence.
+fn contains(outer: &Match, inner: &Match) -> bool {
+    outer.left_start <= inner.left_start
+        && inner.left_start + inner.length <= outer.left_start + outer.length
+        && outer.right_start <= inner.right_start
+        && inner.right_start + inner.length <= outer.right_start + outer.length
 }
