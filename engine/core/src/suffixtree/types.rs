@@ -110,9 +110,9 @@ impl AnalysisResult {
         &self.metrics
     }
 
-    /// Returns the matches of every pair of sequences, in no specific order.
-    /// `Some` only when [`keep_matches`](crate::AnalysisOptions::keep_matches)
-    /// is set.
+    /// Returns the matches of every pair of sequences. The matches of a pair
+    /// are sorted by left start, then right start, then length. `Some` only
+    /// when [`keep_matches`](crate::AnalysisOptions::keep_matches) is set.
     ///
     /// # Examples
     ///

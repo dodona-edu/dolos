@@ -159,19 +159,16 @@ mod tests {
         SuffixTree::build(&sequences).analyze(&sequences, mask, min_match_length, true)
     }
 
-    /// The stored matches of one pair as `(left_start, right_start, length)`,
-    /// sorted so the assertions do not depend on traversal order.
+    /// The stored matches of one pair as `(left_start, right_start, length)`.
     fn matches(result: &AnalysisResult, i: usize, j: usize) -> Vec<(usize, usize, usize)> {
-        let mut found: Vec<(usize, usize, usize)> = result
+        result
             .matches()
             .expect("matches are kept")
             .get(i, j)
             .unwrap()
             .iter()
             .map(|m| (m.left_start, m.right_start, m.length))
-            .collect();
-        found.sort_unstable();
-        found
+            .collect()
     }
 
     #[test]

@@ -55,22 +55,26 @@ pub fn resolve_fragments(
 
 /// Sort fragments in-place according to `sort_by`.
 ///
-/// `FileOrder` and `None` both sort by left-file source position (row, column).
+/// `FileOrder` and `None` sort by the start in the left file, then in the right
+/// file. The other orders break ties in the same way.
 fn sort_fragments(fragments: &mut [Fragment], sort_by: &Option<FragmentSortBy>) {
     match sort_by {
-        Some(FragmentSortBy::KgramsAscending) => {
-            fragments.sort_by_key(|f| f.fingerprint_count);
-        }
-        Some(FragmentSortBy::KgramsDescending) => {
-            fragments.sort_by_key(|f| Reverse(f.fingerprint_count));
-        }
+        Some(FragmentSortBy::KgramsAscending) => fragments.sort_by_key(|f| {
+            (
+                f.fingerprint_count,
+                f.left_region.start_point,
+                f.right_region.start_point,
+            )
+        }),
+        Some(FragmentSortBy::KgramsDescending) => fragments.sort_by_key(|f| {
+            (
+                Reverse(f.fingerprint_count),
+                f.left_region.start_point,
+                f.right_region.start_point,
+            )
+        }),
         Some(FragmentSortBy::FileOrder) | None => {
-            fragments.sort_by_key(|f| {
-                (
-                    f.left_region.start_point.row,
-                    f.left_region.start_point.column,
-                )
-            });
+            fragments.sort_by_key(|f| (f.left_region.start_point, f.right_region.start_point))
         }
     }
 }
@@ -150,10 +154,8 @@ mod tests {
     ) {
         // One match of length 2 at the start, one of length 1 at the end.
         let result = analyze_pair(vec![2, 3, 9, 1], vec![2, 3, 8, 1]);
-        let mut matches = result.matches().unwrap().get(0, 1).unwrap().clone();
-        matches.sort_by_key(|m| m.left_start);
         assert_eq!(
-            matches,
+            result.matches().unwrap()[(0, 1)],
             vec![
                 Match { left_start: 0, right_start: 0, length: 2 },
                 Match { left_start: 3, right_start: 3, length: 1 },

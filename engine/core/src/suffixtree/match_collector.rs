@@ -100,7 +100,15 @@ impl<'a> MatchCollector<'a> {
     }
 
     /// Consume the collector and build the final [`AnalysisResult`].
-    pub fn into_result(self) -> AnalysisResult {
+    ///
+    /// The matches of each pair are sorted by left start, right start and
+    /// length.
+    pub fn into_result(mut self) -> AnalysisResult {
+        if let Some(matches) = self.matches.as_mut() {
+            for (_, _, pair_matches) in matches.iter_pairs_mut() {
+                pair_matches.sort_unstable_by_key(|m| (m.left_start, m.right_start, m.length));
+            }
+        }
         AnalysisResult::new(self.build_metrics(), self.matches)
     }
 

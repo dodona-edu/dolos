@@ -58,6 +58,33 @@ fn iter_pairs_yields_every_pair_once_in_index_order() {
 }
 
 #[test]
+fn matches_come_sorted_by_position_in_every_run() {
+    let sequences = vec![
+        vec![1, 2, 3, 9, 4, 5, 6, 8, 7, 1, 2, 3, 0, 4, 5],
+        vec![4, 5, 6, 7, 1, 2, 3, 1, 2, 3, 4, 5],
+    ];
+    let options = AnalysisOptions { min_match_length: 1, keep_matches: true };
+
+    let expected: Vec<Match> = [
+        (0, 4, 3),
+        (0, 7, 3),
+        (4, 0, 3),
+        (4, 10, 2),
+        (8, 3, 4),
+        (9, 7, 3),
+        (13, 0, 2),
+        (13, 10, 2),
+    ]
+    .into_iter()
+    .map(|(left_start, right_start, length)| Match { left_start, right_start, length })
+    .collect();
+    for _ in 0..2 {
+        let result = analyze(&sequences, None, &options).unwrap();
+        assert_eq!(matches(&result, 0, 1), expected);
+    }
+}
+
+#[test]
 fn keep_matches_off_leaves_out_the_matches() {
     let sequences = vec![vec![1, 2, 3, 4], vec![9, 2, 3, 4]];
     let options = AnalysisOptions { min_match_length: 1, keep_matches: false };
