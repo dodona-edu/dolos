@@ -1,10 +1,10 @@
 use crate::file::FileSet;
 use std::io::{Error, ErrorKind, Result};
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use tempfile::TempDir;
 use tree_sitter_grammars::Language;
 
-use super::{archive, resolve};
+use super::{Input, resolve};
 
 /// A named collection of source files in one language, ready for analysis.
 ///
@@ -21,77 +21,19 @@ pub struct Dataset {
 }
 
 impl Dataset {
-    /// Create a `Dataset` from the given input paths. Accepted inputs:
-    ///
-    /// - **Multiple paths** → treated as individual files.
-    /// - **One directory** → files collected recursively; `info.csv` is honored
-    ///   when present at the top level.
-    /// - **One CSV file** → file list read from the `filename` column.
-    /// - **One archive** (`.zip`, `.tar`, `.tar.gz`, `.tgz`, `.tar.bz2`, `.tbz`,
-    ///   `.tbz2`) → extracted to a temporary directory, then treated as a directory.
+    /// Create a `Dataset` from the given input paths, in the forms that
+    /// [`Input::read`] accepts.
     ///
     /// Only the files of `language` are kept. When `language` is `None`, the
-    /// language that most file extensions belong to is used.
-    pub fn create(paths: Vec<PathBuf>, language: Option<Language>) -> Result<Self> {
-        match paths.as_slice() {
-            [] => Err(Error::new(
-                ErrorKind::InvalidInput,
-                "No input paths provided",
-            )),
-            [path] => Self::from_single_path(path, language),
-            _ => Self::from_multi_path(paths, language),
-        }
-    }
-
-    fn from_multi_path(paths: Vec<PathBuf>, language: Option<Language>) -> Result<Self> {
-        let files = resolve::from_files(paths)?;
-        Self::new(None, FileSet::new(PathBuf::new(), files), None, language)
-    }
-
-    fn from_single_path(path: &Path, language: Option<Language>) -> Result<Self> {
-        // directory
-        if path.is_dir() {
-            let (name, files) = resolve::from_directory(path)?;
-            return Self::new(Some(name), FileSet::new(path, files), None, language);
-        }
-
-        // CSV file
-        if path.extension().is_some_and(|ext| ext == "csv") {
-            let (name, files) = resolve::from_csv(path)?;
-            let base_dir = path.parent().unwrap_or(Path::new("."));
-            return Self::new(Some(name), FileSet::new(base_dir, files), None, language);
-        }
-
-        // archive
-        if let Some(extracted) = archive::try_extract(path)? {
-            let dir = extracted.temp_dir.path();
-            let (_, files) = resolve::from_directory(dir)?;
-            return Self::new(
-                Some(extracted.name),
-                FileSet::new(dir, files),
-                Some(extracted.temp_dir),
-                language,
-            );
-        }
-
-        Err(Error::new(
-            ErrorKind::InvalidInput,
-            "A single path must be a directory, a CSV file, or a supported archive \
-                 (.zip, .tar, .tar.gz, .tgz, .tar.bz2, .tbz, .tbz2)",
-        ))
-    }
-
-    /// Select the language and keep only the files of that language.
-    /// Without a `name`, the dataset is named after the files that remain.
+    /// language that most file extensions belong to is used. Without a name
+    /// from the input, the dataset is named after the files that remain.
     ///
     /// # Errors
-    /// Fails when the language cannot be detected or fewer than 2 files remain.
-    fn new(
-        name: Option<String>,
-        mut file_set: FileSet,
-        temp_dir: Option<TempDir>,
-        language: Option<Language>,
-    ) -> Result<Self> {
+    /// Fails when the paths cannot be read, the language cannot be detected or
+    /// fewer than 2 files remain.
+    pub fn create(paths: Vec<PathBuf>, language: Option<Language>) -> Result<Self> {
+        let Input { name, mut file_set, temp_dir } = Input::read(paths)?;
+
         let language = match language {
             Some(language) => language,
             None => file_set.detect_language()?,
@@ -122,7 +64,10 @@ mod tests {
 
     #[test]
     fn create_rejects_a_single_regular_file() {
-        assert!(Dataset::create(vec!["fixtures/sample1.js".into()], None).is_err());
+        let err = Dataset::create(vec!["fixtures/sample1.js".into()], None)
+            .err()
+            .unwrap();
+        assert!(err.to_string().contains("at least 2"), "{err}");
     }
 
     #[test]

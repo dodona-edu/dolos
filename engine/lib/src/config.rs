@@ -52,7 +52,7 @@ pub struct DolosConfig {
     pub(crate) language: Option<Language>,
     pub(crate) max_fingerprint_count: Option<usize>,
     pub(crate) max_fingerprint_percentage: Option<f64>,
-    pub(crate) ignore: Option<PathBuf>,
+    pub(crate) template: Vec<PathBuf>,
     pub(crate) include_comments: bool,
     pub(crate) compare: bool,
     pub(crate) include_analysis_data: bool,
@@ -104,7 +104,7 @@ impl Default for DolosConfig {
             language: None,
             max_fingerprint_count: None,
             max_fingerprint_percentage: None,
-            ignore: None,
+            template: Vec::new(),
             include_comments: false,
             compare: false,
             include_analysis_data: false,
@@ -232,17 +232,19 @@ impl DolosConfigBuilder {
         self
     }
 
-    /// Set a template file. Dolos ignores every fingerprint of the template
-    /// file in all files.
+    /// Set the template. Dolos ignores every fingerprint of the template
+    /// files in all files.
     ///
     /// # Parameters
     ///
-    /// - `path`: the path of the template file. Default: no template file.
-    ///   [`build`](Self::build) does not check the path.
+    /// - `paths`: the template paths, in the forms of the `files` of
+    ///   [`Dolos::new`](crate::Dolos::new). One regular file is also allowed.
+    ///   Only the template files of the analysis language are used. Default: no
+    ///   template. [`build`](Self::build) does not check the paths.
     ///   [`Dolos::new`](crate::Dolos::new) returns an error when it cannot read
-    ///   the file.
-    pub fn ignore(mut self, path: impl Into<PathBuf>) -> Self {
-        self.config.ignore = Some(path.into());
+    ///   them.
+    pub fn template(mut self, paths: impl IntoIterator<Item = impl Into<PathBuf>>) -> Self {
+        self.config.template = paths.into_iter().map(Into::into).collect();
         self
     }
 

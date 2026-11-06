@@ -10,10 +10,10 @@ const SAMPLE123: &[&str] = &[
     "fixtures/sample3.js",
 ];
 /// 13 lines of `Blok` accessors that also occur in sample1.js and sample2.js.
-const IGNORE: &str = "fixtures/sample_ignore.js";
+const TEMPLATE: &str = "fixtures/sample_ignore.js";
 /// A template that shares no fingerprint with any sample, so ignoring it is a
 /// no-op.
-const IGNORE_INERT: &str = "fixtures/sample_ignore_inert.js";
+const TEMPLATE_INERT: &str = "fixtures/sample_ignore_inert.js";
 /// Two JavaScript files, one Python file and one file without a language.
 const MIXED: &[&str] = &[
     "fixtures/sample1.js",
@@ -109,8 +109,11 @@ fn analysis_data(file: &File) -> &AnalysisData {
 #[case::min_length_match(SAMPLE12, DolosConfig::builder().min_length_match(10).build().unwrap(), 0.20588235294117646)]
 #[case::max_fingerprint_count(SAMPLE123, DolosConfig::builder().max_fingerprint_count(2).build().unwrap(), 0.03636363636363636)]
 #[case::max_fingerprint_percentage(SAMPLE123, DolosConfig::builder().max_fingerprint_percentage(0.7).build().unwrap(), 0.03636363636363636)]
-#[case::ignore(SAMPLE12, DolosConfig::builder().ignore(IGNORE).build().unwrap(), 0.43548387096774194)]
-#[case::inert_ignore(SAMPLE12, DolosConfig::builder().ignore(IGNORE_INERT).build().unwrap(), 0.4803921568627451)]
+#[case::template(SAMPLE12, DolosConfig::builder().template([TEMPLATE]).build().unwrap(), 0.43548387096774194)]
+#[case::inert_template(SAMPLE12, DolosConfig::builder().template([TEMPLATE_INERT]).build().unwrap(), 0.4803921568627451)]
+#[case::template_several_files(SAMPLE12, DolosConfig::builder().template([TEMPLATE, TEMPLATE_INERT, "fixtures/sample1.py"]).build().unwrap(), 0.43548387096774194)]
+#[case::template_directory(SAMPLE12, DolosConfig::builder().template(["fixtures/reader"]).build().unwrap(), 0.0)]
+#[case::template_archive(SAMPLE12, DolosConfig::builder().template(["fixtures/reader.zip"]).build().unwrap(), 0.0)]
 #[case::cap_below_one_file(SAMPLE123, DolosConfig::builder().max_fingerprint_percentage(0.1).build().unwrap(), 0.0)]
 #[case::cap_at_file_count(SAMPLE123, DolosConfig::builder().max_fingerprint_count(3).build().unwrap(), 0.4803921568627451)]
 fn config_gives_the_expected_similarity(
@@ -220,6 +223,17 @@ fn too_few_files_after_filtering_are_rejected() {
 }
 
 #[test]
+fn template_without_files_of_the_language_is_rejected() {
+    let config = DolosConfig::builder()
+        .template(["fixtures/sample1.py"])
+        .build()
+        .unwrap();
+    let err = Dolos::new(to_path_buf(SAMPLE12), config).unwrap_err();
+
+    assert_eq!(err.kind(), std::io::ErrorKind::InvalidInput);
+}
+
+#[test]
 fn analysis_data_is_absent_by_default() {
     let report = report(SAMPLE12, DolosConfig::default());
 
@@ -262,7 +276,7 @@ fn analysis_data_ignores_nothing_without_a_template_or_cap() {
 fn template_shows_up_as_ignored_intervals() {
     let config = DolosConfig::builder()
         .include_analysis_data(true)
-        .ignore(IGNORE)
+        .template([TEMPLATE])
         .build()
         .unwrap();
     let report = report(SAMPLE12, config);
@@ -288,7 +302,7 @@ fn template_shows_up_as_ignored_intervals() {
 fn ignored_intervals_never_touch() {
     let config = DolosConfig::builder()
         .include_analysis_data(true)
-        .ignore(IGNORE)
+        .template([TEMPLATE])
         .build()
         .unwrap();
     let report = report(SAMPLE12, config);
@@ -308,7 +322,7 @@ fn ignored_intervals_never_touch() {
 fn ignored_intervals_stay_inside_the_file() {
     let config = DolosConfig::builder()
         .include_analysis_data(true)
-        .ignore(IGNORE)
+        .template([TEMPLATE])
         .build()
         .unwrap();
     let report = report(SAMPLE12, config);
@@ -330,7 +344,7 @@ fn ignored_intervals_stay_inside_the_file() {
 fn inert_template_ignores_nothing() {
     let config = DolosConfig::builder()
         .include_analysis_data(true)
-        .ignore(IGNORE_INERT)
+        .template([TEMPLATE_INERT])
         .build()
         .unwrap();
     let report = report(SAMPLE12, config);

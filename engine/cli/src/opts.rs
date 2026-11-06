@@ -98,11 +98,12 @@ pub struct DolosArgs {
     pub max_fingerprint_percentage: Option<f64>,
 
     #[arg(
-        short = 'i',
+        short = 't',
         long,
-        long_help = "Path of a file with template/boilerplate code. Fragments matching this file are ignored."
+        long_help = "Template/boilerplate code. Fragments matching the template are ignored. \
+                     Takes a file, a directory, a CSV file or an archive. Repeat the option to give several files."
     )]
-    pub ignore: Option<PathBuf>,
+    pub template: Vec<PathBuf>,
 
     #[arg(
         short = 'C',
@@ -163,7 +164,8 @@ impl TryFrom<DolosArgs> for DolosConfig {
             .include_comments(a.include_comments)
             .compare(a.compare)
             .include_analysis_data(a.include_analysis_data)
-            .min_length_match(a.min_length_match);
+            .min_length_match(a.min_length_match)
+            .template(a.template);
 
         if let Some(v) = a.name {
             b = b.name(v);
@@ -176,9 +178,6 @@ impl TryFrom<DolosArgs> for DolosConfig {
         }
         if let Some(v) = a.max_fingerprint_percentage {
             b = b.max_fingerprint_percentage(v);
-        }
-        if let Some(v) = a.ignore {
-            b = b.ignore(v);
         }
         if let Some(v) = a.sort_by {
             b = b.sort_by(v.into());

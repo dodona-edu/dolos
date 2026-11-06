@@ -75,6 +75,7 @@ lang-verilog = ["tree-sitter-grammars/lang-verilog"]
 chrono = { version = "0.4.44", features = ["clock", "std"] }
 bzip2 = "0.6.1"
 csv = "1.4.0"
+serde_json = "1.0.150"
 dolos-core = { path = "../dolos-core" }
 flate2 = "1.1.9"
 tar = "0.4.46"
@@ -85,6 +86,5 @@ tree-sitter-grammars = { path = "../tree-sitter-grammars" }
 
 [dev-dependencies]
 serde = "1.0.228"
-serde_json = "1.0.150"
 rstest = "0.28.0"
 tempfile = "3.27.0"

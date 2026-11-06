@@ -3,7 +3,7 @@ use crate::file::{AnalysisData, File, FileSet};
 use crate::fragment::resolve_fragments;
 use crate::ignore;
 use crate::metadata::Metadata;
-use crate::reader::Dataset;
+use crate::reader::{Dataset, Template};
 use crate::report::Report;
 use crate::winnowing::fingerprints::{Fingerprint, Winnow};
 use crate::winnowing::region::Region;
@@ -49,10 +49,9 @@ impl Dolos {
     /// Reading the input:
     ///
     /// - `files` is empty: [`InvalidInput`].
-    /// - Several paths: [`NotFound`] when one of them is not a regular file.
-    /// - One path that is not a directory, has no `csv` extension and has no
-    ///   archive extension: [`InvalidInput`]. This includes a path that does
-    ///   not exist.
+    /// - Several paths, or one path that is not a directory, has no `csv`
+    ///   extension and has no archive extension: [`NotFound`] when one of them
+    ///   is not a regular file.
     /// - One CSV file, or one directory with an `info.csv`: [`InvalidData`]
     ///   when the CSV file cannot be opened or parsed, or has no `filename`
     ///   column. A CSV path that does not exist also gives [`InvalidData`].
@@ -68,16 +67,20 @@ impl Dolos {
     /// - [`InvalidInput`] when no language is configured and none can be
     ///   detected: no file has a known extension, or several languages share
     ///   the highest file count.
-    /// - [`InvalidInput`] when fewer than 2 files of the language remain.
+    /// - [`InvalidInput`] when fewer than 2 files of the language remain. This
+    ///   includes one regular file as input.
+    ///
+    /// Reading the [`template`](crate::DolosConfigBuilder::template):
+    ///
+    /// - The errors of reading the input. An empty list gives no error: the
+    ///   analysis then has no template.
+    /// - [`InvalidInput`] when no template file of the language remains.
     ///
     /// Reading the files:
     ///
-    /// - The I/O error of a failed input file read, for example [`NotFound`]
-    ///   for a file in the `filename` column of a CSV file that does not
-    ///   exist. A file that is not valid UTF-8 gives [`InvalidData`].
-    /// - The I/O error of a failed read of the
-    ///   [`ignore`](crate::DolosConfigBuilder::ignore) file, for example
-    ///   [`NotFound`].
+    /// - The error of the read when an input or template file cannot be read,
+    ///   for example [`NotFound`] for a file in the `filename` column of a CSV
+    ///   file that does not exist.
     ///
     /// [`InvalidData`]: std::io::ErrorKind::InvalidData
     /// [`InvalidInput`]: std::io::ErrorKind::InvalidInput
@@ -105,6 +108,7 @@ impl Dolos {
     pub fn new(files: Vec<PathBuf>, config: DolosConfig) -> Result<Self> {
         let dataset = Dataset::create(files, config.language)?;
         let metadata = Metadata::from_config(&config, &dataset);
+        let template = Template::create(config.template, metadata.language)?;
 
         let tokenizer = Tokenizer::new(metadata.language);
 
@@ -123,11 +127,9 @@ impl Dolos {
             tokenizer,
         };
 
-        dolos.add_files(dataset.file_set)?;
+        dolos.add_files(&dataset.file_set)?;
 
-        if let Some(ignore_path) = dolos.metadata.ignore.clone() {
-            dolos.add_ignore_file(ignore_path)?;
-        }
+        dolos.add_template(&template.file_set)?;
 
         Ok(dolos)
     }
@@ -149,47 +151,39 @@ impl Dolos {
             )
     }
 
-    /// Tokenize a source file and register it as a regular file in the analysis.
+    /// Tokenize the files of `file_set` and register them as the files of the analysis.
     ///
-    /// The path and content are added to `self.files`, the fingerprints to
+    /// The paths and contents are added to `self.files`, the fingerprints to
     /// `self.fingerprints`, and the locations to `self.locations` when they are kept.
-    fn add_file(&mut self, base_dir: &Path, relative: &Path) -> Result<()> {
-        let content = std::fs::read_to_string(base_dir.join(relative))?;
-        let (fingerprints, locations) = self.fingerprint(&content, self.locations.is_some());
-
-        self.fingerprints.push(fingerprints);
-        if let Some(locs) = self.locations.as_mut() {
-            locs.push(locations.expect("locations should be present when they are kept"));
-        }
-        self.files.push(File {
-            id: self.files.len(),
-            relative_path: relative.to_path_buf(),
-            content,
-            analysis_data: None,
-        });
-        Ok(())
-    }
-
-    /// Tokenize a template/ignore file and append its fingerprints to
-    /// `self.template_fingerprints` so that the suffix tree can suppress common matches.
-    ///
-    /// Ignore files are never added to `self.files` or `self.locations`: they
-    /// do not appear in the report, and no fragment resolution is needed for them.
-    fn add_ignore_file(&mut self, path: PathBuf) -> Result<()> {
-        let content = std::fs::read_to_string(&path).map_err(|e| {
-            Error::new(
-                e.kind(),
-                format!("Could not read ignore file '{}': {}", path.display(), e),
-            )
-        })?;
-        let (fingerprints, _) = self.fingerprint(&content, false);
-        self.template_fingerprints.push(fingerprints);
-        Ok(())
-    }
-
-    fn add_files(&mut self, file_set: FileSet) -> Result<()> {
+    fn add_files(&mut self, file_set: &FileSet) -> Result<()> {
         for relative in &file_set.relative_paths {
-            self.add_file(&file_set.base_dir, relative)?;
+            let content = read_file(&file_set.base_dir, relative)?;
+            let (fingerprints, locations) = self.fingerprint(&content, self.locations.is_some());
+
+            self.fingerprints.push(fingerprints);
+            if let Some(locs) = self.locations.as_mut() {
+                locs.push(locations.expect("locations should be present when they are kept"));
+            }
+            self.files.push(File {
+                id: self.files.len(),
+                relative_path: relative.clone(),
+                content,
+                analysis_data: None,
+            });
+        }
+        Ok(())
+    }
+
+    /// Tokenize the template files and append their fingerprints to
+    /// `self.template_fingerprints`.
+    ///
+    /// Template files are never added to `self.files` or `self.locations`: they
+    /// do not appear in the report, and no fragment resolution is needed for them.
+    fn add_template(&mut self, file_set: &FileSet) -> Result<()> {
+        for relative in &file_set.relative_paths {
+            let content = read_file(&file_set.base_dir, relative)?;
+            let (fingerprints, _) = self.fingerprint(&content, false);
+            self.template_fingerprints.push(fingerprints);
         }
         Ok(())
     }
@@ -272,6 +266,17 @@ impl Dolos {
         let files = self.files.into_iter().map(Rc::new).collect();
         Report::new(result.metrics(), fragments, files, self.metadata)
     }
+}
+
+/// Read the file at `relative` in `base_dir`.
+fn read_file(base_dir: &Path, relative: &Path) -> Result<String> {
+    let path = base_dir.join(relative);
+    std::fs::read_to_string(&path).map_err(|e| {
+        Error::new(
+            e.kind(),
+            format!("Could not read '{}': {e}", path.display()),
+        )
+    })
 }
 
 impl fmt::Debug for Dolos {

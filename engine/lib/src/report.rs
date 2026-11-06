@@ -113,7 +113,7 @@ mod tests {
             include_analysis_data: false,
             min_length_match: 1,
             max_fingerprint_file_count: None,
-            ignore: None,
+            template: Vec::new(),
         }
     }
 
