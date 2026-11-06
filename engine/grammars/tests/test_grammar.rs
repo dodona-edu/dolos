@@ -5,6 +5,8 @@ use tree_sitter_grammars::Language;
 #[rstest]
 #[case::bash("sh", Language::Bash)]
 #[case::c("c", Language::C)]
+#[case::char_txt("txt", Language::Char)]
+#[case::char_md("md", Language::Char)]
 #[case::cpp("cpp", Language::Cpp)]
 #[case::csharp("cs", Language::CSharp)]
 #[case::dart("dart", Language::Dart)]
@@ -41,6 +43,8 @@ fn from_path_resolves_the_extension(#[case] ext: &str, #[case] lang: Language) {
 #[rstest]
 #[case::bash("sh", Language::Bash)]
 #[case::c("c", Language::C)]
+#[case::char_txt("txt", Language::Char)]
+#[case::char_md("md", Language::Char)]
 #[case::cpp("cpp", Language::Cpp)]
 #[case::csharp("cs", Language::CSharp)]
 #[case::dart("dart", Language::Dart)]
@@ -77,6 +81,7 @@ fn matches_accepts_the_extension(#[case] ext: &str, #[case] lang: Language) {
 #[rstest]
 #[case::bash("bash", Language::Bash)]
 #[case::c("c", Language::C)]
+#[case::char("char", Language::Char)]
 #[case::cpp("cpp", Language::Cpp)]
 #[case::csharp("csharp", Language::CSharp)]
 #[case::dart("dart", Language::Dart)]
@@ -144,9 +149,20 @@ fn from_name_accepts_aliases() {
 }
 
 #[test]
-fn every_language_has_a_grammar() {
-    for lang in Language::ALL {
-        lang.tree_sitter_language();
+fn every_language_but_char_has_a_grammar() {
+    for &lang in Language::ALL {
+        assert_eq!(
+            lang.tree_sitter_language().is_some(),
+            lang != Language::Char,
+            "{lang:?}"
+        );
+    }
+}
+
+#[test]
+fn from_name_accepts_the_debug_name() {
+    for &lang in Language::ALL {
+        assert_eq!(Language::from_name(&format!("{lang:?}")), Some(lang));
     }
 }
 

@@ -7,7 +7,7 @@ use crate::reader::{Dataset, Template};
 use crate::report::Report;
 use crate::winnowing::fingerprints::{Fingerprint, Winnow};
 use crate::winnowing::region::Region;
-use crate::winnowing::tokenizer::{Tokenizer, Tokens};
+use crate::winnowing::tokenizer::Tokenizer;
 use std::fmt;
 use std::io::{Error, Result};
 use std::ops::Range;
@@ -29,7 +29,8 @@ impl Dolos {
     ///
     /// Only the files of the configured language are analyzed. Without a
     /// configured language, the language that most file extensions belong to is
-    /// used.
+    /// used. Plain text ([`Language::Char`]) is used only when no file belongs
+    /// to another language.
     ///
     /// # Parameters
     ///
@@ -110,7 +111,7 @@ impl Dolos {
         let metadata = Metadata::from_config(&config, &dataset);
         let template = Template::create(config.template, metadata.language)?;
 
-        let tokenizer = Tokenizer::new(metadata.language);
+        let tokenizer = Tokenizer::new(metadata.language, metadata.include_comments);
 
         let locations = if metadata.include_fragments || metadata.include_analysis_data {
             Some(Vec::new())
@@ -141,14 +142,11 @@ impl Dolos {
         content: &str,
         keep_locations: bool,
     ) -> (Vec<Fingerprint>, Option<Vec<Region>>) {
-        self.tokenizer
-            .parse(content)
-            .tokens(self.metadata.include_comments)
-            .winnow(
-                self.metadata.kgram_length,
-                self.metadata.kgrams_in_window,
-                keep_locations,
-            )
+        self.tokenizer.tokenize(content).winnow(
+            self.metadata.kgram_length,
+            self.metadata.kgrams_in_window,
+            keep_locations,
+        )
     }
 
     /// Tokenize the files of `file_set` and register them as the files of the analysis.

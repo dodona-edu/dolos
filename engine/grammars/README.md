@@ -8,12 +8,16 @@ a file path or a language name string, and to get its
 `tree_sitter_language::LanguageFn` — acting as a thin, convenient wrapper
 around the individual `tree-sitter-*` crates.
 
+The enum also has a `Char` variant for plain text. `Char` has no grammar and no
+feature flag, so it is always available.
+
 ## Supported languages
 
 | Language   | Feature flag       | Extensions                                      | Name aliases              |
 |------------|--------------------|-------------------------------------------------|---------------------------|
 | Bash       | `lang-bash`        | `.sh`, `.bash`                                  | `bash`, `shell`, `sh`     |
 | C          | `lang-c`           | `.c`, `.h`                                      | `c`                       |
+| Char       | none               | `.txt`, `.md`                                   | `char`                    |
 | C++        | `lang-cpp`         | `.cpp`, `.hpp`, `.cc`, `.cp`, `.cxx`, `.c++`, `.h`, `.hh`, `.hxx`, `.h++` | `c++`, `cpp`              |
 | C#         | `lang-csharp`      | `.cs`, `.csx`                                   | `c#`, `csharp`            |
 | Dart       | `lang-dart`        | `.dart`                                         | `dart`                    |
@@ -45,7 +49,7 @@ around the individual `tree-sitter-*` crates.
 ## Installation
 
 Add the crate to your `Cargo.toml` and enable the languages you need via `lang-*` feature flags.
-**No languages are included by default.**
+**No grammars are included by default.** Only `Char` is always available.
 
 ### Select specific languages
 
@@ -71,6 +75,7 @@ use tree_sitter_grammars::Language;
 
 // `.h` returns both C and C++; most extensions return one language.
 let langs = Language::from_path(Path::new("main.py"));
+// `tree_sitter_language` returns `None` for `Char`.
 let ts_lang = langs.first().expect("unsupported file extension").tree_sitter_language();
 ```
 
@@ -91,8 +96,9 @@ use tree_sitter::Parser;
 use tree_sitter_grammars::Language;
 
 let mut parser = Parser::new();
+let grammar = Language::Python.tree_sitter_language().expect("Python has a grammar");
 parser
-    .set_language(&Language::Python.tree_sitter_language().into())
+    .set_language(&grammar.into())
     .expect("failed to load grammar");
 ```
 

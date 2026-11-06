@@ -1,0 +1,5 @@
+The winnowing algorithm selects a subset of the hashes of all k-grams.
+In every window of consecutive hashes, it keeps the smallest one.
+
+Two documents that share a long passage also share fingerprints.
+The cafe on the corner serves the best coffee in town.

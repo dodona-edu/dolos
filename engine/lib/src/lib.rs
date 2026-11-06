@@ -1,11 +1,13 @@
 //! Dolos detects plagiarism in source code.
 //!
 //! It compares every pair of files in a set and reports how similar they are.
-//! It tokenizes each file with tree-sitter and reduces it to a sequence of
-//! [`Fingerprint`]s. All metrics count fingerprints.
+//! It tokenizes each file with tree-sitter, or one token per character for
+//! [`Language::Char`], and reduces it to a sequence of [`Fingerprint`]s. All
+//! metrics count fingerprints.
 //!
-//! Each supported [`Language`] is behind a `lang-*` feature. The
-//! `all-languages` feature enables all of them.
+//! Each supported [`Language`] with a tree-sitter grammar is behind a `lang-*`
+//! feature. The `all-languages` feature enables all of them.
+//! [`Language::Char`] is always available.
 //!
 //! # Examples
 //!

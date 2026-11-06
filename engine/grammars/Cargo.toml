@@ -2,7 +2,7 @@
 name = "tree-sitter-grammars"
 version = "0.1.0"
 edition = "2024"
-description = "Tree-sitter grammars for the programming languages that Dolos supports, one `lang-*` feature per language."
+description = "Tree-sitter grammars for the programming languages that Dolos supports, one `lang-*` feature per language, and the `char` language for plain text."
 repository = "https://github.com/dodona-edu/dolos-rs"
 license = "MIT"
 

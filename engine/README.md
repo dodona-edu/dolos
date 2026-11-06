@@ -9,7 +9,7 @@ A Rust implementation of the [Dolos](https://github.com/dodona-edu/dolos) source
 - **[`dolos-cli`](./dolos-cli/)** — the Rust CLI (the `dolos` binary) for running similarity analyses on source code files.
 - **[`dolos-lib`](./dolos-lib/)** — the library (`dolos`) implementing tokenization, winnowing, the reader and the report. The per-language feature flags live here.
 - **[`dolos-core`](./dolos-core/)** — the pure computational core: the generalized suffix tree, the maximal-exact-match analysis and the pairwise similarity metrics. It has no dependencies, and it also builds for WebAssembly.
-- **[`tree-sitter-grammars`](./tree-sitter-grammars/)** — a unified crate that bundles tree-sitter grammar bindings for 29 programming languages behind a single ergonomic API. See its [README](./tree-sitter-grammars/README.md) for details.
+- **[`tree-sitter-grammars`](./tree-sitter-grammars/)** — a unified crate that bundles tree-sitter grammar bindings for 29 programming languages behind a single ergonomic API. It also defines the `char` language for plain text, which has no grammar. See its [README](./tree-sitter-grammars/README.md) for details.
 
 ## Building
 
@@ -35,6 +35,9 @@ dolos run path/to/files/
 
 # Analyze specific files
 dolos run file1.py file2.py file3.py
+
+# Analyze plain text (.txt, .md) with one token per character
+dolos run -l char essay1.txt essay2.txt
 
 # Output results as CSV
 dolos run --output-format csv --output-destination ./results/ path/to/files/

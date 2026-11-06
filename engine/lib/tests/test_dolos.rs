@@ -14,13 +14,15 @@ const TEMPLATE: &str = "fixtures/sample_ignore.js";
 /// A template that shares no fingerprint with any sample, so ignoring it is a
 /// no-op.
 const TEMPLATE_INERT: &str = "fixtures/sample_ignore_inert.js";
-/// Two JavaScript files, one Python file and one file without a language.
+/// Two JavaScript files, one Python file and one Markdown file.
 const MIXED: &[&str] = &[
     "fixtures/sample1.js",
     "fixtures/sample2.js",
     "fixtures/sample1.py",
     "fixtures/README.md",
 ];
+/// Two plain text files that share some sentences.
+const TEXT12: &[&str] = &["fixtures/sample1.txt", "fixtures/sample2.txt"];
 /// As many JavaScript as Python files, so the language cannot be detected.
 const JS_AND_PY: &[&str] = &[
     "fixtures/sample1.js",
@@ -187,6 +189,14 @@ fn detected_language_skips_other_files() {
         kept_paths(&report),
         to_path_buf(&["fixtures/sample1.js", "fixtures/sample2.js"])
     );
+}
+
+#[test]
+fn text_files_are_compared_per_character() {
+    let report = report(TEXT12, DolosConfig::default());
+
+    assert_eq!(report.metadata.language, Language::Char);
+    assert_eq!(report.pairs[0].metrics.similarity, 0.35555555555555557);
 }
 
 #[test]

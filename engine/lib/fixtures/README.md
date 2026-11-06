@@ -8,6 +8,7 @@
 | `sample_ignore.js`                          | Shared boilerplate code that appears in the sample implementations. Used to verify that the `--template` option correctly excludes specified code from analysis. |
 | `sample_ignore_inert.js`                    | A template that shares no fingerprints with the samples. Used to verify that ignoring it leaves the similarity unchanged.                                       |
 | `sample1.py` and `sample2.py`               | Two Python implementations of the same problem. Used to test language detection and the filtering of input files by language.                                 |
+| `sample1.txt` and `sample2.txt`             | Two plain text files that share some sentences. Used to test the `char` language.                                                                              |
 
 
 ## Reader directory and archives

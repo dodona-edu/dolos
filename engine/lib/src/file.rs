@@ -100,6 +100,7 @@ impl FileSet {
     }
 
     /// Detect the language that the most file extensions belong to.
+    /// [`Language::Char`] counts only when no file belongs to another language.
     ///
     /// # Errors
     /// Fails when no file has a known extension, or when several languages share the highest count.
@@ -109,6 +110,9 @@ impl FileSet {
             for language in Language::from_path(path) {
                 *counts.entry(language).or_default() += 1;
             }
+        }
+        if counts.len() > 1 {
+            counts.remove(&Language::Char);
         }
 
         let Some(&max) = counts.values().max() else {
@@ -155,7 +159,9 @@ mod tests {
     #[rstest]
     #[case::cpp_with_headers(&["a.cpp", "b.cpp", "c.cpp", "d.cpp", "a.h", "b.h", "c.h"], Language::Cpp)]
     #[case::c_with_headers(&["a.c", "b.c", "a.h", "b.h", "c.h"], Language::C)]
-    #[case::unknown_majority(&["a.py", "b.py", "x.md", "y.md", "z.md"], Language::Python)]
+    #[case::unknown_majority(&["a.py", "b.py", "x.csv", "y.csv", "z.csv"], Language::Python)]
+    #[case::text_only(&["a.txt", "b.md"], Language::Char)]
+    #[case::code_before_text(&["a.py", "README.md", "notes.txt", "b.md"], Language::Python)]
     #[case::no_extension(&["Makefile", "a.py"], Language::Python)]
     fn detect_language_picks_majority(#[case] paths: &[&str], #[case] expected: Language) {
         assert_eq!(file_set(paths).detect_language().unwrap(), expected);
@@ -163,7 +169,7 @@ mod tests {
 
     #[test]
     fn detect_language_rejects_a_tie() {
-        let err = file_set(&["a.h", "b.h", "c.h"])
+        let err = file_set(&["a.h", "b.h", "c.h", "README.md"])
             .detect_language()
             .unwrap_err();
         assert!(err.to_string().contains("[C, Cpp]"), "{err}");
@@ -171,7 +177,7 @@ mod tests {
 
     #[test]
     fn detect_language_rejects_unknown_extensions() {
-        let err = file_set(&["README.md", "Makefile"])
+        let err = file_set(&["data.csv", "Makefile"])
             .detect_language()
             .unwrap_err();
         assert!(

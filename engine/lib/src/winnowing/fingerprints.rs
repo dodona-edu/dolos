@@ -88,7 +88,7 @@ impl Winnow for Vec<Token> {
 mod tests {
     use super::*;
     use crate::winnowing::region::Region;
-    use crate::winnowing::tokenizer::{Tokenizer, Tokens};
+    use crate::winnowing::tokenizer::Tokenizer;
     use rstest::rstest;
     use std::path::Path;
     use tree_sitter_grammars::Language;
@@ -98,7 +98,7 @@ mod tests {
     #[case::k_16_w_8(16, 8)]
     #[case::k_17_w_23(17, 23)]
     fn winnow_matches_the_fixture(#[case] k: usize, #[case] w: usize) {
-        let mut tokenizer = Tokenizer::new(Language::Javascript);
+        let mut tokenizer = Tokenizer::new(Language::Javascript, false);
 
         let expected_hashes: Vec<usize> = serde_json::from_str(
             &std::fs::read_to_string(format!("fixtures/sample.winnowk{k}w{w}.hashes.json"))
@@ -112,7 +112,7 @@ mod tests {
         .unwrap();
 
         let content = std::fs::read_to_string(Path::new("fixtures/sample1.js")).unwrap();
-        let (hashes, locations) = tokenizer.parse(&content).tokens(false).winnow(k, w, true);
+        let (hashes, locations) = tokenizer.tokenize(&content).winnow(k, w, true);
 
         let locations = locations.unwrap();
 
@@ -132,9 +132,9 @@ mod tests {
     #[case::k_17_w_23(17, 23)]
     fn winnow_locations_advance_through_the_file(#[case] k: usize, #[case] w: usize) {
         // Fragment::resolve needs every location well formed (start <= end) and in order.
-        let mut tokenizer = Tokenizer::new(Language::Javascript);
+        let mut tokenizer = Tokenizer::new(Language::Javascript, false);
         let content = std::fs::read_to_string(Path::new("fixtures/sample1.js")).unwrap();
-        let (_, locations) = tokenizer.parse(&content).tokens(false).winnow(k, w, true);
+        let (_, locations) = tokenizer.tokenize(&content).winnow(k, w, true);
         let locations = locations.unwrap();
 
         for location in &locations {

@@ -254,3 +254,27 @@ fn invalid_options_fail_the_process() {
         .failure()
         .stderr(predicate::str::contains("unknown language"));
 }
+
+#[test]
+fn language_char_is_written_to_the_metadata() {
+    let tmp = TempDir::new().unwrap();
+    let text = "Each character of this line is one token.\n";
+    let files = ["a.txt", "b.md"].map(|name| {
+        let path = tmp.path().join(name);
+        std::fs::write(&path, text).unwrap();
+        path.to_str().unwrap().to_owned()
+    });
+    let report_dir = tmp.path().join("report");
+
+    #[rustfmt::skip]
+    let args = [
+        "-l", "char",
+        "-f", "csv",
+        "-o", report_dir.to_str().unwrap(),
+    ];
+    dolos_run(&[&files[0], &files[1]], &args).assert().success();
+
+    let rows = read_rows(&report_dir.join("metadata.csv"));
+    let language = rows.iter().find(|row| &row[0] == "language").unwrap();
+    assert_eq!(&language[1], "Char");
+}
