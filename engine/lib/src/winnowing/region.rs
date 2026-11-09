@@ -1,6 +1,5 @@
 #[cfg(test)]
 use serde::{Deserialize, Serialize};
-use tree_sitter;
 
 /// A position in a text document.
 #[cfg_attr(test, derive(Serialize, Deserialize))]

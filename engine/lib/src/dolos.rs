@@ -5,7 +5,7 @@ use crate::ignore;
 use crate::metadata::Metadata;
 use crate::reader::{Dataset, Template};
 use crate::report::Report;
-use crate::winnowing::fingerprints::{Fingerprint, Winnow};
+use crate::winnowing::fingerprints::{Fingerprint, winnow};
 use crate::winnowing::region::Region;
 use crate::winnowing::tokenizer::Tokenizer;
 use std::fmt;
@@ -113,11 +113,8 @@ impl Dolos {
 
         let tokenizer = Tokenizer::new(metadata.language, metadata.include_comments);
 
-        let locations = if metadata.include_fragments || metadata.include_analysis_data {
-            Some(Vec::new())
-        } else {
-            None
-        };
+        let locations =
+            (metadata.include_fragments || metadata.include_analysis_data).then(Vec::new);
 
         let mut dolos = Dolos {
             metadata,
@@ -142,7 +139,8 @@ impl Dolos {
         content: &str,
         keep_locations: bool,
     ) -> (Vec<Fingerprint>, Option<Vec<Region>>) {
-        self.tokenizer.tokenize(content).winnow(
+        winnow(
+            &self.tokenizer.tokenize(content),
             self.metadata.kgram_length,
             self.metadata.kgrams_in_window,
             keep_locations,

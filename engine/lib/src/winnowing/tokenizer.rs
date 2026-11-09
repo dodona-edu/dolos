@@ -34,10 +34,10 @@ impl Tokenizer {
 
     pub fn tokenize(&mut self, content: &str) -> Vec<Token> {
         match self {
-            Tokenizer::Code { parser, include_comments } => parser
-                .parse(content, None)
-                .expect("tree")
-                .tokens(*include_comments),
+            Tokenizer::Code { parser, include_comments } => tree_tokens(
+                &parser.parse(content, None).expect("tree"),
+                *include_comments,
+            ),
             Tokenizer::Char => char_tokens(content),
         }
     }
@@ -92,31 +92,24 @@ fn recursive_add<'a: 'b, 'b>(
     tokens.push(Token { name: ")".to_string(), location: close });
 }
 
-pub trait Tokens {
-    fn tokens(&self, include_comments: bool) -> Vec<Token>;
-}
-
-impl Tokens for Tree {
-    /// Serializes all named nodes in Tree-sitter's Concrete Syntax Tree (CST)
-    /// into a sequence of tokens. Special tokens '(' and ')' are inserted to
-    /// represent descending into and ascending from the tree, respectively.
-    /// A '(' token covers the node up to its first named child, a ')' token is
-    /// an empty region at the node end.
-    /// When `include_comments` is false, comment nodes are filtered out.
-    fn tokens(&self, include_comments: bool) -> Vec<Token> {
-        let mut cursor = self.walk();
-        let mut tokens = Vec::new();
-        recursive_add(cursor.node(), &mut tokens, &mut cursor, include_comments);
-        tokens
-    }
+/// Serializes all named nodes in Tree-sitter's Concrete Syntax Tree (CST)
+/// into a sequence of tokens. Special tokens '(' and ')' are inserted to
+/// represent descending into and ascending from the tree, respectively.
+/// A '(' token covers the node up to its first named child, a ')' token is
+/// an empty region at the node end.
+/// When `include_comments` is false, comment nodes are filtered out.
+fn tree_tokens(tree: &Tree, include_comments: bool) -> Vec<Token> {
+    let mut cursor = tree.walk();
+    let mut tokens = Vec::new();
+    recursive_add(cursor.node(), &mut tokens, &mut cursor, include_comments);
+    tokens
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::winnowing::fingerprints::Winnow;
+    use crate::winnowing::fingerprints::winnow;
     use crate::winnowing::hashes::{RollingHash, hash_token};
-    use crate::winnowing::region::Point;
     use std::path::Path;
 
     #[test]
@@ -219,7 +212,7 @@ mod tests {
         }
 
         for (k, w) in [(3, 5), (16, 8), (17, 23)] {
-            let (hashes, locations) = tokens.clone().winnow(k, w, true);
+            let (hashes, locations) = winnow(&tokens, k, w, true);
 
             write(
                 format!("fixtures/sample.winnowk{k}w{w}.hashes.json"),
