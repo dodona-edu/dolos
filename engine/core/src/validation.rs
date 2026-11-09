@@ -1,8 +1,4 @@
-//! What makes the input of an analysis valid.
-//!
-//! [`validate_input`] is the single statement of
-//! [`analyze`](crate::analyze)'s contract. `analyze` runs it before it builds
-//! anything, so the algorithm never sees an input it cannot handle.
+//! The input checks of [`analyze`](crate::analyze).
 
 use crate::Symbol;
 use crate::analysis::AnalysisOptions;
@@ -28,7 +24,7 @@ pub fn validate_input(
     ignored_ranges_fit_their_sequence(sequences, ignored)
 }
 
-/// The analysis reports one result per pair, and a pair needs two sequences.
+/// Reject fewer than two sequences.
 fn sequences_form_at_least_one_pair(sequences: &[Vec<Symbol>]) -> Result<()> {
     if sequences.len() < 2 {
         let message = format!(
@@ -41,7 +37,7 @@ fn sequences_form_at_least_one_pair(sequences: &[Vec<Symbol>]) -> Result<()> {
     Ok(())
 }
 
-/// A match of no symbols is not a match.
+/// Reject a minimum match length of 0.
 fn match_length_is_positive(options: &AnalysisOptions) -> Result<()> {
     if options.min_match_length == 0 {
         let message = "the minimum match length must be at least 1".to_string();
@@ -51,8 +47,7 @@ fn match_length_is_positive(options: &AnalysisOptions) -> Result<()> {
     Ok(())
 }
 
-/// The tree appends [`SENTINEL_SYMBOL`] to every sequence, so no input may hold
-/// it: two sequences would compare equal where they do not match.
+/// Reject a sequence that holds [`SENTINEL_SYMBOL`].
 fn sequences_leave_the_sentinel_free(sequences: &[Vec<Symbol>]) -> Result<()> {
     for (sequence, symbols) in sequences.iter().enumerate() {
         if let Some(position) = symbols.iter().position(|&symbol| symbol == SENTINEL_SYMBOL) {
@@ -66,9 +61,8 @@ fn sequences_leave_the_sentinel_free(sequences: &[Vec<Symbol>]) -> Result<()> {
     Ok(())
 }
 
-/// An ignore list indexes the sequences by position, so a partial list would
-/// silently ignore the wrong ones. A range that reaches past its sequence marks
-/// bits of the next one and underflows the totals that subtract it.
+/// Reject an ignore list without one entry per sequence, and a range that is
+/// reversed or reaches past its sequence.
 fn ignored_ranges_fit_their_sequence(
     sequences: &[Vec<Symbol>],
     ignored: Option<&[Vec<Range<usize>>]>,

@@ -2,9 +2,6 @@ use std::ops::Range;
 
 /// A borrowed view over one bit-vector: the packed `u64` words plus the number
 /// of bits they hold.
-///
-/// Every read operation on a bit-vector lives here; the containers in this
-/// module only resolve an address to a region.
 #[derive(Copy, Clone)]
 pub struct BitRegion<'a> {
     words: &'a [u64],

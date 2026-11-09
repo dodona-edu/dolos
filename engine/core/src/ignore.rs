@@ -1,9 +1,4 @@
-//! Which positions to leave out of an analysis.
-//!
-//! The caller passes a list of ranges per sequence. Deciding *which* positions
-//! to ignore is the caller's business because it depends on what the symbols
-//! mean. [`analyze`](crate::analyze) packs that list into the bit-vectors the
-//! analysis reads while it collects matches.
+//! The positions to leave out of an analysis, as one bit-vector per sequence.
 
 use crate::collections::vec_bitmap::VecBitmap;
 use std::ops::Range;

@@ -20,15 +20,12 @@ impl SuffixTree {
         tree
     }
 
-    /// Run maximal-match analysis on this suffix tree, returning pairwise
-    /// similarity and longest-match results.
+    /// Find the maximal matches between every pair of `sequences`.
     ///
-    /// * `sequences` — the sequences being analyzed.
-    /// * `ignored` — the set bits mark the ignored positions of each sequence;
-    ///   matches are split at those positions before being recorded. `None`
-    ///   ignores nothing.
-    /// * `min_match_length` — minimum shared substring length to record as a match.
-    /// * `keep_matches` — when `true`, the raw matches are kept in the result.
+    /// * `ignored_mask` — the set bits mark the ignored positions of each
+    ///   sequence. Matches are split at those positions. `None` ignores nothing.
+    /// * `min_match_length` — the minimum length of a recorded match.
+    /// * `keep_matches` — keep the matches in the result.
     pub fn analyze(
         &self,
         sequences: &[Vec<Symbol>],

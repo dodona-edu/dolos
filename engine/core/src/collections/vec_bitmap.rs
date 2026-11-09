@@ -4,10 +4,8 @@ use std::ops::Range;
 
 /// A flat bitmap storing one independent bit-vector per indexed item.
 ///
-/// Internally, a single contiguous [`BitVec`] is used; each item's bit-vector
-/// starts at a precomputed offset so that no individual heap allocations are
-/// needed. Reading and writing bits happens through the [`BitRegion`] an item
-/// resolves to.
+/// The bit-vectors are packed into a single contiguous [`BitVec`]. An item
+/// resolves to a [`BitRegion`].
 pub struct VecBitmap {
     /// Underlying packed bit storage.
     buf: BitVec,

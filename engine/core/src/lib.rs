@@ -1,9 +1,7 @@
 //! The computational core of Dolos. It compares sequences of symbols pairwise.
 //!
-//! [`analyze`] finds the exact matches between every pair of sequences: the
-//! maximal matches, cut at ignored positions. It derives the [`PairMetrics`] of
-//! each pair from them. A symbol is a [`Symbol`] (`usize`) value. What it
-//! encodes is up to the caller.
+//! A symbol is a [`Symbol`] (`usize`) value. What it encodes is up to the
+//! caller.
 //!
 //! With the `wasm` feature, the crate also exports `analyze` and `analyzePair`
 //! to JavaScript.

@@ -5,10 +5,7 @@ use crate::collections::utils::{ordered_pair, ordered_pair_with};
 /// A flat bitmap for tracking per-pair bit coverage across N items.
 ///
 /// Stores two bit-vectors per unordered pair (i, j), packed into a single
-/// contiguous [`BitVec`]. This avoids the overhead of individual heap
-/// allocations per pair. Pair offsets are computed in O(1) from O(N)
-/// precomputed metadata rather than storing O(N²) offsets. Reading and writing
-/// bits happens through the [`BitRegion`] an item of a pair resolves to.
+/// contiguous [`BitVec`]. An item of a pair resolves to a [`BitRegion`].
 ///
 /// # Layout
 ///
@@ -94,8 +91,6 @@ impl PairBitmap {
             .region_mut(word_base + self.word_counts[min], self.lengths[max])
             .mark(start_max, length);
     }
-
-    // ── private helpers ──────────────────────────────────────────────
 
     /// The word at which `item`'s bit-vector within the pair `(i, j)` begins.
     #[inline]

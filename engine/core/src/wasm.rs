@@ -1,8 +1,5 @@
 //! The JavaScript binding for [`crate::analyze`]: `analyze` for many
 //! sequences, `analyzePair` for exactly two.
-//!
-//! `#[wasm_bindgen]` exports only the `pub` methods of [`Analysis`], so the
-//! private ones stay callable from the native tests.
 
 use crate::{AnalysisOptions, AnalysisResult, Match, PairMetrics, Symbol};
 use serde::{Deserialize, Serialize};

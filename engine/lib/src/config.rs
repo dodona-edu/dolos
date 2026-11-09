@@ -1,6 +1,5 @@
 use std::path::PathBuf;
 use tree_sitter_grammars::Language;
-// ── Sort enums ───────────────────────────────────────────────────────────────
 
 /// The order of the pairs in a [`Report`](crate::Report), from the highest to
 /// the lowest value of a metric.
@@ -24,8 +23,6 @@ pub enum FragmentSortBy {
     /// By the start of the fragment in the left file, then in the right file.
     FileOrder,
 }
-
-// ── DolosConfig ──────────────────────────────────────────────────────────────
 
 /// Validated configuration for a Dolos analysis run.
 ///
@@ -114,8 +111,6 @@ impl Default for DolosConfig {
         }
     }
 }
-
-// ── DolosConfigBuilder ───────────────────────────────────────────────────────
 
 /// Builder for [`DolosConfig`]. Get one with [`DolosConfig::builder()`].
 ///

@@ -7,10 +7,7 @@ pub const SENTINEL_SYMBOL: Symbol = usize::MAX;
 /// Type that represents the index of a node in the arena part of the tree.
 pub type NodeIndex = usize;
 
-/// Represents a starting position of a match in a sequence.
-///
-/// Internal to the suffix-tree module; public consumers use [`Match`] which
-/// stores only the normalized start offsets.
+/// The start position of a match in one sequence.
 #[derive(Debug, Clone)]
 pub struct StartPosition {
     /// Index of the sequence this position belongs to.
