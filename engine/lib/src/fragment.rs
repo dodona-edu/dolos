@@ -41,7 +41,7 @@ impl Fragment {
 pub fn resolve_fragments(
     raw_matches: &PairArray<Vec<Match>>,
     locations: &[Vec<Region>],
-    sort_by: &Option<FragmentSortBy>,
+    sort_by: Option<FragmentSortBy>,
 ) -> PairArray<Vec<Fragment>> {
     raw_matches.map(|left, right, pair_matches| {
         let mut resolved: Vec<Fragment> = pair_matches
@@ -57,7 +57,7 @@ pub fn resolve_fragments(
 ///
 /// `FileOrder` and `None` sort by the start in the left file, then in the right
 /// file. The other orders break ties in the same way.
-fn sort_fragments(fragments: &mut [Fragment], sort_by: &Option<FragmentSortBy>) {
+fn sort_fragments(fragments: &mut [Fragment], sort_by: Option<FragmentSortBy>) {
     match sort_by {
         Some(FragmentSortBy::KgramsAscending) => fragments.sort_by_key(|f| {
             (
@@ -132,7 +132,7 @@ mod tests {
     fn resolve_fragments_spans_every_match_of_a_pair() {
         let result = analyze_pair(vec![1, 2], vec![1, 2]);
 
-        let fragments = resolve_fragments(result.matches().unwrap(), &locations(2), &None);
+        let fragments = resolve_fragments(result.matches().unwrap(), &locations(2), None);
         let frags = fragments.get(0, 1).unwrap();
 
         assert_eq!(frags.len(), 1);
@@ -162,7 +162,7 @@ mod tests {
             ]
         );
 
-        let fragments = resolve_fragments(result.matches().unwrap(), &locations(4), &sort_by);
+        let fragments = resolve_fragments(result.matches().unwrap(), &locations(4), sort_by);
         let counts: Vec<usize> = fragments
             .get(0, 1)
             .unwrap()

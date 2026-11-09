@@ -252,7 +252,7 @@ impl Dolos {
                 .matches()
                 .zip(self.locations.as_deref())
                 .map(|(matches, locations)| {
-                    resolve_fragments(matches, locations, &self.metadata.fragment_sort_by)
+                    resolve_fragments(matches, locations, self.metadata.fragment_sort_by)
                 });
 
         if self.metadata.include_analysis_data {

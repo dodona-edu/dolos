@@ -58,7 +58,7 @@ impl Report {
             })
             .collect();
 
-        sort_pairs(&mut pairs, &metadata.sort_by);
+        sort_pairs(&mut pairs, metadata.sort_by);
 
         Report { metadata, files, pairs }
     }
@@ -67,15 +67,10 @@ impl Report {
 /// Sort pairs in-place according to `sort_by`, descending by the chosen metric.
 ///
 /// When `sort_by` is `None` the natural index order is preserved.
-fn sort_pairs(pairs: &mut [Pair], sort_by: &Option<PairSortBy>) {
+fn sort_pairs(pairs: &mut [Pair], sort_by: Option<PairSortBy>) {
     match sort_by {
         Some(PairSortBy::Similarity) => {
-            pairs.sort_by(|a, b| {
-                b.metrics
-                    .similarity
-                    .partial_cmp(&a.metrics.similarity)
-                    .unwrap_or(std::cmp::Ordering::Equal)
-            });
+            pairs.sort_by(|a, b| b.metrics.similarity.total_cmp(&a.metrics.similarity));
         }
         Some(PairSortBy::TotalOverlap) => {
             pairs.sort_by_key(|p| Reverse(p.metrics.overlap_left + p.metrics.overlap_right));
