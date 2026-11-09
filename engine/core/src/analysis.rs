@@ -4,16 +4,11 @@ use crate::suffixtree::{AnalysisResult, SuffixTree};
 use crate::validation::validate_input;
 use std::ops::Range;
 
-/// The options of an `analyze` run.
+/// The options of an [`analyze`] run.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-#[cfg_attr(
-    feature = "wasm",
-    derive(serde::Deserialize, tsify::Tsify),
-    serde(rename_all = "camelCase")
-)]
 pub struct AnalysisOptions {
     /// The minimum length of a match, in symbols. Shorter matches are not
-    /// recorded and do not count in the metrics. At least 1, see `analyze`.
+    /// recorded and do not count in the metrics. At least 1, see [`analyze`].
     pub min_match_length: usize,
     /// Keep the matches of every pair in the result. Without it, the result
     /// holds only the metrics.

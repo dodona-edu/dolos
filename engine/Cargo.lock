@@ -485,6 +485,13 @@ name = "dolos-core"
 version = "0.1.0"
 dependencies = [
  "rand",
+]
+
+[[package]]
+name = "dolos-core-wasm"
+version = "0.1.0"
+dependencies = [
+ "dolos-core",
  "serde",
  "serde-wasm-bindgen",
  "tsify",

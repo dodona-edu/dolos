@@ -12,12 +12,11 @@ target/
 .vscode/*
 
 ### WebAssembly ###
-# Built by `wasm-pack build dolos-core`
+# Built by `wasm-pack build dolos-core-wasm`
 pkg/
-pkg-node/
 
 ### Node ###
-# The dev tools of dolos-core/tests
+# The dev tools of dolos-core-wasm/tests-typescript
 node_modules/
 
 ### Output files ###

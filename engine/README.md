@@ -8,7 +8,8 @@ A Rust implementation of the [Dolos](https://github.com/dodona-edu/dolos) source
 
 - **[`dolos-cli`](./dolos-cli/)** — the Rust CLI (the `dolos` binary) for running similarity analyses on source code files.
 - **[`dolos-lib`](./dolos-lib/)** — the library (`dolos`) implementing tokenization, winnowing, the reader and the report. The per-language feature flags live here.
-- **[`dolos-core`](./dolos-core/)** — the pure computational core: the generalized suffix tree, the maximal-exact-match analysis and the pairwise similarity metrics. It has no dependencies, and it also builds for WebAssembly.
+- **[`dolos-core`](./dolos-core/)** — the pure computational core: the generalized suffix tree, the maximal-exact-match analysis and the pairwise similarity metrics. It has no dependencies.
+- **[`dolos-core-wasm`](./dolos-core-wasm/)** — the JavaScript binding of `dolos-core`, built for WebAssembly. See [WebAssembly](#webassembly).
 - **[`tree-sitter-grammars`](./tree-sitter-grammars/)** — a unified crate that bundles tree-sitter grammar bindings for 29 programming languages behind a single ergonomic API. It also defines the `char` language for plain text, which has no grammar. See its [README](./tree-sitter-grammars/README.md) for details.
 
 ## Building
@@ -45,20 +46,25 @@ dolos run --output-format csv --output-destination ./results/ path/to/files/
 
 ## WebAssembly
 
-`dolos-core` builds for the browser, so a frontend can run the analysis itself.
-The binding is behind the opt-in `wasm` feature, so a normal build pulls none of
-its dependencies.
+The `dolos-core-wasm` crate builds `dolos-core` for the browser, so a frontend
+can run the analysis itself. It holds the JavaScript binding, so `dolos-core`
+itself has no dependencies.
 
 ```sh
 rustup target add wasm32-unknown-unknown
-wasm-pack build dolos-core --target bundler --release -- --features wasm
+wasm-pack build dolos-core-wasm --target web --release
 ```
 
-This writes the npm package `dolos-core` to `dolos-core/pkg/`, which git
-ignores. The package version follows the crate version.
+This writes the npm package `dolos-core-wasm` to `dolos-core-wasm/pkg/`, which
+git ignores. The package version follows the crate version.
+
+The package loads its `.wasm` file in `init()`. Await it once before the first
+call into the package. It works with any bundler and without one.
 
 ```ts
-import { analyze } from "dolos-core";
+import init, { analyze } from "dolos-core-wasm";
+
+await init();
 
 // `ignored` holds the positions to leave out, one list of `{ start, end }`
 // intervals per sequence. Pass `null` to ignore nothing.
@@ -76,7 +82,9 @@ For exactly two sequences, `analyzePair` returns the metrics and the matches as
 plain data, so there is nothing to release:
 
 ```ts
-import { analyzePair } from "dolos-core";
+import init, { analyzePair } from "dolos-core-wasm";
+
+await init();
 
 const { metrics, matches } = analyzePair(
   { fingerprints: leftFingerprints, ignored: leftIgnored },
@@ -85,9 +93,15 @@ const { metrics, matches } = analyzePair(
 );
 ```
 
-Vite 8.1 and later need no plugin. Earlier versions need
-[`vite-plugin-wasm`](https://www.npmjs.com/package/vite-plugin-wasm) and
-`build.target: "esnext"`.
+In Node.js, `init()` cannot fetch the `.wasm` file. Pass its bytes instead:
+
+```ts
+import { readFile } from "node:fs/promises";
+import init from "dolos-core-wasm";
+
+const wasm = new URL(import.meta.resolve("dolos-core-wasm/dolos_core_wasm_bg.wasm"));
+await init({ module_or_path: await readFile(wasm) });
+```
 
 ## Who made this?
 

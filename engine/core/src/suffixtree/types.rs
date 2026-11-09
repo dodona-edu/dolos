@@ -33,11 +33,6 @@ impl StartPosition {
 /// one with the larger index. The offsets are positions in the input
 /// sequences, ignored positions included.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-#[cfg_attr(
-    feature = "wasm",
-    derive(serde::Serialize, tsify::Tsify),
-    serde(rename_all = "camelCase")
-)]
 pub struct Match {
     /// Start offset in the left sequence.
     pub left_start: usize,
@@ -52,11 +47,6 @@ pub struct Match {
 /// The left sequence is the one with the smaller index, the right sequence the
 /// one with the larger index. All counts are in symbols.
 #[derive(Debug, Clone, Default, PartialEq)]
-#[cfg_attr(
-    feature = "wasm",
-    derive(serde::Serialize, tsify::Tsify),
-    serde(rename_all = "camelCase")
-)]
 pub struct PairMetrics {
     /// The sum of both overlaps divided by the sum of both totals, between 0
     /// and 1. 0 when both totals are 0.

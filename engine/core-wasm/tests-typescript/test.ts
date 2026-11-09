@@ -2,11 +2,15 @@
 // logic; this covers what only shows up once the module is loaded.
 //
 // Build first:
-//   wasm-pack build dolos-core --target nodejs --out-dir pkg-node --release -- --features wasm
+//   wasm-pack build dolos-core-wasm --target web --release
 
 import assert from "node:assert/strict";
+import {readFile} from "node:fs/promises";
 import {test} from "node:test";
-import {analyze, analyzePair, type Interval, type PairMetrics,} from "../pkg-node/dolos_core.js";
+import init, {analyze, analyzePair, type Interval, type PairMetrics,} from "../pkg/dolos_core_wasm.js";
+
+// Node cannot fetch a file URL, so pass the bytes of the module to `init`.
+await init({ module_or_path: await readFile(new URL("../pkg/dolos_core_wasm_bg.wasm", import.meta.url)) });
 
 // One symbol per code unit of `text`.
 const symbols = (text: string): number[] => [...text].map((c) => c.charCodeAt(0));

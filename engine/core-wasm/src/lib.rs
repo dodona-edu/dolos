@@ -1,7 +1,11 @@
-//! The JavaScript binding for [`crate::analyze`]: `analyze` for many
+//! The JavaScript binding for [`dolos_core::analyze`]: `analyze` for many
 //! sequences, `analyzePair` for exactly two.
 
-use crate::{AnalysisOptions, AnalysisResult, Match, PairMetrics, Symbol};
+mod types;
+
+pub use types::{AnalysisOptions, Match, PairMetrics};
+
+use dolos_core::{AnalysisResult, Symbol};
 use serde::{Deserialize, Serialize};
 use std::io;
 use std::ops::Range;
@@ -28,6 +32,9 @@ impl Analysis {
     ///
     /// @example
     /// ```ts
+    /// import init, { analyze } from "dolos-core-wasm";
+    ///
+    /// await init();
     /// using analysis = analyze([[1, 2], [1, 2], [3]], null, { minMatchLength: 1, keepMatches: false });
     /// console.log(analysis.sequenceCount); // 3
     /// ```
@@ -40,6 +47,9 @@ impl Analysis {
     ///
     /// @example
     /// ```ts
+    /// import init, { analyze } from "dolos-core-wasm";
+    ///
+    /// await init();
     /// using analysis = analyze([[1, 2], [1, 2], [3]], null, { minMatchLength: 1, keepMatches: false });
     /// console.log(analysis.pairCount); // 3
     /// ```
@@ -52,6 +62,9 @@ impl Analysis {
     ///
     /// @example
     /// ```ts
+    /// import init, { analyze } from "dolos-core-wasm";
+    ///
+    /// await init();
     /// using analysis = analyze([[1, 2], [1, 2]], null, { minMatchLength: 1, keepMatches: true });
     /// console.log(analysis.hasMatches); // true
     /// ```
@@ -73,11 +86,14 @@ impl Analysis {
     ///
     /// @example
     /// ```ts
+    /// import init, { analyze } from "dolos-core-wasm";
+    ///
+    /// await init();
     /// using analysis = analyze([[1, 2, 3], [1, 2, 4]], null, { minMatchLength: 1, keepMatches: false });
     /// console.log(analysis.metrics(0, 1).longestMatch); // 2
     /// ```
     pub fn metrics(&self, left: usize, right: usize) -> Result<Ts<PairMetrics>, JsError> {
-        Ok(self.pair_metrics(left, right)?.into_ts()?)
+        Ok(PairMetrics::from(self.pair_metrics(left, right)?).into_ts()?)
     }
 
     /// The matches of the pair of sequences `left` and `right`.
@@ -95,6 +111,9 @@ impl Analysis {
     ///
     /// @example
     /// ```ts
+    /// import init, { analyze } from "dolos-core-wasm";
+    ///
+    /// await init();
     /// using analysis = analyze([[1, 2, 3], [9, 1, 2]], null, { minMatchLength: 1, keepMatches: true });
     /// console.log(analysis.matches(0, 1)); // [{ leftStart: 0, rightStart: 1, length: 2 }]
     /// ```
@@ -103,17 +122,18 @@ impl Analysis {
         // Reject indices that name no pair, also when the run kept no matches.
         self.pair_metrics(left, right)?;
 
-        let matches = self
+        let matches: Option<Vec<Match>> = self
             .0
             .matches()
-            .and_then(|matches| matches.get(left, right));
+            .and_then(|matches| matches.get(left, right))
+            .map(|matches| matches.iter().copied().map(Match::from).collect());
 
         Ok(serde_wasm_bindgen::to_value(&matches)?)
     }
 
     /// The metrics of the pair `(left, right)`, or an error when the indices
     /// name no pair.
-    fn pair_metrics(&self, left: usize, right: usize) -> io::Result<&PairMetrics> {
+    fn pair_metrics(&self, left: usize, right: usize) -> io::Result<&dolos_core::PairMetrics> {
         let metrics = self.0.metrics();
         metrics.get(left, right).ok_or_else(|| {
             let count = metrics.item_count();
@@ -154,6 +174,10 @@ impl Analysis {
 ///
 /// @example
 /// ```ts
+/// import init, { analyze } from "dolos-core-wasm";
+///
+/// await init();
+///
 /// using analysis = analyze([[1, 2, 3, 4], [9, 2, 3, 4]], null, {
 ///   minMatchLength: 2,
 ///   keepMatches: false,
@@ -167,11 +191,11 @@ pub fn analyze(
     #[wasm_bindgen(unchecked_param_type = "Interval[][] | null")] ignored: JsValue,
     options: Ts<AnalysisOptions>,
 ) -> Result<Analysis, JsError> {
-    let options = options.to_rust()?;
+    let options = options.to_rust()?.into();
     let sequences: Vec<Vec<Symbol>> = serde_wasm_bindgen::from_value(sequences)?;
     let ignored: Option<Vec<Vec<Range<usize>>>> = serde_wasm_bindgen::from_value(ignored)?;
 
-    Ok(Analysis(crate::analyze(
+    Ok(Analysis(dolos_core::analyze(
         &sequences,
         ignored.as_deref(),
         &options,
@@ -223,6 +247,10 @@ pub struct PairResult {
 ///
 /// @example
 /// ```ts
+/// import init, { analyzePair } from "dolos-core-wasm";
+///
+/// await init();
+///
 /// const { metrics, matches } = analyzePair(
 ///   { fingerprints: [1, 2, 3, 4], ignored: [] },
 ///   { fingerprints: [9, 2, 3, 4], ignored: [{ start: 3, end: 4 }] },
@@ -241,17 +269,18 @@ pub fn analyze_pair(
     let (left, right) = (left.to_rust()?, right.to_rust()?);
     let sequences = [left.fingerprints, right.fingerprints];
     let ignored = [left.ignored, right.ignored];
-    let options = AnalysisOptions {
+    let options = dolos_core::AnalysisOptions {
         min_match_length: options.to_rust()?.min_match_length,
         keep_matches: true,
     };
 
-    let result = crate::analyze(&sequences, Some(&ignored), &options)?;
+    let result = dolos_core::analyze(&sequences, Some(&ignored), &options)?;
     let matches = result
         .matches()
-        .map(|matches| matches[(0, 1)].clone())
+        .map(|matches| matches[(0, 1)].iter().copied().map(Match::from).collect())
         .unwrap_or_default();
-    let pair = PairResult { metrics: result.metrics()[(0, 1)].clone(), matches };
+    let metrics = PairMetrics::from(&result.metrics()[(0, 1)]);
+    let pair = PairResult { metrics, matches };
 
     Ok(pair.into_ts()?)
 }
@@ -266,9 +295,9 @@ mod tests {
             .iter()
             .map(|s| s.bytes().map(Symbol::from).collect())
             .collect();
-        let options = AnalysisOptions { min_match_length: 1, keep_matches };
+        let options = dolos_core::AnalysisOptions { min_match_length: 1, keep_matches };
 
-        Analysis(crate::analyze(&sequences, None, &options).unwrap())
+        Analysis(dolos_core::analyze(&sequences, None, &options).unwrap())
     }
 
     #[test]

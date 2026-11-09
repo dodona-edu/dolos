@@ -39,7 +39,7 @@ jobs:
       - run: rustup update stable && rustup default stable
       - uses: Swatinem/rust-cache@v2
       - run: cargo fmt --check
-      - run: cargo clippy --features all-languages,wasm --all-targets -- -D warnings
+      - run: cargo clippy --features all-languages --all-targets -- -D warnings
 
   test:
     name: "test 🧪"
@@ -55,7 +55,7 @@ jobs:
       - uses: actions/checkout@v7
       - run: rustup update ${{ matrix.toolchain }} && rustup default ${{ matrix.toolchain }}
       - uses: Swatinem/rust-cache@v2
-      - run: cargo test --verbose --features all-languages,wasm
+      - run: cargo test --verbose --features all-languages
 
   wasm:
     name: "wasm 🕸"
@@ -68,12 +68,12 @@ jobs:
       - uses: taiki-e/install-action@v2
         with:
           tool: wasm-pack
-      - run: cargo clippy --target wasm32-unknown-unknown -p dolos-core --features wasm -- -D warnings
-      - run: wasm-pack build dolos-core --target nodejs --out-dir pkg-node --release -- --features wasm
+      - run: cargo clippy --target wasm32-unknown-unknown -p dolos-core-wasm --all-targets -- -D warnings
+      - run: wasm-pack build dolos-core-wasm --target web --release
       - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
-          cache-dependency-path: dolos-core/tests-typescript/package-lock.json
-      - working-directory: dolos-core/tests-typescript
+          cache-dependency-path: dolos-core-wasm/tests-typescript/package-lock.json
+      - working-directory: dolos-core-wasm/tests-typescript
         run: npm ci && npm run typecheck && npm test

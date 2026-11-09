@@ -1,8 +1,8 @@
 {
-  "name": "dolos-core-tests-typescript",
+  "name": "dolos-core-wasm-tests-typescript",
   "private": true,
   "type": "module",
-  "description": "Tests for dolos-core package.",
+  "description": "Tests for the dolos-core-wasm package.",
   "scripts": {
     "typecheck": "tsc --noEmit",
     "test": "node test.ts"
