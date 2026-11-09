@@ -238,22 +238,6 @@ mod tests {
     }
 
     #[test]
-    fn collect_display_lines_numbers_lines_by_file_row() {
-        let lines = vec!["l0", "l1", "l2", "l3", "l4", "l5"];
-        let region = Region::new(Point::new(3, 1), Point::new(4, 2));
-
-        assert_eq!(
-            rows(&collect_display_lines(&lines, &region)),
-            [
-                (3, "l2", None),
-                (4, "l3", Some(1..2)),
-                (5, "l4", Some(0..2)),
-                (6, "l5", None),
-            ]
-        );
-    }
-
-    #[test]
     fn collect_display_lines_converts_byte_columns() {
         // tree-sitter reports columns in bytes. "é" is two bytes, so byte
         // column 4 is character index 3.

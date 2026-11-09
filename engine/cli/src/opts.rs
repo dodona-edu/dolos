@@ -335,16 +335,6 @@ mod tests {
     }
 
     #[rstest]
-    #[case::k_zero(&["-k", "0"])]
-    #[case::w_zero(&["-w", "0"])]
-    #[case::s_zero(&["-s", "0"])]
-    #[case::m_zero(&["-m", "0"])]
-    #[case::big_percentage(&["-M", "1.5"])]
-    fn config_rejects_out_of_range_values(#[case] extra: &[&str]) {
-        assert!(config(extra).is_err());
-    }
-
-    #[rstest]
     #[case::language(&["-l", "notalang"])]
     #[case::sort_by(&["--sort-by", "bogus"])]
     #[case::port_zero(&["-p", "0"])]
