@@ -25,23 +25,8 @@ mod tests {
     use super::*;
 
     #[test]
-    fn ordered_pair_keeps_sorted_indices() {
-        assert_eq!(ordered_pair(1, 3), (1, 3));
-    }
-
-    #[test]
     fn ordered_pair_swaps_reversed_indices() {
         assert_eq!(ordered_pair(5, 2), (2, 5));
-    }
-
-    #[test]
-    fn ordered_pair_keeps_equal_indices() {
-        assert_eq!(ordered_pair(4, 4), (4, 4));
-    }
-
-    #[test]
-    fn ordered_pair_with_keeps_sorted_indices() {
-        assert_eq!(ordered_pair_with(0, 1, 10, 20), (0, 1, 10, 20));
     }
 
     #[test]

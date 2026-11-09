@@ -108,9 +108,11 @@ fn ignored_ranges_fit_their_sequence(
 }
 
 #[cfg(test)]
-// The tests below build empty and reversed ranges on purpose: they are what
-// `validate_input` has to accept and reject.
-#[allow(clippy::reversed_empty_ranges, clippy::single_range_in_vec_init)]
+#[expect(
+    clippy::reversed_empty_ranges,
+    clippy::single_range_in_vec_init,
+    reason = "the tests pass empty and reversed ranges to validate_input"
+)]
 mod tests {
     use super::*;
 
