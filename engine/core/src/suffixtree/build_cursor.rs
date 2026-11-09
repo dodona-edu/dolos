@@ -66,8 +66,8 @@ impl<'a> BuildCursor<'a> {
             return false;
         }
 
-        if let Some(child) = current_node.get_child(next_symbol) {
-            self.node_index = *child;
+        if let Some(child) = current_node.child(next_symbol) {
+            self.node_index = child;
             self.index = 1;
             return true;
         }
@@ -192,34 +192,31 @@ impl<'a> BuildCursor<'a> {
             return;
         }
 
-        let mut current_node = &self.tree.arena[self.node_index];
+        let parent_index = self.tree.arena[self.node_index]
+            .parent
+            .expect("only the root has no parent");
 
         let mut distance_left_to_walk;
-        if let Some(parent_index) = current_node.parent {
-            if parent_index == 0 {
-                // the parent is the root
-                self.node_index = 0;
-                distance_left_to_walk = self.index - 1;
-                index_in_sequence -= self.index - 1;
-            } else {
-                // follow link
-                distance_left_to_walk = self.index; // distance before following the link
-                index_in_sequence -= self.index;
-                let parent_node = &self.tree.arena[parent_index];
-                self.node_index = parent_node.link.expect("Parent must have a suffix link");
-            }
+        if parent_index == 0 {
+            // the parent is the root
+            self.node_index = 0;
+            distance_left_to_walk = self.index - 1;
+            index_in_sequence -= self.index - 1;
         } else {
-            // No parent means we're at root (shouldn't happen due to early return)
-            return;
+            // follow link
+            distance_left_to_walk = self.index; // distance before following the link
+            index_in_sequence -= self.index;
+            let parent_node = &self.tree.arena[parent_index];
+            self.node_index = parent_node.link.expect("Parent must have a suffix link");
         }
 
-        current_node = &self.tree.arena[self.node_index];
+        let mut current_node = &self.tree.arena[self.node_index];
         self.index = self.virtual_edge_len(current_node);
 
         while distance_left_to_walk > 0 {
             // move to child
-            self.node_index = *current_node
-                .get_child(BuildCursor::symbol_at(
+            self.node_index = current_node
+                .child(BuildCursor::symbol_at(
                     sequences,
                     sequence_index,
                     index_in_sequence,
@@ -228,10 +225,7 @@ impl<'a> BuildCursor<'a> {
             current_node = &self.tree.arena[self.node_index];
 
             // walk as far as possible on the current edge
-            let current_advance = min(
-                current_node.range.length() + usize::from(current_node.sequence_indices.is_some()),
-                distance_left_to_walk,
-            );
+            let current_advance = min(self.virtual_edge_len(current_node), distance_left_to_walk);
             distance_left_to_walk -= current_advance;
             index_in_sequence += current_advance;
             self.index = current_advance;

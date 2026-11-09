@@ -25,19 +25,11 @@ pub struct MaximalMatchAnalyzer<'a> {
     /// Only matches of at least this many symbols are considered.
     min_match_length: usize,
     /// Whether to keep the raw matches in the result.
-    pub keep_matches: bool,
+    keep_matches: bool,
 }
 
 impl<'a> MaximalMatchAnalyzer<'a> {
-    /// Create a new [`MaximalMatchAnalyzer`].
-    ///
-    /// # Arguments
-    /// * `tree` – Generalized suffix tree built from all `sequences`.
-    /// * `sequences` – The sequences to analyze.
-    /// * `ignore_mask` – Which positions are ignored.
-    /// * `min_match_length` – Minimum number of symbols a shared substring must
-    ///   have to be counted as a match.
-    /// * `keep_matches` – Whether to keep the raw matches in the result.
+    /// Create an analyzer for `tree`, which holds all `sequences`.
     pub fn new(
         tree: &'a SuffixTree,
         sequences: &'a [Vec<Symbol>],
@@ -48,16 +40,8 @@ impl<'a> MaximalMatchAnalyzer<'a> {
         Self { tree, sequences, ignore_mask, min_match_length, keep_matches }
     }
 
-    /// Perform the full MEM analysis and return pairwise similarity results.
-    ///
-    /// Traverses the suffix tree depth-first, identifies all maximal exact
-    /// matches that meet `min_match_length`, and aggregates them into an
-    /// [`AnalysisResult`] containing per-pair similarity scores and
-    /// longest-match lengths.
-    ///
-    /// A match is suppressed only when its length does not meet
-    /// `min_match_length`.
-    pub fn analyze(&mut self) -> AnalysisResult {
+    /// Find all maximal exact matches and build the [`AnalysisResult`].
+    pub fn analyze(&self) -> AnalysisResult {
         let mut collector = MatchCollector::new(
             self.sequences,
             self.ignore_mask,
@@ -204,17 +188,8 @@ impl<'a> MaximalMatchAnalyzer<'a> {
         }
     }
 
-    /// Returns `true` when the two left symbols indicate that this pair
-    /// should be recorded.
-    ///
-    /// Two conditions trigger a `true`:
-    /// - The symbols differ.
-    /// - Either symbol is [`SENTINEL_SYMBOL`], the start-of-sequence sentinel
-    ///   used when a suffix begins at position 0 and has no left neighbor.
-    ///   Because no real symbol can equal [`SENTINEL_SYMBOL`], this sentinel is
-    ///   always treated as distinct from any other value, including another
-    ///   sentinel (two suffixes both starting at position 0 in different sequences
-    ///   should still be paired).
+    /// Returns `true` when the left symbols differ, or when `left_symbol` is
+    /// [`SENTINEL_SYMBOL`]. Two sentinels count as different symbols.
     #[inline]
     fn should_process_pair(left_symbol: Symbol, other_left_symbol: Symbol) -> bool {
         other_left_symbol != left_symbol || left_symbol == SENTINEL_SYMBOL

@@ -2,7 +2,7 @@ use crate::Symbol;
 use crate::collections::vec_bitmap::VecBitmap;
 use crate::suffixtree::maximal_match::MaximalMatchAnalyzer;
 use crate::suffixtree::node::Node;
-use crate::suffixtree::tree_builder::UkkonenBuilder;
+use crate::suffixtree::tree_builder::add_sequences;
 use crate::suffixtree::types::AnalysisResult;
 
 /// A generalized suffix tree implementation.
@@ -16,7 +16,7 @@ impl SuffixTree {
     /// Creates a new `SuffixTree` from the given sequences, building it immediately.
     pub fn build(sequences: &[Vec<Symbol>]) -> Self {
         let mut tree = SuffixTree { arena: vec![Node::create_root()] };
-        UkkonenBuilder::new().add_sequences(sequences, &mut tree);
+        add_sequences(sequences, &mut tree);
         tree
     }
 
@@ -74,7 +74,7 @@ pub mod test_utils {
                 continue;
             }
 
-            node_index = *node.get_child(symbol)?;
+            node_index = node.child(symbol)?;
             edge_offset = 1;
         }
 

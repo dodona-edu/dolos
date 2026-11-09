@@ -65,10 +65,10 @@ impl Node {
     }
 
     /// Returns the index of the child node corresponding to the given symbol.
-    pub fn get_child(&self, symbol: Symbol) -> Option<&NodeIndex> {
+    pub fn child(&self, symbol: Symbol) -> Option<NodeIndex> {
         self.children
             .as_ref()
-            .and_then(|children| children.get(&symbol))
+            .and_then(|children| children.get(&symbol).copied())
     }
 }
 
