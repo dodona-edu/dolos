@@ -41,7 +41,7 @@ impl Fragment {
 pub fn resolve_fragments(
     raw_matches: &PairArray<Vec<Match>>,
     locations: &[Vec<Region>],
-    sort_by: Option<FragmentSortBy>,
+    sort_by: FragmentSortBy,
 ) -> PairArray<Vec<Fragment>> {
     raw_matches.map(|left, right, pair_matches| {
         let mut resolved: Vec<Fragment> = pair_matches
@@ -55,25 +55,24 @@ pub fn resolve_fragments(
 
 /// Sort fragments in-place according to `sort_by`.
 ///
-/// `FileOrder` and `None` sort by the start in the left file, then in the right
-/// file. The other orders break ties in the same way.
-fn sort_fragments(fragments: &mut [Fragment], sort_by: Option<FragmentSortBy>) {
+/// The kgram orders break ties in file order.
+fn sort_fragments(fragments: &mut [Fragment], sort_by: FragmentSortBy) {
     match sort_by {
-        Some(FragmentSortBy::KgramsAscending) => fragments.sort_by_key(|f| {
+        FragmentSortBy::KgramsAscending => fragments.sort_by_key(|f| {
             (
                 f.fingerprint_count,
                 f.left_region.start_point,
                 f.right_region.start_point,
             )
         }),
-        Some(FragmentSortBy::KgramsDescending) => fragments.sort_by_key(|f| {
+        FragmentSortBy::KgramsDescending => fragments.sort_by_key(|f| {
             (
                 Reverse(f.fingerprint_count),
                 f.left_region.start_point,
                 f.right_region.start_point,
             )
         }),
-        Some(FragmentSortBy::FileOrder) | None => {
+        FragmentSortBy::FileOrder => {
             fragments.sort_by_key(|f| (f.left_region.start_point, f.right_region.start_point))
         }
     }
@@ -127,12 +126,11 @@ mod tests {
     }
 
     #[rstest]
-    #[case::kgrams_ascending(Some(FragmentSortBy::KgramsAscending), vec![1, 2])]
-    #[case::kgrams_descending(Some(FragmentSortBy::KgramsDescending), vec![2, 1])]
-    #[case::file_order(Some(FragmentSortBy::FileOrder), vec![2, 1])]
-    #[case::default(None, vec![2, 1])]
+    #[case::kgrams_ascending(FragmentSortBy::KgramsAscending, vec![1, 2])]
+    #[case::kgrams_descending(FragmentSortBy::KgramsDescending, vec![2, 1])]
+    #[case::file_order(FragmentSortBy::FileOrder, vec![2, 1])]
     fn resolve_fragments_sorts_as_requested(
-        #[case] sort_by: Option<FragmentSortBy>,
+        #[case] sort_by: FragmentSortBy,
         #[case] expected: Vec<usize>,
     ) {
         // One match of length 2 at the start, one of length 1 at the end.

@@ -1,15 +1,19 @@
 use std::path::PathBuf;
 use tree_sitter_grammars::Language;
 
-/// The order of the pairs in a [`Report`](crate::Report), from the highest to
-/// the lowest value of a metric.
+/// The order of the pairs in a [`Report`](crate::Report).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum PairSortBy {
-    /// Sort by [`PairMetrics::similarity`](crate::PairMetrics::similarity).
+    /// By the id of the left file, then by the id of the right file:
+    /// `(0, 1)`, `(0, 2)`, ..., `(1, 2)`, ...
+    FileId,
+    /// From the highest to the lowest
+    /// [`PairMetrics::similarity`](crate::PairMetrics::similarity).
     Similarity,
-    /// Sort by the sum of both overlaps.
+    /// From the highest to the lowest sum of both overlaps.
     TotalOverlap,
-    /// Sort by [`PairMetrics::longest_match`](crate::PairMetrics::longest_match).
+    /// From the highest to the lowest
+    /// [`PairMetrics::longest_match`](crate::PairMetrics::longest_match).
     LongestFragment,
 }
 
@@ -54,8 +58,8 @@ pub struct DolosConfig {
     pub(crate) compare: bool,
     pub(crate) include_analysis_data: bool,
     pub(crate) min_length_match: usize,
-    pub(crate) sort_by: Option<PairSortBy>,
-    pub(crate) fragment_sort_by: Option<FragmentSortBy>,
+    pub(crate) sort_by: PairSortBy,
+    pub(crate) fragment_sort_by: FragmentSortBy,
 }
 
 impl DolosConfig {
@@ -106,8 +110,8 @@ impl Default for DolosConfig {
             compare: false,
             include_analysis_data: false,
             min_length_match: 1,
-            sort_by: None,
-            fragment_sort_by: None,
+            sort_by: PairSortBy::FileId,
+            fragment_sort_by: FragmentSortBy::FileOrder,
         }
     }
 }
@@ -294,10 +298,9 @@ impl DolosConfigBuilder {
     ///
     /// # Parameters
     ///
-    /// - `metric`: the metric to sort by. Default: the input order of the
-    ///   files: `(0, 1)`, `(0, 2)`, ..., `(1, 2)`, ...
-    pub fn sort_by(mut self, metric: PairSortBy) -> Self {
-        self.config.sort_by = Some(metric);
+    /// - `order`: the pair order. Default: [`PairSortBy::FileId`].
+    pub fn sort_by(mut self, order: PairSortBy) -> Self {
+        self.config.sort_by = order;
         self
     }
 
@@ -307,7 +310,7 @@ impl DolosConfigBuilder {
     ///
     /// - `order`: the fragment order. Default: [`FragmentSortBy::FileOrder`].
     pub fn fragment_sort_by(mut self, order: FragmentSortBy) -> Self {
-        self.config.fragment_sort_by = Some(order);
+        self.config.fragment_sort_by = order;
         self
     }
 

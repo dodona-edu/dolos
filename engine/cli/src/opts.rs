@@ -9,6 +9,7 @@ fn parse_language(s: &str) -> Result<Language, String> {
 
 #[derive(Debug, Clone, Copy, clap::ValueEnum)]
 pub enum CliPairSortBy {
+    FileId,
     Similarity,
     TotalOverlap,
     LongestFragment,
@@ -17,6 +18,7 @@ pub enum CliPairSortBy {
 impl From<CliPairSortBy> for PairSortBy {
     fn from(v: CliPairSortBy) -> Self {
         match v {
+            CliPairSortBy::FileId => PairSortBy::FileId,
             CliPairSortBy::Similarity => PairSortBy::Similarity,
             CliPairSortBy::TotalOverlap => PairSortBy::TotalOverlap,
             CliPairSortBy::LongestFragment => PairSortBy::LongestFragment,
@@ -143,17 +145,20 @@ pub struct DolosArgs {
     #[arg(
         value_enum,
         long,
-        long_help = "Sort pairs by: similarity, total-overlap, or longest-fragment."
+        default_value = "file-id",
+        long_help = "Sort pairs by: file-id (left file id, then right file id), \
+                     or from high to low similarity, total-overlap or longest-fragment."
     )]
-    pub sort_by: Option<CliPairSortBy>,
+    pub sort_by: CliPairSortBy,
 
     #[arg(
         value_enum,
         short = 'b',
         long,
+        default_value = "file-order",
         long_help = "Sort fragments within each pair by: kgrams-ascending, kgrams-descending, or file-order."
     )]
-    pub fragment_sort_by: Option<CliFragmentSortBy>,
+    pub fragment_sort_by: CliFragmentSortBy,
 }
 
 impl TryFrom<DolosArgs> for DolosConfig {
@@ -167,6 +172,8 @@ impl TryFrom<DolosArgs> for DolosConfig {
             .compare(a.compare)
             .include_analysis_data(a.include_analysis_data)
             .min_length_match(a.min_length_match)
+            .sort_by(a.sort_by.into())
+            .fragment_sort_by(a.fragment_sort_by.into())
             .template(a.template);
 
         if let Some(v) = a.name {
@@ -180,12 +187,6 @@ impl TryFrom<DolosArgs> for DolosConfig {
         }
         if let Some(v) = a.max_fingerprint_percentage {
             b = b.max_fingerprint_percentage(v);
-        }
-        if let Some(v) = a.sort_by {
-            b = b.sort_by(v.into());
-        }
-        if let Some(v) = a.fragment_sort_by {
-            b = b.fragment_sort_by(v.into());
         }
 
         b.build()

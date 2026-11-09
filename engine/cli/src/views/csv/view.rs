@@ -62,7 +62,7 @@ impl View for CsvView {
 
 /// The index of `pair` in the order (0,1), (0,2), ..., (0,n-1), (1,2), ... of its file ids.
 ///
-/// This is the order in which the analysis creates the pairs, before `--sort-by`.
+/// This is the order of `--sort-by file-id`.
 /// `file_count` is the number of files in the report.
 fn pair_id(pair: &Pair, file_count: usize) -> usize {
     let (left, right) = (pair.left_file.id, pair.right_file.id);

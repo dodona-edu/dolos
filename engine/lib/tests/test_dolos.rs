@@ -145,16 +145,20 @@ fn three_files_have_no_fragments() {
 }
 
 #[rstest]
+#[case::file_id(PairSortBy::FileId)]
 #[case::similarity(PairSortBy::Similarity)]
 #[case::total_overlap(PairSortBy::TotalOverlap)]
 #[case::longest_fragment(PairSortBy::LongestFragment)]
-fn pairs_are_sorted_in_descending_order(#[case] sort_by: PairSortBy) {
+fn pairs_are_sorted_as_requested(#[case] sort_by: PairSortBy) {
     let report = report(
         SAMPLE123,
         DolosConfig::builder().sort_by(sort_by).build().unwrap(),
     );
 
     let ordered = match sort_by {
+        PairSortBy::FileId => report
+            .pairs
+            .is_sorted_by_key(|p| (p.left_file.id, p.right_file.id)),
         PairSortBy::Similarity => is_sorted_desc(&report.pairs, |p| p.metrics.similarity),
         PairSortBy::TotalOverlap => is_sorted_desc(&report.pairs, |p| {
             p.metrics.overlap_left + p.metrics.overlap_right

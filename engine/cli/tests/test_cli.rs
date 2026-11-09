@@ -95,7 +95,7 @@ fn csv_output_writes_the_headers() {
 }
 
 #[rstest]
-#[case::unsorted(&[])]
+#[case::default(&[])]
 #[case::similarity(&["--sort-by", "similarity"])]
 #[case::total_overlap(&["--sort-by", "total-overlap"])]
 #[case::longest_fragment(&["--sort-by", "longest-fragment"])]
@@ -198,6 +198,22 @@ fn repeated_template_option_gives_a_template_of_several_files() {
         .find(|row| &row[0] == "template")
         .unwrap();
     assert_eq!(&template[1], &format!(r#"["{SAMPLE1}","{SAMPLE2}"]"#));
+}
+
+#[test]
+fn default_sort_orders_are_written_to_the_metadata() {
+    let tmp = TempDir::new().unwrap();
+    let report_dir = csv_report(&tmp, &[]);
+
+    let rows = read_rows(&report_dir.join("metadata.csv"));
+    let value = |property: &str| {
+        let row = rows.iter().find(|row| &row[0] == property).unwrap();
+        row[1].to_string()
+    };
+    assert_eq!(
+        (value("sortBy"), value("fragmentSortBy")),
+        ("FileId".to_string(), "FileOrder".to_string())
+    );
 }
 
 #[test]

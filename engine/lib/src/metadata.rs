@@ -15,8 +15,10 @@ pub struct Metadata {
     pub report_name: String,
     /// The time at which [`Dolos::new`](crate::Dolos::new) ran.
     pub created_at: DateTime<Utc>,
-    pub sort_by: Option<PairSortBy>,
-    pub fragment_sort_by: Option<FragmentSortBy>,
+    /// The order of the pairs.
+    pub sort_by: PairSortBy,
+    /// The order of the fragments of each pair.
+    pub fragment_sort_by: FragmentSortBy,
     /// The number of tokens in a k-gram.
     pub kgram_length: usize,
     /// The winnowing window size, in k-grams.
@@ -108,8 +110,8 @@ impl Metadata {
             ("includeFragments", self.include_fragments.to_string()),
             ("includeAnalysisData", self.include_analysis_data.to_string()),
             ("maxFingerprintFileCount", optional(self.max_fingerprint_file_count.map(|v| v.to_string()))),
-            ("sortBy", optional(self.sort_by.map(|s| format!("{s:?}")))),
-            ("fragmentSortBy", optional(self.fragment_sort_by.map(|s| format!("{s:?}")))),
+            ("sortBy", format!("{:?}", self.sort_by)),
+            ("fragmentSortBy", format!("{:?}", self.fragment_sort_by)),
             ("template", json_list(&self.template)),
         ]
     }
