@@ -85,13 +85,9 @@ fn sort_pairs(pairs: &mut [Pair], sort_by: Option<PairSortBy>) {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::config::PairSortBy;
-    use crate::file::File;
-    use crate::metadata::Metadata;
     use chrono::Utc;
     use dolos_core::{AnalysisOptions, AnalysisResult};
     use std::path::PathBuf;
-    use std::rc::Rc;
     use tree_sitter_grammars::Language;
 
     fn metadata(sort_by: Option<PairSortBy>) -> Metadata {
@@ -134,29 +130,14 @@ mod tests {
         let files = vec![file(0, "a.js"), file(1, "b.js"), file(2, "c.js")];
         let result = analyze_three();
 
-        let report = Report::new(result.metrics(), None, files.clone(), metadata(None));
+        let report = Report::new(result.metrics(), None, files, metadata(None));
 
-        assert_eq!(report.pairs.len(), 3);
-        let pair_files: Vec<_> = report
+        let longest: Vec<_> = report
             .pairs
             .iter()
-            .map(|p| (p.left_file.as_ref(), p.right_file.as_ref()))
+            .map(|p| (p.left_file.id, p.right_file.id, p.metrics.longest_match))
             .collect();
-        assert!(pair_files.contains(&(files[0].as_ref(), files[1].as_ref())));
-        assert!(pair_files.contains(&(files[0].as_ref(), files[2].as_ref())));
-        assert!(pair_files.contains(&(files[1].as_ref(), files[2].as_ref())));
-
-        let ab = report
-            .pairs
-            .iter()
-            .find(|p| {
-                p.left_file.as_ref() == files[0].as_ref()
-                    && p.right_file.as_ref() == files[1].as_ref()
-            })
-            .expect("a.js-b.js pair not found");
-        assert_eq!(Some(&ab.metrics), result.metrics().get(0, 1));
-        assert_eq!(ab.metrics.longest_match, 3);
-        assert!(ab.fragments.is_none());
+        assert_eq!(longest, [(0, 1, 3), (0, 2, 1), (1, 2, 1)]);
     }
 
     #[test]

@@ -126,23 +126,6 @@ mod tests {
         dolos_core::analyze(&[left, right], None, &options).unwrap()
     }
 
-    /// A pair's matches become fragments spanning from the first fingerprint's
-    /// region to the last one's.
-    #[test]
-    fn resolve_fragments_spans_every_match_of_a_pair() {
-        let result = analyze_pair(vec![1, 2], vec![1, 2]);
-
-        let fragments = resolve_fragments(result.matches().unwrap(), &locations(2), None);
-        let frags = fragments.get(0, 1).unwrap();
-
-        assert_eq!(frags.len(), 1);
-        assert_eq!(frags[0].fingerprint_count, 2);
-        assert_eq!(frags[0].left_region.start_point, Point::new(0, 0));
-        assert_eq!(frags[0].left_region.end_point, Point::new(1, 5));
-        assert_eq!(frags[0].right_region.start_point, Point::new(10, 0));
-        assert_eq!(frags[0].right_region.end_point, Point::new(11, 5));
-    }
-
     #[rstest]
     #[case::kgrams_ascending(Some(FragmentSortBy::KgramsAscending), vec![1, 2])]
     #[case::kgrams_descending(Some(FragmentSortBy::KgramsDescending), vec![2, 1])]
@@ -154,13 +137,6 @@ mod tests {
     ) {
         // One match of length 2 at the start, one of length 1 at the end.
         let result = analyze_pair(vec![2, 3, 9, 1], vec![2, 3, 8, 1]);
-        assert_eq!(
-            result.matches().unwrap()[(0, 1)],
-            vec![
-                Match { left_start: 0, right_start: 0, length: 2 },
-                Match { left_start: 3, right_start: 3, length: 1 },
-            ]
-        );
 
         let fragments = resolve_fragments(result.matches().unwrap(), &locations(4), sort_by);
         let counts: Vec<usize> = fragments

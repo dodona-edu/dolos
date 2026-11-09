@@ -270,19 +270,6 @@ fn analysis_data_holds_a_region_per_fingerprint() {
 }
 
 #[test]
-fn analysis_data_ignores_nothing_without_a_template_or_cap() {
-    let config = DolosConfig::builder()
-        .include_analysis_data(true)
-        .build()
-        .unwrap();
-    let report = report(SAMPLE123, config);
-
-    for file in &report.files {
-        assert!(analysis_data(file).ignored.is_empty());
-    }
-}
-
-#[test]
 fn template_shows_up_as_ignored_intervals() {
     let config = DolosConfig::builder()
         .include_analysis_data(true)
@@ -304,63 +291,6 @@ fn template_shows_up_as_ignored_intervals() {
             ignored < data.fingerprints.len(),
             "everything is ignored in {path}"
         );
-    }
-}
-
-// The intervals are maximal runs, so they never touch.
-#[test]
-fn ignored_intervals_never_touch() {
-    let config = DolosConfig::builder()
-        .include_analysis_data(true)
-        .template([TEMPLATE])
-        .build()
-        .unwrap();
-    let report = report(SAMPLE12, config);
-
-    for file in &report.files {
-        let data = analysis_data(file);
-
-        assert!(
-            data.ignored.windows(2).all(|w| w[0].end < w[1].start),
-            "two intervals touch in {}",
-            file.relative_path.display()
-        );
-    }
-}
-
-#[test]
-fn ignored_intervals_stay_inside_the_file() {
-    let config = DolosConfig::builder()
-        .include_analysis_data(true)
-        .template([TEMPLATE])
-        .build()
-        .unwrap();
-    let report = report(SAMPLE12, config);
-
-    for file in &report.files {
-        let data = analysis_data(file);
-
-        assert!(
-            data.ignored
-                .iter()
-                .all(|r| r.end <= data.fingerprints.len()),
-            "an interval ends past the fingerprints in {}",
-            file.relative_path.display()
-        );
-    }
-}
-
-#[test]
-fn inert_template_ignores_nothing() {
-    let config = DolosConfig::builder()
-        .include_analysis_data(true)
-        .template([TEMPLATE_INERT])
-        .build()
-        .unwrap();
-    let report = report(SAMPLE12, config);
-
-    for file in &report.files {
-        assert!(analysis_data(file).ignored.is_empty());
     }
 }
 

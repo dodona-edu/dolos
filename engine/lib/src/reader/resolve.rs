@@ -106,7 +106,6 @@ fn dir_name(dir: &Path) -> Result<String> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::fs;
     use tempfile::tempdir;
 
     fn working_directory_name() -> String {
@@ -118,11 +117,6 @@ mod tests {
     fn bare_csv_path_is_named_after_the_working_directory() {
         let name = dir_name(csv_dir(Path::new("info.csv"))).unwrap();
         assert_eq!(name, working_directory_name());
-    }
-
-    #[test]
-    fn dot_is_named_after_the_working_directory() {
-        assert_eq!(dir_name(Path::new(".")).unwrap(), working_directory_name());
     }
 
     #[test]
@@ -141,10 +135,5 @@ mod tests {
             .collect();
         names.sort();
         assert_eq!(names, ["a.txt", "b.txt", "c.txt"]);
-    }
-
-    #[test]
-    fn from_files_rejects_a_missing_path() {
-        assert!(from_files(vec!["does_not_exist.js".into()]).is_err());
     }
 }

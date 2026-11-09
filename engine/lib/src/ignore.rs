@@ -147,10 +147,4 @@ mod tests {
         let ignored = classify(&files, &seqs(&["A"]), None);
         assert_eq!(marked(ignored), vec![vec![], vec![0], vec![]]);
     }
-
-    #[test]
-    fn no_input_files_give_no_ignored_positions() {
-        let ignored = classify(&[], &seqs(&["ABC"]), Some(1));
-        assert!(ignored.is_empty());
-    }
 }

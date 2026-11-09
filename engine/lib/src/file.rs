@@ -149,8 +149,6 @@ impl FileSet {
 mod tests {
     use super::*;
     use rstest::rstest;
-    use std::path::PathBuf;
-    use tree_sitter_grammars::Language;
 
     fn file_set(paths: &[&str]) -> FileSet {
         FileSet::new("", paths.iter().map(PathBuf::from).collect())
