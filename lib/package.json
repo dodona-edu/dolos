@@ -29,7 +29,7 @@
     "@ava/typescript": "7.0.0",
     "@types/d3-dsv": "3.0.7",
     "@types/node": "^26.6.6",
-    "ava": "^8.3.0",
+    "ava": "^8.4.0",
     "typescript-eslint": "^8.72.1" ,
     "eslint": "^10.14.0",
     "@eslint/js": "^10.0.1",
@@ -38,7 +38,7 @@
   "dependencies": {
     "@dodona/dolos-parsers": "1.5.0",
     "@dodona/dolos-core": "1.2.2",
-    "d3-dsv": "^3.0.1",
+    "d3-dsv": "^3.0.2",
     "tree-sitter": "^0.25.1"
   },
   "bugs": {
