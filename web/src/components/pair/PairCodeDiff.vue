@@ -19,6 +19,7 @@ import { ref, shallowRef, onMounted, watch, onUnmounted } from "vue";
 import { Pair, Metadata } from "@/api/models";
 import { useMonacoEditorWorkers } from "@/composables/useMonacoEditorWorkers";
 import * as monaco from "monaco-editor";
+import { monacoLanguage } from "@/util/monacoLanguage";
 
 
 
@@ -39,8 +40,9 @@ useMonacoEditorWorkers();
 const initialize = (): void => {
 
   // Monaco file models.
-  const leftFileModel = monaco.editor.createModel(props.pair.leftFile.content, props.metadata.language);
-  const rightFileModel = monaco.editor.createModel(props.pair.rightFile.content, props.metadata.language);
+  const language = monacoLanguage(props.metadata.language);
+  const leftFileModel = monaco.editor.createModel(props.pair.leftFile.content, language);
+  const rightFileModel = monaco.editor.createModel(props.pair.rightFile.content, language);
 
   // Monaco diff editor
   editor.value = monaco.editor.createDiffEditor(editorElem.value, {

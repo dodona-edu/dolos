@@ -18,6 +18,7 @@ import { Pair, Metadata, Fragment } from "@/api/models";
 import { useVModel } from "@vueuse/core";
 import * as monaco from "monaco-editor";
 import { useMonacoEditorWorkers } from "@/composables/useMonacoEditorWorkers";
+import { monacoLanguage } from "@/util/monacoLanguage";
 
 interface Props {
   side: "left" | "right";
@@ -249,7 +250,7 @@ const initialize = (): void => {
   // Monaco editor
   editor.value = monaco.editor.create(editorElem.value, {
     value: file.value.content,
-    language: props.metadata.language,
+    language: monacoLanguage(props.metadata.language),
     readOnly: true,
     smoothScrolling: true,
     automaticLayout: true,
