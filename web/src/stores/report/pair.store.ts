@@ -8,8 +8,6 @@ import {
 import {
   useSettingsStore,
   useFileStore,
-  useKgramStore,
-  useMetadataStore,
 } from "@/stores/report";
 import { useAppMode } from "@/composables";
 import { File, Pair } from "@/api/models";
@@ -38,8 +36,6 @@ export const usePairStore = defineStore("pairs", () => {
   // Reference to the other stores.
   const settingsStore = useSettingsStore();
   const fileStore = useFileStore();
-  const kgramStore = useKgramStore();
-  const metadataStore = useMetadataStore();
   const { dataUrl } = useAppMode();
 
   // List of pairs to display (with active labels)
@@ -66,10 +62,6 @@ export const usePairStore = defineStore("pairs", () => {
   // If this store has been hydrated.
   const hydrated = shallowRef(false);
 
-  // Data worker
-  type DataWorker = typeof import("../../api/workers/data.worker");
-  const dataWorker = new ComlinkWorker<DataWorker>((new URL("../../api/workers/data.worker.ts", import.meta.url)));
-
   // Fetch the pairs from the CSV file.
   async function fetch(): Promise<any[]> {
     const url = dataUrl.value + "/pairs.csv";
@@ -85,18 +77,6 @@ export const usePairStore = defineStore("pairs", () => {
 
     pairsById.value = parsePairs(await fetch(), fileStore.filesActiveById);
     hydrated.value = true;
-  }
-
-  // Populate the fragments for a given pair.
-  async function populateFragments(pair: Pair): Promise<Pair> {
-    const customOptions = metadataStore.metadata;
-    const kgrams = kgramStore.kgrams;
-    const ignoredKgrams = kgramStore.ignoredKgrams;
-    const ignoredFile = fileStore.ignoredFile;
-
-    const pairWithFragments = await dataWorker.populateFragments(pair, customOptions, kgrams, ignoredKgrams, ignoredFile);
-    pairsById.value[pair.id] = pairWithFragments;
-    return pairWithFragments;
   }
 
   // Get a pair by its ID.
@@ -153,7 +133,6 @@ export const usePairStore = defineStore("pairs", () => {
     onlyPair,
     hydrated,
     hydrate,
-    populateFragments,
     getPair,
     getPairs,
     clustering,

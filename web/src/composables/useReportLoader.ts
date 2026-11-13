@@ -3,7 +3,6 @@ import { storeToRefs } from "pinia";
 import { useAppMode } from "@/composables";
 import {
   useFileStore,
-  useKgramStore,
   useLoaderStore,
   useMetadataStore,
   usePairStore,
@@ -18,7 +17,6 @@ import { guessSimilarityThreshold } from "@/api/utils";
  */
 export function useReportLoader() {
   const fileStore = useFileStore();
-  const kgramStore = useKgramStore();
   const metadataStore = useMetadataStore();
   const pairStore = usePairStore();
   const settingsStore = useSettingsStore();
@@ -34,8 +32,6 @@ export function useReportLoader() {
 
       loadingText.value = "Fetching & parsing files...";
       await fileStore.hydrate();
-      loadingText.value = "Fetching & parsing k-grams...";
-      await kgramStore.hydrate();
 
       loadingText.value = "Fetching & parsing pairs...";
       await pairStore.hydrate();
