@@ -75,6 +75,7 @@ Environment variables of the `dolos-api` service (the API server):
 - `DOLOS_API_URL`: full URL where Dolos API will be hosted, including the subdirectory (e.g. `http://localhost:3000/api`)
 - `DOLOS_API_FRONT_END_URL`: full URL where the front-end is hosted (format: `https://{hostname}:{port}`)
 - `DOLOS_API_DATABASE_{HOST,USERNAME,PASSWORD}`: hostname, username and password of the database server (MariaDB or MySQL)
+- `DOLOS_API_CLI_IMAGE`: Docker image of the Dolos CLI that analyzes the datasets (default: `ghcr.io/dodona-edu/dolos-cli:latest`)
 
 ::: info
 
