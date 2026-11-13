@@ -7,6 +7,7 @@ import { onMounted, onUnmounted, ref, shallowRef } from "vue";
 import * as monaco from "monaco-editor";
 import { File } from "@/api/models";
 import { useMetadataStore } from "@/stores/report";
+import { monacoLanguage } from "@/util/monacoLanguage";
 
 interface Props {
   file: File;
@@ -25,7 +26,7 @@ const initialize = (): void => {
   // Monaco editor
   editor.value = monaco.editor.create(editorElem.value, {
     value: props.file.content,
-    language: metadata.metadata.language,
+    language: monacoLanguage(metadata.metadata.language),
     readOnly: true,
     smoothScrolling: true,
     automaticLayout: true,
