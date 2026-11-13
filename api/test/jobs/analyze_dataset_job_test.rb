@@ -37,4 +37,13 @@ class AnalyzeDatasetJobTest < ActiveJob::TestCase
 
     assert_equal 'python', @report.reload.dataset.programming_language
   end
+
+  test 'should store stderr of a failed run' do
+    @report.dataset.update(programming_language: 'unknown-language')
+
+    AnalyzeDatasetJob.perform_now(@report)
+
+    assert_equal 'failed', @report.status
+    assert_match(/unknown-language/, @report.stderr)
+  end
 end
