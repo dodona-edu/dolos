@@ -1,9 +1,15 @@
-export type MetaRowType =
-  | { type: "string"; value: string }
-  | { type: "boolean"; value: boolean }
-  | { type: "number"; value: number }
-  | { type: "object"; value: any };
-
 export interface Metadata {
-  [k: string]: any;
+  reportName: string;
+  createdAt: string;
+  language: string;
+  kgramLength: number;
+  kgramsInWindow: number;
+  minLengthMatch: number;
+  includeComments: boolean;
+  includeFragments: boolean;
+  includeAnalysisData: boolean;
+  maxFingerprintFileCount: number | null;
+  sortBy: string;
+  fragmentSortBy: string;
+  template: string[];
 }

@@ -1,0 +1,32 @@
+id,path,content,fingerprints,fingerprintRegions,ignoredIntervals
+0,submissions/alice.js,"function readNumbers(text) {
+  return text.split("","").map((part) => Number(part));
+}
+
+function sum(numbers) {
+  let total = 0;
+  for (const number of numbers) {
+    total += number;
+  }
+  return total;
+}
+
+console.log(sum(readNumbers(""1,2,3"")));
+",,,
+1,submissions/bob.js,"function readNumbers(text) {
+  return text.split("","").map((part) => Number(part));
+}
+
+function add(values) {
+  let result = 0;
+  for (const value of values) {
+    result += value;
+  }
+  return result;
+}
+
+console.log(add(readNumbers(""4,5,6"")));
+",,,
+2,submissions/carol.js,"const numbers = ""7,8,9"".split("","").map(Number);
+console.log(numbers.reduce((a, b) => a + b, 0));
+",,,

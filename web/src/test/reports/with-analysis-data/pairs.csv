@@ -1,0 +1,4 @@
+id,leftFileId,rightFileId,similarity,longestFragment,overlapLeft,overlapRight,totalLeft,totalRight,totalOverlap
+0,0,1,1.0,13,22,22,22,22,44
+1,0,2,0.38095238095238093,2,8,8,22,20,16
+2,1,2,0.38095238095238093,2,8,8,22,20,16

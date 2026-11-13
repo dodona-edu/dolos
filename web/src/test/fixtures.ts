@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+import { parse } from "papaparse";
 import { File, Pair, Label } from "@/api/models";
 
 /**
@@ -21,11 +24,7 @@ export function createFile(id: number, overrides: Partial<File> = {}): File {
     path,
     shortPath: path,
     content: "",
-    astAndMappingLoaded: true,
-    ast: [],
-    mapping: [],
     amountOfKgrams: 0,
-    ignored: false,
     label: defaultLabel,
     extra: {},
     pseudo: { path, shortPath: path },
@@ -50,9 +49,20 @@ export function createPair(
     totalOverlap: 0,
     leftCovered: 0,
     rightCovered: 0,
+    leftTotal: 0,
+    rightTotal: 0,
     fragments: null,
     leftIgnoredKgrams: [],
     rightIgnoredKgrams: [],
     ...overrides,
   };
+}
+
+/**
+ * Read the rows of a CSV file of a report in `src/test/reports`.
+ * The Rust CLI wrote these reports.
+ */
+export function readReportCsv(report: string, file: string): any[] {
+  const path = join(__dirname, "reports", report, file);
+  return parse(readFileSync(path, "utf8"), { header: true, skipEmptyLines: true }).data;
 }

@@ -145,11 +145,6 @@ const activePair = computed<Pair>(() => {
             ...fragment,
             left: fragment.right,
             right: fragment.left,
-            occurrences: fragment.occurrences.map((occurrence) => ({
-              ...occurrence,
-              left: occurrence.right,
-              right: occurrence.left,
-            })),
           }))
         : null,
     };

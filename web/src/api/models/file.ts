@@ -1,15 +1,26 @@
-import { Label, Selection } from "@/api/models";
+import { Label } from "@/api/models";
 
-interface FileIndeterminate {
+// A region of a file as [startRow, startCol, endRow, endCol], zero-based.
+export type Region = [number, number, number, number];
+
+// A half-open range of fingerprint indices as [start, end].
+export type Interval = [number, number];
+
+// The fingerprints of a file, the region of each fingerprint and the ignored fingerprints.
+export interface AnalysisData {
+  fingerprints: number[];
+  regions: Region[];
+  ignored: Interval[];
+}
+
+export interface File {
   id: number;
   path: string;
   shortPath: string;
   content: string;
-  astAndMappingLoaded: boolean;
-  ast: string[] | string;
-  mapping: Selection[] | string;
+  // Undefined when the report has no analysis data.
+  analysisData?: AnalysisData;
   amountOfKgrams: number;
-  ignored: boolean;
   label: Label;
   extra: {
     timestamp?: Date;
@@ -32,17 +43,3 @@ interface FileIndeterminate {
     labels?: string;
   },
 }
-
-interface LoadedFile extends FileIndeterminate {
-  astAndMappingLoaded: true;
-  ast: string[];
-  mapping: Selection[];
-}
-
-interface UnloadedFile extends FileIndeterminate {
-  astAndMappingLoaded: false;
-  ast: string;
-  mapping: string;
-}
-
-export type File = LoadedFile | UnloadedFile;

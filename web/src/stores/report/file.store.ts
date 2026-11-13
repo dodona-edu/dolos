@@ -35,7 +35,6 @@ export const useFileStore = defineStore("file", () => {
   // State
   const hydrated = shallowRef(false);
 
-  const ignoredFile = shallowRef<File | undefined>();
   const filesById = shallowRef<File[]>([]);
   const filesList = computed(() => Object.values(filesById.value));
 
@@ -94,7 +93,6 @@ export const useFileStore = defineStore("file", () => {
     const parsed = parseFiles(await fetch());
     filesById.value = parsed.files;
     filesActiveById.value = parsed.files;
-    ignoredFile.value = parsed.ignoredFile;
     legend.value = parsed.labels;
     hasLabels.value = parsed.hasLabels;
     hasUnlabeled.value = parsed.hasUnlabeled;
@@ -167,7 +165,6 @@ export const useFileStore = defineStore("file", () => {
   );
 
   return {
-    ignoredFile,
     filesById,
     filesList,
     filesActiveById,
