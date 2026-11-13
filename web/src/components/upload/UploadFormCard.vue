@@ -56,7 +56,15 @@ const languages = [
   },
   {
     name: "C#",
-    value: "c-sharp",
+    value: "csharp",
+  },
+  {
+    name: "Dart",
+    value: "dart",
+  },
+  {
+    name: "Elixir",
+    value: "elixir",
   },
   {
     name: "Elm",
@@ -71,6 +79,10 @@ const languages = [
     value: "groovy",
   },
   {
+    name: "Haskell",
+    value: "haskell",
+  },
+  {
     name: "Java",
     value: "java",
   },
@@ -79,12 +91,28 @@ const languages = [
     value: "javascript",
   },
   {
+    name: "Julia",
+    value: "julia",
+  },
+  {
+    name: "Kotlin",
+    value: "kotlin",
+  },
+  {
+    name: "Lua",
+    value: "lua",
+  },
+  {
     name: "Modelica",
     value: "modelica"
   },
   {
     name: "OCaml",
     value: "ocaml"
+  },
+  {
+    name: "Perl",
+    value: "perl",
   },
   {
     name: "PHP",
@@ -99,6 +127,10 @@ const languages = [
     value: "r"
   },
   {
+    name: "Ruby",
+    value: "ruby",
+  },
+  {
     name: "Rust",
     value: "rust"
   },
@@ -109,6 +141,10 @@ const languages = [
   {
     name: "SQL",
     value: "sql"
+  },
+  {
+    name: "Swift",
+    value: "swift",
   },
   {
     name: "Text / Markdown",
