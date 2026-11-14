@@ -7,7 +7,7 @@ import { onMounted, onUnmounted, ref, shallowRef } from "vue";
 import * as monaco from "monaco-editor";
 import { File } from "@/api/models";
 import { useMetadataStore } from "@/stores/report";
-import { monacoLanguage } from "@/util/monacoLanguage";
+import { monacoLanguage } from "@/util/MonacoLanguage";
 
 interface Props {
   file: File;
