@@ -20,7 +20,6 @@ export interface File {
   content: string;
   // Undefined when the report has no analysis data.
   analysisData?: AnalysisData;
-  amountOfKgrams: number;
   label: Label;
   extra: {
     timestamp?: Date;

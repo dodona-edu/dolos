@@ -11,48 +11,21 @@
 <script lang="ts" setup>
 import { File } from "@/api/models";
 import { useFileStore } from "@/stores/report";
-import { getLargestFieldOfScore } from "@/util/FileInterestingness";
+import { getScoreOfField, ScoreField } from "@/util/FileInterestingness";
 import { storeToRefs } from "pinia";
 import { computed } from "vue";
 
 interface Props {
-  field: "similarity" | "longestFragment" | "totalOverlap";
+  field: ScoreField;
   file: File;
 }
 const props = withDefaults(defineProps<Props>(), {});
 const { scoredFiles } = storeToRefs(useFileStore());
 
-// Calculate the line value.
+// Value of the file for the field of the histogram.
 const lineValue = computed(() => {
   const score = scoredFiles.value.get(props.file);
-  if (!score) return null;
-
-  const field = getLargestFieldOfScore(score);
-  if (!field) return null;
-
-  const pair =
-    field === "similarity"
-      ? score.similarityScore?.pair
-      : field === "totalOverlap"
-        ? score.totalOverlapScore?.pair
-        : score.longestFragmentScore?.pair;
-
-  if (!pair) return null;
-
-  if (props.field === "totalOverlap") {
-    const covered = props.file.id === pair?.leftFile.id ? pair.leftCovered : pair?.rightCovered;
-    return (covered ?? 0) / props.file.amountOfKgrams;
-  }
-
-  if (props.field === "longestFragment") {
-    return (pair?.longestFragment ?? 0) / props.file.amountOfKgrams;
-  }
-
-  if (props.field === "similarity") {
-    return pair?.similarity ?? 0;
-  }
-
-  return null;
+  return score ? getScoreOfField(score, props.field) : null;
 });
 
 // Calculate the bin color.
