@@ -3,13 +3,11 @@ import { pairsAsNestedMap } from "./PairAsNestedMap";
 
 export type SimilarityScore = {
   similarity: number;
-  pair: Pair;
 };
 
 type LongestFragmentScore = {
   longestFragmentTokens: number;
   longestFragmentWrtSize: number;
-  pair: Pair;
 };
 
 export type FileScoring = {
@@ -47,7 +45,6 @@ export class FileInterestingnessCalculator {
     );
 
     return {
-      pair,
       similarity: pair.similarity,
     };
   }
@@ -65,14 +62,15 @@ export class FileInterestingnessCalculator {
     const fileSize = pair.leftFile.id === file.id ? pair.leftTotal : pair.rightTotal;
 
     return {
-      pair,
       longestFragmentTokens: pair.longestFragment,
       longestFragmentWrtSize: fileSize > 0 ? pair.longestFragment / fileSize : 0,
     };
   }
 }
 
-// The value of a field of a file scoring, between 0 and 1.
+/**
+ * Get the value of a field of a file scoring, between 0 and 1.
+ */
 export function getScoreOfField(scoring: FileScoring, field: ScoreField): number {
   if (field === "similarity") {
     return scoring.similarityScore?.similarity ?? 0;
