@@ -1,4 +1,5 @@
 import { names, animals, uniqueNamesGenerator } from "unique-names-generator";
+import { DateTime } from "luxon";
 import { AnalysisData, File, Label, Legend } from "@/api/models";
 import { commonFilenamePrefix } from "@/api/utils/file";
 
@@ -28,6 +29,27 @@ function parseAnalysisData(row: any): AnalysisData | undefined {
   };
 }
 
+// Parse a `created_at` value as ISO 8601 or in the Dodona format `2019-07-23 17:12:33 +0200`.
+function parseTimestamp(value: string | undefined): Date | undefined {
+  if (!value) return undefined;
+  const candidates = [
+    DateTime.fromISO(value, { setZone: true }),
+    DateTime.fromFormat(value, "yyyy-MM-dd HH:mm:ss ZZZ", { setZone: true }),
+  ];
+  return candidates.find((candidate) => candidate.isValid)?.toJSDate();
+}
+
+// Parse the name, the label and the timestamp from the `info` JSON column of a row of `files.csv`.
+// A value is undefined when the column is empty or absent, or when it has no such key.
+function parseExtra(row: any): File["extra"] {
+  const info = JSON.parse(row.info || "{}");
+  return {
+    fullName: info.full_name || undefined,
+    labels: info.labels || info.label || undefined,
+    timestamp: parseTimestamp(info.created_at),
+  };
+}
+
 export interface ParseFilesResult {
   files: File[];
   labels: Legend;
@@ -52,8 +74,7 @@ export function parseFiles(fileData: any[]): ParseFilesResult {
 
   for (const row of fileData) {
     const ext = row.path.split(".").pop() ?? "";
-    // `files.csv` has no name, labels or timestamp of a file.
-    const extra: File["extra"] = {};
+    const extra = parseExtra(row);
     hasTimestamps = hasTimestamps || !!extra.timestamp;
     const analysisData = parseAnalysisData(row);
     const file = {
