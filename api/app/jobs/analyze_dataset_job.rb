@@ -10,8 +10,8 @@ class AnalyzeDatasetJob < ApplicationJob
   OUTPUT_DIRNAME = 'result'.freeze
   DOLOS_IMAGE = 'ghcr.io/dodona-edu/dolos-cli:latest'.freeze
   TIMEOUT = 60.seconds
-  # Seconds that a container can take to stop after the timeout.
-  STOP_MARGIN = 15
+  # Time that a container can take to stop after the timeout.
+  STOP_MARGIN = 30.seconds
   MEMORY_LIMIT = 2_000_000_000
   OUTPUT_LIMIT = 65_000
 
@@ -125,7 +125,7 @@ class AnalyzeDatasetJob < ApplicationJob
 
     begin
       container.start
-      exit_status = container.wait(TIMEOUT.to_i + STOP_MARGIN)['StatusCode']
+      exit_status = container.wait((TIMEOUT + STOP_MARGIN).to_i)['StatusCode']
     ensure
       timeout_mutex.synchronize do
         timer.kill
