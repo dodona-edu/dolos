@@ -1,91 +1,54 @@
 import { describe, it, expect } from "vitest";
 import { parseFiles, DEFAULT_LABEL } from "./parseFiles";
-
-function makeRow(overrides: Record<string, string> = {}) {
-  return {
-    id: "1",
-    path: "submissions/file.js",
-    extra: "{}",
-    ast: "[]",
-    mapping: "[]",
-    ignored: "false",
-    amountOfKgrams: "0",
-    ...overrides,
-  };
-}
+import { readReportCsv } from "@/test/fixtures";
 
 describe("parseFiles", () => {
-  it("parses a minimal row into a File with correct fields", () => {
-    const { files } = parseFiles([makeRow()]);
-    const file = files[1];
-    expect(file).toBeDefined();
-    expect(String(file.id)).toBe("1");
-    expect(file.path).toBe("submissions/file.js");
-    expect(file.ast).toEqual([]);
-    expect(file.mapping).toEqual([]);
-    expect(file.astAndMappingLoaded).toBe(true);
-    expect(file.ignored).toBe(false);
+  const withAnalysisData = readReportCsv("with-analysis-data", "files.csv");
+  const withoutAnalysisData = readReportCsv("without-analysis-data", "files.csv");
+
+  it("parses the id, the path and the content of a file", () => {
+    const { files } = parseFiles(withAnalysisData);
+    expect(files).toHaveLength(3);
+    expect(files[2].id).toBe(2);
+    expect(files[2].path).toBe("submissions/carol.js");
+    expect(files[2].content).toMatch(/^const numbers = "7,8,9"/);
   });
 
-  it("separates the ignored file from the active files", () => {
-    const { files, ignoredFile } = parseFiles([
-      makeRow({ id: "1", ignored: "false" }),
-      makeRow({ id: "2", ignored: "true" }),
-    ]);
-    expect(files[1]).toBeDefined();
-    expect(files[2]).toBeUndefined();
-    expect(ignoredFile).toBeDefined();
-    expect(String(ignoredFile!.id)).toBe("2");
+  it("parses the analysis data of a file", () => {
+    const { files } = parseFiles(withAnalysisData);
+    const data = files[2].analysisData;
+    expect(data?.fingerprints).toHaveLength(45);
+    expect(data?.fingerprints[0]).toBe(24733391);
+    expect(data?.regions).toHaveLength(45);
+    expect(data?.regions[1]).toEqual([0, 0, 0, 13]);
+    expect(data?.ignored[0]).toEqual([4, 6]);
+    expect(files[2].amountOfKgrams).toBe(45);
   });
 
-  it("sets hasLabels when extra.labels is present", () => {
-    const row = makeRow({ extra: JSON.stringify({ labels: "group-A" }) });
-    const { hasLabels, hasUnlabeled } = parseFiles([row]);
-    expect(hasLabels).toBe(true);
-    expect(hasUnlabeled).toBe(false);
+  it("leaves the analysis data undefined when the report has none", () => {
+    const { files } = parseFiles(withoutAnalysisData);
+    expect(files).toHaveLength(3);
+    expect(files[2].content).toMatch(/^const numbers = "7,8,9"/);
+    expect(files[2].analysisData).toBeUndefined();
   });
 
-  it("sets hasUnlabeled when a file has no label", () => {
-    const { hasLabels, hasUnlabeled } = parseFiles([makeRow()]);
+  it("assigns DEFAULT_LABEL to every file", () => {
+    const { files, labels, hasLabels, hasUnlabeled, hasTimestamps } = parseFiles(withAnalysisData);
+    expect(files.every((file) => file.label === DEFAULT_LABEL)).toBe(true);
+    expect(labels).toEqual({ [DEFAULT_LABEL.name]: DEFAULT_LABEL });
     expect(hasLabels).toBe(false);
     expect(hasUnlabeled).toBe(true);
-  });
-
-  it("assigns DEFAULT_LABEL to unlabeled files", () => {
-    const { files } = parseFiles([makeRow()]);
-    expect(files[1].label).toBe(DEFAULT_LABEL);
-  });
-
-  it("groups files with the same label under one Label object", () => {
-    const rows = [
-      makeRow({ id: "1", extra: JSON.stringify({ labels: "A" }) }),
-      makeRow({ id: "2", path: "submissions/other.js", extra: JSON.stringify({ labels: "A" }) }),
-    ];
-    const { labels } = parseFiles(rows);
-    expect(labels["A"]).toBeDefined();
-    expect(labels["A"].color).not.toBe("");
-  });
-
-  it("sets hasTimestamps when extra.createdAt is present", () => {
-    const row = makeRow({ extra: JSON.stringify({ createdAt: "2024-01-01T00:00:00Z" }) });
-    const { hasTimestamps } = parseFiles([row]);
-    expect(hasTimestamps).toBe(true);
+    expect(hasTimestamps).toBe(false);
   });
 
   it("strips the common path prefix from shortPath", () => {
-    const rows = [
-      makeRow({ id: "1", path: "submissions/a/file.js" }),
-      makeRow({ id: "2", path: "submissions/b/file.js" }),
-    ];
-    const { files } = parseFiles(rows);
-    expect(files[1].shortPath).toBe("a/file.js");
-    expect(files[2].shortPath).toBe("b/file.js");
+    const { files } = parseFiles(withAnalysisData);
+    expect(files[0].shortPath).toBe("alice.js");
+    expect(files[0].original.path).toBe("submissions/alice.js");
   });
 
-  it("generates pseudo path and original path on each file", () => {
-    const { files } = parseFiles([makeRow()]);
-    const file = files[1];
-    expect(file.pseudo.path).toMatch(/\.js$/);
-    expect(file.original.path).toBe("submissions/file.js");
+  it("generates a pseudo path with the extension of the file", () => {
+    const { files } = parseFiles(withAnalysisData);
+    expect(files[0].pseudo.path).toMatch(/\.js$/);
   });
 });

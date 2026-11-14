@@ -1,0 +1,14 @@
+property,value
+reportName,small
+createdAt,2026-11-13T15:54:05.245507559+00:00
+language,Javascript
+kgramLength,5
+kgramsInWindow,4
+minLengthMatch,1
+includeComments,false
+includeFragments,false
+includeAnalysisData,true
+maxFingerprintFileCount,null
+sortBy,FileId
+fragmentSortBy,FileOrder
+template,"[""template/sum.js""]"

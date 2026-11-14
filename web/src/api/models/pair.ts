@@ -1,5 +1,4 @@
-import { File, Fragment } from "@/api/models";
-import { Region } from "@dodona/dolos-core";
+import { File, Fragment, Selection } from "@/api/models";
 
 export interface Pair {
   id: number;
@@ -10,7 +9,9 @@ export interface Pair {
   totalOverlap: number;
   leftCovered: number;
   rightCovered: number;
+  leftTotal: number;
+  rightTotal: number;
   fragments: Fragment[] | null;
-  leftIgnoredKgrams: Region[];
-  rightIgnoredKgrams: Region[];
+  leftIgnoredKgrams: Selection[];
+  rightIgnoredKgrams: Selection[];
 }

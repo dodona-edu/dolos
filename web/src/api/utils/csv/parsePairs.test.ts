@@ -1,51 +1,39 @@
 import { describe, it, expect } from "vitest";
 import { parsePairs } from "./parsePairs";
-import { createFile } from "@/test/fixtures";
+import { createFile, readReportCsv } from "@/test/fixtures";
 
 describe("parsePairs", () => {
-  const fileA = createFile(1, { path: "a.js" });
-  const fileB = createFile(2, { path: "b.js" });
-  const files = [undefined, fileA, fileB] as any;
+  const files = [0, 1, 2].map((id) => createFile(id));
+  const rows = readReportCsv("with-analysis-data", "pairs.csv");
 
-  const row = {
-    id: "0",
-    similarity: "0.75",
-    longestFragment: "10",
-    totalOverlap: "20",
-    leftCovered: "0.5",
-    rightCovered: "0.4",
-    leftFileId: "1",
-    rightFileId: "2",
-  };
-
-  it("parses numeric fields from strings", () => {
-    const pairs = parsePairs([row], files);
-    const pair = pairs[0];
-    expect(pair.id).toBe(0);
-    expect(pair.similarity).toBe(0.75);
-    expect(pair.longestFragment).toBe(10);
-    expect(pair.totalOverlap).toBe(20);
-    expect(pair.leftCovered).toBe(0.5);
-    expect(pair.rightCovered).toBe(0.4);
+  it("parses every numeric column to a number", () => {
+    const pair = parsePairs(rows, files)[1];
+    expect(pair.id).toBe(1);
+    expect(pair.similarity).toBeCloseTo(0.38095238095238093, 12);
+    expect(pair.longestFragment).toBe(2);
+    expect(pair.totalOverlap).toBe(16);
+    expect(pair.leftCovered).toBe(8);
+    expect(pair.rightCovered).toBe(8);
+    expect(pair.leftTotal).toBe(22);
+    expect(pair.rightTotal).toBe(20);
   });
 
   it("links left and right files by id", () => {
-    const pairs = parsePairs([row], files);
-    expect(pairs[0].leftFile).toBe(fileA);
-    expect(pairs[0].rightFile).toBe(fileB);
+    const pair = parsePairs(rows, files)[1];
+    expect(pair.leftFile).toBe(files[0]);
+    expect(pair.rightFile).toBe(files[2]);
   });
 
   it("indexes pairs by pair id (sparse array)", () => {
-    const row2 = { ...row, id: "5" };
-    const pairs = parsePairs([row2], files);
+    const pairs = parsePairs([{ ...rows[0], id: "5" }], files);
     expect(pairs[5]).toBeDefined();
     expect(pairs[0]).toBeUndefined();
   });
 
   it("initialises fragments and ignored kgrams as empty", () => {
-    const pairs = parsePairs([row], files);
-    expect(pairs[0].fragments).toBeNull();
-    expect(pairs[0].leftIgnoredKgrams).toEqual([]);
-    expect(pairs[0].rightIgnoredKgrams).toEqual([]);
+    const pair = parsePairs(rows, files)[0];
+    expect(pair.fragments).toBeNull();
+    expect(pair.leftIgnoredKgrams).toEqual([]);
+    expect(pair.rightIgnoredKgrams).toEqual([]);
   });
 });

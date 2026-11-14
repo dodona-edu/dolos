@@ -1,5 +1,5 @@
 import { names, animals, uniqueNamesGenerator } from "unique-names-generator";
-import { File, Label, Legend } from "@/api/models";
+import { AnalysisData, File, Label, Legend } from "@/api/models";
 import { commonFilenamePrefix } from "@/api/utils/file";
 
 export const DEFAULT_LABEL: Label = {
@@ -17,9 +17,19 @@ const COLOR_CATEGORY20 = [
   "#f7b6d2", "#dbdb8d", "#9edae5",
 ];
 
+// Parse the analysis data columns of a row of `files.csv`.
+// The columns are empty when the report has no analysis data.
+function parseAnalysisData(row: any): AnalysisData | undefined {
+  if (!row.fingerprints) return undefined;
+  return {
+    fingerprints: JSON.parse(row.fingerprints),
+    regions: JSON.parse(row.fingerprintRegions),
+    ignored: JSON.parse(row.ignoredIntervals),
+  };
+}
+
 export interface ParseFilesResult {
   files: File[];
-  ignoredFile?: File;
   labels: Legend;
   hasLabels: boolean;
   hasUnlabeled: boolean;
@@ -36,25 +46,26 @@ export function parseFiles(fileData: any[]): ParseFilesResult {
 
   const files: File[] = [];
   const labels: Legend = {};
-  let ignoredFile: File | undefined;
   let hasLabels = false;
   let hasUnlabeled = false;
   let hasTimestamps = false;
 
   for (const row of fileData) {
-    const file = row as File;
     const ext = row.path.split(".").pop() ?? "";
-    const extra = JSON.parse(row.extra || "{}");
-    extra.timestamp = extra.createdAt ? new Date(extra.createdAt) : undefined;
+    // `files.csv` has no name, labels or timestamp of a file.
+    const extra: File["extra"] = {};
     hasTimestamps = hasTimestamps || !!extra.timestamp;
-    file.ignored = row.ignored === "true";
-    file.extra = extra;
-    file.ast = JSON.parse(row.ast);
-    file.mapping = JSON.parse(row.mapping);
-    file.astAndMappingLoaded = true;
-    file.amountOfKgrams = file.amountOfKgrams || file.ast.length;
+    const analysisData = parseAnalysisData(row);
+    const file = {
+      id: parseInt(row.id),
+      path: row.path,
+      content: row.content,
+      analysisData,
+      amountOfKgrams: analysisData?.fingerprints.length ?? 0,
+      extra,
+    } as File;
 
-    if (extra.labels?.length > 0) {
+    if (extra.labels) {
       hasLabels = true;
       if (!labels[extra.labels]) {
         labels[extra.labels] = {
@@ -89,11 +100,7 @@ export function parseFiles(fileData: any[]): ParseFilesResult {
       labels: extra.labels,
     };
 
-    if (!file.ignored) {
-      files[file.id] = file;
-    } else {
-      ignoredFile = file;
-    }
+    files[file.id] = file;
   }
 
   const commonPath = commonFilenamePrefix(Object.values(files));
@@ -115,5 +122,5 @@ export function parseFiles(fileData: any[]): ParseFilesResult {
     labels[DEFAULT_LABEL.name] = DEFAULT_LABEL;
   }
 
-  return { files, ignoredFile, labels, hasLabels, hasUnlabeled, hasTimestamps };
+  return { files, labels, hasLabels, hasUnlabeled, hasTimestamps };
 }
