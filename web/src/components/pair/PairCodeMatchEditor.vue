@@ -18,7 +18,7 @@ import { Pair, Metadata, Fragment } from "@/api/models";
 import { useVModel } from "@vueuse/core";
 import * as monaco from "monaco-editor";
 import { useMonacoEditorWorkers } from "@/composables/useMonacoEditorWorkers";
-import { monacoLanguage } from "@/util/monacoLanguage";
+import { monacoLanguage } from "@/util/MonacoLanguage";
 
 interface Props {
   side: "left" | "right";

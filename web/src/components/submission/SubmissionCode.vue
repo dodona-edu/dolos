@@ -8,7 +8,7 @@ import * as monaco from "monaco-editor";
 import { File } from "@/api/models";
 import { useMetadataStore } from "@/stores/report";
 import { useMonacoEditorWorkers } from "@/composables/useMonacoEditorWorkers";
-import { monacoLanguage } from "@/util/monacoLanguage";
+import { monacoLanguage } from "@/util/MonacoLanguage";
 
 interface Props {
   file: File;

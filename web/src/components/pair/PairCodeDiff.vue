@@ -19,7 +19,7 @@ import { ref, shallowRef, onMounted, watch, onUnmounted } from "vue";
 import { Pair, Metadata } from "@/api/models";
 import { useMonacoEditorWorkers } from "@/composables/useMonacoEditorWorkers";
 import * as monaco from "monaco-editor";
-import { monacoLanguage } from "@/util/monacoLanguage";
+import { monacoLanguage } from "@/util/MonacoLanguage";
 
 
 
