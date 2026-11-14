@@ -28,6 +28,16 @@ function parseAnalysisData(row: any): AnalysisData | undefined {
   };
 }
 
+// Parse the name, the label and the timestamp of a row of `files.csv`.
+// A value is undefined when the column is empty or absent.
+function parseExtra(row: any): File["extra"] {
+  return {
+    fullName: row.fullName || undefined,
+    labels: row.labels || undefined,
+    timestamp: row.createdAt ? new Date(row.createdAt) : undefined,
+  };
+}
+
 export interface ParseFilesResult {
   files: File[];
   labels: Legend;
@@ -52,8 +62,7 @@ export function parseFiles(fileData: any[]): ParseFilesResult {
 
   for (const row of fileData) {
     const ext = row.path.split(".").pop() ?? "";
-    // `files.csv` has no name, labels or timestamp of a file.
-    const extra: File["extra"] = {};
+    const extra = parseExtra(row);
     hasTimestamps = hasTimestamps || !!extra.timestamp;
     const analysisData = parseAnalysisData(row);
     const file = {
