@@ -24,7 +24,6 @@ export function createFile(id: number, overrides: Partial<File> = {}): File {
     path,
     shortPath: path,
     content: "",
-    amountOfKgrams: 0,
     label: defaultLabel,
     extra: {},
     pseudo: { path, shortPath: path },

@@ -61,7 +61,6 @@ export function parseFiles(fileData: any[]): ParseFilesResult {
       path: row.path,
       content: row.content,
       analysisData,
-      amountOfKgrams: analysisData?.fingerprints.length ?? 0,
       extra,
     } as File;
 
