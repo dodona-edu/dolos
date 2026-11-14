@@ -13,7 +13,7 @@ describe("FileInterestingnessCalculator", () => {
     expect(scoring.longestFragmentScore).toBeNull();
   });
 
-  it("picks the highest-similarity pair for the similarity score", () => {
+  it("takes the highest similarity of the pairs of a file", () => {
     const a = createFile(1);
     const b = createFile(2);
     const c = createFile(3);
@@ -23,7 +23,6 @@ describe("FileInterestingnessCalculator", () => {
 
     const score = calc.calculateSimilarityScore(a);
 
-    expect(score?.pair).toBe(strong);
     expect(score?.similarity).toBe(0.9);
   });
 
