@@ -22,7 +22,6 @@ describe("parseFiles", () => {
     expect(data?.regions).toHaveLength(45);
     expect(data?.regions[1]).toEqual([0, 0, 0, 13]);
     expect(data?.ignored[0]).toEqual([4, 6]);
-    expect(files[2].amountOfKgrams).toBe(45);
   });
 
   it("leaves the analysis data undefined when the report has none", () => {

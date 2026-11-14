@@ -5,6 +5,7 @@
 <script lang="ts" setup>
 import { useFileStore } from "@/stores/report";
 import { useD3Tooltip } from "@/composables";
+import { getScoreOfField, ScoreField } from "@/util/FileInterestingness";
 import { useElementSize } from "@vueuse/core";
 import { storeToRefs } from "pinia";
 import { computed, onMounted, shallowRef, watch } from "vue";
@@ -12,7 +13,7 @@ import { useRouter } from "vue-router";
 import * as d3 from "d3";
 
 interface Props {
-  field: "similarity" | "longestFragment" | "totalOverlap";
+  field: ScoreField;
   ticks: number;
   height?: number;
   width?: number;
@@ -26,33 +27,13 @@ const { scoredFilesList } = storeToRefs(useFileStore());
 
 // Data source for the bins of the histogram.
 const binsData = computed(() =>
-  scoredFilesList.value.map((score) => {
-    if (props.field === "similarity") {
-      return score.similarityScore?.similarity || 0;
-    }
-    if (props.field === "totalOverlap") {
-      return score.totalOverlapScore?.totalOverlapWrtSize || 0;
-    }
-    if (props.field === "longestFragment") {
-      return score.longestFragmentScore?.longestFragmentWrtSize || 0;
-    }
-    return 0;
-  })
+  scoredFilesList.value.map((score) => getScoreOfField(score, props.field))
 );
 
 // Name of the field.
-const fieldName = computed(() => {
-  if (props.field === "similarity") {
-    return "Similarity";
-  }
-  if (props.field === "totalOverlap") {
-    return "Total Overlap";
-  }
-  if (props.field === "longestFragment") {
-    return "Longest Fragment";
-  }
-  return "";
-});
+const fieldName = computed(() =>
+  props.field === "similarity" ? "Similarity" : "Longest Fragment"
+);
 
 // Histogram template ref.
 const histogramElement = shallowRef();
