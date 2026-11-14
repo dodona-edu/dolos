@@ -398,11 +398,6 @@ jobs:
           echo "Should have hit cache"
           false
 
-      - name: Build core 🔧
-        run: |
-          cd core/
-          npm run build
-
       - name: Build web 🔧
         run: |
           cd web/
@@ -504,11 +499,6 @@ jobs:
           echo "Should have hit cache"
           false
 
-      - name: Build core 🔧
-        run: |
-          cd core/
-          npm run build
-
       - name: Test 🧪
         run: |
           cd web/
@@ -548,7 +538,6 @@ jobs:
         run: |
           nix develop --command bash -c '
             npm ci --ignore-scripts
-            npm run build --workspace=@dodona/dolos-core
             cd web
             npx playwright test
           '

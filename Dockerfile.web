@@ -4,15 +4,13 @@ WORKDIR /repo/
 
 RUN apk add --no-cache curl
 
-ADD package-lock.json package.json tsconfig.global.json /repo/
-ADD core/ /repo/core
+ADD package-lock.json package.json /repo/
 
 ADD web/index.d.ts web/index.js web/index.html web/package.json web/tsconfig.json web/vite.config.ts web/tsconfig.node.json /repo/web/
 ADD web/src /repo/web/src
 ADD web/public /repo/web/public
 
 RUN npm install
-RUN npm run build --workspace core
 
 ENV VITE_HOST=0.0.0.0
 ENV VITE_PORT=8080
