@@ -195,13 +195,18 @@ const initializeSelections = (): void => {
   }
 };
 
+const areRegionsEqual = (region1: Fragment["left"], region2: Fragment["left"]) => {
+  return region1.startRow === region2.startRow &&
+         region1.startCol === region2.startCol &&
+         region1.endRow === region2.endRow &&
+         region1.endCol === region2.endCol;
+};
+
 const areMatchesEqual = (match1: Fragment | null, match2: Fragment | null) => {
   if (!match1 || !match2) return false;
 
-  return match1.left.startCol === match2.left.startCol &&
-         match1.left.endCol === match2.left.endCol &&
-         match1.right.startCol === match2.right.startCol &&
-         match1.right.endCol === match2.right.endCol;
+  return areRegionsEqual(match1.left, match2.left) &&
+         areRegionsEqual(match1.right, match2.right);
 };
 
 // Initialize the editor decorations
