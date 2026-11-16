@@ -45,6 +45,14 @@ class ReportTest < ActiveSupport::TestCase
     assert_not @dataset.zipfile.attached?
   end
 
+  test 'collect_files_from should store the detected language for a blank programming language' do
+    @dataset.update(programming_language: '')
+
+    @report.collect_files_from(Rails.root.join('test/files/simple-dataset-results'))
+
+    assert_equal 'java', @dataset.reload.programming_language
+  end
+
   test 'calling purge_files multiple times should not crash' do
     @report.purge_files!
 

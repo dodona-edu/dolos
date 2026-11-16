@@ -72,7 +72,7 @@ class Report < ApplicationRecord
   end
 
   def collect_files_from(result_dir)
-    read_programming_language = dataset.programming_language.nil?
+    read_programming_language = dataset.programming_language.blank?
 
     RESULT_FILES.map do |file, name|
       path = result_dir.join(file)
