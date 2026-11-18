@@ -21,36 +21,46 @@ impl CsvView {
     /// Writes `metadata.csv`, `files.csv` and `pairs.csv`, and `fragments.csv` (if the report tracks the fragments).
     pub fn write(&self, report: &Report) -> Result<ReportDirectory> {
         let dir = ReportDirectory::create(self.destination.clone(), &report.metadata)?;
-
-        let properties = report.metadata.properties();
-        let metadata = properties
-            .iter()
-            .map(|(property, value)| MetadataRow::new(property, value));
-        write_table(&dir.file("metadata.csv"), &MetadataRow::HEADER, metadata)?;
-
-        let files = report.files.iter().map(|file| FileRow::new(file));
-        write_table(&dir.file("files.csv"), &FileRow::HEADER, files)?;
-
-        let file_count = report.files.len();
-        let pairs = report
-            .pairs
-            .iter()
-            .map(|pair| PairRow::new(pair_id(pair, file_count), pair));
-        write_table(&dir.file("pairs.csv"), &PairRow::HEADER, pairs)?;
-
-        if report.metadata.include_fragments {
-            let fragments = report.pairs.iter().flat_map(|pair| {
-                pair.fragments
-                    .iter()
-                    .flatten()
-                    .map(move |fragment| FragmentRow::new(pair, fragment))
-            });
-
-            write_table(&dir.file("fragments.csv"), &FragmentRow::HEADER, fragments)?;
-        }
-
+        let description = format!("writing the report to '{}'", dir.path().display());
+        let span = tracing::info_span!("write", %description, error = tracing::field::Empty);
+        span.in_scope(|| write_tables(report, &dir))
+            .inspect_err(|e| {
+                span.record("error", tracing::field::display(e));
+            })?;
         Ok(dir)
     }
+}
+
+/// Write the CSV files of `report` in `dir`.
+fn write_tables(report: &Report, dir: &ReportDirectory) -> Result<()> {
+    let properties = report.metadata.properties();
+    let metadata = properties
+        .iter()
+        .map(|(property, value)| MetadataRow::new(property, value));
+    write_table(&dir.file("metadata.csv"), &MetadataRow::HEADER, metadata)?;
+
+    let files = report.files.iter().map(|file| FileRow::new(file));
+    write_table(&dir.file("files.csv"), &FileRow::HEADER, files)?;
+
+    let file_count = report.files.len();
+    let pairs = report
+        .pairs
+        .iter()
+        .map(|pair| PairRow::new(pair_id(pair, file_count), pair));
+    write_table(&dir.file("pairs.csv"), &PairRow::HEADER, pairs)?;
+
+    if report.metadata.include_fragments {
+        let fragments = report.pairs.iter().flat_map(|pair| {
+            pair.fragments
+                .iter()
+                .flatten()
+                .map(move |fragment| FragmentRow::new(pair, fragment))
+        });
+
+        write_table(&dir.file("fragments.csv"), &FragmentRow::HEADER, fragments)?;
+    }
+
+    Ok(())
 }
 
 impl View for CsvView {

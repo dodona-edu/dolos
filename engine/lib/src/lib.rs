@@ -9,9 +9,11 @@
 //! feature. The `all-languages` feature enables all of them.
 //! [`Language::Char`] is always available.
 //!
-//! The crate reports its warnings, such as skipped files, through the
-//! [`tracing`] crate. It prints nothing unless the application installs a
-//! subscriber.
+//! The crate reports the steps of an analysis and its warnings, such as
+//! skipped files, through the [`tracing`] crate. Each step is an `info` span
+//! with a `description` field, such as `fingerprinting 45 Python files`. A
+//! failed step records its error in the `error` field of its span. The crate
+//! prints nothing unless the application installs a subscriber.
 //!
 //! # Examples
 //!

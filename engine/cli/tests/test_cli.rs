@@ -318,7 +318,7 @@ fn unreadable_files_are_skipped_with_a_warning() {
     std::fs::copy(SAMPLE2, tmp.path().join("b.js")).unwrap();
     std::fs::write(tmp.path().join("c.js"), b"let x = \"\xff\";").unwrap();
 
-    dolos_run(&[tmp.path().to_str().unwrap()], &[])
+    dolos_run(&[tmp.path().to_str().unwrap()], &["-q"])
         .assert()
         .success()
         .stderr(predicate::str::starts_with(
@@ -333,7 +333,7 @@ fn unreadable_template_files_are_skipped_with_a_warning() {
     std::fs::write(tmp.path().join("b.js"), b"let x = \"\xff\";").unwrap();
 
     let template = tmp.path().to_str().unwrap();
-    dolos_run(&[SAMPLE1, SAMPLE2], &["-t", template])
+    dolos_run(&[SAMPLE1, SAMPLE2], &["-q", "-t", template])
         .assert()
         .success()
         .stderr(predicate::str::starts_with(
@@ -348,7 +348,7 @@ fn files_of_another_language_are_skipped_with_a_warning() {
     std::fs::copy(SAMPLE2, tmp.path().join("b.js")).unwrap();
     std::fs::write(tmp.path().join("README.md"), "notes").unwrap();
 
-    dolos_run(&[tmp.path().to_str().unwrap()], &[])
+    dolos_run(&[tmp.path().to_str().unwrap()], &["-q"])
         .assert()
         .success()
         .stderr("warning: skipped 1 file that is not JavaScript\n");
@@ -360,4 +360,53 @@ fn very_quiet_hides_the_warnings() {
         .assert()
         .success()
         .stderr("");
+}
+
+#[test]
+fn piped_output_prints_each_step() {
+    dolos_run(&[SAMPLE1, SAMPLE2], &[])
+        .assert()
+        .success()
+        .stderr("reading 2 files\nfingerprinting 2 JavaScript files\ncomparing 1 pair\n");
+}
+
+#[test]
+fn template_and_csv_output_add_a_step() {
+    let tmp = TempDir::new().unwrap();
+    let report_dir = tmp.path().join("report");
+    let output = dolos_run(&[SAMPLE1, SAMPLE2], &["-t", SAMPLE1, "-f", "csv"])
+        .args(["-o", report_dir.to_str().unwrap()])
+        .output()
+        .unwrap();
+
+    let stderr = String::from_utf8(output.stderr).unwrap();
+    let expected = format!(
+        "reading 2 files\n\
+         fingerprinting 2 JavaScript files\n\
+         fingerprinting 1 template file\n\
+         comparing 1 pair\n\
+         writing the report to '{}'\n",
+        report_dir.display()
+    );
+    assert_eq!(stderr, expected);
+}
+
+#[test]
+fn a_failed_step_prints_its_error_once() {
+    let output = dolos_run(&[SAMPLE1, SAMPLE2], &["-l", "python"])
+        .output()
+        .unwrap();
+
+    let stderr = String::from_utf8(output.stderr).unwrap();
+    assert_eq!(stderr.matches("error:").count(), 1, "{stderr}");
+}
+
+#[test]
+fn quiet_hides_the_steps_but_not_the_warnings() {
+    dolos_run(&[SAMPLE1, SAMPLE2], &["-q", "-M", "0.5"])
+        .assert()
+        .success()
+        .stderr(predicate::str::starts_with(
+            "warning: the maximum fingerprint percentage has no use",
+        ));
 }
