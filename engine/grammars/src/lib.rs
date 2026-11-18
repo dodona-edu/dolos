@@ -91,7 +91,7 @@ pub enum Language {
 
 /// The names, file extensions and tree-sitter grammar of one language.
 struct Grammar {
-    /// Lowercase names and aliases, such as `"golang"`.
+    /// First the name, then its aliases, such as `"golang"`.
     names: &'static [&'static str],
     /// Lowercase file extensions, without the dot.
     extensions: &'static [&'static str],
@@ -199,6 +199,22 @@ impl Language {
             .find(|language| contains_ignoring_case(language.grammar().names, name))
     }
 
+    /// Return the name of this language, such as `"JavaScript"`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # #[cfg(feature = "lang-go")] {
+    /// use tree_sitter_grammars::Language;
+    ///
+    /// assert_eq!(Language::Go.name(), "Go");
+    /// assert_eq!(Language::from_name("golang").map(Language::name), Some("Go"));
+    /// # }
+    /// ```
+    pub fn name(self) -> &'static str {
+        self.grammar().names[0]
+    }
+
     /// Return the languages that use the extension of `path`, ignoring case.
     ///
     /// Several languages can share an extension, such as `.h` for C and C++.
@@ -283,13 +299,13 @@ impl Language {
         match self {
             #[cfg(feature = "lang-bash")]
             Language::Bash => Grammar {
-                names: &["bash", "shell", "sh"],
+                names: &["Bash", "shell", "sh"],
                 extensions: &["sh", "bash"],
                 tree_sitter: Some(tree_sitter_bash::LANGUAGE),
             },
             #[cfg(feature = "lang-c")]
             Language::C => Grammar {
-                names: &["c"],
+                names: &["C"],
                 extensions: &["c", "h"],
                 tree_sitter: Some(tree_sitter_c::LANGUAGE),
             },
@@ -300,7 +316,7 @@ impl Language {
             },
             #[cfg(feature = "lang-cpp")]
             Language::Cpp => Grammar {
-                names: &["c++", "cpp"],
+                names: &["C++", "cpp"],
                 extensions: &[
                     "cpp", "hpp", "cc", "cp", "cxx", "c++", "h", "hh", "hxx", "h++",
                 ],
@@ -308,97 +324,97 @@ impl Language {
             },
             #[cfg(feature = "lang-csharp")]
             Language::CSharp => Grammar {
-                names: &["c#", "csharp"],
+                names: &["C#", "csharp"],
                 extensions: &["cs", "csx"],
                 tree_sitter: Some(tree_sitter_c_sharp::LANGUAGE),
             },
             #[cfg(feature = "lang-dart")]
             Language::Dart => Grammar {
-                names: &["dart"],
+                names: &["Dart"],
                 extensions: &["dart"],
                 tree_sitter: Some(tree_sitter_dart::LANGUAGE),
             },
             #[cfg(feature = "lang-elixir")]
             Language::Elixir => Grammar {
-                names: &["elixir"],
+                names: &["Elixir"],
                 extensions: &["ex", "exs"],
                 tree_sitter: Some(tree_sitter_elixir::LANGUAGE),
             },
             #[cfg(feature = "lang-elm")]
             Language::Elm => Grammar {
-                names: &["elm"],
+                names: &["Elm"],
                 extensions: &["elm"],
                 tree_sitter: Some(tree_sitter_elm::LANGUAGE),
             },
             #[cfg(feature = "lang-go")]
             Language::Go => Grammar {
-                names: &["go", "golang"],
+                names: &["Go", "golang"],
                 extensions: &["go"],
                 tree_sitter: Some(tree_sitter_go::LANGUAGE),
             },
             #[cfg(feature = "lang-groovy")]
             Language::Groovy => Grammar {
-                names: &["groovy"],
+                names: &["Groovy"],
                 extensions: &["groovy", "gvy", "gy", "gsh"],
                 tree_sitter: Some(tree_sitter_groovy::LANGUAGE),
             },
             #[cfg(feature = "lang-haskell")]
             Language::Haskell => Grammar {
-                names: &["haskell"],
+                names: &["Haskell"],
                 extensions: &["hs", "lhs"],
                 tree_sitter: Some(tree_sitter_haskell::LANGUAGE),
             },
             #[cfg(feature = "lang-java")]
             Language::Java => Grammar {
-                names: &["java"],
+                names: &["Java"],
                 extensions: &["java"],
                 tree_sitter: Some(tree_sitter_java::LANGUAGE),
             },
             #[cfg(feature = "lang-javascript")]
             Language::Javascript => Grammar {
-                names: &["javascript", "js"],
+                names: &["JavaScript", "js"],
                 extensions: &["js"],
                 tree_sitter: Some(tree_sitter_javascript::LANGUAGE),
             },
             #[cfg(feature = "lang-julia")]
             Language::Julia => Grammar {
-                names: &["julia"],
+                names: &["Julia"],
                 extensions: &["jl"],
                 tree_sitter: Some(tree_sitter_julia::LANGUAGE),
             },
             #[cfg(feature = "lang-kotlin")]
             Language::Kotlin => Grammar {
-                names: &["kotlin"],
+                names: &["Kotlin"],
                 extensions: &["kt", "kts"],
                 tree_sitter: Some(tree_sitter_kotlin::LANGUAGE),
             },
             #[cfg(feature = "lang-lua")]
             Language::Lua => Grammar {
-                names: &["lua"],
+                names: &["Lua"],
                 extensions: &["lua"],
                 tree_sitter: Some(tree_sitter_lua::LANGUAGE),
             },
             #[cfg(feature = "lang-modelica")]
             Language::Modelica => Grammar {
-                names: &["modelica"],
+                names: &["Modelica"],
                 extensions: &["mo"],
                 tree_sitter: Some(tree_sitter_modelica::LANGUAGE),
             },
             #[cfg(feature = "lang-ocaml")]
             Language::Ocaml => Grammar {
-                names: &["ocaml"],
+                names: &["OCaml"],
                 extensions: &["ml"],
                 tree_sitter: Some(tree_sitter_ocaml::LANGUAGE_OCAML),
             },
             #[cfg(feature = "lang-perl")]
             Language::Perl => Grammar {
-                names: &["perl"],
+                names: &["Perl"],
                 extensions: &["pl", "pm", "t"],
                 tree_sitter: Some(tree_sitter_perl::LANGUAGE),
             },
             #[cfg(feature = "lang-php")]
             Language::Php => Grammar {
-                names: &["php"],
+                names: &["PHP"],
                 extensions: &[
                     "php", "php3", "php4", "php5", "php7", "phps", "phpt", "phtml",
                 ],
@@ -406,61 +422,61 @@ impl Language {
             },
             #[cfg(feature = "lang-python")]
             Language::Python => Grammar {
-                names: &["python", "py"],
+                names: &["Python", "py"],
                 extensions: &["py", "py3"],
                 tree_sitter: Some(tree_sitter_python::LANGUAGE),
             },
             #[cfg(feature = "lang-r")]
             Language::R => Grammar {
-                names: &["r"],
+                names: &["R"],
                 extensions: &["r"],
                 tree_sitter: Some(tree_sitter_r::LANGUAGE),
             },
             #[cfg(feature = "lang-ruby")]
             Language::Ruby => Grammar {
-                names: &["ruby"],
+                names: &["Ruby"],
                 extensions: &["rb", "rbw"],
                 tree_sitter: Some(tree_sitter_ruby::LANGUAGE),
             },
             #[cfg(feature = "lang-rust")]
             Language::Rust => Grammar {
-                names: &["rust"],
+                names: &["Rust"],
                 extensions: &["rs"],
                 tree_sitter: Some(tree_sitter_rust::LANGUAGE),
             },
             #[cfg(feature = "lang-scala")]
             Language::Scala => Grammar {
-                names: &["scala"],
+                names: &["Scala"],
                 extensions: &["scala", "sc"],
                 tree_sitter: Some(tree_sitter_scala::LANGUAGE),
             },
             #[cfg(feature = "lang-sql")]
             Language::Sql => Grammar {
-                names: &["sql"],
+                names: &["SQL"],
                 extensions: &["sql"],
                 tree_sitter: Some(tree_sitter_sequel::LANGUAGE),
             },
             #[cfg(feature = "lang-swift")]
             Language::Swift => Grammar {
-                names: &["swift"],
+                names: &["Swift"],
                 extensions: &["swift"],
                 tree_sitter: Some(tree_sitter_swift::LANGUAGE),
             },
             #[cfg(feature = "lang-typescript")]
             Language::Typescript => Grammar {
-                names: &["typescript", "ts"],
+                names: &["TypeScript", "ts"],
                 extensions: &["ts"],
                 tree_sitter: Some(tree_sitter_typescript::LANGUAGE_TYPESCRIPT),
             },
             #[cfg(feature = "lang-tsx")]
             Language::Tsx => Grammar {
-                names: &["tsx"],
+                names: &["TSX"],
                 extensions: &["tsx"],
                 tree_sitter: Some(tree_sitter_typescript::LANGUAGE_TSX),
             },
             #[cfg(feature = "lang-verilog")]
             Language::Verilog => Grammar {
-                names: &["verilog"],
+                names: &["Verilog"],
                 extensions: &["v", "vh"],
                 tree_sitter: Some(tree_sitter_verilog::LANGUAGE),
             },

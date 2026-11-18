@@ -33,6 +33,7 @@
 
 mod config;
 mod dolos;
+mod error;
 mod file;
 mod fragment;
 mod ignore;

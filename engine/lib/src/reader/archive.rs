@@ -1,3 +1,4 @@
+use crate::error::context;
 use bzip2::read::BzDecoder;
 use flate2::read::GzDecoder;
 use std::fs::File;
@@ -17,7 +18,9 @@ pub fn try_extract(path: &Path) -> Result<Option<ExtractionResult>> {
         return Ok(None);
     };
     let temp_dir = tempdir()?;
-    format.extract(path, temp_dir.path())?;
+    format
+        .extract(path, temp_dir.path())
+        .map_err(|e| context(e, format!("could not extract '{}'", path.display())))?;
     Ok(Some(ExtractionResult { name, temp_dir }))
 }
 

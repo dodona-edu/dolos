@@ -43,7 +43,7 @@ impl Dataset {
         if file_set.relative_paths.len() < 2 {
             return Err(Error::new(
                 ErrorKind::InvalidInput,
-                format!("Need at least 2 {language:?} files to compare."),
+                format!("need at least 2 {} files to compare", language.name()),
             ));
         }
 

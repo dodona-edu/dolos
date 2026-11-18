@@ -22,6 +22,7 @@ axum = "0.8.9"
 tokio = { version = "1.53.1", features = ["rt", "net"] }
 tower-http = { version = "0.7.1", features = ["fs"] }
 open = "5.4.3"
+anyhow = "1.0.104"
 
 [dev-dependencies]
 assert_cmd = "2.2.2"

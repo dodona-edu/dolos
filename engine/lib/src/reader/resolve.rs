@@ -1,3 +1,4 @@
+use crate::error::context;
 use csv::Reader;
 use std::fs;
 use std::io::{Error, ErrorKind, Result};
@@ -49,7 +50,10 @@ pub fn files_name(paths: &[PathBuf]) -> String {
 
 fn filenames_from_csv(csv_path: &Path) -> Result<Vec<PathBuf>> {
     let dir = csv_dir(csv_path);
-    let invalid = |e| Error::new(ErrorKind::InvalidData, e);
+    let invalid = |e: csv::Error| {
+        let message = format!("could not read the csv file '{}': {e}", csv_path.display());
+        Error::new(ErrorKind::InvalidData, message)
+    };
     let mut rdr = Reader::from_path(csv_path).map_err(invalid)?;
 
     let filename_col = rdr
@@ -57,7 +61,10 @@ fn filenames_from_csv(csv_path: &Path) -> Result<Vec<PathBuf>> {
         .map_err(invalid)?
         .iter()
         .position(|h| h == "filename")
-        .ok_or_else(|| Error::new(ErrorKind::InvalidData, "CSV missing 'filename' column"))?;
+        .ok_or_else(|| {
+            let message = format!("csv file '{}' has no 'filename' column", csv_path.display());
+            Error::new(ErrorKind::InvalidData, message)
+        })?;
 
     rdr.records()
         .map(|r| r.map_err(invalid).map(|r| dir.join(&r[filename_col])))
@@ -68,8 +75,14 @@ fn collect_recursive(dir: &Path) -> Result<Vec<PathBuf>> {
     let mut files = Vec::new();
     let mut pending = vec![dir.to_path_buf()];
     while let Some(current) = pending.pop() {
-        for entry in fs::read_dir(&current)? {
-            let path = entry?.path();
+        let read_error = |e| {
+            context(
+                e,
+                format!("could not read directory '{}'", current.display()),
+            )
+        };
+        for entry in fs::read_dir(&current).map_err(read_error)? {
+            let path = entry.map_err(read_error)?.path();
             if path.is_dir() {
                 pending.push(path);
             } else {
@@ -91,9 +104,9 @@ fn csv_dir(csv_path: &Path) -> &Path {
 /// Return the last component of the canonical form of an existing directory.
 fn dir_name(dir: &Path) -> Result<String> {
     let dir = dir.canonicalize().map_err(|e| {
-        Error::new(
-            e.kind(),
-            format!("Could not resolve directory '{}': {e}", dir.display()),
+        context(
+            e,
+            format!("could not resolve directory '{}'", dir.display()),
         )
     })?;
     Ok(dir

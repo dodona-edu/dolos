@@ -7,11 +7,12 @@ use std::io::{BufWriter, Result, Write};
 pub struct TerminalView;
 
 impl View for TerminalView {
-    fn show(&self, report: &Report) -> Result<()> {
+    fn show(&self, report: &Report) -> anyhow::Result<()> {
         let stdout = std::io::stdout().lock();
         let mut out = BufWriter::new(stdout);
         self.render(report, &mut out)?;
-        out.flush()
+        out.flush()?;
+        Ok(())
     }
 }
 

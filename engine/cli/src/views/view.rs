@@ -2,8 +2,8 @@ use crate::opts::{OutputArgs, OutputFormat};
 use crate::views::csv::CsvView;
 use crate::views::terminal::TerminalView;
 use crate::views::web::WebView;
+use anyhow::Result;
 use dolos::Report;
-use std::io::Result;
 
 /// Shows the results of an analysis.
 pub trait View {

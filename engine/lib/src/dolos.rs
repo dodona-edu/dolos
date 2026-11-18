@@ -1,4 +1,5 @@
 use crate::config::DolosConfig;
+use crate::error::context;
 use crate::file::{AnalysisData, File, FileSet};
 use crate::fragment::resolve_fragments;
 use crate::ignore;
@@ -9,7 +10,7 @@ use crate::winnowing::fingerprints::{Fingerprint, winnow};
 use crate::winnowing::region::Region;
 use crate::winnowing::tokenizer::Tokenizer;
 use std::fmt;
-use std::io::{Error, Result};
+use std::io::Result;
 use std::ops::Range;
 use std::path::{Path, PathBuf};
 use std::rc::Rc;
@@ -267,12 +268,8 @@ impl Dolos {
 /// Read the file at `relative` in `base_dir`.
 fn read_file(base_dir: &Path, relative: &Path) -> Result<String> {
     let path = base_dir.join(relative);
-    std::fs::read_to_string(&path).map_err(|e| {
-        Error::new(
-            e.kind(),
-            format!("Could not read '{}': {e}", path.display()),
-        )
-    })
+    std::fs::read_to_string(&path)
+        .map_err(|e| context(e, format!("could not read '{}'", path.display())))
 }
 
 impl fmt::Debug for Dolos {

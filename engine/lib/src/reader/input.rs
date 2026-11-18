@@ -27,10 +27,7 @@ impl Input {
     ///   `.tbz2`) → extracted to a temporary directory, then treated as a directory.
     pub fn read(paths: Vec<PathBuf>) -> Result<Self> {
         match paths.as_slice() {
-            [] => Err(Error::new(
-                ErrorKind::InvalidInput,
-                "No input paths provided",
-            )),
+            [] => Err(Error::new(ErrorKind::InvalidInput, "no input paths given")),
             [path] if path.is_dir() => Self::from_directory(path),
             [path] if path.extension().is_some_and(|ext| ext == "csv") => Self::from_csv(path),
             [path] => match archive::try_extract(path)? {

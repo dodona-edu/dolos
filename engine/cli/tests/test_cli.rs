@@ -294,3 +294,11 @@ fn language_char_is_written_to_the_metadata() {
     let language = rows.iter().find(|row| &row[0] == "language").unwrap();
     assert_eq!(&language[1], "Char");
 }
+
+#[test]
+fn library_errors_print_only_the_message() {
+    dolos_run(&[SAMPLE1, SAMPLE2], &["-l", "python"])
+        .assert()
+        .code(1)
+        .stderr("error: need at least 2 Python files to compare\n");
+}

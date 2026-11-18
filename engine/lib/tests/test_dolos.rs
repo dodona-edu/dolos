@@ -206,7 +206,10 @@ fn text_files_are_compared_per_character() {
 #[test]
 fn tied_languages_are_ambiguous() {
     let err = Dolos::new(to_path_buf(JS_AND_PY), DolosConfig::default()).unwrap_err();
-    assert!(err.to_string().contains("[Javascript, Python]"), "{err}");
+    assert!(
+        err.to_string().contains("JavaScript and Python each match"),
+        "{err}"
+    );
 }
 
 #[test]

@@ -1,5 +1,5 @@
+use anyhow::{Context, Result, bail};
 use dolos::Metadata;
-use std::io::{Error, ErrorKind, Result};
 use std::path::{Path, PathBuf};
 
 /// A created, empty directory that holds the files of one report.
@@ -15,19 +15,17 @@ impl ReportDirectory {
     /// otherwise.
     ///
     /// # Errors
-    /// Returns [`ErrorKind::AlreadyExists`] when the directory already exists.
+    /// Fails when the directory already exists or cannot be created.
     pub fn create(destination: Option<PathBuf>, metadata: &Metadata) -> Result<Self> {
         let path = destination.unwrap_or_else(|| PathBuf::from(default_name(metadata)));
         if path.exists() {
-            return Err(Error::new(
-                ErrorKind::AlreadyExists,
-                format!(
-                    "Directory {} already exists. Please specify a different output destination.",
-                    path.display()
-                ),
-            ));
+            bail!(
+                "directory '{}' already exists; choose another --output-destination",
+                path.display()
+            );
         }
-        std::fs::create_dir_all(&path)?;
+        std::fs::create_dir_all(&path)
+            .with_context(|| format!("could not create directory '{}'", path.display()))?;
         Ok(Self { path })
     }
 

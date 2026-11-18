@@ -1,9 +1,9 @@
 use crate::views::csv::report_dir::ReportDirectory;
 use crate::views::csv::rows::{FileRow, FragmentRow, MetadataRow, PairRow};
 use crate::views::view::View;
+use anyhow::{Context, Result};
 use dolos::{Pair, Report};
 use serde::Serialize;
-use std::io::{Error, Result};
 use std::path::{Path, PathBuf};
 
 /// Writes the report as a set of CSV files in one directory.
@@ -78,10 +78,11 @@ fn write_table<R: Serialize>(
     let mut writer = csv::WriterBuilder::new()
         .has_headers(false)
         .from_path(path)
-        .map_err(Error::other)?;
-    writer.write_record(header).map_err(Error::other)?;
+        .with_context(|| format!("could not create '{}'", path.display()))?;
+    writer.write_record(header)?;
     for row in rows {
-        writer.serialize(row).map_err(Error::other)?;
+        writer.serialize(row)?;
     }
-    writer.flush()
+    writer.flush()?;
+    Ok(())
 }

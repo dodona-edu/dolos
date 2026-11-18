@@ -1,8 +1,8 @@
 use crate::views::csv::CsvView;
 use crate::views::view::View;
 use crate::views::web::server::{Server, serve};
+use anyhow::Result;
 use dolos::Report;
-use std::io::Result;
 use std::path::PathBuf;
 
 /// Serves the report over HTTP.

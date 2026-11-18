@@ -118,7 +118,7 @@ impl FileSet {
         let Some(&max) = counts.values().max() else {
             return Err(Error::new(
                 ErrorKind::InvalidInput,
-                "Could not detect the language: no file has a known extension. Specify the language explicitly.",
+                "could not detect the language: no file has a known extension; specify the language",
             ));
         };
 
@@ -130,12 +130,17 @@ impl FileSet {
         winners.sort();
         match winners[..] {
             [language] => Ok(language),
-            _ => Err(Error::new(
-                ErrorKind::InvalidInput,
-                format!(
-                    "Could not detect the language: {winners:?} each match {max} files. Specify the language explicitly."
-                ),
-            )),
+            _ => {
+                let names: Vec<&str> = winners.into_iter().map(Language::name).collect();
+                let files = if max == 1 { "file" } else { "files" };
+                Err(Error::new(
+                    ErrorKind::InvalidInput,
+                    format!(
+                        "could not detect the language: {} each match {max} {files}; specify the language",
+                        names.join(" and ")
+                    ),
+                ))
+            }
         }
     }
 
@@ -170,7 +175,7 @@ mod tests {
         let err = file_set(&["a.h", "b.h", "c.h", "README.md"])
             .detect_language()
             .unwrap_err();
-        assert!(err.to_string().contains("[C, Cpp]"), "{err}");
+        assert!(err.to_string().contains("C and C++ each match"), "{err}");
     }
 
     #[test]

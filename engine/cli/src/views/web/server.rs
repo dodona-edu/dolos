@@ -1,5 +1,5 @@
+use anyhow::{Context, Result};
 use axum::Router;
-use std::io::{Error, Result};
 use std::path::{Path, PathBuf};
 use tower_http::services::ServeDir;
 
@@ -18,8 +18,11 @@ pub fn serve(report_dir: &Path, server: &Server) -> Result<()> {
         .build()?;
 
     runtime.block_on(async move {
-        let listener = tokio::net::TcpListener::bind((server.host.as_str(), server.port)).await?;
-        let url = format!("http://{}:{}", server.host, server.port);
+        let address = format!("{}:{}", server.host, server.port);
+        let listener = tokio::net::TcpListener::bind((server.host.as_str(), server.port))
+            .await
+            .with_context(|| format!("could not listen on {address}"))?;
+        let url = format!("http://{address}");
         println!("Dolos is available on {url}");
 
         if server.open_browser {
@@ -31,7 +34,8 @@ pub fn serve(report_dir: &Path, server: &Server) -> Result<()> {
         }
 
         println!("Press Ctrl-C to exit.");
-        axum::serve(listener, router).await.map_err(Error::other)
+        axum::serve(listener, router).await?;
+        Ok(())
     })
 }
 
