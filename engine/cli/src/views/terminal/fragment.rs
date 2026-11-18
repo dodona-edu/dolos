@@ -1,7 +1,11 @@
-use colored::Colorize;
+use anstyle::{AnsiColor, Style};
 use dolos::{Fragment, Pair, Region};
 use std::io::{Result, Write};
 use std::ops::Range;
+
+const BOLD: Style = Style::new().bold();
+const DIMMED: Style = Style::new().dimmed();
+const MATCH: Style = AnsiColor::Red.on_default();
 
 /// Write every fragment of a pair as a side-by-side block.
 pub fn write_all(pair: &Pair, out: &mut impl Write) -> Result<()> {
@@ -14,9 +18,9 @@ pub fn write_all(pair: &Pair, out: &mut impl Write) -> Result<()> {
     writeln!(out)?;
     writeln!(
         out,
-        " {:<width$}   {}",
-        pair.left_file.relative_path.display().to_string().bold(),
-        pair.right_file.relative_path.display().to_string().bold(),
+        " {BOLD}{:<width$}{BOLD:#}   {BOLD}{}{BOLD:#}",
+        pair.left_file.relative_path.display().to_string(),
+        pair.right_file.relative_path.display(),
     )?;
     writeln!(out)?;
     writeln!(out, " Total fragments: {} fragments", fragments.len())?;
@@ -28,11 +32,7 @@ pub fn write_all(pair: &Pair, out: &mut impl Write) -> Result<()> {
 
     let total = fragments.len();
     for (i, fragment) in fragments.iter().enumerate() {
-        writeln!(
-            out,
-            "\n{}\n",
-            format!("Fragment {}/{}:", i + 1, total).bold()
-        )?;
+        writeln!(out, "\n{BOLD}Fragment {}/{total}:{BOLD:#}\n", i + 1)?;
         write_one(fragment, &left_lines, &right_lines, width, out)?;
         writeln!(out)?;
     }
@@ -140,16 +140,13 @@ impl DisplayLine<'_> {
                         .min(code_width)
                         .max(start);
                     format!(
-                        "{} {}{}{}",
-                        number.dimmed(),
-                        text(0..start).dimmed(),
-                        text(start..stop).red(),
-                        text(stop..code_width).dimmed()
+                        "{DIMMED}{number} {}{DIMMED:#}{MATCH}{}{MATCH:#}{DIMMED}{}{DIMMED:#}",
+                        text(0..start),
+                        text(start..stop),
+                        text(stop..code_width)
                     )
                 }
-                None => format!("{number} {}", text(0..code_width))
-                    .dimmed()
-                    .to_string(),
+                None => format!("{DIMMED}{number} {}{DIMMED:#}", text(0..code_width)),
             });
 
             offset = end;
@@ -220,6 +217,13 @@ mod tests {
             .collect()
     }
 
+    /// The rows without their color codes.
+    fn plain(rows: Vec<String>) -> Vec<String> {
+        rows.iter()
+            .map(|row| anstream::adapter::strip_str(row).to_string())
+            .collect()
+    }
+
     #[test]
     fn collect_display_lines_adds_a_context_line_on_each_side() {
         let lines = vec!["line0", "line1", "line2", "line3", "line4"];
@@ -263,11 +267,10 @@ mod tests {
 
     #[test]
     fn format_wraps_a_multibyte_line_on_character_boundaries() {
-        colored::control::set_override(false);
         let line = DisplayLine { line_number: 7, code: "héllo wörld", highlight: Some(2..8) };
 
         // 11 characters wrap into three rows of 4, each row 2 + 1 + 4 wide.
-        assert_eq!(line.format(2, 4), vec![" 7 héll", " | o wö", " | rld "]);
+        assert_eq!(plain(line.format(2, 4)), [" 7 héll", " | o wö", " | rld "]);
     }
 
     #[test]
@@ -284,16 +287,14 @@ mod tests {
 
     #[test]
     fn format_accepts_a_backwards_highlight() {
-        colored::control::set_override(false);
         let backwards = Range { start: 4, end: 2 };
         let line = DisplayLine { line_number: 1, code: "abcdef", highlight: Some(backwards) };
 
-        assert_eq!(line.format(1, 6), vec!["1 abcdef"]);
+        assert_eq!(plain(line.format(1, 6)), ["1 abcdef"]);
     }
 
     #[test]
     fn format_makes_progress_on_a_too_narrow_terminal() {
-        colored::control::set_override(false);
         let line = DisplayLine { line_number: 1, code: "abcdef", highlight: Some(0..6) };
 
         // Side::new clamps code_width to 1, which must still make progress.

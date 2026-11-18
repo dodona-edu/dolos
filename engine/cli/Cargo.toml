@@ -13,7 +13,6 @@ path = "src/main.rs"
 [dependencies]
 dolos-lib = { path = "../dolos-lib", features = ["all-languages"] }
 clap = { version = "4.6.1", features = ["derive"] }
-colored = "3.1.1"
 terminal_size = "0.4.4"
 csv = "1.4.0"
 serde = { version = "1.0.228", features = ["derive"] }
@@ -23,6 +22,8 @@ tokio = { version = "1.53.1", features = ["rt", "net"] }
 tower-http = { version = "0.7.1", features = ["fs"] }
 open = "5.4.3"
 anyhow = "1.0.104"
+anstream = "1.0.0"
+anstyle = "1.0.14"
 
 [dev-dependencies]
 assert_cmd = "2.2.2"

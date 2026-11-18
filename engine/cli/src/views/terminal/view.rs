@@ -8,7 +8,8 @@ pub struct TerminalView;
 
 impl View for TerminalView {
     fn show(&self, report: &Report) -> anyhow::Result<()> {
-        let stdout = std::io::stdout().lock();
+        // `anstream` removes the color codes when stdout is not a terminal.
+        let stdout = anstream::stdout().lock();
         let mut out = BufWriter::new(stdout);
         self.render(report, &mut out)?;
         out.flush()?;
