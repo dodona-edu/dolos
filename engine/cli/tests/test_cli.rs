@@ -297,8 +297,67 @@ fn language_char_is_written_to_the_metadata() {
 
 #[test]
 fn library_errors_print_only_the_message() {
-    dolos_run(&[SAMPLE1, SAMPLE2], &["-l", "python"])
+    dolos_run(&[SAMPLE1, SAMPLE2], &["-l", "python", "-qq"])
         .assert()
         .code(1)
         .stderr("error: need at least 2 Python files to compare\n");
+}
+
+#[test]
+fn silent_hides_the_errors() {
+    dolos_run(&[SAMPLE1, SAMPLE2], &["-l", "python", "-qqq"])
+        .assert()
+        .code(1)
+        .stderr("");
+}
+
+#[test]
+fn unreadable_files_are_skipped_with_a_warning() {
+    let tmp = TempDir::new().unwrap();
+    std::fs::copy(SAMPLE1, tmp.path().join("a.js")).unwrap();
+    std::fs::copy(SAMPLE2, tmp.path().join("b.js")).unwrap();
+    std::fs::write(tmp.path().join("c.js"), b"let x = \"\xff\";").unwrap();
+
+    dolos_run(&[tmp.path().to_str().unwrap()], &[])
+        .assert()
+        .success()
+        .stderr(predicate::str::starts_with(
+            "warning: skipped file 'c.js': ",
+        ));
+}
+
+#[test]
+fn unreadable_template_files_are_skipped_with_a_warning() {
+    let tmp = TempDir::new().unwrap();
+    std::fs::copy(SAMPLE1, tmp.path().join("a.js")).unwrap();
+    std::fs::write(tmp.path().join("b.js"), b"let x = \"\xff\";").unwrap();
+
+    let template = tmp.path().to_str().unwrap();
+    dolos_run(&[SAMPLE1, SAMPLE2], &["-t", template])
+        .assert()
+        .success()
+        .stderr(predicate::str::starts_with(
+            "warning: skipped template file 'b.js': ",
+        ));
+}
+
+#[test]
+fn files_of_another_language_are_skipped_with_a_warning() {
+    let tmp = TempDir::new().unwrap();
+    std::fs::copy(SAMPLE1, tmp.path().join("a.js")).unwrap();
+    std::fs::copy(SAMPLE2, tmp.path().join("b.js")).unwrap();
+    std::fs::write(tmp.path().join("README.md"), "notes").unwrap();
+
+    dolos_run(&[tmp.path().to_str().unwrap()], &[])
+        .assert()
+        .success()
+        .stderr("warning: skipped 1 file that is not JavaScript\n");
+}
+
+#[test]
+fn very_quiet_hides_the_warnings() {
+    dolos_run(&[SAMPLE1, SAMPLE2], &["-qq", "-M", "0.5"])
+        .assert()
+        .success()
+        .stderr("");
 }

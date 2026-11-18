@@ -240,14 +240,17 @@ fn too_few_files_after_filtering_are_rejected() {
 }
 
 #[test]
-fn template_without_files_of_the_language_is_rejected() {
+fn template_without_files_of_the_language_ignores_nothing() {
     let config = DolosConfig::builder()
+        .include_analysis_data(true)
         .template(["fixtures/sample1.py"])
         .build()
         .unwrap();
-    let err = Dolos::new(to_path_buf(SAMPLE12), config).unwrap_err();
+    let report = report(SAMPLE12, config);
 
-    assert_eq!(err.kind(), std::io::ErrorKind::InvalidInput);
+    for file in &report.files {
+        assert!(analysis_data(file).ignored.is_empty());
+    }
 }
 
 #[test]

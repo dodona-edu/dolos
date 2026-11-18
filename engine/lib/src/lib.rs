@@ -9,6 +9,10 @@
 //! feature. The `all-languages` feature enables all of them.
 //! [`Language::Char`] is always available.
 //!
+//! The crate reports its warnings, such as skipped files, through the
+//! [`tracing`] crate. It prints nothing unless the application installs a
+//! subscriber.
+//!
 //! # Examples
 //!
 //! ```

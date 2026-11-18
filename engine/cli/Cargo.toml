@@ -24,6 +24,9 @@ open = "5.4.3"
 anyhow = "1.0.104"
 anstream = "1.0.0"
 anstyle = "1.0.14"
+clap-verbosity-flag = { version = "3.0.4", default-features = false, features = ["tracing"] }
+tracing = { version = "0.1.44", default-features = false, features = ["std"] }
+tracing-subscriber = { version = "0.3.23", default-features = false, features = ["registry", "std"] }
 
 [dev-dependencies]
 assert_cmd = "2.2.2"

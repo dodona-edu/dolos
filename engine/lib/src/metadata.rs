@@ -1,5 +1,5 @@
 use crate::config::{DolosConfig, FragmentSortBy, PairSortBy};
-use crate::reader::Dataset;
+use crate::reader::Source;
 use chrono::{DateTime, Utc};
 use dolos_core::AnalysisOptions;
 use std::path::PathBuf;
@@ -43,19 +43,19 @@ pub struct Metadata {
 }
 
 impl Metadata {
-    /// Resolve the user-facing [`DolosConfig`] and the [`Dataset`] into the run metadata.
-    pub(crate) fn from_config(config: &DolosConfig, dataset: &Dataset) -> Metadata {
-        let file_count = dataset.file_set.relative_paths.len();
+    /// Resolve the user-facing [`DolosConfig`] and the [`Source`] into the run metadata.
+    pub(crate) fn from_config(config: &DolosConfig, source: &Source) -> Metadata {
+        let file_count = source.files.len();
         let max_fingerprint_file_count = config.max_fingerprint_file_count(file_count);
 
         Metadata {
-            report_name: config.name.clone().unwrap_or_else(|| dataset.name.clone()),
+            report_name: config.name.clone().unwrap_or_else(|| source.name.clone()),
             created_at: Utc::now(),
             sort_by: config.sort_by,
             fragment_sort_by: config.fragment_sort_by,
             kgram_length: config.kgram_length,
             kgrams_in_window: config.kgrams_in_window,
-            language: dataset.language,
+            language: source.language,
             include_comments: config.include_comments,
             include_fragments: file_count == 2 || config.compare,
             include_analysis_data: config.include_analysis_data,

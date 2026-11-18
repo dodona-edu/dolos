@@ -1,12 +1,9 @@
 use crate::winnowing::fingerprints::Fingerprint;
 use crate::winnowing::region::Region;
-use std::collections::HashMap;
 use std::fmt;
 use std::hash::{Hash, Hasher};
-use std::io::{Error, ErrorKind, Result};
 use std::ops::Range;
 use std::path::PathBuf;
-use tree_sitter_grammars::Language;
 
 /// One input file of an analysis.
 #[derive(Clone)]
@@ -75,127 +72,5 @@ impl fmt::Debug for File {
         fmt.debug_struct("File")
             .field("path", &self.relative_path)
             .finish()
-    }
-}
-
-/// A set of source files to analyze: a base directory and paths relative to it.
-/// The relative paths serve as display paths in the output.
-#[derive(Debug, Clone)]
-pub struct FileSet {
-    pub base_dir: PathBuf,
-    pub relative_paths: Vec<PathBuf>,
-}
-
-impl FileSet {
-    /// Create a `FileSet` from a base directory and a list of full paths.
-    /// Each path is stripped of the `base_dir` prefix to produce the relative
-    /// (display) paths stored in `relative_paths`.
-    pub fn new(base_dir: impl Into<PathBuf>, files: Vec<PathBuf>) -> Self {
-        let base_dir = base_dir.into();
-        let relative_paths = files
-            .into_iter()
-            .map(|p| p.strip_prefix(&base_dir).unwrap_or(&p).to_path_buf())
-            .collect();
-        Self { base_dir, relative_paths }
-    }
-
-    /// Detect the language that the most file extensions belong to.
-    /// [`Language::Char`] counts only when no file belongs to another language.
-    ///
-    /// # Errors
-    /// Fails when no file has a known extension, or when several languages share the highest count.
-    pub fn detect_language(&self) -> Result<Language> {
-        let mut counts: HashMap<Language, usize> = HashMap::new();
-        for path in &self.relative_paths {
-            for language in Language::from_path(path) {
-                *counts.entry(language).or_default() += 1;
-            }
-        }
-        if counts.len() > 1 {
-            counts.remove(&Language::Char);
-        }
-
-        let Some(&max) = counts.values().max() else {
-            return Err(Error::new(
-                ErrorKind::InvalidInput,
-                "could not detect the language: no file has a known extension; specify the language",
-            ));
-        };
-
-        let mut winners: Vec<Language> = counts
-            .into_iter()
-            .filter(|&(_, count)| count == max)
-            .map(|(language, _)| language)
-            .collect();
-        winners.sort();
-        match winners[..] {
-            [language] => Ok(language),
-            _ => {
-                let names: Vec<&str> = winners.into_iter().map(Language::name).collect();
-                let files = if max == 1 { "file" } else { "files" };
-                Err(Error::new(
-                    ErrorKind::InvalidInput,
-                    format!(
-                        "could not detect the language: {} each match {max} {files}; specify the language",
-                        names.join(" and ")
-                    ),
-                ))
-            }
-        }
-    }
-
-    /// Keep only the files whose extension belongs to `language`.
-    pub fn retain_language(&mut self, language: Language) {
-        self.relative_paths.retain(|path| language.matches(path));
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use rstest::rstest;
-
-    fn file_set(paths: &[&str]) -> FileSet {
-        FileSet::new("", paths.iter().map(PathBuf::from).collect())
-    }
-
-    #[rstest]
-    #[case::cpp_with_headers(&["a.cpp", "b.cpp", "c.cpp", "d.cpp", "a.h", "b.h", "c.h"], Language::Cpp)]
-    #[case::c_with_headers(&["a.c", "b.c", "a.h", "b.h", "c.h"], Language::C)]
-    #[case::unknown_majority(&["a.py", "b.py", "x.csv", "y.csv", "z.csv"], Language::Python)]
-    #[case::text_only(&["a.txt", "b.md"], Language::Char)]
-    #[case::code_before_text(&["a.py", "README.md", "notes.txt", "b.md"], Language::Python)]
-    #[case::no_extension(&["Makefile", "a.py"], Language::Python)]
-    fn detect_language_picks_majority(#[case] paths: &[&str], #[case] expected: Language) {
-        assert_eq!(file_set(paths).detect_language().unwrap(), expected);
-    }
-
-    #[test]
-    fn detect_language_rejects_a_tie() {
-        let err = file_set(&["a.h", "b.h", "c.h", "README.md"])
-            .detect_language()
-            .unwrap_err();
-        assert!(err.to_string().contains("C and C++ each match"), "{err}");
-    }
-
-    #[test]
-    fn detect_language_rejects_unknown_extensions() {
-        let err = file_set(&["data.csv", "Makefile"])
-            .detect_language()
-            .unwrap_err();
-        assert!(
-            err.to_string().contains("no file has a known extension"),
-            "{err}"
-        );
-    }
-
-    #[test]
-    fn retain_language_keeps_matching_files() {
-        let mut files = file_set(&["a.cpp", "README.md", "b.h", ".gitignore", "Makefile"]);
-        files.retain_language(Language::Cpp);
-        assert_eq!(
-            files.relative_paths,
-            [PathBuf::from("a.cpp"), PathBuf::from("b.h")]
-        );
     }
 }

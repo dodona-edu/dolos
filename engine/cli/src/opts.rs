@@ -1,4 +1,5 @@
 use clap::{Args, Parser, Subcommand};
+use clap_verbosity_flag::{InfoLevel, Verbosity};
 use dolos::{DolosConfig, FragmentSortBy, PairSortBy};
 use std::path::PathBuf;
 use tree_sitter_grammars::Language;
@@ -249,6 +250,9 @@ pub struct OutputArgs {
 pub struct Opts {
     #[clap(subcommand)]
     pub command: Command,
+
+    #[command(flatten)]
+    pub verbosity: Verbosity<InfoLevel>,
 }
 
 #[derive(Subcommand, Debug)]

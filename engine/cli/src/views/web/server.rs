@@ -23,17 +23,17 @@ pub fn serve(report_dir: &Path, server: &Server) -> Result<()> {
             .await
             .with_context(|| format!("could not listen on {address}"))?;
         let url = format!("http://{address}");
-        println!("Dolos is available on {url}");
+        tracing::info!("Dolos is available on {url}");
 
         if server.open_browser {
-            println!("Opening the web page in your browser...");
+            tracing::info!("opening the web page in your browser");
             // A browser that does not start is not fatal: the server is already usable.
             if let Err(e) = open::that_detached(&url) {
-                eprintln!("Could not open the browser: {e}");
+                tracing::warn!("could not open the browser: {e}");
             }
         }
 
-        println!("Press Ctrl-C to exit.");
+        tracing::info!("press Ctrl-C to exit");
         axum::serve(listener, router).await?;
         Ok(())
     })
