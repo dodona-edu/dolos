@@ -214,7 +214,7 @@ GEM
       prettyprint
     prettyprint (0.2.1)
     prism (1.9.0)
-    puma (8.0.2)
+    puma (8.1.1)
       nio4r (~> 2.0)
     racc (1.8.1)
     rack (3.2.8)
@@ -355,7 +355,7 @@ DEPENDENCIES
   faker (~> 3.8.0)
   mocha (~> 3.1.0)
   mysql2 (~> 0.5)
-  puma (~> 8.0)
+  puma (~> 8.1)
   rack-cors
   rails (~> 8.1.4)
   rubocop-minitest (~> 0.41.0)
