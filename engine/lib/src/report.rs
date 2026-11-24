@@ -84,15 +84,15 @@ fn sort_pairs(pairs: &mut [Pair], sort_by: PairSortBy) {
 mod tests {
     use super::*;
     use crate::config::FragmentSortBy;
-    use chrono::Utc;
     use dolos_core::{AnalysisOptions, AnalysisResult};
+    use jiff::Timestamp;
     use std::path::PathBuf;
     use tree_sitter_grammars::Language;
 
     fn metadata(sort_by: PairSortBy) -> Metadata {
         Metadata {
             report_name: "test".to_string(),
-            created_at: Utc::now(),
+            created_at: Timestamp::now(),
             sort_by,
             fragment_sort_by: FragmentSortBy::FileOrder,
             kgram_length: 23,

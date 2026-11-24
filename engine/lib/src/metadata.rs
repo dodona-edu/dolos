@@ -1,7 +1,7 @@
 use crate::config::{DolosConfig, FragmentSortBy, PairSortBy};
 use crate::reader::Source;
-use chrono::{DateTime, Utc};
 use dolos_core::AnalysisOptions;
+use jiff::Timestamp;
 use std::path::PathBuf;
 use tree_sitter_grammars::Language;
 
@@ -14,7 +14,7 @@ pub struct Metadata {
     /// The configured name, or the name of the input.
     pub report_name: String,
     /// The time at which [`Dolos::new`](crate::Dolos::new) ran.
-    pub created_at: DateTime<Utc>,
+    pub created_at: Timestamp,
     /// The order of the pairs.
     pub sort_by: PairSortBy,
     /// The order of the fragments of each pair.
@@ -50,7 +50,7 @@ impl Metadata {
 
         Metadata {
             report_name: config.name.clone().unwrap_or_else(|| source.name.clone()),
-            created_at: Utc::now(),
+            created_at: Timestamp::now(),
             sort_by: config.sort_by,
             fragment_sort_by: config.fragment_sort_by,
             kgram_length: config.kgram_length,
@@ -101,7 +101,7 @@ impl Metadata {
     pub fn properties(&self) -> [(&'static str, String); 13] {
         [
             ("reportName", self.report_name.clone()),
-            ("createdAt", self.created_at.to_rfc3339()),
+            ("createdAt", self.created_at.to_string()),
             ("language", format!("{:?}", self.language)),
             ("kgramLength", self.kgram_length.to_string()),
             ("kgramsInWindow", self.kgrams_in_window.to_string()),

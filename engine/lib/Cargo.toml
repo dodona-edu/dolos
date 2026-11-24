@@ -72,7 +72,6 @@ lang-typescript = ["tree-sitter-grammars/lang-typescript"]
 lang-verilog = ["tree-sitter-grammars/lang-verilog"]
 
 [dependencies]
-chrono = { version = "0.4.44", features = ["clock", "std"] }
 bzip2 = "0.6.1"
 csv = "1.4.0"
 serde_json = "1.0.150"
@@ -81,6 +80,7 @@ flate2 = "1.1.9"
 tar = "0.4.46"
 zip = "9.0.1"
 tempfile = "3.27.0"
+jiff = { version = "0.2.46", default-features = false, features = ["std"] }
 tree-sitter = "0.26.13"
 tree-sitter-grammars = { path = "../tree-sitter-grammars" }
 tracing = { version = "0.1.44", default-features = false, features = ["std"] }

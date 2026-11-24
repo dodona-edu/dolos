@@ -43,7 +43,7 @@ impl ReportDirectory {
 fn default_name(metadata: &Metadata) -> String {
     format!(
         "dolos-report-{}-{}",
-        metadata.created_at.format("%Y%m%dT%H%M%S%3fZ"),
+        metadata.created_at.strftime("%Y%m%dT%H%M%S%3fZ"),
         sanitize_name(&metadata.report_name),
     )
 }
