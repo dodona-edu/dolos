@@ -7,6 +7,7 @@ import { onMounted, onUnmounted, ref, shallowRef } from "vue";
 import * as monaco from "monaco-editor";
 import { File } from "@/api/models";
 import { useMetadataStore } from "@/stores/report";
+import { useMonacoEditorWorkers } from "@/composables/useMonacoEditorWorkers";
 
 interface Props {
   file: File;
@@ -14,6 +15,8 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {});
 const metadata = useMetadataStore();
+// Call before onMounted(initialize). The worker must be set before monaco.editor.create.
+useMonacoEditorWorkers();
 
 // Editor template ref
 const editorElem = ref();
