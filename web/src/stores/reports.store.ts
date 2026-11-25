@@ -61,7 +61,9 @@ export const useReportsStore = defineStore("reports", () => {
     const data = new FormData();
     data.append("dataset[zipfile]", file);
     data.append("dataset[name]", name);
-    data.append("dataset[programming_language]", language ?? "");
+    if (language) {
+      data.append("dataset[programming_language]", language);
+    }
 
     const response = await axios.post(
       `${import.meta.env.VITE_API_URL}/reports`,
