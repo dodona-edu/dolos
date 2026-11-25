@@ -19,7 +19,7 @@
 
       <!-- Navigation when only one pair is available -->
       <v-list v-if="pairs.hasOnlyOnePair" nav density="compact">
-        <v-list-item to="/" link>
+        <v-list-item :to="{ name: 'Overview' }" link exact>
           <template #prepend>
             <v-icon>mdi-chart-bar</v-icon>
           </template>

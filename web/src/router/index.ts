@@ -16,7 +16,7 @@ const routes = [
       {
         path: "",
         name: "Overview",
-        component: () => import("@/views/analysis/overview.vue"),
+        component: () => import("@/views/analysis/index.vue"),
       },
       {
         path: "pairs",
