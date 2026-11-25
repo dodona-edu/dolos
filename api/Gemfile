@@ -10,7 +10,7 @@ gem 'rails', '~> 8.1.4'
 gem 'mysql2', '~> 0.5'
 
 # Use the Puma web server [https://github.com/puma/puma]
-gem 'puma', '~> 8.0'
+gem 'puma', '~> 8.1'
 
 # Process ZIP archives
 gem 'rubyzip', '~> 3.7.0'
