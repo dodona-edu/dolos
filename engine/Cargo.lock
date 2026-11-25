@@ -462,6 +462,7 @@ dependencies = [
  "predicates",
  "rstest",
  "serde",
+ "serde_json",
  "tempfile",
  "terminal_size",
  "tokio",

@@ -51,7 +51,7 @@ mod winnowing;
 pub use config::{DolosConfig, DolosConfigBuilder, FragmentSortBy, PairSortBy};
 pub use dolos::Dolos;
 pub use dolos_core::PairMetrics;
-pub use file::{AnalysisData, File};
+pub use file::{AnalysisData, File, FileInfo, FileInfoIter};
 pub use fragment::Fragment;
 pub use metadata::Metadata;
 pub use report::{Pair, Report};

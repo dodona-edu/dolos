@@ -1,4 +1,4 @@
-use crate::file::File;
+use crate::file::{File, FileInfo};
 use std::collections::HashMap;
 use std::fs;
 use std::io::{Error, ErrorKind, Result};
@@ -15,8 +15,9 @@ pub struct Input {
     /// separate files.
     pub name: Option<String>,
     base_dir: PathBuf,
-    /// The paths relative to `base_dir`. They are the display paths of the files.
-    relative_paths: Vec<PathBuf>,
+    /// The paths relative to `base_dir`, with the `info.csv` data of each file.
+    /// The paths are the display paths of the files.
+    files: Vec<(PathBuf, FileInfo)>,
     /// The extracted archive. The extracted files exist as long as it lives.
     _extracted: Option<TempDir>,
 }
@@ -63,15 +64,15 @@ impl Input {
     fn new(
         name: Option<String>,
         base_dir: impl Into<PathBuf>,
-        files: Vec<PathBuf>,
+        files: Vec<(PathBuf, FileInfo)>,
         extracted: Option<TempDir>,
     ) -> Self {
         let base_dir = base_dir.into();
-        let relative_paths = files
+        let files = files
             .into_iter()
-            .map(|p| p.strip_prefix(&base_dir).unwrap_or(&p).to_path_buf())
+            .map(|(p, info)| (p.strip_prefix(&base_dir).unwrap_or(&p).to_path_buf(), info))
             .collect();
-        Self { name, base_dir, relative_paths, _extracted: extracted }
+        Self { name, base_dir, files, _extracted: extracted }
     }
 
     /// Detect the language that the most file extensions belong to.
@@ -81,7 +82,7 @@ impl Input {
     /// Fails when no file has a known extension, or when several languages share the highest count.
     pub fn detect_language(&self) -> Result<Language> {
         let mut counts: HashMap<Language, usize> = HashMap::new();
-        for path in &self.relative_paths {
+        for (path, _) in &self.files {
             for language in Language::from_path(path) {
                 *counts.entry(language).or_default() += 1;
             }
@@ -123,10 +124,10 @@ impl Input {
     /// of another language and the files that cannot be read. `noun` names the
     /// files in the warnings, such as `template file`.
     pub fn read_files(self, language: Language, noun: &str) -> Vec<File> {
-        let (kept, other_language): (Vec<PathBuf>, Vec<PathBuf>) = self
-            .relative_paths
+        let (kept, other_language): (Vec<_>, Vec<_>) = self
+            .files
             .into_iter()
-            .partition(|path| language.matches(path));
+            .partition(|(path, _)| language.matches(path));
         match other_language.len() {
             0 => {}
             1 => tracing::warn!("skipped 1 {noun} that is not {}", language.name()),
@@ -134,12 +135,13 @@ impl Input {
         }
 
         let mut files = Vec::new();
-        for relative_path in kept {
+        for (relative_path, info) in kept {
             match fs::read_to_string(self.base_dir.join(&relative_path)) {
                 Ok(content) => files.push(File {
                     id: files.len(),
                     relative_path,
                     content,
+                    info,
                     analysis_data: None,
                 }),
                 Err(e) => tracing::warn!("skipped {noun} '{}': {e}", relative_path.display()),
@@ -155,14 +157,19 @@ mod tests {
     use rstest::rstest;
 
     fn input(paths: &[&str]) -> Input {
-        Input::new(None, "", paths.iter().map(PathBuf::from).collect(), None)
+        let files = paths
+            .iter()
+            .map(|path| (PathBuf::from(path), FileInfo::default()))
+            .collect();
+        Input::new(None, "", files, None)
     }
 
     #[test]
     fn open_accepts_a_single_regular_file() {
         let input = Input::open(vec!["fixtures/sample1.js".into()]).unwrap();
         assert_eq!(input.name, None);
-        assert_eq!(input.relative_paths, [PathBuf::from("fixtures/sample1.js")]);
+        let path = PathBuf::from("fixtures/sample1.js");
+        assert_eq!(input.files, [(path, FileInfo::default())]);
     }
 
     #[test]

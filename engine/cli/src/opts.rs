@@ -260,6 +260,7 @@ pub enum Command {
     /// Run a similarity analysis on the given files.
     Run {
         /// Input file(s): source files, a CSV file, or an archive with a top-level info.csv.
+        /// The report copies the other columns of the CSV file into files.csv.
         #[arg(required = true)]
         files: Vec<PathBuf>,
 

@@ -84,6 +84,7 @@ fn sort_pairs(pairs: &mut [Pair], sort_by: PairSortBy) {
 mod tests {
     use super::*;
     use crate::config::FragmentSortBy;
+    use crate::file::FileInfo;
     use dolos_core::{AnalysisOptions, AnalysisResult};
     use jiff::Timestamp;
     use std::path::PathBuf;
@@ -112,6 +113,7 @@ mod tests {
             id,
             relative_path: PathBuf::from(name),
             content: String::new(),
+            info: FileInfo::default(),
             analysis_data: None,
         })
     }

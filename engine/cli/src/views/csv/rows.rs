@@ -1,5 +1,5 @@
-use dolos::{File, Fragment, Pair, Region};
-use serde::Serialize;
+use dolos::{File, FileInfo, Fragment, Pair, Region};
+use serde::{Serialize, Serializer};
 use std::borrow::Cow;
 use std::ops::Range;
 
@@ -20,11 +20,16 @@ impl<'a> MetadataRow<'a> {
 
 /// One row of `files.csv`.
 ///
-/// The last three are empty unless `--include-analysis-data` was given:
+/// The next three are empty unless `--include-analysis-data` was given:
 /// - `fingerprints`: one hash per fingerprint, `[hash,...]`.
 /// - `fingerprintRegions`: `[startRow,startCol,endRow,endCol]` per fingerprint.
 /// - `ignoredIntervals`: `[start,end]` per ignored run, a half-open interval of fingerprint
 ///   indices.
+///
+/// The last column:
+/// - `info`: the columns of the CSV row of the file (the input CSV file or the `info.csv` of a
+///   directory), other than `filename`, as a JSON object in the column order of the CSV file.
+///   Columns with the same name give duplicate keys. Empty when the file has no such columns.
 #[derive(Serialize)]
 pub struct FileRow<'a> {
     id: usize,
@@ -33,16 +38,18 @@ pub struct FileRow<'a> {
     fingerprints: Option<String>,
     fingerprint_regions: Option<String>,
     ignored_intervals: Option<String>,
+    info: Option<String>,
 }
 
 impl<'a> FileRow<'a> {
-    pub const HEADER: [&'static str; 6] = [
+    pub const HEADER: [&'static str; 7] = [
         "id",
         "path",
         "content",
         "fingerprints",
         "fingerprintRegions",
         "ignoredIntervals",
+        "info",
     ];
 
     pub fn new(file: &'a File) -> Self {
@@ -54,6 +61,7 @@ impl<'a> FileRow<'a> {
             fingerprints: data.map(|d| bracketed(&d.fingerprints, usize::to_string)),
             fingerprint_regions: data.map(|d| bracketed(&d.regions, region_to_string)),
             ignored_intervals: data.map(|d| bracketed(&d.ignored, range_to_string)),
+            info: info_to_json(&file.info),
         }
     }
 }
@@ -146,6 +154,19 @@ impl FragmentRow {
             fingerprint_count: fragment.fingerprint_count,
         }
     }
+}
+
+/// Write the columns of `info` as a JSON object in column order. `None` when `info` is empty.
+fn info_to_json(info: &FileInfo) -> Option<String> {
+    if info.is_empty() {
+        return None;
+    }
+    let mut json = Vec::new();
+    let mut serializer = serde_json::Serializer::new(&mut json);
+    serializer
+        .collect_map(info)
+        .expect("string pairs serialize to JSON");
+    Some(String::from_utf8(json).expect("serde_json writes UTF-8"))
 }
 
 fn bracketed<T>(items: &[T], fmt: impl Fn(&T) -> String) -> String {

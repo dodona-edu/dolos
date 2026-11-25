@@ -45,6 +45,9 @@ impl Dolos {
     ///     relative to the directory of the CSV file.
     ///   - **One archive** (`.zip`, `.tar`, `.tar.gz`, `.tgz`, `.tar.bz2`,
     ///     `.tbz`, `.tbz2`): extracted, then read as a directory.
+    ///
+    ///   The other columns of the CSV file fill the
+    ///   [`FileInfo`](crate::FileInfo) of each file.
     /// - `config`: the analysis configuration. See [`DolosConfig::builder`].
     ///
     /// # Errors

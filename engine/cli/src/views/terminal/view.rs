@@ -50,7 +50,7 @@ fn write_summary(pair: &Pair, out: &mut impl Write) -> Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use dolos::{File, PairMetrics};
+    use dolos::{File, FileInfo, PairMetrics};
     use std::rc::Rc;
 
     fn file(id: usize, path: &str) -> Rc<File> {
@@ -58,6 +58,7 @@ mod tests {
             id,
             relative_path: path.into(),
             content: String::new(),
+            info: FileInfo::default(),
             analysis_data: None,
         })
     }
