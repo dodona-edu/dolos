@@ -5,7 +5,7 @@
 //! grammar.
 //!
 //! For installation instructions, the full list of supported languages, and
-//! usage examples, see the [README](https://github.com/dodona-edu/dolos-rs/tree/main/tree-sitter-grammars).
+//! usage examples, see the [README](https://github.com/dodona-edu/dolos/tree/main/engine/grammars).
 //!
 //! # Examples
 //!

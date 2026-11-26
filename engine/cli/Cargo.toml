@@ -3,7 +3,7 @@ name = "dolos-cli"
 version = "0.1.0"
 edition = "2024"
 description = "The command line interface of Dolos, a source code plagiarism detection tool."
-repository = "https://github.com/dodona-edu/dolos-rs"
+repository = "https://github.com/dodona-edu/dolos"
 license = "MIT"
 
 [[bin]]
@@ -11,13 +11,13 @@ name = "dolos"
 path = "src/main.rs"
 
 [dependencies]
-dolos-lib = { path = "../dolos-lib", features = ["all-languages"] }
+dolos-lib = { path = "../lib", features = ["all-languages"] }
 clap = { version = "4.6.1", features = ["derive"] }
 terminal_size = "0.4.4"
 csv = "1.4.0"
 serde = { version = "1.0.228", features = ["derive"] }
 serde_json = "1.0.154"
-tree-sitter-grammars = { path = "../tree-sitter-grammars" }
+tree-sitter-grammars = { path = "../grammars" }
 axum = "0.8.9"
 tokio = { version = "1.53.1", features = ["rt", "net"] }
 tower-http = { version = "0.7.1", features = ["fs"] }

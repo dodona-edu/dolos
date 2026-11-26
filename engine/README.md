@@ -1,16 +1,14 @@
-# dolos-rs
+# Dolos engine
 
-A Rust implementation of the [Dolos](https://github.com/dodona-edu/dolos) source code plagiarism detection CLI.
-
-> **Note:** This project is intended to eventually replace the existing Node.js CLI in the main Dolos repository.
+The Rust implementation of [Dolos](https://dolos.ugent.be), a source code plagiarism detection tool: the CLI, the library and the WebAssembly binding.
 
 ## Workspace crates
 
-- **[`dolos-cli`](./dolos-cli/)** — the Rust CLI (the `dolos` binary) for running similarity analyses on source code files.
-- **[`dolos-lib`](./dolos-lib/)** — the library (`dolos`) implementing tokenization, winnowing, the reader and the report. The per-language feature flags live here.
-- **[`dolos-core`](./dolos-core/)** — the pure computational core: the generalized suffix tree, the maximal-exact-match analysis and the pairwise similarity metrics. It has no dependencies.
-- **[`dolos-core-wasm`](./dolos-core-wasm/)** — the JavaScript binding of `dolos-core`, built for WebAssembly. See [WebAssembly](#webassembly).
-- **[`tree-sitter-grammars`](./tree-sitter-grammars/)** — a unified crate that bundles tree-sitter grammar bindings for 29 programming languages behind a single ergonomic API. It also defines the `char` language for plain text, which has no grammar. See its [README](./tree-sitter-grammars/README.md) for details.
+- **[`dolos-cli`](./cli/)** — the Rust CLI (the `dolos` binary) for running similarity analyses on source code files.
+- **[`dolos-lib`](./lib/)** — the library (`dolos`) implementing tokenization, winnowing, the reader and the report. The per-language feature flags live here.
+- **[`dolos-core`](./core/)** — the pure computational core: the generalized suffix tree, the maximal-exact-match analysis and the pairwise similarity metrics. It has no dependencies.
+- **[`dolos-core-wasm`](./core-wasm/)** — the JavaScript binding of `dolos-core`, built for WebAssembly. See [WebAssembly](#webassembly).
+- **[`tree-sitter-grammars`](./grammars/)** — a unified crate that bundles tree-sitter grammar bindings for 29 programming languages behind a single ergonomic API. It also defines the `char` language for plain text, which has no grammar. See its [README](./grammars/README.md) for details.
 
 ## Building
 
@@ -25,7 +23,7 @@ library with only specific languages, enable the corresponding features:
 
 ```sh
 # In your Cargo.toml
-dolos-lib = { path = "../dolos-lib", default-features = false, features = ["lang-python", "lang-javascript"] }
+dolos-lib = { path = "../lib", default-features = false, features = ["lang-python", "lang-javascript"] }
 ```
 
 ## Usage
@@ -52,10 +50,10 @@ itself has no dependencies.
 
 ```sh
 rustup target add wasm32-unknown-unknown
-wasm-pack build dolos-core-wasm --target web --release
+wasm-pack build core-wasm --target web --release
 ```
 
-This writes the npm package `dolos-core-wasm` to `dolos-core-wasm/pkg/`, which
+This writes the npm package `dolos-core-wasm` to `core-wasm/pkg/`, which
 git ignores. The package version follows the crate version.
 
 The package loads its `.wasm` file in `init()`. Await it once before the first

@@ -20,7 +20,7 @@ two files. The four archives (`reader.zip`, `reader.tar`, `reader.tar.gz`,
 When `sample1.js` or `sample2.js` are updated, you need to update `reader/` and regenerate the archives:
 
 ```sh
-cd dolos-lib/fixtures
+cd engine/lib/fixtures
 
 cp sample1.js sample2.js reader/
 zip reader.zip sample1.js sample2.js

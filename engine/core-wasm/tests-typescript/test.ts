@@ -2,7 +2,7 @@
 // logic; this covers what only shows up once the module is loaded.
 //
 // Build first:
-//   wasm-pack build dolos-core-wasm --target web --release
+//   wasm-pack build core-wasm --target web --release
 
 import assert from "node:assert/strict";
 import {readFile} from "node:fs/promises";
