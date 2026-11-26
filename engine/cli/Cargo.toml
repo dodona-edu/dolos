@@ -29,7 +29,7 @@ clap-verbosity-flag = { version = "3.0.4", default-features = false, features = 
 tracing = { version = "0.1.44", default-features = false, features = ["std"] }
 tracing-subscriber = { version = "0.3.23", default-features = false, features = ["registry", "std"] }
 indicatif = "0.18.6"
-jiff = { version = "0.2.46", default-features = false, features = ["std"] }
+jiff = { version = "1.0.2", default-features = false, features = ["std"] }
 
 [dev-dependencies]
 assert_cmd = "2.2.2"
@@ -37,4 +37,4 @@ predicates = "3.1.4"
 tempfile = "3.27.0"
 tokio = { version = "1.53.1", features = ["macros", "rt"] }
 tower = { version = "0.5.3", features = ["util"] }
-rstest = "0.28.0"
+rstest = "0.29.0"
