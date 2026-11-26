@@ -1,0 +1,439 @@
+use assert_cmd::Command;
+use predicates::prelude::*;
+use rstest::rstest;
+use std::path::{Path, PathBuf};
+use tempfile::TempDir;
+
+const SAMPLE1: &str = "fixtures/sample1.js";
+const SAMPLE2: &str = "fixtures/sample2.js";
+
+fn dolos_run(files: &[&str], args: &[&str]) -> Command {
+    let mut cmd = Command::cargo_bin("dolos").unwrap();
+    cmd.arg("run").args(files).args(args);
+    cmd
+}
+
+/// Run a CSV report of the two fixtures into a fresh directory and return that directory.
+fn csv_report(tmp: &TempDir, extra: &[&str]) -> PathBuf {
+    csv_report_of(tmp, &[SAMPLE1, SAMPLE2], extra)
+}
+
+/// Run a CSV report of `files` into a fresh directory and return that directory.
+fn csv_report_of(tmp: &TempDir, files: &[&str], extra: &[&str]) -> PathBuf {
+    let report_dir = tmp.path().join("report");
+    #[rustfmt::skip]
+    let args = [
+        "-f", "csv",
+        "-n", "report",
+        "-o", report_dir.to_str().unwrap(),
+    ];
+    dolos_run(files, &[&args[..], extra].concat())
+        .assert()
+        .success();
+    report_dir
+}
+
+fn assert_csv_header(path: &Path, expected: &[&str]) {
+    assert!(path.exists(), "{} does not exist", path.display());
+    let mut reader = csv::Reader::from_path(path).unwrap();
+    assert_eq!(reader.headers().unwrap(), expected);
+}
+
+/// The values in the column `name` of a CSV file, without the header.
+fn read_column(path: &Path, name: &str) -> Vec<String> {
+    let mut reader = csv::Reader::from_path(path).unwrap();
+    let index = reader
+        .headers()
+        .unwrap()
+        .iter()
+        .position(|header| header == name);
+    let index = index.unwrap_or_else(|| panic!("{} has no column {name}", path.display()));
+    reader
+        .records()
+        .map(|record| record.unwrap()[index].to_string())
+        .collect()
+}
+
+/// The rows of a CSV file, without the header.
+fn read_rows(path: &Path) -> Vec<csv::StringRecord> {
+    csv::Reader::from_path(path)
+        .unwrap()
+        .records()
+        .map(Result::unwrap)
+        .collect()
+}
+
+#[test]
+fn terminal_output_shows_the_similarity() {
+    dolos_run(&[SAMPLE1, SAMPLE2], &[])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("sim:"));
+}
+
+#[test]
+#[rustfmt::skip]
+fn csv_output_writes_the_headers() {
+    let tmp = TempDir::new().unwrap();
+    // -o is the exact report directory; it must not exist yet.
+    let report_dir = csv_report(&tmp, &[]);
+
+    // Files are written directly into the given directory, no subfolder.
+    assert_csv_header(&report_dir.join("metadata.csv"), &["property", "value"]);
+    assert_csv_header(
+        &report_dir.join("files.csv"),
+        &["id", "path", "content", "fingerprints", "fingerprintRegions", "ignoredIntervals", "info"],
+    );
+    assert_csv_header(
+        &report_dir.join("pairs.csv"),
+        &["id", "leftFileId", "rightFileId", "similarity", "longestFragment", "overlapLeft", "overlapRight", "totalLeft", "totalRight", "totalOverlap"],
+    );
+    assert_csv_header(
+        &report_dir.join("fragments.csv"),
+        &["leftFileId", "rightFileId", "leftRegion", "rightRegion", "fingerprintCount"],
+    );
+}
+
+#[rstest]
+#[case::default(&[])]
+#[case::similarity(&["--sort-by", "similarity"])]
+#[case::total_overlap(&["--sort-by", "total-overlap"])]
+#[case::longest_fragment(&["--sort-by", "longest-fragment"])]
+fn pair_ids_do_not_depend_on_the_sort_order(#[case] sort_by: &[&str]) {
+    let tmp = TempDir::new().unwrap();
+    // A copy of sample2.js makes the pair (1,2) the most similar one.
+    let copy = tmp.path().join("copy.js");
+    std::fs::copy(SAMPLE2, &copy).unwrap();
+    let report_dir = csv_report_of(&tmp, &[SAMPLE1, SAMPLE2, copy.to_str().unwrap()], sort_by);
+
+    let pairs = report_dir.join("pairs.csv");
+    let column = |name: &str| -> Vec<usize> {
+        read_column(&pairs, name)
+            .iter()
+            .map(|cell| cell.parse().unwrap())
+            .collect()
+    };
+    let mut rows: Vec<_> = column("id")
+        .into_iter()
+        .zip(column("leftFileId"))
+        .zip(column("rightFileId"))
+        .map(|((id, left), right)| (id, left, right))
+        .collect();
+    rows.sort();
+    assert_eq!(rows, [(0, 0, 1), (1, 0, 2), (2, 1, 2)]);
+}
+
+#[test]
+fn pairs_csv_holds_the_total_overlap() {
+    let tmp = TempDir::new().unwrap();
+    let report_dir = csv_report(&tmp, &[]);
+
+    let pairs = report_dir.join("pairs.csv");
+    let number = |name: &str| read_column(&pairs, name)[0].parse::<usize>().unwrap();
+    assert_eq!(
+        number("totalOverlap"),
+        number("overlapLeft") + number("overlapRight")
+    );
+}
+
+#[test]
+fn fragments_csv_writes_each_region_as_four_numbers() {
+    let tmp = TempDir::new().unwrap();
+    let report_dir = csv_report(&tmp, &[]);
+
+    let region = |cell: &str| -> Vec<usize> {
+        let numbers = cell.strip_prefix('[').unwrap().strip_suffix(']').unwrap();
+        numbers.split(',').map(|n| n.parse().unwrap()).collect()
+    };
+
+    let rows = read_rows(&report_dir.join("fragments.csv"));
+    assert!(!rows.is_empty());
+    for row in rows {
+        assert_eq!((&row[0], &row[1]), ("0", "1"));
+        assert_eq!(region(&row[2]).len(), 4);
+        assert_eq!(region(&row[3]).len(), 4);
+    }
+}
+
+#[test]
+fn analysis_data_columns_are_empty_by_default() {
+    let tmp = TempDir::new().unwrap();
+    let report_dir = csv_report(&tmp, &[]);
+
+    for row in read_rows(&report_dir.join("files.csv")) {
+        assert_eq!(&row[3], "");
+        assert_eq!(&row[4], "");
+        assert_eq!(&row[5], "");
+    }
+}
+
+#[test]
+fn analysis_data_columns_hold_four_region_numbers_per_fingerprint() {
+    let tmp = TempDir::new().unwrap();
+    let report_dir = csv_report(&tmp, &["--include-analysis-data"]);
+
+    // The fingerprint count of each fixture, with the default kgram and window.
+    let expected = [(SAMPLE1, 96), (SAMPLE2, 108)];
+
+    let count = |cell: &str| cell.trim_matches(['[', ']']).split(',').count();
+
+    let rows = read_rows(&report_dir.join("files.csv"));
+    assert_eq!(rows.len(), expected.len());
+    for (row, (path, fingerprints)) in rows.iter().zip(expected) {
+        assert_eq!(&row[1], path);
+        assert_eq!(count(&row[3]), fingerprints);
+        assert_eq!(count(&row[4]), 4 * fingerprints);
+        // Nothing is ignored without a template or a frequency cap.
+        assert_eq!(&row[5], "[]");
+    }
+}
+
+#[test]
+fn files_csv_holds_the_info_csv_columns_as_json() {
+    let tmp = TempDir::new().unwrap();
+    let dataset = tmp.path().join("dataset");
+    std::fs::create_dir(&dataset).unwrap();
+    std::fs::copy(SAMPLE1, dataset.join("a.js")).unwrap();
+    std::fs::copy(SAMPLE2, dataset.join("b.js")).unwrap();
+    std::fs::write(
+        dataset.join("info.csv"),
+        "filename,full_name,created_at,labels\n\
+         a.js,Ada Lovelace,2019-07-23 17:12:33 +0200,group-1;niet bst\n\
+         b.js,,,\n",
+    )
+    .unwrap();
+
+    let report_dir = csv_report_of(&tmp, &[dataset.to_str().unwrap()], &[]);
+
+    let info = read_column(&report_dir.join("files.csv"), "info");
+    assert_eq!(
+        info,
+        [
+            r#"{"full_name":"Ada Lovelace","created_at":"2019-07-23 17:12:33 +0200","labels":"group-1;niet bst"}"#,
+            r#"{"full_name":"","created_at":"","labels":""}"#,
+        ]
+    );
+}
+
+#[test]
+fn repeated_template_option_gives_a_template_of_several_files() {
+    let tmp = TempDir::new().unwrap();
+    let report_dir = csv_report(&tmp, &["-t", SAMPLE1, "-t", SAMPLE2]);
+
+    let template = read_rows(&report_dir.join("metadata.csv"))
+        .into_iter()
+        .find(|row| &row[0] == "template")
+        .unwrap();
+    assert_eq!(&template[1], &format!(r#"["{SAMPLE1}","{SAMPLE2}"]"#));
+}
+
+#[test]
+fn default_sort_orders_are_written_to_the_metadata() {
+    let tmp = TempDir::new().unwrap();
+    let report_dir = csv_report(&tmp, &[]);
+
+    let rows = read_rows(&report_dir.join("metadata.csv"));
+    let value = |property: &str| {
+        let row = rows.iter().find(|row| &row[0] == property).unwrap();
+        row[1].to_string()
+    };
+    assert_eq!(
+        (value("sortBy"), value("fragmentSortBy")),
+        ("FileId".to_string(), "FileOrder".to_string())
+    );
+}
+
+#[test]
+fn csv_output_without_destination_creates_a_report_directory() {
+    let tmp = TempDir::new().unwrap();
+    // Absolute fixture paths so they still resolve after changing the cwd.
+    let manifest = env!("CARGO_MANIFEST_DIR");
+    let sample1 = format!("{manifest}/{SAMPLE1}");
+    let sample2 = format!("{manifest}/{SAMPLE2}");
+    // No -o: an auto-named `dolos-report-*` directory is created in the cwd.
+    dolos_run(&[&sample1, &sample2], &["-f", "csv"])
+        .current_dir(tmp.path())
+        .assert()
+        .success();
+
+    let report_dir = std::fs::read_dir(tmp.path())
+        .unwrap()
+        .map(|e| e.unwrap().path())
+        .find(|p| {
+            p.file_name()
+                .and_then(|n| n.to_str())
+                .is_some_and(|s| s.starts_with("dolos-report-"))
+        })
+        .expect("report directory not created");
+
+    assert!(report_dir.join("pairs.csv").exists());
+    assert!(report_dir.join("metadata.csv").exists());
+    assert!(report_dir.join("files.csv").exists());
+    assert!(report_dir.join("fragments.csv").exists());
+}
+
+#[test]
+fn csv_output_rejects_an_existing_directory() {
+    let tmp = TempDir::new().unwrap();
+    // The destination already exists, so the run must fail.
+    dolos_run(
+        &[SAMPLE1, SAMPLE2],
+        &["-f", "csv", "-o", tmp.path().to_str().unwrap()],
+    )
+    .assert()
+    .failure()
+    .stderr(predicate::str::contains("already exists"));
+}
+
+#[test]
+fn invalid_options_fail_the_process() {
+    dolos_run(&[SAMPLE1, SAMPLE2], &["-k", "0"])
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains("must be at least 1"));
+
+    dolos_run(&[SAMPLE1, SAMPLE2], &["-l", "notalang"])
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains("unknown language"));
+}
+
+#[test]
+fn language_char_is_written_to_the_metadata() {
+    let tmp = TempDir::new().unwrap();
+    let text = "Each character of this line is one token.\n";
+    let files = ["a.txt", "b.md"].map(|name| {
+        let path = tmp.path().join(name);
+        std::fs::write(&path, text).unwrap();
+        path.to_str().unwrap().to_owned()
+    });
+    let report_dir = tmp.path().join("report");
+
+    #[rustfmt::skip]
+    let args = [
+        "-l", "char",
+        "-f", "csv",
+        "-o", report_dir.to_str().unwrap(),
+    ];
+    dolos_run(&[&files[0], &files[1]], &args).assert().success();
+
+    let rows = read_rows(&report_dir.join("metadata.csv"));
+    let language = rows.iter().find(|row| &row[0] == "language").unwrap();
+    assert_eq!(&language[1], "Char");
+}
+
+#[test]
+fn library_errors_print_only_the_message() {
+    dolos_run(&[SAMPLE1, SAMPLE2], &["-l", "python", "-qq"])
+        .assert()
+        .code(1)
+        .stderr("error: need at least 2 Python files to compare\n");
+}
+
+#[test]
+fn silent_hides_the_errors() {
+    dolos_run(&[SAMPLE1, SAMPLE2], &["-l", "python", "-qqq"])
+        .assert()
+        .code(1)
+        .stderr("");
+}
+
+#[test]
+fn unreadable_files_are_skipped_with_a_warning() {
+    let tmp = TempDir::new().unwrap();
+    std::fs::copy(SAMPLE1, tmp.path().join("a.js")).unwrap();
+    std::fs::copy(SAMPLE2, tmp.path().join("b.js")).unwrap();
+    std::fs::write(tmp.path().join("c.js"), b"let x = \"\xff\";").unwrap();
+
+    dolos_run(&[tmp.path().to_str().unwrap()], &["-q"])
+        .assert()
+        .success()
+        .stderr(predicate::str::starts_with(
+            "warning: skipped file 'c.js': ",
+        ));
+}
+
+#[test]
+fn unreadable_template_files_are_skipped_with_a_warning() {
+    let tmp = TempDir::new().unwrap();
+    std::fs::copy(SAMPLE1, tmp.path().join("a.js")).unwrap();
+    std::fs::write(tmp.path().join("b.js"), b"let x = \"\xff\";").unwrap();
+
+    let template = tmp.path().to_str().unwrap();
+    dolos_run(&[SAMPLE1, SAMPLE2], &["-q", "-t", template])
+        .assert()
+        .success()
+        .stderr(predicate::str::starts_with(
+            "warning: skipped template file 'b.js': ",
+        ));
+}
+
+#[test]
+fn files_of_another_language_are_skipped_with_a_warning() {
+    let tmp = TempDir::new().unwrap();
+    std::fs::copy(SAMPLE1, tmp.path().join("a.js")).unwrap();
+    std::fs::copy(SAMPLE2, tmp.path().join("b.js")).unwrap();
+    std::fs::write(tmp.path().join("README.md"), "notes").unwrap();
+
+    dolos_run(&[tmp.path().to_str().unwrap()], &["-q"])
+        .assert()
+        .success()
+        .stderr("warning: skipped 1 file that is not JavaScript\n");
+}
+
+#[test]
+fn very_quiet_hides_the_warnings() {
+    dolos_run(&[SAMPLE1, SAMPLE2], &["-qq", "-M", "0.5"])
+        .assert()
+        .success()
+        .stderr("");
+}
+
+#[test]
+fn piped_output_prints_each_step() {
+    dolos_run(&[SAMPLE1, SAMPLE2], &[])
+        .assert()
+        .success()
+        .stderr("reading 2 files\nfingerprinting 2 JavaScript files\ncomparing 1 pair\n");
+}
+
+#[test]
+fn template_and_csv_output_add_a_step() {
+    let tmp = TempDir::new().unwrap();
+    let report_dir = tmp.path().join("report");
+    let output = dolos_run(&[SAMPLE1, SAMPLE2], &["-t", SAMPLE1, "-f", "csv"])
+        .args(["-o", report_dir.to_str().unwrap()])
+        .output()
+        .unwrap();
+
+    let stderr = String::from_utf8(output.stderr).unwrap();
+    let expected = format!(
+        "reading 2 files\n\
+         fingerprinting 2 JavaScript files\n\
+         fingerprinting 1 template file\n\
+         comparing 1 pair\n\
+         writing the report to '{}'\n",
+        report_dir.display()
+    );
+    assert_eq!(stderr, expected);
+}
+
+#[test]
+fn a_failed_step_prints_its_error_once() {
+    let output = dolos_run(&[SAMPLE1, SAMPLE2], &["-l", "python"])
+        .output()
+        .unwrap();
+
+    let stderr = String::from_utf8(output.stderr).unwrap();
+    assert_eq!(stderr.matches("error:").count(), 1, "{stderr}");
+}
+
+#[test]
+fn quiet_hides_the_steps_but_not_the_warnings() {
+    dolos_run(&[SAMPLE1, SAMPLE2], &["-q", "-M", "0.5"])
+        .assert()
+        .success()
+        .stderr(predicate::str::starts_with(
+            "warning: the maximum fingerprint percentage has no use",
+        ));
+}

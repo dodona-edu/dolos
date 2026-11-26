@@ -1,0 +1,10 @@
+[package]
+name = "dolos-core"
+version = "0.1.0"
+edition = "2024"
+description = "The computational core of Dolos. It finds maximal matches between fingerprint sequences and derives pairwise similarity metrics."
+repository = "https://github.com/dodona-edu/dolos-rs"
+license = "MIT"
+
+[dev-dependencies]
+rand = "0.10.1"

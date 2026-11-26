@@ -1,0 +1,17 @@
+[package]
+name = "dolos-core-wasm"
+version = "0.1.0"
+edition = "2024"
+description = "The WebAssembly binding of dolos-core. It compares fingerprint sequences pairwise from JavaScript."
+repository = "https://github.com/dodona-edu/dolos-rs"
+license = "MIT"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+dolos-core = { path = "../dolos-core" }
+serde = { version = "1.0.228", features = ["derive"] }
+serde-wasm-bindgen = "0.6.5"
+tsify = { version = "0.5.8", default-features = false, features = ["js"] }
+wasm-bindgen = "0.2.128"
