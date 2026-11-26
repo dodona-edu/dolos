@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+failed=0
+
+cd "$(git rev-parse --show-toplevel)/engine" || exit 1
+
+cargo fmt --all -- --check || failed=1
+cargo clippy --workspace --all-targets --features all-languages -- -D warnings || failed=1
+
+exit "$failed"

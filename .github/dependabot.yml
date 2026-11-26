@@ -88,6 +88,23 @@ updates:
         patterns:
           - "*"
 
+  # Engine - Cargo
+  - package-ecosystem: "cargo"
+    directory: "/engine"
+    schedule:
+      interval: "weekly"
+    cooldown:
+      default-days: 5
+    groups:
+      engine-dependencies-security:
+        applies-to: security-updates
+        patterns:
+          - "*"
+      engine-dependencies-version:
+        applies-to: version-updates
+        patterns:
+          - "*"
+
   # GitHub Actions
   - package-ecosystem: "github-actions"
     directory: "/"

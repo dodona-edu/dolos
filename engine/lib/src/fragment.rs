@@ -1,0 +1,149 @@
+use crate::config::FragmentSortBy;
+use crate::winnowing::region::Region;
+use dolos_core::{Match, PairArray};
+use std::cmp::Reverse;
+
+/// A code fragment that two files share: the source regions of one match in
+/// both files.
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct Fragment {
+    /// The region in the left file covered by this match.
+    pub left_region: Region,
+    /// The region in the right file covered by this match.
+    pub right_region: Region,
+    /// Number of fingerprints in this match.
+    pub fingerprint_count: usize,
+}
+
+impl Fragment {
+    /// Resolve a raw [`Match`] into a [`Fragment`] using per-file fingerprint
+    /// location arrays.
+    pub(crate) fn resolve(m: &Match, left_locs: &[Region], right_locs: &[Region]) -> Self {
+        Fragment {
+            left_region: Region::span(
+                &left_locs[m.left_start],
+                &left_locs[m.left_start + m.length - 1],
+            ),
+            right_region: Region::span(
+                &right_locs[m.right_start],
+                &right_locs[m.right_start + m.length - 1],
+            ),
+            fingerprint_count: m.length,
+        }
+    }
+}
+
+/// Resolve raw matches into [`Fragment`] lists using the per-file fingerprint
+/// regions, sorted according to `sort_by`.
+///
+/// `locations` is indexed by file id, exactly like the sequences that were
+/// handed to the analysis.
+pub fn resolve_fragments(
+    raw_matches: &PairArray<Vec<Match>>,
+    locations: &[Vec<Region>],
+    sort_by: FragmentSortBy,
+) -> PairArray<Vec<Fragment>> {
+    raw_matches.map(|left, right, pair_matches| {
+        let mut resolved: Vec<Fragment> = pair_matches
+            .iter()
+            .map(|m| Fragment::resolve(m, &locations[left], &locations[right]))
+            .collect();
+        sort_fragments(&mut resolved, sort_by);
+        resolved
+    })
+}
+
+/// Sort fragments in-place according to `sort_by`.
+///
+/// The kgram orders break ties in file order.
+fn sort_fragments(fragments: &mut [Fragment], sort_by: FragmentSortBy) {
+    match sort_by {
+        FragmentSortBy::KgramsAscending => fragments.sort_by_key(|f| {
+            (
+                f.fingerprint_count,
+                f.left_region.start_point,
+                f.right_region.start_point,
+            )
+        }),
+        FragmentSortBy::KgramsDescending => fragments.sort_by_key(|f| {
+            (
+                Reverse(f.fingerprint_count),
+                f.left_region.start_point,
+                f.right_region.start_point,
+            )
+        }),
+        FragmentSortBy::FileOrder => {
+            fragments.sort_by_key(|f| (f.left_region.start_point, f.right_region.start_point))
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::winnowing::region::Point;
+    use dolos_core::{AnalysisOptions, AnalysisResult};
+    use rstest::rstest;
+
+    #[test]
+    fn resolve_maps_match_to_regions() {
+        let left_locs = vec![
+            Region::new(Point::new(10, 0), Point::new(10, 10)),
+            Region::new(Point::new(11, 0), Point::new(12, 12)),
+        ];
+        let right_locs = vec![
+            Region::new(Point::new(20, 0), Point::new(20, 10)),
+            Region::new(Point::new(21, 0), Point::new(22, 12)),
+        ];
+        let m = Match { left_start: 0, right_start: 0, length: 2 };
+
+        let frag = Fragment::resolve(&m, &left_locs, &right_locs);
+
+        let expected_left_region = Region::new(Point::new(10, 0), Point::new(12, 12));
+        let expected_right_region = Region::new(Point::new(20, 0), Point::new(22, 12));
+
+        assert_eq!(frag.left_region, expected_left_region);
+        assert_eq!(frag.right_region, expected_right_region);
+        assert_eq!(frag.fingerprint_count, 2);
+    }
+
+    /// One region per fingerprint, `count` fingerprints per file.
+    fn locations(count: usize) -> Vec<Vec<Region>> {
+        vec![
+            (0..count)
+                .map(|r| Region::new(Point::new(r, 0), Point::new(r, 5)))
+                .collect(),
+            (10..10 + count)
+                .map(|r| Region::new(Point::new(r, 0), Point::new(r, 5)))
+                .collect(),
+        ]
+    }
+
+    /// The analysis of two sequences, with the matches kept.
+    fn analyze_pair(left: Vec<usize>, right: Vec<usize>) -> AnalysisResult {
+        let options = AnalysisOptions { min_match_length: 1, keep_matches: true };
+        dolos_core::analyze(&[left, right], None, &options).unwrap()
+    }
+
+    #[rstest]
+    #[case::kgrams_ascending(FragmentSortBy::KgramsAscending, vec![1, 2])]
+    #[case::kgrams_descending(FragmentSortBy::KgramsDescending, vec![2, 1])]
+    #[case::file_order(FragmentSortBy::FileOrder, vec![2, 1])]
+    fn resolve_fragments_sorts_as_requested(
+        #[case] sort_by: FragmentSortBy,
+        #[case] expected: Vec<usize>,
+    ) {
+        // One match of length 2 at the start, one of length 1 at the end.
+        let result = analyze_pair(vec![2, 3, 9, 1], vec![2, 3, 8, 1]);
+
+        let fragments = resolve_fragments(result.matches().unwrap(), &locations(4), sort_by);
+        let counts: Vec<usize> = fragments
+            .get(0, 1)
+            .unwrap()
+            .iter()
+            .map(|f| f.fingerprint_count)
+            .collect();
+
+        assert_eq!(counts, expected);
+    }
+}

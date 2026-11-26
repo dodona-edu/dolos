@@ -1,0 +1,180 @@
+use crate::config::PairSortBy;
+use crate::file::File;
+use crate::fragment::Fragment;
+use crate::metadata::Metadata;
+use dolos_core::{PairArray, PairMetrics};
+use std::cmp::Reverse;
+use std::rc::Rc;
+
+/// The result of one pair of files.
+#[derive(Debug, Clone, PartialEq)]
+pub struct Pair {
+    /// The file with the smaller id.
+    pub left_file: Rc<File>,
+    /// The file with the larger id.
+    pub right_file: Rc<File>,
+    /// The similarity metrics of the pair. The symbols are fingerprints.
+    pub metrics: PairMetrics,
+    /// The fragments the two files share. `Some` only when
+    /// [`Metadata::include_fragments`] is `true`.
+    pub fragments: Option<Vec<Fragment>>,
+}
+
+/// The result of an analysis: the files, every pair of files and the settings.
+///
+/// Get one from [`Dolos::build_report`](crate::Dolos::build_report).
+#[derive(Debug, Clone, PartialEq)]
+pub struct Report {
+    /// The settings of the analysis.
+    pub metadata: Metadata,
+    /// The input files, in the order of their [`File::id`].
+    pub files: Vec<Rc<File>>,
+    /// One pair for every two files, in the order of
+    /// [`sort_by`](crate::DolosConfigBuilder::sort_by).
+    pub pairs: Vec<Pair>,
+}
+
+impl Report {
+    /// Build a report from the pair metrics and the resolved fragments.
+    pub(crate) fn new(
+        metrics: &PairArray<PairMetrics>,
+        fragments: Option<PairArray<Vec<Fragment>>>,
+        files: Vec<Rc<File>>,
+        metadata: Metadata,
+    ) -> Report {
+        let mut fragments = fragments.map(PairArray::into_iter_pairs);
+        let mut pairs: Vec<Pair> = metrics
+            .iter_pairs()
+            .map(|(left, right, metrics)| Pair {
+                left_file: files[left].clone(),
+                right_file: files[right].clone(),
+                metrics: metrics.clone(),
+                fragments: fragments.as_mut().and_then(Iterator::next).map(
+                    |(fragment_left, fragment_right, pair_fragments)| {
+                        debug_assert_eq!((fragment_left, fragment_right), (left, right));
+                        pair_fragments
+                    },
+                ),
+            })
+            .collect();
+
+        sort_pairs(&mut pairs, metadata.sort_by);
+
+        Report { metadata, files, pairs }
+    }
+}
+
+/// Sort pairs in-place according to `sort_by`.
+fn sort_pairs(pairs: &mut [Pair], sort_by: PairSortBy) {
+    match sort_by {
+        PairSortBy::FileId => pairs.sort_by_key(|p| (p.left_file.id, p.right_file.id)),
+        PairSortBy::Similarity => {
+            pairs.sort_by(|a, b| b.metrics.similarity.total_cmp(&a.metrics.similarity));
+        }
+        PairSortBy::TotalOverlap => {
+            pairs.sort_by_key(|p| Reverse(p.metrics.overlap_left + p.metrics.overlap_right));
+        }
+        PairSortBy::LongestFragment => {
+            pairs.sort_by_key(|p| Reverse(p.metrics.longest_match));
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::config::FragmentSortBy;
+    use crate::file::FileInfo;
+    use dolos_core::{AnalysisOptions, AnalysisResult};
+    use jiff::Timestamp;
+    use std::path::PathBuf;
+    use tree_sitter_grammars::Language;
+
+    fn metadata(sort_by: PairSortBy) -> Metadata {
+        Metadata {
+            report_name: "test".to_string(),
+            created_at: Timestamp::now(),
+            sort_by,
+            fragment_sort_by: FragmentSortBy::FileOrder,
+            kgram_length: 23,
+            kgrams_in_window: 17,
+            language: Language::Javascript,
+            include_comments: false,
+            include_fragments: true,
+            include_analysis_data: false,
+            min_length_match: 1,
+            max_fingerprint_file_count: None,
+            template: Vec::new(),
+        }
+    }
+
+    fn file(id: usize, name: &str) -> Rc<File> {
+        Rc::new(File {
+            id,
+            relative_path: PathBuf::from(name),
+            content: String::new(),
+            info: FileInfo::default(),
+            analysis_data: None,
+        })
+    }
+
+    /// The analysis of three sequences. Pair (0, 1) shares three symbols,
+    /// pair (1, 2) two and pair (0, 2) one.
+    fn analyze_three() -> AnalysisResult {
+        let sequences = vec![vec![1, 2, 3, 4], vec![1, 2, 3, 5], vec![6, 2, 7, 5]];
+        let options = AnalysisOptions { min_match_length: 1, keep_matches: false };
+        dolos_core::analyze(&sequences, None, &options).unwrap()
+    }
+
+    #[test]
+    fn every_pair_gets_its_own_metrics() {
+        let files = vec![file(0, "a.js"), file(1, "b.js"), file(2, "c.js")];
+        let result = analyze_three();
+
+        let report = Report::new(result.metrics(), None, files, metadata(PairSortBy::FileId));
+
+        let longest: Vec<_> = report
+            .pairs
+            .iter()
+            .map(|p| (p.left_file.id, p.right_file.id, p.metrics.longest_match))
+            .collect();
+        assert_eq!(longest, [(0, 1, 3), (0, 2, 1), (1, 2, 1)]);
+    }
+
+    #[test]
+    fn file_id_order_sorts_by_left_then_right_file_id() {
+        let files = vec![file(0, "a.js"), file(1, "b.js"), file(2, "c.js")];
+        let result = analyze_three();
+        let mut report = Report::new(
+            result.metrics(),
+            None,
+            files,
+            metadata(PairSortBy::Similarity),
+        );
+
+        sort_pairs(&mut report.pairs, PairSortBy::FileId);
+
+        let ids: Vec<_> = report
+            .pairs
+            .iter()
+            .map(|p| (p.left_file.id, p.right_file.id))
+            .collect();
+        assert_eq!(ids, [(0, 1), (0, 2), (1, 2)]);
+    }
+
+    #[test]
+    fn pairs_are_sorted_by_similarity() {
+        let files = vec![file(0, "a.js"), file(1, "b.js"), file(2, "c.js")];
+        let result = analyze_three();
+
+        let report = Report::new(
+            result.metrics(),
+            None,
+            files,
+            metadata(PairSortBy::Similarity),
+        );
+
+        let similarities: Vec<f64> = report.pairs.iter().map(|p| p.metrics.similarity).collect();
+        assert_eq!(similarities, vec![0.75, 0.5, 0.25]);
+    }
+}

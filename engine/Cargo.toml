@@ -1,0 +1,3 @@
+[workspace]
+members = ["core", "core-wasm", "lib", "cli", "grammars"]
+resolver = "2"

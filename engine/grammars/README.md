@@ -1,0 +1,107 @@
+# tree-sitter-grammars
+
+A unified Rust crate that bundles tree-sitter grammar bindings for a wide range
+of programming languages behind a single, ergonomic API.
+
+It provides a `Language` enum with helper functions to resolve a language from
+a file path or a language name string, and to get its
+`tree_sitter_language::LanguageFn` — acting as a thin, convenient wrapper
+around the individual `tree-sitter-*` crates.
+
+The enum also has a `Char` variant for plain text. `Char` has no grammar and no
+feature flag, so it is always available.
+
+## Supported languages
+
+| Language   | Feature flag       | Extensions                                      | Name aliases              |
+|------------|--------------------|-------------------------------------------------|---------------------------|
+| Bash       | `lang-bash`        | `.sh`, `.bash`                                  | `bash`, `shell`, `sh`     |
+| C          | `lang-c`           | `.c`, `.h`                                      | `c`                       |
+| Char       | none               | `.txt`, `.md`                                   | `char`                    |
+| C++        | `lang-cpp`         | `.cpp`, `.hpp`, `.cc`, `.cp`, `.cxx`, `.c++`, `.h`, `.hh`, `.hxx`, `.h++` | `c++`, `cpp`              |
+| C#         | `lang-csharp`      | `.cs`, `.csx`                                   | `c#`, `csharp`            |
+| Dart       | `lang-dart`        | `.dart`                                         | `dart`                    |
+| Elixir     | `lang-elixir`      | `.ex`, `.exs`                                   | `elixir`                  |
+| Elm        | `lang-elm`         | `.elm`                                          | `elm`                     |
+| Go         | `lang-go`          | `.go`                                           | `go`, `golang`            |
+| Groovy     | `lang-groovy`      | `.groovy`, `.gvy`, `.gy`, `.gsh`                | `groovy`                  |
+| Haskell    | `lang-haskell`     | `.hs`, `.lhs`                                   | `haskell`                 |
+| Java       | `lang-java`        | `.java`                                         | `java`                    |
+| JavaScript | `lang-javascript`  | `.js`                                           | `javascript`, `js`        |
+| Julia      | `lang-julia`       | `.jl`                                           | `julia`                   |
+| Kotlin     | `lang-kotlin`      | `.kt`, `.kts`                                   | `kotlin`                  |
+| Lua        | `lang-lua`         | `.lua`                                          | `lua`                     |
+| Modelica   | `lang-modelica`    | `.mo`                                           | `modelica`                |
+| OCaml      | `lang-ocaml`       | `.ml`                                           | `ocaml`                   |
+| Perl       | `lang-perl`        | `.pl`, `.pm`, `.t`                              | `perl`                    |
+| PHP        | `lang-php`         | `.php`, `.php3`, `.php4`, `.php5`, `.php7`, `.phps`, `.phpt`, `.phtml` | `php`                     |
+| Python     | `lang-python`      | `.py`, `.py3`                                   | `python`, `py`            |
+| R          | `lang-r`           | `.r`                                            | `r`                       |
+| Ruby       | `lang-ruby`        | `.rb`, `.rbw`                                   | `ruby`                    |
+| Rust       | `lang-rust`        | `.rs`                                           | `rust`                    |
+| Scala      | `lang-scala`       | `.scala`, `.sc`                                 | `scala`                   |
+| SQL        | `lang-sql`         | `.sql`                                          | `sql`                     |
+| Swift      | `lang-swift`       | `.swift`                                        | `swift`                   |
+| TSX        | `lang-tsx`         | `.tsx`                                          | `tsx`                     |
+| TypeScript | `lang-typescript`  | `.ts`                                           | `typescript`, `ts`        |
+| Verilog    | `lang-verilog`     | `.v`, `.vh`                                     | `verilog`                 |
+
+## Installation
+
+Add the crate to your `Cargo.toml` and enable the languages you need via `lang-*` feature flags.
+**No grammars are included by default.** Only `Char` is always available.
+
+### Select specific languages
+
+```toml
+[dependencies]
+tree-sitter-grammars = { path = "../tree-sitter-grammars", features = ["lang-python", "lang-javascript"] }
+```
+
+### Enable all languages
+
+```toml
+[dependencies]
+tree-sitter-grammars = { path = "../tree-sitter-grammars", features = ["all-languages"] }
+```
+
+## Usage
+
+### Resolve from a file path
+
+```rust
+use std::path::Path;
+use tree_sitter_grammars::Language;
+
+// `.h` returns both C and C++; most extensions return one language.
+let langs = Language::from_path(Path::new("main.py"));
+// `tree_sitter_language` returns `None` for `Char`.
+let ts_lang = langs.first().expect("unsupported file extension").tree_sitter_language();
+```
+
+### Resolve from a language name
+
+```rust
+use tree_sitter_grammars::Language;
+
+if let Some(lang) = Language::from_name("golang") {
+    let ts_lang = lang.tree_sitter_language();
+}
+```
+
+### Use with `tree-sitter`
+
+```rust
+use tree_sitter::Parser;
+use tree_sitter_grammars::Language;
+
+let mut parser = Parser::new();
+let grammar = Language::Python.tree_sitter_language().expect("Python has a grammar");
+parser
+    .set_language(&grammar.into())
+    .expect("failed to load grammar");
+```
+
+## License
+
+Licensed under the MIT license.
