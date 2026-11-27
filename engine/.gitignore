@@ -16,8 +16,12 @@ target/
 pkg/
 
 ### Node ###
-# The dev tools of core-wasm/tests-typescript
+# The dev tools of core-wasm/tests-typescript and lib-node
 node_modules/
+# Built by `npm run build` in lib-node
+lib-node/index.js
+lib-node/index.d.ts
+lib-node/*.node
 
 ### Output files ###
 *.csv

@@ -1,11 +1,12 @@
 # Dolos engine
 
-The Rust implementation of [Dolos](https://dolos.ugent.be), a source code plagiarism detection tool: the CLI, the library and the WebAssembly binding.
+The Rust implementation of [Dolos](https://dolos.ugent.be), a source code plagiarism detection tool: the CLI, the library, the Node.js binding and the WebAssembly binding.
 
 ## Workspace crates
 
 - **[`dolos-cli`](./cli/)** — the Rust CLI (the `dolos` binary) for running similarity analyses on source code files.
 - **[`dolos-lib`](./lib/)** — the library (`dolos`) implementing tokenization, winnowing, the reader and the report. The per-language feature flags live here.
+- **[`dolos-lib-node`](./lib-node/)** — the Node.js binding of `dolos-lib`, built with napi-rs as the npm package `@dodona/dolos-lib`. See [Node.js](#nodejs).
 - **[`dolos-core`](./core/)** — the pure computational core: the generalized suffix tree, the maximal-exact-match analysis and the pairwise similarity metrics. It has no dependencies.
 - **[`dolos-core-wasm`](./core-wasm/)** — the JavaScript binding of `dolos-core`, built for WebAssembly. See [WebAssembly](#webassembly).
 - **[`tree-sitter-grammars`](./grammars/)** — a unified crate that bundles tree-sitter grammar bindings for 29 programming languages behind a single ergonomic API. It also defines the `char` language for plain text, which has no grammar. See its [README](./grammars/README.md) for details.
@@ -40,6 +41,30 @@ dolos run -l char essay1.txt essay2.txt
 
 # Output results as CSV
 dolos run --output-format csv --output-destination ./results/ path/to/files/
+```
+
+## Node.js
+
+The `dolos-lib-node` crate builds `dolos-lib` as a native Node.js module with
+[napi-rs](https://napi.rs). It needs Node.js and a C compiler.
+
+```sh
+cd lib-node
+npm ci
+npm run build      # writes dolos-lib.<platform>.node, index.js and index.d.ts
+npm run typecheck
+npm test
+```
+
+Git ignores the built files. The list of target platforms is the `napi.targets`
+field of `lib-node/package.json`. The workspace-wide cargo commands build and
+lint the crate without Node.js.
+
+```ts
+import { Dolos } from "@dodona/dolos-lib";
+
+const report = await new Dolos(["sample1.js", "sample2.js"]).buildReport();
+console.log(report.pairs[0].metrics.similarity);
 ```
 
 ## WebAssembly
