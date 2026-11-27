@@ -38,6 +38,7 @@
     "comlink": "^4.4.1",
     "core-js": "^3.51.0",
     "d3": "^7.9.2",
+    "dolos-core-wasm": "file:../engine/core-wasm/pkg",
     "eslint": "^10.15.0",
     "eslint-plugin-vue": "^10.12.1",
     "eslint-plugin-vuetify": "^2.7.3",

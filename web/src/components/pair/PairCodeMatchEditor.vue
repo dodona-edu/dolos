@@ -50,7 +50,7 @@ const colors = {
 // File to display
 // Based on the pair & the given side.
 const file = computed(() => props.side === "left" ? props.pair.leftFile : props.pair.rightFile);
-const ignoredKgrams = computed(() => props.side === "left" ? props.pair.leftIgnoredKgrams : props.pair.rightIgnoredKgrams);
+const ignoredRegions = computed(() => props.side === "left" ? props.pair.leftIgnored : props.pair.rightIgnored);
 
 // List of matches, sorted on the start line & column.
 const matches = computed(() => {
@@ -180,8 +180,8 @@ const initializeSelections = (): void => {
     });
   }
 
-  // Convert the ignored kgrams into selections
-  for (const ignored of ignoredKgrams.value) {
+  // Convert the ignored regions into selections
+  for (const ignored of ignoredRegions.value) {
     selections.value.push({
       match: "ignored",
       range: {

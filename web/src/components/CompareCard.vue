@@ -140,6 +140,12 @@ const activePair = computed<Pair>(() => {
       ...props.pair,
       leftFile: props.pair.rightFile,
       rightFile: props.pair.leftFile,
+      leftCovered: props.pair.rightCovered,
+      rightCovered: props.pair.leftCovered,
+      leftTotal: props.pair.rightTotal,
+      rightTotal: props.pair.leftTotal,
+      leftIgnored: props.pair.rightIgnored,
+      rightIgnored: props.pair.leftIgnored,
       fragments: props.pair.fragments
         ? props.pair.fragments.map((fragment) => ({
             ...fragment,
