@@ -10,6 +10,8 @@ class AnalyzeDatasetJob < ApplicationJob
   OUTPUT_DIRNAME = 'result'.freeze
   DOLOS_IMAGE = 'ghcr.io/dodona-edu/dolos-cli:latest'.freeze
   TIMEOUT = 60.seconds
+  # Time that a container can take to stop after the timeout.
+  STOP_MARGIN = 30.seconds
   MEMORY_LIMIT = 2_000_000_000
   OUTPUT_LIMIT = 65_000
 
@@ -122,10 +124,8 @@ class AnalyzeDatasetJob < ApplicationJob
     end
 
     begin
-      outlines, errlines = container.tap(&:start).attach(
-        stdout: true,
-        stderr: true
-      )
+      container.start
+      exit_status = container.wait((TIMEOUT + STOP_MARGIN).to_i)['StatusCode']
     ensure
       timeout_mutex.synchronize do
         timer.kill
@@ -134,9 +134,13 @@ class AnalyzeDatasetJob < ApplicationJob
     end
 
     after_time = Time.zone.now
+    outlines = []
+    errlines = []
+    container.streaming_logs(stdout: true, stderr: true) do |stream, chunk|
+      (stream == :stderr ? errlines : outlines) << chunk
+    end
     stdout = truncate(outlines.join.force_encoding('utf-8'))
     stderr = truncate(errlines.join.force_encoding('utf-8'))
-    exit_status = container.wait(1)['StatusCode']
     container.delete
 
     @report.update(
