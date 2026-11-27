@@ -46,6 +46,7 @@ class AnalyzeDatasetJob < ApplicationJob
 
   def execute(zipfile_path)
     cmd = [
+      '-q', # print only the warnings and errors
       'run',
       '-f', 'csv',
       '-o', OUTPUT_DIRNAME,
