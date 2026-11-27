@@ -28,13 +28,11 @@ class Report < ApplicationRecord
   RESULT_FILES = {
     'metadata.csv' => :metadata,
     'files.csv' => :files,
-    'kgrams.csv' => :kgrams,
     'pairs.csv' => :pairs
   }.freeze
 
   has_one_attached :metadata
   has_one_attached :files
-  has_one_attached :kgrams
   has_one_attached :pairs
 
   enum :status, { unknown: 0, queued: 1, running: 2, failed: 3, error: 4, finished: 5, purged: 6 }
@@ -80,7 +78,7 @@ class Report < ApplicationRecord
 
       if name == :metadata && read_programming_language
         lang = CSV.read(path).filter_map { |k, v, _| v if k == 'language' }.first
-        dataset.update(programming_language: lang)
+        dataset.update(programming_language: lang&.downcase)
       end
 
       File.open(path, 'rb') do |io|

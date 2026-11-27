@@ -1,6 +1,7 @@
-id,leftFileId,leftFilePath,rightFileId,rightFilePath,similarity,totalOverlap,longestFragment,leftCovered,rightCovered
-105,1,/tmp/dolos-unzip-g9VHa5/copy_of_sample.js,0,/tmp/dolos-unzip-g9VHa5/sample.js,1,182,91,91,91
-106,3,/tmp/dolos-unzip-g9VHa5/another_copied_function.js,1,/tmp/dolos-unzip-g9VHa5/copy_of_sample.js,0.26548672566371684,30,10,13,17
-107,3,/tmp/dolos-unzip-g9VHa5/another_copied_function.js,0,/tmp/dolos-unzip-g9VHa5/sample.js,0.26548672566371684,30,10,13,17
-108,2,/tmp/dolos-unzip-g9VHa5/copied_function.js,1,/tmp/dolos-unzip-g9VHa5/copy_of_sample.js,0.11650485436893204,12,6,6,6
-109,2,/tmp/dolos-unzip-g9VHa5/copied_function.js,0,/tmp/dolos-unzip-g9VHa5/sample.js,0.11650485436893204,12,6,6,6
+id,leftFileId,rightFileId,similarity,longestFragment,overlapLeft,overlapRight,totalLeft,totalRight,totalOverlap
+0,0,1,1.0,96,96,96,96,96,192
+1,0,2,0.14953271028037382,8,8,8,96,11,16
+2,0,3,0.3416666666666667,14,23,18,96,24,41
+3,1,2,0.14953271028037382,8,8,8,96,11,16
+4,1,3,0.3416666666666667,14,23,18,96,24,41
+5,2,3,0.0,0,0,0,11,24,0

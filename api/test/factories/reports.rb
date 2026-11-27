@@ -46,13 +46,5 @@ FactoryBot.define do
         content_type: 'text/csv'
       }
     end
-
-    kgrams do
-      {
-        io: Rails.root.join('test/files/simple-dataset-results/kgrams.csv').open,
-        filename: 'kgrams.csv',
-        content_type: 'text/csv'
-      }
-    end
   end
 end
