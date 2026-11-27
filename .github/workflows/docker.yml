@@ -78,7 +78,10 @@ jobs:
           submodules: true
 
       - name: Build the CLI image 🔧
-        run: docker build . -f Dockerfile.cli
+        run: docker build . -f Dockerfile.cli -t dolos-cli:ci
+
+      - name: Run the CLI image 🧪
+        run: docker run --rm dolos-cli:ci --version
 
   web:
     name: "Docker 🚢 - build dolos-web 🔧"

@@ -21,6 +21,7 @@ jobs:
       pull-requests: read
     outputs:
       api: ${{ steps.filter.outputs.api }}
+      cli-image: ${{ steps.filter.outputs.cli-image }}
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v7
@@ -33,13 +34,18 @@ jobs:
             api:
               - 'api/**'
               - '.github/workflows/api.yml'
+            cli-image:
+              - 'Dockerfile.cli'
+              - '.dockerignore'
+              - 'engine/**'
 
   test:
     name: "API 📡 - test 🧪"
     needs: changes
-    if: needs.changes.outputs.api == 'true'
+    if: needs.changes.outputs.api == 'true' || needs.changes.outputs.cli-image == 'true'
     runs-on: ubuntu-latest
     env:
+      DOLOS_API_CLI_IMAGE: dolos-cli:ci
       RAILS_ENV: test
       TEST_DATABASE_URL: mysql2://root:dolos@127.0.0.1:3306/dolos_test
     services:
@@ -60,6 +66,8 @@ jobs:
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v7
+        with:
+          submodules: true
 
       - name: Setup Ruby 📚
         uses: ruby/setup-ruby@v1
@@ -67,8 +75,9 @@ jobs:
           working-directory: api/
           bundler-cache: true
 
-      - name: Pull the CLI image 🐳
-        run: docker pull ghcr.io/dodona-edu/dolos-cli:latest
+      - name: Build the CLI image 🐳
+        working-directory: .
+        run: docker build . -f Dockerfile.cli -t "$DOLOS_API_CLI_IMAGE"
 
       - name: Run tests 🧪
         run: |
