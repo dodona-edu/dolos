@@ -1,14 +1,14 @@
-property,value,type
-kgramLength,23,number
-kgramsInWindow,17,number
-language,java,string
-maxFingerprintCount,null,object
-maxFingerprintPercentage,null,object
-minFragmentLength,0,number
-limitResults,null,object
-minSimilarity,0,number
-sortBy,total overlap,string
-fragmentSortBy,file order,string
-kgramData,false,boolean
-semantic,false,boolean
-semanticMatchLength,30,number
+property,value
+reportName,simple-dataset
+createdAt,2026-11-27T08:15:51.528610886Z
+language,Javascript
+kgramLength,23
+kgramsInWindow,17
+minLengthMatch,1
+includeComments,false
+includeFragments,false
+includeAnalysisData,true
+maxFingerprintFileCount,null
+sortBy,FileId
+fragmentSortBy,FileOrder
+template,[]

@@ -46,10 +46,11 @@ class AnalyzeDatasetJob < ApplicationJob
 
   def execute(zipfile_path)
     cmd = [
-      '-V', # enable verbose errors
+      'run',
       '-f', 'csv',
       '-o', OUTPUT_DIRNAME,
       '-n', @dataset.name,
+      '--include-analysis-data',
       '/input.zip'
     ]
     cmd += ['-l', @dataset.programming_language] if @dataset.programming_language.present?

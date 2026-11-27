@@ -19,7 +19,7 @@ class ReportsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'should report files' do
-    %w[metadata.csv files.csv kgrams.csv pairs.csv].each do |f|
+    %w[metadata.csv files.csv pairs.csv].each do |f|
       get data_report_url(@report, f)
       assert_response :redirect, "Expected #{f} to be present"
     end
@@ -69,7 +69,7 @@ class ReportsControllerTest < ActionDispatch::IntegrationTest
 
     assert_not @report.all_files_present?
 
-    %w[metadata.csv files.csv kgrams.csv pairs.csv].each do |f|
+    %w[metadata.csv files.csv pairs.csv].each do |f|
       get data_report_url(@report, f)
       assert_response :not_found
     end

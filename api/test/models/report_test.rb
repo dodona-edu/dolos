@@ -36,7 +36,7 @@ class ReportTest < ActiveSupport::TestCase
 
     assert_not @report.all_files_present?
 
-    %w[metadata.csv files.csv kgrams.csv pairs.csv].each do |f|
+    %w[metadata.csv files.csv pairs.csv].each do |f|
       assert_raises ActiveRecord::RecordNotFound do
         @report.attachment_by_filename(f)
       end
