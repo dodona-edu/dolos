@@ -3,59 +3,84 @@
 If you do not want to use our free to use instance ([dolos.ugent.be/server](https://dolos.ugent.be/server)),
 it is also possible to host your own instance.
 
-## Local hosting using Docker Compose
-
-These instructions are for **local** hosting only. The section [external hosting](#external-hosting) explains how you create a public instance of Dolos.
+## Hosting with Docker Compose
 
 [Docker](https://www.docker.com/) is a containerization technology that allows you to run our service without the hassle of installing the different dependencies and services yourself.
+The file `docker-compose.yml` runs each part of Dolos in its own container:
 
+- `proxy`: a [Caddy](https://caddyserver.com/) reverse proxy. It is the only service that is reachable from outside. It serves the frontend and the API on one host name, and gets an HTTPS certificate for that host name.
+- `web`: the frontend, as static files.
+- `api`: the API server.
+- `worker`: the job worker. It starts a container of the Dolos CLI for each analysis.
+- `cli`: the image of the Dolos CLI. This service only pulls the image and checks that it runs. It stops after the check.
+- `db`: the MariaDB database.
 
-Run Dolos on your own system using these instructions:
+The database and the stored datasets and reports are in the named volumes `dolos-db-data` and `dolos-api-storage`.
+The certificates of the proxy are in the volume `dolos-proxy-data`.
 
-1. Ensure [Git](https://git-scm.com/downloads), [Docker Engine](https://docs.docker.com/engine/install/) and [Docker Compose](https://docs.docker.com/compose/install/) are installed on the system where you will be running Dolos on.
-2. In a terminal, clone the Docker repository with Git and enter the new directory
-  ```
-    git clone https://github.com/dodona-edu/dolos.git
-    cd dolos/
-  ```
-3. Run `cp .env.example .env` to create a copy of the template environment settings.
-3. Run `docker compose pull` in this directory to pull and fetch all needed container images.
-4. Run `docker pull ghcr.io/dodona-edu/dolos-cli:latest` to ensure the container running the Dolos CLI is present and up-to-date.
-5. Run `docker compose up` to start the services.
+### On a server
 
-You can now visit the web app running locally on <http://localhost:8080>.
-The API is available on <http://localhost:3000>. By changing the entries in the `.env` file, it is possible to change the ports on which Dolos is hosted - these are the settings `FRONTEND_EXTERNAL_PORT` and `API_EXTERNAL_PORT`. After such changes, make sure to run `docker compose up` again to apply.
+You need a server with a domain name, for example `dolos.example.com`.
+Ports 80 and 443 of the server must be reachable from the internet: Caddy uses them to get a certificate from [Let's Encrypt](https://letsencrypt.org/).
+
+1. Install [Git](https://git-scm.com/downloads), [Docker Engine](https://docs.docker.com/engine/install/) and [Docker Compose](https://docs.docker.com/compose/install/).
+2. Clone the repository with Git and enter the new directory:
+   ```sh
+   git clone https://github.com/dodona-edu/dolos.git
+   cd dolos/
+   ```
+3. Create the configuration file from the template: `cp .env.example .env`.
+4. Edit `.env`:
+   - Set `DOLOS_PROTOCOL=https` and set `DOLOS_HOST` to the domain name of the server.
+   - Set `DATABASE_PASSWORD` to the output of `openssl rand -hex 32`.
+   - Set `SECRET_KEY_BASE` to the output of `openssl rand -hex 64`.
+5. Run `docker compose pull` to get the images.
+6. Run `docker compose up --detach` to start the services.
+
+Dolos is now available on `https://dolos.example.com`.
+
+The images use the release in `DOLOS_VERSION`. To update Dolos, change `DOLOS_VERSION` in `.env`, then run `docker compose pull` and `docker compose up --detach` again.
+
+### On your own computer
+
+Keep `DOLOS_PROTOCOL=http` and `DOLOS_HOST=localhost` in `.env`, and set the two secrets as described above.
+Then run `docker compose pull` and `docker compose up`.
+Dolos is now available on <http://localhost>. Port 80 must be free.
 
 ::: warning
 
 The Dolos web app launches a new docker container for each analysis.
-For this reason, **we mount the docker socket** (`/var/run/docker.sock`) in the `docker-compose.yml` configuration.
+For this reason, **we mount the docker socket** (`/var/run/docker.sock`) in the worker container.
 
-This grants the web app full control over your docker instance.
+This grants the worker full control over your docker instance.
 
 :::
 
-## External hosting
+### Configuration
 
-To host your own public instance of Dolos, you will need some extra security precautions that are not included in the default `docker-compose.yml` configuration:
-- **configure a domain name** and subdomain or path for the API
-- **configure HTTPS**
-- **configure serving static files** for the front-end Web UI
+All configuration is in the `.env` file:
 
-This is typically handled by using a reverse proxy like Nginx, Apache, Traefik, ... 
+- `DOLOS_VERSION`: the release of the Dolos images, for example `3.0.0`.
+- `DOLOS_PROTOCOL`: `https` on a server, `http` on your own computer.
+- `DOLOS_HOST`: the host name of Dolos in the browser.
+- `DATABASE_USER` and `DATABASE_PASSWORD`: the user of the database.
+- `SECRET_KEY_BASE`: the secret of the API server.
+- `DOCKER_SOCKET`: the Docker socket on the host. For a rootless Docker setup, use `${XDG_RUNTIME_DIR}/docker.sock`.
 
-As this configuration is highly dependent on your situation, we recommend [contacting us](/about/contact) describing what you want to achieve.
+The worker and the CLI containers exchange files through the directory `/tmp/dolos` on the host.
 
-### Running Docker Compose behind a reverse proxy
+The setup of Dolos 2 used other variables (`WEB_PROTOCOL`, `FRONTEND_*`, `API_*` and `DATABASE_ROOT_PASSWORD`).
+To upgrade, create `.env` again from `.env.example`. The volumes keep their names.
 
-The provided Docker Compose configuration provides some basic provisions to run Dolos behind a reverse proxy, which should be set up separately. After setting up the reverse proxy, you should customise the `.env` settings. For these instructions, we assume we want to host Dolos on `https://foo.example.com/` and the API on `https://foo.example.com/api`.
+### Build the images yourself
 
-- `WEB_PROTOCOL` should be set to `https` (assuming the reverse proxy has this set up)
-- The three `DATABASE_*` fields should be changed to more secure values
-- The `FRONTEND_EXTERNAL_*` fields should correspond to the public endpoint of your Dolos instance. In this case, `_HOST` would be `foo.example.com`, `_PORT` would be `443` (public HTTPS), and `_PATH` can be left empty.
-- `FRONTEND_INTERNAL_HOST` should be the IP address where your reverse proxy is located, typically `127.0.0.1`. This prevents external users from bypassing the revervse proxy: only the proxy can contact Dolos.
-- `FRONTEND_INTERNAL_PORT` should be set to the port that your reverse proxy will be using to contact Dolos. This is different from the external port.
-- The `API_*` fields should be set up in the same way as the `FRONTEND_` fields before, but now you should provide `_PATH` as `/api`.
+Run `docker compose build` to build the images from your clone of the repository instead of pulling them.
+The build needs [BuildKit](https://docs.docker.com/build/buildkit/), which `docker compose` uses by default when the Docker Buildx plugin is installed.
+
+## Hosting without Docker Compose
+
+The Docker image of the frontend calls the API on the same host name as the frontend, on the paths `/reports`, `/datasets` and `/rails`.
+When you build the frontend yourself, set `VITE_API_URL` to the URL of the API.
 
 ### Configurable environment variables
 

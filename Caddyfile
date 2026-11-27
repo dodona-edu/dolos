@@ -1,0 +1,15 @@
+# The reverse proxy of the Docker Compose setup.
+# With DOLOS_PROTOCOL=https, Caddy gets a certificate for DOLOS_HOST and redirects HTTP to HTTPS.
+{$DOLOS_PROTOCOL}://{$DOLOS_HOST} {
+	encode zstd gzip
+
+	# The routes of the API. The frontend uses the same host name.
+	@api path /reports /reports/* /datasets/* /rails/*
+	handle @api {
+		reverse_proxy api:3000
+	}
+
+	handle {
+		reverse_proxy web:8080
+	}
+}

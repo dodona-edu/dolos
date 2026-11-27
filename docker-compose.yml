@@ -1,11 +1,110 @@
 name: dolos
 services:
+  proxy:
+    image: caddy:2.11-alpine
+    ports:
+      - 80:80
+      - 443:443
+      - 443:443/udp
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - dolos-proxy-data:/data
+      - dolos-proxy-config:/config
+    environment:
+      DOLOS_PROTOCOL: ${DOLOS_PROTOCOL:?}
+      DOLOS_HOST: ${DOLOS_HOST:?}
+    depends_on:
+      web:
+        condition: service_healthy
+      api:
+        condition: service_healthy
+    networks:
+      - dolos
+    restart: always
+
+  web:
+    image: ghcr.io/dodona-edu/dolos-web:${DOLOS_VERSION:?}
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+    networks:
+      - dolos
+    healthcheck:
+      start_period: 2s
+      interval: 10s
+      test: wget --quiet --spider http://127.0.0.1:8080/ || exit 1
+    restart: always
+
+  api:
+    image: ghcr.io/dodona-edu/dolos-api:${DOLOS_VERSION:?}
+    build: ./api/
+    command: bash -c "rm -f tmp/pids/server.pid && bundle exec rails db:prepare && bundle exec rails s -p 3000 -b '0.0.0.0'"
+    volumes:
+      - dolos-api-storage:/dolos/storage
+    environment: &api-environment
+      DOLOS_API_URL: ${DOLOS_PROTOCOL:?}://${DOLOS_HOST:?}
+      DOLOS_API_FRONT_END_URL: ${DOLOS_PROTOCOL:?}://${DOLOS_HOST:?}/
+      DOLOS_API_DATABASE_USERNAME: ${DATABASE_USER:?}
+      DOLOS_API_DATABASE_PASSWORD: ${DATABASE_PASSWORD:?}
+      DOLOS_API_DATABASE_HOST: db
+      DOLOS_API_CLI_IMAGE: ghcr.io/dodona-edu/dolos-cli:${DOLOS_VERSION:?}
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE:?}
+      RAILS_ENV: production
+      RAILS_LOG_TO_STDOUT: true
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - dolos
+    healthcheck:
+      start_period: 5s
+      interval: 10s
+      # Rails accepts only requests for DOLOS_HOST, and redirects HTTP requests when DOLOS_PROTOCOL is https.
+      test: 'curl --fail --header "Host: ${DOLOS_HOST:?}" --header "X-Forwarded-Proto: ${DOLOS_PROTOCOL:?}" http://localhost:3000/up || exit 1'
+    restart: always
+
+  worker:
+    image: ghcr.io/dodona-edu/dolos-api:${DOLOS_VERSION:?}
+    build: ./api/
+    command: bash -c "bundle exec rails jobs:work"
+    volumes:
+      - dolos-api-storage:/dolos/storage
+      # The worker gives the paths of its temporary files to the Docker daemon, which mounts them in the CLI container.
+      # The directory must have the same path in the worker and on the host.
+      - /tmp/dolos:/tmp/dolos
+      - ${DOCKER_SOCKET:?}:/var/run/docker.sock
+    environment:
+      <<: *api-environment
+      TMPDIR: /tmp/dolos
+    depends_on:
+      api:
+        condition: service_healthy
+      cli:
+        condition: service_completed_successfully
+    networks:
+      - dolos
+    healthcheck:
+      start_period: 2s
+      interval: 5s
+      test: ruby -e true || exit 1
+    restart: always
+
+  # The worker starts a container of this image for each analysis.
+  # This service only pulls or builds the image and checks that it runs.
+  cli:
+    image: ghcr.io/dodona-edu/dolos-cli:${DOLOS_VERSION:?}
+    build:
+      context: .
+      dockerfile: Dockerfile.cli
+    command: --version
+    network_mode: none
+
   db:
-    image: mariadb:11
+    image: mariadb:11.8
     volumes:
       - dolos-db-data:/var/lib/mysql
     environment:
-      MARIADB_ROOT_PASSWORD: ${DATABASE_ROOT_PASSWORD:?}
+      MARIADB_RANDOM_ROOT_PASSWORD: true
       MARIADB_DATABASE: dolos
       MARIADB_USER: ${DATABASE_USER:?}
       MARIADB_PASSWORD: ${DATABASE_PASSWORD:?}
@@ -17,93 +116,11 @@ services:
       test: healthcheck.sh --su-mysql --connect --innodb_initialized
     restart: always
 
-  web:
-    image: ghcr.io/dodona-edu/dolos-web
-    #build:
-    #  dockerfile: ./Dockerfile.web
-    #  context: .
-    ports:
-      # This renders to "host:port:8080", so traffic from the provided hosts on the specified
-      # port is available to port 8080 inside the container. By default, this will be
-      # 0.0.0.0:8080:8080.
-      - ${FRONTEND_INTERNAL_HOST:-0.0.0.0}:${FRONTEND_INTERNAL_PORT:-${FRONTEND_EXTERNAL_PORT:?}}:8080
-    environment:
-      VITE_HOST: 0.0.0.0
-      VITE_PORT: 8080
-      VITE_API_URL: ${WEB_PROTOCOL:?}://${API_EXTERNAL_HOST:?}:${API_EXTERNAL_PORT:?}/${API_EXTERNAL_PATH:-}
-      VITE_MODE: server
-    depends_on:
-      - api
-    networks:
-      - dolos
-    healthcheck:
-      start_period: 45s
-      test: curl --fail http://localhost:8080 || exit 1
-    restart: always
-
-  api:
-    image: ghcr.io/dodona-edu/dolos-api
-    # build: ./api/
-    command: bash -c "rm -f tmp/pids/server.pid && bundle exec rails db:prepare && bundle exec rails s -p 3000 -b '0.0.0.0'"
-    volumes:
-      - dolos-api-storage:/dolos/storage
-      - /tmp:/tmp
-    ports:
-      # This renders to "host:port:3000", so traffic from the provided hosts on the specified
-      # port is available to port 3000 inside the container. By default, this will be
-      # 0.0.0.0:3000:3000.
-      - ${API_INTERNAL_HOST:-0.0.0.0}:${API_INTERNAL_PORT:-${API_EXTERNAL_PORT:?}}:3000
-    environment:
-      DOLOS_API_FRONT_END_URL: ${WEB_PROTOCOL:?}://${FRONTEND_EXTERNAL_HOST:?}:${FRONTEND_EXTERNAL_PORT:?}/${FRONTEND_EXTERNAL_PATH:-}
-      DOLOS_API_URL: ${WEB_PROTOCOL:?}://${API_EXTERNAL_HOST:?}:${API_EXTERNAL_PORT:?}/${API_EXTERNAL_PATH:-}
-      DOLOS_API_DATABASE_USERNAME: ${DATABASE_USER:?}
-      DOLOS_API_DATABASE_PASSWORD: ${DATABASE_PASSWORD:?}
-      DOLOS_API_DATABASE_HOST: db
-      RAILS_ENV: production
-      RAILS_LOG_TO_STDOUT: true
-      SECRET_KEY_BASE_DUMMY: true
-    depends_on:
-      db:
-        condition: service_healthy
-    networks:
-      - dolos
-    healthcheck:
-      start_period: 2s
-      interval: 10s
-      # This health check "emulates" a browser request to API_EXTERNAL_*, while actually just
-      # querying localhost. This way, we overcome the strict host checking done by rails, which
-      # is based on the DOLOS_API_URL variable.
-      test: 'curl --fail --header "Host: ${API_EXTERNAL_HOST:-localhost}:${API_EXTERNAL_PORT:?}" --header "X-Forwarded-Proto: ${WEB_PROTOCOL:-http}" "localhost:3000/up" || exit 1'
-    restart: always
-
-  worker:
-    image: ghcr.io/dodona-edu/dolos-api
-    # build: ./api/
-    command: bash -c "bundle exec rails jobs:work"
-    volumes:
-      - dolos-api-storage:/dolos/storage
-      - /tmp:/tmp
-      - ${DOCKER_SOCKET}:/var/run/docker.sock
-    environment:
-      DOLOS_API_DATABASE_USERNAME: ${DATABASE_USER:?}
-      DOLOS_API_DATABASE_PASSWORD: ${DATABASE_PASSWORD:?}
-      DOLOS_API_DATABASE_HOST: db
-      RAILS_ENV: production
-      SECRET_KEY_BASE_DUMMY: true
-      RAILS_LOG_TO_STDOUT: true
-    depends_on:
-      - api
-    networks:
-      - dolos
-    healthcheck:
-      start_period: 2s
-      interval: 5s
-      test: ruby -e true || exit 1
-    restart: always
-
 volumes:
   dolos-db-data:
   dolos-api-storage:
+  dolos-proxy-data:
+  dolos-proxy-config:
 
 networks:
   dolos:
