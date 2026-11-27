@@ -1,5 +1,8 @@
-*.tsbuildinfo
-dist/
-node_modules/
+.git
 *.iml
-engine/target/
+*.tsbuildinfo
+**/node_modules/
+**/dist/
+**/target/
+**/pkg/
+**/dolos-report-*/

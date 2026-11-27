@@ -1,37 +1,29 @@
-FROM node:26.12.0-alpine3.24
+# syntax=docker/dockerfile:1
 
-WORKDIR /repo/
+FROM rust:1.100.0-slim-trixie AS build
 
-RUN apk add --no-cache curl python3 build-base
+WORKDIR /engine
+COPY engine/ ./
 
-ADD package-lock.json package.json tsconfig.global.json /repo/
-
-ADD core/ /repo/core
-
-ADD parsers/ /repo/parsers
-
-ADD lib/package.json lib/tsconfig.json lib/
-ADD lib/src /repo/lib/src
-
-ADD web/index.d.ts web/index.js web/index.html web/package.json web/tsconfig.json web/vite.config.ts web/tsconfig.node.json /repo/web/
-ADD web/src /repo/web/src
-ADD web/public /repo/web/public
-
-ADD cli/tsconfig.json cli/package.json /repo/cli/
-ADD cli/src /repo/cli/src
-ADD cli/typings /repo/cli/typings
-
-RUN npm install
-
-RUN apk del --no-cache python3 build-base
+# Cache the crates and the build output between builds.
+# Copy the binary out of the target cache in the same step.
+RUN --mount=type=cache,target=/usr/local/cargo/registry \
+    --mount=type=cache,target=/usr/local/cargo/git \
+    --mount=type=cache,target=/engine/target \
+    cargo build --release --locked -p dolos-cli \
+    && cp target/release/dolos /usr/local/bin/dolos
 
 
-RUN npm run --workspace core build
-RUN npm run --workspace web build
-RUN npm run --workspace cli build
-RUN npm --workspace cli link
+# The binary needs only libc and libgcc.
+FROM gcr.io/distroless/cc-debian13:latest@sha256:e8343d4a7da8bb210df0c3ea29de38bbadbba6c773bed0cd8bde506fca3a5c44
+
+LABEL org.opencontainers.image.source=https://github.com/dodona-edu/dolos
+LABEL org.opencontainers.image.description="The command line interface of Dolos, a source code plagiarism detection tool."
+LABEL org.opencontainers.image.licenses=MIT
+
+COPY --from=build /usr/local/bin/dolos /usr/local/bin/dolos
 
 WORKDIR /dolos
-USER node
+USER 1000:1000
 EXPOSE 3000/tcp
-ENTRYPOINT [ "dolos" ]
+ENTRYPOINT ["dolos"]
