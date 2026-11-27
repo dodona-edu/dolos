@@ -56,10 +56,13 @@ Useful commands that you might need to perform these steps manually:
 
 You can start the server with `rails server`. This will start the API server on http://localhost:3000.
 
-To be able to analyze datasets, you need to have the latest image of the Dolos docker
+To be able to analyze datasets, you need the Docker image of the Dolos CLI.
+The API uses the image of its own release, `ghcr.io/dodona-edu/dolos-cli:<version>`.
+`DOLOS_VERSION` in `app/jobs/analyze_dataset_job.rb` gives the version.
+Set `DOLOS_API_CLI_IMAGE` to use another image.
 
 ```bash
-docker pull ghcr.io/dodona-ede/dolos:latest
+docker pull ghcr.io/dodona-edu/dolos-cli:<version>
 ```
 
 You can start the job worker with `rails jobs:work`.
