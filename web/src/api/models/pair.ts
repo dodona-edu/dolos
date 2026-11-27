@@ -12,6 +12,6 @@ export interface Pair {
   leftTotal: number;
   rightTotal: number;
   fragments: Fragment[] | null;
-  leftIgnoredKgrams: Selection[];
-  rightIgnoredKgrams: Selection[];
+  leftIgnored: Selection[];
+  rightIgnored: Selection[];
 }

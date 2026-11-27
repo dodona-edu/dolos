@@ -16,8 +16,8 @@ export function parsePairs(pairData: any[], files: File[]): Pair[] {
       leftFile: files[parseInt(row.leftFileId)],
       rightFile: files[parseInt(row.rightFileId)],
       fragments: null,
-      leftIgnoredKgrams: [],
-      rightIgnoredKgrams: [],
+      leftIgnored: [],
+      rightIgnored: [],
     };
   }
   return pairs;

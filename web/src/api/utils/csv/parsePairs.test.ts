@@ -30,10 +30,10 @@ describe("parsePairs", () => {
     expect(pairs[0]).toBeUndefined();
   });
 
-  it("initialises fragments and ignored kgrams as empty", () => {
+  it("initialises fragments and ignored regions as empty", () => {
     const pair = parsePairs(rows, files)[0];
     expect(pair.fragments).toBeNull();
-    expect(pair.leftIgnoredKgrams).toEqual([]);
-    expect(pair.rightIgnoredKgrams).toEqual([]);
+    expect(pair.leftIgnored).toEqual([]);
+    expect(pair.rightIgnored).toEqual([]);
   });
 });

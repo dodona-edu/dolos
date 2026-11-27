@@ -52,8 +52,8 @@ export function createPair(
     leftTotal: 0,
     rightTotal: 0,
     fragments: null,
-    leftIgnoredKgrams: [],
-    rightIgnoredKgrams: [],
+    leftIgnored: [],
+    rightIgnored: [],
     ...overrides,
   };
 }
