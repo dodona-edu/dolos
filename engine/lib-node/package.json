@@ -1,0 +1,47 @@
+{
+  "name": "@dodona/dolos-lib",
+  "version": "4.0.0",
+  "description": "Detect plagiarism in source code from Node.js. The native binding of the Rust library dolos-lib.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dodona-edu/dolos.git",
+    "directory": "engine/lib-node"
+  },
+  "homepage": "https://dolos.ugent.be/docs/library",
+  "keywords": [
+    "plagiarism",
+    "source code",
+    "similarity",
+    "dolos"
+  ],
+  "main": "index.js",
+  "types": "index.d.ts",
+  "files": [
+    "index.js",
+    "index.d.ts"
+  ],
+  "napi": {
+    "binaryName": "dolos-lib",
+    "targets": [
+      "x86_64-unknown-linux-gnu",
+      "x86_64-unknown-linux-musl",
+      "aarch64-unknown-linux-gnu",
+      "aarch64-unknown-linux-musl",
+      "x86_64-pc-windows-msvc",
+      "aarch64-pc-windows-msvc",
+      "x86_64-apple-darwin",
+      "aarch64-apple-darwin"
+    ]
+  },
+  "scripts": {
+    "build": "napi build --platform --release --no-const-enum --runtime-string-enum",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test \"test/*.test.mts\""
+  },
+  "devDependencies": {
+    "@napi-rs/cli": "^3.11.1",
+    "@types/node": "^24.19.4",
+    "typescript": "^5.9.3"
+  }
+}

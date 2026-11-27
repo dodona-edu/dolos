@@ -1,0 +1,19 @@
+[package]
+name = "dolos-lib-node"
+version = "0.1.0"
+edition = "2024"
+description = "The Node.js binding of dolos-lib. It runs a Dolos analysis from JavaScript."
+repository = "https://github.com/dodona-edu/dolos"
+license = "MIT"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+dolos-lib = { path = "../lib", features = ["all-languages"] }
+napi = { version = "3.16.3", features = ["napi5"] }
+napi-derive = "3.7.2"
+
+[build-dependencies]
+napi-build = "2.7.0"
