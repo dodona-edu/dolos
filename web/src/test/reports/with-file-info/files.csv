@@ -1,0 +1,32 @@
+id,path,content,fingerprints,fingerprintRegions,ignoredIntervals,info
+0,alice.js,"function readNumbers(text) {
+  return text.split("","").map((part) => Number(part));
+}
+
+function sum(numbers) {
+  let total = 0;
+  for (const number of numbers) {
+    total += number;
+  }
+  return total;
+}
+
+console.log(sum(readNumbers(""1,2,3"")));
+",,,,"{""full_name"":""Alice Adams"",""created_at"":""2019-07-23 17:12:33 +0200"",""labels"":""group-a""}"
+1,bob.js,"function readNumbers(text) {
+  return text.split("","").map((part) => Number(part));
+}
+
+function add(values) {
+  let result = 0;
+  for (const value of values) {
+    result += value;
+  }
+  return result;
+}
+
+console.log(add(readNumbers(""4,5,6"")));
+",,,,"{""full_name"":"""",""created_at"":"""",""labels"":""""}"
+2,carol.js,"const numbers = ""7,8,9"".split("","").map(Number);
+console.log(numbers.reduce((a, b) => a + b, 0));
+",,,,"{""full_name"":""Carol Clark"",""created_at"":"""",""labels"":""""}"
