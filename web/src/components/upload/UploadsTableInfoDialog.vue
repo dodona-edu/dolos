@@ -109,7 +109,18 @@ const isDone = computed(
 
       <!-- Status: Finished -->
       <template v-else-if="props.report.status === 'finished'">
-        <v-card-text>
+        <v-card-text v-if="props.report.hasWarnings()">
+          <v-alert type="warning" variant="tonal" class="mt-2 mb-2">
+            Analysis was completed with warnings.
+          </v-alert>
+          <v-textarea
+            readonly
+            hide-details
+            :rows="Math.min(15, props.report.stderr?.split('\n').length ?? 1)"
+            :model-value="props.report.stderr"
+          />
+        </v-card-text>
+        <v-card-text v-else>
           <v-alert type="success" variant="tonal" class="mt-2 mb-0">
             Analysis was completed successfully.
           </v-alert>

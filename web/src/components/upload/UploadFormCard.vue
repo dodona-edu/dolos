@@ -368,7 +368,24 @@ watch(
         </v-window-item>
 
         <v-window-item :value="4">
+          <template v-if="reportActive?.hasWarnings()">
+            <v-alert
+              type="warning"
+              border="start"
+              class="flex-grow-1 mb-2"
+              variant="tonal"
+            >
+              Your dataset has been analysed with warnings.
+            </v-alert>
+            <v-textarea
+              readonly
+              hide-details
+              :rows="Math.min(15, reportActive.stderr?.split('\n').length ?? 1)"
+              :model-value="reportActive.stderr"
+            />
+          </template>
           <v-alert
+            v-else
             type="success"
             border="start"
             class="flex-grow-1"

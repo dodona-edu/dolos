@@ -45,6 +45,11 @@ export class Report {
     return this.status !== "queued" && this.status !== "running";
   }
 
+  /** Returns true when the report is finished and the CLI wrote to stderr. */
+  public hasWarnings() {
+    return this.status === "finished" && !!this.stderr?.trim();
+  }
+
   static fromResponse(response: Record<string, any>, slug?: string, fromSharing?: boolean): Report {
     return new Report(
       response.id,
@@ -53,7 +58,7 @@ export class Report {
       response.status,
       response.url,
       response.dataset?.zipfile,
-      response.stderr?.replace(/\s*.\[\d+m\[error\].\[\d+m\s*/g, ""),
+      response.stderr,
       response.error,
       slug,
       fromSharing
