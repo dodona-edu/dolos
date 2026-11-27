@@ -17,11 +17,9 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry \
     wasm-pack build core-wasm --target web --release
 
 
-FROM node:26.12.0-alpine3.24
+FROM node:26.12.0-alpine3.24 AS frontend
 
 WORKDIR /repo/
-
-RUN apk add --no-cache curl
 
 ADD package-lock.json package.json tsconfig.global.json /repo/
 ADD core/ /repo/core
@@ -34,17 +32,14 @@ COPY --from=wasm /engine/core-wasm/pkg /repo/engine/core-wasm/pkg
 RUN npm install
 RUN npm run build --workspace core
 
-ENV VITE_HOST=0.0.0.0
-ENV VITE_PORT=8080
-ENV VITE_MODE=server
-ENV DEFAULT_VITE_API_URL=http://localhost:3000
-EXPOSE 8080/tcp
-
 WORKDIR /repo/web
 
-RUN VITE_API_URL="$DEFAULT_VITE_API_URL" npm run build
+# An empty VITE_API_URL makes the frontend call the API on its own host name.
+RUN VITE_MODE=server VITE_API_URL="" npm run build
 
 
-SHELL ["/bin/sh", "-c"]
+FROM nginxinc/nginx-unprivileged:1.31-alpine
 
-CMD (test "$VITE_API_URL" == "$DEFAULT_VITE_API_URL" || npm run build) && npm run preview -- --host "$VITE_HOST" --port "$VITE_PORT" --strictPort
+LABEL org.opencontainers.image.source=https://github.com/dodona-edu/dolos
+
+COPY --from=frontend /repo/web/dist /usr/share/nginx/html
