@@ -1,0 +1,211 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions: {}
+
+jobs:
+  publish:
+    name: "Publish packages on NPM 📦"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      id-token: write
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v7
+        with:
+          submodules: true
+
+      - name: Setup Node and dependencies 📚
+        uses: ./.github/actions/setup-node-deps
+
+      - name: Draft release
+        id: create_release
+        uses: release-drafter/release-drafter@v7
+        with:
+          name: ${{ github.ref_name }}
+          tag: ${{ github.ref_name }}
+          version: ${{ github.ref_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build core 🔧
+        working-directory: core
+        run: npm run build
+
+      - name: Build parsers 🔧
+        working-directory: parsers
+        run: npm run build
+
+      - name: Build lib 🔧
+        working-directory: lib
+        run: npm run build
+
+      - name: Build CLI 🔧
+        working-directory: cli
+        run: npm run build -- --force
+
+      - name: Build web 🔧
+        working-directory: web
+        run: npm run build
+
+      - name: Publish @dodona/dolos-core to NPM
+        uses: JS-DevTools/npm-publish@v4
+        with:
+          package: ./core/package.json
+          strategy: all
+          access: public
+
+      - name: Publish @dodona/dolos-parsers to NPM
+        uses: JS-DevTools/npm-publish@v4
+        with:
+          package: ./parsers/package.json
+          strategy: all
+          access: public
+
+      - name: Publish @dodona/dolos-lib to NPM
+        uses: JS-DevTools/npm-publish@v4
+        with:
+          package: ./lib/package.json
+          strategy: all
+          access: public
+
+      - name: Publish @dodona/dolos-web to NPM
+        uses: JS-DevTools/npm-publish@v4
+        with:
+          package: ./web/package.json
+          strategy: all
+          access: public
+
+      - name: Publish @dodona/dolos to NPM
+        uses: JS-DevTools/npm-publish@v4
+        with:
+          package: ./cli/package.json
+          strategy: all
+          access: public
+
+  demo:
+    name: "Publish demo 🚀"
+    needs: publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v7
+
+      - name: Setup Node 📚
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+
+      - name: Install dolos
+        run: |
+          npm install -g @dodona/dolos
+          dolos --version
+
+      - name: Setup SSH 🔑
+        uses: ./.github/actions/setup-ssh
+        with:
+          ssh-key: ${{ secrets.SSH_KEY }}
+          known-hosts: ${{ secrets.KNOWN_HOSTS }}
+
+      - name: Prepare analysis
+        run: |
+          mkdir analysis
+          cd analysis
+          rsync \
+              -e 'ssh -p 4840' \
+              dodona@dolos.ugent.be:demo-datasets.zip \
+              .
+          unzip demo-datasets.zip
+
+      - name: Run analysis on samples
+        working-directory: analysis
+        run: dolos -l javascript -f csv -o samples-results samples/info.csv
+
+      - name: Run analysis on SOCO Java
+        working-directory: analysis
+        run: dolos -l java -f csv -o java-results soco/java-labels.csv
+
+      - name: Run analysis on SOCO C
+        working-directory: analysis
+        run: dolos -l c -f csv -o c-results soco/c-labels.csv
+
+      - name: Run analysis on Pyramidal constants exercise
+        working-directory: analysis
+        run: dolos -l python -f csv -o pyramidal-exercise-results "exercise - Pyramidal constants/info.csv"
+
+      - name: Run analysis on Pyramidal constants evaluation
+        working-directory: analysis
+        run: dolos -l python -f csv -o pyramidal-evaluation-results "evaluation - Pyramidal constants/info.csv"
+
+      - name: Deploy results to demo site
+        working-directory: analysis
+        run: |
+          npm pack @dodona/dolos-web
+          tar xzf dodona-dolos-web-*.tgz
+          mkdir -p demo/sample
+          mkdir -p demo/soco
+          mkdir -p demo/pyramidal-constants/exercise
+          mkdir -p demo/pyramidal-constants/evaluation
+          cp -r package/dist/. demo/sample
+          cp -r package/dist/. demo/soco/java
+          cp -r package/dist/. demo/soco/c
+          cp -r package/dist/. demo/pyramidal-constants/exercise
+          cp -r package/dist/. demo/pyramidal-constants/evaluation
+          cp -r samples-results demo/sample/data
+          cp -r java-results demo/soco/java/data
+          cp -r c-results demo/soco/c/data
+          cp -r pyramidal-exercise-results demo/pyramidal-constants/exercise/data
+          cp -r pyramidal-evaluation-results demo/pyramidal-constants/evaluation/data
+          rsync -glpPrtvz \
+             -e 'ssh -p 4840' \
+             demo/ \
+             dodona@dolos.ugent.be:demo
+
+  docker:
+    name: "Publish docker containers 🚢"
+    needs: publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    env:
+      VERSION: ${{ github.ref_name }}
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v7
+        with:
+          submodules: true
+
+      - name: Build the Dolos images
+        run: |
+          docker build . -f Dockerfile.cli -t "ghcr.io/dodona-edu/dolos-cli:${VERSION#v}"
+          docker build . -f Dockerfile.web -t "ghcr.io/dodona-edu/dolos-web:${VERSION#v}"
+          docker build api/ -t "ghcr.io/dodona-edu/dolos-api:${VERSION#v}"
+
+      - name: Login to the container registry
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: echo "$GITHUB_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+
+      - name: Tag the new images with latest
+        run: |
+          docker tag "ghcr.io/dodona-edu/dolos-cli:${VERSION#v}" ghcr.io/dodona-edu/dolos-cli:latest
+          docker tag "ghcr.io/dodona-edu/dolos-web:${VERSION#v}" ghcr.io/dodona-edu/dolos-web:latest
+          docker tag "ghcr.io/dodona-edu/dolos-api:${VERSION#v}" ghcr.io/dodona-edu/dolos-api:latest
+
+      - name: Push the images
+        run: |
+          docker push --all-tags ghcr.io/dodona-edu/dolos-cli
+          docker push --all-tags ghcr.io/dodona-edu/dolos-web
+          docker push --all-tags ghcr.io/dodona-edu/dolos-api

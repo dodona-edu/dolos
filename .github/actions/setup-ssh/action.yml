@@ -1,0 +1,39 @@
+name: Set up SSH
+description: >
+  Write the SSH key and the known hosts for the deploy to dolos.ugent.be.
+  Set the output "configured" to false when the secrets are not available.
+
+inputs:
+  ssh-key:
+    description: The private SSH key.
+    required: true
+  known-hosts:
+    description: The known_hosts entries of the server.
+    required: true
+
+outputs:
+  configured:
+    description: '"true" when the SSH key and the known hosts are written.'
+    value: ${{ steps.ssh.outputs.configured }}
+
+runs:
+  using: composite
+  steps:
+    - name: Write the SSH files 🔑
+      id: ssh
+      shell: bash
+      env:
+        SSH_KEY: ${{ inputs.ssh-key }}
+        KNOWN_HOSTS: ${{ inputs.known-hosts }}
+      run: |
+        if [ -z "$KNOWN_HOSTS" ]; then
+          echo "Skipping deploy because secrets are not available"
+          echo "configured=false" >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+        mkdir -p ~/.ssh
+        echo "$SSH_KEY" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        echo "$KNOWN_HOSTS" > ~/.ssh/known_hosts
+        chmod 600 ~/.ssh/known_hosts
+        echo "configured=true" >> "$GITHUB_OUTPUT"

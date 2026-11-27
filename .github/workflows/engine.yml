@@ -1,10 +1,16 @@
 name: Engine
 
-on: [push]
+on:
+  push:
+    branches: [main, dolos3.0]
+  pull_request:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
 
 env:
   CARGO_TERM_COLOR: always
@@ -14,9 +20,31 @@ defaults:
     working-directory: engine
 
 jobs:
+  changes:
+    name: "Engine ⚙️ - changes 🔎"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      engine: ${{ steps.filter.outputs.engine }}
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v7
+
+      - name: Detect changes 🔎
+        id: filter
+        uses: dorny/paths-filter@v4
+        with:
+          filters: |
+            engine:
+              - 'engine/**'
+              - '.github/workflows/engine.yml'
 
   build:
     name: "Engine ⚙️ - build 🔧 (${{ matrix.toolchain }})"
+    needs: changes
+    if: needs.changes.outputs.engine == 'true'
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -85,3 +113,19 @@ jobs:
           cache-dependency-path: engine/core-wasm/tests-typescript/package-lock.json
       - working-directory: engine/core-wasm/tests-typescript
         run: npm ci && npm run typecheck && npm test
+
+  result:
+    name: "Engine ⚙️ - all checks ✅"
+    needs: [changes, build, lint, test, wasm]
+    if: always()
+    runs-on: ubuntu-latest
+    permissions: {}
+    defaults:
+      run:
+        working-directory: .
+    steps:
+      - name: Check the job results 🔎
+        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        run: |
+          echo "A job of this workflow failed or was cancelled."
+          exit 1

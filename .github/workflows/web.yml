@@ -1,0 +1,207 @@
+name: Web
+
+on:
+  push:
+    branches: [main, dolos3.0]
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  changes:
+    name: "Web 🌐 - changes 🔎"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      web: ${{ steps.filter.outputs.web }}
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v7
+
+      - name: Detect changes 🔎
+        id: filter
+        uses: dorny/paths-filter@v4
+        with:
+          filters: |
+            web:
+              - 'web/**'
+              - 'core/**'
+              - 'engine/Cargo.toml'
+              - 'engine/Cargo.lock'
+              - 'engine/core/**'
+              - 'engine/core-wasm/**'
+              - 'package.json'
+              - 'package-lock.json'
+              - 'tsconfig.global.json'
+              - 'flake.nix'
+              - 'flake.lock'
+              - 'shell.nix'
+              - '.github/workflows/web.yml'
+              - '.github/actions/build-core-wasm/**'
+              - '.github/actions/setup-node-deps/**'
+              - '.github/actions/setup-ssh/**'
+
+  build:
+    name: "Web 🌐 - build & deploy 🔧"
+    needs: changes
+    if: needs.changes.outputs.web == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v7
+
+      - name: Build the WebAssembly core 🕸
+        uses: ./.github/actions/build-core-wasm
+
+      - name: Setup Node and dependencies 📚
+        uses: ./.github/actions/setup-node-deps
+        with:
+          ignore-scripts: "true"
+
+      - name: Build core 🔧
+        working-directory: core
+        run: npm run build
+
+      - name: Build web 🔧
+        working-directory: web
+        run: npm run build
+
+      - name: Setup SSH 🔑
+        id: ssh
+        uses: ./.github/actions/setup-ssh
+        with:
+          ssh-key: ${{ secrets.SSH_KEY }}
+          known-hosts: ${{ secrets.KNOWN_HOSTS }}
+
+      - name: Deploy to staging 🚀
+        if: steps.ssh.outputs.configured == 'true'
+        working-directory: web
+        env:
+          REF: ${{ github.head_ref || github.ref_name }}
+        run: |
+          mkdir -p "deploy/$REF"
+          cp -a dist/. "deploy/$REF"
+          rsync -glpPrtvz \
+                --relative \
+                --delete  \
+                -e 'ssh -p 4840' \
+                "deploy/./$REF" \
+                "dodona@dolos.ugent.be:web/"
+
+  lint:
+    name: "Web 🌐 - lint 📏"
+    needs: changes
+    if: needs.changes.outputs.web == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v7
+
+      - name: Build the WebAssembly core 🕸
+        uses: ./.github/actions/build-core-wasm
+
+      - name: Setup Node and dependencies 📚
+        uses: ./.github/actions/setup-node-deps
+        with:
+          ignore-scripts: "true"
+
+      - name: Lint 📏
+        working-directory: web
+        run: npm run lint
+
+  test:
+    name: "Web 🌐 - test 🧪"
+    needs: changes
+    if: needs.changes.outputs.web == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v7
+
+      - name: Build the WebAssembly core 🕸
+        uses: ./.github/actions/build-core-wasm
+
+      - name: Setup Node and dependencies 📚
+        uses: ./.github/actions/setup-node-deps
+        with:
+          ignore-scripts: "true"
+
+      - name: Build core 🔧
+        working-directory: core
+        run: npm run build
+
+      - name: Test 🧪
+        working-directory: web
+        run: npm run test
+
+  visual-test:
+    name: "Web 🌐 - visual tests 📸"
+    needs: changes
+    if: needs.changes.outputs.web == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v7
+
+      - name: Build the WebAssembly core 🕸
+        uses: ./.github/actions/build-core-wasm
+
+      # Provide Playwright's browser (Firefox) through Nix, exactly as locally.
+      # The flake's devshell pins it via flake.lock, so CI renders identically
+      # to `nix develop` on a developer machine and the committed baselines
+      # hold. Keep @playwright/test in web/package.json pinned to the same
+      # version as the nixpkgs playwright-driver (see shell.nix).
+      - name: Install Nix ❄️
+        uses: cachix/install-nix-action@v31
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+
+      # Cache the Nix store (devshell closure incl. the Playwright browsers)
+      # keyed on flake.lock, so warm runs skip the ~40s download from
+      # cache.nixos.org. The key changes only when the pinned inputs change.
+      - name: Cache Nix store 📦
+        uses: nix-community/cache-nix-action@v7
+        with:
+          primary-key: nix-${{ runner.os }}-${{ hashFiles('flake.lock') }}
+          restore-prefixes-first-match: nix-${{ runner.os }}-
+
+      # Run everything inside the devshell so PLAYWRIGHT_BROWSERS_PATH and the
+      # skip-validation flags are set. Native build scripts (parsers) are
+      # skipped: building/previewing web only needs JS deps.
+      - name: Visual regression tests 📸
+        run: |
+          nix develop --command bash -c '
+            npm ci --ignore-scripts
+            npm run build --workspace=@dodona/dolos-core
+            cd web
+            npx playwright test
+          '
+
+      - name: Upload Playwright report 📤
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-report
+          path: web/playwright-report/
+          retention-days: 14
+
+  result:
+    name: "Web 🌐 - all checks ✅"
+    needs: [changes, build, lint, test, visual-test]
+    if: always()
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - name: Check the job results 🔎
+        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        run: |
+          echo "A job of this workflow failed or was cancelled."
+          exit 1
