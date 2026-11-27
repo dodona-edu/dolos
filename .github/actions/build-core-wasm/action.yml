@@ -1,0 +1,38 @@
+name: Build the WebAssembly core
+description: >
+  Build engine/core-wasm/pkg with wasm-pack.
+  Restore the package from the cache when its sources did not change.
+
+runs:
+  using: composite
+  steps:
+    - name: Cache the WebAssembly package 📦
+      id: cache
+      uses: actions/cache@v6
+      with:
+        path: engine/core-wasm/pkg
+        key: core-wasm-pkg-${{ hashFiles('engine/Cargo.toml', 'engine/Cargo.lock', 'engine/core/**', 'engine/core-wasm/Cargo.toml', 'engine/core-wasm/src/**', '.github/actions/build-core-wasm/action.yml') }}
+
+    - name: Add the WebAssembly target 🎯
+      if: steps.cache.outputs.cache-hit != 'true'
+      shell: bash
+      run: rustup target add wasm32-unknown-unknown
+
+    - name: Cache the Rust build 📦
+      if: steps.cache.outputs.cache-hit != 'true'
+      uses: Swatinem/rust-cache@v2
+      with:
+        workspaces: engine
+        shared-key: core-wasm
+
+    - name: Install wasm-pack 🔧
+      if: steps.cache.outputs.cache-hit != 'true'
+      uses: taiki-e/install-action@v2
+      with:
+        tool: wasm-pack
+
+    - name: Build the WebAssembly package 🕸
+      if: steps.cache.outputs.cache-hit != 'true'
+      shell: bash
+      working-directory: engine
+      run: wasm-pack build core-wasm --target web --release

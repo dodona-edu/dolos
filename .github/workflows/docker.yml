@@ -1,0 +1,131 @@
+name: Docker
+
+on:
+  push:
+    branches: [main, dolos3.0]
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  changes:
+    name: "Docker 🚢 - changes 🔎"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      cli: ${{ steps.filter.outputs.cli }}
+      web: ${{ steps.filter.outputs.web }}
+      api: ${{ steps.filter.outputs.api }}
+      compose: ${{ steps.filter.outputs.compose }}
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v7
+
+      - name: Detect changes 🔎
+        id: filter
+        uses: dorny/paths-filter@v4
+        with:
+          filters: |
+            workflow: &workflow
+              - '.github/workflows/docker.yml'
+            context: &context
+              - '.dockerignore'
+              - 'package.json'
+              - 'package-lock.json'
+              - 'tsconfig.global.json'
+              - 'engine/**'
+            cli:
+              - *workflow
+              - *context
+              - 'Dockerfile.cli'
+              - '.gitmodules'
+              - 'cli/**'
+              - 'core/**'
+              - 'lib/**'
+              - 'parsers/**'
+              - 'web/**'
+            web:
+              - *workflow
+              - *context
+              - 'Dockerfile.web'
+              - 'core/**'
+              - 'web/**'
+            api:
+              - *workflow
+              - 'api/**'
+            compose:
+              - *workflow
+              - 'docker-compose.yml'
+              - '.env.example'
+              - 'test_compose.sh'
+
+  cli:
+    name: "Docker 🚢 - build dolos-cli 🔧"
+    needs: changes
+    if: needs.changes.outputs.cli == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v7
+        with:
+          submodules: true
+
+      - name: Build the CLI image 🔧
+        run: docker build . -f Dockerfile.cli
+
+  web:
+    name: "Docker 🚢 - build dolos-web 🔧"
+    needs: changes
+    if: needs.changes.outputs.web == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v7
+
+      - name: Build the web image 🔧
+        run: docker build . -f Dockerfile.web
+
+  api:
+    name: "Docker 🚢 - build dolos-api 🔧"
+    needs: changes
+    if: needs.changes.outputs.api == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v7
+
+      - name: Build the API image 🔧
+        working-directory: api
+        run: docker build .
+
+  self-hosting:
+    name: "Docker 🚢 - test docker-compose for self-hosting 🧪"
+    needs: changes
+    if: needs.changes.outputs.compose == 'true' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v7
+
+      - name: Run test script 🧪
+        run: ./test_compose.sh
+
+  result:
+    name: "Docker 🚢 - all checks ✅"
+    needs: [changes, cli, web, api, self-hosting]
+    if: always()
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - name: Check the job results 🔎
+        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        run: |
+          echo "A job of this workflow failed or was cancelled."
+          exit 1

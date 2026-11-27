@@ -1,0 +1,90 @@
+name: Docs
+
+on:
+  push:
+    branches: [main, dolos3.0]
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  changes:
+    name: "Docs 📑 - changes 🔎"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      docs: ${{ steps.filter.outputs.docs }}
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v7
+
+      - name: Detect changes 🔎
+        id: filter
+        uses: dorny/paths-filter@v4
+        with:
+          filters: |
+            docs:
+              - 'docs/**'
+              - '.github/workflows/docs.yml'
+              - '.github/actions/setup-ssh/**'
+
+  build:
+    name: "Docs 📑 - build & deploy 🔧"
+    needs: changes
+    if: needs.changes.outputs.docs == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: docs
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v7
+
+      - name: Setup Node 📚
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: docs/package-lock.json
+
+      - name: Build 🔧
+        run: |
+          npm ci
+          npm run build
+
+      - name: Setup SSH 🔑
+        id: ssh
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: ./.github/actions/setup-ssh
+        with:
+          ssh-key: ${{ secrets.SSH_KEY }}
+          known-hosts: ${{ secrets.KNOWN_HOSTS }}
+
+      - name: Deploy 🚀
+        if: steps.ssh.outputs.configured == 'true'
+        run: |
+          rsync -glpPrtvz \
+                --delete  \
+                -e 'ssh -p 4840' \
+                .vitepress/dist/ \
+                dodona@dolos.ugent.be:docs
+
+  result:
+    name: "Docs 📑 - all checks ✅"
+    needs: [changes, build]
+    if: always()
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - name: Check the job results 🔎
+        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        run: |
+          echo "A job of this workflow failed or was cancelled."
+          exit 1

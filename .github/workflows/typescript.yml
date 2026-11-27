@@ -1,0 +1,288 @@
+name: TypeScript packages
+
+on:
+  push:
+    branches: [main, dolos3.0]
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  changes:
+    name: "TypeScript 📦 - changes 🔎"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      packages: ${{ steps.filter.outputs.packages }}
+      web: ${{ steps.filter.outputs.web }}
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v7
+
+      - name: Detect changes 🔎
+        id: filter
+        uses: dorny/paths-filter@v4
+        with:
+          filters: |
+            packages:
+              - 'cli/**'
+              - 'core/**'
+              - 'lib/**'
+              - 'parsers/**'
+              - '.gitmodules'
+              - 'package.json'
+              - 'package-lock.json'
+              - 'tsconfig.global.json'
+              - 'eslint.config.mjs'
+              - '.eslintrc'
+              - 'test_package.sh'
+              - '.github/workflows/typescript.yml'
+              - '.github/actions/setup-node-deps/**'
+            web:
+              - 'web/**'
+
+  cli-build:
+    name: "CLI 💻️ - build 🔧"
+    needs: changes
+    if: needs.changes.outputs.packages == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: ["22", "24", "26"]
+      fail-fast: false
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v7
+
+      - name: Setup Node and dependencies 📚
+        uses: ./.github/actions/setup-node-deps
+        with:
+          node-version: ${{ matrix.node }}
+          ignore-scripts: "true"
+
+      - name: Build 🔧
+        working-directory: cli
+        run: npm run build -- --force
+
+  cli-lint:
+    name: "CLI 💻️ - lint 📏"
+    needs: changes
+    if: needs.changes.outputs.packages == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v7
+
+      - name: Setup Node and dependencies 📚
+        uses: ./.github/actions/setup-node-deps
+        with:
+          ignore-scripts: "true"
+
+      - name: Lint 📏
+        working-directory: cli
+        run: npm run lint
+
+  core-build-test:
+    name: "Core ❤️ - build & test 🔧"
+    needs: changes
+    if: needs.changes.outputs.packages == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: ["22", "24", "26"]
+      fail-fast: false
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v7
+
+      - name: Setup Node and dependencies 📚
+        uses: ./.github/actions/setup-node-deps
+        with:
+          node-version: ${{ matrix.node }}
+          ignore-scripts: "true"
+
+      - name: Build & test 🔧
+        working-directory: core
+        run: |
+          npm run build
+          npm run test -- -v --serial
+
+  core-lint:
+    name: "Core ❤️ - lint 📏"
+    needs: changes
+    if: needs.changes.outputs.packages == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v7
+
+      - name: Setup Node and dependencies 📚
+        uses: ./.github/actions/setup-node-deps
+        with:
+          ignore-scripts: "true"
+
+      - name: Lint 📏
+        working-directory: core
+        run: npm run lint
+
+  lib-build-test:
+    name: "Lib 📚 - build & test 🔧"
+    needs: changes
+    if: needs.changes.outputs.packages == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: ["22", "24", "26"]
+      fail-fast: false
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v7
+        with:
+          submodules: true
+
+      - name: Setup Node and dependencies 📚
+        uses: ./.github/actions/setup-node-deps
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Build & test 🔧
+        working-directory: lib
+        run: |
+          npm run build
+          npm run test -- -v --serial
+
+  lib-lint:
+    name: "Lib 📚 - lint 📏"
+    needs: changes
+    if: needs.changes.outputs.packages == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v7
+
+      - name: Setup Node and dependencies 📚
+        uses: ./.github/actions/setup-node-deps
+        with:
+          ignore-scripts: "true"
+
+      - name: Lint 📏
+        working-directory: lib
+        run: npm run lint
+
+  parsers-build:
+    name: "Parsers 👓 - build 🔧"
+    needs: changes
+    if: needs.changes.outputs.packages == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: ["22", "24", "26"]
+      fail-fast: false
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v7
+        with:
+          submodules: true
+
+      - name: Setup Node and dependencies 📚
+        uses: ./.github/actions/setup-node-deps
+        with:
+          node-version: ${{ matrix.node }}
+          ignore-scripts: "true"
+
+      - name: Build 🔧
+        working-directory: parsers
+        run: npm run build
+
+  packaging:
+    name: "Test packing and installing Dolos 📦"
+    needs: changes
+    if: needs.changes.outputs.packages == 'true' || needs.changes.outputs.web == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v7
+
+      - name: Run test script 🧪
+        run: ./test_package.sh
+
+  install-cli:
+    name: "Install and run CLI on ${{ matrix.os }}"
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    strategy:
+      matrix:
+        os:
+          - macos-15
+          - macos-26
+          - ubuntu-latest
+      fail-fast: false
+    runs-on: ${{ matrix.os }}
+    permissions: {}
+    steps:
+      - name: Setup Node 📚
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+
+      - name: Install dolos
+        shell: bash
+        run: |
+          npm install -g @dodona/dolos
+          dolos --version
+
+      - name: Prepare analysis
+        run: |
+          wget https://dolos.ugent.be/simple-dataset.zip
+
+      - name: Run analysis on samples
+        run: |
+          dolos simple-dataset.zip
+
+  # Runs on a push to main only. The result job does not wait for it.
+  flake-build-check:
+    name: "Nix Flake ❄️"
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v7
+        with:
+          submodules: true
+
+      - name: Setup Nix 📚
+        uses: cachix/install-nix-action@v31
+        with:
+          github_access_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build & check 🧪
+        run: nix build -L '.?submodules=1#checks.x86_64-linux.dolos-cli'
+
+  result:
+    name: "TypeScript 📦 - all checks ✅"
+    needs:
+      - changes
+      - cli-build
+      - cli-lint
+      - core-build-test
+      - core-lint
+      - lib-build-test
+      - lib-lint
+      - parsers-build
+      - packaging
+      - install-cli
+    if: always()
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - name: Check the job results 🔎
+        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        run: |
+          echo "A job of this workflow failed or was cancelled."
+          exit 1

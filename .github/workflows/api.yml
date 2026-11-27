@@ -1,0 +1,108 @@
+name: API
+
+on:
+  push:
+    branches: [main, dolos3.0]
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  changes:
+    name: "API 📡 - changes 🔎"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      api: ${{ steps.filter.outputs.api }}
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v7
+
+      - name: Detect changes 🔎
+        id: filter
+        uses: dorny/paths-filter@v4
+        with:
+          filters: |
+            api:
+              - 'api/**'
+              - '.github/workflows/api.yml'
+
+  test:
+    name: "API 📡 - test 🧪"
+    needs: changes
+    if: needs.changes.outputs.api == 'true'
+    runs-on: ubuntu-latest
+    env:
+      RAILS_ENV: test
+      TEST_DATABASE_URL: mysql2://root:dolos@127.0.0.1:3306/dolos_test
+    services:
+      mysql:
+        image: mariadb
+        env:
+          MARIADB_ROOT_PASSWORD: dolos
+          MARIADB_DATABASE: dolos_test
+          MARIADB_HOST: localhost
+          MARIADB_MYSQL_LOCALHOST_USER: 1
+          MARIADB_MYSQL_LOCALHOST_GRANTS: USAGE
+        ports:
+          - 3306:3306
+        options: --health-cmd="healthcheck.sh --su-mysql --connect --innodb_initialized" --health-interval=10s --health-timeout=5s --health-retries=5
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v7
+
+      - name: Setup Ruby 📚
+        uses: ruby/setup-ruby@v1
+        with:
+          working-directory: api/
+          bundler-cache: true
+
+      - name: Pull the CLI image 🐳
+        run: docker pull ghcr.io/dodona-edu/dolos-cli:latest
+
+      - name: Run tests 🧪
+        run: |
+          bundle exec rails db:prepare
+          bundle exec rails test
+
+  lint:
+    name: "API 📡 - lint 📏"
+    needs: changes
+    if: needs.changes.outputs.api == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v7
+
+      - name: Setup Ruby 📚
+        uses: ruby/setup-ruby@v1
+        with:
+          working-directory: api/
+          bundler-cache: true
+
+      - name: Run rubocop 📏
+        working-directory: api
+        run: bundle exec rubocop
+
+  result:
+    name: "API 📡 - all checks ✅"
+    needs: [changes, test, lint]
+    if: always()
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - name: Check the job results 🔎
+        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        run: |
+          echo "A job of this workflow failed or was cancelled."
+          exit 1

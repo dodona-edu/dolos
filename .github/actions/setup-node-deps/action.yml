@@ -1,0 +1,52 @@
+name: Set up Node and the npm dependencies
+description: >
+  Install Node and the dependencies of the npm workspaces.
+  Restore node_modules from the cache, or run npm ci when the cache misses.
+
+inputs:
+  node-version:
+    description: The Node version to install.
+    default: "24"
+  ignore-scripts:
+    description: >
+      Run npm ci with --ignore-scripts. This skips the native build of the parsers.
+      When false, check out the submodules first.
+    default: "false"
+
+runs:
+  using: composite
+  steps:
+    - name: Setup Node 📚
+      uses: actions/setup-node@v7
+      with:
+        node-version: ${{ inputs.node-version }}
+
+    - name: Compute the cache variant 🔑
+      id: variant
+      shell: bash
+      env:
+        IGNORE_SCRIPTS: ${{ inputs.ignore-scripts }}
+      run: |
+        if [ "$IGNORE_SCRIPTS" = "true" ]; then
+          echo "value=no-scripts" >> "$GITHUB_OUTPUT"
+        else
+          # The tree hash of parsers/ changes with the parser sources and the submodule commits.
+          echo "value=scripts-$(git rev-parse HEAD:parsers)" >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: Cache node_modules 📦
+      id: cache
+      uses: actions/cache@v6
+      with:
+        path: |
+          node_modules
+          */node_modules
+          parsers/build
+        key: npm-${{ runner.os }}-node-${{ inputs.node-version }}-${{ steps.variant.outputs.value }}-${{ hashFiles('package-lock.json') }}
+
+    - name: Install dependencies ⚡️
+      if: steps.cache.outputs.cache-hit != 'true'
+      shell: bash
+      env:
+        IGNORE_SCRIPTS: ${{ inputs.ignore-scripts }}
+      run: npm ci --ignore-scripts="$IGNORE_SCRIPTS"
